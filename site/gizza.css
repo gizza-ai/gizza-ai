@@ -40,4 +40,134 @@ main#app {
   font-size: 14px;
 }
 
-/* Styles for the chat UI come from the ui block's page (Plan B Task 6). */
+/* -- Chat UI -- */
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.topbar button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+#chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 16px;
+}
+
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.bubble.user {
+    align-self: flex-end;
+    background: var(--accent);
+    color: white;
+}
+
+.bubble.assistant {
+    align-self: flex-start;
+    background: var(--border);
+    color: var(--fg);
+}
+
+.tool-call {
+    align-self: flex-start;
+    font-size: 13px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px dashed var(--border);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-family: ui-monospace, monospace;
+}
+
+.empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 40px 0;
+}
+
+#composer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+}
+
+#composer textarea {
+    flex: 1;
+    resize: vertical;
+    min-height: 44px;
+    max-height: 200px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+}
+
+#composer button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#composer button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+dialog {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    background: var(--bg);
+    color: var(--fg);
+    max-width: 400px;
+}
+
+dialog h2 { margin-top: 0; }
+dialog button { margin-right: 8px; }
+
+.help { font-size: 13px; color: var(--muted); }
