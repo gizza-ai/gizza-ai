@@ -219,6 +219,11 @@ async function handleLocalLlm(request) {
     }
 }
 
+// Expose the local-llm bridge so Rust-side blocks can invoke it via
+// bridge::local_llm_chat_stream. Matches the __gizzaCompleteAssetLoad
+// pattern used for load-asset replies.
+globalThis.__gizzaHandleLocalLlm = handleLocalLlm;
+
 // ---------------------------------------------------------------------------
 // Fetch handler
 // ---------------------------------------------------------------------------

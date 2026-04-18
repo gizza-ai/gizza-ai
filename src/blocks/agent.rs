@@ -20,20 +20,17 @@
 //! 4. Loop up to `MAX_ROUNDS = 5`. When the LLM returns no tool calls, emit
 //!    `event: done` with `reason: "stop"` and terminate.
 //!
-//! Buffering note: for MVP we `collect_buffered` each LLM round (tool calls
-//! only arrive at the end of a round anyway) and emit the agent's response
-//! as one OutputStream at the end. Incremental cross-round streaming is a
-//! future optimisation.
+//! Buffering note: for MVP we buffer each LLM round (tool calls only arrive
+//! at the end of a round anyway) and emit the agent's response as one
+//! OutputStream at the end. Incremental cross-round streaming is a future
+//! optimisation.
 //!
-//! Runtime reachability note: the current solobase `suppers-ai/local-llm`
-//! block's Rust-side `handle()` returns 501 because WebLLM runs in the main
-//! thread and the SW forwards `/b/local-llm/api/*` via postMessage *before*
-//! the request reaches the WASM runtime. That means this agent block can
-//! build and dispatch the correct request, but the call to `local-llm` will
-//! currently come back as an error until either (a) a host bridge exposes
-//! `handleLocalLlm` to WASM, or (b) the chat_stream path is re-implemented
-//! Rust-side. The tool-loop scaffold, SSE parsing / emission, and skill
-//! enumeration are all exercised regardless.
+//! LLM reachability: `suppers-ai/local-llm`'s Rust-side `handle()` returns
+//! 501 for all `/b/local-llm/api/*` paths because WebLLM runs on the main
+//! thread and the SW intercepts those requests before they reach the WASM
+//! runtime. The agent block therefore invokes the SW's `handleLocalLlm`
+//! function directly via the wasm-bindgen bridge in `crate::bridge`. See
+//! `bridge.rs` and `site/bridge.js` for the JS glue.
 
 use async_trait::async_trait;
 use serde::Deserialize;
@@ -51,12 +48,6 @@ use wafer_block::{
 
 /// Maximum agent-loop rounds before giving up.
 const MAX_ROUNDS: u32 = 5;
-
-/// Name of the Local LLM block we forward inference requests to.
-const LOCAL_LLM_BLOCK: &str = "suppers-ai/local-llm";
-
-/// Path on the Local LLM block that streams an SSE chat completion.
-const LOCAL_LLM_CHAT_STREAM_PATH: &str = "/b/local-llm/api/chat_stream";
 
 /// The agent block's own chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
@@ -167,6 +158,20 @@ impl Block for AgentBlock {
 // ---------------------------------------------------------------------------
 
 /// Run the full tool-use loop. Returns the SSE-encoded response body (UTF-8).
+///
+/// On native targets this returns an error immediately — the local-llm bridge
+/// is wasm32-only. All unit tests exercise helpers (`parse_sse`, `build_tools`,
+/// etc.) without going through this function.
+#[cfg_attr(
+    not(target_arch = "wasm32"),
+    allow(
+        unused_variables,
+        unused_mut,
+        unreachable_code,
+        clippy::needless_return,
+        clippy::unused_unit
+    )
+)]
 async fn run_agent_loop(
     ctx: &dyn Context,
     mut history: Vec<serde_json::Value>,
@@ -180,8 +185,8 @@ async fn run_agent_loop(
             "messages": history,
             "tools": tools,
         });
-        let llm_body_bytes = match serde_json::to_vec(&llm_body) {
-            Ok(b) => b,
+        let llm_body_str = match serde_json::to_string(&llm_body) {
+            Ok(s) => s,
             Err(e) => {
                 out.push_str(&encode_sse_event(
                     "done",
@@ -194,31 +199,61 @@ async fn run_agent_loop(
             }
         };
 
-        // Invoke local-llm/chat_stream. The runtime will dispatch to the
-        // Rust-side local-llm block; see module docs for the SW-bridge caveat.
-        let mut llm_msg = Message::new("http");
-        llm_msg.set_meta(META_REQ_ACTION, "create");
-        llm_msg.set_meta(META_REQ_RESOURCE, LOCAL_LLM_CHAT_STREAM_PATH);
-
-        let buffered = match ctx
-            .call_block_buffered(LOCAL_LLM_BLOCK, llm_msg, &llm_body_bytes)
-            .await
-        {
-            Ok(b) => b,
-            Err(e) => {
-                out.push_str(&encode_sse_event(
-                    "done",
-                    &serde_json::json!({
-                        "reason": "error",
-                        "error": format!("local-llm call failed: {e}"),
-                    }),
-                ));
-                return out;
+        // Invoke local-llm/chat_stream via the wasm-bindgen JS bridge.
+        // The Rust-side local-llm block returns 501 for /b/local-llm/api/*
+        // because WebLLM runs in the main thread and the SW handles those
+        // paths before they reach the WASM runtime. We go directly to JS.
+        #[cfg(target_arch = "wasm32")]
+        let sse_text_owned: String = {
+            let body_str = llm_body_str;
+            match crate::bridge::local_llm_chat_stream(&body_str).await {
+                Ok(js_val) => {
+                    let u8_array = js_sys::Uint8Array::new(&js_val);
+                    let bytes = u8_array.to_vec();
+                    match String::from_utf8(bytes) {
+                        Ok(s) => s,
+                        Err(e) => {
+                            out.push_str(&encode_sse_event(
+                                "done",
+                                &serde_json::json!({
+                                    "reason": "error",
+                                    "error": format!("local-llm response not utf8: {e}"),
+                                }),
+                            ));
+                            return out;
+                        }
+                    }
+                }
+                Err(e) => {
+                    out.push_str(&encode_sse_event(
+                        "done",
+                        &serde_json::json!({
+                            "reason": "error",
+                            "error": format!("local-llm bridge error: {e:?}"),
+                        }),
+                    ));
+                    return out;
+                }
             }
         };
 
+        // Native builds have no LLM bridge — unit tests exercise parse_sse /
+        // encode_sse_event / build_tools directly without invoking this path.
+        #[cfg(not(target_arch = "wasm32"))]
+        let sse_text_owned: String = {
+            drop(llm_body_str); // not used on native; suppress unused-variable lint
+            out.push_str(&encode_sse_event(
+                "done",
+                &serde_json::json!({
+                    "reason": "error",
+                    "error": "local-llm bridge not available on native targets",
+                }),
+            ));
+            return out;
+        };
+
         // Parse the LLM's SSE frames.
-        let (events, llm_done_reason) = parse_llm_response(&buffered);
+        let (events, llm_done_reason) = parse_sse_response(&sse_text_owned);
 
         // Forward token events and collect tool calls from this round.
         let mut tool_calls: Vec<ToolCall> = Vec::new();
@@ -441,12 +476,9 @@ fn parse_sse(text: &str) -> Vec<(String, serde_json::Value)> {
     out
 }
 
-/// Parse the LLM's buffered SSE response, returning the event list and the
+/// Parse the LLM's SSE response text, returning the event list and the
 /// reason carried by the final `done` event (if any).
-fn parse_llm_response(
-    buf: &BufferedResponse,
-) -> (Vec<(String, serde_json::Value)>, Option<String>) {
-    let text = std::str::from_utf8(&buf.body).unwrap_or("");
+fn parse_sse_response(text: &str) -> (Vec<(String, serde_json::Value)>, Option<String>) {
     let all = parse_sse(text);
     let mut done_reason: Option<String> = None;
     let mut events = Vec::with_capacity(all.len());

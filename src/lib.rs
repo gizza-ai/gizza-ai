@@ -9,6 +9,11 @@ use wasm_bindgen::prelude::*;
 pub mod blocks;
 pub mod skills;
 
+/// JS bridge — only meaningful on wasm32; the extern "C" block won't
+/// compile on native targets.
+#[cfg(target_arch = "wasm32")]
+pub mod bridge;
+
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
     web_sys::console::log_1(&"gizza-ai: initialize() called (Plan B Task 1 stub)".into());
