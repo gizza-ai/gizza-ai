@@ -111,6 +111,51 @@ pub async fn initialize() -> Result<(), JsValue> {
                 )
             }),
         )
+        // Placeholder config for the auth block. gizza-ai runs anonymously;
+        // OAuth sign-in is never exercised. The required-config validator
+        // rejects empty strings though, so feed non-empty placeholders.
+        // Plan C tightens this (make the auth block accept empty OAuth
+        // fields as "provider disabled").
+        .block_config(
+            "suppers-ai/auth",
+            serde_json::json!({
+                "SUPPERS_AI__AUTH__JWT_SECRET": "gizza-mvp-dev-jwt-secret-not-for-production",
+                "SUPPERS_AI__AUTH__ALLOWED_EMAIL_DOMAINS": "*",
+                "SUPPERS_AI__AUTH__ADMIN_EMAIL": "admin@gizza.local",
+                "SUPPERS_AI__AUTH__ADMIN_PASSWORD": "admin",
+                "SUPPERS_AI__AUTH__INTERNAL_SECRET": "gizza-mvp-dev-internal-secret",
+                "SUPPERS_AI__AUTH__OAUTH_REDIRECT_URI": "http://localhost:8000/b/auth/oauth/callback",
+                "SUPPERS_AI__AUTH__OAUTH_GOOGLE_CLIENT_ID": "disabled",
+                "SUPPERS_AI__AUTH__OAUTH_GOOGLE_CLIENT_SECRET": "disabled",
+                "SUPPERS_AI__AUTH__OAUTH_GITHUB_CLIENT_ID": "disabled",
+                "SUPPERS_AI__AUTH__OAUTH_GITHUB_CLIENT_SECRET": "disabled",
+                "SUPPERS_AI__AUTH__OAUTH_MICROSOFT_CLIENT_ID": "disabled",
+                "SUPPERS_AI__AUTH__OAUTH_MICROSOFT_CLIENT_SECRET": "disabled",
+            }),
+        )
+        .block_config(
+            "suppers-ai/email",
+            serde_json::json!({
+                "SUPPERS_AI__EMAIL__MAILGUN_API_KEY": "disabled",
+                "SUPPERS_AI__EMAIL__MAILGUN_DOMAIN": "disabled",
+                "SUPPERS_AI__EMAIL__MAILGUN_FROM": "noreply@gizza.local",
+                "SUPPERS_AI__EMAIL__MAILGUN_REPLY_TO": "noreply@gizza.local",
+            }),
+        )
+        .block_config(
+            "suppers-ai/llm",
+            serde_json::json!({
+                "SUPPERS_AI__LLM__DEFAULT_PROVIDER": "suppers-ai/local-llm",
+                "SUPPERS_AI__LLM__DEFAULT_MODEL": "Qwen2.5-1.5B-Instruct-q4f32_1-MLC",
+            }),
+        )
+        .block_config(
+            "suppers-ai/provider-llm",
+            serde_json::json!({
+                "SUPPERS_AI__PROVIDER_LLM__OPENAI_KEY": "disabled",
+                "SUPPERS_AI__PROVIDER_LLM__ANTHROPIC_KEY": "disabled",
+            }),
+        )
         .add_route("/", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/ui", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/ui/", "gizza-ai/ui", RouteAccess::Public)

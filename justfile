@@ -35,6 +35,10 @@ build: build-wasm sql-assets
     cp site/* dist/
     cp pkg/gizza_ai.js dist/
     cp pkg/gizza_ai_bg.wasm dist/
+    # wasm-pack emits `snippets/` containing JS modules referenced from the
+    # wasm-bindgen output (our site/bridge.js). Without it, gizza_ai.js's
+    # `import … from './snippets/.../bridge.js'` 404s and the SW fails to start.
+    cp -r pkg/snippets dist/
     cp ../solobase/crates/solobase-web/pkg/sql-wasm-esm.js dist/
     cp ../solobase/crates/solobase-web/pkg/sql-wasm.wasm dist/
     # wasm-pack also generates gizza_ai.d.ts, package.json, README.md — ignore them.

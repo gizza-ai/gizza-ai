@@ -54,6 +54,31 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
         "[]",
     );
 
+    // 2b. Seed placeholders for auth block's required OAuth + domain config.
+    //     gizza-ai runs anonymously — it doesn't use OAuth sign-in — but the
+    //     auth block validator still requires these keys to be present. Empty
+    //     strings are accepted as "not configured" by the auth block, which
+    //     disables the corresponding flow.
+    for (key, val) in [
+        ("SUPPERS_AI__AUTH__ALLOWED_EMAIL_DOMAINS", ""),
+        ("SUPPERS_AI__AUTH__OAUTH_GOOGLE_CLIENT_ID", ""),
+        ("SUPPERS_AI__AUTH__OAUTH_GOOGLE_CLIENT_SECRET", ""),
+        ("SUPPERS_AI__AUTH__OAUTH_GITHUB_CLIENT_ID", ""),
+        ("SUPPERS_AI__AUTH__OAUTH_GITHUB_CLIENT_SECRET", ""),
+        ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_ID", ""),
+        ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_SECRET", ""),
+    ] {
+        let sql = format!(
+            "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
+             VALUES ('var_{}', '{}', '{}', 'Placeholder — gizza-ai runs anonymously', '{}', 0, datetime('now'), datetime('now'))",
+            key.to_lowercase().replace("__", "_"),
+            key,
+            key,
+            val
+        );
+        bridge::db_exec_raw(&sql, "[]");
+    }
+
     // 3. Auto-generate secrets for config vars marked with auto_generate
     seed_auto_generated();
 

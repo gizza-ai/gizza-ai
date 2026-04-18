@@ -232,14 +232,21 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     // Only intercept same-origin requests
     if (url.origin !== self.location.origin) return;
-    // Don't intercept requests for static assets served from CDN
+    // Static assets — bypass the SW so the origin serves them directly.
+    // `/` and `/index.html` are NOT bypassed: `/` is the main entry served
+    // by gizza-ai/ui. Reloading `/` after SW takes over must reach the UI
+    // block, not the bootstrap shell.
     if (url.pathname === '/sw.js' ||
         url.pathname === '/loader.js' ||
         url.pathname === '/ai-bridge.js' ||
+        url.pathname === '/bridge.js' ||
+        url.pathname === '/gizza-app.js' ||
+        url.pathname === '/gizza.css' ||
+        url.pathname === '/gizza_ai.js' ||
+        url.pathname === '/gizza_ai_bg.wasm' ||
         url.pathname === '/manifest.json' ||
-        url.pathname === '/index.html' ||
-        url.pathname === '/' ||
         url.pathname.startsWith('/pkg/') ||
+        url.pathname.startsWith('/snippets/') ||
         url.pathname.startsWith('/sql-')) {
         return;
     }
