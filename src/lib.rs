@@ -7,6 +7,7 @@
 use wasm_bindgen::prelude::*;
 
 pub mod blocks;
+pub mod skills;
 
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
