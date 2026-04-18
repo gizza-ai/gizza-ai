@@ -1,1 +1,3 @@
-//! Native gizza-ai blocks. Filled in by Plan B Tasks 5 & 6.
+//! Native gizza-ai blocks.
+
+pub mod agent;
