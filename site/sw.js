@@ -1,5 +1,18 @@
-// sw.js — Service Worker that runs gizza-ai via WASM
-import init, { initialize, handle_request } from './gizza_ai.js';
+// sw.js — Service Worker that runs gizza-ai via WASM.
+//
+// The `?v=__BUILD_ID__` query string is replaced by the build pipeline
+// (justfile `build` target) with a fresh value (git SHA in CI) on every
+// deploy. This achieves two things:
+//   1. The sw.js source bytes differ on each build, so Chrome detects a
+//      new Service Worker and reinstalls it automatically — users get
+//      updates without having to unregister anything.
+//   2. The import URL is a fresh resource, so the new SW loads the new
+//      wasm-bindgen output instead of a stale cached copy.
+//
+// Top-level await is not permitted in service workers, so the import
+// must be static — the BUILD_ID is baked directly into the URL string
+// at build time rather than appended at runtime.
+import init, { initialize, handle_request } from './gizza_ai.js?v=__BUILD_ID__';
 
 let initialized = false;
 let initPromise = null;

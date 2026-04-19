@@ -48,6 +48,15 @@ thread_local! {
 /// Must be called exactly once when the Service Worker starts, before any
 /// `handle_request()` call. Async because it awaits `bridge::dbInit()` and
 /// `wafer.start_without_bind()`.
+/// Module init — runs automatically before any other wasm-bindgen export is
+/// first called. Install the panic hook here so ANY panic (including ones in
+/// code paths that don't go through initialize()) surfaces in the console.
+#[wasm_bindgen(start)]
+pub fn module_start() {
+    console_error_panic_hook::set_once();
+    web_sys::console::log_1(&"gizza-ai: panic hook installed".into());
+}
+
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
     // Guard against double initialization.
@@ -163,6 +172,55 @@ pub async fn initialize() -> Result<(), JsValue> {
         .build()
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
+    // 6a. Override wafer-run/router's default routes so `/` dispatches to
+    // gizza-ai/ui (not wafer-run/web). SolobaseBuilder::add_route only
+    // affects the inner suppers-ai/router (reached via /b/**); the OUTER
+    // site-main flow dispatcher (wafer-run/router) has its own route
+    // table set by flows::register_site_main. Without this override, `/`
+    // falls through to wafer-run/web which tries OPFS path
+    // "wafer-run/web/site" — illegal (contains /) — and panics.
+    wafer.add_block_config(
+        "wafer-run/router",
+        serde_json::json!({
+            "routes": [
+                { "path": "/b/**",                   "block": "suppers-ai/router" },
+                { "path": "/health",                 "block": "suppers-ai/router" },
+                { "path": "/openapi.json",           "block": "suppers-ai/router" },
+                { "path": "/.well-known/agent.json", "block": "suppers-ai/router" },
+                { "path": "/",                       "block": "gizza-ai/ui" },
+            ],
+        }),
+    );
+
+    // 6a-bis. Override the site-main flow with inline step config for
+    // wafer-run/security-headers. That block reads its `csp` from the
+    // flow-step config, not from block_configs — the default CSP has
+    // only `'self' 'unsafe-inline'` which blocks WebLLM's jsdelivr import.
+    //
+    // SolobaseBuilder's `.block_config("wafer-run/security-headers", ...)`
+    // was silently ineffective for this reason. Plan C follow-up: make
+    // security-headers also consult block_configs, or expose a clean
+    // SolobaseBuilder::csp(...) helper.
+    wafer.add_flow_json(r##"{
+        "id": "site-main",
+        "name": "Site Main (gizza-ai)",
+        "version": "0.1.0",
+        "description": "Top-level HTTP dispatch with gizza-ai CSP.",
+        "steps": [
+            { "id": "security-headers", "block": "wafer-run/security-headers", "config": {
+                "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' https:; connect-src 'self' https://cdn.jsdelivr.net https://esm.run https://huggingface.co https://raw.githubusercontent.com https://*.huggingface.co https://*.hf.co https://*.xethub.hf.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+            }},
+            { "id": "cors", "block": "wafer-run/cors" },
+            { "id": "readonly-guard", "block": "wafer-run/readonly-guard" },
+            { "id": "router", "block": "wafer-run/router" }
+        ],
+        "config": { "on_error": "stop" },
+        "config_map": {
+            "routes": { "target": "wafer-run/router", "key": "routes" }
+        }
+    }"##)
+    .map_err(|e| JsValue::from_str(&format!("register gizza site-main: {e}")))?;
+
     // 6b. Register the SW-side external-asset loader before start so any
     // block init that triggers an asset load sees the real loader (not
     // the NoopAssetLoader default).
@@ -215,7 +273,13 @@ pub async fn initialize() -> Result<(), JsValue> {
 /// through the `site-main` flow, and returns a browser `Response`.
 #[wasm_bindgen]
 pub async fn handle_request(request: web_sys::Request) -> Result<web_sys::Response, JsValue> {
+    let url = request.url();
+    web_sys::console::log_1(&format!("gizza-ai: handle_request START {url}").into());
+
     let (msg, input) = convert::request_to_message(&request).await?;
+    web_sys::console::log_1(
+        &format!("gizza-ai: handle_request converted path={} action={}", msg.path(), msg.action()).into(),
+    );
 
     // Dispatch through site-main.
     //
@@ -235,7 +299,11 @@ pub async fn handle_request(request: web_sys::Request) -> Result<web_sys::Respon
         }
     })?;
     let wafer = unsafe { &*wafer_ptr };
+    web_sys::console::log_1(&"gizza-ai: dispatching site-main".into());
     let output = wafer.run("site-main", msg, input).await;
+    web_sys::console::log_1(&"gizza-ai: site-main returned, converting response".into());
 
-    convert::output_to_response(output).await
+    let resp = convert::output_to_response(output).await;
+    web_sys::console::log_1(&"gizza-ai: response built".into());
+    resp
 }

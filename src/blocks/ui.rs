@@ -117,6 +117,75 @@ fn render_chat() -> maud::Markup {
                             "Model: " code { (MVP_MODEL_ID) }
                         }
                         p class="help" { "Model downloads once per browser (~1.2 GB). Tools: supported." }
+
+                        // WebGPU status banner — shown only when the browser
+                        // lacks WebGPU. Populated by gizza-app.js at load.
+                        div id="webgpu-warning" hidden {
+                            h3 { "WebGPU not available" }
+                            p class="help" {
+                                "Model inference requires WebGPU. Follow the steps for your browser:"
+                            }
+                            div class="tabs" role="tablist" {
+                                button type="button" class="tab active" data-tab="chrome" role="tab" { "Chrome / Edge" }
+                                button type="button" class="tab" data-tab="firefox" role="tab" { "Firefox" }
+                                button type="button" class="tab" data-tab="safari" role="tab" { "Safari" }
+                                button type="button" class="tab" data-tab="other" role="tab" { "Other" }
+                            }
+                            div class="tab-panel" data-tab="chrome" {
+                                ol {
+                                    li {
+                                        "Open this URL in a new tab: "
+                                        button type="button" class="copy-url" data-url="chrome://flags/#enable-unsafe-webgpu" title="Click to copy" {
+                                            "chrome://flags/#enable-unsafe-webgpu"
+                                        }
+                                        " (browsers block " code { "chrome://" } " links; click to copy)."
+                                    }
+                                    li { "Set the flag to " strong { "Enabled" } "." }
+                                    li { "Restart the browser, then reload this page." }
+                                    li {
+                                        "If it still fails, visit " a href="https://webgpureport.org/" target="_blank" rel="noopener" { "webgpureport.org" }
+                                        " — if that page reports no adapter, your GPU/driver doesn't support WebGPU yet."
+                                    }
+                                }
+                            }
+                            div class="tab-panel" data-tab="firefox" hidden {
+                                ol {
+                                    li { "Firefox 141+ ships WebGPU on Windows by default. On Linux/macOS, enable it: " }
+                                    li {
+                                        "Open "
+                                        button type="button" class="copy-url" data-url="about:config" title="Click to copy" { "about:config" }
+                                        " and accept the warning."
+                                    }
+                                    li {
+                                        "Find "
+                                        button type="button" class="copy-url" data-url="dom.webgpu.enabled" title="Click to copy" { "dom.webgpu.enabled" }
+                                        " and set it to " strong { "true" } "."
+                                    }
+                                    li { "Restart Firefox, then reload this page." }
+                                    li {
+                                        "If it still fails, try " a href="https://www.mozilla.org/firefox/channel/desktop/#nightly" target="_blank" rel="noopener" { "Firefox Nightly" } ", which has the most up-to-date WebGPU support."
+                                    }
+                                }
+                            }
+                            div class="tab-panel" data-tab="safari" hidden {
+                                ol {
+                                    li { "Safari 17+ (macOS Sonoma / iOS 17+) supports WebGPU behind a flag." }
+                                    li { "Safari → Settings → Feature Flags → enable " strong { "WebGPU" } "." }
+                                    li { "Close the tab and reopen this page." }
+                                    li { "On iOS, enable in Settings → Safari → Advanced → Feature Flags → WebGPU." }
+                                }
+                            }
+                            div class="tab-panel" data-tab="other" hidden {
+                                p {
+                                    "WebGPU is a browser-delivered API. If your browser doesn't support it, try Chrome, Edge, Firefox Nightly, or Safari 17+. "
+                                    "A compatible GPU and up-to-date driver are also required — check " a href="https://webgpureport.org/" target="_blank" rel="noopener" { "webgpureport.org" } " to verify."
+                                }
+                                p class="help" {
+                                    "Known unsupported: remote desktops (RDP/VNC), most headless Chromium runs, some VMs without GPU passthrough, and old hardware (pre-2014 integrated graphics)."
+                                }
+                            }
+                        }
+
                         button id="load-model" type="button" { "Load model" }
                         button id="clear-convo" type="button" { "Clear conversation" }
                         button value="close" { "Close" }
@@ -129,6 +198,11 @@ fn render_chat() -> maud::Markup {
                         MVP_MODEL_ID
                     )))
                 }
+                // ai-bridge.js populates window.gizzaAI with loadModel, chat,
+                // etc. It imports WebLLM from jsdelivr and must run on the
+                // main page (not the SW). Load BEFORE gizza-app.js so the
+                // global is defined when composer wiring fires.
+                script type="module" src="/ai-bridge.js" {}
                 script type="module" src="/gizza-app.js" {}
             }
         }

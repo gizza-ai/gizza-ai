@@ -108,7 +108,12 @@ async function getStorageRoot() {
 }
 
 async function getFolderHandle(storageRoot, folder, create = false) {
-    return storageRoot.getDirectoryHandle(folder, { create });
+    try {
+        return await storageRoot.getDirectoryHandle(folder, { create });
+    } catch (e) {
+        console.error('[gizza-ai] getDirectoryHandle failed for folder =', JSON.stringify(folder), 'error:', e.message);
+        throw e;
+    }
 }
 
 export async function storagePut(folder, key, data, contentType) {

@@ -56,6 +56,79 @@ function updateToolRow(row, ok, result) {
 // --- Settings dialog ---
 $('open-settings').addEventListener('click', () => $('settings').showModal());
 
+// --- WebGPU detection + per-browser setup instructions ---
+async function detectWebGPU() {
+    if (!('gpu' in navigator)) return { ok: false, reason: 'no-api' };
+    try {
+        const adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) return { ok: false, reason: 'no-adapter' };
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, reason: 'error', message: String(e?.message ?? e) };
+    }
+}
+
+function detectBrowserTab() {
+    const ua = navigator.userAgent || '';
+    // Edge identifies as "Edg/" — put before Chrome (which it also matches).
+    // Both use Chromium's WebGPU path so they share the same tab.
+    if (/Edg\//.test(ua) || /Chrome\//.test(ua)) return 'chrome';
+    if (/Firefox\//.test(ua)) return 'firefox';
+    if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) return 'safari';
+    return 'other';
+}
+
+function activateTab(name) {
+    const warn = $('webgpu-warning');
+    if (!warn) return;
+    for (const tab of warn.querySelectorAll('.tab')) {
+        tab.classList.toggle('active', tab.dataset.tab === name);
+    }
+    for (const panel of warn.querySelectorAll('.tab-panel')) {
+        panel.hidden = panel.dataset.tab !== name;
+    }
+}
+
+(async () => {
+    const warn = $('webgpu-warning');
+    if (!warn) return;
+    // Wire tab clicks.
+    for (const tab of warn.querySelectorAll('.tab')) {
+        tab.addEventListener('click', () => activateTab(tab.dataset.tab));
+    }
+    // Wire click-to-copy on internal-URL pills (chrome://, about:config, etc.
+    // which browsers block from regular pages).
+    for (const pill of warn.querySelectorAll('.copy-url')) {
+        pill.addEventListener('click', async () => {
+            const url = pill.dataset.url;
+            if (!url) return;
+            try {
+                await navigator.clipboard.writeText(url);
+                const prev = pill.textContent;
+                pill.textContent = 'Copied ✓';
+                pill.classList.add('copied');
+                setTimeout(() => {
+                    pill.textContent = prev;
+                    pill.classList.remove('copied');
+                }, 1500);
+            } catch {
+                pill.title = 'Could not copy — select and copy manually';
+            }
+        });
+    }
+    // Auto-select the tab that matches the user's browser.
+    activateTab(detectBrowserTab());
+    // Probe WebGPU; if missing, reveal the banner and disable Load model.
+    const probe = await detectWebGPU();
+    if (!probe.ok) {
+        warn.hidden = false;
+        const btn = $('load-model');
+        btn.disabled = true;
+        btn.title = 'WebGPU not available — see instructions above';
+        btn.textContent = 'Load model (WebGPU required)';
+    }
+})();
+
 // --- Model loading ---
 $('load-model').addEventListener('click', async () => {
     const btn = $('load-model');
@@ -68,7 +141,16 @@ $('load-model').addEventListener('click', async () => {
         btn.textContent = 'Ready';
         $('send').disabled = false;
     } catch (e) {
-        btn.textContent = `Error: ${e?.message ?? e}`;
+        const msg = String(e?.message ?? e);
+        // WebLLM's compatible-GPU error is long and scary; surface the
+        // per-browser setup panel instead of just dumping the message.
+        if (/compatible GPU|WebGPU|gpu adapter/i.test(msg)) {
+            const warn = $('webgpu-warning');
+            if (warn) warn.hidden = false;
+            btn.textContent = 'Load model (see WebGPU instructions)';
+        } else {
+            btn.textContent = `Error: ${msg}`;
+        }
         btn.disabled = false;
     }
 });

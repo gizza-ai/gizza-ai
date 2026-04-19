@@ -171,3 +171,100 @@ dialog h2 { margin-top: 0; }
 dialog button { margin-right: 8px; }
 
 .help { font-size: 13px; color: var(--muted); }
+
+/* -- WebGPU setup banner -- */
+
+#webgpu-warning {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+#webgpu-warning h3 {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    color: var(--fg);
+}
+
+#webgpu-warning ol,
+#webgpu-warning p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#webgpu-warning ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+#webgpu-warning li {
+    margin: 4px 0;
+}
+
+#webgpu-warning code {
+    background: var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+#webgpu-warning a {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin: 10px 0 8px 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.tabs .tab {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    margin-right: 0;
+    border-radius: 0;
+}
+
+.tabs .tab.active {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+}
+
+.tab-panel[hidden] {
+    display: none;
+}
+
+/* -- Copyable URL pill (for chrome://, about:config, etc.) -- */
+.copy-url {
+    display: inline-block;
+    background: var(--border);
+    color: var(--fg);
+    border: 1px solid transparent;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    cursor: copy;
+    margin: 0 2px;
+    transition: background 0.15s, border-color 0.15s;
+}
+.copy-url:hover {
+    border-color: var(--accent);
+}
+.copy-url.copied {
+    background: var(--accent);
+    color: white;
+    cursor: default;
+}
