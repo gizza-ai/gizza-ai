@@ -1,0 +1,68 @@
+[package]
+name = "gizza-ai"
+version = "0.1.0"
+edition = "2021"
+description = "Browser-local AI chat site with wasm skill blocks"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Pipe Rust panics to the browser console instead of cryptic wasm
+# `unreachable` traps — critical for debugging the MVP.
+console_error_panic_hook = "0.1"
+
+# WASM bindings
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["Request", "Response", "ResponseInit", "Headers", "ReadableStream", "Url", "console"] }
+js-sys = "0.3"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["serde", "std", "clock", "wasmbind"] }
+
+# Async
+async-trait = "0.1"
+
+# HTML templating (for the UI block, Task 6)
+maud = { version = "0.26", default-features = false }
+
+# WAFER runtime — patched to local paths via .cargo/config.toml for development.
+# default-features = false everywhere: the `wasm` default feature pulls in
+# tokio/reqwest which do not compile on wasm32.
+wafer-run = { git = "https://github.com/wafer-run/wafer-run", branch = "main", default-features = false, features = ["wasmi"] }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
+wafer-core = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
+
+# Config service (EnvConfigService) + crypto service (pure-Rust JWT).
+wafer-block-config = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
+wafer-block-crypto = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
+
+# Solobase — path deps (sibling checkout; can be switched to git later)
+solobase = { path = "../solobase/crates/solobase", default-features = false }
+solobase-core = { path = "../solobase/crates/solobase-core", default-features = false }
+
+# JS ↔ Rust value conversion (used by SwAssetLoader to deserialize the
+# load-asset reply object returned by the bridge).
+serde-wasm-bindgen = "0.6"
+
+# Utils
+hex = "0.4"
+
+# Browser password hashing (PBKDF2 — fast in WASM)
+pbkdf2 = "0.12"
+hkdf = "0.12"
+sha2 = "0.10"
+hmac = "0.12"
+base64ct = { version = "1", features = ["alloc"] }
+
+[build-dependencies]
+serde_json = "1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+# uuid v4 needs a JS RNG source on wasm32
+uuid = { version = "1", features = ["v4", "js"] }

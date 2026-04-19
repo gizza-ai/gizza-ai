@@ -1,0 +1,270 @@
+:root {
+  --bg: #fff;
+  --fg: #111;
+  --muted: #666;
+  --accent: #4f46e5;
+  --border: #e5e5e5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e10;
+    --fg: #f4f4f5;
+    --muted: #a1a1aa;
+    --accent: #818cf8;
+    --border: #27272a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+main#app {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.boot {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* -- Chat UI -- */
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.topbar button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+#chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 16px;
+}
+
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.bubble.user {
+    align-self: flex-end;
+    background: var(--accent);
+    color: white;
+}
+
+.bubble.assistant {
+    align-self: flex-start;
+    background: var(--border);
+    color: var(--fg);
+}
+
+.tool-call {
+    align-self: flex-start;
+    font-size: 13px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px dashed var(--border);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-family: ui-monospace, monospace;
+}
+
+.empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 40px 0;
+}
+
+#composer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+}
+
+#composer textarea {
+    flex: 1;
+    resize: vertical;
+    min-height: 44px;
+    max-height: 200px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+}
+
+#composer button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#composer button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+dialog {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    background: var(--bg);
+    color: var(--fg);
+    max-width: 400px;
+}
+
+dialog h2 { margin-top: 0; }
+dialog button { margin-right: 8px; }
+
+.help { font-size: 13px; color: var(--muted); }
+
+/* -- WebGPU setup banner -- */
+
+#webgpu-warning {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+#webgpu-warning h3 {
+    margin: 0 0 6px 0;
+    font-size: 15px;
+    color: var(--fg);
+}
+
+#webgpu-warning ol,
+#webgpu-warning p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#webgpu-warning ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+#webgpu-warning li {
+    margin: 4px 0;
+}
+
+#webgpu-warning code {
+    background: var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+#webgpu-warning a {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin: 10px 0 8px 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.tabs .tab {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    margin-right: 0;
+    border-radius: 0;
+}
+
+.tabs .tab.active {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+}
+
+.tab-panel[hidden] {
+    display: none;
+}
+
+/* -- Copyable URL pill (for chrome://, about:config, etc.) -- */
+.copy-url {
+    display: inline-block;
+    background: var(--border);
+    color: var(--fg);
+    border: 1px solid transparent;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    cursor: copy;
+    margin: 0 2px;
+    transition: background 0.15s, border-color 0.15s;
+}
+.copy-url:hover {
+    border-color: var(--accent);
+}
+.copy-url.copied {
+    background: var(--accent);
+    color: white;
+    cursor: default;
+}
