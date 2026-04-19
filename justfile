@@ -29,7 +29,16 @@ sql-assets:
     fi
 
 # Assemble dist/ from site/ + pkg/.
+#
+# Stamps a BUILD_ID (git SHA if available, else timestamp) into dist/sw.js.
+# That changes the SW script's bytes on every build, so Chrome detects a
+# new SW and reinstalls it on the next page visit — users see updates
+# without having to unregister the old worker. The same BUILD_ID also
+# cache-busts the dynamic `import('./gizza_ai.js?v=...')` inside sw.js so
+# the new SW actually loads fresh wasm instead of the cached copy.
 build: build-wasm sql-assets
+    #!/usr/bin/env bash
+    set -euo pipefail
     rm -rf dist
     mkdir -p dist
     cp site/* dist/
@@ -41,7 +50,11 @@ build: build-wasm sql-assets
     cp -r pkg/snippets dist/
     cp ../solobase/crates/solobase-web/pkg/sql-wasm-esm.js dist/
     cp ../solobase/crates/solobase-web/pkg/sql-wasm.wasm dist/
-    # wasm-pack also generates gizza_ai.d.ts, package.json, README.md — ignore them.
+
+    # Stamp BUILD_ID into sw.js (cache-bust the wasm-bindgen import).
+    BUILD_ID=$(git rev-parse --short HEAD 2>/dev/null || date +%s)
+    sed -i "s|__BUILD_ID__|${BUILD_ID}|g" dist/sw.js
+    echo "build: BUILD_ID=${BUILD_ID} stamped into dist/sw.js"
 
 # Serve dist/ on localhost:8000.
 serve: build
