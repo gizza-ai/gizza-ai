@@ -39,7 +39,7 @@
 mod bridge {
     use wasm_bindgen::prelude::*;
 
-    #[wasm_bindgen(module = "/site/bridge.js")]
+    #[wasm_bindgen(module = "/site/ai-bridge.js")]
     extern "C" {
         /// Invoke the SW's local-llm chat_stream handler and collect the SSE
         /// response into a Uint8Array. `body_json` is the OpenAI-format chat
