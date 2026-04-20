@@ -37,27 +37,13 @@ wafer-run = { git = "https://github.com/wafer-run/wafer-run", branch = "main", d
 wafer-block = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 wafer-core = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 
-# Config service (EnvConfigService) + crypto service (pure-Rust JWT).
+# Config service (EnvConfigService).
 wafer-block-config = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
-wafer-block-crypto = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 
-# Solobase — path deps (sibling checkout; can be switched to git later)
+# Solobase — path deps (sibling checkout; can be switched to git later).
 solobase = { path = "../solobase/crates/solobase", default-features = false }
 solobase-core = { path = "../solobase/crates/solobase-core", default-features = false }
-
-# JS ↔ Rust value conversion (used by SwAssetLoader to deserialize the
-# load-asset reply object returned by the bridge).
-serde-wasm-bindgen = "0.6"
-
-# Utils
-hex = "0.4"
-
-# Browser password hashing (PBKDF2 — fast in WASM)
-pbkdf2 = "0.12"
-hkdf = "0.12"
-sha2 = "0.10"
-hmac = "0.12"
-base64ct = { version = "1", features = ["alloc"] }
+solobase-browser = { path = "../solobase/crates/solobase-browser" }
 
 [build-dependencies]
 serde_json = "1"

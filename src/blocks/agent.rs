@@ -29,8 +29,26 @@
 //! 501 for all `/b/local-llm/api/*` paths because WebLLM runs on the main
 //! thread and the SW intercepts those requests before they reach the WASM
 //! runtime. The agent block therefore invokes the SW's `handleLocalLlm`
-//! function directly via the wasm-bindgen bridge in `crate::bridge`. See
-//! `bridge.rs` and `site/bridge.js` for the JS glue.
+//! function directly via the wasm-bindgen bridge in `solobase_browser::bridge`. See
+//! `solobase-browser/src/bridge.rs` and `site/bridge.js` for the JS glue.
+
+// gizza-ai-specific JS bridge: the local-llm chat_stream binding is not part
+// of solobase-browser (which only provides platform-service bridges). Declare
+// it here, bound to the same /site/bridge.js that the framework bridges use.
+#[cfg(target_arch = "wasm32")]
+mod bridge {
+    use wasm_bindgen::prelude::*;
+
+    #[wasm_bindgen(module = "/site/sw-llm-bridge.js")]
+    extern "C" {
+        /// Invoke the SW's local-llm chat_stream handler and collect the SSE
+        /// response into a Uint8Array. `body_json` is the OpenAI-format chat
+        /// request body. Returns `Result<JsValue, JsValue>` where the Ok variant
+        /// is a `Uint8Array` of the full SSE text.
+        #[wasm_bindgen(js_name = localLlmChatStream, catch)]
+        pub async fn local_llm_chat_stream(body_json: &str) -> Result<JsValue, JsValue>;
+    }
+}
 
 use async_trait::async_trait;
 use serde::Deserialize;
@@ -206,7 +224,7 @@ async fn run_agent_loop(
         #[cfg(target_arch = "wasm32")]
         let sse_text_owned: String = {
             let body_str = llm_body_str;
-            match crate::bridge::local_llm_chat_stream(&body_str).await {
+            match bridge::local_llm_chat_stream(&body_str).await {
                 Ok(js_val) => {
                     let u8_array = js_sys::Uint8Array::new(&js_val);
                     let bytes = u8_array.to_vec();

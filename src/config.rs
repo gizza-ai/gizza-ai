@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-use crate::bridge;
+use solobase_browser::bridge;
 
 // ---------------------------------------------------------------------------
 // Variable seeding and loading
