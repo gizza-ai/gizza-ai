@@ -315,35 +315,3 @@ if ('serviceWorker' in navigator) {
         }
     });
 }
-
-// ---------------------------------------------------------------------------
-// Rust wasm-bindgen bridge
-// ---------------------------------------------------------------------------
-
-/**
- * Invoke the Service Worker's local-llm chat_stream handler and collect the
- * SSE response into a Uint8Array. Called from the agent block via
- * wasm-bindgen (see src/blocks/agent.rs).
- *
- * The SW must have set globalThis.__gizzaHandleLocalLlm before this is called.
- *
- * @param {string} bodyJson - OpenAI-format chat request body as JSON string.
- * @returns {Promise<Uint8Array>}
- */
-export async function localLlmChatStream(bodyJson) {
-    if (typeof globalThis.__gizzaHandleLocalLlm !== 'function') {
-        throw new Error('__gizzaHandleLocalLlm not available — sw.js must set it');
-    }
-    const request = new Request('/b/local-llm/api/chat_stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: bodyJson,
-    });
-    const response = await globalThis.__gizzaHandleLocalLlm(request);
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`chat_stream HTTP ${response.status}: ${text}`);
-    }
-    const buf = await response.arrayBuffer();
-    return new Uint8Array(buf);
-}
