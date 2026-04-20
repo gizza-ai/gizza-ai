@@ -2,12 +2,13 @@
 //!
 //! Compiles to wasm32 via wasm-bindgen; loaded by a Service Worker that
 //! forwards requests through the WAFER runtime. `initialize()` builds the
-//! runtime via `SolobaseBuilder`, registers gizza's curated feature blocks
-//! plus the native agent/ui blocks and every embedded skill WASM, and
-//! wires `/`, `/b/ui/`, and `/b/agent/` to gizza blocks as Public tier.
+//! runtime via `SolobaseBuilder` using browser platform services from
+//! `solobase-browser`, registers gizza's curated feature blocks plus the
+//! native agent/ui blocks and every embedded skill WASM, and wires `/`,
+//! `/b/ui/`, `/b/ui`, and `/b/agent/` to gizza blocks as Public tier.
 //! `handle_request()` dispatches through the `site-main` flow.
 
-use std::{cell::RefCell, sync::Arc};
+use std::sync::Arc;
 
 use solobase::builder::{self, SolobaseBuilder};
 use solobase_core::RouteAccess;
@@ -16,38 +17,12 @@ use wasm_bindgen::prelude::*;
 
 pub mod blocks;
 pub mod config;
-pub mod convert;
-pub mod crypto;
-pub mod database;
-pub mod logger;
-pub mod network;
 pub mod skills;
-pub mod storage;
-
-#[cfg(target_arch = "wasm32")]
-pub mod asset_loader;
-#[cfg(target_arch = "wasm32")]
-pub mod bridge;
 
 // ---------------------------------------------------------------------------
-// Global state
+// module_start()
 // ---------------------------------------------------------------------------
 
-// WASM is single-threaded — a thread_local RefCell is safe and avoids
-// needing Send + Sync on Wafer (which is not Send on wasm32).
-thread_local! {
-    pub(crate) static RUNTIME: RefCell<Option<wafer_run::Wafer>> = const { RefCell::new(None) };
-}
-
-// ---------------------------------------------------------------------------
-// initialize()
-// ---------------------------------------------------------------------------
-
-/// Initialize the gizza-ai WAFER runtime.
-///
-/// Must be called exactly once when the Service Worker starts, before any
-/// `handle_request()` call. Async because it awaits `bridge::dbInit()` and
-/// `wafer.start_without_bind()`.
 /// Module init — runs automatically before any other wasm-bindgen export is
 /// first called. Install the panic hook here so ANY panic (including ones in
 /// code paths that don't go through initialize()) surfaces in the console.
@@ -57,16 +32,24 @@ pub fn module_start() {
     web_sys::console::log_1(&"gizza-ai: panic hook installed".into());
 }
 
+// ---------------------------------------------------------------------------
+// initialize()
+// ---------------------------------------------------------------------------
+
+/// Initialize the gizza-ai WAFER runtime.
+///
+/// Must be called exactly once when the Service Worker starts, before any
+/// `handle_request()` call. Async because it awaits `solobase_browser::db_init()`
+/// and `wafer.start_without_bind()`.
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
     // Guard against double initialization.
-    let already_init = RUNTIME.with(|r| r.borrow().is_some());
-    if already_init {
+    if solobase_browser::runtime::is_initialized() {
         return Ok(());
     }
 
     // 1. Load sql.js WASM + open/create the OPFS database.
-    bridge::dbInit().await;
+    solobase_browser::db_init().await;
 
     // 2. Seed variables and load config.
     let vars = config::seed_and_load_variables();
@@ -96,12 +79,12 @@ pub async fn initialize() -> Result<(), JsValue> {
     //    `add_route` so /, /b/ui/, and /b/agent/ reach gizza's native
     //    blocks as Public tier (no auth required — gizza runs anonymous).
     let (mut wafer, storage_block) = SolobaseBuilder::new()
-        .database(Arc::new(database::BrowserDatabaseService))
-        .storage(Arc::new(storage::BrowserStorageService))
+        .database(solobase_browser::make_database_service())
+        .storage(solobase_browser::make_storage_service())
         .config(Arc::new(config_svc))
-        .crypto(Arc::new(crypto::BrowserCryptoService::new(jwt_secret)))
-        .network(Arc::new(network::BrowserNetworkService))
-        .logger(Arc::new(logger::ConsoleLogger))
+        .crypto(solobase_browser::make_crypto_service(jwt_secret))
+        .network(solobase_browser::make_network_service())
+        .logger(solobase_browser::make_console_logger())
         .block_settings(features)
         .block_config(
             "wafer-run/security-headers",
@@ -224,7 +207,7 @@ pub async fn initialize() -> Result<(), JsValue> {
     // 6b. Register the SW-side external-asset loader before start so any
     // block init that triggers an asset load sees the real loader (not
     // the NoopAssetLoader default).
-    wafer.set_asset_loader(Arc::new(asset_loader::SwAssetLoader::new()));
+    wafer.set_asset_loader(solobase_browser::make_sw_asset_loader());
 
     // 6c. Register gizza-ai's native blocks (agent + ui) and every
     // embedded skill WASM from skills::SKILLS (produced by build.rs).
@@ -255,10 +238,8 @@ pub async fn initialize() -> Result<(), JsValue> {
 
     web_sys::console::log_1(&"gizza-ai: WAFER runtime started".into());
 
-    // 9. Store in global.
-    RUNTIME.with(|r| {
-        *r.borrow_mut() = Some(wafer);
-    });
+    // 9. Store in framework's thread_local.
+    solobase_browser::runtime::store_wafer(wafer);
 
     Ok(())
 }
@@ -273,37 +254,5 @@ pub async fn initialize() -> Result<(), JsValue> {
 /// through the `site-main` flow, and returns a browser `Response`.
 #[wasm_bindgen]
 pub async fn handle_request(request: web_sys::Request) -> Result<web_sys::Response, JsValue> {
-    let url = request.url();
-    web_sys::console::log_1(&format!("gizza-ai: handle_request START {url}").into());
-
-    let (msg, input) = convert::request_to_message(&request).await?;
-    web_sys::console::log_1(
-        &format!("gizza-ai: handle_request converted path={} action={}", msg.path(), msg.action()).into(),
-    );
-
-    // Dispatch through site-main.
-    //
-    // Raw pointer avoids holding a RefCell borrow across await — that
-    // breaks when concurrent fetch events interleave at await points
-    // (second event finds None with the take/put-back pattern).
-    //
-    // SAFETY: wasm32 is single-threaded, and the RefCell value is never
-    // replaced after initialize() stores it.
-    let wafer_ptr = RUNTIME.with(|r| {
-        let borrow = r.borrow();
-        match borrow.as_ref() {
-            Some(w) => Ok(w as *const wafer_run::Wafer),
-            None => Err(JsValue::from_str(
-                "gizza-ai: runtime not initialized — call initialize() first",
-            )),
-        }
-    })?;
-    let wafer = unsafe { &*wafer_ptr };
-    web_sys::console::log_1(&"gizza-ai: dispatching site-main".into());
-    let output = wafer.run("site-main", msg, input).await;
-    web_sys::console::log_1(&"gizza-ai: site-main returned, converting response".into());
-
-    let resp = convert::output_to_response(output).await;
-    web_sys::console::log_1(&"gizza-ai: response built".into());
-    resp
+    solobase_browser::runtime::dispatch_request(request).await
 }
