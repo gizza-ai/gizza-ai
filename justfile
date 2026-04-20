@@ -16,45 +16,30 @@ build-skills:
 build-wasm: build-skills
     wasm-pack build --target web --out-dir pkg
 
-# Provision sql.js static assets from solobase-web (builds its Makefile recipe
-# on first use). bridge.js imports /sql-wasm-esm.js and fetches /sql-wasm.wasm
-# at runtime for the BrowserDatabaseService.
-sql-assets:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    SB_PKG=../solobase/crates/solobase-web/pkg
-    if [ ! -f "$SB_PKG/sql-wasm-esm.js" ] || [ ! -f "$SB_PKG/sql-wasm.wasm" ]; then
-        echo "Building solobase-web's sql.js assets first..."
-        (cd ../solobase/crates/solobase-web && make pkg/sql-wasm-esm.js)
-    fi
-
-# Assemble dist/ from site/ + pkg/.
+# Assemble dist/ from site/ + pkg/ + solobase-browser framework assets.
 #
-# Stamps a BUILD_ID (git SHA if available, else timestamp) into dist/sw.js.
-# That changes the SW script's bytes on every build, so Chrome detects a
-# new SW and reinstalls it on the next page visit — users see updates
-# without having to unregister the old worker. The same BUILD_ID also
-# cache-busts the dynamic `import('./gizza_ai.js?v=...')` inside sw.js so
-# the new SW actually loads fresh wasm instead of the cached copy.
-build: build-wasm sql-assets
+# solobase-browser's `export-assets` bin vendors sql.js, writes the
+# parameterized sw.js/loader.js/index.html templates, content-hashes
+# the wasm-pack output, and renders the templates with the given
+# --app-name / --app-title / --boot-redirect placeholders. We then
+# overwrite the default index.html with gizza's branded one and add
+# gizza's UI scripts.
+build: build-wasm
     #!/usr/bin/env bash
     set -euo pipefail
     rm -rf dist
     mkdir -p dist
-    cp site/* dist/
-    cp pkg/gizza_ai.js dist/
-    cp pkg/gizza_ai_bg.wasm dist/
-    # wasm-pack emits `snippets/` containing JS modules referenced from the
-    # wasm-bindgen output (our site/bridge.js). Without it, gizza_ai.js's
-    # `import … from './snippets/.../bridge.js'` 404s and the SW fails to start.
+    cp pkg/gizza_ai.js pkg/gizza_ai_bg.wasm dist/
+    # wasm-pack emits `snippets/` referenced from the wasm-bindgen output.
     cp -r pkg/snippets dist/
-    cp ../solobase/crates/solobase-web/pkg/sql-wasm-esm.js dist/
-    cp ../solobase/crates/solobase-web/pkg/sql-wasm.wasm dist/
-
-    # Stamp BUILD_ID into sw.js (cache-bust the wasm-bindgen import).
-    BUILD_ID=$(git rev-parse --short HEAD 2>/dev/null || date +%s)
-    sed -i "s|__BUILD_ID__|${BUILD_ID}|g" dist/sw.js
-    echo "build: BUILD_ID=${BUILD_ID} stamped into dist/sw.js"
+    cargo run --manifest-path ../solobase/Cargo.toml -p solobase-browser --release --bin export-assets -- dist/ \
+        --repo-dir "$(pwd)" \
+        --app-name gizza-ai \
+        --app-title "Gizza AI" \
+        --boot-redirect / \
+        --extra-bypass-prefix "/ai-bridge.js,/gizza-app.js,/gizza.css"
+    # Gizza-branded index.html + app JS overwrite the framework defaults.
+    cp site/index.html site/gizza-app.js site/gizza.css site/ai-bridge.js dist/
 
 # Serve dist/ on localhost:8000.
 serve: build
