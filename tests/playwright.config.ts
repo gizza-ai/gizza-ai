@@ -10,10 +10,10 @@ export default defineConfig({
     baseURL: 'http://localhost:8000',
     headless: true,
     // Service workers work most reliably in Chromium.
-    // The dist/ bundle is browser-WASM + SW-based.
+    // The pkg/ bundle is browser-WASM + SW-based.
   },
   webServer: {
-    command: 'python3 -m http.server --directory ../dist 8000',
+    command: 'python3 -m http.server --directory ../pkg 8000',
     port: 8000,
     timeout: 60_000,
     reuseExistingServer: true,
