@@ -29,9 +29,11 @@
 //!    `event: done` with `reason: "stop"` and terminate.
 
 use std::collections::HashMap;
+use std::time::Duration;
 
 use async_trait::async_trait;
 use futures::{pin_mut, StreamExt};
+use tokio::time::timeout;
 use serde::Deserialize;
 use wafer_block::{
     block::Block,
@@ -52,6 +54,11 @@ use wafer_core::interfaces::llm::service::{
 
 /// Maximum agent-loop rounds before giving up.
 const MAX_ROUNDS: u32 = 5;
+
+/// Per-frame timeout for the LLM body stream. Matches the old sw-llm-bridge.js
+/// 5-minute budget. If no bytes arrive within this window the stream is
+/// considered stalled and the request is terminated with an error event.
+const STREAM_FRAME_TIMEOUT: Duration = Duration::from_secs(300);
 
 /// The agent block's own chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
@@ -229,19 +236,29 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
     pin_mut!(stream);
 
     let mut had_error: Option<String> = None;
-    while let Some(bytes) = stream.next().await {
-        match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
-            Ok(Ok(progress)) => {
-                let data = serde_json::to_value(&progress).unwrap_or(serde_json::Value::Null);
-                sse_body.push_str(&encode_sse_event("load_progress", &data));
-            }
-            Ok(Err(e)) => {
-                had_error = Some(format!("{e}"));
+    loop {
+        match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
+            Err(_elapsed) => {
+                had_error = Some("llm load timed out".to_string());
                 break;
             }
-            Err(e) => {
-                had_error = Some(format!("deserialize load progress: {e}"));
-                break;
+            Ok(None) => break,
+            Ok(Some(bytes)) => {
+                match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
+                    Ok(Ok(progress)) => {
+                        let data =
+                            serde_json::to_value(&progress).unwrap_or(serde_json::Value::Null);
+                        sse_body.push_str(&encode_sse_event("load_progress", &data));
+                    }
+                    Ok(Err(e)) => {
+                        had_error = Some(format!("{e}"));
+                        break;
+                    }
+                    Err(e) => {
+                        had_error = Some(format!("deserialize load progress: {e}"));
+                        break;
+                    }
+                }
             }
         }
     }
@@ -366,11 +383,20 @@ async fn run_agent_loop(
         let mut finish_reason: Option<FinishReason> = None;
         let mut round_error: Option<String> = None;
 
-        'chunks: while let Some(bytes) = stream.next().await {
+        'chunks: loop {
+            let frame = match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
+                Err(_elapsed) => {
+                    round_error = Some("llm stream timed out".to_string());
+                    break 'chunks;
+                }
+                Ok(None) => break 'chunks,
+                Ok(Some(bytes)) => bytes,
+            };
+
             let item = match serde_json::from_slice::<Result<
                 wafer_core::interfaces::llm::service::ChatChunk,
                 LlmError,
-            >>(&bytes)
+            >>(&frame)
             {
                 Ok(item) => item,
                 Err(e) => {

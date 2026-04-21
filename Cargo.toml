@@ -53,3 +53,6 @@ serde_json = "1"
 getrandom = { version = "0.2", features = ["js"] }
 # uuid v4 needs a JS RNG source on wasm32
 uuid = { version = "1", features = ["v4", "js"] }
+# tokio time feature for per-frame stream timeouts in agent.rs.
+# The `time` feature compiles to wasm32 (uses JS timers under wasm-bindgen).
+tokio = { version = "1", features = ["time", "sync"], default-features = false }
