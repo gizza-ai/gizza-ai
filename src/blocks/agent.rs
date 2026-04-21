@@ -55,9 +55,13 @@ use wafer_core::interfaces::llm::service::{
 /// Maximum agent-loop rounds before giving up.
 const MAX_ROUNDS: u32 = 5;
 
-/// Per-frame timeout for the LLM body stream. Matches the old sw-llm-bridge.js
-/// 5-minute budget. If no bytes arrive within this window the stream is
-/// considered stalled and the request is terminated with an error event.
+/// Per-frame timeout for the LLM body stream.
+///
+/// Wraps each `stream.next()` — resets on every frame. That differs
+/// semantically from the old `sw-llm-bridge.js` `setTimeout(300_000)` which
+/// capped the entire request. In practice both catch the same failure mode
+/// (GPU stall produces zero frames); a healthy stream emits tokens every
+/// ~0–1s and never approaches the budget.
 const STREAM_FRAME_TIMEOUT: Duration = Duration::from_secs(300);
 
 /// The agent block's own chat endpoint.
