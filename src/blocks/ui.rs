@@ -198,11 +198,13 @@ fn render_chat() -> maud::Markup {
                         MVP_MODEL_ID
                     )))
                 }
-                // ai-bridge.js populates window.gizzaAI with loadModel, chat,
-                // etc. It imports WebLLM from jsdelivr and must run on the
-                // main page (not the SW). Load BEFORE gizza-app.js so the
-                // global is defined when composer wiring fires.
-                script type="module" src="/ai-bridge.js" {}
+                // Framework-provided page-side WebLLM engine. Listens for
+                // SW postMessages and drives MLCEngine. The SW reaches it
+                // via solobase-browser's llmCreateEngine / llmChatStream
+                // bridges — gizza-app.js just POSTs to /b/agent/load-model
+                // and /b/agent/chat, both of which the agent block routes
+                // through ctx.call_block("wafer-run/llm", ...).
+                script type="module" src="/webllm-engine.js" {}
                 script type="module" src="/gizza-app.js" {}
             }
         }

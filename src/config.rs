@@ -54,6 +54,16 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
         "[]",
     );
 
+    // Inject the framework's page-side WebLLM engine into every SSR-rendered
+    // page served via solobase-core's layout (admin UI, etc.). gizza's own
+    // /b/ui page has its own maud template that loads /webllm-engine.js
+    // directly, so this seed is strictly for framework-rendered surfaces.
+    bridge::db_exec_raw(
+        "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
+         VALUES ('var_embedded_scripts', 'SOLOBASE_SHARED__EMBEDDED_SCRIPTS', 'Embedded Scripts', 'Module-script URLs injected into every SSR page', '/webllm-engine.js', 0, datetime('now'), datetime('now'))",
+        "[]",
+    );
+
     // 2b. Seed placeholders for auth block's required OAuth + domain config.
     //     gizza-ai runs anonymously — it doesn't use OAuth sign-in — but the
     //     auth block validator still requires these keys to be present. Empty
