@@ -8,60 +8,46 @@
 //!                 event: tool_result  data: { "id": "...", "result": "..." }
 //!                 event: done         data: { "reason": "stop" | "max_rounds_exceeded" | "error" }
 //!
+//! Protocol (route POST /b/agent/load-model):
+//!   Request body: { "model_id": "..." }
+//!   Response:     text/event-stream with events:
+//!                 event: load_progress  data: <LoadProgress JSON>
+//!                 event: load_done      data: { "ok": true } | { "ok": false, "error": "..." }
+//!
 //! Algorithm:
 //! 1. Enumerate every registered block whose `role == Some(SkillRole::Skill)` and build
-//!    an OpenAI-format `tools` array from each `BlockInfo::tool`.
-//! 2. Invoke `suppers-ai/local-llm`'s `chat_stream` endpoint with
-//!    `{ messages, tools }` and buffer the SSE response per round.
-//! 3. Forward `token` events into the agent's own SSE output. Collect any
-//!    `tool_call` events and, after the LLM finishes the round, dispatch each
-//!    to `gizza-ai/<name>` via `ctx.call_block`, emit `tool_result`, then
-//!    append the tool-call + tool-result pair to the conversation history.
-//! 4. Loop up to `MAX_ROUNDS = 5`. When the LLM returns no tool calls, emit
+//!    a `Vec<ToolDefinition>` from each `BlockInfo::tool`.
+//! 2. Convert the incoming OpenAI-format messages to `ChatMessage` values.
+//! 3. Call `ctx.call_block("wafer-run/llm", ...)` with `ServiceOp::LLM_CHAT`
+//!    and a `ChatRequest` body.  Consume the streaming `ChatChunk` frames.
+//! 4. Forward `ChunkDelta::Text` chunks as `token` SSE events. Accumulate
+//!    `ToolCallStart / ToolCallArguments / ToolCallComplete` chunks and emit
+//!    `tool_call` events once each call is finalised.
+//! 5. Dispatch finalised tool calls via `ctx.call_block`, emit `tool_result`,
+//!    append tool-call + tool-result messages to history, and loop.
+//! 6. Loop up to `MAX_ROUNDS = 5`. When the LLM returns no tool calls, emit
 //!    `event: done` with `reason: "stop"` and terminate.
-//!
-//! Buffering note: for MVP we buffer each LLM round (tool calls only arrive
-//! at the end of a round anyway) and emit the agent's response as one
-//! OutputStream at the end. Incremental cross-round streaming is a future
-//! optimisation.
-//!
-//! LLM reachability: `suppers-ai/local-llm`'s Rust-side `handle()` returns
-//! 501 for all `/b/local-llm/api/*` paths because WebLLM runs on the main
-//! thread and the SW intercepts those requests before they reach the WASM
-//! runtime. The agent block therefore invokes the SW's `handleLocalLlm`
-//! function directly via the wasm-bindgen bridge in `solobase_browser::bridge`. See
-//! `solobase-browser/src/bridge.rs` and `site/bridge.js` for the JS glue.
 
-// gizza-ai-specific JS bridge: the local-llm chat_stream binding is not part
-// of solobase-browser (which only provides platform-service bridges). Declare
-// it here, bound to the same /site/bridge.js that the framework bridges use.
-#[cfg(target_arch = "wasm32")]
-mod bridge {
-    use wasm_bindgen::prelude::*;
-
-    #[wasm_bindgen(module = "/site/sw-llm-bridge.js")]
-    extern "C" {
-        /// Invoke the SW's local-llm chat_stream handler and collect the SSE
-        /// response into a Uint8Array. `body_json` is the OpenAI-format chat
-        /// request body. Returns `Result<JsValue, JsValue>` where the Ok variant
-        /// is a `Uint8Array` of the full SSE text.
-        #[wasm_bindgen(js_name = localLlmChatStream, catch)]
-        pub async fn local_llm_chat_stream(body_json: &str) -> Result<JsValue, JsValue>;
-    }
-}
+use std::collections::HashMap;
 
 use async_trait::async_trait;
+use futures::{pin_mut, StreamExt};
 use serde::Deserialize;
 use wafer_block::{
     block::Block,
+    common::ServiceOp,
     context::Context,
     core_types::{ErrorCode, LifecycleEvent, Message, MetaEntry, WaferError},
-    meta::{META_REQ_ACTION, META_REQ_RESOURCE, META_RESP_CONTENT_TYPE, META_RESP_STATUS},
+    meta::{META_REQ_ACTION, META_RESP_CONTENT_TYPE, META_RESP_STATUS},
     streams::{
         input::InputStream,
         output::{BufferedResponse, OutputStream},
     },
     types::{BlockInfo, SkillRole},
+};
+use wafer_core::interfaces::llm::service::{
+    ChatContent, ChatMessage, ChatRequest, ChatRole, ChunkDelta, FinishReason, LlmError,
+    LoadProgress, ToolCall as LlmToolCall, ToolDefinition,
 };
 
 /// Maximum agent-loop rounds before giving up.
@@ -69,6 +55,13 @@ const MAX_ROUNDS: u32 = 5;
 
 /// The agent block's own chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
+
+/// The agent block's model-load endpoint.
+const AGENT_LOAD_MODEL_PATH: &str = "/b/agent/load-model";
+
+/// The WebLLM model id used for MVP. Picked for small size + tool-call support.
+/// Plan C makes this user-pickable.
+const MVP_MODEL_ID: &str = "Qwen2.5-1.5B-Instruct-q4f32_1-MLC";
 
 pub struct AgentBlock;
 
@@ -78,6 +71,11 @@ struct AgentRequest {
     user_message: String,
     #[serde(default)]
     messages: Vec<serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LoadModelRequest {
+    model_id: String,
 }
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
@@ -92,74 +90,24 @@ impl Block for AgentBlock {
         )
         .category(wafer_run::BlockCategory::Feature)
         .description(
-            "Drives a tool-use loop against suppers-ai/local-llm, dispatching \
+            "Drives a tool-use loop against wafer-run/llm, dispatching \
              skill blocks as OpenAI-format tools.",
         )
     }
 
     async fn handle(&self, ctx: &dyn Context, msg: Message, input: InputStream) -> OutputStream {
-        // 1. Route check: only POST /b/agent/chat is supported.
         let action = msg.action();
         let path = msg.path();
-        if !(action == "create" && path == AGENT_CHAT_PATH) {
-            return error_response(404, "not_found", "unknown agent endpoint");
+
+        if action == "create" && path == AGENT_CHAT_PATH {
+            return handle_chat(ctx, input).await;
         }
 
-        // 2. Parse request body.
-        let body_bytes = input.collect_to_bytes().await;
-        let req: AgentRequest = if body_bytes.is_empty() {
-            AgentRequest {
-                user_message: String::new(),
-                messages: Vec::new(),
-            }
-        } else {
-            match serde_json::from_slice(&body_bytes) {
-                Ok(v) => v,
-                Err(e) => {
-                    return error_response(
-                        400,
-                        "bad_request",
-                        &format!("invalid JSON body: {e}"),
-                    );
-                }
-            }
-        };
-
-        if req.user_message.trim().is_empty() && req.messages.is_empty() {
-            return error_response(400, "bad_request", "user_message or messages required");
+        if action == "create" && path == AGENT_LOAD_MODEL_PATH {
+            return handle_load_model(ctx, input).await;
         }
 
-        // 3. Build OpenAI-format tools array from registered skill blocks.
-        let tools = build_tools(&ctx.registered_blocks());
-
-        // 4. Compose conversation history: prior messages + new user turn.
-        let mut history = req.messages;
-        if !req.user_message.is_empty() {
-            history.push(serde_json::json!({
-                "role": "user",
-                "content": req.user_message,
-            }));
-        }
-
-        // 5. Run the tool-use loop, buffering the SSE output the whole time.
-        let sse_body = run_agent_loop(ctx, history, tools).await;
-
-        // 6. Respond with text/event-stream.
-        let meta = vec![
-            MetaEntry {
-                key: META_RESP_STATUS.to_string(),
-                value: "200".to_string(),
-            },
-            MetaEntry {
-                key: META_RESP_CONTENT_TYPE.to_string(),
-                value: "text/event-stream".to_string(),
-            },
-            MetaEntry {
-                key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
-                value: "no-cache".to_string(),
-            },
-        ];
-        OutputStream::respond_with_meta(sse_body.into_bytes(), meta)
+        error_response(404, "not_found", "unknown agent endpoint")
     }
 
     async fn lifecycle(
@@ -172,150 +120,363 @@ impl Block for AgentBlock {
 }
 
 // ---------------------------------------------------------------------------
+// /b/agent/chat handler
+// ---------------------------------------------------------------------------
+
+async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
+    // 1. Parse request body.
+    let body_bytes = input.collect_to_bytes().await;
+    let req: AgentRequest = if body_bytes.is_empty() {
+        AgentRequest {
+            user_message: String::new(),
+            messages: Vec::new(),
+        }
+    } else {
+        match serde_json::from_slice(&body_bytes) {
+            Ok(v) => v,
+            Err(e) => {
+                return error_response(400, "bad_request", &format!("invalid JSON body: {e}"));
+            }
+        }
+    };
+
+    if req.user_message.trim().is_empty() && req.messages.is_empty() {
+        return error_response(400, "bad_request", "user_message or messages required");
+    }
+
+    // 2. Build ToolDefinitions from registered skill blocks.
+    let tools = build_tools(&ctx.registered_blocks());
+
+    // 3. Compose conversation history: prior messages + new user turn.
+    let mut history = req.messages;
+    if !req.user_message.is_empty() {
+        history.push(serde_json::json!({
+            "role": "user",
+            "content": req.user_message,
+        }));
+    }
+
+    // 4. Run the tool-use loop, buffering the SSE output.
+    let sse_body = run_agent_loop(ctx, history, tools).await;
+
+    // 5. Respond with text/event-stream.
+    let meta = vec![
+        MetaEntry {
+            key: META_RESP_STATUS.to_string(),
+            value: "200".to_string(),
+        },
+        MetaEntry {
+            key: META_RESP_CONTENT_TYPE.to_string(),
+            value: "text/event-stream".to_string(),
+        },
+        MetaEntry {
+            key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
+            value: "no-cache".to_string(),
+        },
+    ];
+    OutputStream::respond_with_meta(sse_body.into_bytes(), meta)
+}
+
+// ---------------------------------------------------------------------------
+// /b/agent/load-model handler
+// ---------------------------------------------------------------------------
+
+async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStream {
+    // Parse request body.
+    let body_bytes = input.collect_to_bytes().await;
+    let req: LoadModelRequest = if body_bytes.is_empty() {
+        return error_response(400, "bad_request", "load-model request body required");
+    } else {
+        match serde_json::from_slice(&body_bytes) {
+            Ok(v) => v,
+            Err(e) => {
+                return error_response(400, "bad_request", &format!("invalid JSON body: {e}"));
+            }
+        }
+    };
+
+    // Build the load-model request body for wafer-run/llm.
+    let llm_req = serde_json::json!({
+        "backend_id": "webllm",
+        "model_id": req.model_id,
+    });
+    let req_bytes = match serde_json::to_vec(&llm_req) {
+        Ok(b) => b,
+        Err(e) => {
+            return error_response(
+                500,
+                "internal",
+                &format!("serialize load-model request: {e}"),
+            );
+        }
+    };
+
+    // Call wafer-run/llm with LLM_LOAD_MODEL.
+    let mut msg = Message::new(ServiceOp::LLM_LOAD_MODEL);
+    msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_LOAD_MODEL);
+
+    let output = ctx
+        .call_block(
+            "wafer-run/llm",
+            msg,
+            InputStream::from_bytes(req_bytes),
+        )
+        .await;
+
+    // Accumulate SSE output — stream each LoadProgress frame.
+    let mut sse_body = String::new();
+    let stream = output.body_stream();
+    pin_mut!(stream);
+
+    let mut had_error: Option<String> = None;
+    while let Some(bytes) = stream.next().await {
+        match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
+            Ok(Ok(progress)) => {
+                let data = serde_json::to_value(&progress).unwrap_or(serde_json::Value::Null);
+                sse_body.push_str(&encode_sse_event("load_progress", &data));
+            }
+            Ok(Err(e)) => {
+                had_error = Some(format!("{e}"));
+                break;
+            }
+            Err(e) => {
+                had_error = Some(format!("deserialize load progress: {e}"));
+                break;
+            }
+        }
+    }
+
+    // Emit terminal load_done event.
+    match had_error {
+        None => {
+            sse_body.push_str(&encode_sse_event(
+                "load_done",
+                &serde_json::json!({ "ok": true }),
+            ));
+        }
+        Some(err) => {
+            sse_body.push_str(&encode_sse_event(
+                "load_done",
+                &serde_json::json!({ "ok": false, "error": err }),
+            ));
+        }
+    }
+
+    let meta = vec![
+        MetaEntry {
+            key: META_RESP_STATUS.to_string(),
+            value: "200".to_string(),
+        },
+        MetaEntry {
+            key: META_RESP_CONTENT_TYPE.to_string(),
+            value: "text/event-stream".to_string(),
+        },
+        MetaEntry {
+            key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
+            value: "no-cache".to_string(),
+        },
+    ];
+    OutputStream::respond_with_meta(sse_body.into_bytes(), meta)
+}
+
+// ---------------------------------------------------------------------------
 // Agent loop
 // ---------------------------------------------------------------------------
 
+/// Internal accumulator for a streaming tool call.
+struct ToolCallAccumulator {
+    name: String,
+    arguments: String,
+}
+
+/// Finalised tool call ready to dispatch.
+#[derive(Debug, Clone)]
+struct PendingToolCall {
+    id: String,
+    name: String,
+    /// Accumulated raw JSON-string argument payload.
+    arguments: String,
+}
+
 /// Run the full tool-use loop. Returns the SSE-encoded response body (UTF-8).
-///
-/// On native targets this returns an error immediately — the local-llm bridge
-/// is wasm32-only. All unit tests exercise helpers (`parse_sse`, `build_tools`,
-/// etc.) without going through this function.
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    allow(
-        unused_variables,
-        unused_mut,
-        unreachable_code,
-        clippy::needless_return,
-        clippy::unused_unit
-    )
-)]
 async fn run_agent_loop(
     ctx: &dyn Context,
     mut history: Vec<serde_json::Value>,
-    tools: Vec<serde_json::Value>,
+    tools: Vec<ToolDefinition>,
 ) -> String {
     let mut out = String::new();
 
     for round in 1..=MAX_ROUNDS {
-        // Build the body for the local-llm call.
-        let llm_body = serde_json::json!({
-            "messages": history,
-            "tools": tools,
-        });
-        let llm_body_str = match serde_json::to_string(&llm_body) {
-            Ok(s) => s,
+        // Convert OpenAI-format history to ChatMessage vec.
+        let mut chat_messages: Vec<ChatMessage> = Vec::with_capacity(history.len());
+        for v in &history {
+            match openai_json_to_chat_message(v) {
+                Ok(m) => chat_messages.push(m),
+                Err(e) => {
+                    out.push_str(&encode_sse_event(
+                        "done",
+                        &serde_json::json!({
+                            "reason": "error",
+                            "error": format!("invalid history message: {e}"),
+                        }),
+                    ));
+                    return out;
+                }
+            }
+        }
+
+        // Build ChatRequest.
+        let mut req = ChatRequest::new("webllm", MVP_MODEL_ID, chat_messages);
+        req.tools = tools.clone();
+
+        let body = match serde_json::to_vec(&req) {
+            Ok(b) => b,
             Err(e) => {
                 out.push_str(&encode_sse_event(
                     "done",
                     &serde_json::json!({
                         "reason": "error",
-                        "error": format!("serialize llm body: {e}"),
+                        "error": format!("serialize chat request: {e}"),
                     }),
                 ));
                 return out;
             }
         };
 
-        // Invoke local-llm/chat_stream via the wasm-bindgen JS bridge.
-        // The Rust-side local-llm block returns 501 for /b/local-llm/api/*
-        // because WebLLM runs in the main thread and the SW handles those
-        // paths before they reach the WASM runtime. We go directly to JS.
-        #[cfg(target_arch = "wasm32")]
-        let sse_text_owned: String = {
-            let body_str = llm_body_str;
-            match bridge::local_llm_chat_stream(&body_str).await {
-                Ok(js_val) => {
-                    let u8_array = js_sys::Uint8Array::new(&js_val);
-                    let bytes = u8_array.to_vec();
-                    match String::from_utf8(bytes) {
-                        Ok(s) => s,
-                        Err(e) => {
+        // Call wafer-run/llm.
+        let mut msg = Message::new(ServiceOp::LLM_CHAT);
+        msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_CHAT);
+
+        let output = ctx
+            .call_block(
+                "wafer-run/llm",
+                msg,
+                InputStream::from_bytes(body),
+            )
+            .await;
+
+        // Process the streaming response.
+        let stream = output.body_stream();
+        pin_mut!(stream);
+
+        // Accumulators for in-flight tool calls (keyed by call id).
+        let mut accumulator: HashMap<String, ToolCallAccumulator> = HashMap::new();
+        // Finalised tool calls in order of completion.
+        let mut tool_calls: Vec<PendingToolCall> = Vec::new();
+        let mut finish_reason: Option<FinishReason> = None;
+        let mut round_error: Option<String> = None;
+
+        'chunks: while let Some(bytes) = stream.next().await {
+            let item = match serde_json::from_slice::<Result<
+                wafer_core::interfaces::llm::service::ChatChunk,
+                LlmError,
+            >>(&bytes)
+            {
+                Ok(item) => item,
+                Err(e) => {
+                    round_error = Some(format!("deserialize chat chunk: {e}"));
+                    break 'chunks;
+                }
+            };
+
+            match item {
+                Err(e) => {
+                    round_error = Some(format!("{e}"));
+                    break 'chunks;
+                }
+                Ok(chunk) => {
+                    // Capture finish reason if present.
+                    if let Some(reason) = chunk.finish_reason {
+                        finish_reason = Some(reason);
+                    }
+
+                    match chunk.delta {
+                        ChunkDelta::Text(t) if !t.is_empty() => {
                             out.push_str(&encode_sse_event(
-                                "done",
-                                &serde_json::json!({
-                                    "reason": "error",
-                                    "error": format!("local-llm response not utf8: {e}"),
-                                }),
+                                "token",
+                                &serde_json::json!({ "delta": t }),
                             ));
-                            return out;
                         }
+                        ChunkDelta::ToolCallStart { id, name } => {
+                            accumulator.insert(
+                                id,
+                                ToolCallAccumulator {
+                                    name,
+                                    arguments: String::new(),
+                                },
+                            );
+                        }
+                        ChunkDelta::ToolCallArguments {
+                            id,
+                            arguments_delta,
+                        } => {
+                            if let Some(acc) = accumulator.get_mut(&id) {
+                                acc.arguments.push_str(&arguments_delta);
+                            }
+                        }
+                        ChunkDelta::ToolCallComplete { id } => {
+                            if let Some(acc) = accumulator.remove(&id) {
+                                let tc = PendingToolCall {
+                                    id: id.clone(),
+                                    name: acc.name.clone(),
+                                    arguments: acc.arguments.clone(),
+                                };
+                                // Emit tool_call event to UI immediately.
+                                out.push_str(&encode_sse_event(
+                                    "tool_call",
+                                    &serde_json::json!({
+                                        "id": tc.id,
+                                        "name": tc.name,
+                                        "arguments": tc.arguments,
+                                    }),
+                                ));
+                                tool_calls.push(tc);
+                            }
+                        }
+                        // Text(empty), Empty, and other non-exhaustive variants.
+                        _ => {}
+                    }
+
+                    // Once we have a finish reason, stop reading this round.
+                    if finish_reason.is_some() {
+                        break 'chunks;
                     }
                 }
-                Err(e) => {
-                    out.push_str(&encode_sse_event(
-                        "done",
-                        &serde_json::json!({
-                            "reason": "error",
-                            "error": format!("local-llm bridge error: {e:?}"),
-                        }),
-                    ));
-                    return out;
-                }
             }
-        };
+        }
 
-        // Native builds have no LLM bridge — unit tests exercise parse_sse /
-        // encode_sse_event / build_tools directly without invoking this path.
-        #[cfg(not(target_arch = "wasm32"))]
-        let sse_text_owned: String = {
-            drop(llm_body_str); // not used on native; suppress unused-variable lint
+        // Handle round-level error.
+        if let Some(err) = round_error {
             out.push_str(&encode_sse_event(
                 "done",
                 &serde_json::json!({
                     "reason": "error",
-                    "error": "local-llm bridge not available on native targets",
+                    "error": err,
                 }),
             ));
             return out;
-        };
-
-        // Parse the LLM's SSE frames.
-        let (events, llm_done_reason) = parse_sse_response(&sse_text_owned);
-
-        // Forward token events and collect tool calls from this round.
-        let mut tool_calls: Vec<ToolCall> = Vec::new();
-        for (name, data) in events {
-            match name.as_str() {
-                "token" => {
-                    out.push_str(&encode_sse_event("token", &data));
-                }
-                "tool_call" => {
-                    // Forward upstream tool_call to UI immediately.
-                    out.push_str(&encode_sse_event("tool_call", &data));
-                    if let Some(tc) = ToolCall::from_json(&data) {
-                        tool_calls.push(tc);
-                    }
-                }
-                "error" => {
-                    out.push_str(&encode_sse_event(
-                        "done",
-                        &serde_json::json!({
-                            "reason": "error",
-                            "error": data,
-                        }),
-                    ));
-                    return out;
-                }
-                _ => {
-                    // Unknown events are dropped — they're not part of the contract.
-                }
-            }
         }
 
-        // No tool calls: forward a done event and terminate.
+        // No tool calls: emit done and terminate.
         if tool_calls.is_empty() {
+            let reason = match finish_reason {
+                Some(FinishReason::Stop) | None => "stop",
+                Some(FinishReason::Length) => "length",
+                Some(FinishReason::ToolCall) => "stop",
+                Some(FinishReason::ContentFilter) => "content_filter",
+                Some(FinishReason::Error) => "error",
+                // non_exhaustive catch-all
+                _ => "stop",
+            };
             out.push_str(&encode_sse_event(
                 "done",
-                &serde_json::json!({
-                    "reason": llm_done_reason.unwrap_or_else(|| "stop".to_string()),
-                }),
+                &serde_json::json!({ "reason": reason }),
             ));
             return out;
         }
 
-        // Dispatch each tool call.
-        let mut tc_records = Vec::with_capacity(tool_calls.len());
+        // Dispatch each tool call and accumulate results.
+        let mut tc_records: Vec<(PendingToolCall, String)> = Vec::with_capacity(tool_calls.len());
         for tc in &tool_calls {
             let result_text = dispatch_tool(ctx, tc).await;
             out.push_str(&encode_sse_event(
@@ -364,8 +525,7 @@ async fn run_agent_loop(
         }
     }
 
-    // Defensive fall-through — should be unreachable because the loop bounds
-    // are handled above, but Rust can't see that.
+    // Defensive fall-through — should be unreachable.
     out.push_str(&encode_sse_event(
         "done",
         &serde_json::json!({ "reason": "max_rounds_exceeded" }),
@@ -373,13 +533,17 @@ async fn run_agent_loop(
     out
 }
 
+// ---------------------------------------------------------------------------
+// Tool dispatch
+// ---------------------------------------------------------------------------
+
 /// Dispatch a single tool call to the corresponding block.
 ///
 /// Tool `name` is treated as either a fully-qualified block name (`org/block`)
 /// or a short name that we default to `gizza-ai/{name}`. Returns the tool's
 /// response body as UTF-8 text (or an error message, also as text, so the LLM
 /// can still see the failure and recover).
-async fn dispatch_tool(ctx: &dyn Context, tc: &ToolCall) -> String {
+async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> String {
     let block_name = if tc.name.contains('/') {
         tc.name.clone()
     } else {
@@ -388,7 +552,10 @@ async fn dispatch_tool(ctx: &dyn Context, tc: &ToolCall) -> String {
 
     let mut msg = Message::new("http");
     msg.set_meta(META_REQ_ACTION, "create");
-    msg.set_meta(META_REQ_RESOURCE, format!("/b/{}", short_name(&block_name)));
+    msg.set_meta(
+        wafer_block::meta::META_REQ_RESOURCE,
+        format!("/b/{}", short_name(&block_name)),
+    );
 
     let args_bytes = tc.arguments.as_bytes().to_vec();
     match ctx.call_block_buffered(&block_name, msg, &args_bytes).await {
@@ -411,106 +578,92 @@ fn short_name(block: &str) -> &str {
 // ---------------------------------------------------------------------------
 
 /// Enumerate every registered block with `role == Some(SkillRole::Skill)`
-/// and `tool.is_some()`, build an OpenAI-compatible tools array.
-fn build_tools(blocks: &[BlockInfo]) -> Vec<serde_json::Value> {
+/// and `tool.is_some()`, build a `Vec<ToolDefinition>` for the LLM request.
+fn build_tools(blocks: &[BlockInfo]) -> Vec<ToolDefinition> {
     blocks
         .iter()
         .filter_map(|info| match (&info.role, &info.tool) {
-            (Some(SkillRole::Skill), Some(tool)) => Some(serde_json::json!({
-                "type": "function",
-                "function": {
-                    "name": info.name,
-                    "description": tool.description,
-                    "parameters": tool.parameters,
-                },
-            })),
+            (Some(SkillRole::Skill), Some(tool)) => Some(ToolDefinition::new(
+                info.name.clone(),
+                tool.description.clone(),
+                tool.parameters.clone(),
+            )),
             _ => None,
         })
         .collect()
 }
 
 // ---------------------------------------------------------------------------
-// SSE parsing
+// Message conversion
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone)]
-struct ToolCall {
-    id: String,
-    name: String,
-    /// Raw JSON-string argument payload exactly as emitted by the LLM.
-    arguments: String,
-}
+/// Convert an OpenAI-format message JSON value to a `ChatMessage`.
+///
+/// Handles all four roles (`system`, `user`, `assistant`, `tool`), text
+/// `content`, `tool_call_id`, and the `tool_calls` array.
+fn openai_json_to_chat_message(v: &serde_json::Value) -> Result<ChatMessage, String> {
+    let role_str = v
+        .get("role")
+        .and_then(|r| r.as_str())
+        .ok_or("missing role")?;
 
-impl ToolCall {
-    fn from_json(v: &serde_json::Value) -> Option<Self> {
-        let obj = v.as_object()?;
-        let id = obj
-            .get("id")
-            .and_then(|x| x.as_str())
+    let role = match role_str {
+        "system" => ChatRole::System,
+        "user" => ChatRole::User,
+        "assistant" => ChatRole::Assistant,
+        "tool" => ChatRole::Tool,
+        other => return Err(format!("unknown role: {other}")),
+    };
+
+    let content = ChatContent::Text(
+        v.get("content")
+            .and_then(|c| c.as_str())
             .unwrap_or("")
-            .to_string();
-        let name = obj.get("name").and_then(|x| x.as_str())?.to_string();
-        let arguments = obj
-            .get("arguments")
-            .and_then(|x| x.as_str())
-            .unwrap_or("{}")
-            .to_string();
-        Some(Self {
-            id,
-            name,
-            arguments,
+            .to_string(),
+    );
+
+    let tool_call_id = v
+        .get("tool_call_id")
+        .and_then(|x| x.as_str())
+        .map(|s| s.to_string());
+
+    // tool role: use the dedicated constructor.
+    if role == ChatRole::Tool {
+        let id = tool_call_id.unwrap_or_default();
+        let text = match &content {
+            ChatContent::Text(t) => t.clone(),
+            _ => String::new(),
+        };
+        return Ok(ChatMessage::tool(id, text));
+    }
+
+    // Parse tool_calls array (OpenAI format).
+    let tool_calls: Vec<LlmToolCall> = v
+        .get("tool_calls")
+        .and_then(|arr| arr.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|entry| {
+                    let id = entry.get("id")?.as_str()?.to_string();
+                    let func = entry.get("function")?;
+                    let name = func.get("name")?.as_str()?.to_string();
+                    // arguments is a JSON string in OpenAI format; parse it.
+                    let arguments = func
+                        .get("arguments")
+                        .and_then(|a| a.as_str())
+                        .and_then(|s| serde_json::from_str::<serde_json::Value>(s).ok())
+                        .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
+                    Some(LlmToolCall::new(id, name, arguments))
+                })
+                .collect()
         })
-    }
-}
+        .unwrap_or_default();
 
-/// Parse an SSE-framed text payload. Returns `(event_name, data_json)` pairs
-/// in order. Lines that don't match the `event:`/`data:` SSE form are
-/// ignored. Data payloads that don't parse as JSON are returned as string
-/// `Value`s so callers can still inspect them.
-fn parse_sse(text: &str) -> Vec<(String, serde_json::Value)> {
-    let mut out = Vec::new();
-    for frame in text.split("\n\n") {
-        let frame = frame.trim_matches(|c: char| c == '\n' || c == '\r');
-        if frame.is_empty() {
-            continue;
-        }
-        let mut event_name: Option<String> = None;
-        let mut data_lines: Vec<&str> = Vec::new();
-        for line in frame.lines() {
-            if let Some(rest) = line.strip_prefix("event:") {
-                event_name = Some(rest.trim().to_string());
-            } else if let Some(rest) = line.strip_prefix("data:") {
-                // SSE data lines strip a single leading space if present.
-                let trimmed = rest.strip_prefix(' ').unwrap_or(rest);
-                data_lines.push(trimmed);
-            }
-        }
-        let Some(name) = event_name else { continue };
-        let data_raw = data_lines.join("\n");
-        let data_val = serde_json::from_str::<serde_json::Value>(&data_raw)
-            .unwrap_or_else(|_| serde_json::Value::String(data_raw));
-        out.push((name, data_val));
+    let mut msg = ChatMessage::new(role, content);
+    if !tool_calls.is_empty() {
+        msg = msg.with_tool_calls(tool_calls);
     }
-    out
-}
-
-/// Parse the LLM's SSE response text, returning the event list and the
-/// reason carried by the final `done` event (if any).
-fn parse_sse_response(text: &str) -> (Vec<(String, serde_json::Value)>, Option<String>) {
-    let all = parse_sse(text);
-    let mut done_reason: Option<String> = None;
-    let mut events = Vec::with_capacity(all.len());
-    for (name, data) in all {
-        if name == "done" {
-            done_reason = data
-                .get("reason")
-                .and_then(|v| v.as_str())
-                .map(|s| s.to_string());
-        } else {
-            events.push((name, data));
-        }
-    }
-    (events, done_reason)
+    Ok(msg)
 }
 
 // ---------------------------------------------------------------------------
@@ -569,71 +722,9 @@ mod tests {
     use super::*;
     use wafer_block::types::SkillTool;
 
-    #[test]
-    fn parse_sse_single_frame() {
-        let input = "event: token\ndata: {\"delta\":\"Hi\"}\n\n";
-        let parsed = parse_sse(input);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].0, "token");
-        assert_eq!(parsed[0].1, serde_json::json!({ "delta": "Hi" }));
-    }
-
-    #[test]
-    fn parse_sse_multiple_frames_in_order() {
-        let input = "\
-event: token\ndata: {\"delta\":\"Hello\"}\n\n\
-event: tool_call\ndata: {\"id\":\"call_1\",\"name\":\"clock\",\"arguments\":\"{}\"}\n\n\
-event: done\ndata: {\"reason\":\"tool_calls\"}\n\n";
-        let parsed = parse_sse(input);
-        assert_eq!(parsed.len(), 3);
-        assert_eq!(parsed[0].0, "token");
-        assert_eq!(parsed[1].0, "tool_call");
-        assert_eq!(parsed[2].0, "done");
-        assert_eq!(
-            parsed[1].1,
-            serde_json::json!({
-                "id": "call_1",
-                "name": "clock",
-                "arguments": "{}",
-            })
-        );
-    }
-
-    #[test]
-    fn parse_sse_strips_leading_space_after_data_colon() {
-        let input = "event: token\ndata: {\"delta\":\"x\"}\n\n";
-        let parsed = parse_sse(input);
-        assert_eq!(parsed[0].1, serde_json::json!({ "delta": "x" }));
-    }
-
-    #[test]
-    fn parse_sse_non_json_data_falls_back_to_string() {
-        let input = "event: comment\ndata: hello world\n\n";
-        let parsed = parse_sse(input);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(
-            parsed[0].1,
-            serde_json::Value::String("hello world".to_string())
-        );
-    }
-
-    #[test]
-    fn parse_sse_ignores_empty_frames_and_unknown_fields() {
-        let input = "\n\n: this is a comment\n\nevent: x\ndata: 1\n\n\n\n";
-        let parsed = parse_sse(input);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].0, "x");
-    }
-
-    #[test]
-    fn parse_sse_skips_frame_without_event_name() {
-        // SSE technically allows data-only frames (default event "message")
-        // but our protocol requires an `event:` line — skip otherwise.
-        let input = "data: {\"x\":1}\n\nevent: token\ndata: {\"delta\":\"a\"}\n\n";
-        let parsed = parse_sse(input);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].0, "token");
-    }
+    // ---------------------------------------------------------------------------
+    // encode_sse_event tests
+    // ---------------------------------------------------------------------------
 
     #[test]
     fn encode_sse_event_basic_shape() {
@@ -647,19 +738,9 @@ event: done\ndata: {\"reason\":\"tool_calls\"}\n\n";
         assert_eq!(s, "event: done\ndata: {\"reason\":\"stop\"}\n\n");
     }
 
-    #[test]
-    fn encode_sse_event_roundtrips_through_parser() {
-        let original = serde_json::json!({
-            "id": "call_1",
-            "name": "gizza-ai/clock",
-            "arguments": "{\"tz\":\"UTC\"}",
-        });
-        let encoded = encode_sse_event("tool_call", &original);
-        let parsed = parse_sse(&encoded);
-        assert_eq!(parsed.len(), 1);
-        assert_eq!(parsed[0].0, "tool_call");
-        assert_eq!(parsed[0].1, original);
-    }
+    // ---------------------------------------------------------------------------
+    // build_tools tests
+    // ---------------------------------------------------------------------------
 
     #[test]
     fn build_tools_filters_on_skill_role_and_tool_presence() {
@@ -677,14 +758,10 @@ event: done\ndata: {\"reason\":\"tool_calls\"}\n\n";
 
         let tools = build_tools(&[skill, non_skill, skill_without_tool]);
         assert_eq!(tools.len(), 1);
-        assert_eq!(tools[0]["type"], "function");
-        assert_eq!(tools[0]["function"]["name"], "gizza-ai/clock");
+        assert_eq!(tools[0].name, "gizza-ai/clock");
+        assert_eq!(tools[0].description, "Returns the current time");
         assert_eq!(
-            tools[0]["function"]["description"],
-            "Returns the current time"
-        );
-        assert_eq!(
-            tools[0]["function"]["parameters"],
+            tools[0].parameters,
             serde_json::json!({ "type": "object", "properties": {} })
         );
     }
@@ -695,27 +772,106 @@ event: done\ndata: {\"reason\":\"tool_calls\"}\n\n";
         assert!(build_tools(&blocks).is_empty());
     }
 
+    // ---------------------------------------------------------------------------
+    // openai_json_to_chat_message tests
+    // ---------------------------------------------------------------------------
+
     #[test]
-    fn tool_call_from_json_handles_defaults() {
-        let v = serde_json::json!({ "name": "clock" });
-        let tc = ToolCall::from_json(&v).expect("valid");
-        assert_eq!(tc.name, "clock");
-        assert_eq!(tc.id, "");
-        assert_eq!(tc.arguments, "{}");
+    fn openai_json_to_chat_message_system() {
+        let v = serde_json::json!({ "role": "system", "content": "You are helpful." });
+        let msg = openai_json_to_chat_message(&v).expect("valid");
+        assert_eq!(msg.role, ChatRole::System);
+        assert_eq!(msg.content, ChatContent::Text("You are helpful.".to_string()));
     }
 
     #[test]
-    fn tool_call_from_json_preserves_raw_arguments_string() {
-        let v = serde_json::json!({
-            "id": "call_7",
-            "name": "gizza-ai/clock",
-            "arguments": "{\"tz\":\"UTC\"}",
-        });
-        let tc = ToolCall::from_json(&v).expect("valid");
-        assert_eq!(tc.id, "call_7");
-        assert_eq!(tc.name, "gizza-ai/clock");
-        assert_eq!(tc.arguments, "{\"tz\":\"UTC\"}");
+    fn openai_json_to_chat_message_user() {
+        let v = serde_json::json!({ "role": "user", "content": "Hello!" });
+        let msg = openai_json_to_chat_message(&v).expect("valid");
+        assert_eq!(msg.role, ChatRole::User);
+        assert_eq!(msg.content, ChatContent::Text("Hello!".to_string()));
     }
+
+    #[test]
+    fn openai_json_to_chat_message_assistant() {
+        let v = serde_json::json!({ "role": "assistant", "content": "Hi there." });
+        let msg = openai_json_to_chat_message(&v).expect("valid");
+        assert_eq!(msg.role, ChatRole::Assistant);
+        assert_eq!(msg.content, ChatContent::Text("Hi there.".to_string()));
+    }
+
+    #[test]
+    fn openai_json_to_chat_message_tool() {
+        let v = serde_json::json!({
+            "role": "tool",
+            "tool_call_id": "call_1",
+            "content": "2026-04-20T12:00:00Z",
+        });
+        let msg = openai_json_to_chat_message(&v).expect("valid");
+        assert_eq!(msg.role, ChatRole::Tool);
+        assert_eq!(msg.tool_call_id, Some("call_1".to_string()));
+        assert_eq!(
+            msg.content,
+            ChatContent::Text("2026-04-20T12:00:00Z".to_string())
+        );
+    }
+
+    #[test]
+    fn openai_json_to_chat_message_unknown_role_errors() {
+        let v = serde_json::json!({ "role": "unknown", "content": "" });
+        assert!(openai_json_to_chat_message(&v).is_err());
+    }
+
+    #[test]
+    fn openai_json_to_chat_message_assistant_with_tool_calls() {
+        let v = serde_json::json!({
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                {
+                    "id": "call_42",
+                    "type": "function",
+                    "function": {
+                        "name": "gizza-ai/clock",
+                        "arguments": "{\"tz\":\"UTC\"}",
+                    }
+                }
+            ]
+        });
+        let msg = openai_json_to_chat_message(&v).expect("valid");
+        assert_eq!(msg.role, ChatRole::Assistant);
+        assert_eq!(msg.tool_calls.len(), 1);
+        assert_eq!(msg.tool_calls[0].id, "call_42");
+        assert_eq!(msg.tool_calls[0].name, "gizza-ai/clock");
+        assert_eq!(
+            msg.tool_calls[0].arguments,
+            serde_json::json!({ "tz": "UTC" })
+        );
+    }
+
+    #[test]
+    fn openai_json_to_chat_message_tool_calls_invalid_args_defaults_to_empty_object() {
+        let v = serde_json::json!({
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+                {
+                    "id": "call_1",
+                    "type": "function",
+                    "function": {
+                        "name": "gizza-ai/clock",
+                        "arguments": "not-valid-json",
+                    }
+                }
+            ]
+        });
+        let msg = openai_json_to_chat_message(&v).expect("valid");
+        assert_eq!(msg.tool_calls[0].arguments, serde_json::json!({}));
+    }
+
+    // ---------------------------------------------------------------------------
+    // short_name tests
+    // ---------------------------------------------------------------------------
 
     #[test]
     fn short_name_returns_trailing_segment() {

@@ -26,6 +26,7 @@ chrono = { version = "0.4", default-features = false, features = ["serde", "std"
 
 # Async
 async-trait = "0.1"
+futures = { version = "0.3", default-features = false, features = ["alloc"] }
 
 # HTML templating (for the UI block, Task 6)
 maud = { version = "0.26", default-features = false }
