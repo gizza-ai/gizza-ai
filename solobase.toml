@@ -1,0 +1,19 @@
+[app]
+name = "gizza-ai"
+title = "Gizza AI"
+boot_redirect = "/"
+
+[assets]
+extra_bypass_prefix = ["/gizza-app.js", "/gizza.css"]
+
+[[assets.overlay]]
+from = "site/index.html"
+to = "index.html"
+
+[[assets.overlay]]
+from = "site/gizza-app.js"
+to = "gizza-app.js"
+
+[[assets.overlay]]
+from = "site/gizza.css"
+to = "gizza.css"
