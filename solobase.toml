@@ -3,6 +3,9 @@ name = "gizza-ai"
 title = "Gizza AI"
 boot_redirect = "/"
 
+[solobase]
+manifest_path = "../solobase"
+
 [assets]
 extra_bypass_prefix = ["/gizza-app.js", "/gizza.css"]
 
