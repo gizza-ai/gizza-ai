@@ -37,9 +37,11 @@ build: build-wasm
         --app-name gizza-ai \
         --app-title "Gizza AI" \
         --boot-redirect / \
-        --extra-bypass-prefix "/ai-bridge.js,/gizza-app.js,/gizza.css"
+        --extra-bypass-prefix "/gizza-app.js,/gizza.css"
     # Gizza-branded index.html + app JS overwrite the framework defaults.
-    cp site/index.html site/gizza-app.js site/gizza.css site/ai-bridge.js dist/
+    # The page-side WebLLM engine ships with solobase-browser at
+    # /webllm-engine.js (bypassed by the framework's default SW list).
+    cp site/index.html site/gizza-app.js site/gizza.css dist/
 
 # Serve dist/ on localhost:8000.
 serve: build

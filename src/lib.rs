@@ -73,6 +73,13 @@ pub async fn initialize() -> Result<(), JsValue> {
         config_svc.set(key, value);
     }
 
+    // 5b. Browser WebLLM service — provided by solobase-browser in Phase D.
+    //     Registered on the MultiBackendLlmService router under the label
+    //     "browser"; BrowserLlmService::claims_backend matches the
+    //     `"webllm"` backend_id that ChatRequest will carry.
+    let browser_llm: Arc<dyn wafer_core::interfaces::llm::service::LlmService> =
+        Arc::new(solobase_browser::llm::BrowserLlmService::new());
+
     // 6. Build WAFER runtime via SolobaseBuilder. We reuse solobase's
     //    builder for the service blocks, middleware, router, and
     //    site-main flow, and inject gizza-specific routes via
@@ -85,6 +92,7 @@ pub async fn initialize() -> Result<(), JsValue> {
         .crypto(solobase_browser::make_crypto_service(jwt_secret))
         .network(solobase_browser::make_network_service())
         .logger(solobase_browser::make_console_logger())
+        .llm_service("browser", browser_llm)
         .block_settings(features)
         .block_config(
             "wafer-run/security-headers",

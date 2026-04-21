@@ -130,14 +130,60 @@ function activateTab(name) {
 })();
 
 // --- Model loading ---
+//
+// Posts to the agent block's /b/agent/load-model endpoint which wraps
+// `wafer-run/llm` LLM_LOAD_MODEL. The server streams SSE frames of shape
+// `event: load_progress data: {stage: "...", ...}` and terminates with
+// `event: load_done data: {ok: boolean, error?: string}`.
 $('load-model').addEventListener('click', async () => {
     const btn = $('load-model');
     btn.disabled = true;
     btn.textContent = 'Downloading\u2026';
     try {
-        await window.gizzaAI.loadModel(window.__GIZZA_MODEL_ID, (progress) => {
-            btn.textContent = progress.text || `Downloading\u2026 ${Math.round((progress.progress || 0) * 100)}%`;
+        const resp = await fetch('/b/agent/load-model', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model_id: window.__GIZZA_MODEL_ID }),
         });
+        if (!resp.ok) throw new Error(`load-model HTTP ${resp.status}`);
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let ok = false;
+        let err = null;
+
+        outer: while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let idx;
+            while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                const frame = buffer.slice(0, idx);
+                buffer = buffer.slice(idx + 2);
+                let ev = '';
+                const dataLines = [];
+                for (const line of frame.split('\n')) {
+                    if (line.startsWith('event:')) ev = line.slice(6).trim();
+                    else if (line.startsWith('data:')) {
+                        dataLines.push(line.slice(5).replace(/^ /, ''));
+                    }
+                }
+                let data = {};
+                try { data = JSON.parse(dataLines.join('\n')); } catch (_) {}
+                if (ev === 'load_progress') {
+                    btn.textContent = data.stage
+                        ? `Downloading\u2026 ${data.stage}`
+                        : 'Downloading\u2026';
+                } else if (ev === 'load_done') {
+                    ok = !!data.ok;
+                    if (!ok) err = data.error || 'unknown error';
+                    break outer;
+                }
+            }
+        }
+
+        if (!ok) throw new Error(err || 'load-model did not complete');
         btn.textContent = 'Ready';
         $('send').disabled = false;
     } catch (e) {
