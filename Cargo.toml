@@ -42,7 +42,6 @@ wafer-core = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 wafer-block-config = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 
 # Solobase — path deps (sibling checkout; can be switched to git later).
-solobase = { path = "../solobase/crates/solobase", default-features = false }
 solobase-core = { path = "../solobase/crates/solobase-core", default-features = false }
 solobase-browser = { path = "../solobase/crates/solobase-browser" }
 

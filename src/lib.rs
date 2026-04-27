@@ -10,7 +10,7 @@
 
 use std::sync::Arc;
 
-use solobase::builder::{self, SolobaseBuilder};
+use solobase_core::builder::{self, SolobaseBuilder};
 use solobase_core::RouteAccess;
 use wafer_core::interfaces::config::service::ConfigService;
 use wasm_bindgen::prelude::*;
