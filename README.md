@@ -19,7 +19,7 @@ This:
 
 ```bash
 just serve
-# open http://localhost:8000
+# open http://localhost:8001
 ```
 
 First visit registers the Service Worker and reloads. After that the SW

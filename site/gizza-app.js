@@ -5,6 +5,27 @@ const history = []; // OpenAI-format messages.
 
 const $ = (id) => document.getElementById(id);
 
+// Brand text fix-ups — the maud HTML still ships "gizza-ai"; we override
+// here so the wordmark and tab title both read "gizza.ai" without a WASM
+// rebuild.
+document.title = 'gizza.ai';
+{
+    const wordmark = document.querySelector('.topbar h1');
+    if (wordmark) wordmark.textContent = 'gizza.ai';
+}
+
+// Move the settings cog from the topbar into the composer's action row,
+// just before the send button. The Lucide cog icon and ghost-button styling
+// are applied by gizza.css via #composer #open-settings.
+{
+    const cog = document.getElementById('open-settings');
+    const send = document.getElementById('send');
+    if (cog && send && cog.parentElement !== send.parentElement) {
+        cog.textContent = ''; // drop the ⚙ glyph; CSS draws the Lucide icon
+        send.parentElement.insertBefore(cog, send);
+    }
+}
+
 function el(tag, attrs = {}, text = '') {
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
@@ -51,6 +72,48 @@ function updateToolRow(row, ok, result) {
     if (spinner) spinner.textContent = ok ? '\u2713' : '\u2717';
     const resSpan = el('span', { class: 'result' }, ` \u2192 ${result}`);
     row.appendChild(resSpan);
+    row.classList.add(ok ? 'is-done' : 'is-error');
+}
+
+// Progress card \u2014 created lazily inside the Settings dialog while the model
+// downloads. Holds the verbose stage message so the Load model button text
+// can stay short.
+function setLoadProgress(text, percent, isError = false) {
+    let card = $('load-progress');
+    if (!card) {
+        card = el('div', { id: 'load-progress', class: 'progress-card' });
+        const stage = el('div', { class: 'progress-stage' });
+        const bar = el('div', { class: 'progress-bar' });
+        const fill = el('div', { class: 'progress-bar-fill' });
+        bar.appendChild(fill);
+        card.appendChild(stage);
+        card.appendChild(bar);
+        const loadBtn = $('load-model');
+        loadBtn.parentNode.insertBefore(card, loadBtn);
+    }
+    card.querySelector('.progress-stage').textContent = text || '';
+    const bar = card.querySelector('.progress-bar');
+    const fill = card.querySelector('.progress-bar-fill');
+    if (typeof percent === 'number' && !isNaN(percent)) {
+        const pct = Math.max(0, Math.min(100, percent));
+        fill.style.width = `${pct}%`;
+        bar.classList.remove('is-indeterminate');
+    } else {
+        bar.classList.add('is-indeterminate');
+    }
+    card.classList.toggle('is-error', !!isError);
+}
+
+function clearLoadProgress() {
+    const card = $('load-progress');
+    if (card) card.remove();
+}
+
+// Pull a percent like "15% completed" out of the runtime's stage message.
+function parsePercentFromStage(stage) {
+    if (!stage) return null;
+    const m = stage.match(/(\d+(?:\.\d+)?)\s*%/);
+    return m ? parseFloat(m[1]) : null;
 }
 
 // --- Settings dialog ---
@@ -139,6 +202,7 @@ $('load-model').addEventListener('click', async () => {
     const btn = $('load-model');
     btn.disabled = true;
     btn.textContent = 'Downloading\u2026';
+    setLoadProgress('Starting\u2026', null);
     try {
         const resp = await fetch('/b/agent/load-model', {
             method: 'POST',
@@ -172,9 +236,8 @@ $('load-model').addEventListener('click', async () => {
                 let data = {};
                 try { data = JSON.parse(dataLines.join('\n')); } catch (_) {}
                 if (ev === 'load_progress') {
-                    btn.textContent = data.stage
-                        ? `Downloading\u2026 ${data.stage}`
-                        : 'Downloading\u2026';
+                    btn.textContent = 'Downloading\u2026';
+                    setLoadProgress(data.stage || 'Downloading\u2026', parsePercentFromStage(data.stage));
                 } else if (ev === 'load_done') {
                     ok = !!data.ok;
                     if (!ok) err = data.error || 'unknown error';
@@ -185,6 +248,7 @@ $('load-model').addEventListener('click', async () => {
 
         if (!ok) throw new Error(err || 'load-model did not complete');
         btn.textContent = 'Ready';
+        clearLoadProgress();
         $('send').disabled = false;
     } catch (e) {
         const msg = String(e?.message ?? e);
@@ -193,9 +257,11 @@ $('load-model').addEventListener('click', async () => {
         if (/compatible GPU|WebGPU|gpu adapter/i.test(msg)) {
             const warn = $('webgpu-warning');
             if (warn) warn.hidden = false;
-            btn.textContent = 'Load model (see WebGPU instructions)';
+            btn.textContent = 'Load model';
+            clearLoadProgress();
         } else {
-            btn.textContent = `Error: ${msg}`;
+            btn.textContent = 'Try again';
+            setLoadProgress(msg, null, true);
         }
         btn.disabled = false;
     }
