@@ -679,6 +679,68 @@ dialog button[value="close"] {
   cursor: default;
 }
 
+/* ─── Markdown-rendered assistant bubbles ──────────────────────────────── */
+/*
+ * Assistant content goes through marked.parse() so `<p>`, `<ul>`, `<pre>`,
+ * `<code>`, etc. all show up inside .bubble.assistant .text.markdown. The
+ * parent bubble keeps `white-space: pre-wrap` for plain-text fallback; we
+ * reset it here so block elements lay out normally and code fences keep their
+ * own monospace formatting.
+ */
+.bubble.assistant .text.markdown {
+  white-space: normal;
+  display: block;
+}
+.bubble.assistant .text.markdown > *:first-child { margin-top: 0; }
+.bubble.assistant .text.markdown > *:last-child { margin-bottom: 0; }
+.bubble.assistant .text.markdown p { margin: 0.4em 0; }
+.bubble.assistant .text.markdown ul,
+.bubble.assistant .text.markdown ol { margin: 0.4em 0; padding-left: 1.4em; }
+.bubble.assistant .text.markdown code {
+  font-family: var(--sa-font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 0.92em;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.1em 0.32em;
+  border-radius: 4px;
+}
+.bubble.assistant .text.markdown pre {
+  margin: 0.6em 0;
+  padding: 0.8em;
+  border-radius: 6px;
+  overflow-x: auto;
+  /* highlight.js github-dark.css supplies its own background; we just need
+   * the padding/scroll. */
+}
+.bubble.assistant .text.markdown pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.88em;
+  line-height: 1.5;
+}
+
+/* ─── Settings model picker ────────────────────────────────────────────── */
+.model-picker-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs, 0.4em);
+  margin: 0.4em 0 0.6em;
+}
+.model-picker-row label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink);
+  opacity: 0.75;
+}
+.model-picker-row select {
+  font: inherit;
+  padding: 0.45em 0.6em;
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+  background: var(--color-surface-card);
+  color: var(--color-ink);
+}
+
 /* ─── Mobile ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {

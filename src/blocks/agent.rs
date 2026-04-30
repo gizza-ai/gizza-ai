@@ -82,6 +82,11 @@ struct AgentRequest {
     user_message: String,
     #[serde(default)]
     messages: Vec<serde_json::Value>,
+    /// Optional WebLLM model id. If absent or empty, falls back to
+    /// `MVP_MODEL_ID`. Allows the UI's model-picker to drive which model the
+    /// LLM service loads/uses without per-request server-side config.
+    #[serde(default)]
+    model_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -141,6 +146,7 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
         AgentRequest {
             user_message: String::new(),
             messages: Vec::new(),
+            model_id: None,
         }
     } else {
         match serde_json::from_slice(&body_bytes) {
@@ -167,10 +173,19 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
         }));
     }
 
-    // 4. Run the tool-use loop, buffering the SSE output.
-    let sse_body = run_agent_loop(ctx, history, tools).await;
+    // 4. Resolve model id — request override or MVP default.
+    let model_id = req
+        .model_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or(MVP_MODEL_ID)
+        .to_string();
 
-    // 5. Respond with text/event-stream.
+    // 5. Run the tool-use loop, buffering the SSE output.
+    let sse_body = run_agent_loop(ctx, history, tools, &model_id).await;
+
+    // 6. Respond with text/event-stream.
     let meta = vec![
         MetaEntry {
             key: META_RESP_STATUS.to_string(),
@@ -324,6 +339,7 @@ async fn run_agent_loop(
     ctx: &dyn Context,
     mut history: Vec<serde_json::Value>,
     tools: Vec<ToolDefinition>,
+    model_id: &str,
 ) -> String {
     let mut out = String::new();
 
@@ -347,7 +363,7 @@ async fn run_agent_loop(
         }
 
         // Build ChatRequest.
-        let mut req = ChatRequest::new("webllm", MVP_MODEL_ID, chat_messages);
+        let mut req = ChatRequest::new("webllm", model_id, chat_messages);
         req.tools = tools.clone();
 
         let body = match serde_json::to_vec(&req) {
