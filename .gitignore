@@ -7,3 +7,8 @@ Cargo.lock
 
 # Git worktrees
 .worktrees/
+
+# Local-dev cargo overrides — copy .cargo/config.toml.example to .cargo/config.toml
+# to point wafer-* crate names at sibling working copies.
+/.cargo/config.toml
+.data/

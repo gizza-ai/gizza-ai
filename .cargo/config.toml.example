@@ -1,0 +1,34 @@
+# Local development override for wafer-run crates.
+#
+# Patches every wafer-* dep to the sibling wafer-run checkout so that
+# changes to the runtime are picked up without a git push.
+#
+# Expected layout:
+#   workspace/
+#     gizza-ai/       <- this repo
+#     solobase/       <- sibling checkout
+#     wafer-run/      <- sibling checkout
+#
+# Docs: https://doc.rust-lang.org/cargo/reference/config.html#patch
+
+[patch."https://github.com/wafer-run/wafer-run"]
+wafer-run = { path = "../wafer-run/crates/wafer-run" }
+wafer-block = { path = "../wafer-run/crates/wafer-block" }
+wafer-core = { path = "../wafer-run/crates/wafer-core" }
+wafer-sql-utils = { path = "../wafer-run/crates/wafer-sql-utils" }
+wafer-block-config = { path = "../wafer-run/crates/wafer-block-config" }
+wafer-block-cors = { path = "../wafer-run/crates/wafer-block-cors" }
+wafer-block-crypto = { path = "../wafer-run/crates/wafer-block-crypto" }
+wafer-block-http-listener = { path = "../wafer-run/crates/wafer-block-http-listener" }
+wafer-block-inspector = { path = "../wafer-run/crates/wafer-block-inspector" }
+wafer-block-local-storage = { path = "../wafer-run/crates/wafer-block-local-storage" }
+wafer-block-logger = { path = "../wafer-run/crates/wafer-block-logger" }
+wafer-block-network = { path = "../wafer-run/crates/wafer-block-network" }
+wafer-block-readonly-guard = { path = "../wafer-run/crates/wafer-block-readonly-guard" }
+wafer-block-router = { path = "../wafer-run/crates/wafer-block-router" }
+wafer-block-s3 = { path = "../wafer-run/crates/wafer-block-s3" }
+wafer-block-security-headers = { path = "../wafer-run/crates/wafer-block-security-headers" }
+wafer-block-sqlite = { path = "../wafer-run/crates/wafer-block-sqlite" }
+wafer-block-web = { path = "../wafer-run/crates/wafer-block-web" }
+wafer-block-postgres = { path = "../wafer-run/crates/wafer-block-postgres" }
+wafer-block-fastembed = { path = "../wafer-run/crates/wafer-block-fastembed" }
