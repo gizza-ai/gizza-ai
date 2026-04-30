@@ -14,14 +14,14 @@ document.title = 'gizza.ai';
     if (wordmark) wordmark.textContent = 'gizza.ai';
 }
 
-// Move the settings cog from the topbar into the composer's action row,
+// Move the settings cog from the header into the composer's action row,
 // just before the send button. The Lucide cog icon and ghost-button styling
-// are applied by gizza.css via #composer #open-settings.
+// are applied by gizza.css via #composer #open-settings (mask-image on
+// ::before — the button itself is empty in the maud HTML).
 {
     const cog = document.getElementById('open-settings');
     const send = document.getElementById('send');
     if (cog && send && cog.parentElement !== send.parentElement) {
-        cog.textContent = ''; // drop the ⚙ glyph; CSS draws the Lucide icon
         send.parentElement.insertBefore(cog, send);
     }
 }
