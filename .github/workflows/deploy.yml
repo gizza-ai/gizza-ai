@@ -6,14 +6,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: pages-deploy
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout gizza-ai
@@ -59,6 +61,12 @@ jobs:
             solobase
             wafer-run
 
+      - name: Build solobase-web wasm
+        # Required by solobase's build.rs (it include_bytes!s the wasm).
+        # Mirrors solobase/justfile's `build` recipe.
+        working-directory: solobase
+        run: wasm-pack build crates/solobase-web --target web --release --out-dir pkg
+
       - name: Build solobase CLI
         run: cargo install --path solobase/crates/solobase --locked
 
@@ -69,11 +77,21 @@ jobs:
         working-directory: gizza-ai
         run: solobase build
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: gizza-ai/pkg
-          publish_branch: gh-pages
-          force_orphan: true
-          cname: gizza.ai
+          path: gizza-ai/pkg
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
