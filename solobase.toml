@@ -20,3 +20,11 @@ to = "gizza-app.js"
 [[assets.overlay]]
 from = "site/gizza.css"
 to = "gizza.css"
+
+[[assets.overlay]]
+from = "static/CNAME"
+to = "CNAME"
+
+[[assets.overlay]]
+from = "static/_headers"
+to = "_headers"

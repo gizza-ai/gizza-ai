@@ -6,29 +6,31 @@ Browser-local AI chat site with WASM skill blocks. See the design at
 ## Build
 
 ```bash
-just build
+solobase build
 ```
 
 This:
-1. Builds every skill block under `blocks/*` via `wafer build`.
-2. Compiles gizza-ai to WASM via `wasm-pack build`.
-3. Provisions `sql-wasm.wasm` + `sql-wasm-esm.js` from `../solobase/crates/solobase-web/pkg/` (runs that Makefile if needed).
-4. Assembles everything into `dist/`.
+1. Builds every skill block under `blocks/*` via `wafer build` (auto-discovered).
+2. Compiles gizza-ai to WASM via `wasm-pack`.
+3. Provisions `sql-wasm.wasm` + `sql-wasm-esm.js` from the sibling solobase checkout.
+4. Assembles everything into `pkg/`.
 
 ## Serve
 
 ```bash
-just serve
-# open http://localhost:8001
+solobase serve
 ```
 
-First visit registers the Service Worker and reloads. After that the SW
-intercepts all requests and routes them through the WAFER runtime blocks.
+First visit registers the Service Worker and reloads. After that the SW intercepts all requests and routes them through the WAFER runtime blocks.
+
+## Local development against unmerged wafer-run/solobase changes
+
+Copy `.cargo/config.toml.example` to `.cargo/config.toml` to point the wafer-* crate names at sibling working copies (`../wafer-run/`). The example file is committed; the active config is gitignored so per-developer overrides don't leak into PRs.
 
 ## End-to-end test
 
 ```bash
-# Prerequisites: dist/ built via 'just build', chromium installed.
+# Prerequisites: pkg/ built via 'solobase build', chromium installed.
 cd tests
 npm install
 npx playwright install chromium   # first time only (~200 MB download)

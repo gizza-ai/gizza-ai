@@ -10,13 +10,13 @@ actually pick up next session."
 
 Get gizza-ai live at `gizza.ai` so it's shareable.
 
-- [ ] GitHub Actions workflow: run `just build` on push to `main`, deploy `dist/` to `gh-pages` branch.
-- [ ] Add `CNAME` with `gizza.ai` to the deploy artifact.
-- [ ] Configure GitHub Pages for the repo (Settings → Pages → source: gh-pages).
-- [ ] DNS: CNAME `gizza.ai` to `gizza-ai.github.io` (and www. if desired).
-- [ ] Switch `.cargo/config.toml` patches off by default — now that the upstream PRs are merged to `main` on both `wafer-run` and `solobase`, `Cargo.toml`'s git deps resolve against real published code. Keep the patch file around but gitignored, or behind a "local dev" feature flag.
-- [ ] Bump `Cargo.toml` deps to pin a specific merged commit SHA (not just `branch = "main"`) for reproducible CI.
-- [ ] Optional: auto-reload on `navigator.serviceWorker.oncontrollerchange` in `loader.js` — zero-reload updates. Needs a loop-guard (don't reload if a reload is already in flight).
+- [x] GitHub Actions workflow: run `solobase build` on push to `main`, deploy `pkg/` to `gh-pages` branch.
+- [x] Add `CNAME` with `gizza.ai` to the deploy artifact.
+- [ ] Configure GitHub Pages for the repo (Settings → Pages → source: gh-pages). _Operator action after PR-A merges._
+- [ ] DNS: CNAME `gizza.ai` to `gizza-ai.github.io` (and www. if desired). _Operator action after PR-A merges._
+- [x] Switch `.cargo/config.toml` patches off by default — moved to `.cargo/config.toml.example` and gitignored. Copy back locally when developing against unmerged sibling checkouts.
+- [x] Bump `Cargo.toml` deps to pin a specific merged commit SHA (not just `branch = "main"`) for reproducible CI.
+- [ ] Optional: auto-reload on `navigator.serviceWorker.oncontrollerchange` in `loader.js` — zero-reload updates. Needs a loop-guard (don't reload if a reload is already in flight). _Moved to PR-C in solobase since `loader.js` lives in `solobase-browser`, not gizza-ai._
 
 **Rough estimate:** a few hours to a day. Self-contained.
 
