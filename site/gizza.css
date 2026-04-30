@@ -13,6 +13,13 @@
   /* Brand override — Cursor Orange instead of the kit's default navy. */
   --sa-accent: #f54e00;
   --sa-accent-hover: #d04200;
+  /* On-accent foreground. Cursor-orange + kit-default white = 3.0:1
+   * (fails AA normal text). Pair with the kit's deep ink for
+   * 5.5:1 (AA pass for normal text). Gizza-internal primary CTAs
+   * (in `gizza.css`) keep white-on-orange via --color-on-primary —
+   * those are large/bold enough to pass AA Large (3:1). This token
+   * governs future kit components only. */
+  --sa-on-accent: #26251e;
 
   /* Aliases: gizza color names → site-kit --sa-* tokens. */
   --color-primary:        var(--sa-accent);
