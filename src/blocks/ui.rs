@@ -105,7 +105,10 @@ fn render_chat() -> maud::Markup {
                         img src="/gis.png" alt="" class="brand-logo";
                         h1 { "gizza-ai" }
                     }
-                    button slot="actions" id="open-settings" type="button" aria-label="Settings" { "⚙" }
+                    // Empty button — gizza.css draws the Lucide `settings` icon
+                    // via `::before { mask-image }` once the button lands in the
+                    // composer. No textContent needed (was an emoji placeholder).
+                    button slot="actions" id="open-settings" type="button" aria-label="Settings" {}
                 }
                 sa-chat {
                     div slot="messages" id="messages" {
