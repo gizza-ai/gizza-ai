@@ -10,7 +10,7 @@ const $ = (id) => document.getElementById(id);
 // rebuild.
 document.title = 'gizza.ai';
 {
-    const wordmark = document.querySelector('.topbar h1');
+    const wordmark = document.querySelector('sa-header h1');
     if (wordmark) wordmark.textContent = 'gizza.ai';
 }
 
