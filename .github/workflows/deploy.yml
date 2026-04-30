@@ -1,0 +1,79 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gizza-ai
+        uses: actions/checkout@v4
+        with:
+          path: gizza-ai
+
+      - name: Read solobase pin
+        id: pin
+        run: echo "solobase_sha=$(cat gizza-ai/solobase-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout solobase
+        uses: actions/checkout@v4
+        with:
+          repository: suppers-ai/solobase
+          ref: ${{ steps.pin.outputs.solobase_sha }}
+          path: solobase
+
+      - name: Checkout wafer-run
+        # Cargo.lock is gitignored in this repo; using main HEAD here matches
+        # what cargo will resolve `branch = "main"` to at build time, so the
+        # block-crate path deps and the gizza-ai lib's git deps see the same
+        # wafer-run version.
+        uses: actions/checkout@v4
+        with:
+          repository: wafer-run/wafer-run
+          ref: main
+          path: wafer-run
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            gizza-ai
+            solobase
+            wafer-run
+
+      - name: Build solobase CLI
+        run: cargo install --path solobase/crates/solobase --locked
+
+      - name: Build wafer CLI
+        run: cargo install --path wafer-run/crates/wafer-cli --locked
+
+      - name: Build site
+        working-directory: gizza-ai
+        run: solobase build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: gizza-ai/pkg
+          publish_branch: gh-pages
+          force_orphan: true
+          cname: gizza.ai
