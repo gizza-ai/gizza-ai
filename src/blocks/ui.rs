@@ -94,21 +94,27 @@ fn render_chat() -> maud::Markup {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
                 title { "gizza-ai" }
+                link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
+                script type="module" src="https://site-kit.suppers.ai/dist/components/sa-header.js" {}
+                script type="module" src="https://site-kit.suppers.ai/dist/components/sa-chat.js" {}
                 link rel="stylesheet" href="/gizza.css";
             }
             body {
-                header class="topbar" {
-                    h1 { "gizza-ai" }
-                    button id="open-settings" type="button" aria-label="Settings" { "⚙" }
+                sa-header {
+                    a slot="brand" href="/" class="brand" {
+                        img src="/gis.png" alt="" class="brand-logo";
+                        h1 { "gizza-ai" }
+                    }
+                    button slot="actions" id="open-settings" type="button" aria-label="Settings" { "⚙" }
                 }
-                main id="chat" {
-                    div id="messages" {
+                sa-chat {
+                    div slot="messages" id="messages" {
                         div class="empty" { "Load a model in settings to start." }
                     }
-                }
-                form id="composer" autocomplete="off" {
-                    textarea id="user-input" name="user_message" placeholder="Ask anything…" rows="2" {}
-                    button id="send" type="submit" disabled { "Send" }
+                    form slot="composer" id="composer" autocomplete="off" {
+                        textarea id="user-input" name="user_message" placeholder="Ask anything…" rows="2" {}
+                        button id="send" type="submit" disabled { "Send" }
+                    }
                 }
                 dialog id="settings" {
                     form method="dialog" {
