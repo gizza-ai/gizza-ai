@@ -97,6 +97,11 @@ fn render_chat() -> maud::Markup {
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-header.js" {}
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-chat.js" {}
+                // Markdown renderer for assistant messages.
+                script src="https://cdn.jsdelivr.net/npm/marked@13.0.0/marked.min.js" {}
+                // Syntax highlighting for fenced code blocks.
+                link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css";
+                script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js" {}
                 link rel="stylesheet" href="/gizza.css";
             }
             body {
@@ -122,10 +127,18 @@ fn render_chat() -> maud::Markup {
                 dialog id="settings" {
                     form method="dialog" {
                         h2 { "Settings" }
-                        p {
-                            "Model: " code { (MVP_MODEL_ID) }
+                        div class="model-picker-row" {
+                            label for="model-picker" { "Model" }
+                            select id="model-picker" {
+                                // Populated client-side by gizza-app.js from
+                                // WebLLM's prebuiltAppConfig.model_list. We
+                                // include the MVP default as a fallback so
+                                // there's a valid value even if the dynamic
+                                // import fails.
+                                option value=(MVP_MODEL_ID) { (MVP_MODEL_ID) }
+                            }
                         }
-                        p class="help" { "Model downloads once per browser (~1.2 GB). Tools: supported." }
+                        p class="help" { "Model downloads once per browser (~1–2 GB). Tools: supported on Qwen2.5/Hermes/Llama-3 models." }
 
                         // WebGPU status banner — shown only when the browser
                         // lacks WebGPU. Populated by gizza-app.js at load.

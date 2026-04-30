@@ -5,6 +5,19 @@ const history = []; // OpenAI-format messages.
 
 const $ = (id) => document.getElementById(id);
 
+// Local-storage key for the user's chosen WebLLM model id. Set whenever the
+// model picker changes; read at page-init to restore the previous choice.
+const SELECTED_MODEL_KEY = 'gizza.selectedModel';
+
+// Read the selected model, falling back to the server-rendered default
+// (window.__GIZZA_MODEL_ID) when nothing's stored. Always returns a non-empty
+// string so callers can pass it directly to the agent endpoints.
+function selectedModelId() {
+    const stored = localStorage.getItem(SELECTED_MODEL_KEY);
+    if (stored && stored.trim()) return stored;
+    return window.__GIZZA_MODEL_ID;
+}
+
 // Brand text fix-ups — the maud HTML still ships "gizza-ai"; we override
 // here so the wordmark and tab title both read "gizza.ai" without a WASM
 // rebuild.
@@ -50,11 +63,35 @@ function addUserBubble(text) {
 function addAssistantBubble() {
     const msgs = $('messages');
     const bubble = el('div', { class: 'bubble assistant' });
-    const text = el('span', { class: 'text' });
+    const text = el('span', { class: 'text markdown' });
     bubble.appendChild(text);
     msgs.appendChild(bubble);
     scrollToBottom();
     return text;
+}
+
+// Render assistant text as markdown with syntax-highlighted code blocks.
+// `raw` is the full accumulated content so far (we re-render on each token —
+// marked is fast enough that flicker isn't noticeable for typical chat
+// outputs, and partial code-fence handling stays correct because marked sees
+// the full buffer on each call).
+//
+// Safety: assistant text is from a model we run, but model output can still
+// contain HTML-looking strings. marked's default options HTML-escape inline
+// content, so this is safe as long as we don't pass `{ sanitize: false }` and
+// don't enable `mangle: false` with raw HTML allowed. Marked 13 is
+// HTML-escape-by-default — no extra sanitiser needed.
+function renderAssistantContent(node, raw) {
+    if (typeof marked === 'undefined') {
+        node.textContent = raw;
+        return;
+    }
+    node.innerHTML = marked.parse(raw, { breaks: true, gfm: true });
+    if (typeof hljs !== 'undefined') {
+        for (const block of node.querySelectorAll('pre code')) {
+            try { hljs.highlightElement(block); } catch (_e) { /* ignore */ }
+        }
+    }
 }
 
 function addToolRow(name, args) {
@@ -118,6 +155,70 @@ function parsePercentFromStage(stage) {
 
 // --- Settings dialog ---
 $('open-settings').addEventListener('click', () => $('settings').showModal());
+
+// --- Model picker ---
+//
+// Populates the <select id="model-picker"> from WebLLM's
+// `prebuiltAppConfig.model_list`. We import @mlc-ai/web-llm dynamically so the
+// list comes from the same package webllm-engine.js drives — no risk of the
+// picker offering an id the engine can't load.
+//
+// Selection persists in localStorage under SELECTED_MODEL_KEY. A models known
+// to support tool-calling get a 🔧 marker.
+//
+// Tool-supporting families (substrings) per WebLLM 0.2.74 prebuilt list. Used
+// only for the badge — the agent still passes any selected model id straight
+// through to the LLM service.
+const TOOL_SUPPORT_HINTS = ['Hermes-2', 'Hermes-3', 'Qwen2.5', 'Llama-3-Groq', 'functionary'];
+
+function modelSupportsTools(id) {
+    return TOOL_SUPPORT_HINTS.some((hint) => id.includes(hint));
+}
+
+async function populateModelPicker() {
+    const sel = $('model-picker');
+    if (!sel) return;
+    let models = [];
+    try {
+        const mod = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.74/+esm');
+        const list = mod?.prebuiltAppConfig?.model_list;
+        if (Array.isArray(list)) {
+            models = list
+                .map((m) => m?.model_id)
+                .filter((id) => typeof id === 'string' && id.length > 0);
+        }
+    } catch (e) {
+        console.warn('model-picker: failed to load WebLLM model list, falling back to default', e);
+    }
+
+    // Always keep the server-rendered fallback option so there's something to
+    // select even when the dynamic import fails. If the dynamic list returned
+    // values, replace the placeholder with the full list.
+    if (models.length > 0) {
+        sel.replaceChildren();
+        for (const id of models) {
+            const opt = document.createElement('option');
+            opt.value = id;
+            const tools = modelSupportsTools(id) ? ' 🔧' : '';
+            opt.textContent = `${id}${tools}`;
+            sel.appendChild(opt);
+        }
+    }
+
+    // Restore previous choice if it's in the list; otherwise stick with the
+    // server-rendered default. localStorage values from a previous session
+    // pointing at a model not in the current list are silently ignored.
+    const stored = localStorage.getItem(SELECTED_MODEL_KEY);
+    if (stored) {
+        const match = Array.from(sel.options).find((o) => o.value === stored);
+        if (match) sel.value = stored;
+    }
+
+    sel.addEventListener('change', () => {
+        localStorage.setItem(SELECTED_MODEL_KEY, sel.value);
+    });
+}
+populateModelPicker();
 
 // --- WebGPU detection + per-browser setup instructions ---
 async function detectWebGPU() {
@@ -207,7 +308,7 @@ $('load-model').addEventListener('click', async () => {
         const resp = await fetch('/b/agent/load-model', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model_id: window.__GIZZA_MODEL_ID }),
+            body: JSON.stringify({ model_id: selectedModelId() }),
         });
         if (!resp.ok) throw new Error(`load-model HTTP ${resp.status}`);
 
@@ -294,7 +395,11 @@ $('composer').addEventListener('submit', async (e) => {
         const resp = await fetch('/b/agent/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_message: text, messages: history.slice(0, -1) }),
+            body: JSON.stringify({
+                user_message: text,
+                messages: history.slice(0, -1),
+                model_id: selectedModelId(),
+            }),
         });
         if (!resp.ok) throw new Error(`agent HTTP ${resp.status}`);
 
@@ -339,7 +444,7 @@ $('composer').addEventListener('submit', async (e) => {
 
         if (event === 'token' && payload?.delta) {
             assistantText += payload.delta;
-            assistantEl.textContent = assistantText;
+            renderAssistantContent(assistantEl, assistantText);
             scrollToBottom();
         } else if (event === 'tool_call') {
             const row = addToolRow(payload?.name ?? '?', payload?.arguments ?? '');

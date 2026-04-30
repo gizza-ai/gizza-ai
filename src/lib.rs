@@ -101,7 +101,7 @@ pub async fn initialize() -> Result<(), JsValue> {
                     "default-src 'self'; ",
                     "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' ",
                         "https://cdn.jsdelivr.net https://site-kit.suppers.ai; ",
-                    "style-src 'self' 'unsafe-inline' https://site-kit.suppers.ai; ",
+                    "style-src 'self' 'unsafe-inline' https://site-kit.suppers.ai https://cdn.jsdelivr.net; ",
                     "img-src 'self' data: blob: https:; ",
                     "font-src 'self' https:; ",
                     "connect-src 'self' https://cdn.jsdelivr.net https://esm.run https://huggingface.co ",
