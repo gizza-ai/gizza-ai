@@ -59,6 +59,12 @@ jobs:
             solobase
             wafer-run
 
+      - name: Build solobase-web wasm
+        # Required by solobase's build.rs (it include_bytes!s the wasm).
+        # Mirrors solobase/justfile's `build` recipe.
+        working-directory: solobase
+        run: wasm-pack build crates/solobase-web --target web --release --out-dir pkg
+
       - name: Build solobase CLI
         run: cargo install --path solobase/crates/solobase --locked
 
