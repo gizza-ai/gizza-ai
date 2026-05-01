@@ -1,0 +1,17 @@
+{
+  "name": "gizza-ai/ffmpeg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect a media file's codec/duration/dimensions via ffmpeg.",
+  "role": "skill",
+  "tool": {
+    "description": "Fetch a media file at the given URL and return its metadata (codec, container, duration, dimensions, bitrate, etc.) as printed by ffmpeg. Use this to describe audio or video files to the user.",
+    "parameters": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string", "description": "Absolute http(s) URL to a media file." }
+      }
+    }
+  }
+}
