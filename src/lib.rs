@@ -17,10 +17,10 @@ use wafer_core::interfaces::config::service::ConfigService;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
-#[cfg(target_arch = "wasm32")]
 pub mod blocks;
 #[cfg(target_arch = "wasm32")]
 pub mod config;
+pub mod ffmpeg;
 pub mod skills;
 
 // ---------------------------------------------------------------------------
@@ -174,6 +174,14 @@ pub async fn initialize() -> Result<(), JsValue> {
     wafer
         .register_block("gizza-ai/ui", Arc::new(blocks::ui::UiBlock))
         .map_err(|e| JsValue::from_str(&format!("register gizza-ai/ui: {e}")))?;
+
+    let ffmpeg_svc: Arc<dyn ffmpeg::FfmpegService> = Arc::new(ffmpeg::BrowserFfmpegService);
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg-runtime",
+            Arc::new(blocks::ffmpeg::FfmpegBlock::new(ffmpeg_svc)),
+        )
+        .map_err(|e| JsValue::from_str(&format!("register gizza-ai/ffmpeg-runtime: {e}")))?;
 
     for (name, bytes) in skills::SKILLS {
         let wasmi = wafer_run::wasm::WasmiBlock::load_from_bytes(bytes)
