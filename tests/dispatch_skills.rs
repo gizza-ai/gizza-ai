@@ -57,6 +57,7 @@ impl Block for FakeNetworkBlock {
         let url = req["url"].as_str().unwrap_or("");
         let (status, body_bytes): (u16, Vec<u8>) = match url {
             "https://example.test/web-fetch.txt" => (200, b"WEBFETCH_OK_8f3a2".to_vec()),
+            "https://example.test/sample.mp4" => (200, b"FAKE_MP4_BYTES".to_vec()),
             _ => (404, Vec::new()),
         };
 
@@ -191,4 +192,74 @@ async fn ffmpeg_block_dispatches_to_service() {
     assert_eq!(result.exit_code, 0);
     assert_eq!(result.output, b"FAKE_FFMPEG_OUT");
     assert_eq!(result.log, "fake ok");
+}
+
+// -- ffmpeg skill (two-hop) dispatch test ------------------------------------
+
+#[tokio::test]
+async fn ffmpeg_skill_two_hop_dispatch() {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::builder().build()");
+
+    // Hop 1 target: fake network block returning canned bytes for the URL.
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+
+    // Hop 2 target: fake ffmpeg-runtime returning a canned log.
+    let ffmpeg_svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService {
+        canned_output: Vec::new(),
+        canned_log: "Stream #0:0: Video: h264, yuv420p, 1920x1080, 30 fps".into(),
+    });
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg-runtime",
+            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(ffmpeg_svc)),
+        )
+        .expect("register ffmpeg-runtime");
+
+    // The skill itself.
+    let wasm: &[u8] = include_bytes!("../blocks/ffmpeg/target/block.wasm");
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg",
+            Arc::new(WasmiBlock::load_from_bytes(wasm).expect("load ffmpeg skill")),
+        )
+        .expect("register ffmpeg skill");
+
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let body = serde_json::to_vec(&json!({
+        "url": "https://example.test/sample.mp4"
+    }))
+    .expect("serialize request body");
+
+    let output = wafer
+        .run_block(
+            "gizza-ai/ffmpeg",
+            Message::new("invoke"),
+            InputStream::from_bytes(body),
+        )
+        .await;
+
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("ffmpeg skill non-success terminal");
+
+    let parsed: serde_json::Value =
+        serde_json::from_slice(&resp.body).expect("ffmpeg skill body is JSON");
+
+    assert_eq!(parsed["url"], "https://example.test/sample.mp4");
+    assert!(
+        parsed["info"]
+            .as_str()
+            .unwrap_or_default()
+            .contains("h264"),
+        "info field should contain the canned ffmpeg log marker; got: {}",
+        parsed["info"]
+    );
 }
