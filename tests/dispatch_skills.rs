@@ -120,3 +120,75 @@ async fn web_fetch_round_trips_through_network_block() {
     assert_eq!(parsed["body"], "WEBFETCH_OK_8f3a2", "body marker");
     assert_eq!(parsed["truncated"], false, "truncated flag");
 }
+
+// -- ffmpeg-runtime dispatch test ----------------------------------------------
+
+/// Test stub: `FfmpegService` impl that returns canned bytes regardless of args.
+struct FakeFfmpegService {
+    canned_output: Vec<u8>,
+    canned_log: String,
+}
+
+#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
+impl gizza_ai::ffmpeg::FfmpegService for FakeFfmpegService {
+    async fn exec(
+        &self,
+        _args: gizza_ai::ffmpeg::ExecArgs,
+    ) -> Result<gizza_ai::ffmpeg::ExecResult, gizza_ai::ffmpeg::FfmpegError> {
+        Ok(gizza_ai::ffmpeg::ExecResult {
+            exit_code: 0,
+            output: self.canned_output.clone(),
+            log: self.canned_log.clone(),
+        })
+    }
+}
+
+#[tokio::test]
+async fn ffmpeg_block_dispatches_to_service() {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::builder().build()");
+
+    let svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService {
+        canned_output: b"FAKE_FFMPEG_OUT".to_vec(),
+        canned_log: "fake ok".into(),
+    });
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg-runtime",
+            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(svc)),
+        )
+        .expect("register ffmpeg-runtime");
+
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let body = serde_json::to_vec(&gizza_ai::ffmpeg::ExecArgs {
+        args: vec!["-i".into(), "in".into(), "out".into()],
+        inputs: vec![("in".into(), b"hello".to_vec())],
+        output: "out".into(),
+    })
+    .expect("serialize args");
+
+    let output = wafer
+        .run_block(
+            "gizza-ai/ffmpeg-runtime",
+            Message::new("ffmpeg.exec"),
+            InputStream::from_bytes(body),
+        )
+        .await;
+
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("ffmpeg-runtime non-success terminal");
+
+    let result: gizza_ai::ffmpeg::ExecResult =
+        serde_json::from_slice(&resp.body).expect("ffmpeg result is JSON");
+
+    assert_eq!(result.exit_code, 0);
+    assert_eq!(result.output, b"FAKE_FFMPEG_OUT");
+    assert_eq!(result.log, "fake ok");
+}
