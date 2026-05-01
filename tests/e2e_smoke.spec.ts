@@ -7,9 +7,9 @@ test.describe('gizza-ai smoke', () => {
 
     // Wait for the chat UI rendered by the gizza-ai/ui block (served via SW).
     // The SW intercepts /b/ui/ and the page transitions from the boot shell to
-    // the full UI. h1 "gizza-ai" is present in both shells, but #composer only
-    // appears in the rendered UI.
-    await expect(page.locator('h1')).toContainText('gizza-ai', { timeout: 30_000 });
+    // the full UI. The h1 reads "gizza.ai" in the rendered UI; #composer only
+    // appears once the SW takes over.
+    await expect(page.locator('h1')).toContainText(/gizza/i, { timeout: 30_000 });
     await expect(page.locator('#composer')).toBeVisible({ timeout: 30_000 });
 
     // Open the settings dialog.
@@ -37,5 +37,32 @@ test.describe('gizza-ai smoke', () => {
       /time|clock|UTC|\d{2}:\d{2}|\d{4}-\d{2}-\d{2}/i,
       { timeout: 90_000 },
     );
+  });
+
+  test('web-fetch retrieves a same-origin fixture and the marker reaches the chat', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('h1')).toContainText(/gizza/i, { timeout: 30_000 });
+    await expect(page.locator('#composer')).toBeVisible({ timeout: 30_000 });
+
+    // Model weights are cached after the clock test in the same suite, but
+    // allow up to 3 minutes for cold runs.
+    await page.locator('#open-settings').click();
+    await expect(page.locator('#settings')).toBeVisible();
+    await page.locator('#load-model').click();
+    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 180_000 });
+    await page.locator('#settings button[value="close"]').click();
+    await expect(page.locator('#settings')).not.toBeVisible();
+
+    await page.locator('#user-input').fill(
+      'Use the web-fetch tool to fetch the URL /test-fixtures/web-fetch.txt and quote its contents back to me verbatim.',
+    );
+    await page.locator('#send').click();
+
+    // The unique marker WEBFETCH_OK_8f3a2 can only reach #messages if the tool
+    // call round-tripped successfully (skill → call_block → network block →
+    // BrowserNetworkService → fetch → back through call_block → tool response → LLM).
+    await expect(page.locator('#messages')).toContainText('WEBFETCH_OK_8f3a2', {
+      timeout: 120_000,
+    });
   });
 });
