@@ -57,3 +57,7 @@ uuid = { version = "1", features = ["v4", "js"] }
 # tokio time feature for per-frame stream timeouts in agent.rs.
 # The `time` feature compiles to wasm32 (uses JS timers under wasm-bindgen).
 tokio = { version = "1", features = ["time"], default-features = false }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt"] }
+async-trait = "0.1"

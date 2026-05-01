@@ -1,0 +1,122 @@
+//! In-process integration test for gizza-ai/web-fetch.
+//!
+//! Boots a wafer-run runtime, substitutes a FakeNetworkBlock for
+//! wafer-run/network, loads blocks/web-fetch/target/block.wasm into the wasmi
+//! runtime, and asserts the cross-block dispatch path (web-fetch → call_block
+//! → fake network → response → web-fetch parses → ToolResp) round-trips
+//! correctly. No browser, no LLM, no Playwright.
+
+use std::sync::Arc;
+
+use serde_json::json;
+use wafer_block::{Block, Context, InputStream, Message, OutputStream, WaferError};
+use wafer_run::{ErrorCode, WasmiBlock, Wafer};
+
+/// A native test stub for `wafer-run/network`. Returns canned 200 responses for
+/// the URL the test uses, 404 for everything else. Lives inline because no
+/// other test consumer needs it yet — promote to `wafer-test-support` if a
+/// second skill grows a similar dispatch test.
+#[derive(Default)]
+struct FakeNetworkBlock;
+
+#[async_trait::async_trait]
+impl Block for FakeNetworkBlock {
+    fn info(&self) -> wafer_block::types::BlockInfo {
+        wafer_block::types::BlockInfo::new(
+            "wafer-run/network",
+            "0.1.0",
+            "network@v1",
+            "Test stub — returns canned HTTP responses",
+        )
+    }
+
+    async fn handle(
+        &self,
+        _ctx: &dyn Context,
+        msg: Message,
+        input: InputStream,
+    ) -> OutputStream {
+        let expected_kind = wafer_block::ServiceOp::NETWORK_DO_REQUEST;
+        if msg.kind != expected_kind {
+            return OutputStream::error(WaferError::new(
+                ErrorCode::INVALID_ARGUMENT,
+                format!("FakeNetworkBlock: unexpected msg.kind {}", msg.kind),
+            ));
+        }
+        let body = input.collect_to_bytes().await;
+        let req: serde_json::Value = match serde_json::from_slice(&body) {
+            Ok(v) => v,
+            Err(e) => {
+                return OutputStream::error(WaferError::new(
+                    ErrorCode::INVALID_ARGUMENT,
+                    format!("FakeNetworkBlock: invalid request body: {e}"),
+                ));
+            }
+        };
+
+        let url = req["url"].as_str().unwrap_or("");
+        let (status, body_bytes): (u16, Vec<u8>) = match url {
+            "https://example.test/web-fetch.txt" => (200, b"WEBFETCH_OK_8f3a2".to_vec()),
+            _ => (404, Vec::new()),
+        };
+
+        OutputStream::respond(
+            serde_json::to_vec(&json!({
+                "status_code": status,
+                "headers": { "content-type": ["text/plain"] },
+                "body": body_bytes,
+            }))
+            .expect("serialize fake response"),
+        )
+    }
+}
+
+#[tokio::test]
+async fn web_fetch_round_trips_through_network_block() {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+
+    let wasm: &[u8] = include_bytes!("../blocks/web-fetch/target/block.wasm");
+    let block = WasmiBlock::load_from_bytes(wasm).expect("load web-fetch wasm");
+    wafer
+        .register_block("gizza-ai/web-fetch", Arc::new(block))
+        .expect("register web-fetch");
+
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let req_body = serde_json::to_vec(&json!({
+        "url": "https://example.test/web-fetch.txt"
+    }))
+    .expect("serialize request body");
+
+    let output = wafer
+        .run_block(
+            "gizza-ai/web-fetch",
+            Message::new("invoke"),
+            InputStream::from_bytes(req_body),
+        )
+        .await;
+
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("web-fetch returned a non-success terminal");
+
+    let parsed: serde_json::Value =
+        serde_json::from_slice(&resp.body).expect("web-fetch body is JSON");
+
+    assert_eq!(parsed["status"], 200, "status field");
+    assert_eq!(
+        parsed["url"], "https://example.test/web-fetch.txt",
+        "url echoed back"
+    );
+    assert_eq!(parsed["body"], "WEBFETCH_OK_8f3a2", "body marker");
+    assert_eq!(parsed["truncated"], false, "truncated flag");
+}
