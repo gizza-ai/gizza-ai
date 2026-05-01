@@ -27,11 +27,12 @@ Right now there's only `gizza-ai/clock`. The flagship demo is ffmpeg image manip
 - [x] `gizza-ai/web-fetch` — fetch a URL and return its text body. Implemented via `call_block("wafer-run/network", …)` after wafer-run PR-H landed body-passing call_block.
 - [x] `gizza-ai/calculator` — eval simple arithmetic expressions in Rust. Zero deps.
 - [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. Tests cross-skill dispatch.
-- [ ] `gizza-ai/ffmpeg` — the flagship. First skill to exercise the `externalAssets` declarative loader end-to-end. Needs:
-  - Skill block wrapping ffmpeg operations (resize, crop, trim, transcode) as a tool.
-  - `ai-bridge.js` registers an `ffmpeg.wasm` loader in `_loaderRegistry`, using `@ffmpeg/ffmpeg` from jsdelivr.
-  - File drag-drop in the UI so the user can supply an image/video.
-  - File preview in assistant replies (inline `<img>`/`<video>`/download button).
+- [~] `gizza-ai/ffmpeg` — flagship. Decomposed into 4 sub-projects (see specs). Status:
+  - [x] **Sub-project 1**: ffmpeg-runtime invocation primitive (PR #21).
+  - [x] **Sub-project 2**: ffprobe-scope skill (this PR). Returns media metadata as text.
+  - [ ] **Sub-project 3**: file drag-drop UI (deferred — needs design pass).
+  - [ ] **Sub-project 4**: file preview / inline `<img>`/`<video>` rendering (deferred — couples with markdown rendering).
+  - Resize/transcode/crop/trim ops on hold pending sub-projects 3+4 (binary output has nowhere usable to land in the current text-only chat UI).
 
 **Rough estimate:** ffmpeg alone is a session or two; the others are an afternoon each.
 
