@@ -13,9 +13,13 @@ use std::sync::Arc;
 use solobase_core::builder::{self, SolobaseBuilder};
 use solobase_core::RouteAccess;
 use wafer_core::interfaces::config::service::ConfigService;
+
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+#[cfg(target_arch = "wasm32")]
 pub mod blocks;
+#[cfg(target_arch = "wasm32")]
 pub mod config;
 pub mod skills;
 
@@ -26,6 +30,7 @@ pub mod skills;
 /// Module init — runs automatically before any other wasm-bindgen export is
 /// first called. Install the panic hook here so ANY panic (including ones in
 /// code paths that don't go through initialize()) surfaces in the console.
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub fn module_start() {
     console_error_panic_hook::set_once();
@@ -41,6 +46,7 @@ pub fn module_start() {
 /// Must be called exactly once when the Service Worker starts, before any
 /// `handle_request()` call. Async because it awaits `solobase_browser::db_init()`
 /// and `wafer.start_without_bind()`.
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
     // Guard against double initialization.
@@ -203,6 +209,7 @@ pub async fn initialize() -> Result<(), JsValue> {
 ///
 /// Converts the browser `Request` into a WAFER `Message`, dispatches it
 /// through the `site-main` flow, and returns a browser `Response`.
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn handle_request(request: web_sys::Request) -> Result<web_sys::Response, JsValue> {
     solobase_browser::runtime::dispatch_request(request).await

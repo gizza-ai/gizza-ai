@@ -6,6 +6,7 @@
 
 use std::collections::HashMap;
 
+#[cfg(target_arch = "wasm32")]
 use solobase_browser::bridge;
 
 // ---------------------------------------------------------------------------

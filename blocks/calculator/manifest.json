@@ -1,0 +1,17 @@
+{
+  "name": "gizza-ai/calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Evaluate an arithmetic expression.",
+  "role": "skill",
+  "tool": {
+    "description": "Evaluate a math expression. Supports +, -, *, /, ^, parentheses, sqrt, sin, cos, ln, exp, and the constants pi and e.",
+    "parameters": {
+      "type": "object",
+      "required": ["expr"],
+      "properties": {
+        "expr": { "type": "string", "description": "e.g. '2 + sin(0.5) * pi'" }
+      }
+    }
+  }
+}

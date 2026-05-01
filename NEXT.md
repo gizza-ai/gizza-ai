@@ -24,8 +24,8 @@ Get gizza-ai live at `gizza.ai` so it's shareable.
 
 Right now there's only `gizza-ai/clock`. The flagship demo is ffmpeg image manipulation.
 
-- [ ] `gizza-ai/web-fetch` — fetch a URL and return its text body. No external asset loader needed (uses the existing `http_fetch` bridge). Good second skill to prove the pattern beyond clock.
-- [ ] `gizza-ai/calculator` — eval simple arithmetic expressions in Rust. Zero deps.
+- [x] `gizza-ai/web-fetch` — fetch a URL and return its text body. Implemented via `call_block("wafer-run/network", …)` after wafer-run PR-H landed body-passing call_block.
+- [x] `gizza-ai/calculator` — eval simple arithmetic expressions in Rust. Zero deps.
 - [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. Tests cross-skill dispatch.
 - [ ] `gizza-ai/ffmpeg` — the flagship. First skill to exercise the `externalAssets` declarative loader end-to-end. Needs:
   - Skill block wrapping ffmpeg operations (resize, crop, trim, transcode) as a tool.

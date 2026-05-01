@@ -28,3 +28,7 @@ to = "CNAME"
 [[assets.overlay]]
 from = "static/_headers"
 to = "_headers"
+
+[[assets.overlay]]
+from = "static/test-fixtures/web-fetch.txt"
+to = "test-fixtures/web-fetch.txt"
