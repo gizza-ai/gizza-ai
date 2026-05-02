@@ -4,24 +4,41 @@ Short handoff note — captures what's still to do after the Plan B MVP
 merge. `FUTURE.md` is the long-term catalogue; this file is "what I'd
 actually pick up next session."
 
-## Resume here (2026-05-01)
+## Resume here (2026-05-03)
 
-**Just shipped this session:**
-- gizza-ai #18 — `web-fetch` + `calculator` skills.
-- gizza-ai #20 — `dispatch_skills.rs` LLM-free integration test pattern (closes #19).
-- solobase #37 — wasm32 static block registration fix. linkme's `distributed_slice` doesn't run on wasm32, so `solobase-core/src/builder.rs` now explicitly registers the six middleware blocks (cors/inspector/readonly-guard/router/security-headers/web) under `#[cfg(target_arch = "wasm32")]`. **Required for any wasm32 consumer of `SolobaseBuilder`.** gizza-ai's deploy uses `solobase-pin.txt` to pin to a SHA that includes this fix.
-- gizza-ai #21 — ffmpeg sub-project 1: `gizza-ai/ffmpeg-runtime` service block + `BrowserFfmpegService` + JS bridge at `js/ffmpeg.js` (lazy-loads `@ffmpeg/ffmpeg` from jsdelivr).
-- gizza-ai #22 — ffmpeg sub-project 2: `gizza-ai/ffmpeg` skill (ffprobe scope), two-hop `call_block` (network → bytes → ffmpeg-runtime → log).
+**Stale-handoff catch:** the previous Resume section listed Plan E items
+(markdown rendering, model picker UI, syntax highlighting) as next-up,
+but PR #14 (`feat(ui): model picker, markdown rendering, syntax
+highlighting`, merged 2026-04-30) shipped all three. They're checked off
+in Plan E below now.
 
 **Top of the queue, ordered by ROI:**
 
-1. **Markdown rendering** (Plan E) — afternoon, user-visible polish, no upstream deps. `marked.js` already loaded via the chat plumbing; just route assistant content through it in `gizza-app.js` instead of plain text. Highest user-visible improvement per hour.
-2. **ffmpeg sub-project 4** (file preview / inline media) — couples naturally with markdown rendering (could ship as a single PR if the rendering approach handles `<img>`/`<video>` for `data:` URLs). Unlocks ffmpeg sub-project 5+ (resize/transcode/crop/trim ops with visible output).
-3. **Conversation persistence** (Plan E, prereq for `search-messages`). **Note:** the previous note here was wrong — `suppers-ai/messages` is registered (`config.rs:187`) but **nothing in gizza-ai writes to it.** Conversation history lives in-memory per request (the client passes prior messages in the agent request body). Refreshing the page loses everything except the selected model in localStorage. Building this is closer to "from zero" than "wire up an existing flow."
-4. **Model picker UI** (Plan E) — afternoon, independent.
-5. **Code syntax highlighting** — after markdown ships.
+1. **ffmpeg sub-project 4** (file preview / inline media) — afternoon-sized.
+   Render `data:` URLs returned by skills as `<img>`/`<video>` inside the
+   assistant bubble. Markdown rendering already handles `<img src="data:...">`
+   when the model emits it, so this is partly about the skill side
+   (returning image/video bytes in a renderable shape) and partly about
+   exposing those in the UI. Unlocks sub-project 5.
+2. **Smaller paper-cut: `_headers` for `sw.js`** — quick GH Pages hygiene
+   fix; prevents stale SW caching on deploy. See "Smaller paper-cuts"
+   below.
+3. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass
+   first. Pairs symmetrically with sub-project 4 (input vs output).
+4. **Conversation persistence** — **blocked** on a producer-side
+   (solobase) change. The `suppers-ai/messages` list endpoint requires
+   authentication and gizza-ai runs anonymous; wiring it up needs either
+   an anonymous list path or a server-side helper the agent block can
+   call with synthesized auth. See PR #14 commit message for the full
+   reasoning. Until that lands, this is a no-go.
 
-**Operational gotchas that bit us this session:**
+**Operator items (your action) — still outstanding from Plan C:**
+
+- Configure GitHub Pages for the repo (Settings → Pages → source: `gh-pages`).
+- DNS: CNAME `gizza.ai` → `gizza-ai.github.io` (and `www.` if desired).
+
+**Operational gotchas that bit us in past sessions:**
+
 - `solobase` on `$PATH` is the wrong binary (Go-based). Use the full path `/home/joris/Programs/suppers-ai/workspace/solobase/target/release/solobase`.
 - `~/.cargo/bin/wafer` can be stale relative to `wafer-run/main`. Symptom: `wafer build` fails with "function type mismatch for import wafer::__wafer_host_call_block". Fix: `cd wafer-run && cargo install --path crates/wafer-cli --force`.
 - Always `--no-track` when creating a new branch: `git worktree add --no-track -b NEW ../path origin/main`. Plain `git checkout -b NEW origin/main` silently sets upstream to `origin/main` and a later `git push` pushes to main.
@@ -49,16 +66,16 @@ actually pick up next session."
   - [x] **Sub-project 1** — ffmpeg-runtime invocation primitive (PR #21). Native `FfmpegBlock` registered as `gizza-ai/ffmpeg-runtime`, JS bridge at `js/ffmpeg.js` lazy-loads `@ffmpeg/ffmpeg` from jsdelivr.
   - [x] **Sub-project 2** — ffprobe-scope skill (PR #22). Two-hop `call_block` (network → bytes → ffmpeg-runtime → log). Tool surface: `{url}` only; returns `{url, info}` JSON.
   - [ ] **Sub-project 3** — file drag-drop UI (deferred — needs design pass).
-  - [ ] **Sub-project 4** — file preview / inline `<img>`/`<video>` rendering (deferred — couples with markdown rendering, see Plan E).
+  - [ ] **Sub-project 4** — file preview / inline `<img>`/`<video>` rendering. Markdown rendering already shipped (PR #14), so this is now standalone — wire skill output (`data:` URLs / typed binary) through to the bubble.
   - [ ] **Sub-project 5** — resize/transcode/crop/trim skill ops (blocked on 3+4 because binary output has nowhere usable to land today).
-- [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. **Blocked**: chat history isn't persisted to `suppers-ai/messages` today. Build conversation persistence (Plan E) first.
+- [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. **Blocked**: chat history isn't persisted to `suppers-ai/messages` today, and persistence itself is blocked on a producer-side change (see Plan E).
 
 ### 3. UX polish (Plan E)
 
-- [ ] **Markdown rendering** — `marked.js` loaded via `ai-bridge.js` (verify); render assistant content through it in `gizza-app.js` instead of plain text. Naturally pairs with ffmpeg sub-project 4 (data: URLs render as `<img>` / `<video>`).
-- [ ] **Conversation persistence** — write user/assistant turns to `suppers-ai/messages`; load prior entries on page init. **Note**: starting from zero — the previous note here ("messages already writes to OPFS; UI just doesn't load") was incorrect. `suppers-ai/messages` is registered but unused by gizza-ai today.
-- [ ] **Code syntax highlighting** — add `highlight.js` via CDN after markdown lands.
-- [ ] **Model picker UI** — replace the hardcoded Qwen2.5-1.5B with a selectable list. Pull from `window.gizzaAI.getAvailableModels()`. Show tool-support badges per model.
+- [x] **Markdown rendering** — shipped in PR #14. `marked.parse(raw, { breaks: true, gfm: true })` in `gizza-app.js::renderAssistantContent`; CDN load via `<script src="...marked@13.0.0/marked.min.js">` in `src/blocks/ui.rs`. Re-renders on each token; HTML-escape-by-default.
+- [ ] **Conversation persistence** — write user/assistant turns to `suppers-ai/messages`; load prior entries on page init. **Blocked on producer-side (solobase) change**: the `suppers-ai/messages` list endpoint requires authentication and gizza-ai runs anonymous. Either an anonymous list path or a server-side helper that synthesizes auth needs to land in solobase first.
+- [x] **Code syntax highlighting** — shipped in PR #14. `hljs.highlightElement` over `pre code` blocks inside `renderAssistantContent`; github-dark theme + highlight.min.js loaded via cdn.jsdelivr.net (also added to CSP `style-src`).
+- [x] **Model picker UI** — shipped in PR #14. `<select id="model-picker">` populated client-side from WebLLM's `prebuiltAppConfig.model_list` via dynamic import; selection persists in `localStorage` under `gizza.selectedModel`; tool-supporting families (Hermes-2/3, Qwen2.5, Llama-3-Groq, functionary) get a 🔧 marker.
 
 ## Smaller paper-cuts
 
