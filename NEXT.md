@@ -4,33 +4,56 @@ Short handoff note — captures what's still to do after the Plan B MVP
 merge. `FUTURE.md` is the long-term catalogue; this file is "what I'd
 actually pick up next session."
 
-## Resume here (2026-05-03)
+## Resume here (2026-05-04)
 
-**Stale-handoff catch:** the previous Resume section listed Plan E items
-(markdown rendering, model picker UI, syntax highlighting) as next-up,
-but PR #14 (`feat(ui): model picker, markdown rendering, syntax
-highlighting`, merged 2026-04-30) shipped all three. They're checked off
-in Plan E below now.
+**Cross-repo news from the 2026-05-03 session:**
+
+- **solobase #47 (browser vector + embedding backend) is MERGED.** Ships
+  `BrowserVectorService` (sql.js + FTS5) + `BrowserEmbeddingService`
+  (Transformers.js bridge) + `suppers-ai/transformers-embed` block, all
+  wired through `SolobaseBuilder::vector_service(...)` /
+  `embedding_service(...)`. If gizza-ai wants to bump `solobase-pin.txt`
+  to pick up the new vector backend (relevant for `search-messages` and
+  any future RAG skill), the SHA is on solobase `main` post-#47. Nothing
+  in gizza-ai breaks without bumping — the pin is opt-in.
+- **Smoke test infrastructure on solobase is now reliable.** PR #48/#49/
+  #51 fixed the SW-registration smoke (lazy WebLLM ESM import,
+  waitUntil:`commit`, waitForURL instead of racing goto). If you copy
+  any of solobase-web's smoke patterns into gizza-ai's e2e, those are
+  the green ones to imitate.
+- **A real product bug was caught and fixed in solobase #47**:
+  `scripts/build-sql-js-fts5.sh` had been overriding sql.js's full
+  `SQLITE_COMPILATION_FLAGS` with just our 4 flags, dropping
+  `-DSQLITE_OMIT_LOAD_EXTENSION` (the killer — leaves dlopen stubs as
+  null function pointers in wasm and traps with "null function" the
+  first time `new SQL.Database()` runs in a Service Worker). The
+  rebuilt FTS5 wasm is 761 KB (vs the broken 1.3 MB one). **Lesson for
+  any future custom-emcc builds in this repo: never override an
+  upstream `*_COMPILATION_FLAGS` macro without preserving the defaults
+  — extend the list, don't replace it.**
 
 **Top of the queue, ordered by ROI:**
 
-1. **ffmpeg sub-project 4** (file preview / inline media) — afternoon-sized.
+1. **Operator items below — your action only.** They unblock the live
+   site and don't require any code work.
+2. **ffmpeg sub-project 4** (file preview / inline media) — afternoon-sized.
    Render `data:` URLs returned by skills as `<img>`/`<video>` inside the
    assistant bubble. Markdown rendering already handles `<img src="data:...">`
    when the model emits it, so this is partly about the skill side
    (returning image/video bytes in a renderable shape) and partly about
    exposing those in the UI. Unlocks sub-project 5.
-2. **Smaller paper-cut: `_headers` for `sw.js`** — quick GH Pages hygiene
+3. **Smaller paper-cut: `_headers` for `sw.js`** — quick GH Pages hygiene
    fix; prevents stale SW caching on deploy. See "Smaller paper-cuts"
-   below.
-3. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass
+   below. ~10 minutes.
+4. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass
    first. Pairs symmetrically with sub-project 4 (input vs output).
-4. **Conversation persistence** — **blocked** on a producer-side
+5. **Conversation persistence** — **still blocked** on a producer-side
    (solobase) change. The `suppers-ai/messages` list endpoint requires
    authentication and gizza-ai runs anonymous; wiring it up needs either
    an anonymous list path or a server-side helper the agent block can
-   call with synthesized auth. See PR #14 commit message for the full
-   reasoning. Until that lands, this is a no-go.
+   call with synthesized auth. Solobase #47 didn't address this; it's
+   independent of the vector work. See PR #14 commit message for the
+   full reasoning.
 
 **Operator items (your action) — still outstanding from Plan C:**
 
@@ -43,6 +66,8 @@ in Plan E below now.
 - `~/.cargo/bin/wafer` can be stale relative to `wafer-run/main`. Symptom: `wafer build` fails with "function type mismatch for import wafer::__wafer_host_call_block". Fix: `cd wafer-run && cargo install --path crates/wafer-cli --force`.
 - Always `--no-track` when creating a new branch: `git worktree add --no-track -b NEW ../path origin/main`. Plain `git checkout -b NEW origin/main` silently sets upstream to `origin/main` and a later `git push` pushes to main.
 - The Playwright e2e (`tests/e2e_smoke.spec.ts`) is gated on headed Chromium (WebGPU) and a 1.2 GB WebLLM download; it's a manual smoke, not CI. The deterministic CI gate is `cargo test --test dispatch_skills` (see `tests/README.md`).
+- **Debugging Service Worker tests in Playwright**: `page.on('console')` only captures the page's console, NOT the SW's. To see SW logs, hook `context.on('serviceworker', sw => sw.on('console', ...))`. The 2026-05-03 solobase smoke debug took several CI cycles to find this — saved the diagnostic snippet in solobase's git history if you need it.
+- **Rebuilding sql.js FTS5**: Docker Desktop must be running. Run `bash scripts/build-sql-js-fts5.sh` (in solobase) — takes ~5 min in the `emscripten/emsdk:3.1.74` container. The script now passes the FULL upstream `SQLITE_COMPILATION_FLAGS` plus `-DSQLITE_ENABLE_FTS5`; do NOT shorten that list (see #47 commit `1373975` for why).
 
 ---
 
