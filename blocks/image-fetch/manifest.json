@@ -1,0 +1,17 @@
+{
+  "name": "gizza-ai/image-fetch",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fetch an image URL and return it for inline display.",
+  "role": "skill",
+  "tool": {
+    "description": "Fetch an image at the given URL and display it inline in the chat. Use this when the user shares an image URL or asks to see an image. Only image/* content types are supported.",
+    "parameters": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string", "description": "Absolute http(s) URL to an image file." }
+      }
+    }
+  }
+}

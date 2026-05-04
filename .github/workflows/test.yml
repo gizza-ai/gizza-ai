@@ -1,0 +1,84 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gizza-ai
+        uses: actions/checkout@v4
+        with:
+          path: gizza-ai
+
+      - name: Read solobase pin
+        id: pin
+        run: echo "solobase_sha=$(cat gizza-ai/solobase-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout solobase
+        uses: actions/checkout@v4
+        with:
+          repository: suppers-ai/solobase
+          ref: ${{ steps.pin.outputs.solobase_sha }}
+          path: solobase
+
+      - name: Checkout wafer-run
+        uses: actions/checkout@v4
+        with:
+          repository: wafer-run/wafer-run
+          ref: main
+          path: wafer-run
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            gizza-ai
+            solobase
+            wafer-run
+
+      - name: Build solobase-web wasm
+        working-directory: solobase
+        run: wasm-pack build crates/solobase-web --target web --release --out-dir pkg
+
+      - name: Build solobase + wafer CLIs
+        run: |
+          cargo install --path solobase/crates/solobase --locked
+          cargo install --path wafer-run/crates/wafer-cli --locked
+
+      - name: Build skill wasms
+        working-directory: gizza-ai
+        run: solobase build
+
+      - name: Cargo tests
+        working-directory: gizza-ai
+        run: cargo test
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: JS tests
+        working-directory: gizza-ai
+        run: |
+          npm install --no-audit --no-fund
+          npm test
