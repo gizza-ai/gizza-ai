@@ -524,15 +524,16 @@ async fn run_agent_loop(
         // Dispatch each tool call and accumulate results.
         let mut tc_records: Vec<(PendingToolCall, String)> = Vec::with_capacity(tool_calls.len());
         for tc in &tool_calls {
-            let result_text = dispatch_tool(ctx, tc).await;
-            out.push_str(&encode_sse_event(
-                "tool_result",
-                &serde_json::json!({
-                    "id": tc.id,
-                    "result": result_text,
-                }),
-            ));
-            tc_records.push((tc.clone(), result_text));
+            let outcome = dispatch_tool(ctx, tc).await;
+            let mut payload = serde_json::json!({
+                "id": tc.id,
+                "result": outcome.for_llm,
+            });
+            if let Some(for_ui) = &outcome.for_ui {
+                payload["for_ui"] = for_ui.clone();
+            }
+            out.push_str(&encode_sse_event("tool_result", &payload));
+            tc_records.push((tc.clone(), outcome.for_llm));
         }
 
         // Append assistant tool-call + tool-result messages to history for the
@@ -621,10 +622,11 @@ pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
 /// Dispatch a single tool call to the corresponding block.
 ///
 /// Tool `name` is treated as either a fully-qualified block name (`org/block`)
-/// or a short name that we default to `gizza-ai/{name}`. Returns the tool's
-/// response body as UTF-8 text (or an error message, also as text, so the LLM
-/// can still see the failure and recover).
-async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> String {
+/// or a short name that we default to `gizza-ai/{name}`. Returns a
+/// [`ToolOutcome`] splitting the response into an LLM-safe summary (`for_llm`)
+/// and an optional UI render hint (`for_ui`). Error branches set `for_ui` to
+/// `None`; only the success path calls [`parse_skill_response`].
+async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> ToolOutcome {
     let block_name = if tc.name.contains('/') {
         tc.name.clone()
     } else {
@@ -640,8 +642,14 @@ async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> String {
 
     let args_bytes = tc.arguments.as_bytes().to_vec();
     match ctx.call_block_buffered(&block_name, msg, &args_bytes).await {
-        Ok(BufferedResponse { body, .. }) => String::from_utf8_lossy(&body).to_string(),
-        Err(e) => format!("{{\"error\": \"tool_failed\", \"message\": \"{}\"}}", e),
+        Ok(BufferedResponse { body, .. }) => {
+            let result_text = String::from_utf8_lossy(&body).to_string();
+            parse_skill_response(&result_text)
+        }
+        Err(e) => ToolOutcome {
+            for_llm: format!("{{\"error\": \"tool_failed\", \"message\": \"{}\"}}", e),
+            for_ui: None,
+        },
     }
 }
 
@@ -998,5 +1006,43 @@ mod tests {
         let outcome = parse_skill_response(body);
         assert_eq!(outcome.for_llm, "ok");
         assert!(outcome.for_ui.is_none(), "non-object _for_ui must be dropped");
+    }
+
+    // ---------------------------------------------------------------------------
+    // SSE payload construction tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn dispatch_tool_outcome_with_for_ui_serialises_into_sse_payload() {
+        // Smoke test for the round-loop construction: given a ToolOutcome with
+        // for_ui set, the JSON we emit on the SSE wire must include the for_ui
+        // field. Mirrors the construction in the round loop.
+        let outcome = ToolOutcome {
+            for_llm: "summary".to_string(),
+            for_ui: Some(serde_json::json!({"data_url":"data:image/png;base64,AAA","mime":"image/png"})),
+        };
+        let mut payload = serde_json::json!({
+            "id": "abc",
+            "result": outcome.for_llm,
+        });
+        if let Some(for_ui) = &outcome.for_ui {
+            payload["for_ui"] = for_ui.clone();
+        }
+        assert_eq!(payload["id"], "abc");
+        assert_eq!(payload["result"], "summary");
+        assert_eq!(payload["for_ui"]["mime"], "image/png");
+    }
+
+    #[test]
+    fn dispatch_tool_outcome_without_for_ui_omits_field_from_sse_payload() {
+        let outcome = ToolOutcome { for_llm: "plain".to_string(), for_ui: None };
+        let mut payload = serde_json::json!({
+            "id": "abc",
+            "result": outcome.for_llm,
+        });
+        if let Some(for_ui) = &outcome.for_ui {
+            payload["for_ui"] = for_ui.clone();
+        }
+        assert!(payload.get("for_ui").is_none(), "for_ui field must be absent when None");
     }
 }
