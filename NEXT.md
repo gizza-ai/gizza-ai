@@ -6,7 +6,7 @@ actually pick up next session."
 
 ## Resume here (2026-05-04 — post sub-project 4 merge)
 
-Sub-project 4 (inline media rendering) merged in PR #TBD. The envelope wire format `{_for_llm, _for_ui}` is now the documented way for skills to return non-text output to the UI. `gizza-ai/image-fetch` is the first envelope-emitting skill. CI now runs cargo + npm tests on every PR (test.yml workflow added — gizza-ai had no CI test gate before).
+Sub-project 4 (inline media rendering) merged in PR #26. The envelope wire format `{_for_llm, _for_ui}` is now the documented way for skills to return non-text output to the UI. `gizza-ai/image-fetch` is the first envelope-emitting skill. CI now runs cargo + npm tests on every PR (test.yml workflow added — gizza-ai had no CI test gate before).
 
 **Top of the queue:**
 
@@ -78,7 +78,7 @@ Sub-project 4 (inline media rendering) merged in PR #TBD. The envelope wire form
   - [x] **Sub-project 1** — ffmpeg-runtime invocation primitive (PR #21). Native `FfmpegBlock` registered as `gizza-ai/ffmpeg-runtime`, JS bridge at `js/ffmpeg.js` lazy-loads `@ffmpeg/ffmpeg` from jsdelivr.
   - [x] **Sub-project 2** — ffprobe-scope skill (PR #22). Two-hop `call_block` (network → bytes → ffmpeg-runtime → log). Tool surface: `{url}` only; returns `{url, info}` JSON.
   - [ ] **Sub-project 3** — file drag-drop UI (deferred — needs design pass).
-  - [x] **Sub-project 4** — inline `<img>`/`<video>` rendering (PR #TBD). Envelope wire format `{_for_llm, _for_ui}` bifurcates LLM history from UI rendering. Demonstrating skill `gizza-ai/image-fetch` proves the path. Renders inside the tool-call row. Sub-project 5 inherits the envelope; image transcoding can ship without further wire changes (video transcoding uses the `media-src` CSP entry added here).
+  - [x] **Sub-project 4** — inline `<img>`/`<video>` rendering (PR #26). Envelope wire format `{_for_llm, _for_ui}` bifurcates LLM history from UI rendering. Demonstrating skill `gizza-ai/image-fetch` proves the path. Renders inside the tool-call row. Sub-project 5 inherits the envelope; image transcoding can ship without further wire changes (video transcoding uses the `media-src` CSP entry added here).
   - [ ] **Sub-project 5** — resize/transcode/crop/trim skill ops (no longer blocked on 4; sub-project 3 still deferred and orthogonal).
 - [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. **Blocked**: chat history isn't persisted to `suppers-ai/messages` today, and persistence itself is blocked on a producer-side change (see Plan E).
 
