@@ -40,3 +40,17 @@ fn ffmpeg_skill_is_embedded() {
     assert!(!bytes.is_empty(), "ffmpeg wasm bytes non-empty");
     assert_eq!(&bytes[..4], b"\0asm", "ffmpeg bytes look like wasm");
 }
+
+#[test]
+fn image_fetch_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-fetch"),
+        "gizza-ai/image-fetch should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/image-fetch")
+        .expect("image-fetch");
+    assert!(!bytes.is_empty(), "image-fetch wasm bytes non-empty");
+    assert_eq!(&bytes[..4], b"\0asm", "image-fetch bytes look like wasm");
+}

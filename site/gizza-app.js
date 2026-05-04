@@ -1,6 +1,8 @@
 // site/gizza-app.js — UI glue: settings, model loading, composer submit,
 // SSE parsing. All state is in-memory — no persistence for MVP.
 
+import { renderToolAttachment } from './render.js';
+
 const history = []; // OpenAI-format messages.
 
 const $ = (id) => document.getElementById(id);
@@ -451,7 +453,10 @@ $('composer').addEventListener('submit', async (e) => {
             toolRows.set(payload?.id ?? crypto.randomUUID(), row);
         } else if (event === 'tool_result') {
             const row = toolRows.get(payload?.id);
-            if (row) updateToolRow(row, !payload?.error, payload?.result ?? payload?.error ?? '');
+            if (row) {
+                updateToolRow(row, !payload?.error, payload?.result ?? payload?.error ?? '');
+                renderToolAttachment(row, payload?.for_ui);
+            }
         } else if (event === 'done') {
             // Nothing to do — reader finished.
         }

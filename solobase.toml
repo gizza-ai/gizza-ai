@@ -7,7 +7,7 @@ boot_redirect = "/"
 manifest_path = "../solobase"
 
 [assets]
-extra_bypass_prefix = ["/gizza-app.js", "/gizza.css"]
+extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js"]
 
 [[assets.overlay]]
 from = "site/index.html"
@@ -20,6 +20,10 @@ to = "gizza-app.js"
 [[assets.overlay]]
 from = "site/gizza.css"
 to = "gizza.css"
+
+[[assets.overlay]]
+from = "site/render.js"
+to = "render.js"
 
 [[assets.overlay]]
 from = "static/CNAME"
