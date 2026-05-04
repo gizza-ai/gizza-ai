@@ -4,7 +4,17 @@ Short handoff note — captures what's still to do after the Plan B MVP
 merge. `FUTURE.md` is the long-term catalogue; this file is "what I'd
 actually pick up next session."
 
-## Resume here (2026-05-04)
+## Resume here (2026-05-04 — post sub-project 4 merge)
+
+Sub-project 4 (inline media rendering) merged in PR #TBD. The envelope wire format `{_for_llm, _for_ui}` is now the documented way for skills to return non-text output to the UI. `gizza-ai/image-fetch` is the first envelope-emitting skill. CI now runs cargo + npm tests on every PR (test.yml workflow added — gizza-ai had no CI test gate before).
+
+**Top of the queue:**
+
+1. **Operator items below — your action only.** Unblock the live site.
+2. **Pre-existing wasm compile error in `src/config.rs`** (lines 98 + 211): `db_query_raw()` now returns `Result<String, JsValue>` upstream (via `solobase-browser`/`bridge`); call sites still pass it as `&str` to `serde_json::from_str`. Blocks `solobase build`'s wasm-pack step → blocks the deployed app + any manual smoke test. Was present before sub-project 4 — surfaced during that work but not fixed in scope. Single-file fix, ~15 lines.
+3. **ffmpeg sub-project 5** — resize/transcode/crop/trim. Now unblocked by sub-project 4. Each transcoding op becomes a separate skill that returns `_for_ui.data_url`. Image ops are straightforward; video transcoding can use the `media-src` CSP entry added in sub-project 4. **Caveat:** the wafer-run wasmi runtime currently JSON-encodes `Vec<u8>` as a number array (~6× size inflation), so binary payloads >2-3 MiB OOM the wasm runtime before reaching skill code. Image-fetch worked around this with a Content-Length pre-check; sub-project 5 will need a wafer-run-side fix (base64 transport for `Vec<u8>`) for video sizes.
+4. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass first.
+5. **Conversation persistence** — still blocked on producer-side solobase change.
 
 **Cross-repo news from the 2026-05-03 session:**
 
@@ -31,26 +41,6 @@ actually pick up next session."
   any future custom-emcc builds in this repo: never override an
   upstream `*_COMPILATION_FLAGS` macro without preserving the defaults
   — extend the list, don't replace it.**
-
-**Top of the queue, ordered by ROI:**
-
-1. **Operator items below — your action only.** They unblock the live
-   site and don't require any code work.
-2. **ffmpeg sub-project 4** (file preview / inline media) — afternoon-sized.
-   Render `data:` URLs returned by skills as `<img>`/`<video>` inside the
-   assistant bubble. Markdown rendering already handles `<img src="data:...">`
-   when the model emits it, so this is partly about the skill side
-   (returning image/video bytes in a renderable shape) and partly about
-   exposing those in the UI. Unlocks sub-project 5.
-3. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass
-   first. Pairs symmetrically with sub-project 4 (input vs output).
-4. **Conversation persistence** — **still blocked** on a producer-side
-   (solobase) change. The `suppers-ai/messages` list endpoint requires
-   authentication and gizza-ai runs anonymous; wiring it up needs either
-   an anonymous list path or a server-side helper the agent block can
-   call with synthesized auth. Solobase #47 didn't address this; it's
-   independent of the vector work. See PR #14 commit message for the
-   full reasoning.
 
 **Operator items (your action) — still outstanding from Plan C:**
 
@@ -88,8 +78,8 @@ actually pick up next session."
   - [x] **Sub-project 1** — ffmpeg-runtime invocation primitive (PR #21). Native `FfmpegBlock` registered as `gizza-ai/ffmpeg-runtime`, JS bridge at `js/ffmpeg.js` lazy-loads `@ffmpeg/ffmpeg` from jsdelivr.
   - [x] **Sub-project 2** — ffprobe-scope skill (PR #22). Two-hop `call_block` (network → bytes → ffmpeg-runtime → log). Tool surface: `{url}` only; returns `{url, info}` JSON.
   - [ ] **Sub-project 3** — file drag-drop UI (deferred — needs design pass).
-  - [ ] **Sub-project 4** — file preview / inline `<img>`/`<video>` rendering. Markdown rendering already shipped (PR #14), so this is now standalone — wire skill output (`data:` URLs / typed binary) through to the bubble.
-  - [ ] **Sub-project 5** — resize/transcode/crop/trim skill ops (blocked on 3+4 because binary output has nowhere usable to land today).
+  - [x] **Sub-project 4** — inline `<img>`/`<video>` rendering (PR #TBD). Envelope wire format `{_for_llm, _for_ui}` bifurcates LLM history from UI rendering. Demonstrating skill `gizza-ai/image-fetch` proves the path. Renders inside the tool-call row. Sub-project 5 inherits the envelope; image transcoding can ship without further wire changes (video transcoding uses the `media-src` CSP entry added here).
+  - [ ] **Sub-project 5** — resize/transcode/crop/trim skill ops (no longer blocked on 4; sub-project 3 still deferred and orthogonal).
 - [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. **Blocked**: chat history isn't persisted to `suppers-ai/messages` today, and persistence itself is blocked on a producer-side change (see Plan E).
 
 ### 3. UX polish (Plan E)
