@@ -55,16 +55,25 @@ impl Block for FakeNetworkBlock {
         };
 
         let url = req["url"].as_str().unwrap_or("");
-        let (status, body_bytes): (u16, Vec<u8>) = match url {
-            "https://example.test/web-fetch.txt" => (200, b"WEBFETCH_OK_8f3a2".to_vec()),
-            "https://example.test/sample.mp4" => (200, b"FAKE_MP4_BYTES".to_vec()),
-            _ => (404, Vec::new()),
+        let (status, content_type, body_bytes): (u16, &str, Vec<u8>) = match url {
+            "https://example.test/web-fetch.txt" => (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec()),
+            "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
+            "https://example.test/cat.png" => (200, "image/png", {
+                // Minimal valid-looking PNG header bytes; real validity not required —
+                // the skill doesn't decode the image.
+                let mut v = b"\x89PNG\r\n\x1a\n".to_vec();
+                v.extend_from_slice(&[0u8; 64]);
+                v
+            }),
+            "https://example.test/not-an-image.html" => (200, "text/html", b"<html></html>".to_vec()),
+            "https://example.test/huge.png" => (200, "image/png", vec![0u8; 5 * 1024 * 1024]),
+            _ => (404, "text/plain", Vec::new()),
         };
 
         OutputStream::respond(
             serde_json::to_vec(&json!({
                 "status_code": status,
-                "headers": { "content-type": ["text/plain"] },
+                "headers": { "content-type": [content_type] },
                 "body": body_bytes,
             }))
             .expect("serialize fake response"),
@@ -261,5 +270,150 @@ async fn ffmpeg_skill_two_hop_dispatch() {
             .contains("h264"),
         "info field should contain the canned ffmpeg log marker; got: {}",
         parsed["info"]
+    );
+}
+
+// -- image-fetch dispatch tests ----------------------------------------------
+
+async fn dispatch_image_fetch(url: &str) -> serde_json::Value {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+
+    let wasm: &[u8] = include_bytes!("../blocks/image-fetch/target/block.wasm");
+    let block = WasmiBlock::load_from_bytes(wasm).expect("load image-fetch wasm");
+    wafer
+        .register_block("gizza-ai/image-fetch", Arc::new(block))
+        .expect("register image-fetch");
+
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let req_body = serde_json::to_vec(&json!({ "url": url })).expect("serialize");
+
+    let output = wafer
+        .run_block(
+            "gizza-ai/image-fetch",
+            Message::new("invoke"),
+            InputStream::from_bytes(req_body),
+        )
+        .await;
+
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("image-fetch returned a non-success terminal");
+
+    serde_json::from_slice(&resp.body).expect("image-fetch body is JSON")
+}
+
+#[tokio::test]
+async fn image_fetch_skill_returns_envelope() {
+    let parsed = dispatch_image_fetch("https://example.test/cat.png").await;
+    let for_llm = parsed["_for_llm"].as_str().expect("_for_llm string");
+    assert!(
+        for_llm.contains("image/png"),
+        "_for_llm should mention mime; got {for_llm:?}"
+    );
+    let for_ui = &parsed["_for_ui"];
+    assert!(for_ui.is_object(), "_for_ui should be an object");
+    let data_url = for_ui["data_url"].as_str().expect("data_url string");
+    assert!(
+        data_url.starts_with("data:image/png;base64,"),
+        "data_url should start with data:image/png;base64, got {data_url:?}"
+    );
+    assert_eq!(for_ui["mime"], "image/png");
+    assert_eq!(for_ui["filename"], "cat.png");
+}
+
+#[tokio::test]
+async fn image_fetch_rejects_non_image_content_type() {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+    let wasm: &[u8] = include_bytes!("../blocks/image-fetch/target/block.wasm");
+    wafer
+        .register_block(
+            "gizza-ai/image-fetch",
+            Arc::new(WasmiBlock::load_from_bytes(wasm).expect("load")),
+        )
+        .expect("register");
+    let wafer = wafer.start().await.expect("start");
+
+    let req_body = serde_json::to_vec(&json!({
+        "url": "https://example.test/not-an-image.html"
+    }))
+    .expect("serialize");
+    let output = wafer
+        .run_block(
+            "gizza-ai/image-fetch",
+            Message::new("invoke"),
+            InputStream::from_bytes(req_body),
+        )
+        .await;
+    // Expect the terminal to be an Err (skill returned WaferError).
+    let result = output.collect_buffered().await;
+    assert!(
+        result.is_err(),
+        "non-image content-type should produce a terminal error, got Ok"
+    );
+    let err = result.unwrap_err();
+    let msg = format!("{err:?}");
+    assert!(
+        msg.contains("expected image/*") || msg.contains("InvalidArgument") || msg.contains("INVALID_ARGUMENT"),
+        "error should mention the mime mismatch; got {msg}"
+    );
+}
+
+#[tokio::test]
+async fn image_fetch_rejects_oversize_body() {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+    let wasm: &[u8] = include_bytes!("../blocks/image-fetch/target/block.wasm");
+    wafer
+        .register_block(
+            "gizza-ai/image-fetch",
+            Arc::new(WasmiBlock::load_from_bytes(wasm).expect("load")),
+        )
+        .expect("register");
+    let wafer = wafer.start().await.expect("start");
+
+    let req_body = serde_json::to_vec(&json!({
+        "url": "https://example.test/huge.png"
+    }))
+    .expect("serialize");
+    let output = wafer
+        .run_block(
+            "gizza-ai/image-fetch",
+            Message::new("invoke"),
+            InputStream::from_bytes(req_body),
+        )
+        .await;
+    let result = output.collect_buffered().await;
+    assert!(
+        result.is_err(),
+        "oversize body should produce a terminal error, got Ok"
+    );
+    let err = result.unwrap_err();
+    let msg = format!("{err:?}");
+    assert!(
+        msg.contains("too large") || msg.contains("OutOfRange") || msg.contains("OUT_OF_RANGE"),
+        "error should mention oversize; got {msg}"
     );
 }
