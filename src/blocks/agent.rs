@@ -580,6 +580,41 @@ async fn run_agent_loop(
 }
 
 // ---------------------------------------------------------------------------
+// Skill-response bifurcation
+// ---------------------------------------------------------------------------
+
+/// Output of a skill dispatch, split into an LLM-safe summary and an optional
+/// UI render hint. The summary always goes into the tool-role history entry
+/// the LLM sees on the next round; the render hint, if present, rides the
+/// SSE `tool_result` event to the UI but is *not* echoed back to the LLM.
+///
+/// This is the bifurcation point that lets a skill return megabytes of base64
+/// image data without blowing the LLM's context window.
+#[derive(Debug, Clone)]
+pub(crate) struct ToolOutcome {
+    pub for_llm: String,
+    pub for_ui: Option<serde_json::Value>,
+}
+
+/// Parse a skill's response body. A response is treated as an envelope iff:
+/// 1) it parses as JSON, 2) the top-level value is an object, and 3) it has
+/// a `_for_llm` field of type string. Otherwise the whole body becomes
+/// `for_llm` and `for_ui` is None — preserving legacy plain-text behavior.
+pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(body) else {
+        return ToolOutcome { for_llm: body.to_string(), for_ui: None };
+    };
+    let Some(for_llm) = v.get("_for_llm").and_then(|x| x.as_str()) else {
+        return ToolOutcome { for_llm: body.to_string(), for_ui: None };
+    };
+    let for_ui = v.get("_for_ui").cloned().filter(|x| x.is_object());
+    ToolOutcome {
+        for_llm: for_llm.to_string(),
+        for_ui,
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Tool dispatch
 // ---------------------------------------------------------------------------
 
@@ -924,5 +959,44 @@ mod tests {
         assert_eq!(short_name("gizza-ai/clock"), "clock");
         assert_eq!(short_name("suppers-ai/local-llm"), "local-llm");
         assert_eq!(short_name("plain"), "plain");
+    }
+
+    // ---------------------------------------------------------------------------
+    // parse_skill_response tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn parse_skill_response_envelope_full_payload() {
+        let body = r#"{"_for_llm":"summary text","_for_ui":{"data_url":"data:image/png;base64,AAA","mime":"image/png"}}"#;
+        let outcome = parse_skill_response(body);
+        assert_eq!(outcome.for_llm, "summary text");
+        let for_ui = outcome.for_ui.expect("for_ui present");
+        assert_eq!(for_ui["data_url"], "data:image/png;base64,AAA");
+        assert_eq!(for_ui["mime"], "image/png");
+    }
+
+    #[test]
+    fn parse_skill_response_legacy_string_falls_back() {
+        let body = "raw text response";
+        let outcome = parse_skill_response(body);
+        assert_eq!(outcome.for_llm, "raw text response");
+        assert!(outcome.for_ui.is_none());
+    }
+
+    #[test]
+    fn parse_skill_response_json_without_for_llm_falls_back() {
+        let body = r#"{"foo":"bar","baz":42}"#;
+        let outcome = parse_skill_response(body);
+        assert_eq!(outcome.for_llm, body);
+        assert!(outcome.for_ui.is_none());
+    }
+
+    #[test]
+    fn parse_skill_response_for_ui_must_be_object() {
+        // _for_llm present but _for_ui is a string — drop _for_ui silently.
+        let body = r#"{"_for_llm":"ok","_for_ui":"not-an-object"}"#;
+        let outcome = parse_skill_response(body);
+        assert_eq!(outcome.for_llm, "ok");
+        assert!(outcome.for_ui.is_none(), "non-object _for_ui must be dropped");
     }
 }
