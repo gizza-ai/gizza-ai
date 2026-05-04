@@ -42,12 +42,9 @@ actually pick up next session."
    when the model emits it, so this is partly about the skill side
    (returning image/video bytes in a renderable shape) and partly about
    exposing those in the UI. Unlocks sub-project 5.
-3. **Smaller paper-cut: `_headers` for `sw.js`** — quick GH Pages hygiene
-   fix; prevents stale SW caching on deploy. See "Smaller paper-cuts"
-   below. ~10 minutes.
-4. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass
+3. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass
    first. Pairs symmetrically with sub-project 4 (input vs output).
-5. **Conversation persistence** — **still blocked** on a producer-side
+4. **Conversation persistence** — **still blocked** on a producer-side
    (solobase) change. The `suppers-ai/messages` list endpoint requires
    authentication and gizza-ai runs anonymous; wiring it up needs either
    an anonymous list path or a server-side helper the agent block can
@@ -107,7 +104,7 @@ actually pick up next session."
 - [ ] `security-headers` block reads CSP from flow-step config, not from block_configs. Filed in Plan B commit message (`d83d657`). The clean fix is upstream: have the block also consult `block_configs`, or expose `SolobaseBuilder::csp(...)`.
 - [ ] Error taxonomy for `AssetLoadError` could split `LoaderNotConfigured` from `UnknownLoader` (noted in Plan A code-quality review) and `Bridge(String)` from `Unknown(String)` (noted in Plan A Task 5 review). Low urgency.
 - [x] `ExternalAsset::timeout_ms` field — shipped as wafer-run #29.
-- [ ] Dev server (`python3 -m http.server`) doesn't set `Cache-Control: no-cache` on `sw.js`. Fine for local dev but worth a `_headers` file for GH Pages.
+- [x] Dev server (`python3 -m http.server`) doesn't set `Cache-Control: no-cache` on `sw.js`. Resolved as well as it can be: `static/_headers` ships a `Cache-Control: no-cache` rule for `/sw.js` (PR #15) and `loader.js` registers the SW with `updateViaCache: 'none'`. Note: GitHub Pages doesn't honor `_headers` (Netlify/Cloudflare convention), so the file is dead weight on the current target — the real fix is the client-side `updateViaCache: 'none'`. If we ever switch hosts to Cloudflare/Netlify the file is already in place.
 - [ ] Make Playwright e2e suite reliable in CI (model caching across runs via persistent context, OR an LLM-free dispatch path). Tracked as a future item; the current `dispatch_skills.rs` covers the bulk of regressions cheaply, so this is low priority.
 
 ## References
