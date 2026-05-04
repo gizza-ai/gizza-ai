@@ -5,7 +5,11 @@
 //!   Response:     text/event-stream with events:
 //!                 event: token        data: { "delta": "..." }
 //!                 event: tool_call    data: { "id": "...", "name": "gizza-ai/clock", "arguments": "{}" }
-//!                 event: tool_result  data: { "id": "...", "result": "..." }
+//!                 event: tool_result  data: { "id": "...", "result": "...", "for_ui"?: { ... } }
+//!                                            // `for_ui` is an opt-in render hint emitted when
+//!                                            // a skill returns a `{_for_llm, _for_ui}` envelope
+//!                                            // (e.g. `{data_url, mime, filename}` for images).
+//!                                            // The LLM only sees `result`; bytes never enter history.
 //!                 event: done         data: { "reason": "stop" | "max_rounds_exceeded" | "error" }
 //!
 //! Protocol (route POST /b/agent/load-model):
