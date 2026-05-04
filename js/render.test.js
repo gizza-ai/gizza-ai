@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseHTML } from 'linkedom';
-import { renderToolAttachment } from '../pkg/render.js';
+import { renderToolAttachment } from '../site/render.js';
 
 function makeRow() {
     const { document } = parseHTML('<!doctype html><div class="tool-call"></div>');
