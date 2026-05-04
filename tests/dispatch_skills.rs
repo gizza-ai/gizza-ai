@@ -55,6 +55,30 @@ impl Block for FakeNetworkBlock {
         };
 
         let url = req["url"].as_str().unwrap_or("");
+
+        // Special case: huge.png signals oversize via Content-Length header with
+        // an empty body. The wasmi JSON transport inflates binary data ~6x, so
+        // a 5 MiB body would exceed the 16 MiB WASM memory cap before the skill
+        // code even runs. Skills that check Content-Length can pre-reject without
+        // receiving the full body.
+        if url == "https://example.test/huge.png" {
+            // Signal oversize via Content-Length header with an empty body.
+            // A 5 MiB body would inflate to ~30 MiB through the wasmi JSON
+            // transport, exceeding the 16 MiB WASM memory cap. Skills should
+            // check Content-Length first and pre-reject without reading the body.
+            let huge_resp = serde_json::json!({
+                "status_code": 200u16,
+                "headers": {
+                    "content-type": ["image/png"],
+                    "content-length": ["5242880"]
+                },
+                "body": serde_json::Value::Array(vec![])
+            });
+            return OutputStream::respond(
+                serde_json::to_vec(&huge_resp).expect("serialize huge response"),
+            );
+        }
+
         let (status, content_type, body_bytes): (u16, &str, Vec<u8>) = match url {
             "https://example.test/web-fetch.txt" => (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec()),
             "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
@@ -66,7 +90,6 @@ impl Block for FakeNetworkBlock {
                 v
             }),
             "https://example.test/not-an-image.html" => (200, "text/html", b"<html></html>".to_vec()),
-            "https://example.test/huge.png" => (200, "image/png", vec![0u8; 5 * 1024 * 1024]),
             _ => (404, "text/plain", Vec::new()),
         };
 
