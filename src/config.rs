@@ -9,6 +9,17 @@ use std::collections::HashMap;
 #[cfg(target_arch = "wasm32")]
 use solobase_browser::bridge;
 
+/// Run a write SQL statement, logging to the browser console on failure.
+/// Used for table creation and seed inserts where a SQL error is unexpected
+/// but should not crash the boot path — the next operation will surface the
+/// missing data.
+#[cfg(target_arch = "wasm32")]
+fn exec_or_warn(sql: &str, params: &str) {
+    if let Err(e) = bridge::db_exec_raw(sql, params) {
+        web_sys::console::warn_1(&format!("config: db_exec_raw failed: {e:?} sql={sql}").into());
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Variable seeding and loading
 // ---------------------------------------------------------------------------
@@ -21,7 +32,7 @@ use solobase_browser::bridge;
 /// secrets and previously-stored values.
 pub fn seed_and_load_variables() -> HashMap<String, String> {
     // 1. Create variables table if it does not exist
-    bridge::db_exec_raw(
+    exec_or_warn(
         "CREATE TABLE IF NOT EXISTS variables (
             id TEXT PRIMARY KEY,
             key TEXT NOT NULL UNIQUE,
@@ -36,7 +47,7 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
         )",
         "[]",
     );
-    bridge::db_exec_raw(
+    exec_or_warn(
         "CREATE UNIQUE INDEX IF NOT EXISTS idx_variables_key ON variables (key)",
         "[]",
     );
@@ -44,12 +55,12 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
     // 2. Seed default admin account for browser build.
     //    Email: admin@solobase.local / Password: admin
     //    This is local-only (OPFS) so a simple default is acceptable.
-    bridge::db_exec_raw(
+    exec_or_warn(
         "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
          VALUES ('var_admin_email', 'SUPPERS_AI__AUTH__ADMIN_EMAIL', 'Admin Email', 'Admin account email', 'admin@solobase.local', 0, datetime('now'), datetime('now'))",
         "[]",
     );
-    bridge::db_exec_raw(
+    exec_or_warn(
         "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
          VALUES ('var_admin_pass', 'SUPPERS_AI__AUTH__ADMIN_PASSWORD', 'Admin Password', 'Admin account password', 'admin', 1, datetime('now'), datetime('now'))",
         "[]",
@@ -59,7 +70,7 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
     // page served via solobase-core's layout (admin UI, etc.). gizza's own
     // /b/ui page has its own maud template that loads /webllm-engine.js
     // directly, so this seed is strictly for framework-rendered surfaces.
-    bridge::db_exec_raw(
+    exec_or_warn(
         "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
          VALUES ('var_embedded_scripts', 'SOLOBASE_SHARED__EMBEDDED_SCRIPTS', 'Embedded Scripts', 'Module-script URLs injected into every SSR page', '/webllm-engine.js', 0, datetime('now'), datetime('now'))",
         "[]",
@@ -87,14 +98,20 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
             key,
             val
         );
-        bridge::db_exec_raw(&sql, "[]");
+        exec_or_warn(&sql, "[]");
     }
 
     // 3. Auto-generate secrets for config vars marked with auto_generate
     seed_auto_generated();
 
     // 3. Load all variables
-    let json = bridge::db_query_raw("SELECT key, value FROM variables", "[]");
+    let json = bridge::db_query_raw("SELECT key, value FROM variables", "[]")
+        .unwrap_or_else(|e| {
+            web_sys::console::warn_1(
+                &format!("config: db_query_raw(variables) failed: {e:?}").into(),
+            );
+            String::new()
+        });
     let rows: Vec<serde_json::Value> = serde_json::from_str(&json).unwrap_or_default();
 
     let mut vars = HashMap::new();
@@ -149,7 +166,7 @@ fn seed_auto_generated() {
             var.warning,
             sensitive
         ]);
-        bridge::db_exec_raw(
+        exec_or_warn(
             "INSERT OR IGNORE INTO variables (id, key, name, description, value, warning, sensitive, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))",
             &params.to_string(),
@@ -167,7 +184,7 @@ fn seed_auto_generated() {
 /// and returns a `BlockSettings` with the enabled/disabled state of each block.
 pub fn load_block_settings() -> solobase_core::features::BlockSettings {
     // Ensure table exists
-    bridge::db_exec_raw(
+    exec_or_warn(
         "CREATE TABLE IF NOT EXISTS suppers_ai__admin__block_settings (
             block_name TEXT PRIMARY KEY,
             enabled INTEGER DEFAULT 1,
@@ -197,7 +214,7 @@ pub fn load_block_settings() -> solobase_core::features::BlockSettings {
 
     for &(name, default) in defaults {
         let params = serde_json::json!([name, default as i32]);
-        bridge::db_exec_raw(
+        exec_or_warn(
             "INSERT OR IGNORE INTO suppers_ai__admin__block_settings (block_name, enabled) VALUES (?, ?)",
             &params.to_string(),
         );
@@ -207,7 +224,13 @@ pub fn load_block_settings() -> solobase_core::features::BlockSettings {
     let json = bridge::db_query_raw(
         "SELECT block_name, enabled FROM suppers_ai__admin__block_settings",
         "[]",
-    );
+    )
+    .unwrap_or_else(|e| {
+        web_sys::console::warn_1(
+            &format!("config: db_query_raw(block_settings) failed: {e:?}").into(),
+        );
+        String::new()
+    });
     let rows: Vec<serde_json::Value> = serde_json::from_str(&json).unwrap_or_default();
 
     let mut map = HashMap::new();
