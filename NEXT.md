@@ -4,17 +4,16 @@ Short handoff note — captures what's still to do after the Plan B MVP
 merge. `FUTURE.md` is the long-term catalogue; this file is "what I'd
 actually pick up next session."
 
-## Resume here (2026-05-04 — post sub-project 4 merge)
+## Resume here (2026-05-05 — post config-fix merge)
 
-Sub-project 4 (inline media rendering) merged in PR #26. The envelope wire format `{_for_llm, _for_ui}` is now the documented way for skills to return non-text output to the UI. `gizza-ai/image-fetch` is the first envelope-emitting skill. CI now runs cargo + npm tests on every PR (test.yml workflow added — gizza-ai had no CI test gate before).
+Sub-project 4 (inline media rendering) merged in PR #26. The envelope wire format `{_for_llm, _for_ui}` is now the documented way for skills to return non-text output to the UI. `gizza-ai/image-fetch` is the first envelope-emitting skill. CI now runs cargo + npm tests on every PR (test.yml workflow added — gizza-ai had no CI test gate before). PR #27 then unblocked the wasm-pack build by handling the `Result<String, JsValue>` bridge signature and bumping `solobase-pin.txt` to `e95697a` (post-solobase #47).
 
 **Top of the queue:**
 
 1. **Operator items below — your action only.** Unblock the live site.
-2. **Pre-existing wasm compile error in `src/config.rs`** (lines 98 + 211): `db_query_raw()` now returns `Result<String, JsValue>` upstream (via `solobase-browser`/`bridge`); call sites still pass it as `&str` to `serde_json::from_str`. Blocks `solobase build`'s wasm-pack step → blocks the deployed app + any manual smoke test. Was present before sub-project 4 — surfaced during that work but not fixed in scope. Single-file fix, ~15 lines.
-3. **ffmpeg sub-project 5** — resize/transcode/crop/trim. Now unblocked by sub-project 4. Each transcoding op becomes a separate skill that returns `_for_ui.data_url`. Image ops are straightforward; video transcoding can use the `media-src` CSP entry added in sub-project 4. **Caveat:** the wafer-run wasmi runtime currently JSON-encodes `Vec<u8>` as a number array (~6× size inflation), so binary payloads >2-3 MiB OOM the wasm runtime before reaching skill code. Image-fetch worked around this with a Content-Length pre-check; sub-project 5 will need a wafer-run-side fix (base64 transport for `Vec<u8>`) for video sizes.
-4. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass first.
-5. **Conversation persistence** — still blocked on producer-side solobase change.
+2. **ffmpeg sub-project 5** — resize/transcode/crop/trim. Now unblocked by sub-project 4. Each transcoding op becomes a separate skill that returns `_for_ui.data_url`. Image ops are straightforward; video transcoding can use the `media-src` CSP entry added in sub-project 4. **Caveat:** the wafer-run wasmi runtime currently JSON-encodes `Vec<u8>` as a number array (~6× size inflation), so binary payloads >2-3 MiB OOM the wasm runtime before reaching skill code. Image-fetch worked around this with a Content-Length pre-check; sub-project 5 will need a wafer-run-side fix (base64 transport for `Vec<u8>`) for video sizes.
+3. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass first.
+4. **Conversation persistence** — still blocked on producer-side solobase change.
 
 **Cross-repo news from the 2026-05-03 session:**
 
