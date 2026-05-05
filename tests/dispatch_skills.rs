@@ -6,16 +6,21 @@
 //! → fake network → response → web-fetch parses → ToolResp) round-trips
 //! correctly. No browser, no LLM, no Playwright.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use serde_json::json;
-use wafer_block::{Block, Context, InputStream, Message, OutputStream, WaferError};
+use wafer_block::{
+    codec,
+    wire::network::{Request as WireRequest, ResponseHeader},
+    Block, Context, InputStream, Message, OutputStream, WaferError,
+};
 use wafer_run::{ErrorCode, WasmiBlock, Wafer};
 
-/// A native test stub for `wafer-run/network`. Returns canned 200 responses for
-/// the URL the test uses, 404 for everything else. Lives inline because no
-/// other test consumer needs it yet — promote to `wafer-test-support` if a
-/// second skill grows a similar dispatch test.
+/// A native test stub for `wafer-run/network`. Decodes the new
+/// MessagePack-encoded `wire::network::Request` and emits two-frame responses
+/// (header + body chunks) via `OutputStream::from_producer` — mirroring the
+/// production handler in `wafer-core::interfaces::network::handler`.
 #[derive(Default)]
 struct FakeNetworkBlock;
 
@@ -26,7 +31,7 @@ impl Block for FakeNetworkBlock {
             "wafer-run/network",
             "0.1.0",
             "network@v1",
-            "Test stub — returns canned HTTP responses",
+            "Test stub — emits two-frame codec-encoded responses",
         )
     }
 
@@ -44,63 +49,81 @@ impl Block for FakeNetworkBlock {
             ));
         }
         let body = input.collect_to_bytes().await;
-        let req: serde_json::Value = match serde_json::from_slice(&body) {
-            Ok(v) => v,
+        let req: WireRequest = match codec::decode(&body) {
+            Ok(r) => r,
             Err(e) => {
                 return OutputStream::error(WaferError::new(
                     ErrorCode::INVALID_ARGUMENT,
-                    format!("FakeNetworkBlock: invalid request body: {e}"),
+                    format!("FakeNetworkBlock: invalid wire::network::Request: {e}"),
                 ));
             }
         };
 
-        let url = req["url"].as_str().unwrap_or("");
+        let url = req.url.as_str();
 
-        // Special case: huge.png signals oversize via Content-Length header with
-        // an empty body. The wasmi JSON transport inflates binary data ~6x, so
-        // a 5 MiB body would exceed the 16 MiB WASM memory cap before the skill
-        // code even runs. Skills that check Content-Length can pre-reject without
-        // receiving the full body.
-        if url == "https://example.test/huge.png" {
-            // Signal oversize via Content-Length header with an empty body.
-            // A 5 MiB body would inflate to ~30 MiB through the wasmi JSON
-            // transport, exceeding the 16 MiB WASM memory cap. Skills should
-            // check Content-Length first and pre-reject without reading the body.
-            let huge_resp = serde_json::json!({
-                "status_code": 200u16,
-                "headers": {
-                    "content-type": ["image/png"],
-                    "content-length": ["5242880"]
-                },
-                "body": serde_json::Value::Array(vec![])
-            });
-            return OutputStream::respond(
-                serde_json::to_vec(&huge_resp).expect("serialize huge response"),
+        // Special case: huge.png signals oversize via Content-Length header
+        // with an empty body. With the new binary transport this no longer
+        // tests an OOM workaround — but the test still asserts that the skill
+        // honours the Content-Length pre-check, so keep emitting it.
+        let (status, headers, body_bytes): (u16, HashMap<String, Vec<String>>, Vec<u8>) = if url
+            == "https://example.test/huge.png"
+        {
+            let mut h = HashMap::new();
+            h.insert("content-type".to_string(), vec!["image/png".to_string()]);
+            h.insert("content-length".to_string(), vec!["5242880".to_string()]);
+            (200, h, Vec::new())
+        } else {
+            let (status, content_type, body_bytes): (u16, &str, Vec<u8>) = match url {
+                "https://example.test/web-fetch.txt" => {
+                    (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec())
+                }
+                "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
+                "https://example.test/cat.png" => (200, "image/png", {
+                    // Minimal valid-looking PNG header bytes; real validity not required —
+                    // the skill doesn't decode the image.
+                    let mut v = b"\x89PNG\r\n\x1a\n".to_vec();
+                    v.extend_from_slice(&[0u8; 64]);
+                    v
+                }),
+                "https://example.test/not-an-image.html" => {
+                    (200, "text/html", b"<html></html>".to_vec())
+                }
+                _ => (404, "text/plain", Vec::new()),
+            };
+            let mut h = HashMap::new();
+            h.insert(
+                "content-type".to_string(),
+                vec![content_type.to_string()],
             );
-        }
-
-        let (status, content_type, body_bytes): (u16, &str, Vec<u8>) = match url {
-            "https://example.test/web-fetch.txt" => (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec()),
-            "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
-            "https://example.test/cat.png" => (200, "image/png", {
-                // Minimal valid-looking PNG header bytes; real validity not required —
-                // the skill doesn't decode the image.
-                let mut v = b"\x89PNG\r\n\x1a\n".to_vec();
-                v.extend_from_slice(&[0u8; 64]);
-                v
-            }),
-            "https://example.test/not-an-image.html" => (200, "text/html", b"<html></html>".to_vec()),
-            _ => (404, "text/plain", Vec::new()),
+            (status, h, body_bytes)
         };
 
-        OutputStream::respond(
-            serde_json::to_vec(&json!({
-                "status_code": status,
-                "headers": { "content-type": [content_type] },
-                "body": body_bytes,
-            }))
-            .expect("serialize fake response"),
-        )
+        let header = ResponseHeader {
+            status_code: status,
+            headers,
+        };
+
+        OutputStream::from_producer(move |sink, _cancel| async move {
+            let header_bytes = match codec::encode(&header) {
+                Ok(b) => b,
+                Err(e) => {
+                    let _ = sink
+                        .error(WaferError::new(
+                            ErrorCode::INTERNAL,
+                            format!("FakeNetworkBlock: encoding header: {e}"),
+                        ))
+                        .await;
+                    return;
+                }
+            };
+            if sink.send_chunk(header_bytes).await.is_err() {
+                return;
+            }
+            if !body_bytes.is_empty() && sink.send_chunk(body_bytes).await.is_err() {
+                return;
+            }
+            let _ = sink.complete(vec![]).await;
+        })
     }
 }
 
