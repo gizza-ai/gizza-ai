@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/image-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an image to a different format (JPEG, PNG, WebP).",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an image at the given URL to a different format. Supported formats: jpeg, png, webp. Optional quality (1-100) controls JPEG/WebP compression; ignored for PNG. Use when the user asks to change the file format or compress an image.",
+    "parameters": {
+      "type": "object",
+      "required": ["url", "format"],
+      "properties": {
+        "url":     { "type": "string",  "description": "Absolute http(s) URL to an image." },
+        "format":  { "type": "string",  "enum": ["jpeg", "png", "webp"], "description": "Target image format." },
+        "quality": { "type": "integer", "description": "Quality 1-100 for jpeg/webp; ignored for png. Default 85." }
+      }
+    }
+  }
+}

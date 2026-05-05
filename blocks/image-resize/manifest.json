@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/image-resize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Resize an image fetched by URL.",
+  "role": "skill",
+  "tool": {
+    "description": "Resize an image at the given URL. Provide width and/or height in pixels. Use this when the user asks to make an image smaller or larger, or to fit it to specific dimensions.",
+    "parameters": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url":    { "type": "string",  "description": "Absolute http(s) URL to an image (PNG, JPEG, or WebP)." },
+        "width":  { "type": "integer", "description": "Output width in pixels. Optional if height is given." },
+        "height": { "type": "integer", "description": "Output height in pixels. Optional if width is given." },
+        "fit":    { "type": "string",  "enum": ["contain", "cover", "stretch"], "description": "How to fit the image into the requested box. Default: contain (preserve aspect ratio, fit inside)." }
+      }
+    }
+  }
+}

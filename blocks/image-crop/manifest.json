@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/image-crop",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Crop a rectangular region from an image fetched by URL.",
+  "role": "skill",
+  "tool": {
+    "description": "Crop a rectangular region from the image at the given URL. Coordinates are in pixels with (0,0) at the top-left corner. Use when the user asks to keep only part of an image.",
+    "parameters": {
+      "type": "object",
+      "required": ["url", "x", "y", "width", "height"],
+      "properties": {
+        "url":    { "type": "string",  "description": "Absolute http(s) URL to an image (PNG, JPEG, or WebP)." },
+        "x":      { "type": "integer", "description": "Top-left X in pixels (>= 0)." },
+        "y":      { "type": "integer", "description": "Top-left Y in pixels (>= 0)." },
+        "width":  { "type": "integer", "description": "Crop width in pixels (> 0)." },
+        "height": { "type": "integer", "description": "Crop height in pixels (> 0)." }
+      }
+    }
+  }
+}
