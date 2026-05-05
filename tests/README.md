@@ -48,3 +48,13 @@ Runs in CI (`.github/workflows/test.yml`).
 ## Manual smoke: inline media rendering
 
 After `solobase build && solobase serve`, paste a public image URL into chat (e.g., `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg`). The model should call `gizza-ai/image-fetch` and a thumbnail should appear inside the tool-call row, capped to 240px tall by `.tool-attachment` CSS. If the thumbnail is missing but the tool-call row succeeded, inspect the SSE stream — `tool_result` events should carry a `for_ui` field with `data_url` and `mime`.
+
+## Manual smoke: image-ops skills (sub-project 5)
+
+After `solobase build && solobase serve`, paste a public small image URL (≤ 4 MiB) and ask the model to do one of:
+
+- `"resize this to 256 wide"` — should call `gizza-ai/image-resize`; the resized thumbnail appears inside the tool-call row.
+- `"crop the center 200×200 from this"` — should call `gizza-ai/image-crop`; cropped thumbnail appears.
+- `"convert this to JPEG quality 70"` — should call `gizza-ai/image-convert`; new JPEG appears (filename ends `.jpg`).
+
+If the thumbnail does not appear, check the SSE stream from `/b/agent/chat`: `tool_result` events should carry a `for_ui` field with `data_url` and `mime`. If `for_ui` is missing, the skill probably hit one of the size/mime caps — see browser console for the agent's LLM-history text from `_for_llm`.

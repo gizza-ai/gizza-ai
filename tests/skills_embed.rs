@@ -54,3 +54,42 @@ fn image_fetch_skill_is_embedded() {
     assert!(!bytes.is_empty(), "image-fetch wasm bytes non-empty");
     assert_eq!(&bytes[..4], b"\0asm", "image-fetch bytes look like wasm");
 }
+
+#[test]
+fn image_resize_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-resize"),
+        "gizza-ai/image-resize should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS.iter()
+        .find(|(n, _)| *n == "gizza-ai/image-resize")
+        .expect("image-resize");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
+
+#[test]
+fn image_crop_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-crop"),
+        "gizza-ai/image-crop should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS.iter()
+        .find(|(n, _)| *n == "gizza-ai/image-crop")
+        .expect("image-crop");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
+
+#[test]
+fn image_convert_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-convert"),
+        "gizza-ai/image-convert should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS.iter()
+        .find(|(n, _)| *n == "gizza-ai/image-convert")
+        .expect("image-convert");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
