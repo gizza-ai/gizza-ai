@@ -15,20 +15,6 @@ struct Args {
 }
 
 #[derive(Serialize)]
-struct NetReq<'a> {
-    method: &'a str,
-    url: &'a str,
-    headers: HashMap<String, String>,
-}
-
-#[derive(Deserialize)]
-struct NetResp {
-    status_code: u16,
-    headers: HashMap<String, Vec<String>>,
-    body: Vec<u8>,
-}
-
-#[derive(Serialize)]
 struct ToolResp {
     status: u16,
     url: String,
@@ -48,6 +34,7 @@ struct WebFetch;
 )]
 impl WebFetch {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        // Skill input parsing: LLM tool-call args (JSON wire format).
         let args: Args = match serde_json::from_slice(&body) {
             Ok(a) => a,
             Err(e) => {
@@ -59,63 +46,37 @@ impl WebFetch {
         };
         let max_bytes = args.max_bytes.unwrap_or(DEFAULT_MAX_BYTES);
 
-        let net_req = NetReq {
-            method: "GET",
-            url: &args.url,
-            headers: HashMap::new(),
-        };
-        let net_body = match serde_json::to_vec(&net_req) {
-            Ok(b) => b,
-            Err(e) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::INTERNAL,
-                    format!("serialize network request: {e}"),
-                ));
-            }
+        let resp = match wafer_sdk::clients::network::do_request(
+            "GET",
+            &args.url,
+            &HashMap::new(),
+            None,
+        ) {
+            Ok(r) => r,
+            Err(e) => return GuestResult::error(e),
         };
 
-        let (_resp_msg, resp_bytes) =
-            match call_block("wafer-run/network", Message::new("network.do"), &net_body) {
-                Ok(ok) => ok,
-                Err(CallBlockError::Error(e)) => return GuestResult::error(e),
-                Err(other) => {
-                    return GuestResult::error(WaferError::new(
-                        ErrorCode::UNAVAILABLE,
-                        format!("network call failed: {other:?}"),
-                    ));
-                }
-            };
-
-        let net: NetResp = match serde_json::from_slice(&resp_bytes) {
-            Ok(n) => n,
-            Err(e) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::INTERNAL,
-                    format!("malformed network response: {e}"),
-                ));
-            }
-        };
-
-        let content_type = net
+        let content_type = resp
             .headers
             .iter()
             .find(|(k, _)| k.eq_ignore_ascii_case("content-type"))
             .and_then(|(_, vs)| vs.first().cloned());
-        let truncated = net.body.len() > max_bytes;
+        let truncated = resp.body.len() > max_bytes;
         let bytes = if truncated {
-            &net.body[..max_bytes]
+            &resp.body[..max_bytes]
         } else {
-            &net.body[..]
+            &resp.body[..]
         };
         let body_str = String::from_utf8_lossy(bytes).into_owned();
 
         let tool = ToolResp {
-            status: net.status_code,
+            status: resp.status_code,
             url: args.url,
             content_type,
             body: body_str,
             truncated,
         };
+        // Skill output emission: LLM tool-call result (JSON wire format).
         match serde_json::to_vec(&tool) {
             Ok(v) => GuestResult::respond(v),
             Err(e) => GuestResult::error(WaferError::new(
