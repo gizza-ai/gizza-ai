@@ -14,21 +14,6 @@ struct Args {
 }
 
 #[derive(Serialize)]
-struct NetReq<'a> {
-    method: &'a str,
-    url: &'a str,
-    headers: HashMap<String, String>,
-}
-
-#[derive(Deserialize)]
-struct NetResp {
-    status_code: u16,
-    #[allow(dead_code)]
-    headers: HashMap<String, Vec<String>>,
-    body: Vec<u8>,
-}
-
-#[derive(Serialize)]
 struct FfmpegReq {
     args: Vec<String>,
     inputs: Vec<(String, Vec<u8>)>,
@@ -61,6 +46,7 @@ struct FfmpegSkill;
 )]
 impl FfmpegSkill {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        // Skill input parsing: LLM tool-call args (JSON wire format).
         let args: Args = match serde_json::from_slice(&body) {
             Ok(a) => a,
             Err(e) => {
@@ -71,39 +57,15 @@ impl FfmpegSkill {
             }
         };
 
-        // 1. Fetch bytes via wafer-run/network.
-        let net_body = match serde_json::to_vec(&NetReq {
-            method: "GET",
-            url: &args.url,
-            headers: HashMap::new(),
-        }) {
-            Ok(v) => v,
-            Err(e) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::INTERNAL,
-                    format!("serialize network request: {e}"),
-                ));
-            }
-        };
-        let (_msg, net_resp_bytes) =
-            match call_block("wafer-run/network", Message::new("network.do"), &net_body) {
-                Ok(v) => v,
-                Err(CallBlockError::Error(e)) => return GuestResult::error(e),
-                Err(other) => {
-                    return GuestResult::error(WaferError::new(
-                        ErrorCode::UNAVAILABLE,
-                        format!("network call failed: {other:?}"),
-                    ));
-                }
-            };
-        let net: NetResp = match serde_json::from_slice(&net_resp_bytes) {
-            Ok(v) => v,
-            Err(e) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::INTERNAL,
-                    format!("malformed network response: {e}"),
-                ));
-            }
+        // 1. Fetch bytes via wafer-run/network (typed binary transport).
+        let net = match wafer_sdk::clients::network::do_request(
+            "GET",
+            &args.url,
+            &HashMap::new(),
+            None,
+        ) {
+            Ok(r) => r,
+            Err(e) => return GuestResult::error(e),
         };
         if net.status_code >= 400 {
             return GuestResult::error(WaferError::new(
@@ -122,7 +84,13 @@ impl FfmpegSkill {
             ));
         }
 
-        // 2. Hand bytes to ffmpeg-runtime.
+        // 2. Hand bytes to gizza-ai/ffmpeg-runtime.
+        //
+        // Note: this call site uses the consumer-controlled custom protocol
+        // (FfmpegReq/FfmpegResp serde_json) — NOT a wafer-run service. The
+        // ffmpeg-runtime block (`src/blocks/ffmpeg.rs`) decodes via
+        // `serde_json::from_slice`, so the skill must encode via serde_json.
+        // Migrate together with that block when/if it adopts codec.
         let ffreq = match serde_json::to_vec(&FfmpegReq {
             args: vec!["-i".into(), "input".into()],
             inputs: vec![("input".into(), net.body)],
@@ -136,19 +104,13 @@ impl FfmpegSkill {
                 ));
             }
         };
-        let (_msg, ff_resp_bytes) = match call_block(
-            "gizza-ai/ffmpeg-runtime",
-            Message::new("ffmpeg.exec"),
-            &ffreq,
-        ) {
-            Ok(v) => v,
-            Err(CallBlockError::Error(e)) => return GuestResult::error(e),
-            Err(other) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::UNAVAILABLE,
-                    format!("ffmpeg call failed: {other:?}"),
-                ));
-            }
+        // Dispatch via raw streaming ABI: the wire format is opaque serde_json
+        // (consumer-controlled custom protocol, not a wafer-run service), but
+        // the transport mechanics use the new streaming ABI. Open call → write
+        // single chunk → finish → drain response chunks → concatenate.
+        let ff_resp_bytes = match dispatch_ffmpeg_runtime(&ffreq) {
+            Ok(b) => b,
+            Err(e) => return GuestResult::error(e),
         };
         let ff: FfmpegResp = match serde_json::from_slice(&ff_resp_bytes) {
             Ok(v) => v,
@@ -166,6 +128,7 @@ impl FfmpegSkill {
             url: args.url,
             info: ff.log,
         };
+        // Skill output emission: LLM tool-call result (JSON wire format).
         match serde_json::to_vec(&tool) {
             Ok(v) => GuestResult::respond(v),
             Err(e) => GuestResult::error(WaferError::new(
@@ -174,4 +137,22 @@ impl FfmpegSkill {
             )),
         }
     }
+}
+
+/// Dispatch a request to `gizza-ai/ffmpeg-runtime` via the raw streaming ABI.
+///
+/// The ffmpeg-runtime block uses a consumer-controlled JSON wire format (not a
+/// wafer-run service), so we hand it an opaque `Vec<u8>` payload and accept
+/// opaque chunks back. The transport (CallStream/ResponseStream) is still the
+/// new binary-transport ABI; only the encoding inside the chunks is JSON.
+fn dispatch_ffmpeg_runtime(payload: &[u8]) -> Result<Vec<u8>, WaferError> {
+    let msg = Message::new("ffmpeg.exec");
+    let mut call = wafer_sdk::stream::CallStream::open("gizza-ai/ffmpeg-runtime", &msg)?;
+    call.write_chunk(payload)?;
+    let mut resp = call.finish()?;
+    let mut out = Vec::new();
+    while let Some(chunk) = resp.next_chunk()? {
+        out.extend(chunk);
+    }
+    Ok(out)
 }
