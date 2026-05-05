@@ -19,20 +19,6 @@ struct Args {
 }
 
 #[derive(Serialize)]
-struct NetReq<'a> {
-    method: &'a str,
-    url: &'a str,
-    headers: HashMap<String, String>,
-}
-
-#[derive(Deserialize)]
-struct NetResp {
-    status_code: u16,
-    headers: HashMap<String, Vec<String>>,
-    body: Vec<u8>,
-}
-
-#[derive(Serialize)]
 struct ForUi {
     data_url: String,
     mime: String,
@@ -58,6 +44,7 @@ struct ImageFetch;
 )]
 impl ImageFetch {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        // Skill input parsing: LLM tool-call args (JSON wire format).
         let args: Args = match serde_json::from_slice(&body) {
             Ok(a) => a,
             Err(e) => {
@@ -69,51 +56,26 @@ impl ImageFetch {
         };
 
         // 1. Fetch.
-        let net_req = NetReq {
-            method: "GET",
-            url: &args.url,
-            headers: HashMap::new(),
-        };
-        let net_body = match serde_json::to_vec(&net_req) {
-            Ok(b) => b,
-            Err(e) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::INTERNAL,
-                    format!("serialize network request: {e}"),
-                ));
-            }
-        };
-        let (_resp_msg, resp_bytes) =
-            match call_block("wafer-run/network", Message::new("network.do"), &net_body) {
-                Ok(ok) => ok,
-                Err(CallBlockError::Error(e)) => return GuestResult::error(e),
-                Err(other) => {
-                    return GuestResult::error(WaferError::new(
-                        ErrorCode::UNAVAILABLE,
-                        format!("network call failed: {other:?}"),
-                    ));
-                }
-            };
-        let net: NetResp = match serde_json::from_slice(&resp_bytes) {
-            Ok(n) => n,
-            Err(e) => {
-                return GuestResult::error(WaferError::new(
-                    ErrorCode::INTERNAL,
-                    format!("malformed network response: {e}"),
-                ));
-            }
+        let resp = match wafer_sdk::clients::network::do_request(
+            "GET",
+            &args.url,
+            &HashMap::new(),
+            None,
+        ) {
+            Ok(r) => r,
+            Err(e) => return GuestResult::error(e),
         };
 
         // 2. HTTP status check.
-        if net.status_code >= 400 {
+        if resp.status_code >= 400 {
             return GuestResult::error(WaferError::new(
                 ErrorCode::UNAVAILABLE,
-                format!("HTTP {} for {}", net.status_code, args.url),
+                format!("HTTP {} for {}", resp.status_code, args.url),
             ));
         }
 
         // 3. Content-type check (case-insensitive header lookup, first value, strip ; params).
-        let raw_mime = net
+        let raw_mime = resp
             .headers
             .iter()
             .find(|(k, _)| k.eq_ignore_ascii_case("content-type"))
@@ -132,10 +94,12 @@ impl ImageFetch {
             ));
         }
 
-        // 4a. Content-Length pre-check: reject before processing the body when the
-        //     server advertises a size that already exceeds the cap. This avoids
-        //     base64-encoding a body we'll discard anyway.
-        if let Some(cl) = net
+        // 4a. Content-Length pre-check: reject when the server advertises a size
+        //     that already exceeds the cap. With the new binary transport this
+        //     is no longer load-bearing for OOM avoidance (the wire format no
+        //     longer inflates binary data ~6x), but it remains as a defensive
+        //     UX guard — refuse to download huge images we'd reject anyway.
+        if let Some(cl) = resp
             .headers
             .iter()
             .find(|(k, _)| k.eq_ignore_ascii_case("content-length"))
@@ -151,20 +115,20 @@ impl ImageFetch {
         }
 
         // 4b. Body size check (catches cases where Content-Length is absent).
-        if net.body.len() > MAX_BYTES {
+        if resp.body.len() > MAX_BYTES {
             return GuestResult::error(WaferError::new(
                 ErrorCode::OUT_OF_RANGE,
                 format!(
                     "image too large: {} bytes (cap {} bytes)",
-                    net.body.len(),
+                    resp.body.len(),
                     MAX_BYTES
                 ),
             ));
         }
 
         // 5. Encode + build data URL.
-        let body_len = net.body.len();
-        let encoded = B64.encode(&net.body);
+        let body_len = resp.body.len();
+        let encoded = B64.encode(&resp.body);
         let data_url = format!("data:{mime};base64,{encoded}");
 
         // 6. Derive filename from URL last path segment.
@@ -179,6 +143,7 @@ impl ImageFetch {
                 filename,
             },
         };
+        // Skill output emission: LLM tool-call envelope (JSON wire format).
         match serde_json::to_vec(&env) {
             Ok(v) => GuestResult::respond(v),
             Err(e) => GuestResult::error(WaferError::new(
