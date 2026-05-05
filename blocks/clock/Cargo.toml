@@ -11,7 +11,7 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wafer-sdk = { path = "../../../wafer-run/sdks/rust" }
-wafer-block = { path = "../../../wafer-run/crates/wafer-block" }
+wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "binary-transport-overhaul" }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "binary-transport-overhaul" }
 chrono = { version = "0.4", default-features = false, features = ["alloc", "clock"] }
 serde_json = "1"
