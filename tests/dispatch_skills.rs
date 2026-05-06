@@ -1112,8 +1112,7 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
 
 const TRANSCODE_WASM: &[u8] = include_bytes!("../blocks/video-transcode/target/block.wasm");
 const TRIM_WASM: &[u8] = include_bytes!("../blocks/video-trim/target/block.wasm");
-const FRAME_EXTRACT_WASM: &[u8] =
-    include_bytes!("../blocks/video-frame-extract/target/block.wasm");
+const FRAME_EXTRACT_WASM: &[u8] = include_bytes!("../blocks/video-frame-extract/target/block.wasm");
 
 #[tokio::test]
 async fn video_transcode_happy_path_returns_envelope() {
@@ -1155,7 +1154,11 @@ async fn video_transcode_rejects_oversize_input() {
     )
     .await;
     assert!(result.is_err(), "oversize must error");
-    assert_eq!(svc.calls(), 0, "ffmpeg-runtime must not be called when input rejected");
+    assert_eq!(
+        svc.calls(),
+        0,
+        "ffmpeg-runtime must not be called when input rejected"
+    );
 }
 
 #[tokio::test]
@@ -1341,16 +1344,16 @@ async fn video_frame_extract_surfaces_ffmpeg_failure() {
 
 #[tokio::test]
 async fn dispatch_chains_video_frame_extract_then_image_resize_via_ref() {
-    use std::collections::BTreeMap;
-    use wafer_block::Attachment;
-
     // Step 1: extract a frame from a fake video to obtain real PNG bytes.
     let png_bytes: Vec<u8> = b"\x89PNG\r\n\x1a\n"
         .iter()
         .chain([0u8; 200].iter())
         .copied()
         .collect();
-    let extract_svc = Arc::new(FakeFfmpegService::ok(png_bytes.clone(), "fake frame extract log"));
+    let extract_svc = Arc::new(FakeFfmpegService::ok(
+        png_bytes.clone(),
+        "fake frame extract log",
+    ));
 
     let extract_envelope = dispatch_image_op(
         "gizza-ai/video-frame-extract",
@@ -1385,7 +1388,11 @@ async fn dispatch_chains_video_frame_extract_then_image_resize_via_ref() {
         .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
         .expect("register fake network");
     let resize_svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService::ok(
-        b"\x89PNG\r\n\x1a\n".iter().chain([0u8; 88].iter()).copied().collect(),
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 88].iter())
+            .copied()
+            .collect(),
         "fake resize log",
     ));
     wafer
