@@ -649,6 +649,24 @@ pub(crate) fn extract_attachment(for_ui: &serde_json::Value) -> Option<Attachmen
     Some(Attachment { mime, bytes, filename })
 }
 
+/// Format a hint string the agent appends to a tool result's `_for_llm`
+/// summary, telling the LLM the result is stashed and how to chain another
+/// image op against it via `{ref: "<id>"}`.
+pub(crate) fn format_ref_hint(id: &str, att: &Attachment) -> String {
+    let filename_clause = match &att.filename {
+        Some(f) => format!(", \"{f}\""),
+        None => String::new(),
+    };
+    format!(
+        "Saved as ref \"{id}\" ({mime}, {size} bytes{fn_clause}). \
+         To chain, pass {{\"ref\": \"{id}\"}} instead of \"url\" in the next image tool call.",
+        id = id,
+        mime = att.mime,
+        size = att.bytes.len(),
+        fn_clause = filename_clause,
+    )
+}
+
 // ---------------------------------------------------------------------------
 // Tool dispatch
 // ---------------------------------------------------------------------------
@@ -1107,5 +1125,48 @@ mod tests {
     fn extract_attachment_returns_none_for_non_data_url() {
         let for_ui = serde_json::json!({ "data_url": "https://example.com/x.png" });
         assert!(extract_attachment(&for_ui).is_none());
+    }
+
+    // ---------------------------------------------------------------------------
+    // format_ref_hint tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn format_ref_hint_contains_id_mime_size_and_filename() {
+        let att = Attachment {
+            mime: "image/png".into(),
+            bytes: vec![0u8; 12345],
+            filename: Some("in.png".into()),
+        };
+        let h = format_ref_hint("call_42", &att);
+        assert!(h.contains("call_42"));
+        assert!(h.contains("image/png"));
+        assert!(h.contains("12345"));
+        assert!(h.contains("in.png"));
+        assert!(h.contains(r#"{"ref": "call_42"}"#));
+    }
+
+    #[test]
+    fn format_ref_hint_omits_filename_clause_when_none() {
+        let att = Attachment {
+            mime: "image/jpeg".into(),
+            bytes: vec![0u8; 7],
+            filename: None,
+        };
+        let h = format_ref_hint("call_1", &att);
+        // No quoted filename when filename is None.
+        // (The test in the spec asserts !h.contains("\"") — that's too aggressive
+        //  because the hint legitimately contains quotes around `ref` and `url`.
+        //  Use a more focused assertion: the hint should NOT contain a quoted
+        //  bareword like ", \"x\")" before the period.)
+        assert!(h.contains("call_1"));
+        assert!(h.contains("image/jpeg"));
+        assert!(h.contains("7 bytes"));
+        // Filename clause is `, "filename"` between the byte count and the closing
+        // paren. Detect its absence:
+        assert!(
+            !h.contains("bytes, \""),
+            "filename clause must be omitted when None: got {h:?}"
+        );
     }
 }
