@@ -1,0 +1,6 @@
+{
+  "name": "gizza-ai/video-transcode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Transcode a video to mp4 or webm."
+}
