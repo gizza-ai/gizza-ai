@@ -69,12 +69,21 @@ impl Block for FakeNetworkBlock {
             h.insert("content-type".to_string(), vec!["image/png".to_string()]);
             h.insert("content-length".to_string(), vec!["5242880".to_string()]);
             (200, h, Vec::new())
+        } else if url == "https://example.test/huge.mp4" {
+            // Special case: huge.mp4 signals oversize via Content-Length header (20 MiB > 10 MiB cap).
+            let mut h = HashMap::new();
+            h.insert("content-type".to_string(), vec!["video/mp4".to_string()]);
+            h.insert("content-length".to_string(), vec!["20971520".to_string()]);
+            (200, h, Vec::new())
         } else {
             let (status, content_type, body_bytes): (u16, &str, Vec<u8>) = match url {
                 "https://example.test/web-fetch.txt" => {
                     (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec())
                 }
                 "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
+                "https://example.test/sample.webm" => {
+                    (200, "video/webm", b"FAKE_WEBM_BYTES".to_vec())
+                }
                 "https://example.test/cat.png" => (200, "image/png", {
                     // Minimal valid-looking PNG header bytes; real validity not required —
                     // the skill doesn't decode the image.
@@ -83,6 +92,9 @@ impl Block for FakeNetworkBlock {
                     v
                 }),
                 "https://example.test/not-an-image.html" => {
+                    (200, "text/html", b"<html></html>".to_vec())
+                }
+                "https://example.test/not-a-video.html" => {
                     (200, "text/html", b"<html></html>".to_vec())
                 }
                 "https://example.test/small.png" => (200, "image/png", {
@@ -1092,4 +1104,233 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
         .expect("crop emits data_url");
     assert!(data_url.starts_with("data:image/"));
     assert!(data_url.len() > 100, "cropped data_url suspiciously small");
+}
+
+// -- video-transcode dispatch tests ------------------------------------------
+
+const TRANSCODE_WASM: &[u8] = include_bytes!("../blocks/video-transcode/target/block.wasm");
+const TRIM_WASM: &[u8] = include_bytes!("../blocks/video-trim/target/block.wasm");
+const FRAME_EXTRACT_WASM: &[u8] =
+    include_bytes!("../blocks/video-frame-extract/target/block.wasm");
+
+#[tokio::test]
+async fn video_transcode_happy_path_returns_envelope() {
+    let svc = Arc::new(FakeFfmpegService::ok(
+        b"\x00\x00\x00\x18ftypmp42"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
+        "fake transcode log",
+    ));
+    let env = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "format": "mp4", "quality": 75 }),
+        svc,
+    )
+    .await
+    .expect("transcode succeeds");
+    assert_eq!(env["_for_ui"]["mime"], "video/mp4");
+    assert!(env["_for_ui"]["data_url"]
+        .as_str()
+        .unwrap()
+        .starts_with("data:video/mp4;base64,"));
+}
+
+#[tokio::test]
+async fn video_transcode_rejects_oversize_input() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/huge.mp4",
+        json!({ "format": "mp4" }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err(), "oversize must error");
+    assert_eq!(svc.calls(), 0, "ffmpeg-runtime must not be called when input rejected");
+}
+
+#[tokio::test]
+async fn video_transcode_rejects_non_video_content_type() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/not-a-video.html",
+        json!({ "format": "mp4" }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_transcode_surfaces_ffmpeg_failure() {
+    let svc = Arc::new(FakeFfmpegService::fail(127, "ffmpeg crashed"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "format": "mp4" }),
+        svc,
+    )
+    .await;
+    assert!(result.is_err());
+}
+
+// -- video-trim dispatch tests -----------------------------------------------
+
+#[tokio::test]
+async fn video_trim_happy_path_returns_envelope() {
+    let svc = Arc::new(FakeFfmpegService::ok(
+        b"\x00\x00\x00\x18ftypmp42"
+            .iter()
+            .chain([0u8; 88].iter())
+            .copied()
+            .collect(),
+        "fake trim log",
+    ));
+    let env = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "start": 1.0, "duration": 2.0 }),
+        svc,
+    )
+    .await
+    .expect("trim succeeds");
+    assert_eq!(env["_for_ui"]["mime"], "video/mp4");
+}
+
+#[tokio::test]
+async fn video_trim_rejects_oversize_input() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/huge.mp4",
+        json!({ "start": 0.0, "duration": 1.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_trim_rejects_non_video_content_type() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/not-a-video.html",
+        json!({ "start": 0.0, "duration": 1.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_trim_surfaces_ffmpeg_failure() {
+    let svc = Arc::new(FakeFfmpegService::fail(1, "stream copy failed"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "start": 0.0, "duration": 1.0 }),
+        svc,
+    )
+    .await;
+    assert!(result.is_err());
+}
+
+// -- video-frame-extract dispatch tests --------------------------------------
+
+#[tokio::test]
+async fn video_frame_extract_happy_path_returns_envelope() {
+    let svc = Arc::new(FakeFfmpegService::ok(
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
+        "fake frame extract log",
+    ));
+    let env = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "timestamp": 1.5 }),
+        svc,
+    )
+    .await
+    .expect("frame-extract succeeds");
+    assert_eq!(env["_for_ui"]["mime"], "image/png");
+    assert!(env["_for_ui"]["data_url"]
+        .as_str()
+        .unwrap()
+        .starts_with("data:image/png;base64,"));
+}
+
+#[tokio::test]
+async fn video_frame_extract_rejects_oversize_input() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/huge.mp4",
+        json!({ "timestamp": 0.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_frame_extract_rejects_non_video_content_type() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/not-a-video.html",
+        json!({ "timestamp": 0.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_frame_extract_surfaces_ffmpeg_failure() {
+    let svc = Arc::new(FakeFfmpegService::fail(1, "no decoder for stream"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "timestamp": 0.0 }),
+        svc,
+    )
+    .await;
+    assert!(result.is_err());
 }
