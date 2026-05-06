@@ -43,6 +43,17 @@ struct FfmpegSkill;
     interface = "handler@v1",
     summary = "Inspect a media file via ffmpeg",
     capabilities(callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
+    skill(
+        description = "Run ffprobe on a media URL and return format/stream metadata.",
+        parameters = r#"{
+            "type": "object",
+            "properties": {
+                "url": { "type": "string", "description": "HTTP/HTTPS URL of the media file to inspect." }
+            },
+            "required": ["url"],
+            "additionalProperties": false
+        }"#
+    ),
 )]
 impl FfmpegSkill {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
