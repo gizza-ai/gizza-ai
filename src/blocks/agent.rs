@@ -39,6 +39,7 @@ use async_trait::async_trait;
 use futures::{pin_mut, StreamExt};
 use tokio::time::timeout;
 use serde::Deserialize;
+use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use wafer_block::{
     block::Block,
     common::ServiceOp,
@@ -50,6 +51,7 @@ use wafer_block::{
         output::{BufferedResponse, OutputStream},
     },
     types::{BlockInfo, SkillRole},
+    Attachment,
 };
 use wafer_core::interfaces::llm::service::{
     ChatContent, ChatMessage, ChatRequest, ChatRole, ChunkDelta, FinishReason, LlmError,
@@ -619,6 +621,34 @@ pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
     }
 }
 
+/// Decode the SP4 envelope's `_for_ui` value into an `Attachment`, if it is
+/// a `{data_url, mime, filename}` shape with a `data:` URL. Returns `None`
+/// for any other shape — the caller treats that as "skill produced a
+/// non-bytes for_ui; don't stash."
+pub(crate) fn extract_attachment(for_ui: &serde_json::Value) -> Option<Attachment> {
+    let data_url = for_ui.get("data_url")?.as_str()?;
+    let comma = data_url.find(',')?;
+    let header = &data_url[..comma];
+    let b64 = &data_url[comma + 1..];
+    if !header.starts_with("data:") || !header.ends_with(";base64") {
+        return None;
+    }
+    let mime = for_ui
+        .get("mime")
+        .and_then(|v| v.as_str())
+        .map(str::to_string)
+        .unwrap_or_else(|| {
+            // Recover from the data: URL header if mime not provided separately.
+            header[5..header.len() - 7].to_string()
+        });
+    let bytes = B64.decode(b64).ok()?;
+    let filename = for_ui
+        .get("filename")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
+    Some(Attachment { mime, bytes, filename })
+}
+
 // ---------------------------------------------------------------------------
 // Tool dispatch
 // ---------------------------------------------------------------------------
@@ -1048,5 +1078,34 @@ mod tests {
             payload["for_ui"] = for_ui.clone();
         }
         assert!(payload.get("for_ui").is_none(), "for_ui field must be absent when None");
+    }
+
+    // ---------------------------------------------------------------------------
+    // extract_attachment tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn extract_attachment_decodes_data_url() {
+        let for_ui = serde_json::json!({
+            "data_url": "data:image/png;base64,AAEC",
+            "mime": "image/png",
+            "filename": "x.png",
+        });
+        let att = extract_attachment(&for_ui).expect("decoded");
+        assert_eq!(att.mime, "image/png");
+        assert_eq!(att.bytes, vec![0u8, 1u8, 2u8]);
+        assert_eq!(att.filename.as_deref(), Some("x.png"));
+    }
+
+    #[test]
+    fn extract_attachment_returns_none_when_data_url_missing() {
+        let for_ui = serde_json::json!({ "something_else": "xyz" });
+        assert!(extract_attachment(&for_ui).is_none());
+    }
+
+    #[test]
+    fn extract_attachment_returns_none_for_non_data_url() {
+        let for_ui = serde_json::json!({ "data_url": "https://example.com/x.png" });
+        assert!(extract_attachment(&for_ui).is_none());
     }
 }
