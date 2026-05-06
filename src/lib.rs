@@ -8,10 +8,14 @@
 //! `/b/ui/`, `/b/ui`, and `/b/agent/` to gizza blocks as Public tier.
 //! `handle_request()` dispatches through the `site-main` flow.
 
+#[cfg(target_arch = "wasm32")]
 use std::sync::Arc;
 
+#[cfg(target_arch = "wasm32")]
 use solobase_core::builder::{self, SolobaseBuilder};
+#[cfg(target_arch = "wasm32")]
 use solobase_core::RouteAccess;
+#[cfg(target_arch = "wasm32")]
 use wafer_core::interfaces::config::service::ConfigService;
 
 #[cfg(target_arch = "wasm32")]

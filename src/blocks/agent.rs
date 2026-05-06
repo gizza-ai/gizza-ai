@@ -36,9 +36,10 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use async_trait::async_trait;
+use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use futures::{pin_mut, StreamExt};
-use tokio::time::timeout;
 use serde::Deserialize;
+use tokio::time::timeout;
 use wafer_block::{
     block::Block,
     common::ServiceOp,
@@ -50,6 +51,7 @@ use wafer_block::{
         output::{BufferedResponse, OutputStream},
     },
     types::{BlockInfo, SkillRole},
+    Attachment,
 };
 use wafer_core::interfaces::llm::service::{
     ChatContent, ChatMessage, ChatRequest, ChatRole, ChunkDelta, FinishReason, LlmError,
@@ -200,7 +202,10 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
             value: "text/event-stream".to_string(),
         },
         MetaEntry {
-            key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
+            key: format!(
+                "{}cache-control",
+                wafer_block::meta::META_RESP_HEADER_PREFIX
+            ),
             value: "no-cache".to_string(),
         },
     ];
@@ -246,11 +251,7 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
     msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_LOAD_MODEL);
 
     let output = ctx
-        .call_block(
-            "wafer-run/llm",
-            msg,
-            InputStream::from_bytes(req_bytes),
-        )
+        .call_block("wafer-run/llm", msg, InputStream::from_bytes(req_bytes))
         .await;
 
     // Accumulate SSE output — stream each LoadProgress frame.
@@ -312,7 +313,10 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
             value: "text/event-stream".to_string(),
         },
         MetaEntry {
-            key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
+            key: format!(
+                "{}cache-control",
+                wafer_block::meta::META_RESP_HEADER_PREFIX
+            ),
             value: "no-cache".to_string(),
         },
     ];
@@ -346,6 +350,7 @@ async fn run_agent_loop(
     model_id: &str,
 ) -> String {
     let mut out = String::new();
+    let mut attachments: HashMap<String, Attachment> = HashMap::new();
 
     for round in 1..=MAX_ROUNDS {
         // Convert OpenAI-format history to ChatMessage vec.
@@ -389,11 +394,7 @@ async fn run_agent_loop(
         msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_CHAT);
 
         let output = ctx
-            .call_block(
-                "wafer-run/llm",
-                msg,
-                InputStream::from_bytes(body),
-            )
+            .call_block("wafer-run/llm", msg, InputStream::from_bytes(body))
             .await;
 
         // Process the streaming response.
@@ -417,10 +418,9 @@ async fn run_agent_loop(
                 Ok(Some(bytes)) => bytes,
             };
 
-            let item = match serde_json::from_slice::<Result<
-                wafer_core::interfaces::llm::service::ChatChunk,
-                LlmError,
-            >>(&frame)
+            let item = match serde_json::from_slice::<
+                Result<wafer_core::interfaces::llm::service::ChatChunk, LlmError>,
+            >(&frame)
             {
                 Ok(item) => item,
                 Err(e) => {
@@ -528,16 +528,26 @@ async fn run_agent_loop(
         // Dispatch each tool call and accumulate results.
         let mut tc_records: Vec<(PendingToolCall, String)> = Vec::with_capacity(tool_calls.len());
         for tc in &tool_calls {
-            let outcome = dispatch_tool(ctx, tc).await;
+            let ToolOutcome { for_llm, for_ui } = dispatch_tool(ctx, tc, &attachments).await;
+            let mut for_llm = for_llm;
+
+            // Stash attachment if for_ui carries a decodable data: URL, and
+            // append a hint to for_llm so the LLM can chain.
+            if let Some(att) = for_ui.as_ref().and_then(extract_attachment) {
+                let hint = format_ref_hint(&tc.id, &att);
+                for_llm = format!("{for_llm}\n\n{hint}");
+                attachments.insert(tc.id.clone(), att);
+            }
+
             let mut payload = serde_json::json!({
                 "id": tc.id,
-                "result": outcome.for_llm,
+                "result": for_llm.clone(),
             });
-            if let Some(for_ui) = &outcome.for_ui {
-                payload["for_ui"] = for_ui.clone();
+            if let Some(ref for_ui_val) = for_ui {
+                payload["for_ui"] = for_ui_val.clone();
             }
             out.push_str(&encode_sse_event("tool_result", &payload));
-            tc_records.push((tc.clone(), outcome.for_llm));
+            tc_records.push((tc.clone(), for_llm));
         }
 
         // Append assistant tool-call + tool-result messages to history for the
@@ -601,22 +611,78 @@ pub(crate) struct ToolOutcome {
     pub for_ui: Option<serde_json::Value>,
 }
 
-/// Parse a skill's response body. A response is treated as an envelope iff:
-/// 1) it parses as JSON, 2) the top-level value is an object, and 3) it has
-/// a `_for_llm` field of type string. Otherwise the whole body becomes
+/// Parse a skill's response body. A response is treated as an envelope iff
+/// it parses as JSON, the top-level value is an object, and it has a
+/// `_for_llm` field of type string. Otherwise the whole body becomes
 /// `for_llm` and `for_ui` is None — preserving legacy plain-text behavior.
 pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
     let Ok(v) = serde_json::from_str::<serde_json::Value>(body) else {
-        return ToolOutcome { for_llm: body.to_string(), for_ui: None };
+        return ToolOutcome {
+            for_llm: body.to_string(),
+            for_ui: None,
+        };
     };
     let Some(for_llm) = v.get("_for_llm").and_then(|x| x.as_str()) else {
-        return ToolOutcome { for_llm: body.to_string(), for_ui: None };
+        return ToolOutcome {
+            for_llm: body.to_string(),
+            for_ui: None,
+        };
     };
     let for_ui = v.get("_for_ui").cloned().filter(|x| x.is_object());
     ToolOutcome {
         for_llm: for_llm.to_string(),
         for_ui,
     }
+}
+
+/// Decode the SP4 envelope's `_for_ui` value into an `Attachment`, if it is
+/// a `{data_url, mime, filename}` shape with a `data:` URL. Returns `None`
+/// for any other shape — the caller treats that as "skill produced a
+/// non-bytes for_ui; don't stash."
+pub(crate) fn extract_attachment(for_ui: &serde_json::Value) -> Option<Attachment> {
+    let data_url = for_ui.get("data_url")?.as_str()?;
+    let comma = data_url.find(',')?;
+    let header = &data_url[..comma];
+    let b64 = &data_url[comma + 1..];
+    if !header.starts_with("data:") || !header.ends_with(";base64") {
+        return None;
+    }
+    let mime = for_ui
+        .get("mime")
+        .and_then(|v| v.as_str())
+        .map(str::to_string)
+        .unwrap_or_else(|| {
+            // Recover from the data: URL header if mime not provided separately.
+            header[5..header.len() - 7].to_string()
+        });
+    let bytes = B64.decode(b64).ok()?;
+    let filename = for_ui
+        .get("filename")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
+    Some(Attachment {
+        mime,
+        bytes,
+        filename,
+    })
+}
+
+/// Format a hint string the agent appends to a tool result's `_for_llm`
+/// summary, telling the LLM the result is stashed and how to chain another
+/// image op against it via `{ref: "<id>"}`.
+pub(crate) fn format_ref_hint(id: &str, att: &Attachment) -> String {
+    let filename_clause = match &att.filename {
+        Some(f) => format!(", \"{f}\""),
+        None => String::new(),
+    };
+    format!(
+        "Saved as ref \"{id}\" ({mime}, {size} bytes{fn_clause}). \
+         To chain, pass {{\"ref\": \"{id}\"}} instead of \"url\" in the next image tool call.",
+        id = id,
+        mime = att.mime,
+        size = att.bytes.len(),
+        fn_clause = filename_clause,
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -630,7 +696,16 @@ pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
 /// [`ToolOutcome`] splitting the response into an LLM-safe summary (`for_llm`)
 /// and an optional UI render hint (`for_ui`). Error branches set `for_ui` to
 /// `None`; only the success path calls [`parse_skill_response`].
-async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> ToolOutcome {
+///
+/// If the parsed args contain a `{"ref": "..."}` key, the attachment is looked
+/// up from `attachments` and forwarded via
+/// [`Context::call_block_buffered_with_attachments`]. If the ref is unknown, an
+/// error `ToolOutcome` is returned immediately without dispatching.
+async fn dispatch_tool(
+    ctx: &dyn Context,
+    tc: &PendingToolCall,
+    attachments: &HashMap<String, Attachment>,
+) -> ToolOutcome {
     let block_name = if tc.name.contains('/') {
         tc.name.clone()
     } else {
@@ -644,8 +719,32 @@ async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> ToolOutcome {
         format!("/b/{}", short_name(&block_name)),
     );
 
+    // Inspect args for {"ref": "..."} and prepare an outgoing attachment map.
+    let mut outgoing: std::collections::BTreeMap<String, Attachment> =
+        std::collections::BTreeMap::new();
+    if let Ok(args_value) = serde_json::from_str::<serde_json::Value>(&tc.arguments) {
+        if let Some(ref_id) = args_value.get("ref").and_then(|v| v.as_str()) {
+            match attachments.get(ref_id) {
+                Some(att) => {
+                    outgoing.insert(ref_id.to_string(), att.clone());
+                }
+                None => {
+                    return ToolOutcome {
+                        for_llm: format!(
+                            r#"{{"error":"unknown_ref","message":"no attachment for ref {ref_id:?}"}}"#
+                        ),
+                        for_ui: None,
+                    };
+                }
+            }
+        }
+    }
+
     let args_bytes = tc.arguments.as_bytes().to_vec();
-    match ctx.call_block_buffered(&block_name, msg, &args_bytes).await {
+    match ctx
+        .call_block_buffered_with_attachments(&block_name, msg, &args_bytes, outgoing)
+        .await
+    {
         Ok(BufferedResponse { body, .. }) => {
             let result_text = String::from_utf8_lossy(&body).to_string();
             parse_skill_response(&result_text)
@@ -843,11 +942,19 @@ mod tests {
                 description: "Returns the current time".to_string(),
                 parameters: serde_json::json!({ "type": "object", "properties": {} }),
             });
-        let non_skill =
-            BlockInfo::new("gizza-ai/ui", "0.1.0", "handler@v1", "ui block, not a skill");
-        let skill_without_tool =
-            BlockInfo::new("gizza-ai/x", "0.1.0", "handler@v1", "declared skill but no tool")
-                .role(SkillRole::Skill);
+        let non_skill = BlockInfo::new(
+            "gizza-ai/ui",
+            "0.1.0",
+            "handler@v1",
+            "ui block, not a skill",
+        );
+        let skill_without_tool = BlockInfo::new(
+            "gizza-ai/x",
+            "0.1.0",
+            "handler@v1",
+            "declared skill but no tool",
+        )
+        .role(SkillRole::Skill);
 
         let tools = build_tools(&[skill, non_skill, skill_without_tool]);
         assert_eq!(tools.len(), 1);
@@ -874,7 +981,10 @@ mod tests {
         let v = serde_json::json!({ "role": "system", "content": "You are helpful." });
         let msg = openai_json_to_chat_message(&v).expect("valid");
         assert_eq!(msg.role, ChatRole::System);
-        assert_eq!(msg.content, ChatContent::Text("You are helpful.".to_string()));
+        assert_eq!(
+            msg.content,
+            ChatContent::Text("You are helpful.".to_string())
+        );
     }
 
     #[test]
@@ -1009,7 +1119,10 @@ mod tests {
         let body = r#"{"_for_llm":"ok","_for_ui":"not-an-object"}"#;
         let outcome = parse_skill_response(body);
         assert_eq!(outcome.for_llm, "ok");
-        assert!(outcome.for_ui.is_none(), "non-object _for_ui must be dropped");
+        assert!(
+            outcome.for_ui.is_none(),
+            "non-object _for_ui must be dropped"
+        );
     }
 
     // ---------------------------------------------------------------------------
@@ -1023,7 +1136,9 @@ mod tests {
         // field. Mirrors the construction in the round loop.
         let outcome = ToolOutcome {
             for_llm: "summary".to_string(),
-            for_ui: Some(serde_json::json!({"data_url":"data:image/png;base64,AAA","mime":"image/png"})),
+            for_ui: Some(
+                serde_json::json!({"data_url":"data:image/png;base64,AAA","mime":"image/png"}),
+            ),
         };
         let mut payload = serde_json::json!({
             "id": "abc",
@@ -1039,7 +1154,10 @@ mod tests {
 
     #[test]
     fn dispatch_tool_outcome_without_for_ui_omits_field_from_sse_payload() {
-        let outcome = ToolOutcome { for_llm: "plain".to_string(), for_ui: None };
+        let outcome = ToolOutcome {
+            for_llm: "plain".to_string(),
+            for_ui: None,
+        };
         let mut payload = serde_json::json!({
             "id": "abc",
             "result": outcome.for_llm,
@@ -1047,6 +1165,81 @@ mod tests {
         if let Some(for_ui) = &outcome.for_ui {
             payload["for_ui"] = for_ui.clone();
         }
-        assert!(payload.get("for_ui").is_none(), "for_ui field must be absent when None");
+        assert!(
+            payload.get("for_ui").is_none(),
+            "for_ui field must be absent when None"
+        );
+    }
+
+    // ---------------------------------------------------------------------------
+    // extract_attachment tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn extract_attachment_decodes_data_url() {
+        let for_ui = serde_json::json!({
+            "data_url": "data:image/png;base64,AAEC",
+            "mime": "image/png",
+            "filename": "x.png",
+        });
+        let att = extract_attachment(&for_ui).expect("decoded");
+        assert_eq!(att.mime, "image/png");
+        assert_eq!(att.bytes, vec![0u8, 1u8, 2u8]);
+        assert_eq!(att.filename.as_deref(), Some("x.png"));
+    }
+
+    #[test]
+    fn extract_attachment_returns_none_when_data_url_missing() {
+        let for_ui = serde_json::json!({ "something_else": "xyz" });
+        assert!(extract_attachment(&for_ui).is_none());
+    }
+
+    #[test]
+    fn extract_attachment_returns_none_for_non_data_url() {
+        let for_ui = serde_json::json!({ "data_url": "https://example.com/x.png" });
+        assert!(extract_attachment(&for_ui).is_none());
+    }
+
+    // ---------------------------------------------------------------------------
+    // format_ref_hint tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn format_ref_hint_contains_id_mime_size_and_filename() {
+        let att = Attachment {
+            mime: "image/png".into(),
+            bytes: vec![0u8; 12345],
+            filename: Some("in.png".into()),
+        };
+        let h = format_ref_hint("call_42", &att);
+        assert!(h.contains("call_42"));
+        assert!(h.contains("image/png"));
+        assert!(h.contains("12345"));
+        assert!(h.contains("in.png"));
+        assert!(h.contains(r#"{"ref": "call_42"}"#));
+    }
+
+    #[test]
+    fn format_ref_hint_omits_filename_clause_when_none() {
+        let att = Attachment {
+            mime: "image/jpeg".into(),
+            bytes: vec![0u8; 7],
+            filename: None,
+        };
+        let h = format_ref_hint("call_1", &att);
+        // No quoted filename when filename is None.
+        // (The test in the spec asserts !h.contains("\"") — that's too aggressive
+        //  because the hint legitimately contains quotes around `ref` and `url`.
+        //  Use a more focused assertion: the hint should NOT contain a quoted
+        //  bareword like ", \"x\")" before the period.)
+        assert!(h.contains("call_1"));
+        assert!(h.contains("image/jpeg"));
+        assert!(h.contains("7 bytes"));
+        // Filename clause is `, "filename"` between the byte count and the closing
+        // paren. Detect its absence:
+        assert!(
+            !h.contains("bytes, \""),
+            "filename clause must be omitted when None: got {h:?}"
+        );
     }
 }

@@ -105,13 +105,10 @@ pub fn seed_and_load_variables() -> HashMap<String, String> {
     seed_auto_generated();
 
     // 3. Load all variables
-    let json = bridge::db_query_raw("SELECT key, value FROM variables", "[]")
-        .unwrap_or_else(|e| {
-            web_sys::console::warn_1(
-                &format!("config: db_query_raw(variables) failed: {e:?}").into(),
-            );
-            String::new()
-        });
+    let json = bridge::db_query_raw("SELECT key, value FROM variables", "[]").unwrap_or_else(|e| {
+        web_sys::console::warn_1(&format!("config: db_query_raw(variables) failed: {e:?}").into());
+        String::new()
+    });
     let rows: Vec<serde_json::Value> = serde_json::from_str(&json).unwrap_or_default();
 
     let mut vars = HashMap::new();

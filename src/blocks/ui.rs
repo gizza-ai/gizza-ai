@@ -25,23 +25,21 @@ pub struct UiBlock;
 #[cfg_attr(not(target_arch = "wasm32"), async_trait)]
 impl Block for UiBlock {
     fn info(&self) -> BlockInfo {
-        BlockInfo::new("gizza-ai/ui", "0.1.0", "http-handler@v1", "Public chat page")
-            .category(wafer_run::BlockCategory::Feature)
+        BlockInfo::new(
+            "gizza-ai/ui",
+            "0.1.0",
+            "http-handler@v1",
+            "Public chat page",
+        )
+        .category(wafer_run::BlockCategory::Feature)
     }
 
-    async fn handle(
-        &self,
-        _ctx: &dyn Context,
-        msg: Message,
-        _input: InputStream,
-    ) -> OutputStream {
+    async fn handle(&self, _ctx: &dyn Context, msg: Message, _input: InputStream) -> OutputStream {
         let action = msg.action();
         let path = msg.path();
 
         // GET-equivalent for a page render — accept "retrieve" action.
-        if action == "retrieve"
-            && (path == "/" || path == "/b/ui/" || path == "/b/ui")
-        {
+        if action == "retrieve" && (path == "/" || path == "/b/ui/" || path == "/b/ui") {
             let markup = render_chat();
             let html_bytes = markup.into_string().into_bytes();
             return OutputStream::respond_with_meta(

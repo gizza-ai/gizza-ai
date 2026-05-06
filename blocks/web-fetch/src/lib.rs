@@ -31,6 +31,18 @@ struct WebFetch;
     interface = "handler@v1",
     summary = "Fetch a URL and return its body",
     capabilities(callable_blocks = ["wafer-run/network"]),
+    skill(
+        description = "Fetch a URL and return its body as text. Optionally limit the response size.",
+        parameters = r#"{
+            "type": "object",
+            "properties": {
+                "url":       { "type": "string", "description": "HTTP/HTTPS URL to fetch." },
+                "max_bytes": { "type": "integer", "minimum": 1, "description": "Maximum number of bytes to return (default: 1048576). Response is truncated if larger." }
+            },
+            "required": ["url"],
+            "additionalProperties": false
+        }"#
+    ),
 )]
 impl WebFetch {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {

@@ -8,6 +8,8 @@ actually pick up next session."
 
 A productive day across three repos. Stack of merges, top to bottom:
 
+- **wafer-run #36 / #37 / #38** — attachment ABI (per-call host helpers `__wafer_host_stream_attach` + `__wafer_host_lookup_attachment` + `Context::lookup_attachment` + `Attachment` type), `#[wafer_block(skill(...))]` macro attribute for LLM tool schemas, and wafer-cli validator stubs for the new imports.
+- **gizza-ai #31** (this PR) — skill-output chaining. Agent block stashes `_for_ui` attachments per request and appends a ref hint to `_for_llm`; image-resize / image-crop / image-convert accept `{ref: "<call-id>"}` as an alternative to `{url}`. **Also fixes a pre-existing gap:** every gizza-ai skill block (clock, calculator, web-fetch, image-fetch, ffmpeg, image-resize, image-crop, image-convert) now uses the new `skill(...)` macro attribute, so the LLM finally sees them in the tool list. Before this PR, `Context::registered_blocks()` had `role: None` and `tool: None` on every wasmi-built skill; the agent's `build_tools()` returned an empty `Vec<ToolDefinition>` on every chat request.
 - **wafer-run #34** — binary transport overhaul (streaming ABI + MessagePack + shared `wafer_block::wire::*` types).
 - **solobase #63** — consumer migration to the new transport.
 - **gizza-ai #27** — bridge `Result<String, JsValue>` fix + pin bump.
@@ -18,10 +20,9 @@ A productive day across three repos. Stack of merges, top to bottom:
 **Top of the queue:**
 
 1. **Operator items below — your action only.** Unblock the live site.
-2. **Skill-output chaining** — natural follow-up to SP5. Today the LLM can't pipeline ops because the result bytes ride `_for_ui` (UI-only) and never enter LLM context. Cleanest fix: agent block stashes `for_ui` keyed by tool-call id and exposes a `lookup_attachment(id)` host helper so a second skill can take `{ref: "tc_<id>"}` instead of `url`. Afternoon-sized.
-3. **ffmpeg sub-project 5 video slice** (transcode / trim / frame-extract). Caps could go to ~10 MiB now that wasmi inflation is gone. Each op is another thin skill on the SP5 pattern.
-4. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass first.
-5. **Conversation persistence** — still blocked on producer-side solobase change.
+2. **ffmpeg sub-project 5 video slice** (transcode / trim / frame-extract). Caps could go to ~10 MiB now that wasmi inflation is gone. Each op is another thin skill on the SP5 pattern.
+3. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass first.
+4. **Conversation persistence** — still blocked on producer-side solobase change.
 
 **Cross-repo news from the 2026-05-03 session:**
 
@@ -62,6 +63,7 @@ A productive day across three repos. Stack of merges, top to bottom:
 - The Playwright e2e (`tests/e2e_smoke.spec.ts`) is gated on headed Chromium (WebGPU) and a 1.2 GB WebLLM download; it's a manual smoke, not CI. The deterministic CI gate is `cargo test --test dispatch_skills` (see `tests/README.md`).
 - **Debugging Service Worker tests in Playwright**: `page.on('console')` only captures the page's console, NOT the SW's. To see SW logs, hook `context.on('serviceworker', sw => sw.on('console', ...))`. The 2026-05-03 solobase smoke debug took several CI cycles to find this — saved the diagnostic snippet in solobase's git history if you need it.
 - **Rebuilding sql.js FTS5**: Docker Desktop must be running. Run `bash scripts/build-sql-js-fts5.sh` (in solobase) — takes ~5 min in the `emscripten/emsdk:3.1.74` container. The script now passes the FULL upstream `SQLITE_COMPILATION_FLAGS` plus `-DSQLITE_ENABLE_FTS5`; do NOT shorten that list (see #47 commit `1373975` for why).
+- **Skill blocks must use `#[wafer_block(skill(...))]` to appear in tool-calling.** Without the `skill(...)` attribute, `BlockInfo` carries `role: None` and `tool: None`, so `build_tools()` silently returns an empty list. Any new skill block that omits the attribute will be invisible to the LLM. Fixed for all existing blocks in gizza-ai #31.
 
 ---
 

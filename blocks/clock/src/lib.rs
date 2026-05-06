@@ -8,7 +8,15 @@ struct Clock;
     name = "gizza-ai/clock",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Current time skill"
+    summary = "Current time skill",
+    skill(
+        description = "Get the current UTC time. Returns ISO 8601 timestamp.",
+        parameters = r#"{
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+        }"#
+    ),
 )]
 impl Clock {
     fn handle(_msg: Message, _body: Vec<u8>) -> GuestResult {

@@ -1,7 +1,9 @@
 #[test]
 fn clock_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/clock"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/clock"),
         "gizza-ai/clock should be embedded — did you forget to build the block first?"
     );
     let (_, bytes) = gizza_ai::skills::SKILLS
@@ -16,7 +18,9 @@ fn clock_skill_is_embedded() {
 #[test]
 fn web_fetch_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/web-fetch"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/web-fetch"),
         "gizza-ai/web-fetch should be embedded — did you forget to build the block first?"
     );
     let (_, bytes) = gizza_ai::skills::SKILLS
@@ -30,7 +34,9 @@ fn web_fetch_skill_is_embedded() {
 #[test]
 fn ffmpeg_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/ffmpeg"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/ffmpeg"),
         "gizza-ai/ffmpeg should be embedded — did you forget to build the block first?"
     );
     let (_, bytes) = gizza_ai::skills::SKILLS
@@ -44,7 +50,9 @@ fn ffmpeg_skill_is_embedded() {
 #[test]
 fn image_fetch_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-fetch"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/image-fetch"),
         "gizza-ai/image-fetch should be embedded — did you forget to build the block first?"
     );
     let (_, bytes) = gizza_ai::skills::SKILLS
@@ -58,10 +66,13 @@ fn image_fetch_skill_is_embedded() {
 #[test]
 fn image_resize_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-resize"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/image-resize"),
         "gizza-ai/image-resize should be embedded — did you forget to build the block first?"
     );
-    let (_, bytes) = gizza_ai::skills::SKILLS.iter()
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
         .find(|(n, _)| *n == "gizza-ai/image-resize")
         .expect("image-resize");
     assert!(!bytes.is_empty());
@@ -71,10 +82,13 @@ fn image_resize_skill_is_embedded() {
 #[test]
 fn image_crop_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-crop"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/image-crop"),
         "gizza-ai/image-crop should be embedded — did you forget to build the block first?"
     );
-    let (_, bytes) = gizza_ai::skills::SKILLS.iter()
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
         .find(|(n, _)| *n == "gizza-ai/image-crop")
         .expect("image-crop");
     assert!(!bytes.is_empty());
@@ -84,10 +98,13 @@ fn image_crop_skill_is_embedded() {
 #[test]
 fn image_convert_skill_is_embedded() {
     assert!(
-        gizza_ai::skills::SKILLS.iter().any(|(n, _)| *n == "gizza-ai/image-convert"),
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/image-convert"),
         "gizza-ai/image-convert should be embedded — did you forget to build the block first?"
     );
-    let (_, bytes) = gizza_ai::skills::SKILLS.iter()
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
         .find(|(n, _)| *n == "gizza-ai/image-convert")
         .expect("image-convert");
     assert!(!bytes.is_empty());

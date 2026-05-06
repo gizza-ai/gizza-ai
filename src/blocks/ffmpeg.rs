@@ -38,12 +38,7 @@ impl Block for FfmpegBlock {
         )
     }
 
-    async fn handle(
-        &self,
-        _ctx: &dyn Context,
-        msg: Message,
-        input: InputStream,
-    ) -> OutputStream {
+    async fn handle(&self, _ctx: &dyn Context, msg: Message, input: InputStream) -> OutputStream {
         if msg.kind != "ffmpeg.exec" {
             return OutputStream::error(WaferError::new(
                 ErrorCode::InvalidArgument,

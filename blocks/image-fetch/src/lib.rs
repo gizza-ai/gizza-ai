@@ -41,6 +41,17 @@ struct ImageFetch;
     interface = "handler@v1",
     summary = "Fetch an image URL and return it for inline display",
     capabilities(callable_blocks = ["wafer-run/network"]),
+    skill(
+        description = "Fetch an image from a URL and render it inline.",
+        parameters = r#"{
+            "type": "object",
+            "properties": {
+                "url": { "type": "string", "description": "HTTP/HTTPS URL of the image to fetch." }
+            },
+            "required": ["url"],
+            "additionalProperties": false
+        }"#
+    ),
 )]
 impl ImageFetch {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
