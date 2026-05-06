@@ -1,0 +1,6 @@
+{
+  "name": "gizza-ai/video-frame-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a single frame from a video at a given timestamp."
+}
