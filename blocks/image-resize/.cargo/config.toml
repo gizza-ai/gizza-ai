@@ -1,0 +1,7 @@
+# Local development override — patches wafer-run git deps to the sibling
+# wafer-run checkout so changes to the macro and SDK are picked up without
+# a git push. Mirrors the pattern documented in the top-level
+# .cargo/config.toml.example.
+[patch."https://github.com/wafer-run/wafer-run"]
+wafer-sdk = { path = "../../../../wafer-run/sdks/rust" }
+wafer-block = { path = "../../../../wafer-run/crates/wafer-block" }
