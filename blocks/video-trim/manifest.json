@@ -1,0 +1,6 @@
+{
+  "name": "gizza-ai/video-trim",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Trim a video to a [start, start+duration] window."
+}
