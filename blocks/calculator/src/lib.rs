@@ -19,7 +19,18 @@ struct Calculator;
     name = "gizza-ai/calculator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Calculator skill"
+    summary = "Calculator skill",
+    skill(
+        description = "Evaluate an arithmetic expression (e.g. '2+2*3'). Returns the numeric result.",
+        parameters = r#"{
+            "type": "object",
+            "properties": {
+                "expr": { "type": "string", "description": "Arithmetic expression to evaluate (e.g. '2+2*3', 'sqrt(16)', '3.14 * 2^2')." }
+            },
+            "required": ["expr"],
+            "additionalProperties": false
+        }"#
+    ),
 )]
 impl Calculator {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
