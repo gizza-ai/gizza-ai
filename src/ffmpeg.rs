@@ -14,11 +14,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(module = "/js/ffmpeg.js")]
 extern "C" {
     #[wasm_bindgen(js_name = ffmpegExec)]
-    pub async fn ffmpeg_exec(
-        args_json: &str,
-        inputs_json: &str,
-        output_name: &str,
-    ) -> JsValue;
+    pub async fn ffmpeg_exec(args_json: &str, inputs_json: &str, output_name: &str) -> JsValue;
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

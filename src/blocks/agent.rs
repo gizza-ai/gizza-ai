@@ -36,10 +36,10 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use async_trait::async_trait;
-use futures::{pin_mut, StreamExt};
-use tokio::time::timeout;
-use serde::Deserialize;
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
+use futures::{pin_mut, StreamExt};
+use serde::Deserialize;
+use tokio::time::timeout;
 use wafer_block::{
     block::Block,
     common::ServiceOp,
@@ -202,7 +202,10 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
             value: "text/event-stream".to_string(),
         },
         MetaEntry {
-            key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
+            key: format!(
+                "{}cache-control",
+                wafer_block::meta::META_RESP_HEADER_PREFIX
+            ),
             value: "no-cache".to_string(),
         },
     ];
@@ -248,11 +251,7 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
     msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_LOAD_MODEL);
 
     let output = ctx
-        .call_block(
-            "wafer-run/llm",
-            msg,
-            InputStream::from_bytes(req_bytes),
-        )
+        .call_block("wafer-run/llm", msg, InputStream::from_bytes(req_bytes))
         .await;
 
     // Accumulate SSE output — stream each LoadProgress frame.
@@ -314,7 +313,10 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
             value: "text/event-stream".to_string(),
         },
         MetaEntry {
-            key: format!("{}cache-control", wafer_block::meta::META_RESP_HEADER_PREFIX),
+            key: format!(
+                "{}cache-control",
+                wafer_block::meta::META_RESP_HEADER_PREFIX
+            ),
             value: "no-cache".to_string(),
         },
     ];
@@ -392,11 +394,7 @@ async fn run_agent_loop(
         msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_CHAT);
 
         let output = ctx
-            .call_block(
-                "wafer-run/llm",
-                msg,
-                InputStream::from_bytes(body),
-            )
+            .call_block("wafer-run/llm", msg, InputStream::from_bytes(body))
             .await;
 
         // Process the streaming response.
@@ -420,10 +418,9 @@ async fn run_agent_loop(
                 Ok(Some(bytes)) => bytes,
             };
 
-            let item = match serde_json::from_slice::<Result<
-                wafer_core::interfaces::llm::service::ChatChunk,
-                LlmError,
-            >>(&frame)
+            let item = match serde_json::from_slice::<
+                Result<wafer_core::interfaces::llm::service::ChatChunk, LlmError>,
+            >(&frame)
             {
                 Ok(item) => item,
                 Err(e) => {
@@ -614,16 +611,22 @@ pub(crate) struct ToolOutcome {
     pub for_ui: Option<serde_json::Value>,
 }
 
-/// Parse a skill's response body. A response is treated as an envelope iff:
-/// 1) it parses as JSON, 2) the top-level value is an object, and 3) it has
-/// a `_for_llm` field of type string. Otherwise the whole body becomes
+/// Parse a skill's response body. A response is treated as an envelope iff
+/// it parses as JSON, the top-level value is an object, and it has a
+/// `_for_llm` field of type string. Otherwise the whole body becomes
 /// `for_llm` and `for_ui` is None — preserving legacy plain-text behavior.
 pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
     let Ok(v) = serde_json::from_str::<serde_json::Value>(body) else {
-        return ToolOutcome { for_llm: body.to_string(), for_ui: None };
+        return ToolOutcome {
+            for_llm: body.to_string(),
+            for_ui: None,
+        };
     };
     let Some(for_llm) = v.get("_for_llm").and_then(|x| x.as_str()) else {
-        return ToolOutcome { for_llm: body.to_string(), for_ui: None };
+        return ToolOutcome {
+            for_llm: body.to_string(),
+            for_ui: None,
+        };
     };
     let for_ui = v.get("_for_ui").cloned().filter(|x| x.is_object());
     ToolOutcome {
@@ -657,7 +660,11 @@ pub(crate) fn extract_attachment(for_ui: &serde_json::Value) -> Option<Attachmen
         .get("filename")
         .and_then(|v| v.as_str())
         .map(str::to_string);
-    Some(Attachment { mime, bytes, filename })
+    Some(Attachment {
+        mime,
+        bytes,
+        filename,
+    })
 }
 
 /// Format a hint string the agent appends to a tool result's `_for_llm`
@@ -935,11 +942,19 @@ mod tests {
                 description: "Returns the current time".to_string(),
                 parameters: serde_json::json!({ "type": "object", "properties": {} }),
             });
-        let non_skill =
-            BlockInfo::new("gizza-ai/ui", "0.1.0", "handler@v1", "ui block, not a skill");
-        let skill_without_tool =
-            BlockInfo::new("gizza-ai/x", "0.1.0", "handler@v1", "declared skill but no tool")
-                .role(SkillRole::Skill);
+        let non_skill = BlockInfo::new(
+            "gizza-ai/ui",
+            "0.1.0",
+            "handler@v1",
+            "ui block, not a skill",
+        );
+        let skill_without_tool = BlockInfo::new(
+            "gizza-ai/x",
+            "0.1.0",
+            "handler@v1",
+            "declared skill but no tool",
+        )
+        .role(SkillRole::Skill);
 
         let tools = build_tools(&[skill, non_skill, skill_without_tool]);
         assert_eq!(tools.len(), 1);
@@ -966,7 +981,10 @@ mod tests {
         let v = serde_json::json!({ "role": "system", "content": "You are helpful." });
         let msg = openai_json_to_chat_message(&v).expect("valid");
         assert_eq!(msg.role, ChatRole::System);
-        assert_eq!(msg.content, ChatContent::Text("You are helpful.".to_string()));
+        assert_eq!(
+            msg.content,
+            ChatContent::Text("You are helpful.".to_string())
+        );
     }
 
     #[test]
@@ -1101,7 +1119,10 @@ mod tests {
         let body = r#"{"_for_llm":"ok","_for_ui":"not-an-object"}"#;
         let outcome = parse_skill_response(body);
         assert_eq!(outcome.for_llm, "ok");
-        assert!(outcome.for_ui.is_none(), "non-object _for_ui must be dropped");
+        assert!(
+            outcome.for_ui.is_none(),
+            "non-object _for_ui must be dropped"
+        );
     }
 
     // ---------------------------------------------------------------------------
@@ -1115,7 +1136,9 @@ mod tests {
         // field. Mirrors the construction in the round loop.
         let outcome = ToolOutcome {
             for_llm: "summary".to_string(),
-            for_ui: Some(serde_json::json!({"data_url":"data:image/png;base64,AAA","mime":"image/png"})),
+            for_ui: Some(
+                serde_json::json!({"data_url":"data:image/png;base64,AAA","mime":"image/png"}),
+            ),
         };
         let mut payload = serde_json::json!({
             "id": "abc",
@@ -1131,7 +1154,10 @@ mod tests {
 
     #[test]
     fn dispatch_tool_outcome_without_for_ui_omits_field_from_sse_payload() {
-        let outcome = ToolOutcome { for_llm: "plain".to_string(), for_ui: None };
+        let outcome = ToolOutcome {
+            for_llm: "plain".to_string(),
+            for_ui: None,
+        };
         let mut payload = serde_json::json!({
             "id": "abc",
             "result": outcome.for_llm,
@@ -1139,7 +1165,10 @@ mod tests {
         if let Some(for_ui) = &outcome.for_ui {
             payload["for_ui"] = for_ui.clone();
         }
-        assert!(payload.get("for_ui").is_none(), "for_ui field must be absent when None");
+        assert!(
+            payload.get("for_ui").is_none(),
+            "for_ui field must be absent when None"
+        );
     }
 
     // ---------------------------------------------------------------------------

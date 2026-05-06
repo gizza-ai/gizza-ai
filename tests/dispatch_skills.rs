@@ -9,15 +9,15 @@
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
-use serde_json::json;
 use base64::engine::general_purpose::STANDARD as B64_STANDARD;
 use base64::Engine as _;
+use serde_json::json;
 use wafer_block::{
     codec,
     wire::network::{Request as WireRequest, ResponseHeader},
     Attachment, Block, Context, InputStream, Message, OutputStream, WaferError,
 };
-use wafer_run::{ErrorCode, WasmiBlock, Wafer};
+use wafer_run::{ErrorCode, Wafer, WasmiBlock};
 
 /// A native test stub for `wafer-run/network`. Decodes the new
 /// MessagePack-encoded `wire::network::Request` and emits two-frame responses
@@ -37,12 +37,7 @@ impl Block for FakeNetworkBlock {
         )
     }
 
-    async fn handle(
-        &self,
-        _ctx: &dyn Context,
-        msg: Message,
-        input: InputStream,
-    ) -> OutputStream {
+    async fn handle(&self, _ctx: &dyn Context, msg: Message, input: InputStream) -> OutputStream {
         let expected_kind = wafer_block::ServiceOp::NETWORK_DO_REQUEST;
         if msg.kind != expected_kind {
             return OutputStream::error(WaferError::new(
@@ -101,10 +96,7 @@ impl Block for FakeNetworkBlock {
                 _ => (404, "text/plain", Vec::new()),
             };
             let mut h = HashMap::new();
-            h.insert(
-                "content-type".to_string(),
-                vec![content_type.to_string()],
-            );
+            h.insert("content-type".to_string(), vec![content_type.to_string()]);
             (status, h, body_bytes)
         };
 
@@ -232,7 +224,8 @@ impl gizza_ai::ffmpeg::FfmpegService for FakeFfmpegService {
         &self,
         _args: gizza_ai::ffmpeg::ExecArgs,
     ) -> Result<gizza_ai::ffmpeg::ExecResult, gizza_ai::ffmpeg::FfmpegError> {
-        self.call_count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        self.call_count
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         Ok(gizza_ai::ffmpeg::ExecResult {
             exit_code: self.canned_exit_code,
             output: self.canned_output.clone(),
@@ -249,8 +242,10 @@ async fn ffmpeg_block_dispatches_to_service() {
         .build()
         .expect("Wafer::builder().build()");
 
-    let svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> =
-        Arc::new(FakeFfmpegService::ok(b"FAKE_FFMPEG_OUT".to_vec(), "fake ok"));
+    let svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService::ok(
+        b"FAKE_FFMPEG_OUT".to_vec(),
+        "fake ok",
+    ));
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
@@ -349,10 +344,7 @@ async fn ffmpeg_skill_two_hop_dispatch() {
 
     assert_eq!(parsed["url"], "https://example.test/sample.mp4");
     assert!(
-        parsed["info"]
-            .as_str()
-            .unwrap_or_default()
-            .contains("h264"),
+        parsed["info"].as_str().unwrap_or_default().contains("h264"),
         "info field should contain the canned ffmpeg log marker; got: {}",
         parsed["info"]
     );
@@ -455,7 +447,9 @@ async fn image_fetch_rejects_non_image_content_type() {
     let err = result.unwrap_err();
     let msg = format!("{err:?}");
     assert!(
-        msg.contains("expected image/*") || msg.contains("InvalidArgument") || msg.contains("INVALID_ARGUMENT"),
+        msg.contains("expected image/*")
+            || msg.contains("InvalidArgument")
+            || msg.contains("INVALID_ARGUMENT"),
         "error should mention the mime mismatch; got {msg}"
     );
 }
@@ -547,7 +541,11 @@ async fn dispatch_image_op(
     let body = serde_json::to_vec(&req).expect("serialize");
 
     let output = wafer
-        .run_block(block_name, Message::new("invoke"), InputStream::from_bytes(body))
+        .run_block(
+            block_name,
+            Message::new("invoke"),
+            InputStream::from_bytes(body),
+        )
         .await;
     match output.collect_buffered().await {
         Ok(resp) => Ok(serde_json::from_slice(&resp.body).expect("envelope JSON")),
@@ -556,13 +554,17 @@ async fn dispatch_image_op(
 }
 
 const RESIZE_WASM: &[u8] = include_bytes!("../blocks/image-resize/target/block.wasm");
-const CROP_WASM:   &[u8] = include_bytes!("../blocks/image-crop/target/block.wasm");
+const CROP_WASM: &[u8] = include_bytes!("../blocks/image-crop/target/block.wasm");
 const CONVERT_WASM: &[u8] = include_bytes!("../blocks/image-convert/target/block.wasm");
 
 #[tokio::test]
 async fn image_resize_happy_path_returns_envelope() {
     let svc = Arc::new(FakeFfmpegService::ok(
-        b"\x89PNG\r\n\x1a\n".iter().chain([0u8; 200].iter()).copied().collect(),
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
         "fake resize log",
     ));
     let env = dispatch_image_op(
@@ -580,8 +582,12 @@ async fn image_resize_happy_path_returns_envelope() {
     assert!(for_llm.contains("256 wide"), "got {for_llm:?}");
     let for_ui = &env["_for_ui"];
     assert!(
-        for_ui["data_url"].as_str().unwrap().starts_with("data:image/png;base64,"),
-        "data_url shape; got {:?}", for_ui["data_url"]
+        for_ui["data_url"]
+            .as_str()
+            .unwrap()
+            .starts_with("data:image/png;base64,"),
+        "data_url shape; got {:?}",
+        for_ui["data_url"]
     );
     assert_eq!(for_ui["mime"], "image/png");
     let filename = for_ui["filename"].as_str().expect("filename string");
@@ -594,15 +600,21 @@ async fn image_resize_happy_path_returns_envelope() {
 async fn image_resize_rejects_missing_dims() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-resize", "image-resize", RESIZE_WASM,
+        "gizza-ai/image-resize",
+        "image-resize",
+        RESIZE_WASM,
         "https://example.test/small.png",
         serde_json::json!({}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     let err = format!("{:?}", result.unwrap_err());
     assert!(
-        err.contains("INVALID_ARGUMENT") || err.contains("InvalidArgument") || err.contains("width") || err.contains("height"),
+        err.contains("INVALID_ARGUMENT")
+            || err.contains("InvalidArgument")
+            || err.contains("width")
+            || err.contains("height"),
         "expected arg error, got {err}"
     );
     assert_eq!(svc.calls(), 0);
@@ -612,11 +624,14 @@ async fn image_resize_rejects_missing_dims() {
 async fn image_resize_rejects_oversize_input() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-resize", "image-resize", RESIZE_WASM,
+        "gizza-ai/image-resize",
+        "image-resize",
+        RESIZE_WASM,
         "https://example.test/huge.png",
         serde_json::json!({"width": 256}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     let err = format!("{:?}", result.unwrap_err());
     assert!(
@@ -630,15 +645,20 @@ async fn image_resize_rejects_oversize_input() {
 async fn image_resize_rejects_non_image_content_type() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-resize", "image-resize", RESIZE_WASM,
+        "gizza-ai/image-resize",
+        "image-resize",
+        RESIZE_WASM,
         "https://example.test/not-an-image-2.html",
         serde_json::json!({"width": 256}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     let err = format!("{:?}", result.unwrap_err());
     assert!(
-        err.contains("INVALID_ARGUMENT") || err.contains("InvalidArgument") || err.contains("expected image"),
+        err.contains("INVALID_ARGUMENT")
+            || err.contains("InvalidArgument")
+            || err.contains("expected image"),
         "expected mime error, got {err}"
     );
     assert_eq!(svc.calls(), 0);
@@ -646,13 +666,19 @@ async fn image_resize_rejects_non_image_content_type() {
 
 #[tokio::test]
 async fn image_resize_surfaces_ffmpeg_failure() {
-    let svc = Arc::new(FakeFfmpegService::fail(1, "Invalid argument: unsupported pixel format"));
+    let svc = Arc::new(FakeFfmpegService::fail(
+        1,
+        "Invalid argument: unsupported pixel format",
+    ));
     let result = dispatch_image_op(
-        "gizza-ai/image-resize", "image-resize", RESIZE_WASM,
+        "gizza-ai/image-resize",
+        "image-resize",
+        RESIZE_WASM,
         "https://example.test/small.png",
         serde_json::json!({"width": 256}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     let err = format!("{:?}", result.unwrap_err());
     assert!(
@@ -666,11 +692,14 @@ async fn image_resize_surfaces_ffmpeg_failure() {
 async fn image_resize_rejects_cover_with_single_dim() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-resize", "image-resize", RESIZE_WASM,
+        "gizza-ai/image-resize",
+        "image-resize",
+        RESIZE_WASM,
         "https://example.test/small.png",
         serde_json::json!({"width": 256, "fit": "cover"}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     let err = format!("{:?}", result.unwrap_err());
     assert!(
@@ -685,19 +714,33 @@ async fn image_resize_rejects_cover_with_single_dim() {
 #[tokio::test]
 async fn image_crop_happy_path_returns_envelope() {
     let svc = Arc::new(FakeFfmpegService::ok(
-        b"\x89PNG\r\n\x1a\n".iter().chain([0u8; 200].iter()).copied().collect(),
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
         "fake crop log",
     ));
     let env = dispatch_image_op(
-        "gizza-ai/image-crop", "image-crop", CROP_WASM,
+        "gizza-ai/image-crop",
+        "image-crop",
+        CROP_WASM,
         "https://example.test/small.png",
         serde_json::json!({"x": 10, "y": 20, "width": 100, "height": 100}),
         svc.clone(),
-    ).await.expect("happy path");
+    )
+    .await
+    .expect("happy path");
     assert!(env["_for_llm"].as_str().unwrap().contains("cropped"));
     assert!(env["_for_llm"].as_str().unwrap().contains("(10,20)"));
-    assert!(env["_for_ui"]["data_url"].as_str().unwrap().starts_with("data:image/png;base64,"));
-    assert!(env["_for_ui"]["filename"].as_str().unwrap().contains("cropped"));
+    assert!(env["_for_ui"]["data_url"]
+        .as_str()
+        .unwrap()
+        .starts_with("data:image/png;base64,"));
+    assert!(env["_for_ui"]["filename"]
+        .as_str()
+        .unwrap()
+        .contains("cropped"));
     assert_eq!(svc.calls(), 1);
 }
 
@@ -705,11 +748,14 @@ async fn image_crop_happy_path_returns_envelope() {
 async fn image_crop_rejects_missing_required_args() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-crop", "image-crop", CROP_WASM,
+        "gizza-ai/image-crop",
+        "image-crop",
+        CROP_WASM,
         "https://example.test/small.png",
         serde_json::json!({"x": 0, "y": 0}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -718,11 +764,14 @@ async fn image_crop_rejects_missing_required_args() {
 async fn image_crop_rejects_zero_width() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-crop", "image-crop", CROP_WASM,
+        "gizza-ai/image-crop",
+        "image-crop",
+        CROP_WASM,
         "https://example.test/small.png",
         serde_json::json!({"x": 0, "y": 0, "width": 0, "height": 100}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -731,11 +780,14 @@ async fn image_crop_rejects_zero_width() {
 async fn image_crop_rejects_oversize_input() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-crop", "image-crop", CROP_WASM,
+        "gizza-ai/image-crop",
+        "image-crop",
+        CROP_WASM,
         "https://example.test/huge.png",
         serde_json::json!({"x": 0, "y": 0, "width": 100, "height": 100}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -744,11 +796,14 @@ async fn image_crop_rejects_oversize_input() {
 async fn image_crop_rejects_non_image_content_type() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-crop", "image-crop", CROP_WASM,
+        "gizza-ai/image-crop",
+        "image-crop",
+        CROP_WASM,
         "https://example.test/not-an-image-2.html",
         serde_json::json!({"x": 0, "y": 0, "width": 100, "height": 100}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -757,11 +812,14 @@ async fn image_crop_rejects_non_image_content_type() {
 async fn image_crop_surfaces_ffmpeg_failure() {
     let svc = Arc::new(FakeFfmpegService::fail(1, "crop region out of bounds"));
     let result = dispatch_image_op(
-        "gizza-ai/image-crop", "image-crop", CROP_WASM,
+        "gizza-ai/image-crop",
+        "image-crop",
+        CROP_WASM,
         "https://example.test/small.png",
         serde_json::json!({"x": 9999, "y": 9999, "width": 100, "height": 100}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 1);
 }
@@ -771,20 +829,34 @@ async fn image_crop_surfaces_ffmpeg_failure() {
 #[tokio::test]
 async fn image_convert_happy_path_to_jpeg() {
     let svc = Arc::new(FakeFfmpegService::ok(
-        b"\xff\xd8\xff\xe0".iter().chain([0u8; 200].iter()).copied().collect(),
+        b"\xff\xd8\xff\xe0"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
         "fake convert log",
     ));
     let env = dispatch_image_op(
-        "gizza-ai/image-convert", "image-convert", CONVERT_WASM,
+        "gizza-ai/image-convert",
+        "image-convert",
+        CONVERT_WASM,
         "https://example.test/small.png",
         serde_json::json!({"format": "jpeg"}),
         svc.clone(),
-    ).await.expect("happy path");
+    )
+    .await
+    .expect("happy path");
     assert!(env["_for_llm"].as_str().unwrap().contains("converted"));
     assert!(env["_for_llm"].as_str().unwrap().contains("image/jpeg"));
-    assert!(env["_for_ui"]["data_url"].as_str().unwrap().starts_with("data:image/jpeg;base64,"));
+    assert!(env["_for_ui"]["data_url"]
+        .as_str()
+        .unwrap()
+        .starts_with("data:image/jpeg;base64,"));
     assert_eq!(env["_for_ui"]["mime"], "image/jpeg");
-    assert!(env["_for_ui"]["filename"].as_str().unwrap().ends_with(".jpg"));
+    assert!(env["_for_ui"]["filename"]
+        .as_str()
+        .unwrap()
+        .ends_with(".jpg"));
     assert_eq!(svc.calls(), 1);
 }
 
@@ -792,11 +864,14 @@ async fn image_convert_happy_path_to_jpeg() {
 async fn image_convert_rejects_unknown_format() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-convert", "image-convert", CONVERT_WASM,
+        "gizza-ai/image-convert",
+        "image-convert",
+        CONVERT_WASM,
         "https://example.test/small.png",
         serde_json::json!({"format": "tiff"}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     let err = format!("{:?}", result.unwrap_err());
     assert!(err.contains("INVALID_ARGUMENT") || err.contains("not supported"));
@@ -807,11 +882,14 @@ async fn image_convert_rejects_unknown_format() {
 async fn image_convert_rejects_quality_out_of_range() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-convert", "image-convert", CONVERT_WASM,
+        "gizza-ai/image-convert",
+        "image-convert",
+        CONVERT_WASM,
         "https://example.test/small.png",
         serde_json::json!({"format": "jpeg", "quality": 200}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -820,11 +898,14 @@ async fn image_convert_rejects_quality_out_of_range() {
 async fn image_convert_rejects_oversize_input() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-convert", "image-convert", CONVERT_WASM,
+        "gizza-ai/image-convert",
+        "image-convert",
+        CONVERT_WASM,
         "https://example.test/huge.png",
         serde_json::json!({"format": "jpeg"}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -833,11 +914,14 @@ async fn image_convert_rejects_oversize_input() {
 async fn image_convert_rejects_non_image_content_type() {
     let svc = Arc::new(FakeFfmpegService::ok(b"x".to_vec(), ""));
     let result = dispatch_image_op(
-        "gizza-ai/image-convert", "image-convert", CONVERT_WASM,
+        "gizza-ai/image-convert",
+        "image-convert",
+        CONVERT_WASM,
         "https://example.test/not-an-image-2.html",
         serde_json::json!({"format": "jpeg"}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 0);
 }
@@ -846,11 +930,14 @@ async fn image_convert_rejects_non_image_content_type() {
 async fn image_convert_surfaces_ffmpeg_failure() {
     let svc = Arc::new(FakeFfmpegService::fail(1, "encoder not found"));
     let result = dispatch_image_op(
-        "gizza-ai/image-convert", "image-convert", CONVERT_WASM,
+        "gizza-ai/image-convert",
+        "image-convert",
+        CONVERT_WASM,
         "https://example.test/small.png",
         serde_json::json!({"format": "webp"}),
         svc.clone(),
-    ).await;
+    )
+    .await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 1);
 }
@@ -878,12 +965,7 @@ impl Block for ChainCallerBlock {
         )
     }
 
-    async fn handle(
-        &self,
-        ctx: &dyn Context,
-        _msg: Message,
-        _input: InputStream,
-    ) -> OutputStream {
+    async fn handle(&self, ctx: &dyn Context, _msg: Message, _input: InputStream) -> OutputStream {
         let mut atts = BTreeMap::new();
         atts.insert(
             "call_1".to_string(),
@@ -900,12 +982,7 @@ impl Block for ChainCallerBlock {
         msg.set_meta(wafer_block::meta::META_REQ_ACTION, "create");
 
         match ctx
-            .call_block_buffered_with_attachments(
-                "gizza-ai/image-crop",
-                msg,
-                &body,
-                atts,
-            )
+            .call_block_buffered_with_attachments("gizza-ai/image-crop", msg, &body, atts)
             .await
         {
             Ok(resp) => OutputStream::respond(resp.body),
@@ -947,9 +1024,7 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
     let header = &data_url[..comma];
     let b64 = &data_url[comma + 1..];
     assert!(header.starts_with("data:image/"));
-    let chained_bytes = B64_STANDARD
-        .decode(b64)
-        .expect("data_url base64 decodes");
+    let chained_bytes = B64_STANDARD.decode(b64).expect("data_url base64 decodes");
     assert!(!chained_bytes.is_empty(), "resize produced no bytes");
 
     // Step 2: build a runtime with image-crop + chain caller. Drive the caller.
