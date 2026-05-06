@@ -93,11 +93,22 @@ struct AgentRequest {
     /// LLM service loads/uses without per-request server-side config.
     #[serde(default)]
     model_id: Option<String>,
+    #[serde(default)]
+    uploads: Vec<UploadEntry>,
 }
 
 #[derive(Debug, Deserialize)]
 struct LoadModelRequest {
     model_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct UploadEntry {
+    id: String,
+    mime: String,
+    #[serde(default)]
+    filename: Option<String>,
+    bytes_base64: String,
 }
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
@@ -153,6 +164,7 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
             user_message: String::new(),
             messages: Vec::new(),
             model_id: None,
+            uploads: Vec::new(),
         }
     } else {
         match serde_json::from_slice(&body_bytes) {
@@ -167,7 +179,13 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
         return error_response(400, "bad_request", "user_message or messages required");
     }
 
-    // 2. Build ToolDefinitions from registered skill blocks.
+    // 2a. Decode uploads. Reject the request on any invalid entry.
+    let staged_uploads = match decode_uploads(&req.uploads) {
+        Ok(v) => v,
+        Err(e) => return error_response(400, "bad_request", &e),
+    };
+
+    // 2b. Build ToolDefinitions from registered skill blocks.
     let tools = build_tools(&ctx.registered_blocks());
 
     // 3. Compose conversation history: prior messages + new user turn.
@@ -189,7 +207,7 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
         .to_string();
 
     // 5. Run the tool-use loop, buffering the SSE output.
-    let sse_body = run_agent_loop(ctx, history, tools, &model_id).await;
+    let sse_body = run_agent_loop(ctx, history, tools, &model_id, staged_uploads).await;
 
     // 6. Respond with text/event-stream.
     let meta = vec![
@@ -348,9 +366,15 @@ async fn run_agent_loop(
     mut history: Vec<serde_json::Value>,
     tools: Vec<ToolDefinition>,
     model_id: &str,
+    staged_uploads: Vec<(String, Attachment, String)>,
 ) -> String {
     let mut out = String::new();
     let mut attachments: HashMap<String, Attachment> = HashMap::new();
+    // Pre-seed with uploads so dispatch_tool can resolve {ref:"upload_N"}.
+    for (id, att, _display) in &staged_uploads {
+        attachments.insert(id.clone(), att.clone());
+    }
+    let _ = staged_uploads; // synthetic-history injection: see DDT2.
 
     for round in 1..=MAX_ROUNDS {
         // Convert OpenAI-format history to ChatMessage vec.
@@ -633,6 +657,58 @@ pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
         for_llm: for_llm.to_string(),
         for_ui,
     }
+}
+
+/// Decode an [`UploadEntry`] vec into staged-upload tuples
+/// `(id, Attachment, display_name)`. Returns an error string suitable for the
+/// 4xx error_response on the first invalid entry. v1 caps each upload at
+/// 10 MiB; only `image/*` and `video/*` MIMEs are accepted; ids must start
+/// with `"upload_"`.
+pub(crate) fn decode_uploads(
+    entries: &[UploadEntry],
+) -> Result<Vec<(String, Attachment, String)>, String> {
+    const MAX_UPLOAD_BYTES: usize = 10 * 1024 * 1024;
+    let mut staged = Vec::with_capacity(entries.len());
+    for u in entries {
+        if !u.id.starts_with("upload_") {
+            return Err(format!(
+                "invalid upload id {:?}: must start with \"upload_\"",
+                u.id
+            ));
+        }
+        if !(u.mime.starts_with("image/") || u.mime.starts_with("video/")) {
+            return Err(format!(
+                "upload {:?}: only image/* and video/* are accepted, got {}",
+                u.id, u.mime
+            ));
+        }
+        let bytes = B64
+            .decode(&u.bytes_base64)
+            .map_err(|e| format!("upload {:?}: base64 decode failed: {e}", u.id))?;
+        if bytes.len() > MAX_UPLOAD_BYTES {
+            return Err(format!(
+                "upload {:?}: {} bytes exceeds 10 MiB cap",
+                u.id,
+                bytes.len()
+            ));
+        }
+        let display_name = u.filename.clone().unwrap_or_else(|| {
+            if u.mime.starts_with("image/") {
+                "image".into()
+            } else if u.mime.starts_with("video/") {
+                "video".into()
+            } else {
+                "file".into()
+            }
+        });
+        let att = Attachment {
+            mime: u.mime.clone(),
+            bytes,
+            filename: u.filename.clone(),
+        };
+        staged.push((u.id.clone(), att, display_name));
+    }
+    Ok(staged)
 }
 
 /// Decode the SP4 envelope's `_for_ui` value into an `Attachment`, if it is
@@ -1241,5 +1317,92 @@ mod tests {
             !h.contains("bytes, \""),
             "filename clause must be omitted when None: got {h:?}"
         );
+    }
+
+    // ---------------------------------------------------------------------------
+    // decode_uploads tests
+    // ---------------------------------------------------------------------------
+
+    #[test]
+    fn decode_uploads_seeds_attachments_with_upload_ids() {
+        let raw = b"\x89PNG\r\n\x1a\n";
+        let b64 = B64.encode(raw);
+        let entries = vec![UploadEntry {
+            id: "upload_1".into(),
+            mime: "image/png".into(),
+            filename: Some("cat.png".into()),
+            bytes_base64: b64,
+        }];
+        let staged = decode_uploads(&entries).expect("decoded");
+        assert_eq!(staged.len(), 1);
+        assert_eq!(staged[0].0, "upload_1");
+        assert_eq!(staged[0].1.mime, "image/png");
+        assert_eq!(staged[0].1.bytes, raw);
+        assert_eq!(staged[0].1.filename.as_deref(), Some("cat.png"));
+        assert_eq!(staged[0].2, "cat.png");
+    }
+
+    #[test]
+    fn decode_uploads_rejects_non_upload_id() {
+        let entries = vec![UploadEntry {
+            id: "call_1".into(),
+            mime: "image/png".into(),
+            filename: None,
+            bytes_base64: B64.encode(b"x"),
+        }];
+        let r = decode_uploads(&entries);
+        assert!(r.is_err());
+        let msg = r.unwrap_err();
+        assert!(msg.contains("upload_"), "error must mention id format: {msg}");
+    }
+
+    #[test]
+    fn decode_uploads_rejects_unsupported_mime() {
+        let entries = vec![UploadEntry {
+            id: "upload_1".into(),
+            mime: "application/pdf".into(),
+            filename: None,
+            bytes_base64: B64.encode(b"x"),
+        }];
+        let r = decode_uploads(&entries);
+        assert!(r.is_err());
+        let msg = r.unwrap_err();
+        assert!(msg.contains("image/") || msg.contains("video/"));
+    }
+
+    #[test]
+    fn decode_uploads_rejects_oversize_decoded_bytes() {
+        let big = vec![0u8; 10 * 1024 * 1024 + 1]; // 10 MiB + 1
+        let entries = vec![UploadEntry {
+            id: "upload_1".into(),
+            mime: "image/png".into(),
+            filename: None,
+            bytes_base64: B64.encode(&big),
+        }];
+        let r = decode_uploads(&entries);
+        assert!(r.is_err());
+        let msg = r.unwrap_err();
+        assert!(msg.contains("10 MiB") || msg.contains("cap"));
+    }
+
+    #[test]
+    fn decode_uploads_uses_fallback_display_name_when_filename_missing() {
+        let entries = vec![UploadEntry {
+            id: "upload_1".into(),
+            mime: "image/png".into(),
+            filename: None,
+            bytes_base64: B64.encode(b"x"),
+        }];
+        let staged = decode_uploads(&entries).expect("decoded");
+        assert_eq!(staged[0].2, "image");
+
+        let entries = vec![UploadEntry {
+            id: "upload_2".into(),
+            mime: "video/mp4".into(),
+            filename: None,
+            bytes_base64: B64.encode(b"x"),
+        }];
+        let staged = decode_uploads(&entries).expect("decoded");
+        assert_eq!(staged[0].2, "video");
     }
 }
