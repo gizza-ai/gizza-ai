@@ -374,7 +374,16 @@ async fn run_agent_loop(
     for (id, att, _display) in &staged_uploads {
         attachments.insert(id.clone(), att.clone());
     }
-    let _ = staged_uploads; // synthetic-history injection: see DDT2.
+    // Inject synthetic upload history BEFORE the user message.
+    // history at entry contains [...prior messages, current user message] —
+    // pop the user, splice the prefix, push the user back.
+    if !staged_uploads.is_empty() {
+        let user_msg = history.pop();
+        history.extend(build_upload_history_prefix(&staged_uploads));
+        if let Some(u) = user_msg {
+            history.push(u);
+        }
+    }
 
     for round in 1..=MAX_ROUNDS {
         // Convert OpenAI-format history to ChatMessage vec.
@@ -759,6 +768,45 @@ pub(crate) fn format_ref_hint(id: &str, att: &Attachment) -> String {
         size = att.bytes.len(),
         fn_clause = filename_clause,
     )
+}
+
+/// Build the synthetic assistant + tool history-prefix entries the agent
+/// injects ahead of the user message when the request carries uploads.
+///
+/// Returns two `serde_json::Value` entries per upload:
+///   1. `{role: "assistant", tool_calls: [{id, function: {name: "user_upload", arguments: "{}"}}]}`
+///   2. `{role: "tool", tool_call_id: id, content: "ref upload_1 saved (...). Pass {\"ref\":\"upload_1\"} to a skill."}`
+///
+/// The phrasing mirrors `format_ref_hint` so the LLM treats `upload_N` ids
+/// the same as chained-call ids (`call_N`) — same `{ref}` mechanism.
+pub(crate) fn build_upload_history_prefix(
+    staged: &[(String, Attachment, String)],
+) -> Vec<serde_json::Value> {
+    let mut out = Vec::with_capacity(staged.len() * 2);
+    for (id, att, display) in staged {
+        out.push(serde_json::json!({
+            "role": "assistant",
+            "tool_calls": [{
+                "id": id,
+                "type": "function",
+                "function": { "name": "user_upload", "arguments": "{}" }
+            }]
+        }));
+        let content = format!(
+            "ref {id} saved ({mime}, {size} bytes, {display:?}). \
+             Pass {{\"ref\": \"{id}\"}} to a skill.",
+            id = id,
+            mime = att.mime,
+            size = att.bytes.len(),
+            display = display,
+        );
+        out.push(serde_json::json!({
+            "role": "tool",
+            "tool_call_id": id,
+            "content": content,
+        }));
+    }
+    out
 }
 
 // ---------------------------------------------------------------------------
@@ -1404,5 +1452,61 @@ mod tests {
         }];
         let staged = decode_uploads(&entries).expect("decoded");
         assert_eq!(staged[0].2, "video");
+    }
+
+    #[test]
+    fn build_upload_history_prefix_emits_assistant_and_tool_pair_per_upload() {
+        let staged = vec![
+            (
+                "upload_1".to_string(),
+                Attachment {
+                    mime: "image/png".into(),
+                    bytes: vec![0u8; 1228800],
+                    filename: Some("cat.png".into()),
+                },
+                "cat.png".to_string(),
+            ),
+            (
+                "upload_2".to_string(),
+                Attachment {
+                    mime: "video/mp4".into(),
+                    bytes: vec![0u8; 5_000_000],
+                    filename: None,
+                },
+                "video".to_string(),
+            ),
+        ];
+        let prefix = build_upload_history_prefix(&staged);
+        // Two messages per upload (assistant tool_call + tool result).
+        assert_eq!(prefix.len(), 4);
+        // First upload: assistant tool_calls entry.
+        assert_eq!(prefix[0]["role"], "assistant");
+        assert_eq!(prefix[0]["tool_calls"][0]["id"], "upload_1");
+        assert_eq!(
+            prefix[0]["tool_calls"][0]["function"]["name"],
+            "user_upload"
+        );
+        // First upload: tool result references the same id.
+        assert_eq!(prefix[1]["role"], "tool");
+        assert_eq!(prefix[1]["tool_call_id"], "upload_1");
+        let content = prefix[1]["content"].as_str().unwrap();
+        assert!(content.contains("upload_1"));
+        assert!(content.contains("image/png"));
+        assert!(content.contains("1228800"));
+        assert!(content.contains("cat.png"));
+        assert!(content.contains(r#"{"ref": "upload_1"}"#));
+        // Second upload: video, no filename — content uses fallback display name.
+        assert_eq!(prefix[3]["tool_call_id"], "upload_2");
+        let content = prefix[3]["content"].as_str().unwrap();
+        assert!(content.contains("upload_2"));
+        assert!(content.contains("video/mp4"));
+        assert!(content.contains("video")); // display name fallback
+    }
+
+    #[test]
+    fn build_upload_history_prefix_empty_for_no_uploads() {
+        let staged: Vec<(String, Attachment, String)> = Vec::new();
+        let prefix = build_upload_history_prefix(&staged);
+        assert!(prefix.is_empty());
     }
 }
