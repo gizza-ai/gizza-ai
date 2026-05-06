@@ -110,3 +110,51 @@ fn image_convert_skill_is_embedded() {
     assert!(!bytes.is_empty());
     assert_eq!(&bytes[..4], b"\0asm");
 }
+
+#[test]
+fn video_frame_extract_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/video-frame-extract"),
+        "gizza-ai/video-frame-extract should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/video-frame-extract")
+        .expect("video-frame-extract");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
+
+#[test]
+fn video_transcode_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/video-transcode"),
+        "gizza-ai/video-transcode should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/video-transcode")
+        .expect("video-transcode");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
+
+#[test]
+fn video_trim_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/video-trim"),
+        "gizza-ai/video-trim should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/video-trim")
+        .expect("video-trim");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}

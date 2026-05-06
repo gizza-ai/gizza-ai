@@ -69,12 +69,21 @@ impl Block for FakeNetworkBlock {
             h.insert("content-type".to_string(), vec!["image/png".to_string()]);
             h.insert("content-length".to_string(), vec!["5242880".to_string()]);
             (200, h, Vec::new())
+        } else if url == "https://example.test/huge.mp4" {
+            // Special case: huge.mp4 signals oversize via Content-Length header (20 MiB > 10 MiB cap).
+            let mut h = HashMap::new();
+            h.insert("content-type".to_string(), vec!["video/mp4".to_string()]);
+            h.insert("content-length".to_string(), vec!["20971520".to_string()]);
+            (200, h, Vec::new())
         } else {
             let (status, content_type, body_bytes): (u16, &str, Vec<u8>) = match url {
                 "https://example.test/web-fetch.txt" => {
                     (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec())
                 }
                 "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
+                "https://example.test/sample.webm" => {
+                    (200, "video/webm", b"FAKE_WEBM_BYTES".to_vec())
+                }
                 "https://example.test/cat.png" => (200, "image/png", {
                     // Minimal valid-looking PNG header bytes; real validity not required —
                     // the skill doesn't decode the image.
@@ -83,6 +92,9 @@ impl Block for FakeNetworkBlock {
                     v
                 }),
                 "https://example.test/not-an-image.html" => {
+                    (200, "text/html", b"<html></html>".to_vec())
+                }
+                "https://example.test/not-a-video.html" => {
                     (200, "text/html", b"<html></html>".to_vec())
                 }
                 "https://example.test/small.png" => (200, "image/png", {
@@ -944,13 +956,14 @@ async fn image_convert_surfaces_ffmpeg_failure() {
 
 // -- Skill-output chaining: image-resize → image-crop via ref attachment ----
 
-/// Native caller block: dispatches image-crop with a single attachment under
+/// Native caller block: dispatches a target block with a single attachment under
 /// the id "call_1". The bytes come from the caller's input stream; the args
-/// passed to the test fixture choose crop region. The crop block sees
+/// passed to the test fixture are forwarded verbatim. The target block sees
 /// `{ref: "call_1"}` in args and pulls bytes via `wafer_sdk::lookup_attachment`.
 #[derive(Clone)]
 struct ChainCallerBlock {
-    crop_args: serde_json::Value,
+    target_block: String,
+    args: serde_json::Value,
     attached_bytes: Vec<u8>,
 }
 
@@ -961,7 +974,7 @@ impl Block for ChainCallerBlock {
             "test/chain-caller",
             "0.0.0",
             "h@v1",
-            "Drives a chained call to gizza-ai/image-crop with attachments.",
+            "Drives a chained call to a configurable target block with attachments.",
         )
     }
 
@@ -976,13 +989,13 @@ impl Block for ChainCallerBlock {
             },
         );
 
-        let body = serde_json::to_vec(&self.crop_args).expect("serialize crop args");
+        let body = serde_json::to_vec(&self.args).expect("serialize args");
 
         let mut msg = Message::new("invoke");
         msg.set_meta(wafer_block::meta::META_REQ_ACTION, "create");
 
         match ctx
-            .call_block_buffered_with_attachments("gizza-ai/image-crop", msg, &body, atts)
+            .call_block_buffered_with_attachments(&self.target_block, msg, &body, atts)
             .await
         {
             Ok(resp) => OutputStream::respond(resp.body),
@@ -1060,7 +1073,8 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
         .register_block(
             "test/chain-caller",
             Arc::new(ChainCallerBlock {
-                crop_args: json!({
+                target_block: "gizza-ai/image-crop".into(),
+                args: json!({
                     "ref": "call_1",
                     "x": 0,
                     "y": 0,
@@ -1092,4 +1106,339 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
         .expect("crop emits data_url");
     assert!(data_url.starts_with("data:image/"));
     assert!(data_url.len() > 100, "cropped data_url suspiciously small");
+}
+
+// -- video-transcode dispatch tests ------------------------------------------
+
+const TRANSCODE_WASM: &[u8] = include_bytes!("../blocks/video-transcode/target/block.wasm");
+const TRIM_WASM: &[u8] = include_bytes!("../blocks/video-trim/target/block.wasm");
+const FRAME_EXTRACT_WASM: &[u8] = include_bytes!("../blocks/video-frame-extract/target/block.wasm");
+
+#[tokio::test]
+async fn video_transcode_happy_path_returns_envelope() {
+    let svc = Arc::new(FakeFfmpegService::ok(
+        b"\x00\x00\x00\x18ftypmp42"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
+        "fake transcode log",
+    ));
+    let env = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "format": "mp4", "quality": 75 }),
+        svc,
+    )
+    .await
+    .expect("transcode succeeds");
+    assert_eq!(env["_for_ui"]["mime"], "video/mp4");
+    assert!(env["_for_ui"]["data_url"]
+        .as_str()
+        .unwrap()
+        .starts_with("data:video/mp4;base64,"));
+}
+
+#[tokio::test]
+async fn video_transcode_rejects_oversize_input() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/huge.mp4",
+        json!({ "format": "mp4" }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err(), "oversize must error");
+    assert_eq!(
+        svc.calls(),
+        0,
+        "ffmpeg-runtime must not be called when input rejected"
+    );
+}
+
+#[tokio::test]
+async fn video_transcode_rejects_non_video_content_type() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/not-a-video.html",
+        json!({ "format": "mp4" }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_transcode_surfaces_ffmpeg_failure() {
+    let svc = Arc::new(FakeFfmpegService::fail(127, "ffmpeg crashed"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-transcode",
+        "video-transcode",
+        TRANSCODE_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "format": "mp4" }),
+        svc,
+    )
+    .await;
+    assert!(result.is_err());
+}
+
+// -- video-trim dispatch tests -----------------------------------------------
+
+#[tokio::test]
+async fn video_trim_happy_path_returns_envelope() {
+    let svc = Arc::new(FakeFfmpegService::ok(
+        b"\x00\x00\x00\x18ftypmp42"
+            .iter()
+            .chain([0u8; 88].iter())
+            .copied()
+            .collect(),
+        "fake trim log",
+    ));
+    let env = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "start": 1.0, "duration": 2.0 }),
+        svc,
+    )
+    .await
+    .expect("trim succeeds");
+    assert_eq!(env["_for_ui"]["mime"], "video/mp4");
+}
+
+#[tokio::test]
+async fn video_trim_rejects_oversize_input() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/huge.mp4",
+        json!({ "start": 0.0, "duration": 1.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_trim_rejects_non_video_content_type() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/not-a-video.html",
+        json!({ "start": 0.0, "duration": 1.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_trim_surfaces_ffmpeg_failure() {
+    let svc = Arc::new(FakeFfmpegService::fail(1, "stream copy failed"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-trim",
+        "video-trim",
+        TRIM_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "start": 0.0, "duration": 1.0 }),
+        svc,
+    )
+    .await;
+    assert!(result.is_err());
+}
+
+// -- video-frame-extract dispatch tests --------------------------------------
+
+#[tokio::test]
+async fn video_frame_extract_happy_path_returns_envelope() {
+    let svc = Arc::new(FakeFfmpegService::ok(
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 200].iter())
+            .copied()
+            .collect(),
+        "fake frame extract log",
+    ));
+    let env = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "timestamp": 1.5 }),
+        svc,
+    )
+    .await
+    .expect("frame-extract succeeds");
+    assert_eq!(env["_for_ui"]["mime"], "image/png");
+    assert!(env["_for_ui"]["data_url"]
+        .as_str()
+        .unwrap()
+        .starts_with("data:image/png;base64,"));
+}
+
+#[tokio::test]
+async fn video_frame_extract_rejects_oversize_input() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/huge.mp4",
+        json!({ "timestamp": 0.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_frame_extract_rejects_non_video_content_type() {
+    let svc = Arc::new(FakeFfmpegService::ok(b"unused".to_vec(), "unused"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/not-a-video.html",
+        json!({ "timestamp": 0.0 }),
+        svc.clone(),
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(svc.calls(), 0);
+}
+
+#[tokio::test]
+async fn video_frame_extract_surfaces_ffmpeg_failure() {
+    let svc = Arc::new(FakeFfmpegService::fail(1, "no decoder for stream"));
+    let result = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "timestamp": 0.0 }),
+        svc,
+    )
+    .await;
+    assert!(result.is_err());
+}
+
+// -- Cross-modality chain: video-frame-extract → image-resize via ref --------
+
+#[tokio::test]
+async fn dispatch_chains_video_frame_extract_then_image_resize_via_ref() {
+    // Step 1: extract a frame from a fake video to obtain real PNG bytes.
+    let png_bytes: Vec<u8> = b"\x89PNG\r\n\x1a\n"
+        .iter()
+        .chain([0u8; 200].iter())
+        .copied()
+        .collect();
+    let extract_svc = Arc::new(FakeFfmpegService::ok(
+        png_bytes.clone(),
+        "fake frame extract log",
+    ));
+
+    let extract_envelope = dispatch_image_op(
+        "gizza-ai/video-frame-extract",
+        "video-frame-extract",
+        FRAME_EXTRACT_WASM,
+        "https://example.test/sample.mp4",
+        json!({ "timestamp": 1.5 }),
+        extract_svc,
+    )
+    .await
+    .expect("frame-extract succeeds");
+
+    let data_url = extract_envelope["_for_ui"]["data_url"]
+        .as_str()
+        .expect("data_url present");
+    assert!(data_url.starts_with("data:image/png;base64,"));
+    let comma = data_url.find(',').expect("data: URL has comma");
+    let b64 = &data_url[comma + 1..];
+    let chained_bytes = base64::engine::general_purpose::STANDARD
+        .decode(b64)
+        .expect("data_url base64 decodes");
+    assert!(!chained_bytes.is_empty());
+    let _ = png_bytes; // (kept for clarity; chained_bytes is the verified roundtrip)
+
+    // Step 2: drive image-resize with {ref: "call_1"} + the extracted bytes.
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+    let resize_svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService::ok(
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 88].iter())
+            .copied()
+            .collect(),
+        "fake resize log",
+    ));
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg-runtime",
+            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(resize_svc)),
+        )
+        .expect("register ffmpeg-runtime");
+    wafer
+        .register_block(
+            "gizza-ai/image-resize",
+            Arc::new(WasmiBlock::load_from_bytes(RESIZE_WASM).expect("load image-resize")),
+        )
+        .expect("register image-resize");
+    wafer
+        .register_block(
+            "test/chain-caller",
+            Arc::new(ChainCallerBlock {
+                target_block: "gizza-ai/image-resize".into(),
+                args: json!({
+                    "ref": "call_1",
+                    "width": 50,
+                }),
+                attached_bytes: chained_bytes,
+            }),
+        )
+        .expect("register chain caller");
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let output = wafer
+        .run_block(
+            "test/chain-caller",
+            Message::new("invoke"),
+            InputStream::empty(),
+        )
+        .await;
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("chain-caller returns success");
+
+    let envelope: serde_json::Value =
+        serde_json::from_slice(&resp.body).expect("resize returns SP4 envelope");
+    let resized_data_url = envelope["_for_ui"]["data_url"]
+        .as_str()
+        .expect("resize emits data_url");
+    assert!(resized_data_url.starts_with("data:image/"));
+    assert!(resized_data_url.len() > 100);
 }
