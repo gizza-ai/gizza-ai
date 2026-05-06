@@ -965,6 +965,7 @@ struct ChainCallerBlock {
     target_block: String,
     args: serde_json::Value,
     attached_bytes: Vec<u8>,
+    attachment_id: String,
 }
 
 #[async_trait::async_trait]
@@ -981,7 +982,7 @@ impl Block for ChainCallerBlock {
     async fn handle(&self, ctx: &dyn Context, _msg: Message, _input: InputStream) -> OutputStream {
         let mut atts = BTreeMap::new();
         atts.insert(
-            "call_1".to_string(),
+            self.attachment_id.clone(),
             Attachment {
                 mime: "image/png".into(),
                 bytes: self.attached_bytes.clone(),
@@ -1081,6 +1082,7 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
                     "width": 50,
                     "height": 50,
                 }),
+                attachment_id: "call_1".into(),
                 attached_bytes: chained_bytes,
             }),
         )
@@ -1417,6 +1419,85 @@ async fn dispatch_chains_video_frame_extract_then_image_resize_via_ref() {
                     "width": 50,
                 }),
                 attached_bytes: chained_bytes,
+                attachment_id: "call_1".into(),
+            }),
+        )
+        .expect("register chain caller");
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let output = wafer
+        .run_block(
+            "test/chain-caller",
+            Message::new("invoke"),
+            InputStream::empty(),
+        )
+        .await;
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("chain-caller returns success");
+
+    let envelope: serde_json::Value =
+        serde_json::from_slice(&resp.body).expect("resize returns SP4 envelope");
+    let resized_data_url = envelope["_for_ui"]["data_url"]
+        .as_str()
+        .expect("resize emits data_url");
+    assert!(resized_data_url.starts_with("data:image/"));
+    assert!(resized_data_url.len() > 100);
+}
+
+#[tokio::test]
+async fn dispatch_uploaded_image_then_resize_via_ref() {
+    // Simulate what the agent block does post-decode_uploads: it pre-seeds
+    // the per-loop attachment map with bytes keyed by `upload_N`. The LLM
+    // then emits {ref:"upload_1"} which routes through dispatch_tool —
+    // exactly the path ChainCallerBlock exercises by parameterising
+    // `attachment_id`.
+    let png_bytes: Vec<u8> = b"\x89PNG\r\n\x1a\n"
+        .iter()
+        .chain([0u8; 200].iter())
+        .copied()
+        .collect();
+
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+    let resize_svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService::ok(
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 88].iter())
+            .copied()
+            .collect(),
+        "fake resize log",
+    ));
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg-runtime",
+            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(resize_svc)),
+        )
+        .expect("register ffmpeg-runtime");
+    wafer
+        .register_block(
+            "gizza-ai/image-resize",
+            Arc::new(WasmiBlock::load_from_bytes(RESIZE_WASM).expect("load image-resize")),
+        )
+        .expect("register image-resize");
+    wafer
+        .register_block(
+            "test/chain-caller",
+            Arc::new(ChainCallerBlock {
+                target_block: "gizza-ai/image-resize".into(),
+                args: json!({
+                    "ref": "upload_1",
+                    "width": 100,
+                }),
+                attached_bytes: png_bytes,
+                attachment_id: "upload_1".into(),
             }),
         )
         .expect("register chain caller");
