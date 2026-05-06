@@ -348,6 +348,7 @@ async fn run_agent_loop(
     model_id: &str,
 ) -> String {
     let mut out = String::new();
+    let mut attachments: HashMap<String, Attachment> = HashMap::new();
 
     for round in 1..=MAX_ROUNDS {
         // Convert OpenAI-format history to ChatMessage vec.
@@ -530,16 +531,26 @@ async fn run_agent_loop(
         // Dispatch each tool call and accumulate results.
         let mut tc_records: Vec<(PendingToolCall, String)> = Vec::with_capacity(tool_calls.len());
         for tc in &tool_calls {
-            let outcome = dispatch_tool(ctx, tc).await;
+            let ToolOutcome { for_llm, for_ui } = dispatch_tool(ctx, tc, &attachments).await;
+            let mut for_llm = for_llm;
+
+            // Stash attachment if for_ui carries a decodable data: URL, and
+            // append a hint to for_llm so the LLM can chain.
+            if let Some(att) = for_ui.as_ref().and_then(extract_attachment) {
+                let hint = format_ref_hint(&tc.id, &att);
+                for_llm = format!("{for_llm}\n\n{hint}");
+                attachments.insert(tc.id.clone(), att);
+            }
+
             let mut payload = serde_json::json!({
                 "id": tc.id,
-                "result": outcome.for_llm,
+                "result": for_llm.clone(),
             });
-            if let Some(for_ui) = &outcome.for_ui {
-                payload["for_ui"] = for_ui.clone();
+            if let Some(ref for_ui_val) = for_ui {
+                payload["for_ui"] = for_ui_val.clone();
             }
             out.push_str(&encode_sse_event("tool_result", &payload));
-            tc_records.push((tc.clone(), outcome.for_llm));
+            tc_records.push((tc.clone(), for_llm));
         }
 
         // Append assistant tool-call + tool-result messages to history for the
@@ -678,7 +689,16 @@ pub(crate) fn format_ref_hint(id: &str, att: &Attachment) -> String {
 /// [`ToolOutcome`] splitting the response into an LLM-safe summary (`for_llm`)
 /// and an optional UI render hint (`for_ui`). Error branches set `for_ui` to
 /// `None`; only the success path calls [`parse_skill_response`].
-async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> ToolOutcome {
+///
+/// If the parsed args contain a `{"ref": "..."}` key, the attachment is looked
+/// up from `attachments` and forwarded via
+/// [`Context::call_block_buffered_with_attachments`]. If the ref is unknown, an
+/// error `ToolOutcome` is returned immediately without dispatching.
+async fn dispatch_tool(
+    ctx: &dyn Context,
+    tc: &PendingToolCall,
+    attachments: &HashMap<String, Attachment>,
+) -> ToolOutcome {
     let block_name = if tc.name.contains('/') {
         tc.name.clone()
     } else {
@@ -692,8 +712,32 @@ async fn dispatch_tool(ctx: &dyn Context, tc: &PendingToolCall) -> ToolOutcome {
         format!("/b/{}", short_name(&block_name)),
     );
 
+    // Inspect args for {"ref": "..."} and prepare an outgoing attachment map.
+    let mut outgoing: std::collections::BTreeMap<String, Attachment> =
+        std::collections::BTreeMap::new();
+    if let Ok(args_value) = serde_json::from_str::<serde_json::Value>(&tc.arguments) {
+        if let Some(ref_id) = args_value.get("ref").and_then(|v| v.as_str()) {
+            match attachments.get(ref_id) {
+                Some(att) => {
+                    outgoing.insert(ref_id.to_string(), att.clone());
+                }
+                None => {
+                    return ToolOutcome {
+                        for_llm: format!(
+                            r#"{{"error":"unknown_ref","message":"no attachment for ref {ref_id:?}"}}"#
+                        ),
+                        for_ui: None,
+                    };
+                }
+            }
+        }
+    }
+
     let args_bytes = tc.arguments.as_bytes().to_vec();
-    match ctx.call_block_buffered(&block_name, msg, &args_bytes).await {
+    match ctx
+        .call_block_buffered_with_attachments(&block_name, msg, &args_bytes, outgoing)
+        .await
+    {
         Ok(BufferedResponse { body, .. }) => {
             let result_text = String::from_utf8_lossy(&body).to_string();
             parse_skill_response(&result_text)
