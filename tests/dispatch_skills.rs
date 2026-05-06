@@ -6,14 +6,16 @@
 //! → fake network → response → web-fetch parses → ToolResp) round-trips
 //! correctly. No browser, no LLM, no Playwright.
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
 use serde_json::json;
+use base64::engine::general_purpose::STANDARD as B64_STANDARD;
+use base64::Engine as _;
 use wafer_block::{
     codec,
     wire::network::{Request as WireRequest, ResponseHeader},
-    Block, Context, InputStream, Message, OutputStream, WaferError,
+    Attachment, Block, Context, InputStream, Message, OutputStream, WaferError,
 };
 use wafer_run::{ErrorCode, WasmiBlock, Wafer};
 
@@ -851,4 +853,168 @@ async fn image_convert_surfaces_ffmpeg_failure() {
     ).await;
     assert!(result.is_err());
     assert_eq!(svc.calls(), 1);
+}
+
+// -- Skill-output chaining: image-resize → image-crop via ref attachment ----
+
+/// Native caller block: dispatches image-crop with a single attachment under
+/// the id "call_1". The bytes come from the caller's input stream; the args
+/// passed to the test fixture choose crop region. The crop block sees
+/// `{ref: "call_1"}` in args and pulls bytes via `wafer_sdk::lookup_attachment`.
+#[derive(Clone)]
+struct ChainCallerBlock {
+    crop_args: serde_json::Value,
+    attached_bytes: Vec<u8>,
+}
+
+#[async_trait::async_trait]
+impl Block for ChainCallerBlock {
+    fn info(&self) -> wafer_block::types::BlockInfo {
+        wafer_block::types::BlockInfo::new(
+            "test/chain-caller",
+            "0.0.0",
+            "h@v1",
+            "Drives a chained call to gizza-ai/image-crop with attachments.",
+        )
+    }
+
+    async fn handle(
+        &self,
+        ctx: &dyn Context,
+        _msg: Message,
+        _input: InputStream,
+    ) -> OutputStream {
+        let mut atts = BTreeMap::new();
+        atts.insert(
+            "call_1".to_string(),
+            Attachment {
+                mime: "image/png".into(),
+                bytes: self.attached_bytes.clone(),
+                filename: Some("from-resize.png".into()),
+            },
+        );
+
+        let body = serde_json::to_vec(&self.crop_args).expect("serialize crop args");
+
+        let mut msg = Message::new("invoke");
+        msg.set_meta(wafer_block::meta::META_REQ_ACTION, "create");
+
+        match ctx
+            .call_block_buffered_with_attachments(
+                "gizza-ai/image-crop",
+                msg,
+                &body,
+                atts,
+            )
+            .await
+        {
+            Ok(resp) => OutputStream::respond(resp.body),
+            Err(e) => OutputStream::error(e),
+        }
+    }
+}
+
+#[tokio::test]
+async fn dispatch_chains_resize_then_crop_via_ref() {
+    // Step 1: resize an image normally to obtain real PNG bytes the crop can use.
+    // Use FakeFfmpegService::ok with a deterministic PNG-shaped byte sequence.
+    let resize_output_bytes: Vec<u8> = b"\x89PNG\r\n\x1a\n"
+        .iter()
+        .chain([0u8; 200].iter())
+        .copied()
+        .collect();
+    let resize_svc = Arc::new(FakeFfmpegService::ok(
+        resize_output_bytes.clone(),
+        "fake resize log",
+    ));
+
+    let resize_envelope = dispatch_image_op(
+        "gizza-ai/image-resize",
+        "image-resize",
+        RESIZE_WASM,
+        "https://example.test/cat.png",
+        json!({ "width": 100 }),
+        resize_svc,
+    )
+    .await
+    .expect("resize succeeds");
+
+    // The resize envelope's _for_ui.data_url has the bytes we want to chain.
+    let data_url = resize_envelope["_for_ui"]["data_url"]
+        .as_str()
+        .expect("data_url present");
+    let comma = data_url.find(',').expect("data: URL has comma");
+    let header = &data_url[..comma];
+    let b64 = &data_url[comma + 1..];
+    assert!(header.starts_with("data:image/"));
+    let chained_bytes = B64_STANDARD
+        .decode(b64)
+        .expect("data_url base64 decodes");
+    assert!(!chained_bytes.is_empty(), "resize produced no bytes");
+
+    // Step 2: build a runtime with image-crop + chain caller. Drive the caller.
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+    let crop_svc: Arc<dyn gizza_ai::ffmpeg::FfmpegService> = Arc::new(FakeFfmpegService::ok(
+        b"\x89PNG\r\n\x1a\n"
+            .iter()
+            .chain([0u8; 88].iter())
+            .copied()
+            .collect(),
+        "fake crop log",
+    ));
+    wafer
+        .register_block(
+            "gizza-ai/ffmpeg-runtime",
+            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(crop_svc)),
+        )
+        .expect("register ffmpeg-runtime");
+    wafer
+        .register_block(
+            "gizza-ai/image-crop",
+            Arc::new(WasmiBlock::load_from_bytes(CROP_WASM).expect("load image-crop")),
+        )
+        .expect("register image-crop");
+    wafer
+        .register_block(
+            "test/chain-caller",
+            Arc::new(ChainCallerBlock {
+                crop_args: json!({
+                    "ref": "call_1",
+                    "x": 0,
+                    "y": 0,
+                    "width": 50,
+                    "height": 50,
+                }),
+                attached_bytes: chained_bytes,
+            }),
+        )
+        .expect("register chain caller");
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let output = wafer
+        .run_block(
+            "test/chain-caller",
+            Message::new("invoke"),
+            InputStream::empty(),
+        )
+        .await;
+    let resp = output
+        .collect_buffered()
+        .await
+        .expect("chain-caller returns success");
+
+    let envelope: serde_json::Value =
+        serde_json::from_slice(&resp.body).expect("crop returns SP4 envelope");
+    let data_url = envelope["_for_ui"]["data_url"]
+        .as_str()
+        .expect("crop emits data_url");
+    assert!(data_url.starts_with("data:image/"));
+    assert!(data_url.len() > 100, "cropped data_url suspiciously small");
 }
