@@ -103,7 +103,7 @@ struct LoadModelRequest {
 }
 
 #[derive(Debug, Deserialize)]
-struct UploadEntry {
+pub(crate) struct UploadEntry {
     id: String,
     mime: String,
     #[serde(default)]
@@ -1401,7 +1401,10 @@ mod tests {
         let r = decode_uploads(&entries);
         assert!(r.is_err());
         let msg = r.unwrap_err();
-        assert!(msg.contains("upload_"), "error must mention id format: {msg}");
+        assert!(
+            msg.contains("upload_"),
+            "error must mention id format: {msg}"
+        );
     }
 
     #[test]
