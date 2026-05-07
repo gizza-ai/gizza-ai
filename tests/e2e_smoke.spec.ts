@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
 test.describe('gizza-ai smoke', () => {
   test('page loads, model loads, clock prompt produces some response', async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe('gizza-ai smoke', () => {
     // Click "Load model". WebLLM will download the model weights on first run
     // (~1.2 GB for Qwen2.5-1.5B-Instruct-q4f32_1-MLC) so we allow 3 minutes.
     await page.locator('#load-model').click();
-    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 180_000 });
+    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 600_000 });
 
     // Close the settings dialog via the form[method=dialog] close button.
     await page.locator('#settings button[value="close"]').click();
@@ -49,7 +49,7 @@ test.describe('gizza-ai smoke', () => {
     await page.locator('#open-settings').click();
     await expect(page.locator('#settings')).toBeVisible();
     await page.locator('#load-model').click();
-    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 180_000 });
+    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 600_000 });
     await page.locator('#settings button[value="close"]').click();
     await expect(page.locator('#settings')).not.toBeVisible();
 
