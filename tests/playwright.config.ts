@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: '.',
-  timeout: 600_000, // 10 min — WebLLM model download is ~1.2 GB on cold runs.
+  timeout: 1_200_000, // 20 min — WebLLM model download is ~1.2 GB on cold runs.
   expect: { timeout: 120_000 },
   fullyParallel: false,
   workers: 1,
