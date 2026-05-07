@@ -118,8 +118,11 @@ fn render_chat() -> maud::Markup {
                         div class="empty" { "Load a model in settings to start." }
                     }
                     form slot="composer" id="composer" autocomplete="off" {
+                        div id="upload-chips" class="upload-chips empty" {}
                         textarea id="user-input" name="user_message" placeholder="Ask anything…" rows="2" {}
+                        button id="attach" type="button" aria-label="Attach file" title="Attach image or video" {}
                         button id="send" type="submit" disabled { "Send" }
+                        input id="file-picker" type="file" accept="image/*,video/*" multiple style="display:none;";
                     }
                 }
                 dialog id="settings" {

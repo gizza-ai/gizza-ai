@@ -759,3 +759,115 @@ dialog button[value="close"] {
     margin-top: 0.5rem;
     border-radius: 4px;
 }
+
+/* ─── Upload chips ─────────────────────────────────────────────────────── */
+/* The chip strip lives above the textarea inside #composer. Hidden when
+ * empty (no padding, no border) so the composer doesn't show extra
+ * vertical space when there are no pending uploads. */
+
+#composer #upload-chips {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: 0 var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+#composer #upload-chips.empty {
+  display: none;
+}
+/* Bump the textarea down to row 2 (chips take row 1). */
+#composer:has(#upload-chips:not(.empty)) textarea {
+  grid-row: 2;
+}
+
+#composer .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: 14px;
+  background: var(--color-surface-card);
+  color: var(--color-ink);
+  font-size: 13px;
+  line-height: 1.2;
+  max-width: 240px;
+}
+#composer .chip .chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+#composer .chip .remove {
+  /* Override the inherited 36px composer-button shell. */
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+#composer .chip .remove:hover {
+  color: var(--color-ink);
+  background: var(--color-hairline);
+}
+
+#composer .upload-error {
+  color: var(--color-on-primary, #b00020);
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+/* ─── Paperclip attach button ──────────────────────────────────────────── */
+/* Inherits the 36px circle shell from the existing #composer button rules.
+ * Just provide the icon mask. */
+#composer #attach {
+  grid-row: 2;
+}
+#composer #attach::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M21.44 11.05l-9.19 9.19a6 6 0 1 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.49'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M21.44 11.05l-9.19 9.19a6 6 0 1 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.49'/></svg>");
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+}
+
+/* ─── Drop overlay ─────────────────────────────────────────────────────── */
+/* Full-page dimmer + "Drop image or video to attach" caption. The overlay
+ * is created by gizza-app.js and toggled via the [hidden] attribute. */
+
+#drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklch, var(--color-canvas) 70%, transparent);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+#drop-overlay[hidden] { display: none; }
+#drop-overlay .drop-overlay-inner {
+  padding: var(--space-base) var(--space-lg);
+  border: 2px dashed var(--color-primary);
+  border-radius: 16px;
+  background: var(--color-surface-card);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 18px;
+}

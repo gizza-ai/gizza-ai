@@ -2,10 +2,30 @@
 // SSE parsing. All state is in-memory — no persistence for MVP.
 
 import { renderToolAttachment } from './render.js';
+import {
+    addPending,
+    removePending,
+    clearPending,
+    getPending,
+    renderChips,
+} from './pending.js';
 
 const history = []; // OpenAI-format messages.
 
 const $ = (id) => document.getElementById(id);
+
+async function blobToBase64(blob) {
+    return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result; // "data:<mime>;base64,<payload>"
+            const comma = result.indexOf(',');
+            resolve(comma >= 0 ? result.slice(comma + 1) : result);
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(blob);
+    });
+}
 
 // Local-storage key for the user's chosen WebLLM model id. Set whenever the
 // model picker changes; read at page-init to restore the previous choice.
@@ -113,6 +133,94 @@ function updateToolRow(row, ok, result) {
     row.appendChild(resSpan);
     row.classList.add(ok ? 'is-done' : 'is-error');
 }
+
+// --- Drag-drop + file-picker upload wiring ---
+
+function showUploadError(text) {
+    const strip = document.getElementById('upload-chips');
+    strip.replaceChildren();
+    const err = document.createElement('span');
+    err.className = 'upload-error';
+    err.textContent = text;
+    strip.appendChild(err);
+    strip.classList.remove('empty');
+}
+
+function refreshChips() {
+    const strip = document.getElementById('upload-chips');
+    renderChips(strip);
+    strip.querySelectorAll('button.remove').forEach((btn) => {
+        const chip = btn.closest('.chip');
+        const id = chip?.getAttribute('data-id');
+        if (id) {
+            btn.addEventListener('click', () => {
+                removePending(id);
+                refreshChips();
+            });
+        }
+    });
+}
+
+function ingestFiles(fileList) {
+    let firstError = null;
+    for (const f of fileList) {
+        const r = addPending(f);
+        if (!r.ok && !firstError) firstError = r.error;
+    }
+    if (firstError && getPending().length === 0) {
+        showUploadError(firstError);
+        return;
+    }
+    refreshChips();
+    if (firstError) {
+        console.warn('Upload partially rejected:', firstError);
+    }
+}
+
+function setupUploads() {
+    const attach = document.getElementById('attach');
+    const picker = document.getElementById('file-picker');
+    if (!attach || !picker) return;
+    attach.addEventListener('click', () => picker.click());
+    picker.addEventListener('change', () => {
+        ingestFiles(picker.files);
+        picker.value = '';
+    });
+
+    const overlay = document.createElement('div');
+    overlay.id = 'drop-overlay';
+    overlay.hidden = true;
+    overlay.innerHTML =
+        '<div class="drop-overlay-inner">Drop image or video to attach.</div>';
+    document.body.appendChild(overlay);
+
+    let dragDepth = 0;
+    document.addEventListener('dragenter', (e) => {
+        if (!e.dataTransfer || !Array.from(e.dataTransfer.types).includes('Files')) return;
+        e.preventDefault();
+        dragDepth += 1;
+        overlay.hidden = false;
+    });
+    document.addEventListener('dragover', (e) => {
+        if (!e.dataTransfer || !Array.from(e.dataTransfer.types).includes('Files')) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+    document.addEventListener('dragleave', (e) => {
+        if (!e.dataTransfer || !Array.from(e.dataTransfer.types).includes('Files')) return;
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (dragDepth === 0) overlay.hidden = true;
+    });
+    document.addEventListener('drop', (e) => {
+        if (!e.dataTransfer || e.dataTransfer.files.length === 0) return;
+        e.preventDefault();
+        dragDepth = 0;
+        overlay.hidden = true;
+        ingestFiles(e.dataTransfer.files);
+    });
+}
+
+setupUploads();
 
 // Progress card \u2014 created lazily inside the Settings dialog while the model
 // downloads. Holds the verbose stage message so the Load model button text
@@ -393,6 +501,17 @@ $('composer').addEventListener('submit', async (e) => {
     const assistantEl = addAssistantBubble();
     const toolRows = new Map(); // tool-call id -> DOM row
 
+    const pendingUploads = getPending();
+    const uploads = await Promise.all(
+        pendingUploads.map(async (p) => ({
+            id: p.id,
+            mime: p.mime,
+            filename: p.filename,
+            bytes_base64: await blobToBase64(p.blob),
+        })),
+    );
+
+    let roundTripCompleted = false;
     try {
         const resp = await fetch('/b/agent/chat', {
             method: 'POST',
@@ -401,6 +520,7 @@ $('composer').addEventListener('submit', async (e) => {
                 user_message: text,
                 messages: history.slice(0, -1),
                 model_id: selectedModelId(),
+                uploads,
             }),
         });
         if (!resp.ok) throw new Error(`agent HTTP ${resp.status}`);
@@ -424,12 +544,20 @@ $('composer').addEventListener('submit', async (e) => {
         if (assistantText) {
             history.push({ role: 'assistant', content: assistantText });
         }
+        roundTripCompleted = true;
     } catch (err) {
         assistantEl.textContent = `(error: ${err.message})`;
     } finally {
         input.disabled = false;
         $('send').disabled = false;
         input.focus();
+        // Clear pending uploads only on a successful round-trip — leave chips
+        // visible on network/parse error so the user can retry without
+        // re-attaching the files.
+        if (roundTripCompleted) {
+            clearPending();
+            refreshChips();
+        }
     }
 
     function processFrame(frame) {

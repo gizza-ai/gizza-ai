@@ -8,6 +8,7 @@ actually pick up next session."
 
 A productive day across three repos. Stack of merges, top to bottom:
 
+- **gizza-ai #33** (this PR) — SP3 drag-drop file upload UI. User drops image/video onto the chat; appears as removable chips above the textarea; on send, files become attachments under `upload_N` ids and the LLM sees them as synthetic prior tool_results matching the Phase A chaining hint format. Uses the same `{ref}` mechanism as chained skill outputs. 10 MiB per-file cap, image/video only, multi-file, paperclip fallback for mobile/a11y.
 - **wafer-run #36 / #37 / #38** — attachment ABI (per-call host helpers `__wafer_host_stream_attach` + `__wafer_host_lookup_attachment` + `Context::lookup_attachment` + `Attachment` type), `#[wafer_block(skill(...))]` macro attribute for LLM tool schemas, and wafer-cli validator stubs for the new imports.
 - **gizza-ai #32** (this PR) — SP5 video slice. Three new skills: `gizza-ai/video-transcode` (mp4/webm with quality knob), `gizza-ai/video-trim` (stream-copy to mp4), `gizza-ai/video-frame-extract` (single-frame PNG, naturally chainable into image-* skills via the SP4 envelope). 10 MiB symmetric caps. All accept `{url|ref}`. The `dispatch_chains_video_frame_extract_then_image_resize_via_ref` test proves the cross-modality chain.
 - **gizza-ai #31** (this PR) — skill-output chaining. Agent block stashes `_for_ui` attachments per request and appends a ref hint to `_for_llm`; image-resize / image-crop / image-convert accept `{ref: "<call-id>"}` as an alternative to `{url}`. **Also fixes a pre-existing gap:** every gizza-ai skill block (clock, calculator, web-fetch, image-fetch, ffmpeg, image-resize, image-crop, image-convert) now uses the new `skill(...)` macro attribute, so the LLM finally sees them in the tool list. Before this PR, `Context::registered_blocks()` had `role: None` and `tool: None` on every wasmi-built skill; the agent's `build_tools()` returned an empty `Vec<ToolDefinition>` on every chat request.
@@ -21,8 +22,7 @@ A productive day across three repos. Stack of merges, top to bottom:
 **Top of the queue:**
 
 1. **Operator items below — your action only.** Unblock the live site.
-2. **ffmpeg sub-project 3** (file drag-drop UI) — needs a design pass first.
-3. **Conversation persistence** — still blocked on producer-side solobase change.
+2. **Conversation persistence** — still blocked on producer-side solobase change.
 
 **Cross-repo news from the 2026-05-03 session:**
 
@@ -86,7 +86,7 @@ A productive day across three repos. Stack of merges, top to bottom:
 - [~] `gizza-ai/ffmpeg` — flagship. Decomposed into sub-projects (see specs). Status:
   - [x] **Sub-project 1** — ffmpeg-runtime invocation primitive (PR #21). Native `FfmpegBlock` registered as `gizza-ai/ffmpeg-runtime`, JS bridge at `js/ffmpeg.js` lazy-loads `@ffmpeg/ffmpeg` from jsdelivr.
   - [x] **Sub-project 2** — ffprobe-scope skill (PR #22). Two-hop `call_block` (network → bytes → ffmpeg-runtime → log). Tool surface: `{url}` only; returns `{url, info}` JSON.
-  - [ ] **Sub-project 3** — file drag-drop UI (deferred — needs design pass).
+  - [x] **Sub-project 3** — file drag-drop UI shipped in PR #33. Image/video files drop onto the page → chips → on send, the LLM sees `upload_N` refs alongside chained-call refs.
   - [x] **Sub-project 4** — inline `<img>`/`<video>` rendering (PR #26). Envelope wire format `{_for_llm, _for_ui}` bifurcates LLM history from UI rendering. Demonstrating skill `gizza-ai/image-fetch` proves the path. Renders inside the tool-call row. Sub-project 5 inherits the envelope; image transcoding can ship without further wire changes (video transcoding uses the `media-src` CSP entry added here).
   - [x] **Sub-project 5** — resize/transcode/crop/trim. Image slice (image-resize/crop/convert) shipped in PR #30. Video slice (video-transcode/trim/frame-extract) shipped in PR #32 — same SP5 template, 10 MiB caps, chainable via {url|ref}.
 - [ ] `gizza-ai/search-messages` — calls `suppers-ai/messages` via `ctx.call_block` to search past conversation. **Blocked**: chat history isn't persisted to `suppers-ai/messages` today, and persistence itself is blocked on a producer-side change (see Plan E).
