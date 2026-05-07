@@ -13,3 +13,7 @@ Cargo.lock
 # to point wafer-* crate names at sibling working copies.
 /.cargo/config.toml
 .data/
+
+# Playwright persistent-context cache (WebLLM model shards in OPFS/IndexedDB).
+tests/.cache/
+tests/test-results/
