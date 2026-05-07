@@ -235,7 +235,8 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
 // ---------------------------------------------------------------------------
 
 async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStream {
-    // Parse request body.
+    // Parse request body up front so we can return a buffered 4xx without
+    // entering the streaming codepath if the request is bad.
     let body_bytes = input.collect_to_bytes().await;
     let req: LoadModelRequest = if body_bytes.is_empty() {
         return error_response(400, "bad_request", "load-model request body required");
@@ -264,81 +265,104 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
         }
     };
 
-    // Call wafer-run/llm with LLM_LOAD_MODEL.
+    // Hand wafer-run/llm the request before entering the producer closure
+    // (we can't borrow `ctx` from inside the spawn_local task it's hosted on).
     let mut msg = Message::new(ServiceOp::LLM_LOAD_MODEL);
     msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_LOAD_MODEL);
-
     let output = ctx
         .call_block("wafer-run/llm", msg, InputStream::from_bytes(req_bytes))
         .await;
 
-    // Accumulate SSE output — stream each LoadProgress frame.
-    let mut sse_body = String::new();
-    let stream = output.body_stream();
-    pin_mut!(stream);
+    // Streaming response: status + content-type + cache-control go out as
+    // leading Meta events BEFORE the first body chunk so the upstream
+    // pipeline (solobase-core/pipeline.rs + solobase-browser/convert.rs)
+    // can recognise the streaming codepath and forward chunks to the
+    // browser as they're produced. Without that, all the SSE bytes are
+    // buffered until the LLM load completes — which on a cold WebLLM
+    // start takes minutes — and Chrome's idle keep-alive drops the fetch
+    // mid-flight with `net::ERR_FAILED`.
+    OutputStream::from_producer(move |sink, _cancel| async move {
+        // 1. Headers via leading Meta — the streaming codepath upstream
+        //    keys off Content-Type appearing here, not in the terminal.
+        if sink
+            .send_meta(MetaEntry {
+                key: META_RESP_STATUS.to_string(),
+                value: "200".to_string(),
+            })
+            .await
+            .is_err()
+        {
+            return;
+        }
+        if sink
+            .send_meta(MetaEntry {
+                key: META_RESP_CONTENT_TYPE.to_string(),
+                value: "text/event-stream".to_string(),
+            })
+            .await
+            .is_err()
+        {
+            return;
+        }
+        if sink
+            .send_meta(MetaEntry {
+                key: format!(
+                    "{}cache-control",
+                    wafer_block::meta::META_RESP_HEADER_PREFIX
+                ),
+                value: "no-cache".to_string(),
+            })
+            .await
+            .is_err()
+        {
+            return;
+        }
 
-    let mut had_error: Option<String> = None;
-    loop {
-        match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
-            Err(_elapsed) => {
-                had_error = Some("llm load timed out".to_string());
-                break;
-            }
-            Ok(None) => break,
-            Ok(Some(bytes)) => {
-                match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
-                    Ok(Ok(progress)) => {
-                        let data =
-                            serde_json::to_value(&progress).unwrap_or(serde_json::Value::Null);
-                        sse_body.push_str(&encode_sse_event("load_progress", &data));
-                    }
-                    Ok(Err(e)) => {
-                        had_error = Some(format!("{e}"));
-                        break;
-                    }
-                    Err(e) => {
-                        had_error = Some(format!("deserialize load progress: {e}"));
-                        break;
+        // 2. Pump frames from wafer-run/llm. Each `Ok(LoadProgress)` becomes
+        //    one `event: load_progress` SSE frame written to the sink — and
+        //    therefore one chunk delivered to the browser as it's produced.
+        let stream = output.body_stream();
+        pin_mut!(stream);
+        let mut had_error: Option<String> = None;
+        loop {
+            match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
+                Err(_elapsed) => {
+                    had_error = Some("llm load timed out".to_string());
+                    break;
+                }
+                Ok(None) => break,
+                Ok(Some(bytes)) => {
+                    match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
+                        Ok(Ok(progress)) => {
+                            let data = serde_json::to_value(&progress)
+                                .unwrap_or(serde_json::Value::Null);
+                            let frame = encode_sse_event("load_progress", &data);
+                            if sink.send_chunk(frame.into_bytes()).await.is_err() {
+                                return;
+                            }
+                        }
+                        Ok(Err(e)) => {
+                            had_error = Some(format!("{e}"));
+                            break;
+                        }
+                        Err(e) => {
+                            had_error = Some(format!("deserialize load progress: {e}"));
+                            break;
+                        }
                     }
                 }
             }
         }
-    }
 
-    // Emit terminal load_done event.
-    match had_error {
-        None => {
-            sse_body.push_str(&encode_sse_event(
-                "load_done",
-                &serde_json::json!({ "ok": true }),
-            ));
-        }
-        Some(err) => {
-            sse_body.push_str(&encode_sse_event(
-                "load_done",
-                &serde_json::json!({ "ok": false, "error": err }),
-            ));
-        }
-    }
-
-    let meta = vec![
-        MetaEntry {
-            key: META_RESP_STATUS.to_string(),
-            value: "200".to_string(),
-        },
-        MetaEntry {
-            key: META_RESP_CONTENT_TYPE.to_string(),
-            value: "text/event-stream".to_string(),
-        },
-        MetaEntry {
-            key: format!(
-                "{}cache-control",
-                wafer_block::meta::META_RESP_HEADER_PREFIX
-            ),
-            value: "no-cache".to_string(),
-        },
-    ];
-    OutputStream::respond_with_meta(sse_body.into_bytes(), meta)
+        // 3. Terminal `load_done` SSE frame, then close the response stream.
+        let done_payload = match had_error {
+            None => serde_json::json!({ "ok": true }),
+            Some(err) => serde_json::json!({ "ok": false, "error": err }),
+        };
+        let frame = encode_sse_event("load_done", &done_payload);
+        let _ = sink.send_chunk(frame.into_bytes()).await;
+        let _ = sink.complete(vec![]).await;
+    })
 }
 
 // ---------------------------------------------------------------------------
