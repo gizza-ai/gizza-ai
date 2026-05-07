@@ -144,7 +144,7 @@ pub async fn initialize() -> Result<(), JsValue> {
         // suppers-ai/router's extra routes here would be dead code AND
         // actively harmful — its match uses `starts_with`, so a `/` prefix
         // would catch every `/b/**` request that has no built-in solobase
-        // route (e.g. `/b/agent/load-model`) before more specific extras.
+        // route (e.g. `/b/agent/chat`) before more specific extras.
         .add_route("/b/ui", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/ui/", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/agent/", "gizza-ai/agent", RouteAccess::Public)

@@ -221,12 +221,12 @@ fn render_chat() -> maud::Markup {
                         MVP_MODEL_ID
                     )))
                 }
-                // Framework-provided page-side WebLLM engine. Listens for
-                // SW postMessages and drives MLCEngine. The SW reaches it
-                // via solobase-browser's llmCreateEngine / llmChatStream
-                // bridges — gizza-app.js just POSTs to /b/agent/load-model
-                // and /b/agent/chat, both of which the agent block routes
-                // through ctx.call_block("wafer-run/llm", ...).
+                // Framework-provided page-side WebLLM engine. Two consumers:
+                // (1) Page-direct load: gizza-app.js imports loadEngine()
+                //     from /webllm-engine.js and calls it directly — no SW.
+                // (2) SW-routed chat: gizza-app.js POSTs to /b/agent/chat,
+                //     which routes through ctx.call_block("wafer-run/llm",
+                //     ...) → BrowserLlmService::chat → postMessage page.
                 script type="module" src="/webllm-engine.js" {}
                 script type="module" src="/gizza-app.js" {}
             }
