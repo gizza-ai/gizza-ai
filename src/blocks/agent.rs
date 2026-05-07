@@ -12,12 +12,6 @@
 //!                                            // The LLM only sees `result`; bytes never enter history.
 //!                 event: done         data: { "reason": "stop" | "max_rounds_exceeded" | "error" }
 //!
-//! Protocol (route POST /b/agent/load-model):
-//!   Request body: { "model_id": "..." }
-//!   Response:     text/event-stream with events:
-//!                 event: load_progress  data: <LoadProgress JSON>
-//!                 event: load_done      data: { "ok": true } | { "ok": false, "error": "..." }
-//!
 //! Algorithm:
 //! 1. Enumerate every registered block whose `role == Some(SkillRole::Skill)` and build
 //!    a `Vec<ToolDefinition>` from each `BlockInfo::tool`.
@@ -55,7 +49,7 @@ use wafer_block::{
 };
 use wafer_core::interfaces::llm::service::{
     ChatContent, ChatMessage, ChatRequest, ChatRole, ChunkDelta, FinishReason, LlmError,
-    LoadProgress, ToolCall as LlmToolCall, ToolDefinition,
+    ToolCall as LlmToolCall, ToolDefinition,
 };
 
 /// Maximum agent-loop rounds before giving up.
@@ -72,9 +66,6 @@ const STREAM_FRAME_TIMEOUT: Duration = Duration::from_secs(300);
 
 /// The agent block's own chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
-
-/// The agent block's model-load endpoint.
-const AGENT_LOAD_MODEL_PATH: &str = "/b/agent/load-model";
 
 /// The WebLLM model id used for MVP. Picked for small size + tool-call support.
 /// Plan C makes this user-pickable.
@@ -95,11 +86,6 @@ struct AgentRequest {
     model_id: Option<String>,
     #[serde(default)]
     uploads: Vec<UploadEntry>,
-}
-
-#[derive(Debug, Deserialize)]
-struct LoadModelRequest {
-    model_id: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -134,10 +120,6 @@ impl Block for AgentBlock {
 
         if action == "create" && path == AGENT_CHAT_PATH {
             return handle_chat(ctx, input).await;
-        }
-
-        if action == "create" && path == AGENT_LOAD_MODEL_PATH {
-            return handle_load_model(ctx, input).await;
         }
 
         error_response(404, "not_found", "unknown agent endpoint")
@@ -228,141 +210,6 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
         },
     ];
     OutputStream::respond_with_meta(sse_body.into_bytes(), meta)
-}
-
-// ---------------------------------------------------------------------------
-// /b/agent/load-model handler
-// ---------------------------------------------------------------------------
-
-async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStream {
-    // Parse request body up front so we can return a buffered 4xx without
-    // entering the streaming codepath if the request is bad.
-    let body_bytes = input.collect_to_bytes().await;
-    let req: LoadModelRequest = if body_bytes.is_empty() {
-        return error_response(400, "bad_request", "load-model request body required");
-    } else {
-        match serde_json::from_slice(&body_bytes) {
-            Ok(v) => v,
-            Err(e) => {
-                return error_response(400, "bad_request", &format!("invalid JSON body: {e}"));
-            }
-        }
-    };
-
-    // Build the load-model request body for wafer-run/llm.
-    let llm_req = serde_json::json!({
-        "backend_id": "webllm",
-        "model_id": req.model_id,
-    });
-    let req_bytes = match serde_json::to_vec(&llm_req) {
-        Ok(b) => b,
-        Err(e) => {
-            return error_response(
-                500,
-                "internal",
-                &format!("serialize load-model request: {e}"),
-            );
-        }
-    };
-
-    // Hand wafer-run/llm the request before entering the producer closure
-    // (we can't borrow `ctx` from inside the spawn_local task it's hosted on).
-    let mut msg = Message::new(ServiceOp::LLM_LOAD_MODEL);
-    msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_LOAD_MODEL);
-    let output = ctx
-        .call_block("wafer-run/llm", msg, InputStream::from_bytes(req_bytes))
-        .await;
-
-    // Streaming response: status + content-type + cache-control go out as
-    // leading Meta events BEFORE the first body chunk so the upstream
-    // pipeline (solobase-core/pipeline.rs + solobase-browser/convert.rs)
-    // can recognise the streaming codepath and forward chunks to the
-    // browser as they're produced. Without that, all the SSE bytes are
-    // buffered until the LLM load completes — which on a cold WebLLM
-    // start takes minutes — and Chrome's idle keep-alive drops the fetch
-    // mid-flight with `net::ERR_FAILED`.
-    OutputStream::from_producer(move |sink, _cancel| async move {
-        // 1. Headers via leading Meta — the streaming codepath upstream
-        //    keys off Content-Type appearing here, not in the terminal.
-        if sink
-            .send_meta(MetaEntry {
-                key: META_RESP_STATUS.to_string(),
-                value: "200".to_string(),
-            })
-            .await
-            .is_err()
-        {
-            return;
-        }
-        if sink
-            .send_meta(MetaEntry {
-                key: META_RESP_CONTENT_TYPE.to_string(),
-                value: "text/event-stream".to_string(),
-            })
-            .await
-            .is_err()
-        {
-            return;
-        }
-        if sink
-            .send_meta(MetaEntry {
-                key: format!(
-                    "{}cache-control",
-                    wafer_block::meta::META_RESP_HEADER_PREFIX
-                ),
-                value: "no-cache".to_string(),
-            })
-            .await
-            .is_err()
-        {
-            return;
-        }
-
-        // 2. Pump frames from wafer-run/llm. Each `Ok(LoadProgress)` becomes
-        //    one `event: load_progress` SSE frame written to the sink — and
-        //    therefore one chunk delivered to the browser as it's produced.
-        let stream = output.body_stream();
-        pin_mut!(stream);
-        let mut had_error: Option<String> = None;
-        loop {
-            match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
-                Err(_elapsed) => {
-                    had_error = Some("llm load timed out".to_string());
-                    break;
-                }
-                Ok(None) => break,
-                Ok(Some(bytes)) => {
-                    match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
-                        Ok(Ok(progress)) => {
-                            let data = serde_json::to_value(&progress)
-                                .unwrap_or(serde_json::Value::Null);
-                            let frame = encode_sse_event("load_progress", &data);
-                            if sink.send_chunk(frame.into_bytes()).await.is_err() {
-                                return;
-                            }
-                        }
-                        Ok(Err(e)) => {
-                            had_error = Some(format!("{e}"));
-                            break;
-                        }
-                        Err(e) => {
-                            had_error = Some(format!("deserialize load progress: {e}"));
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        // 3. Terminal `load_done` SSE frame, then close the response stream.
-        let done_payload = match had_error {
-            None => serde_json::json!({ "ok": true }),
-            Some(err) => serde_json::json!({ "ok": false, "error": err }),
-        };
-        let frame = encode_sse_event("load_done", &done_payload);
-        let _ = sink.send_chunk(frame.into_bytes()).await;
-        let _ = sink.complete(vec![]).await;
-    })
 }
 
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import {
     getPending,
     renderChips,
 } from './pending.js';
+import { loadEngine } from '/webllm-engine.js';
 
 const history = []; // OpenAI-format messages.
 
@@ -405,66 +406,30 @@ function activateTab(name) {
 
 // --- Model loading ---
 //
-// Posts to the agent block's /b/agent/load-model endpoint which wraps
-// `wafer-run/llm` LLM_LOAD_MODEL. The server streams SSE frames of shape
-// `event: load_progress data: {stage: "...", ...}` and terminates with
-// `event: load_done data: {ok: boolean, error?: string}`.
+// Calls loadEngine() directly in the window. WebLLM's CreateMLCEngine
+// runs here and populates _engine in webllm-engine.js (module-scoped).
+// Subsequent chat goes through the SW (gizza-app.js → /b/agent/chat
+// → BrowserLlmService::chat → postMessage page) and reads the same
+// _engine, because ESM module-scoped state is shared in a realm.
+// Drives WebLLM's CreateMLCEngine directly in the window via the
+// `loadEngine` export from /webllm-engine.js. Bypasses the SW round-trip
+// because Chrome kills FetchEvent.respondWith() at ~5 min \u2014 see
+// docs/superpowers/handoffs/2026-05-07-gizza-ai-model-load-page-direct-handoff.md.
 $('load-model').addEventListener('click', async () => {
     const btn = $('load-model');
     btn.disabled = true;
     btn.textContent = 'Downloading\u2026';
     setLoadProgress('Starting\u2026', null);
     try {
-        const resp = await fetch('/b/agent/load-model', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model_id: selectedModelId() }),
+        await loadEngine(selectedModelId(), (text) => {
+            btn.textContent = 'Downloading\u2026';
+            setLoadProgress(text || 'Downloading\u2026', parsePercentFromStage(text));
         });
-        if (!resp.ok) throw new Error(`load-model HTTP ${resp.status}`);
-
-        const reader = resp.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let ok = false;
-        let err = null;
-
-        outer: while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            let idx;
-            while ((idx = buffer.indexOf('\n\n')) !== -1) {
-                const frame = buffer.slice(0, idx);
-                buffer = buffer.slice(idx + 2);
-                let ev = '';
-                const dataLines = [];
-                for (const line of frame.split('\n')) {
-                    if (line.startsWith('event:')) ev = line.slice(6).trim();
-                    else if (line.startsWith('data:')) {
-                        dataLines.push(line.slice(5).replace(/^ /, ''));
-                    }
-                }
-                let data = {};
-                try { data = JSON.parse(dataLines.join('\n')); } catch (_) {}
-                if (ev === 'load_progress') {
-                    btn.textContent = 'Downloading\u2026';
-                    setLoadProgress(data.stage || 'Downloading\u2026', parsePercentFromStage(data.stage));
-                } else if (ev === 'load_done') {
-                    ok = !!data.ok;
-                    if (!ok) err = data.error || 'unknown error';
-                    break outer;
-                }
-            }
-        }
-
-        if (!ok) throw new Error(err || 'load-model did not complete');
         btn.textContent = 'Ready';
         clearLoadProgress();
         $('send').disabled = false;
     } catch (e) {
         const msg = String(e?.message ?? e);
-        // WebLLM's compatible-GPU error is long and scary; surface the
-        // per-browser setup panel instead of just dumping the message.
         if (/compatible GPU|WebGPU|gpu adapter/i.test(msg)) {
             const warn = $('webgpu-warning');
             if (warn) warn.hidden = false;
