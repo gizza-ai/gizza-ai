@@ -139,7 +139,12 @@ pub async fn initialize() -> Result<(), JsValue> {
                 "SUPPERS_AI__LLM__DEFAULT_MODEL": "Qwen2.5-1.5B-Instruct-q4f32_1-MLC",
             }),
         )
-        .add_route("/", "gizza-ai/ui", RouteAccess::Public)
+        // Note: `/` is routed at the OUTER wafer-run/router level (see step
+        // 6a below), so it never reaches suppers-ai/router. Adding `/` to
+        // suppers-ai/router's extra routes here would be dead code AND
+        // actively harmful — its match uses `starts_with`, so a `/` prefix
+        // would catch every `/b/**` request that has no built-in solobase
+        // route (e.g. `/b/agent/load-model`) before more specific extras.
         .add_route("/b/ui", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/ui/", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/agent/", "gizza-ai/agent", RouteAccess::Public)
