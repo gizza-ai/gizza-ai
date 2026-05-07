@@ -70,6 +70,20 @@ const MAX_ROUNDS: u32 = 5;
 /// ~0–1s and never approaches the budget.
 const STREAM_FRAME_TIMEOUT: Duration = Duration::from_secs(300);
 
+/// Keep-alive heartbeat interval for the load-model SSE response.
+///
+/// WebLLM's `initProgressCallback` is intermittent — it fires during shard
+/// fetch ticks but goes quiet between shards (HF range-fetch latency,
+/// model-compile pauses). Chrome's Service Worker fetch handler drops idle
+/// connections after ~30–60s of zero bytes, so we emit an SSE comment
+/// frame (`: keep-alive\n\n`) every 15s while we're waiting on the LLM
+/// stream. Comment frames are valid SSE and ignored by the consumer parser
+/// in `gizza-app.js`, but they keep the wire warm.
+///
+/// The overall no-progress timeout (`STREAM_FRAME_TIMEOUT`) is preserved by
+/// counting consecutive idle ticks so the SW still bails on a real stall.
+const LOAD_MODEL_KEEPALIVE_INTERVAL: Duration = Duration::from_secs(15);
+
 /// The agent block's own chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
 
@@ -321,17 +335,39 @@ async fn handle_load_model(ctx: &dyn Context, input: InputStream) -> OutputStrea
         // 2. Pump frames from wafer-run/llm. Each `Ok(LoadProgress)` becomes
         //    one `event: load_progress` SSE frame written to the sink — and
         //    therefore one chunk delivered to the browser as it's produced.
+        //
+        //    Wrap each `stream.next()` in `LOAD_MODEL_KEEPALIVE_INTERVAL`
+        //    instead of the longer `STREAM_FRAME_TIMEOUT`: when WebLLM is
+        //    quiet between shards we send an SSE comment frame to keep
+        //    Chrome's SW fetch keep-alive happy, then go back to waiting.
+        //    Real stalls are caught by counting consecutive keep-alive
+        //    ticks against `STREAM_FRAME_TIMEOUT`.
         let stream = output.body_stream();
         pin_mut!(stream);
         let mut had_error: Option<String> = None;
+        let mut idle_elapsed = Duration::ZERO;
         loop {
-            match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
+            match timeout(LOAD_MODEL_KEEPALIVE_INTERVAL, stream.next()).await {
                 Err(_elapsed) => {
-                    had_error = Some("llm load timed out".to_string());
-                    break;
+                    // No frame in the keep-alive window — emit a comment
+                    // chunk and resume waiting unless we've now been idle
+                    // for the full STREAM_FRAME_TIMEOUT.
+                    idle_elapsed += LOAD_MODEL_KEEPALIVE_INTERVAL;
+                    if idle_elapsed >= STREAM_FRAME_TIMEOUT {
+                        had_error = Some("llm load timed out".to_string());
+                        break;
+                    }
+                    if sink
+                        .send_chunk(b": keep-alive\n\n".to_vec())
+                        .await
+                        .is_err()
+                    {
+                        return;
+                    }
                 }
                 Ok(None) => break,
                 Ok(Some(bytes)) => {
+                    idle_elapsed = Duration::ZERO;
                     match serde_json::from_slice::<Result<LoadProgress, LlmError>>(&bytes) {
                         Ok(Ok(progress)) => {
                             let data = serde_json::to_value(&progress)
