@@ -413,52 +413,6 @@ async function startModelLoad(modelId) {
 
 // --- Picker overlay integration ---
 
-function rewriteSettingsDialog() {
-    // Remove the old <select id="model-picker"> dropdown + helper paragraph and
-    // replace the "Load model" button with a "Choose model" button that opens
-    // the picker overlay. This lives in JS so we ship without a solobase build
-    // (the maud-side cleanup is a follow-up plan).
-    const dialog = document.getElementById('settings');
-    if (!dialog) return;
-    const oldSelect = dialog.querySelector('#model-picker');
-    if (oldSelect) {
-        const row = oldSelect.closest('.model-picker-row');
-        if (row) row.remove();
-        else oldSelect.remove();
-    }
-    const oldHelp = dialog.querySelector('p.help');
-    if (oldHelp) oldHelp.remove();
-    const oldLoad = dialog.querySelector('#load-model');
-    if (oldLoad) {
-        const btn = document.createElement('button');
-        btn.id = 'open-model-picker';
-        btn.type = 'button';
-        btn.textContent = 'Choose model';
-        oldLoad.replaceWith(btn);
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            // Close settings first so the full-screen picker takes over cleanly.
-            dialog.close();
-            await launchPicker();
-        });
-    }
-}
-
-function rewriteEmptyState() {
-    // Replace the static "Load a model in settings to start." copy with a
-    // primary "Choose a model" button that opens the picker directly.
-    const empty = document.querySelector('#messages .empty');
-    if (!empty) return;
-    empty.innerHTML = '';
-    const btn = document.createElement('button');
-    btn.id = 'empty-state-cta';
-    btn.type = 'button';
-    btn.className = 'empty-state-cta';
-    btn.textContent = 'Choose a model';
-    btn.addEventListener('click', () => launchPicker());
-    empty.appendChild(btn);
-}
-
 async function launchPicker() {
     const mod = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.74/+esm');
     const prebuiltList = mod?.prebuiltAppConfig?.model_list || [];
@@ -471,8 +425,16 @@ async function launchPicker() {
     await startModelLoad(result.model_id);
 }
 
-rewriteSettingsDialog();
-rewriteEmptyState();
+// Settings → Choose model (closes the dialog so the full-screen picker takes over).
+$('open-model-picker')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    document.getElementById('settings').close();
+    await launchPicker();
+});
+
+// Empty-state CTA on the chat surface. The empty div is replaced after the user
+// clears a conversation — guard for the case where boot races with that path.
+$('empty-state-cta')?.addEventListener('click', () => launchPicker());
 
 // --- Clear conversation ---
 $('clear-convo').addEventListener('click', () => {
