@@ -176,3 +176,30 @@ test('fetchHfPopularity: fetch error → returns cached, never throws', async ()
     const data = await fetchHfPopularity({ localStorage, fetch, now: () => 1_700_000_000_000 });
     assert.deepEqual(data, {});
 });
+
+import { applyFilters } from '../../site/model-picker.js';
+
+function DEFAULT_FILTERS_FOR_TEST() {
+    return { search: '', sizes: [], families: [], toolsOnly: false, visionOnly: false, sort: 'downloaded-popular' };
+}
+
+test('applyFilters: search narrows by name', () => {
+    const groups = groupModels(fixture);
+    const filtered = applyFilters(groups, { ...DEFAULT_FILTERS_FOR_TEST(), search: 'qwen', sort: 'az' }, {}, new Set());
+    assert.ok(filtered.length > 0);
+    for (const g of filtered) assert.match(g.base_id.toLowerCase(), /qwen/);
+});
+
+test('applyFilters: tools-only excludes Phi', () => {
+    const groups = groupModels(fixture);
+    const filtered = applyFilters(groups, { ...DEFAULT_FILTERS_FOR_TEST(), toolsOnly: true, sort: 'az' }, {}, new Set());
+    assert.equal(filtered.find((g) => g.base_id === 'Phi-3.5-mini-instruct'), undefined);
+});
+
+test('applyFilters: downloaded-popular puts cached groups first', () => {
+    const groups = groupModels(fixture);
+    const cachedBase = groups.find((g) => g.has_tools)?.base_id;
+    assert.ok(cachedBase, 'fixture should contain at least one tool-capable group');
+    const filtered = applyFilters(groups, DEFAULT_FILTERS_FOR_TEST(), {}, new Set([cachedBase]));
+    assert.equal(filtered[0].base_id, cachedBase);
+});

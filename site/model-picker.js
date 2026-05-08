@@ -412,3 +412,97 @@ export function renderPickerDom(ctx) {
 }
 
 export { renderCard, smallestVramMb };
+
+const FILTERS_LS_KEY = 'gizza:picker-filters';
+
+const DEFAULT_FILTERS = {
+    search: '',
+    sizes: [],
+    families: [],
+    toolsOnly: false,
+    visionOnly: false,
+    sort: 'downloaded-popular',
+};
+
+function readPersistedFilters() {
+    try {
+        const raw = localStorage.getItem(FILTERS_LS_KEY);
+        if (!raw) return { ...DEFAULT_FILTERS };
+        const parsed = JSON.parse(raw);
+        return {
+            ...DEFAULT_FILTERS,
+            ...parsed,
+            search: '', // never persist search
+        };
+    } catch (_e) {
+        return { ...DEFAULT_FILTERS };
+    }
+}
+
+function writePersistedFilters(filters) {
+    try {
+        const { search: _drop, ...persistable } = filters;
+        localStorage.setItem(FILTERS_LS_KEY, JSON.stringify(persistable));
+    } catch (_e) {
+        // ignore quota failures
+    }
+}
+
+function familyMatches(group, families) {
+    if (!families.length) return true;
+    if (group.family === 'Other') return families.includes('Other');
+    // Match the chip name (Llama, Qwen, ...) against the group's base_id prefix.
+    return families.some((f) => group.base_id.toLowerCase().startsWith(f.toLowerCase()));
+}
+
+function sizeMatches(group, sizes) {
+    if (!sizes.length) return true;
+    const mb = smallestVramMb(group);
+    return sizes.some((id) => {
+        const tier = SIZE_TIERS.find((t) => t.id === id);
+        if (!tier) return false;
+        if (tier.max_mb && mb > tier.max_mb) return false;
+        if (tier.min_mb && mb < tier.min_mb) return false;
+        return true;
+    });
+}
+
+export function applyFilters(groups, filters, popularity, cached) {
+    const search = filters.search.trim().toLowerCase();
+    let filtered = groups.filter((g) => {
+        if (search && !g.base_id.toLowerCase().includes(search) && !g.family.toLowerCase().includes(search)) return false;
+        if (filters.toolsOnly && !g.has_tools) return false;
+        if (filters.visionOnly && !g.has_vision) return false;
+        if (!familyMatches(g, filters.families)) return false;
+        if (!sizeMatches(g, filters.sizes)) return false;
+        return true;
+    });
+
+    const popOf = (g) => g.variants.reduce((s, v) => s + (popularity[v.id]?.downloads || 0), 0);
+    const sizeOf = (g) => smallestVramMb(g);
+
+    switch (filters.sort) {
+        case 'popular':
+            filtered.sort((a, b) => popOf(b) - popOf(a));
+            break;
+        case 'smallest':
+            filtered.sort((a, b) => sizeOf(a) - sizeOf(b));
+            break;
+        case 'largest':
+            filtered.sort((a, b) => sizeOf(b) - sizeOf(a));
+            break;
+        case 'az':
+            filtered.sort((a, b) => a.base_id.localeCompare(b.base_id));
+            break;
+        case 'downloaded-popular':
+        default:
+            filtered.sort((a, b) => {
+                const ac = cached.has(a.base_id) ? 0 : 1;
+                const bc = cached.has(b.base_id) ? 0 : 1;
+                if (ac !== bc) return ac - bc;
+                return popOf(b) - popOf(a);
+            });
+            break;
+    }
+    return filtered;
+}
