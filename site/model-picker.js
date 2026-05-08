@@ -506,3 +506,183 @@ export function applyFilters(groups, filters, popularity, cached) {
     }
     return filtered;
 }
+
+function variantSummaryText(group, variant, popularity) {
+    const pop = popularity[variant.id]?.downloads
+        ? formatDownloads(popularity[variant.id].downloads)
+        : null;
+    const parts = [
+        `**${group.base_id}**`,
+        variant.label,
+        formatBytes(variant.vram_mb),
+        pop,
+    ].filter(Boolean);
+    return parts.join(' · ');
+}
+
+function setSummary(summaryEl, group, variant, popularity) {
+    summaryEl.innerHTML = '';
+    summaryEl.classList.remove('placeholder');
+    const text = variantSummaryText(group, variant, popularity);
+    // Render with bold around the model name (preserve simple emphasis)
+    const parts = text.split(' · ');
+    const titlePart = parts[0].replace(/^\*\*|\*\*$/g, '');
+    summaryEl.appendChild(el('strong', {}, [titlePart]));
+    if (parts.length > 1) {
+        summaryEl.appendChild(el('span', { class: 'mp-footer-meta' }, [' · ' + parts.slice(1).join(' · ')]));
+    }
+}
+
+function setSummaryPlaceholder(summaryEl) {
+    summaryEl.innerHTML = '';
+    summaryEl.classList.add('placeholder');
+    summaryEl.textContent = 'Pick a model to continue.';
+}
+
+function updateResultCount(filtersEl, total, visible, onClear) {
+    const slot = filtersEl.querySelector('[data-result-count]');
+    slot.innerHTML = '';
+    slot.appendChild(document.createTextNode(`${visible} of ${total} models`));
+    if (visible !== total) {
+        slot.appendChild(document.createTextNode(' · '));
+        const link = el('a', { href: '#', onClick: (e) => { e.preventDefault(); onClear(); } }, ['Clear filters']);
+        slot.appendChild(link);
+    }
+}
+
+/**
+ * Open the model picker. Returns a Promise that resolves with
+ *   { model_id }     when the user clicks Load
+ *   null             when the user closes without choosing
+ *
+ * Caller is responsible for kicking off the actual model download with the
+ * returned model_id — this picker only commits a selection.
+ */
+export async function openPicker({
+    prebuiltList,
+    currentModelId = null,
+} = {}) {
+    const groups = groupModels(prebuiltList);
+    const popularity = await fetchHfPopularity();
+    const { cached, active } = await getCachedAndActive(groups, currentModelId);
+
+    let filters = readPersistedFilters();
+    let selection = null; // { base_id, variant }
+
+    return new Promise((resolve) => {
+        const ctx = {
+            groups, popularity, cached, active, selection, filters,
+            onClose: () => close(null),
+            onSelect: () => {},
+            onLoad: () => {
+                if (!selection) return;
+                close({ model_id: selection.variant.id });
+            },
+            onFiltersChange: (next) => {
+                filters = next;
+                writePersistedFilters(filters);
+                rerenderGrid();
+            },
+        };
+
+        const dom = renderPickerDom(ctx);
+        document.body.appendChild(dom.dialog);
+
+        function rerenderGrid() {
+            const filtered = applyFilters(groups, filters, popularity, cached);
+            dom.grid.innerHTML = '';
+            if (filtered.length === 0) {
+                dom.grid.appendChild(el('div', { class: 'mp-empty' }, [
+                    'No models match these filters · ',
+                    el('a', { onClick: clearFilters }, ['Clear filters']),
+                ]));
+            } else {
+                for (const g of filtered) {
+                    const card = renderCard(g, { cached, active, popularity, selection });
+                    bindCardEvents(card, g);
+                    dom.grid.appendChild(card);
+                }
+            }
+            updateResultCount(dom.filtersEl, groups.length, filtered.length, clearFilters);
+        }
+
+        function clearFilters() {
+            filters = { ...DEFAULT_FILTERS };
+            writePersistedFilters(filters);
+            // Reset filter UI by re-rendering the dialog from scratch is heavy;
+            // simpler: replace the dialog contents.
+            const newDom = renderPickerDom({ ...ctx, filters });
+            dom.dialog.replaceChildren(...newDom.dialog.children);
+            // Rebind references to the new DOM
+            dom.grid = newDom.grid;
+            dom.summaryEl = newDom.summaryEl;
+            dom.loadBtn = newDom.loadBtn;
+            dom.filtersEl = newDom.filtersEl;
+            // Reset selection
+            selection = null;
+            ctx.selection = null;
+            setSummaryPlaceholder(dom.summaryEl);
+            dom.loadBtn.disabled = true;
+            rerenderGrid();
+        }
+
+        function bindCardEvents(card, group) {
+            const variantBtns = card.querySelectorAll('.mp-quality button');
+            // Pick the variant currently shown as selected (the "Balanced" middle one)
+            let currentVariant = null;
+            for (const btn of variantBtns) {
+                if (btn.classList.contains('selected')) {
+                    currentVariant = group.variants.find((v) => v.id === btn.dataset.variantId);
+                    break;
+                }
+            }
+            if (!currentVariant) currentVariant = group.variants[Math.floor(group.variants.length / 2)] || group.variants[0];
+
+            for (const btn of variantBtns) {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    for (const b of variantBtns) b.classList.remove('selected');
+                    btn.classList.add('selected');
+                    currentVariant = group.variants.find((v) => v.id === btn.dataset.variantId);
+                    // Update size in stats row
+                    const stats = card.querySelector('.mp-card-stats strong');
+                    if (stats) stats.textContent = formatBytes(currentVariant.vram_mb);
+                    // If this card is the selected one, update footer
+                    if (selection?.base_id === group.base_id) {
+                        selection = { base_id: group.base_id, variant: currentVariant };
+                        ctx.selection = selection;
+                        setSummary(dom.summaryEl, group, currentVariant, popularity);
+                    }
+                });
+            }
+
+            card.addEventListener('click', () => {
+                if (card.classList.contains('active')) return;
+                // Clear other selections
+                for (const c of dom.grid.querySelectorAll('.mp-card.selected')) c.classList.remove('selected');
+                card.classList.add('selected');
+                selection = { base_id: group.base_id, variant: currentVariant };
+                ctx.selection = selection;
+                setSummary(dom.summaryEl, group, currentVariant, popularity);
+                dom.loadBtn.disabled = false;
+            });
+        }
+
+        function close(value) {
+            try { dom.dialog.close(); } catch (_e) {}
+            dom.dialog.remove();
+            resolve(value);
+        }
+
+        // Esc key closes via <dialog> default; we still need to clean up DOM
+        dom.dialog.addEventListener('close', () => {
+            if (dom.dialog.parentElement) {
+                dom.dialog.remove();
+                resolve(null);
+            }
+        });
+
+        rerenderGrid();
+        dom.dialog.showModal();
+    });
+}
