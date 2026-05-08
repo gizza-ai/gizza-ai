@@ -7,7 +7,7 @@ boot_redirect = "/"
 manifest_path = "../solobase"
 
 [assets]
-extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js", "/pending.js", "/gis.png"]
+extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js", "/pending.js", "/gis.png", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png"]
 
 [[assets.overlay]]
 from = "site/index.html"
@@ -32,6 +32,18 @@ to = "pending.js"
 [[assets.overlay]]
 from = "site/gis.png"
 to = "gis.png"
+
+[[assets.overlay]]
+from = "site/favicon.ico"
+to = "favicon.ico"
+
+[[assets.overlay]]
+from = "site/favicon-32.png"
+to = "favicon-32.png"
+
+[[assets.overlay]]
+from = "site/apple-touch-icon.png"
+to = "apple-touch-icon.png"
 
 [[assets.overlay]]
 from = "static/CNAME"
