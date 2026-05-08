@@ -248,3 +248,52 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
     margin-top: 1px;
     font-family: var(--font-mono);
 }
+
+/* ─── Sticky footer ────────────────────────────────────────────────────────── */
+.mp-footer {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-base);
+    padding: var(--space-base) var(--space-lg);
+    border-top: 1px solid var(--color-hairline);
+    background: var(--color-surface-card);
+}
+.mp-footer-summary {
+    flex: 1 1 auto;
+    font-size: 13px;
+    color: var(--color-ink);
+    line-height: 1.4;
+}
+.mp-footer-summary.placeholder { color: var(--color-muted); font-style: italic; }
+.mp-footer-summary strong { font-weight: 500; }
+.mp-footer-summary .mp-footer-meta { color: var(--color-body); margin-left: var(--space-xs); }
+
+.mp-footer button.primary {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 0 20px;
+    height: 40px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 120ms ease;
+    flex-shrink: 0;
+    min-width: 130px;
+}
+.mp-footer button.primary:hover:not(:disabled) { background: var(--color-primary-active); }
+.mp-footer button.primary:disabled {
+    background: var(--color-surface-strong);
+    color: var(--color-muted);
+    border-color: var(--color-hairline-strong);
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .mp-footer { flex-direction: column; align-items: stretch; }
+    .mp-footer button.primary { width: 100%; }
+}
