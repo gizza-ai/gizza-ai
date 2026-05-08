@@ -17,3 +17,6 @@ Cargo.lock
 # Playwright persistent-context cache (WebLLM model shards in OPFS/IndexedDB).
 tests/.cache/
 tests/test-results/
+
+# Brainstorming companion mockups
+.superpowers/
