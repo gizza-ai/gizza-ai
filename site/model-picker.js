@@ -213,3 +213,202 @@ export async function getCachedAndActive(baseModels, currentModelId = null) {
     }
     return { cached, active: currentModelId };
 }
+
+const SIZE_TIERS = [
+    { id: 'small', label: 'Small (<2 GB)', max_mb: 2048 },
+    { id: 'medium', label: 'Medium (2–5 GB)', min_mb: 2048, max_mb: 5120 },
+    { id: 'large', label: 'Large (5+ GB)', min_mb: 5120 },
+];
+
+const FAMILY_CHIP_OPTIONS = ['Llama', 'Qwen', 'Phi', 'Hermes', 'Gemma', 'Mistral', 'Other'];
+
+const SORT_OPTIONS = [
+    { value: 'downloaded-popular', label: 'Already downloaded, then most popular' },
+    { value: 'popular', label: 'Most popular' },
+    { value: 'smallest', label: 'Smallest first' },
+    { value: 'largest', label: 'Largest first' },
+    { value: 'az', label: 'A–Z' },
+];
+
+function smallestVramMb(group) {
+    const mbs = group.variants.map((v) => v.vram_mb).filter((x) => typeof x === 'number');
+    return mbs.length ? Math.min(...mbs) : 0;
+}
+
+function el(tag, attrs = {}, children = []) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'class') node.className = v;
+        else if (k === 'onClick') node.addEventListener('click', v);
+        else if (k === 'onInput') node.addEventListener('input', v);
+        else if (k === 'onChange') node.addEventListener('change', v);
+        else if (v === true) node.setAttribute(k, '');
+        else if (v !== false && v != null) node.setAttribute(k, v);
+    }
+    for (const c of children) {
+        if (c == null) continue;
+        node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return node;
+}
+
+function formatBytes(mb) {
+    if (!mb) return '—';
+    return mb >= 1024 ? `${(mb / 1024).toFixed(1)} GB` : `${Math.round(mb)} MB`;
+}
+
+function formatDownloads(n) {
+    if (n == null) return null;
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M ↓`;
+    if (n >= 1000) return `${Math.round(n / 1000)}k ↓`;
+    return `${n} ↓`;
+}
+
+function renderCard(group, ctx) {
+    const initialVariant = ctx.selection?.base_id === group.base_id
+        ? ctx.selection.variant
+        : group.variants[Math.floor(group.variants.length / 2)] || group.variants[0];
+    const isCached = ctx.cached.has(group.base_id);
+    const isActive = group.variants.some((v) => v.id === ctx.active);
+    const popularity = group.variants
+        .map((v) => ctx.popularity[v.id]?.downloads || 0)
+        .reduce((a, b) => a + b, 0);
+
+    const card = el('div', {
+        class: ['mp-card', isActive ? 'active' : '', ctx.selection?.base_id === group.base_id ? 'selected' : ''].filter(Boolean).join(' '),
+        'data-base-id': group.base_id,
+    }, [
+        el('div', { class: 'mp-card-top' }, [
+            el('div', {}, [
+                el('div', { class: 'mp-card-title' }, [
+                    group.base_id,
+                    group.has_tools ? el('span', { class: 'mp-badge tools' }, ['🔧 tools']) : null,
+                    isCached && !isActive ? el('span', { class: 'mp-badge cached' }, ['✓ Downloaded']) : null,
+                    isActive ? el('span', { class: 'mp-badge active' }, ['✓ Active']) : null,
+                ]),
+                el('div', { class: 'mp-card-subtitle' }, [
+                    [group.family, group.params_label].filter(Boolean).join(' · '),
+                ]),
+            ]),
+            group.hf_url ? el('a', {
+                class: 'mp-card-link',
+                href: group.hf_url,
+                target: '_blank',
+                rel: 'noopener',
+                title: 'Open on HuggingFace',
+                onClick: (e) => e.stopPropagation(),
+            }, ['HF ↗']) : null,
+        ]),
+        el('div', { class: 'mp-card-stats' }, [
+            el('span', {}, [el('strong', {}, [formatBytes(initialVariant?.vram_mb)])]),
+            popularity ? el('span', {}, [formatDownloads(popularity)]) : null,
+            group.ctx ? el('span', {}, [`${Math.round(group.ctx / 1024)}k ctx`]) : null,
+        ]),
+        !isActive && group.variants.length > 1 ? renderQualityPicker(group, initialVariant) : null,
+    ]);
+    return card;
+}
+
+function renderQualityPicker(group, initialVariant) {
+    const wrap = el('div', { class: 'mp-quality' });
+    for (const v of group.variants) {
+        const btn = el('button', {
+            type: 'button',
+            class: v.id === initialVariant?.id ? 'selected' : '',
+            'data-variant-id': v.id,
+            onClick: (e) => e.stopPropagation(),
+        }, [
+            v.label,
+            el('span', { class: 'mp-quality-sub' }, [v.sublabel]),
+        ]);
+        wrap.appendChild(btn);
+    }
+    return wrap;
+}
+
+export function renderPickerDom(ctx) {
+    // ctx: { groups, popularity, cached, active, selection, filters, onClose, onSelect, onLoad, onFiltersChange }
+    const dialog = el('dialog', { id: 'model-picker' });
+
+    // Header
+    const header = el('div', { class: 'mp-header' }, [
+        el('h2', {}, ['Choose a model']),
+        el('button', { class: 'mp-close', 'aria-label': 'Close', onClick: ctx.onClose }, ['✕']),
+    ]);
+
+    // Filter row
+    const filtersEl = el('div', { class: 'mp-filters' }, [
+        el('input', {
+            class: 'mp-search',
+            type: 'search',
+            placeholder: 'Search models…',
+            'aria-label': 'Search models',
+            onInput: (e) => ctx.onFiltersChange({ ...ctx.filters, search: e.target.value }),
+        }),
+        el('div', { class: 'mp-chip-group', 'aria-label': 'Size filter' }, SIZE_TIERS.map((tier) =>
+            el('button', {
+                type: 'button',
+                class: `mp-chip ${ctx.filters.sizes.includes(tier.id) ? 'active' : ''}`,
+                onClick: () => {
+                    const next = ctx.filters.sizes.includes(tier.id)
+                        ? ctx.filters.sizes.filter((x) => x !== tier.id)
+                        : [...ctx.filters.sizes, tier.id];
+                    ctx.onFiltersChange({ ...ctx.filters, sizes: next });
+                },
+            }, [tier.label]))),
+        el('div', { class: 'mp-chip-group', 'aria-label': 'Family filter' }, FAMILY_CHIP_OPTIONS.map((fam) =>
+            el('button', {
+                type: 'button',
+                class: `mp-chip ${ctx.filters.families.includes(fam) ? 'active' : ''}`,
+                onClick: () => {
+                    const next = ctx.filters.families.includes(fam)
+                        ? ctx.filters.families.filter((x) => x !== fam)
+                        : [...ctx.filters.families, fam];
+                    ctx.onFiltersChange({ ...ctx.filters, families: next });
+                },
+            }, [fam]))),
+        el('label', { class: 'mp-toggle' }, [
+            el('input', {
+                type: 'checkbox',
+                checked: ctx.filters.toolsOnly ? true : false,
+                onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, toolsOnly: e.target.checked }),
+            }),
+            'Tools-capable',
+        ]),
+        el('label', { class: 'mp-toggle' }, [
+            el('input', {
+                type: 'checkbox',
+                checked: ctx.filters.visionOnly ? true : false,
+                onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, visionOnly: e.target.checked }),
+            }),
+            'Vision-capable',
+        ]),
+        el('select', {
+            class: 'mp-sort',
+            onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, sort: e.target.value }),
+        }, SORT_OPTIONS.map((opt) => {
+            const o = el('option', { value: opt.value }, [opt.label]);
+            if (opt.value === ctx.filters.sort) o.selected = true;
+            return o;
+        })),
+        el('div', { class: 'mp-result-count', 'data-result-count': true }, []),
+    ]);
+
+    // Grid
+    const grid = el('div', { class: 'mp-grid' });
+    const gridWrap = el('div', { class: 'mp-grid-wrap' }, [grid]);
+
+    // Footer
+    const summaryEl = el('div', { class: 'mp-footer-summary placeholder' }, ['Pick a model to continue.']);
+    const loadBtn = el('button', { class: 'primary', type: 'button', disabled: true, onClick: ctx.onLoad }, ['Load model']);
+    const footer = el('div', { class: 'mp-footer' }, [summaryEl, loadBtn]);
+
+    dialog.appendChild(header);
+    dialog.appendChild(filtersEl);
+    dialog.appendChild(gridWrap);
+    dialog.appendChild(footer);
+
+    return { dialog, grid, summaryEl, loadBtn, filtersEl };
+}
+
+export { renderCard, smallestVramMb };
