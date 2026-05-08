@@ -2,8 +2,8 @@
  *
  * Foundation tokens (colors, type, spacing) come from suppers-ai/site-kit
  * via the design-system.css link in render_chat(). This file overrides
- * --sa-accent for the gizza brand and aliases the legacy --color-*/--space-*
- * names onto the kit's --sa-* tokens so the rest of this stylesheet did
+ * --sa-accent for the gizza brand and aliases the legacy --color-* and
+ * --space-* names onto the kit's --sa-* tokens so the rest of this stylesheet did
  * not need a search-and-replace pass. Gizza-specific tokens that have no
  * kit equivalent (timeline pastels, soft canvas, ink-on-canvas hairlines,
  * pill radius) are kept bespoke.
@@ -109,6 +109,15 @@ main#app {
   font-weight: 600;
   letter-spacing: 0.88px;
   text-transform: uppercase;
+}
+
+/* ─── Header band ──────────────────────────────────────────────────────── */
+/* Match the chat band's max-width (880px) and inline padding so the brand's
+ * left edge aligns with the composer's left edge. The kit's <sa-header>
+ * exposes its inner row via part="container", which lets us constrain it
+ * from outside the shadow DOM without forking the component. */
+sa-header::part(container) {
+  max-width: 880px;
 }
 
 /* ─── Brand (slotted into <sa-header>) ─────────────────────────────────── */
@@ -871,3 +880,22 @@ dialog button[value="close"] {
   font-family: var(--font-display);
   font-size: 18px;
 }
+
+/* ─── Empty-state CTA ──────────────────────────────────────────────────── */
+/* Primary "Choose a model" button injected by rewriteEmptyState() in
+ * gizza-app.js. Replaces the static text placeholder in <div class="empty">. */
+
+.empty-state-cta {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 0 24px;
+    height: 44px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+.empty-state-cta:hover { background: var(--color-primary-active); }

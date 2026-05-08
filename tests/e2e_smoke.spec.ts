@@ -12,18 +12,28 @@ test.describe('gizza-ai smoke', () => {
     await expect(page.locator('h1')).toContainText(/gizza/i, { timeout: 30_000 });
     await expect(page.locator('#composer')).toBeVisible({ timeout: 30_000 });
 
-    // Open the settings dialog.
-    await page.locator('#open-settings').click();
-    await expect(page.locator('#settings')).toBeVisible();
+    // New picker flow: empty-state CTA opens the picker overlay
+    await page.locator('#empty-state-cta').click();
+    await expect(page.locator('dialog#model-picker')).toBeVisible();
 
-    // Click "Load model". WebLLM will download the model weights on first run
-    // (~1.2 GB for Qwen2.5-1.5B-Instruct-q4f32_1-MLC) so we allow 3 minutes.
-    await page.locator('#load-model').click();
-    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 600_000 });
+    // Search for Qwen 1.5B (matches the model the legacy test exercised)
+    await page.locator('dialog#model-picker .mp-search').fill('Qwen2.5-1.5B');
+    // Wait for the grid to filter down — Qwen2.5-1.5B-Instruct should match
+    await expect(page.locator('dialog#model-picker .mp-card').first()).toBeVisible({ timeout: 5_000 });
 
-    // Close the settings dialog via the form[method=dialog] close button.
-    await page.locator('#settings button[value="close"]').click();
-    await expect(page.locator('#settings')).not.toBeVisible();
+    // Click the card → footer enables, default quality selected (middle variant)
+    await page.locator('dialog#model-picker .mp-card').first().click();
+    await expect(page.locator('dialog#model-picker .mp-card.selected')).toHaveCount(1);
+    await expect(page.locator('dialog#model-picker .mp-footer button.primary')).toBeEnabled();
+
+    // Load → overlay closes, progress card appears in chat area
+    await page.locator('dialog#model-picker .mp-footer button.primary').click();
+    await expect(page.locator('dialog#model-picker')).not.toBeAttached({ timeout: 5_000 });
+
+    // Wait for model to finish loading — progress card disappears when ready.
+    // 10 minutes upper bound (cold first-run download is ~1.6 GB on Qwen2.5-1.5B).
+    await expect(page.locator('.progress-card')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.progress-card')).not.toBeVisible({ timeout: 600_000 });
 
     // Send a prompt likely to trigger the gizza-ai/clock skill.
     await page.locator('#user-input').fill('what is the current time in UTC?');
@@ -45,13 +55,29 @@ test.describe('gizza-ai smoke', () => {
     await expect(page.locator('#composer')).toBeVisible({ timeout: 30_000 });
 
     // Model weights are cached after the clock test in the same suite, but
-    // allow up to 3 minutes for cold runs.
-    await page.locator('#open-settings').click();
-    await expect(page.locator('#settings')).toBeVisible();
-    await page.locator('#load-model').click();
-    await expect(page.locator('#load-model')).toHaveText('Ready', { timeout: 600_000 });
-    await page.locator('#settings button[value="close"]').click();
-    await expect(page.locator('#settings')).not.toBeVisible();
+    // allow up to 10 minutes for cold runs.
+    // New picker flow: empty-state CTA opens the picker overlay
+    await page.locator('#empty-state-cta').click();
+    await expect(page.locator('dialog#model-picker')).toBeVisible();
+
+    // Search for Qwen 1.5B (matches the model the legacy test exercised)
+    await page.locator('dialog#model-picker .mp-search').fill('Qwen2.5-1.5B');
+    // Wait for the grid to filter down — Qwen2.5-1.5B-Instruct should match
+    await expect(page.locator('dialog#model-picker .mp-card').first()).toBeVisible({ timeout: 5_000 });
+
+    // Click the card → footer enables, default quality selected (middle variant)
+    await page.locator('dialog#model-picker .mp-card').first().click();
+    await expect(page.locator('dialog#model-picker .mp-card.selected')).toHaveCount(1);
+    await expect(page.locator('dialog#model-picker .mp-footer button.primary')).toBeEnabled();
+
+    // Load → overlay closes, progress card appears in chat area
+    await page.locator('dialog#model-picker .mp-footer button.primary').click();
+    await expect(page.locator('dialog#model-picker')).not.toBeAttached({ timeout: 5_000 });
+
+    // Wait for model to finish loading — progress card disappears when ready.
+    // 10 minutes upper bound (cold first-run download is ~1.6 GB on Qwen2.5-1.5B).
+    await expect(page.locator('.progress-card')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.progress-card')).not.toBeVisible({ timeout: 600_000 });
 
     await page.locator('#user-input').fill(
       'Use the web-fetch tool to fetch the URL /test-fixtures/web-fetch.txt and quote its contents back to me verbatim.',
