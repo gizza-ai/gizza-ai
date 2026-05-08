@@ -171,3 +171,45 @@ export async function fetchHfPopularity({
     const data = await fetchAndStore(localStorage, fetch, now);
     return data || {};
 }
+
+/**
+ * Walks WebLLM's OPFS cache and returns the set of base_ids that have at least
+ * one variant cached, plus the currently-loaded model_id (if any).
+ *
+ * WebLLM (0.2.74) stores its model shards under
+ *   `webllm/<model_id>/...`
+ * inside the origin's OPFS. We open the `webllm/` directory and list its
+ * top-level entries — each child is a `model_id`. We do NOT recurse; presence
+ * of the directory is sufficient to mark a base as cached.
+ *
+ * Failures (no OPFS, no `webllm/` directory yet, permission denied) return an
+ * empty Set so the picker still works on the cold path.
+ */
+export async function getCachedAndActive(baseModels, currentModelId = null) {
+    const cached = new Set();
+    try {
+        const root = await navigator.storage?.getDirectory?.();
+        if (!root) return { cached, active: currentModelId };
+        let webllmDir;
+        try {
+            webllmDir = await root.getDirectoryHandle('webllm');
+        } catch (_e) {
+            return { cached, active: currentModelId };
+        }
+        const cachedIds = new Set();
+        for await (const [name, handle] of webllmDir.entries()) {
+            if (handle.kind === 'directory') cachedIds.add(name);
+        }
+        for (const group of baseModels) {
+            for (const variant of group.variants) {
+                if (cachedIds.has(variant.id)) {
+                    cached.add(group.base_id);
+                    break;
+                }
+            }
+        }
+    } catch (_e) {
+        // Any unexpected failure → treat as nothing cached.
+    }
+    return { cached, active: currentModelId };
+}
