@@ -237,8 +237,8 @@ function setLoadProgress(text, percent, isError = false) {
         bar.appendChild(fill);
         card.appendChild(stage);
         card.appendChild(bar);
-        const loadBtn = $('load-model');
-        loadBtn.parentNode.insertBefore(card, loadBtn);
+        const loadBtn = $('open-model-picker') || $('load-model');
+        if (loadBtn) loadBtn.parentNode.insertBefore(card, loadBtn);
     }
     card.querySelector('.progress-stage').textContent = text || '';
     const bar = card.querySelector('.progress-bar');
