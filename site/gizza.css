@@ -880,3 +880,22 @@ dialog button[value="close"] {
   font-family: var(--font-display);
   font-size: 18px;
 }
+
+/* ─── Empty-state CTA ──────────────────────────────────────────────────── */
+/* Primary "Choose a model" button injected by rewriteEmptyState() in
+ * gizza-app.js. Replaces the static text placeholder in <div class="empty">. */
+
+.empty-state-cta {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 0 24px;
+    height: 44px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+.empty-state-cta:hover { background: var(--color-primary-active); }

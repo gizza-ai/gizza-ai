@@ -10,6 +10,7 @@ import {
     renderChips,
 } from './pending.js';
 import { loadEngine } from '/webllm-engine.js';
+import { openPicker } from '/model-picker.js';
 
 const history = []; // OpenAI-format messages.
 
@@ -287,47 +288,9 @@ function modelSupportsTools(id) {
 }
 
 async function populateModelPicker() {
-    const sel = $('model-picker');
-    if (!sel) return;
-    let models = [];
-    try {
-        const mod = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.74/+esm');
-        const list = mod?.prebuiltAppConfig?.model_list;
-        if (Array.isArray(list)) {
-            models = list
-                .map((m) => m?.model_id)
-                .filter((id) => typeof id === 'string' && id.length > 0);
-        }
-    } catch (e) {
-        console.warn('model-picker: failed to load WebLLM model list, falling back to default', e);
-    }
-
-    // Always keep the server-rendered fallback option so there's something to
-    // select even when the dynamic import fails. If the dynamic list returned
-    // values, replace the placeholder with the full list.
-    if (models.length > 0) {
-        sel.replaceChildren();
-        for (const id of models) {
-            const opt = document.createElement('option');
-            opt.value = id;
-            const tools = modelSupportsTools(id) ? ' 🔧' : '';
-            opt.textContent = `${id}${tools}`;
-            sel.appendChild(opt);
-        }
-    }
-
-    // Restore previous choice if it's in the list; otherwise stick with the
-    // server-rendered default. localStorage values from a previous session
-    // pointing at a model not in the current list are silently ignored.
-    const stored = localStorage.getItem(SELECTED_MODEL_KEY);
-    if (stored) {
-        const match = Array.from(sel.options).find((o) => o.value === stored);
-        if (match) sel.value = stored;
-    }
-
-    sel.addEventListener('change', () => {
-        localStorage.setItem(SELECTED_MODEL_KEY, sel.value);
-    });
+    // Picker is driven by openPicker() now; the legacy <select> is removed
+    // from the DOM by rewriteSettingsDialog() at boot. This function is kept
+    // for callers but is intentionally empty.
 }
 populateModelPicker();
 
@@ -393,14 +356,18 @@ function activateTab(name) {
     }
     // Auto-select the tab that matches the user's browser.
     activateTab(detectBrowserTab());
-    // Probe WebGPU; if missing, reveal the banner and disable Load model.
+    // Probe WebGPU; if missing, reveal the banner and disable the load button.
+    // The button may be #load-model (before rewriteSettingsDialog runs) or
+    // #open-model-picker (after) — check both.
     const probe = await detectWebGPU();
     if (!probe.ok) {
         warn.hidden = false;
-        const btn = $('load-model');
-        btn.disabled = true;
-        btn.title = 'WebGPU not available — see instructions above';
-        btn.textContent = 'Load model (WebGPU required)';
+        const btn = $('open-model-picker') || $('load-model');
+        if (btn) {
+            btn.disabled = true;
+            btn.title = 'WebGPU not available — see instructions above';
+            btn.textContent = 'Load model (WebGPU required)';
+        }
     }
 })();
 
@@ -415,17 +382,32 @@ function activateTab(name) {
 // `loadEngine` export from /webllm-engine.js. Bypasses the SW round-trip
 // because Chrome kills FetchEvent.respondWith() at ~5 min \u2014 see
 // docs/superpowers/handoffs/2026-05-07-gizza-ai-model-load-page-direct-handoff.md.
-$('load-model').addEventListener('click', async () => {
-    const btn = $('load-model');
-    btn.disabled = true;
-    btn.textContent = 'Downloading\u2026';
+
+// Tracks the model id of the most recently loaded (or currently loading)
+// engine so the picker can show the active model. Updated on each successful
+// load.
+let _loadedModelId = null;
+
+function getCurrentEngineModelId() {
+    return _loadedModelId;
+}
+
+async function startModelLoad(modelId) {
+    // If no modelId passed, fall back to whatever is persisted in localStorage.
+    const id = modelId || selectedModelId();
+    const btn = $('open-model-picker') || $('load-model');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Downloading\u2026';
+    }
     setLoadProgress('Starting\u2026', null);
     try {
-        await loadEngine(selectedModelId(), (text) => {
-            btn.textContent = 'Downloading\u2026';
+        await loadEngine(id, (text) => {
+            if (btn) btn.textContent = 'Downloading\u2026';
             setLoadProgress(text || 'Downloading\u2026', parsePercentFromStage(text));
         });
-        btn.textContent = 'Ready';
+        _loadedModelId = id;
+        if (btn) btn.textContent = 'Ready';
         clearLoadProgress();
         $('send').disabled = false;
     } catch (e) {
@@ -433,15 +415,78 @@ $('load-model').addEventListener('click', async () => {
         if (/compatible GPU|WebGPU|gpu adapter/i.test(msg)) {
             const warn = $('webgpu-warning');
             if (warn) warn.hidden = false;
-            btn.textContent = 'Load model';
+            if (btn) btn.textContent = 'Load model';
             clearLoadProgress();
         } else {
-            btn.textContent = 'Try again';
+            if (btn) btn.textContent = 'Try again';
             setLoadProgress(msg, null, true);
         }
-        btn.disabled = false;
+        if (btn) btn.disabled = false;
     }
-});
+}
+
+// --- Picker overlay integration ---
+
+function rewriteSettingsDialog() {
+    // Remove the old <select id="model-picker"> dropdown + helper paragraph and
+    // replace the "Load model" button with a "Choose model" button that opens
+    // the picker overlay. This lives in JS so we ship without a solobase build
+    // (the maud-side cleanup is a follow-up plan).
+    const dialog = document.getElementById('settings');
+    if (!dialog) return;
+    const oldSelect = dialog.querySelector('#model-picker');
+    if (oldSelect) {
+        const row = oldSelect.closest('.model-picker-row');
+        if (row) row.remove();
+        else oldSelect.remove();
+    }
+    const oldHelp = dialog.querySelector('p.help');
+    if (oldHelp) oldHelp.remove();
+    const oldLoad = dialog.querySelector('#load-model');
+    if (oldLoad) {
+        const btn = document.createElement('button');
+        btn.id = 'open-model-picker';
+        btn.type = 'button';
+        btn.textContent = 'Choose model';
+        oldLoad.replaceWith(btn);
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            // Close settings first so the full-screen picker takes over cleanly.
+            dialog.close();
+            await launchPicker();
+        });
+    }
+}
+
+function rewriteEmptyState() {
+    // Replace the static "Load a model in settings to start." copy with a
+    // primary "Choose a model" button that opens the picker directly.
+    const empty = document.querySelector('#messages .empty');
+    if (!empty) return;
+    empty.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.id = 'empty-state-cta';
+    btn.type = 'button';
+    btn.className = 'empty-state-cta';
+    btn.textContent = 'Choose a model';
+    btn.addEventListener('click', () => launchPicker());
+    empty.appendChild(btn);
+}
+
+async function launchPicker() {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.74/+esm');
+    const prebuiltList = mod?.prebuiltAppConfig?.model_list || [];
+    const result = await openPicker({
+        prebuiltList,
+        currentModelId: getCurrentEngineModelId(),
+    });
+    if (!result?.model_id) return;
+    localStorage.setItem(SELECTED_MODEL_KEY, result.model_id);
+    await startModelLoad(result.model_id);
+}
+
+rewriteSettingsDialog();
+rewriteEmptyState();
 
 // --- Clear conversation ---
 $('clear-convo').addEventListener('click', () => {
