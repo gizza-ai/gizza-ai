@@ -1,6 +1,17 @@
 //! gizza-ai model picker — groups, fetches, renders. See spec at
 //! docs/superpowers/specs/2026-05-08-gizza-ai-model-picker-redesign-design.md.
 
+// The maud-rendered chat page (src/blocks/ui.rs) doesn't yet <link> to
+// /model-picker.css — the Rust-side cleanup is deferred behind solobase build.
+// Inject the stylesheet on module load so the picker styling lands without a
+// rebuild. Once ui.rs ships the link, the idempotent guard makes this a no-op.
+if (typeof document !== 'undefined' && !document.querySelector('link[href="/model-picker.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/model-picker.css';
+    document.head.appendChild(link);
+}
+
 const FAMILY_MAP = {
     Llama: 'Meta',
     Qwen: 'Alibaba',
@@ -72,6 +83,15 @@ export function groupModels(prebuiltList) {
         }
         const group = byBase.get(baseId);
         const quant = extractQuant(entry.model_id);
+        // The MLC list often contains both the full-context and a `-1k` clipped
+        // variant of the same quant (e.g. `…-q4f16_1-MLC` and `…-q4f16_1-MLC-1k`).
+        // Both strip to the same base_id, which would otherwise duplicate the
+        // quality button. Keep the first occurrence — that's the larger-context
+        // model_id which appears earlier in the prebuilt list.
+        if (group.variants.some((v) => v.quant === quant)) {
+            if (TOOL_SUPPORT_HINTS.some((h) => entry.model_id.includes(h))) group.has_tools = true;
+            continue;
+        }
         const labelDef = QUALITY_LABELS[quant] || { label: quant, sublabel: quant };
         group.variants.push({
             id: entry.model_id,
