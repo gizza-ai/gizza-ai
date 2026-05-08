@@ -94,3 +94,85 @@ test('groupModels: skips entries with no model_id', () => {
     const result = groupModels([{ model_id: null }, { foo: 'bar' }, ...fixture.slice(0, 2)]);
     assert.equal(result.length >= 1, true);
 });
+
+import { fetchHfPopularity, _resetPopularityCache } from '../../site/model-picker.js';
+
+function mockStorage() {
+    const store = new Map();
+    return {
+        getItem: (k) => (store.has(k) ? store.get(k) : null),
+        setItem: (k, v) => store.set(k, String(v)),
+        removeItem: (k) => store.delete(k),
+        _peek: () => Object.fromEntries(store),
+    };
+}
+
+test('fetchHfPopularity: cache miss → fetches and stores', async () => {
+    _resetPopularityCache();
+    const localStorage = mockStorage();
+    const fetch = async (url) => {
+        assert.match(url, /huggingface\.co\/api\/models/);
+        return {
+            ok: true,
+            json: async () => [
+                { id: 'mlc-ai/Llama-3.2-1B-Instruct-q4f32_1-MLC', downloads: 14000, likes: 7 },
+                { id: 'mlc-ai/Qwen2.5-1.5B-Instruct-q4f16_1-MLC', downloads: 8200, likes: 4 },
+            ],
+        };
+    };
+    const data = await fetchHfPopularity({ localStorage, fetch, now: () => 1_700_000_000_000 });
+    assert.equal(data['Llama-3.2-1B-Instruct-q4f32_1-MLC'].downloads, 14000);
+    assert.equal(data['Qwen2.5-1.5B-Instruct-q4f16_1-MLC'].likes, 4);
+    const stored = JSON.parse(localStorage.getItem('gizza:hf-popularity-cache'));
+    assert.equal(stored.fetched_ms, 1_700_000_000_000);
+});
+
+test('fetchHfPopularity: fresh cache (<24h) → no fetch', async () => {
+    _resetPopularityCache();
+    const localStorage = mockStorage();
+    const now = 1_700_000_000_000;
+    localStorage.setItem('gizza:hf-popularity-cache', JSON.stringify({
+        fetched_ms: now - 60_000,
+        data: { 'Llama-3.2-1B-Instruct-q4f32_1-MLC': { downloads: 99, likes: 1 } },
+    }));
+    let calls = 0;
+    const fetch = async () => {
+        calls += 1;
+        return { ok: true, json: async () => [] };
+    };
+    const data = await fetchHfPopularity({ localStorage, fetch, now: () => now });
+    assert.equal(calls, 0, 'fresh cache should not refetch');
+    assert.equal(data['Llama-3.2-1B-Instruct-q4f32_1-MLC'].downloads, 99);
+});
+
+test('fetchHfPopularity: stale cache → returns cached then refreshes in background', async () => {
+    _resetPopularityCache();
+    const localStorage = mockStorage();
+    const now = 1_700_000_000_000;
+    const dayAgoPlus = now - (25 * 3600 * 1000);
+    localStorage.setItem('gizza:hf-popularity-cache', JSON.stringify({
+        fetched_ms: dayAgoPlus,
+        data: { 'Llama-3.2-1B-Instruct-q4f32_1-MLC': { downloads: 99, likes: 1 } },
+    }));
+    let resolved;
+    const fetchDone = new Promise((r) => { resolved = r; });
+    const fetch = async () => {
+        resolved();
+        return { ok: true, json: async () => [
+            { id: 'mlc-ai/Llama-3.2-1B-Instruct-q4f32_1-MLC', downloads: 14000, likes: 7 },
+        ] };
+    };
+    const data = await fetchHfPopularity({ localStorage, fetch, now: () => now });
+    // Returned synchronously from cache
+    assert.equal(data['Llama-3.2-1B-Instruct-q4f32_1-MLC'].downloads, 99);
+    // Background refresh still completes
+    await fetchDone;
+});
+
+test('fetchHfPopularity: fetch error → returns cached, never throws', async () => {
+    _resetPopularityCache();
+    const localStorage = mockStorage();
+    const fetch = async () => { throw new Error('offline'); };
+    const data = await fetchHfPopularity({ localStorage, fetch, now: () => 1_700_000_000_000 });
+    assert.deepEqual(data, {});
+});

@@ -96,3 +96,78 @@ export function groupModels(prebuiltList) {
     }
     return Array.from(byBase.values());
 }
+
+const HF_CACHE_KEY = 'gizza:hf-popularity-cache';
+const HF_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const HF_API_URL = 'https://huggingface.co/api/models?author=mlc-ai&limit=300&full=false';
+
+let _inFlightRefresh = null;
+
+export function _resetPopularityCache() {
+    _inFlightRefresh = null;
+}
+
+function readCache(localStorage) {
+    try {
+        const raw = localStorage.getItem(HF_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (typeof parsed?.fetched_ms !== 'number' || typeof parsed?.data !== 'object') return null;
+        return parsed;
+    } catch (_e) {
+        return null;
+    }
+}
+
+function writeCache(localStorage, fetched_ms, data) {
+    try {
+        localStorage.setItem(HF_CACHE_KEY, JSON.stringify({ fetched_ms, data }));
+    } catch (_e) {
+        // localStorage full or disabled — ignore, popularity will refetch next time.
+    }
+}
+
+async function fetchAndStore(localStorage, fetchFn, now) {
+    try {
+        const resp = await fetchFn(HF_API_URL);
+        if (!resp?.ok) return null;
+        const list = await resp.json();
+        const data = {};
+        for (const repo of list) {
+            const id = typeof repo?.id === 'string' ? repo.id : null;
+            if (!id || !id.startsWith('mlc-ai/')) continue;
+            const modelId = id.slice('mlc-ai/'.length);
+            data[modelId] = {
+                downloads: typeof repo.downloads === 'number' ? repo.downloads : 0,
+                likes: typeof repo.likes === 'number' ? repo.likes : 0,
+            };
+        }
+        const ts = now();
+        writeCache(localStorage, ts, data);
+        return data;
+    } catch (_e) {
+        return null;
+    }
+}
+
+export async function fetchHfPopularity({
+    localStorage = globalThis.localStorage,
+    fetch = globalThis.fetch,
+    now = () => Date.now(),
+} = {}) {
+    const cached = readCache(localStorage);
+    const fresh = cached && (now() - cached.fetched_ms) < HF_CACHE_TTL_MS;
+    if (cached && fresh) return cached.data;
+    if (cached && !fresh) {
+        // Stale: return cached now, refresh in background.
+        if (!_inFlightRefresh) {
+            _inFlightRefresh = fetchAndStore(localStorage, fetch, now).finally(() => {
+                _inFlightRefresh = null;
+            });
+        }
+        return cached.data;
+    }
+    // Cache miss: fetch synchronously, fall back to empty.
+    const data = await fetchAndStore(localStorage, fetch, now);
+    return data || {};
+}
