@@ -270,23 +270,9 @@ $('open-settings').addEventListener('click', () => $('settings').showModal());
 
 // --- Model picker ---
 //
-// Populates the <select id="model-picker"> from WebLLM's
-// `prebuiltAppConfig.model_list`. We import @mlc-ai/web-llm dynamically so the
-// list comes from the same package webllm-engine.js drives — no risk of the
-// picker offering an id the engine can't load.
-//
-// Selection persists in localStorage under SELECTED_MODEL_KEY. A models known
-// to support tool-calling get a 🔧 marker.
-//
-// Tool-supporting families (substrings) per WebLLM 0.2.74 prebuilt list. Used
-// only for the badge — the agent still passes any selected model id straight
-// through to the LLM service.
-const TOOL_SUPPORT_HINTS = ['Hermes-2', 'Hermes-3', 'Qwen2.5', 'Llama-3-Groq', 'functionary'];
-
-function modelSupportsTools(id) {
-    return TOOL_SUPPORT_HINTS.some((hint) => id.includes(hint));
-}
-
+// Legacy populateModelPicker — kept as a no-op so any old call sites don't
+// throw. Selection is now driven entirely by openPicker() (model-picker.js),
+// invoked from rewriteSettingsDialog and rewriteEmptyState below.
 async function populateModelPicker() {
     // Picker is driven by openPicker() now; the legacy <select> is removed
     // from the DOM by rewriteSettingsDialog() at boot. This function is kept
