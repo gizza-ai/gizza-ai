@@ -377,7 +377,7 @@ dialog {
 }
 
 dialog::backdrop {
-  background: rgba(38, 37, 30, 0.32);
+  background: rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(2px);
 }
 
@@ -871,7 +871,7 @@ dialog button[value="close"] {
 #drop-overlay[hidden] { display: none; }
 #drop-overlay .drop-overlay-inner {
   padding: var(--space-base) var(--space-lg);
-  border: 2px dashed var(--color-primary);
+  border: 2px dashed var(--color-hairline-strong);
   border-radius: 16px;
   background: var(--color-surface-card);
   color: var(--color-ink);
