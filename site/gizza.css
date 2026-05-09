@@ -194,49 +194,56 @@ sa-header #open-settings { display: none; }
 }
 
 /* ─── Tool-call rows — the agent timeline signature ────────────────────── */
-/*
- * Each tool invocation renders as a pastel pill with a caption-uppercase
- * stage label and a JetBrains Mono summary. Default state is peach
- * ("thinking"); .is-done flips to gold on success, .is-error to error red.
- */
 .tool-call {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  background: var(--color-timeline-thinking);
-  color: var(--color-ink);
+  background: var(--color-canvas-soft);
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
   padding: var(--space-xxs) var(--space-sm);
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.4;
-  letter-spacing: 0;
-  transition: background 200ms ease, color 200ms ease;
 }
 
-.tool-call .spinner {
+/* Thinking state — empty .spinner renders as a 7px gray dot. */
+.tool-call .spinner:empty {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-muted-soft);
+}
+
+/* Done / error state — .spinner has text content (✓ or ✗); render as an
+ * inline glyph with semantic color. Override the existing caption styling
+ * (uppercase + letter-spacing) that .tool-call .spinner inherits otherwise. */
+.tool-call .spinner:not(:empty) {
   font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.88px;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-muted);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
-.tool-call .result {
-  opacity: 0.85;
-}
+.tool-call .result { opacity: 0.85; }
 
 .tool-call.is-done {
-  background: var(--color-timeline-done);
-  color: var(--color-on-primary);
+  color: var(--color-ink);
 }
+.tool-call.is-done .spinner:not(:empty) { color: var(--color-success); }
 
 .tool-call.is-error {
-  background: var(--color-surface-card);
   color: var(--color-error);
-  border: 1px solid var(--color-error);
+  border-color: var(--color-error);
+  background: var(--color-canvas);
 }
+.tool-call.is-error .spinner:not(:empty) { color: var(--color-error); }
 
 /* ─── Composer ─────────────────────────────────────────────────────────── */
 /*

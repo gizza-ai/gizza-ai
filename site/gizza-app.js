@@ -121,7 +121,7 @@ function renderAssistantContent(node, raw) {
 function addToolRow(name, args) {
     const msgs = $('messages');
     const row = el('div', { class: 'tool-call' });
-    row.appendChild(el('span', { class: 'spinner' }, '\u23f3'));
+    row.appendChild(el('span', { class: 'spinner' }));
     row.appendChild(el('code', {}, `${name}(${args})`));
     msgs.appendChild(row);
     scrollToBottom();
