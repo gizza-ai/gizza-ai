@@ -13,12 +13,12 @@
   /* Brand override — Cursor Orange retained as scarce accent. */
   --sa-accent:        #f54e00;
   --sa-accent-hover:  #d04200;
-  --sa-on-accent:     #fff;       /* large/bold-only — primary CTAs and the Send disc */
+  --sa-on-accent:     #fff;       /* 3.0:1 on orange — all on-orange surfaces must be large or bold (AA Large) */
 
   /* Canvas + surfaces. White and warm-cream are gone. */
   --color-canvas:          #ffffff;
   --color-canvas-soft:     #fafafa;
-  --color-surface-card:    #ffffff;
+  --color-surface-card:    #ffffff; /* card surface — may diverge from canvas in dark mode */
   --color-surface-strong:  #f5f5f5;
 
   /* Hairlines — graduated neutrals replacing the cream-tinted set. */
@@ -58,7 +58,7 @@
   --space-xs:   var(--sa-space-2);
   --space-sm:   var(--sa-space-3);
   --space-base: var(--sa-space-4);
-  --space-md:   20px;
+  --space-md:   20px; /* no kit equivalent between sa-4 (16px) and sa-6 (24px) */
   --space-lg:   var(--sa-space-6);
   --space-xl:   var(--sa-space-8);
   --space-xxl:  var(--sa-space-12);
@@ -193,7 +193,7 @@ sa-header #open-settings { display: none; }
   letter-spacing: 0;
 }
 
-/* ─── Tool-call rows — the agent timeline signature ────────────────────── */
+/* ─── Tool-call chips ─────────────────────────────────────────────────── */
 .tool-call {
   align-self: flex-start;
   display: inline-flex;
@@ -207,6 +207,8 @@ sa-header #open-settings { display: none; }
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.4;
+  letter-spacing: 0;
+  transition: border-color 120ms ease;
 }
 
 /* Thinking state — empty .spinner renders as a 7px gray dot. */
@@ -219,8 +221,8 @@ sa-header #open-settings { display: none; }
 }
 
 /* Done / error state — .spinner has text content (✓ or ✗); render as an
- * inline glyph with semantic color. Override the existing caption styling
- * (uppercase + letter-spacing) that .tool-call .spinner inherits otherwise. */
+ * inline glyph with semantic color. Explicit resets prevent accidental
+ * re-introduction of uppercase or tracking styles from future rule edits. */
 .tool-call .spinner:not(:empty) {
   font-family: var(--font-display);
   font-size: 13px;
