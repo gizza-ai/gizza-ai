@@ -37,6 +37,21 @@ test('groupModels: no group contains a quantization suffix in its base_id', () =
     for (const g of groups) {
         assert.doesNotMatch(g.base_id, /-q\d+f\d+(_\d+)?-MLC$/, `base_id leaked variant suffix: ${g.base_id}`);
         assert.doesNotMatch(g.base_id, /-MLC(-\d+k)?$/, `base_id leaked -MLC suffix: ${g.base_id}`);
+        assert.doesNotMatch(g.base_id, /-b\d+$/, `base_id leaked batch-size suffix: ${g.base_id}`);
+    }
+});
+
+test('groupModels: collapses snowflake-arctic-embed batch variants into one base entry', () => {
+    const groups = groupModels(fixture);
+    // Fixture contains snowflake-arctic-embed-{m,s}-q0f32-MLC-b{4,32}; each base
+    // model should appear exactly once with all batch variants collapsed.
+    const m = groups.find((g) => g.base_id === 'snowflake-arctic-embed-m');
+    const s = groups.find((g) => g.base_id === 'snowflake-arctic-embed-s');
+    assert.ok(m, 'expected a snowflake-arctic-embed-m group');
+    assert.ok(s, 'expected a snowflake-arctic-embed-s group');
+    // Each base must keep its full WebLLM model_id for engine handoff.
+    for (const v of m.variants) {
+        assert.ok(v.id.startsWith('snowflake-arctic-embed-m-'), `unexpected variant id ${v.id}`);
     }
 });
 

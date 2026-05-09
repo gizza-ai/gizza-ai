@@ -54,8 +54,10 @@ function paramsLabel(baseId) {
 }
 
 function stripVariantSuffix(modelId) {
-    // <base>-<quant>-MLC[-<ctx>] → <base>
-    return modelId.replace(/-q\d+f\d+(_\d+)?-MLC(-\d+k(_cs\d+k)?)?$/, '');
+    // <base>-<quant>-MLC[-<ctx>][-<batch>] → <base>
+    // -<ctx>   is `-Nk` (optionally `_csNk`) on chat models
+    // -<batch> is `-bN` on embedding models (e.g. snowflake-arctic-embed)
+    return modelId.replace(/-q\d+f\d+(_\d+)?-MLC(-\d+k(_cs\d+k)?)?(-b\d+)?$/, '');
 }
 
 function extractQuant(modelId) {
