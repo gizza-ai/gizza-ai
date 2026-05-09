@@ -575,20 +575,19 @@ dialog button[value="close"] {
   border-radius: var(--radius-lg);
 }
 
-/* Peach "Setup" badge floating on the panel edge — borrows the timeline
- * pastel system to flag this as an in-product staging surface. */
 #webgpu-warning::before {
   content: 'Setup';
   position: absolute;
   top: -10px;
   left: var(--space-base);
-  background: var(--color-timeline-thinking);
-  color: var(--color-ink);
+  background: var(--color-surface-card);
+  color: var(--color-muted);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.88px;
   text-transform: uppercase;
   padding: 3px 10px;
+  border: 1px solid var(--color-hairline);
   border-radius: var(--radius-pill);
 }
 
