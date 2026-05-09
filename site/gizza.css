@@ -10,58 +10,50 @@
  */
 
 :root {
-  /* Brand override — Cursor Orange instead of the kit's default navy. */
-  --sa-accent: #f54e00;
-  --sa-accent-hover: #d04200;
-  /* On-accent foreground. Cursor-orange + kit-default white = 3.0:1
-   * (fails AA normal text). Pair with the kit's deep ink for
-   * 5.5:1 (AA pass for normal text). Gizza-internal primary CTAs
-   * (in `gizza.css`) keep white-on-orange via --color-on-primary —
-   * those are large/bold enough to pass AA Large (3:1). This token
-   * governs future kit components only. */
-  --sa-on-accent: #26251e;
+  /* Brand override — Cursor Orange retained as scarce accent. */
+  --sa-accent:        #f54e00;
+  --sa-accent-hover:  #d04200;
+  --sa-on-accent:     #fff;       /* 3.0:1 on orange — all on-orange surfaces must be large or bold (AA Large) */
 
-  /* Aliases: gizza color names → site-kit --sa-* tokens. */
+  /* Canvas + surfaces. White and warm-cream are gone. */
+  --color-canvas:          #ffffff;
+  --color-canvas-soft:     #fafafa;
+  --color-surface-card:    #ffffff; /* card surface — may diverge from canvas in dark mode */
+  --color-surface-strong:  #f5f5f5;
+
+  /* Hairlines — graduated neutrals replacing the cream-tinted set. */
+  --color-hairline:        #e5e5e5;
+  --color-hairline-soft:   #f1f1f1;
+  --color-hairline-strong: #d4d4d4;
+
+  /* Ink + body text. */
+  --color-ink:        #0a0a0a;
+  --color-body:       #525252;
+  --color-muted:      #737373;
+  --color-muted-soft: #a3a3a3;
+
+  /* Brand + on-brand */
   --color-primary:        var(--sa-accent);
   --color-primary-active: var(--sa-accent-hover);
-  --color-canvas:         #f7f7f4; /* warm cream — kit ships gray-50, gizza wants warmer */
-  --color-surface-card:   var(--sa-bg-card);
-  --color-hairline:       var(--sa-border);
-  --color-ink:            var(--sa-text);
-  --color-body:           var(--sa-text-muted);
-  --color-muted:          var(--sa-text-muted);
   --color-on-primary:     #ffffff;
 
-  /* Bespoke surfaces — no kit equivalent for gizza's warm-cream variants. */
-  --color-canvas-soft:     #fafaf7;
-  --color-surface-strong:  #e6e5e0;
-  --color-hairline-soft:   #efeee8;
-  --color-hairline-strong: #cfcdc4;
-  --color-muted-soft:      #a09c92;
-
-  /* Timeline pastels — gizza-specific agent-stage signature. */
-  --color-timeline-thinking: #dfa88f;
-  --color-timeline-grep:     #9fc9a2;
-  --color-timeline-read:     #9fbbe0;
-  --color-timeline-edit:     #c0a8dd;
-  --color-timeline-done:     #c08532;
-
-  /* Semantic. */
+  /* Semantic state colors — used by chip icons (✓ ✗) and the dialog
+   * progress card error variant. NOT used as fills. */
   --color-success: #1f8a65;
   --color-error:   #cf2d56;
 
-  /* Type aliases — kit provides Itim and JetBrains Mono via design-system.css. */
-  --font-display: var(--sa-font-sans);
+  /* Type aliases */
+  --font-display: var(--sa-font-sans);     /* Itim from kit */
   --font-mono:    var(--sa-font-mono);
 
-  /* Radius aliases (pill is bespoke; kit has no full-pill token). */
+  /* Radius — pill kept bespoke; rest from kit. */
   --radius-xs:   4px;
   --radius-sm:   var(--sa-radius-sm);
   --radius-md:   var(--sa-radius-md);
   --radius-lg:   var(--sa-radius-lg);
   --radius-pill: 9999px;
 
-  /* Spacing aliases — closest match to kit's 4px-base scale. */
+  /* Spacing — unchanged from current file. */
   --space-xxs:  var(--sa-space-1);
   --space-xs:   var(--sa-space-2);
   --space-sm:   var(--sa-space-3);
@@ -201,50 +193,59 @@ sa-header #open-settings { display: none; }
   letter-spacing: 0;
 }
 
-/* ─── Tool-call rows — the agent timeline signature ────────────────────── */
-/*
- * Each tool invocation renders as a pastel pill with a caption-uppercase
- * stage label and a JetBrains Mono summary. Default state is peach
- * ("thinking"); .is-done flips to gold on success, .is-error to error red.
- */
+/* ─── Tool-call chips ─────────────────────────────────────────────────── */
 .tool-call {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  background: var(--color-timeline-thinking);
-  color: var(--color-ink);
+  background: var(--color-canvas-soft);
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
   padding: var(--space-xxs) var(--space-sm);
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.4;
   letter-spacing: 0;
-  transition: background 200ms ease, color 200ms ease;
+  transition: border-color 120ms ease;
 }
 
-.tool-call .spinner {
+/* Thinking state — empty .spinner renders as a 7px gray dot. */
+.tool-call .spinner:empty {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-muted-soft);
+}
+
+/* Done / error state — .spinner has text content (✓ or ✗); render as an
+ * inline glyph with semantic color. Explicit resets prevent accidental
+ * re-introduction of uppercase or tracking styles from future rule edits. */
+.tool-call .spinner:not(:empty) {
   font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.88px;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-muted);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
-.tool-call .result {
-  opacity: 0.85;
-}
+.tool-call .result { opacity: 0.85; }
 
 .tool-call.is-done {
-  background: var(--color-timeline-done);
-  color: var(--color-on-primary);
+  color: var(--color-ink);
 }
+.tool-call.is-done .spinner:not(:empty) { color: var(--color-success); }
 
 .tool-call.is-error {
-  background: var(--color-surface-card);
   color: var(--color-error);
-  border: 1px solid var(--color-error);
+  border-color: var(--color-error);
+  background: var(--color-canvas);
 }
+.tool-call.is-error .spinner:not(:empty) { color: var(--color-error); }
 
 /* ─── Composer ─────────────────────────────────────────────────────────── */
 /*
@@ -378,7 +379,7 @@ dialog {
 }
 
 dialog::backdrop {
-  background: rgba(38, 37, 30, 0.32);
+  background: rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(2px);
 }
 
@@ -576,20 +577,19 @@ dialog button[value="close"] {
   border-radius: var(--radius-lg);
 }
 
-/* Peach "Setup" badge floating on the panel edge — borrows the timeline
- * pastel system to flag this as an in-product staging surface. */
 #webgpu-warning::before {
   content: 'Setup';
   position: absolute;
   top: -10px;
   left: var(--space-base);
-  background: var(--color-timeline-thinking);
-  color: var(--color-ink);
+  background: var(--color-surface-card);
+  color: var(--color-muted);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.88px;
   text-transform: uppercase;
   padding: 3px 10px;
+  border: 1px solid var(--color-hairline);
   border-radius: var(--radius-pill);
 }
 
@@ -873,7 +873,7 @@ dialog button[value="close"] {
 #drop-overlay[hidden] { display: none; }
 #drop-overlay .drop-overlay-inner {
   padding: var(--space-base) var(--space-lg);
-  border: 2px dashed var(--color-primary);
+  border: 2px dashed var(--color-hairline-strong);
   border-radius: 16px;
   background: var(--color-surface-card);
   color: var(--color-ink);
