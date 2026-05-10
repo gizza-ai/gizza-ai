@@ -195,7 +195,7 @@ test('fetchHfPopularity: fetch error → returns cached, never throws', async ()
 import { applyFilters } from '../../site/model-picker.js';
 
 function DEFAULT_FILTERS_FOR_TEST() {
-    return { search: '', sizes: [], families: [], toolsOnly: false, visionOnly: false, sort: 'downloaded-popular' };
+    return { search: '', sizes: [], families: [], toolsOnly: false, visionOnly: false, favoritesOnly: false, sort: 'downloaded-popular' };
 }
 
 test('applyFilters: search narrows by name', () => {
@@ -217,4 +217,21 @@ test('applyFilters: downloaded-popular puts cached groups first', () => {
     assert.ok(cachedBase, 'fixture should contain at least one tool-capable group');
     const filtered = applyFilters(groups, DEFAULT_FILTERS_FOR_TEST(), {}, new Set([cachedBase]));
     assert.equal(filtered[0].base_id, cachedBase);
+});
+
+import { readPersistedFilters } from '../../site/model-picker.js';
+
+test('readPersistedFilters: legacy payload (no favoritesOnly) reads back with favoritesOnly:false', () => {
+    const localStorage = mockStorage();
+    localStorage.setItem('gizza:picker-filters', JSON.stringify({
+        sizes: ['small'],
+        families: ['Llama'],
+        toolsOnly: true,
+        visionOnly: false,
+        sort: 'az',
+    }));
+    const read = readPersistedFilters({ localStorage });
+    assert.equal(read.favoritesOnly, false, 'legacy payload should read back with favoritesOnly:false');
+    assert.equal(read.toolsOnly, true, 'existing fields should still merge through');
+    assert.equal(read.sort, 'az');
 });

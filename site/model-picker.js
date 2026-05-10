@@ -443,6 +443,7 @@ const DEFAULT_FILTERS = {
     families: [],
     toolsOnly: false,
     visionOnly: false,
+    favoritesOnly: false,
     sort: 'downloaded-popular',
 };
 
