@@ -446,9 +446,10 @@ const DEFAULT_FILTERS = {
     sort: 'downloaded-popular',
 };
 
-function readPersistedFilters() {
+export function readPersistedFilters({ localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
     try {
-        const raw = localStorage.getItem(FILTERS_LS_KEY);
+        if (!storage) return { ...DEFAULT_FILTERS };
+        const raw = storage.getItem(FILTERS_LS_KEY);
         if (!raw) return { ...DEFAULT_FILTERS };
         const parsed = JSON.parse(raw);
         return {
@@ -461,10 +462,11 @@ function readPersistedFilters() {
     }
 }
 
-function writePersistedFilters(filters) {
+export function writePersistedFilters(filters, { localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
     try {
+        if (!storage) return;
         const { search: _drop, ...persistable } = filters;
-        localStorage.setItem(FILTERS_LS_KEY, JSON.stringify(persistable));
+        storage.setItem(FILTERS_LS_KEY, JSON.stringify(persistable));
     } catch (_e) {
         // ignore quota failures
     }
