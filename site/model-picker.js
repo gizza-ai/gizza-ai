@@ -236,6 +236,40 @@ export async function getCachedAndActive(baseModels, currentModelId = null) {
     return { cached, active: currentModelId };
 }
 
+/**
+ * Deletes every WebLLM-cached variant of `group` from OPFS.
+ *
+ * Iterates `group.variants` and calls `webllmDir.removeEntry(variant.id, { recursive: true })`
+ * on each. Each variant is removed independently — a partial cache cleans up cleanly
+ * because per-variant failures are caught and ignored. Failures (no OPFS, no `webllm/`
+ * directory, permission denied, missing entry) are silent — same defensive posture as
+ * `getCachedAndActive`.
+ *
+ * Caller is responsible for re-running `getCachedAndActive` after this resolves to
+ * refresh UI state.
+ */
+export async function deleteCachedModel(group) {
+    try {
+        const root = await navigator.storage?.getDirectory?.();
+        if (!root) return;
+        let webllmDir;
+        try {
+            webllmDir = await root.getDirectoryHandle('webllm');
+        } catch (_e) {
+            return;
+        }
+        for (const variant of group.variants) {
+            try {
+                await webllmDir.removeEntry(variant.id, { recursive: true });
+            } catch (_e) {
+                // missing or permission-denied — fall through, try the next variant
+            }
+        }
+    } catch (_e) {
+        // any unexpected failure → noop
+    }
+}
+
 const SIZE_TIERS = [
     { id: 'small', label: 'Small (<2 GB)', max_mb: 2048 },
     { id: 'medium', label: 'Medium (2–5 GB)', min_mb: 2048, max_mb: 5120 },
