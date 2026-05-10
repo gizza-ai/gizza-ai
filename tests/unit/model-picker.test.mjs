@@ -278,3 +278,25 @@ test('applyFilters: favoritesOnly:false ignores favorites set', () => {
     const filtered = applyFilters(groups, filters, {}, new Set(), new Set([favBase]));
     assert.equal(filtered.length, groups.length, 'with favoritesOnly:false, all groups should survive the filter');
 });
+
+test('applyFilters: downloaded-popular puts favorites before cached, cached before neither', () => {
+    const groups = groupModels(fixture);
+    assert.ok(groups.length >= 3, 'fixture should produce at least 3 groups');
+    const [a, b, c] = groups;
+    const favBase = a.base_id;
+    const cachedBase = b.base_id;
+    const neitherBase = c.base_id;
+    const filtered = applyFilters(
+        groups,
+        DEFAULT_FILTERS_FOR_TEST(),
+        {},
+        new Set([cachedBase]),
+        new Set([favBase]),
+    );
+    const favIdx = filtered.findIndex((g) => g.base_id === favBase);
+    const cachedIdx = filtered.findIndex((g) => g.base_id === cachedBase);
+    const neitherIdx = filtered.findIndex((g) => g.base_id === neitherBase);
+    assert.ok(favIdx >= 0 && cachedIdx >= 0 && neitherIdx >= 0, 'all three groups must be in result');
+    assert.ok(favIdx < cachedIdx, `favorite (${favIdx}) should come before cached (${cachedIdx})`);
+    assert.ok(cachedIdx < neitherIdx, `cached (${cachedIdx}) should come before neither (${neitherIdx})`);
+});

@@ -545,6 +545,9 @@ export function applyFilters(groups, filters, popularity, cached, favorites = ne
         case 'downloaded-popular':
         default:
             filtered.sort((a, b) => {
+                const af = favorites.has(a.base_id) ? 0 : 1;
+                const bf = favorites.has(b.base_id) ? 0 : 1;
+                if (af !== bf) return af - bf;
                 const ac = cached.has(a.base_id) ? 0 : 1;
                 const bc = cached.has(b.base_id) ? 0 : 1;
                 if (ac !== bc) return ac - bc;
