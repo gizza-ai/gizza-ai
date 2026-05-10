@@ -235,3 +235,28 @@ test('readPersistedFilters: legacy payload (no favoritesOnly) reads back with fa
     assert.equal(read.toolsOnly, true, 'existing fields should still merge through');
     assert.equal(read.sort, 'az');
 });
+
+import { readPersistedFavorites, writePersistedFavorites } from '../../site/model-picker.js';
+
+test('writePersistedFavorites + readPersistedFavorites: round-trip via injected storage', () => {
+    const localStorage = mockStorage();
+    writePersistedFavorites(new Set(['Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct']), { localStorage });
+    const read = readPersistedFavorites({ localStorage });
+    assert.ok(read instanceof Set, 'readPersistedFavorites must return a Set');
+    assert.deepEqual([...read].sort(), ['Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct']);
+});
+
+test('readPersistedFavorites: missing key returns empty Set', () => {
+    const localStorage = mockStorage();
+    const read = readPersistedFavorites({ localStorage });
+    assert.ok(read instanceof Set);
+    assert.equal(read.size, 0);
+});
+
+test('readPersistedFavorites: corrupt JSON returns empty Set, no throw', () => {
+    const localStorage = mockStorage();
+    localStorage.setItem('gizza:picker-favorites', '{not json');
+    const read = readPersistedFavorites({ localStorage });
+    assert.ok(read instanceof Set);
+    assert.equal(read.size, 0);
+});

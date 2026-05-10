@@ -436,6 +436,28 @@ export function renderPickerDom(ctx) {
 export { renderCard, smallestVramMb };
 
 const FILTERS_LS_KEY = 'gizza:picker-filters';
+const FAVORITES_LS_KEY = 'gizza:picker-favorites';
+
+export function readPersistedFavorites({ localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
+    try {
+        if (!storage) return new Set();
+        const raw = storage.getItem(FAVORITES_LS_KEY);
+        if (!raw) return new Set();
+        const parsed = JSON.parse(raw);
+        return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch (_e) {
+        return new Set();
+    }
+}
+
+export function writePersistedFavorites(favorites, { localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
+    try {
+        if (!storage) return;
+        storage.setItem(FAVORITES_LS_KEY, JSON.stringify([...favorites]));
+    } catch (_e) {
+        // ignore quota failures
+    }
+}
 
 const DEFAULT_FILTERS = {
     search: '',
