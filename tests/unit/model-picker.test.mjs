@@ -260,3 +260,21 @@ test('readPersistedFavorites: corrupt JSON returns empty Set, no throw', () => {
     assert.ok(read instanceof Set);
     assert.equal(read.size, 0);
 });
+
+test('applyFilters: favoritesOnly:true returns only favorited groups', () => {
+    const groups = groupModels(fixture);
+    assert.ok(groups.length >= 2, 'fixture should produce at least 2 groups');
+    const favBase = groups[0].base_id;
+    const filters = { ...DEFAULT_FILTERS_FOR_TEST(), favoritesOnly: true, sort: 'az' };
+    const filtered = applyFilters(groups, filters, {}, new Set(), new Set([favBase]));
+    assert.equal(filtered.length, 1, `expected 1 favorited group, got ${filtered.length}`);
+    assert.equal(filtered[0].base_id, favBase);
+});
+
+test('applyFilters: favoritesOnly:false ignores favorites set', () => {
+    const groups = groupModels(fixture);
+    const favBase = groups[0].base_id;
+    const filters = { ...DEFAULT_FILTERS_FOR_TEST(), sort: 'az' };
+    const filtered = applyFilters(groups, filters, {}, new Set(), new Set([favBase]));
+    assert.equal(filtered.length, groups.length, 'with favoritesOnly:false, all groups should survive the filter');
+});

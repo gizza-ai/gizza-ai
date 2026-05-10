@@ -514,12 +514,13 @@ function sizeMatches(group, sizes) {
     });
 }
 
-export function applyFilters(groups, filters, popularity, cached) {
+export function applyFilters(groups, filters, popularity, cached, favorites = new Set()) {
     const search = filters.search.trim().toLowerCase();
     let filtered = groups.filter((g) => {
         if (search && !g.base_id.toLowerCase().includes(search) && !g.family.toLowerCase().includes(search)) return false;
         if (filters.toolsOnly && !g.has_tools) return false;
         if (filters.visionOnly && !g.has_vision) return false;
+        if (filters.favoritesOnly && !favorites.has(g.base_id)) return false;
         if (!familyMatches(g, filters.families)) return false;
         if (!sizeMatches(g, filters.sizes)) return false;
         return true;
