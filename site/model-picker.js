@@ -307,6 +307,16 @@ function renderCard(group, ctx) {
                     group.has_tools ? el('span', { class: 'mp-badge tools' }, ['🔧 tools']) : null,
                     isCached && !isActive ? el('span', { class: 'mp-badge cached' }, ['✓ Downloaded']) : null,
                     isActive ? el('span', { class: 'mp-badge active' }, ['✓ Active']) : null,
+                    isCached && !isActive ? el('button', {
+                        type: 'button',
+                        class: 'mp-trash',
+                        'aria-label': `Delete cached ${group.base_id}`,
+                        title: 'Delete cached files',
+                        onClick: (e) => {
+                            e.stopPropagation();
+                            ctx.onDeleteCached?.(group);
+                        },
+                    }, ['🗑']) : null,
                 ]),
                 el('div', { class: 'mp-card-subtitle' }, [
                     [group.family, group.params_label].filter(Boolean).join(' · '),
