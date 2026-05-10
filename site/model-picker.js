@@ -312,14 +312,26 @@ function renderCard(group, ctx) {
                     [group.family, group.params_label].filter(Boolean).join(' · '),
                 ]),
             ]),
-            group.hf_url ? el('a', {
-                class: 'mp-card-link',
-                href: group.hf_url,
-                target: '_blank',
-                rel: 'noopener',
-                title: 'Open on HuggingFace',
-                onClick: (e) => e.stopPropagation(),
-            }, ['HF ↗']) : null,
+            el('div', { class: 'mp-card-actions' }, [
+                el('button', {
+                    type: 'button',
+                    class: `mp-star ${ctx.favorites?.has(group.base_id) ? 'active' : ''}`,
+                    'aria-label': ctx.favorites?.has(group.base_id) ? `Unfavorite ${group.base_id}` : `Favorite ${group.base_id}`,
+                    title: ctx.favorites?.has(group.base_id) ? 'Unfavorite' : 'Favorite',
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        ctx.onFavoriteToggle?.(group.base_id);
+                    },
+                }, [ctx.favorites?.has(group.base_id) ? '★' : '☆']),
+                group.hf_url ? el('a', {
+                    class: 'mp-card-link',
+                    href: group.hf_url,
+                    target: '_blank',
+                    rel: 'noopener',
+                    title: 'Open on HuggingFace',
+                    onClick: (e) => e.stopPropagation(),
+                }, ['HF ↗']) : null,
+            ]),
         ]),
         el('div', { class: 'mp-card-stats' }, [
             el('span', {}, [el('strong', {}, [formatBytes(initialVariant?.vram_mb)])]),
