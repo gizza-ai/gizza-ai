@@ -427,6 +427,14 @@ export function renderPickerDom(ctx) {
             }),
             'Vision-capable',
         ]),
+        el('label', { class: 'mp-toggle' }, [
+            el('input', {
+                type: 'checkbox',
+                checked: ctx.filters.favoritesOnly ? true : false,
+                onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, favoritesOnly: e.target.checked }),
+            }),
+            '★ Favorites only',
+        ]),
         el('select', {
             class: 'mp-sort',
             onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, sort: e.target.value }),
