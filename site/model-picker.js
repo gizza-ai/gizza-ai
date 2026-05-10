@@ -683,10 +683,11 @@ export async function openPicker({
 
     let filters = readPersistedFilters();
     let selection = null; // { base_id, variant }
+    const favorites = readPersistedFavorites();
 
     return new Promise((resolve) => {
         const ctx = {
-            groups, popularity, cached, active, selection, filters,
+            groups, popularity, cached, active, selection, filters, favorites,
             onClose: () => close(null),
             onSelect: () => {},
             onLoad: () => {
@@ -698,13 +699,27 @@ export async function openPicker({
                 writePersistedFilters(filters);
                 rerenderGrid();
             },
+            onFavoriteToggle: (baseId) => {
+                if (favorites.has(baseId)) favorites.delete(baseId);
+                else favorites.add(baseId);
+                writePersistedFavorites(favorites);
+                rerenderGrid();
+            },
+            onDeleteCached: async (group) => {
+                if (!window.confirm(`Delete cached ${group.base_id}?`)) return;
+                await deleteCachedModel(group);
+                const refresh = await getCachedAndActive(groups, currentModelId);
+                cached.clear();
+                for (const id of refresh.cached) cached.add(id);
+                rerenderGrid();
+            },
         };
 
         const dom = renderPickerDom(ctx);
         document.body.appendChild(dom.dialog);
 
         function rerenderGrid() {
-            const filtered = applyFilters(groups, filters, popularity, cached);
+            const filtered = applyFilters(groups, filters, popularity, cached, favorites);
             dom.grid.innerHTML = '';
             if (filtered.length === 0) {
                 dom.grid.appendChild(el('div', { class: 'mp-empty' }, [
@@ -713,7 +728,11 @@ export async function openPicker({
                 ]));
             } else {
                 for (const g of filtered) {
-                    const card = renderCard(g, { cached, active, popularity, selection });
+                    const card = renderCard(g, {
+                        cached, active, popularity, selection, favorites,
+                        onFavoriteToggle: ctx.onFavoriteToggle,
+                        onDeleteCached: ctx.onDeleteCached,
+                    });
                     bindCardEvents(card, g);
                     dom.grid.appendChild(card);
                 }
