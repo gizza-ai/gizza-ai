@@ -245,7 +245,7 @@ const SIZE_TIERS = [
 const FAMILY_CHIP_OPTIONS = ['Llama', 'Qwen', 'Phi', 'Hermes', 'Gemma', 'Mistral', 'Other'];
 
 const SORT_OPTIONS = [
-    { value: 'downloaded-popular', label: 'Already downloaded, then most popular' },
+    { value: 'downloaded-popular', label: 'Favorites, downloaded, then popular' },
     { value: 'popular', label: 'Most popular' },
     { value: 'smallest', label: 'Smallest first' },
     { value: 'largest', label: 'Largest first' },
