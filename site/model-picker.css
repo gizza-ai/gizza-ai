@@ -297,3 +297,37 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
     .mp-footer { flex-direction: column; align-items: stretch; }
     .mp-footer button.primary { width: 100%; }
 }
+
+/* ─── Card actions (top-right strip) ──────────────────────────────────── */
+.mp-card-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.mp-star {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-muted);
+    border-radius: var(--radius-md);
+}
+.mp-star:hover { background: rgba(0, 0, 0, 0.04); color: var(--color-ink); }
+.mp-star.active { color: #f59e0b; }
+.mp-star.active:hover { background: rgba(245, 158, 11, 0.08); }
+
+.mp-trash {
+    background: transparent;
+    border: none;
+    padding: 2px 6px;
+    margin-left: 4px;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-muted);
+    border-radius: var(--radius-md);
+}
+.mp-trash:hover { background: rgba(220, 38, 38, 0.08); color: #b91c1c; }

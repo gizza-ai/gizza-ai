@@ -195,7 +195,7 @@ test('fetchHfPopularity: fetch error → returns cached, never throws', async ()
 import { applyFilters } from '../../site/model-picker.js';
 
 function DEFAULT_FILTERS_FOR_TEST() {
-    return { search: '', sizes: [], families: [], toolsOnly: false, visionOnly: false, sort: 'downloaded-popular' };
+    return { search: '', sizes: [], families: [], toolsOnly: false, visionOnly: false, favoritesOnly: false, sort: 'downloaded-popular' };
 }
 
 test('applyFilters: search narrows by name', () => {
@@ -217,4 +217,86 @@ test('applyFilters: downloaded-popular puts cached groups first', () => {
     assert.ok(cachedBase, 'fixture should contain at least one tool-capable group');
     const filtered = applyFilters(groups, DEFAULT_FILTERS_FOR_TEST(), {}, new Set([cachedBase]));
     assert.equal(filtered[0].base_id, cachedBase);
+});
+
+import { readPersistedFilters } from '../../site/model-picker.js';
+
+test('readPersistedFilters: legacy payload (no favoritesOnly) reads back with favoritesOnly:false', () => {
+    const localStorage = mockStorage();
+    localStorage.setItem('gizza:picker-filters', JSON.stringify({
+        sizes: ['small'],
+        families: ['Llama'],
+        toolsOnly: true,
+        visionOnly: false,
+        sort: 'az',
+    }));
+    const read = readPersistedFilters({ localStorage });
+    assert.equal(read.favoritesOnly, false, 'legacy payload should read back with favoritesOnly:false');
+    assert.equal(read.toolsOnly, true, 'existing fields should still merge through');
+    assert.equal(read.sort, 'az');
+});
+
+import { readPersistedFavorites, writePersistedFavorites } from '../../site/model-picker.js';
+
+test('writePersistedFavorites + readPersistedFavorites: round-trip via injected storage', () => {
+    const localStorage = mockStorage();
+    writePersistedFavorites(new Set(['Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct']), { localStorage });
+    const read = readPersistedFavorites({ localStorage });
+    assert.ok(read instanceof Set, 'readPersistedFavorites must return a Set');
+    assert.deepEqual([...read].sort(), ['Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct']);
+});
+
+test('readPersistedFavorites: missing key returns empty Set', () => {
+    const localStorage = mockStorage();
+    const read = readPersistedFavorites({ localStorage });
+    assert.ok(read instanceof Set);
+    assert.equal(read.size, 0);
+});
+
+test('readPersistedFavorites: corrupt JSON returns empty Set, no throw', () => {
+    const localStorage = mockStorage();
+    localStorage.setItem('gizza:picker-favorites', '{not json');
+    const read = readPersistedFavorites({ localStorage });
+    assert.ok(read instanceof Set);
+    assert.equal(read.size, 0);
+});
+
+test('applyFilters: favoritesOnly:true returns only favorited groups', () => {
+    const groups = groupModels(fixture);
+    assert.ok(groups.length >= 2, 'fixture should produce at least 2 groups');
+    const favBase = groups[0].base_id;
+    const filters = { ...DEFAULT_FILTERS_FOR_TEST(), favoritesOnly: true, sort: 'az' };
+    const filtered = applyFilters(groups, filters, {}, new Set(), new Set([favBase]));
+    assert.equal(filtered.length, 1, `expected 1 favorited group, got ${filtered.length}`);
+    assert.equal(filtered[0].base_id, favBase);
+});
+
+test('applyFilters: favoritesOnly:false ignores favorites set', () => {
+    const groups = groupModels(fixture);
+    const favBase = groups[0].base_id;
+    const filters = { ...DEFAULT_FILTERS_FOR_TEST(), sort: 'az' };
+    const filtered = applyFilters(groups, filters, {}, new Set(), new Set([favBase]));
+    assert.equal(filtered.length, groups.length, 'with favoritesOnly:false, all groups should survive the filter');
+});
+
+test('applyFilters: downloaded-popular puts favorites before cached, cached before neither', () => {
+    const groups = groupModels(fixture);
+    assert.ok(groups.length >= 3, 'fixture should produce at least 3 groups');
+    const [a, b, c] = groups;
+    const favBase = a.base_id;
+    const cachedBase = b.base_id;
+    const neitherBase = c.base_id;
+    const filtered = applyFilters(
+        groups,
+        DEFAULT_FILTERS_FOR_TEST(),
+        {},
+        new Set([cachedBase]),
+        new Set([favBase]),
+    );
+    const favIdx = filtered.findIndex((g) => g.base_id === favBase);
+    const cachedIdx = filtered.findIndex((g) => g.base_id === cachedBase);
+    const neitherIdx = filtered.findIndex((g) => g.base_id === neitherBase);
+    assert.ok(favIdx >= 0 && cachedIdx >= 0 && neitherIdx >= 0, 'all three groups must be in result');
+    assert.ok(favIdx < cachedIdx, `favorite (${favIdx}) should come before cached (${cachedIdx})`);
+    assert.ok(cachedIdx < neitherIdx, `cached (${cachedIdx}) should come before neither (${neitherIdx})`);
 });

@@ -236,6 +236,40 @@ export async function getCachedAndActive(baseModels, currentModelId = null) {
     return { cached, active: currentModelId };
 }
 
+/**
+ * Deletes every WebLLM-cached variant of `group` from OPFS.
+ *
+ * Iterates `group.variants` and calls `webllmDir.removeEntry(variant.id, { recursive: true })`
+ * on each. Each variant is removed independently — a partial cache cleans up cleanly
+ * because per-variant failures are caught and ignored. Failures (no OPFS, no `webllm/`
+ * directory, permission denied, missing entry) are silent — same defensive posture as
+ * `getCachedAndActive`.
+ *
+ * Caller is responsible for re-running `getCachedAndActive` after this resolves to
+ * refresh UI state.
+ */
+export async function deleteCachedModel(group) {
+    try {
+        const root = await navigator.storage?.getDirectory?.();
+        if (!root) return;
+        let webllmDir;
+        try {
+            webllmDir = await root.getDirectoryHandle('webllm');
+        } catch (_e) {
+            return;
+        }
+        for (const variant of group.variants) {
+            try {
+                await webllmDir.removeEntry(variant.id, { recursive: true });
+            } catch (_e) {
+                // missing or permission-denied — fall through, try the next variant
+            }
+        }
+    } catch (_e) {
+        // any unexpected failure → noop
+    }
+}
+
 const SIZE_TIERS = [
     { id: 'small', label: 'Small (<2 GB)', max_mb: 2048 },
     { id: 'medium', label: 'Medium (2–5 GB)', min_mb: 2048, max_mb: 5120 },
@@ -245,7 +279,7 @@ const SIZE_TIERS = [
 const FAMILY_CHIP_OPTIONS = ['Llama', 'Qwen', 'Phi', 'Hermes', 'Gemma', 'Mistral', 'Other'];
 
 const SORT_OPTIONS = [
-    { value: 'downloaded-popular', label: 'Already downloaded, then most popular' },
+    { value: 'downloaded-popular', label: 'Favorites, downloaded, then popular' },
     { value: 'popular', label: 'Most popular' },
     { value: 'smallest', label: 'Smallest first' },
     { value: 'largest', label: 'Largest first' },
@@ -307,19 +341,41 @@ function renderCard(group, ctx) {
                     group.has_tools ? el('span', { class: 'mp-badge tools' }, ['🔧 tools']) : null,
                     isCached && !isActive ? el('span', { class: 'mp-badge cached' }, ['✓ Downloaded']) : null,
                     isActive ? el('span', { class: 'mp-badge active' }, ['✓ Active']) : null,
+                    isCached && !isActive ? el('button', {
+                        type: 'button',
+                        class: 'mp-trash',
+                        'aria-label': `Delete cached ${group.base_id}`,
+                        title: 'Delete cached files',
+                        onClick: (e) => {
+                            e.stopPropagation();
+                            ctx.onDeleteCached?.(group);
+                        },
+                    }, ['🗑']) : null,
                 ]),
                 el('div', { class: 'mp-card-subtitle' }, [
                     [group.family, group.params_label].filter(Boolean).join(' · '),
                 ]),
             ]),
-            group.hf_url ? el('a', {
-                class: 'mp-card-link',
-                href: group.hf_url,
-                target: '_blank',
-                rel: 'noopener',
-                title: 'Open on HuggingFace',
-                onClick: (e) => e.stopPropagation(),
-            }, ['HF ↗']) : null,
+            el('div', { class: 'mp-card-actions' }, [
+                el('button', {
+                    type: 'button',
+                    class: `mp-star ${ctx.favorites?.has(group.base_id) ? 'active' : ''}`,
+                    'aria-label': ctx.favorites?.has(group.base_id) ? `Unfavorite ${group.base_id}` : `Favorite ${group.base_id}`,
+                    title: ctx.favorites?.has(group.base_id) ? 'Unfavorite' : 'Favorite',
+                    onClick: (e) => {
+                        e.stopPropagation();
+                        ctx.onFavoriteToggle?.(group.base_id);
+                    },
+                }, [ctx.favorites?.has(group.base_id) ? '★' : '☆']),
+                group.hf_url ? el('a', {
+                    class: 'mp-card-link',
+                    href: group.hf_url,
+                    target: '_blank',
+                    rel: 'noopener',
+                    title: 'Open on HuggingFace',
+                    onClick: (e) => e.stopPropagation(),
+                }, ['HF ↗']) : null,
+            ]),
         ]),
         el('div', { class: 'mp-card-stats' }, [
             el('span', {}, [el('strong', {}, [formatBytes(initialVariant?.vram_mb)])]),
@@ -405,6 +461,14 @@ export function renderPickerDom(ctx) {
             }),
             'Vision-capable',
         ]),
+        el('label', { class: 'mp-toggle' }, [
+            el('input', {
+                type: 'checkbox',
+                checked: ctx.filters.favoritesOnly ? true : false,
+                onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, favoritesOnly: e.target.checked }),
+            }),
+            '★ Favorites only',
+        ]),
         el('select', {
             class: 'mp-sort',
             onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, sort: e.target.value }),
@@ -436,6 +500,28 @@ export function renderPickerDom(ctx) {
 export { renderCard, smallestVramMb };
 
 const FILTERS_LS_KEY = 'gizza:picker-filters';
+const FAVORITES_LS_KEY = 'gizza:picker-favorites';
+
+export function readPersistedFavorites({ localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
+    try {
+        if (!storage) return new Set();
+        const raw = storage.getItem(FAVORITES_LS_KEY);
+        if (!raw) return new Set();
+        const parsed = JSON.parse(raw);
+        return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch (_e) {
+        return new Set();
+    }
+}
+
+export function writePersistedFavorites(favorites, { localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
+    try {
+        if (!storage) return;
+        storage.setItem(FAVORITES_LS_KEY, JSON.stringify([...favorites]));
+    } catch (_e) {
+        // ignore quota failures
+    }
+}
 
 const DEFAULT_FILTERS = {
     search: '',
@@ -443,12 +529,14 @@ const DEFAULT_FILTERS = {
     families: [],
     toolsOnly: false,
     visionOnly: false,
+    favoritesOnly: false,
     sort: 'downloaded-popular',
 };
 
-function readPersistedFilters() {
+export function readPersistedFilters({ localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
     try {
-        const raw = localStorage.getItem(FILTERS_LS_KEY);
+        if (!storage) return { ...DEFAULT_FILTERS };
+        const raw = storage.getItem(FILTERS_LS_KEY);
         if (!raw) return { ...DEFAULT_FILTERS };
         const parsed = JSON.parse(raw);
         return {
@@ -461,10 +549,11 @@ function readPersistedFilters() {
     }
 }
 
-function writePersistedFilters(filters) {
+export function writePersistedFilters(filters, { localStorage: storage = (typeof localStorage !== 'undefined' ? localStorage : null) } = {}) {
     try {
+        if (!storage) return;
         const { search: _drop, ...persistable } = filters;
-        localStorage.setItem(FILTERS_LS_KEY, JSON.stringify(persistable));
+        storage.setItem(FILTERS_LS_KEY, JSON.stringify(persistable));
     } catch (_e) {
         // ignore quota failures
     }
@@ -489,12 +578,13 @@ function sizeMatches(group, sizes) {
     });
 }
 
-export function applyFilters(groups, filters, popularity, cached) {
+export function applyFilters(groups, filters, popularity, cached, favorites = new Set()) {
     const search = filters.search.trim().toLowerCase();
     let filtered = groups.filter((g) => {
         if (search && !g.base_id.toLowerCase().includes(search) && !g.family.toLowerCase().includes(search)) return false;
         if (filters.toolsOnly && !g.has_tools) return false;
         if (filters.visionOnly && !g.has_vision) return false;
+        if (filters.favoritesOnly && !favorites.has(g.base_id)) return false;
         if (!familyMatches(g, filters.families)) return false;
         if (!sizeMatches(g, filters.sizes)) return false;
         return true;
@@ -519,6 +609,9 @@ export function applyFilters(groups, filters, popularity, cached) {
         case 'downloaded-popular':
         default:
             filtered.sort((a, b) => {
+                const af = favorites.has(a.base_id) ? 0 : 1;
+                const bf = favorites.has(b.base_id) ? 0 : 1;
+                if (af !== bf) return af - bf;
                 const ac = cached.has(a.base_id) ? 0 : 1;
                 const bc = cached.has(b.base_id) ? 0 : 1;
                 if (ac !== bc) return ac - bc;
@@ -590,10 +683,11 @@ export async function openPicker({
 
     let filters = readPersistedFilters();
     let selection = null; // { base_id, variant }
+    const favorites = readPersistedFavorites();
 
     return new Promise((resolve) => {
         const ctx = {
-            groups, popularity, cached, active, selection, filters,
+            groups, popularity, cached, active, selection, filters, favorites,
             onClose: () => close(null),
             onSelect: () => {},
             onLoad: () => {
@@ -605,13 +699,27 @@ export async function openPicker({
                 writePersistedFilters(filters);
                 rerenderGrid();
             },
+            onFavoriteToggle: (baseId) => {
+                if (favorites.has(baseId)) favorites.delete(baseId);
+                else favorites.add(baseId);
+                writePersistedFavorites(favorites);
+                rerenderGrid();
+            },
+            onDeleteCached: async (group) => {
+                if (!window.confirm(`Delete cached ${group.base_id}?`)) return;
+                await deleteCachedModel(group);
+                const refresh = await getCachedAndActive(groups, currentModelId);
+                cached.clear();
+                for (const id of refresh.cached) cached.add(id);
+                rerenderGrid();
+            },
         };
 
         const dom = renderPickerDom(ctx);
         document.body.appendChild(dom.dialog);
 
         function rerenderGrid() {
-            const filtered = applyFilters(groups, filters, popularity, cached);
+            const filtered = applyFilters(groups, filters, popularity, cached, favorites);
             dom.grid.innerHTML = '';
             if (filtered.length === 0) {
                 dom.grid.appendChild(el('div', { class: 'mp-empty' }, [
@@ -620,7 +728,11 @@ export async function openPicker({
                 ]));
             } else {
                 for (const g of filtered) {
-                    const card = renderCard(g, { cached, active, popularity, selection });
+                    const card = renderCard(g, {
+                        cached, active, popularity, selection, favorites,
+                        onFavoriteToggle: ctx.onFavoriteToggle,
+                        onDeleteCached: ctx.onDeleteCached,
+                    });
                     bindCardEvents(card, g);
                     dom.grid.appendChild(card);
                 }
