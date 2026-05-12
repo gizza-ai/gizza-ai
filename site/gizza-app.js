@@ -610,8 +610,13 @@ async function startModelLoad(modelId) {
 
 // --- Picker overlay integration ---
 
+// Start fetching the WebLLM module at page load so the first picker open
+// doesn't pay ~5MB of CDN download cost. By the time the user clicks the
+// brain icon, the promise has typically resolved and the await is a no-op.
+const _webllmModulePromise = import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.74/+esm');
+
 async function launchPicker() {
-    const mod = await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.74/+esm');
+    const mod = await _webllmModulePromise;
     const prebuiltList = mod?.prebuiltAppConfig?.model_list || [];
     const result = await openPicker({
         prebuiltList,
@@ -775,8 +780,14 @@ $('composer').addEventListener('submit', async (e) => {
             const reason = payload?.reason;
             const errText = payload?.error;
             if (reason === 'error') {
-                assistantText = `_(agent error: ${errText || 'unknown'})_`;
-                renderAssistantContent(assistantEl, assistantText);
+                if (errText && /no engine loaded/i.test(errText)) {
+                    assistantText = '_No model loaded — pick one first._';
+                    renderAssistantContent(assistantEl, assistantText);
+                    launchPicker();
+                } else {
+                    assistantText = `_(agent error: ${errText || 'unknown'})_`;
+                    renderAssistantContent(assistantEl, assistantText);
+                }
             } else if (reason === 'max_rounds_exceeded') {
                 if (!assistantText) {
                     assistantText = '_(stopped: max tool-use rounds exceeded)_';
