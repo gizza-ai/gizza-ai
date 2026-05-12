@@ -165,16 +165,24 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
     };
 
     // 2b. Build ToolDefinitions from registered skill blocks.
-    //     WebLLM rejects ChatCompletionRequest.tools for models that haven't
-    //     been fine-tuned for function calling — keep the list in sync with
-    //     site/model-picker.js's TOOL_SUPPORT_HINTS.
+    //     WebLLM 0.2.74 rejects ChatCompletionRequest.tools for any model
+    //     not on its short function-calling allowlist (UnsupportedModelIdError).
+    //     The 3 prefixes below cover all 5 currently-allowed variants:
+    //       Hermes-2-Pro-Llama-3-8B-{q4f16_1, q4f32_1}-MLC
+    //       Hermes-2-Pro-Mistral-7B-q4f16_1-MLC
+    //       Hermes-3-Llama-3.1-8B-{q4f32_1, q4f16_1}-MLC
+    //     Keep in sync with site/model-picker.js's TOOL_SUPPORT_HINTS.
     let model_id_for_tools = req
         .model_id
         .as_deref()
         .unwrap_or(MVP_MODEL_ID);
-    let model_supports_tools = ["Hermes-2", "Hermes-3", "Qwen2.5", "Llama-3-Groq", "functionary"]
-        .iter()
-        .any(|hint| model_id_for_tools.contains(hint));
+    let model_supports_tools = [
+        "Hermes-2-Pro-Llama-3-8B",
+        "Hermes-2-Pro-Mistral-7B",
+        "Hermes-3-Llama-3.1-8B",
+    ]
+    .iter()
+    .any(|hint| model_id_for_tools.contains(hint));
     let tools = if model_supports_tools {
         build_tools(&ctx.registered_blocks())
     } else {

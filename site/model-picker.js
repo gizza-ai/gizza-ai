@@ -29,7 +29,15 @@ const FAMILY_MAP = {
     snowflake: 'Snowflake',
 };
 
-const TOOL_SUPPORT_HINTS = ['Hermes-2', 'Hermes-3', 'Qwen2.5', 'Llama-3-Groq', 'functionary'];
+// WebLLM 0.2.74 only enables ChatCompletionRequest.tools on 3 model
+// families (5 total quant variants). Keep this list in lock-step with
+// src/blocks/agent.rs::model_supports_tools so the picker's 🔧 badge
+// matches what the agent will actually advertise to the LLM.
+const TOOL_SUPPORT_HINTS = [
+    'Hermes-2-Pro-Llama-3-8B',
+    'Hermes-2-Pro-Mistral-7B',
+    'Hermes-3-Llama-3.1-8B',
+];
 
 const QUALITY_LABELS = {
     'q0f16': { label: 'High quality', sublabel: 'q0f16' },

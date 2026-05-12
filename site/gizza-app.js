@@ -768,7 +768,24 @@ $('composer').addEventListener('submit', async (e) => {
                 renderToolAttachment(row, payload?.for_ui);
             }
         } else if (event === 'done') {
-            // Nothing to do — reader finished.
+            // Surface terminal errors and empty-stop states so the user
+            // isn't left staring at a blank bubble. Token paths overwrite
+            // assistantText already, so this only fires when nothing
+            // streamed in.
+            const reason = payload?.reason;
+            const errText = payload?.error;
+            if (reason === 'error') {
+                assistantText = `_(agent error: ${errText || 'unknown'})_`;
+                renderAssistantContent(assistantEl, assistantText);
+            } else if (reason === 'max_rounds_exceeded') {
+                if (!assistantText) {
+                    assistantText = '_(stopped: max tool-use rounds exceeded)_';
+                    renderAssistantContent(assistantEl, assistantText);
+                }
+            } else if (reason === 'stop' && !assistantText && toolRows.size === 0) {
+                assistantText = '_(model returned no content)_';
+                renderAssistantContent(assistantEl, assistantText);
+            }
         }
     }
 });
