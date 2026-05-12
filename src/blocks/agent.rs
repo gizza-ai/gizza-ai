@@ -27,13 +27,11 @@
 //!    `event: done` with `reason: "stop"` and terminate.
 
 use std::collections::HashMap;
-use std::time::Duration;
 
 use async_trait::async_trait;
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use futures::{pin_mut, StreamExt};
 use serde::Deserialize;
-use tokio::time::timeout;
 use wafer_block::{
     block::Block,
     common::ServiceOp,
@@ -47,9 +45,9 @@ use wafer_block::{
     types::{BlockInfo, SkillRole},
     Attachment,
 };
-use wafer_core::interfaces::llm::service::{
-    ChatContent, ChatMessage, ChatRequest, ChatRole, ChunkDelta, FinishReason, LlmError,
-    ToolCall as LlmToolCall, ToolDefinition,
+use wafer_core::clients::llm::{
+    ChatChunk, ChatContent, ChatMessage, ChatParams, ChatRequest, ChatRole, ChunkDelta,
+    FinishReason, ToolCall as LlmToolCall, ToolDefinition,
 };
 
 /// Maximum agent-loop rounds before giving up.
@@ -62,7 +60,6 @@ const MAX_ROUNDS: u32 = 5;
 /// capped the entire request. In practice both catch the same failure mode
 /// (GPU stall produces zero frames); a healthy stream emits tokens every
 /// ~0–1s and never approaches the budget.
-const STREAM_FRAME_TIMEOUT: Duration = Duration::from_secs(300);
 
 /// The agent block's own chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
@@ -168,7 +165,29 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
     };
 
     // 2b. Build ToolDefinitions from registered skill blocks.
-    let tools = build_tools(&ctx.registered_blocks());
+    //     WebLLM 0.2.74 rejects ChatCompletionRequest.tools for any model
+    //     not on its short function-calling allowlist (UnsupportedModelIdError).
+    //     The 3 prefixes below cover all 5 currently-allowed variants:
+    //       Hermes-2-Pro-Llama-3-8B-{q4f16_1, q4f32_1}-MLC
+    //       Hermes-2-Pro-Mistral-7B-q4f16_1-MLC
+    //       Hermes-3-Llama-3.1-8B-{q4f32_1, q4f16_1}-MLC
+    //     Keep in sync with site/model-picker.js's TOOL_SUPPORT_HINTS.
+    let model_id_for_tools = req
+        .model_id
+        .as_deref()
+        .unwrap_or(MVP_MODEL_ID);
+    let model_supports_tools = [
+        "Hermes-2-Pro-Llama-3-8B",
+        "Hermes-2-Pro-Mistral-7B",
+        "Hermes-3-Llama-3.1-8B",
+    ]
+    .iter()
+    .any(|hint| model_id_for_tools.contains(hint));
+    let tools = if model_supports_tools {
+        build_tools(&ctx.registered_blocks())
+    } else {
+        Vec::new()
+    };
 
     // 3. Compose conversation history: prior messages + new user turn.
     let mut history = req.messages;
@@ -275,35 +294,33 @@ async fn run_agent_loop(
             }
         }
 
-        // Build ChatRequest.
-        let mut req = ChatRequest::new("webllm", model_id, chat_messages);
-        req.tools = tools.clone();
+        // Build wire ChatRequest. Service types were dropped in the binary-
+        // transport migration; the runtime now expects MessagePack-encoded
+        // wire types via the codec, and `wafer_core::clients::llm::chat_stream`
+        // handles both ends of that for us.
+        let req = ChatRequest {
+            backend_id: "webllm".to_string(),
+            model: model_id.to_string(),
+            messages: chat_messages,
+            params: ChatParams::default(),
+            tools: tools.clone(),
+            extra: serde_json::Value::Null,
+        };
 
-        let body = match serde_json::to_vec(&req) {
-            Ok(b) => b,
+        // Stream chat completion frames via the typed client.
+        let mut stream = match wafer_core::clients::llm::chat_stream(ctx, &req).await {
+            Ok(s) => s,
             Err(e) => {
                 out.push_str(&encode_sse_event(
                     "done",
                     &serde_json::json!({
                         "reason": "error",
-                        "error": format!("serialize chat request: {e}"),
+                        "error": format!("chat_stream start failed: {e}"),
                     }),
                 ));
                 return out;
             }
         };
-
-        // Call wafer-run/llm.
-        let mut msg = Message::new(ServiceOp::LLM_CHAT);
-        msg.set_meta(META_REQ_ACTION, ServiceOp::LLM_CHAT);
-
-        let output = ctx
-            .call_block("wafer-run/llm", msg, InputStream::from_bytes(body))
-            .await;
-
-        // Process the streaming response.
-        let stream = output.body_stream();
-        pin_mut!(stream);
 
         // Accumulators for in-flight tool calls (keyed by call id).
         let mut accumulator: HashMap<String, ToolCallAccumulator> = HashMap::new();
@@ -313,24 +330,9 @@ async fn run_agent_loop(
         let mut round_error: Option<String> = None;
 
         'chunks: loop {
-            let frame = match timeout(STREAM_FRAME_TIMEOUT, stream.next()).await {
-                Err(_elapsed) => {
-                    round_error = Some("llm stream timed out".to_string());
-                    break 'chunks;
-                }
-                Ok(None) => break 'chunks,
-                Ok(Some(bytes)) => bytes,
-            };
-
-            let item = match serde_json::from_slice::<
-                Result<wafer_core::interfaces::llm::service::ChatChunk, LlmError>,
-            >(&frame)
-            {
-                Ok(item) => item,
-                Err(e) => {
-                    round_error = Some(format!("deserialize chat chunk: {e}"));
-                    break 'chunks;
-                }
+            let item: Result<ChatChunk, _> = match stream.next().await {
+                Some(item) => item,
+                None => break 'chunks,
             };
 
             match item {
@@ -770,11 +772,11 @@ fn build_tools(blocks: &[BlockInfo]) -> Vec<ToolDefinition> {
     blocks
         .iter()
         .filter_map(|info| match (&info.role, &info.tool) {
-            (Some(SkillRole::Skill), Some(tool)) => Some(ToolDefinition::new(
-                info.name.clone(),
-                tool.description.clone(),
-                tool.parameters.clone(),
-            )),
+            (Some(SkillRole::Skill), Some(tool)) => Some(ToolDefinition {
+                name: info.name.clone(),
+                description: tool.description.clone(),
+                parameters: tool.parameters.clone(),
+            }),
             _ => None,
         })
         .collect()
@@ -814,14 +816,18 @@ fn openai_json_to_chat_message(v: &serde_json::Value) -> Result<ChatMessage, Str
         .and_then(|x| x.as_str())
         .map(|s| s.to_string());
 
-    // tool role: use the dedicated constructor.
     if role == ChatRole::Tool {
         let id = tool_call_id.unwrap_or_default();
         let text = match &content {
             ChatContent::Text(t) => t.clone(),
             _ => String::new(),
         };
-        return Ok(ChatMessage::tool(id, text));
+        return Ok(ChatMessage {
+            role: ChatRole::Tool,
+            content: ChatContent::Text(text),
+            tool_call_id: Some(id),
+            tool_calls: Vec::new(),
+        });
     }
 
     // Parse tool_calls array (OpenAI format).
@@ -840,17 +846,22 @@ fn openai_json_to_chat_message(v: &serde_json::Value) -> Result<ChatMessage, Str
                         .and_then(|a| a.as_str())
                         .and_then(|s| serde_json::from_str::<serde_json::Value>(s).ok())
                         .unwrap_or(serde_json::Value::Object(serde_json::Map::new()));
-                    Some(LlmToolCall::new(id, name, arguments))
+                    Some(LlmToolCall {
+                        id,
+                        name,
+                        arguments,
+                    })
                 })
                 .collect()
         })
         .unwrap_or_default();
 
-    let mut msg = ChatMessage::new(role, content);
-    if !tool_calls.is_empty() {
-        msg = msg.with_tool_calls(tool_calls);
-    }
-    Ok(msg)
+    Ok(ChatMessage {
+        role,
+        content,
+        tool_call_id: None,
+        tool_calls,
+    })
 }
 
 // ---------------------------------------------------------------------------

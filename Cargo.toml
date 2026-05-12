@@ -56,9 +56,10 @@ serde_json = "1"
 getrandom = { version = "0.2", features = ["js"] }
 # uuid v4 needs a JS RNG source on wasm32
 uuid = { version = "1", features = ["v4", "js"] }
-# tokio time feature for per-frame stream timeouts in agent.rs.
-# The `time` feature compiles to wasm32 (uses JS timers under wasm-bindgen).
-tokio = { version = "1", features = ["time"], default-features = false }
+# JS-backed timer for per-frame stream timeouts in agent.rs.
+# tokio::time::timeout panics on wasm32-unknown-unknown because std::Instant
+# isn't supported there; gloo-timers wraps the JS setTimeout API instead.
+gloo-timers = { version = "0.3", features = ["futures"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt"] }

@@ -9,7 +9,7 @@ import {
     getPending,
     renderChips,
 } from './pending.js';
-import { loadEngine } from '/webllm-engine.js';
+import { loadEngine, unloadEngine } from '/webllm-engine.js';
 import { openPicker } from '/model-picker.js';
 
 const history = []; // OpenAI-format messages.
@@ -224,6 +224,146 @@ function setupUploads() {
 
 setupUploads();
 
+// --- Brand mascot state machine ---
+//
+// The mascot is a 3-layer composite: a still PNG (eyes-less), a video that
+// overlays it during animation, and pupil sprites that track the user's
+// cursor while a still is showing.
+//
+// Modes / poses:
+//   resting       — gis_no_eyes.png + pupils (boot state)
+//   video-idle    — gis_video_idle.mp4 (the "gis a job" reveal), no pupils
+//   sign          — gis_a_job_no_eyes.png + pupils (after idle animation)
+//   typing        — gis_video_typing_loop.mp4 looping, no pupils
+//   typing-finish — gis_video_typing_finish.mp4 (tail) once, no pupils
+//
+// Flow: resting → 10s no activity → video-idle → ended → sign (stays).
+// On composer submit: → typing. On finally: → typing-finish → ended → sign.
+const brandMascot = document.querySelector('.brand-mascot');
+if (brandMascot) {
+    const brandStill = brandMascot.querySelector('.brand-still');
+    const brandVideo = brandMascot.querySelector('.brand-video');
+    const eyes = brandMascot.querySelectorAll('.brand-eye');
+
+    const RESTING_SRC = '/gis_no_eyes.png';
+    const SIGN_SRC = '/gis_a_job_no_eyes.png';
+    const IDLE_VIDEO = '/gis_video_idle.mp4';
+    const TYPING_LOOP_SRC = '/gis_video_typing_loop.mp4';
+    const TYPING_FINISH_SRC = '/gis_video_typing_finish.mp4';
+    const IDLE_DELAY_MS = 10_000;
+
+    let brandMode = 'resting';
+    let idleTimer = null;
+
+    const absUrl = (rel) => new URL(rel, location.href).href;
+    const videoSrcIs = (rel) => brandVideo.currentSrc === absUrl(rel);
+
+    function clearIdleTimer() {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+    }
+
+    function showStill(src, pose) {
+        brandStill.src = src;
+        brandStill.hidden = false;
+        brandVideo.hidden = true;
+        try { brandVideo.pause(); } catch (_) {}
+        brandMascot.dataset.pose = pose;
+    }
+
+    function showVideo(src, { loop }) {
+        brandStill.hidden = true;
+        brandVideo.hidden = false;
+        brandVideo.loop = loop;
+        brandMascot.dataset.pose = 'video';
+        const start = () => {
+            try { brandVideo.currentTime = 0; } catch (_) {}
+            brandVideo.play().catch(() => {});
+        };
+        if (!videoSrcIs(src)) {
+            brandVideo.src = src;
+            brandVideo.addEventListener('loadedmetadata', start, { once: true });
+        } else {
+            start();
+        }
+    }
+
+    function enterResting() {
+        brandMode = 'resting';
+        showStill(RESTING_SRC, 'resting');
+        // After 10s of no activity, play the "gis a job" reveal video.
+        clearIdleTimer();
+        idleTimer = setTimeout(() => enterVideoIdle(), IDLE_DELAY_MS);
+    }
+
+    function enterVideoIdle() {
+        if (brandMode === 'typing' || brandMode === 'typing-finish') return;
+        brandMode = 'video-idle';
+        clearIdleTimer();
+        showVideo(IDLE_VIDEO, { loop: false });
+    }
+
+    function enterSign() {
+        brandMode = 'sign';
+        clearIdleTimer();
+        showStill(SIGN_SRC, 'sign');
+    }
+
+    function startTyping() {
+        clearIdleTimer();
+        brandMode = 'typing';
+        showVideo(TYPING_LOOP_SRC, { loop: true });
+    }
+
+    function stopTyping() {
+        if (brandMode !== 'typing') return;
+        brandMode = 'typing-finish';
+        showVideo(TYPING_FINISH_SRC, { loop: false });
+    }
+
+    brandVideo.addEventListener('ended', () => {
+        if (brandMode === 'video-idle' || brandMode === 'typing-finish') {
+            enterSign();
+        }
+    });
+
+    // ─── Pupil mouse-tracking ──────────────────────────────────────────────
+    // Each eye socket has overflow:hidden — the pupil image translates
+    // within its socket based on cursor angle/distance, mirroring the
+    // solobase-site Hero approach.
+    function onMouseMove(e) {
+        if (brandMascot.dataset.pose === 'video') return;
+        requestAnimationFrame(() => {
+            for (const eye of eyes) {
+                const socket = eye.parentElement;
+                const sr = socket.getBoundingClientRect();
+                const er = eye.getBoundingClientRect();
+                const cx = sr.left + sr.width / 2;
+                const cy = sr.top + sr.height / 2;
+                const dx = e.clientX - cx;
+                const dy = e.clientY - cy;
+                const angle = Math.atan2(dy, dx);
+                const distance = Math.hypot(dx, dy);
+                const maxX = (sr.width - er.width) / 2;
+                const maxY = (sr.height - er.height) / 2;
+                const scale = Math.min(distance / 200, 1);
+                const mx = Math.cos(angle) * maxX * scale;
+                const my = Math.sin(angle) * maxY * scale;
+                eye.style.transform = `translate(${mx}px, ${my}px)`;
+            }
+        });
+    }
+    function onMouseLeave() {
+        for (const eye of eyes) eye.style.transform = 'translate(0, 0)';
+    }
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseleave', onMouseLeave);
+
+    window.__brandStartTyping = startTyping;
+    window.__brandStopTyping = stopTyping;
+
+    enterResting();
+}
+
 // Progress card \u2014 created lazily inside the Settings dialog while the model
 // downloads. Holds the verbose stage message so the Load model button text
 // can stay short.
@@ -237,8 +377,18 @@ function setLoadProgress(text, percent, isError = false) {
         bar.appendChild(fill);
         card.appendChild(stage);
         card.appendChild(bar);
+        // Prefer to show progress inline in the chat surface so it's visible
+        // when the user kicked off the load from the empty-state CTA (the
+        // settings dialog is closed in that flow). Fall back to next-to the
+        // settings dialog's load button when the empty state has been
+        // dismissed.
+        const empty = document.querySelector('#messages .empty');
         const loadBtn = $('open-model-picker') || $('load-model');
-        if (loadBtn) loadBtn.parentNode.insertBefore(card, loadBtn);
+        if (empty) {
+            empty.replaceChildren(card);
+        } else if (loadBtn) {
+            loadBtn.parentNode.insertBefore(card, loadBtn);
+        }
     }
     card.querySelector('.progress-stage').textContent = text || '';
     const bar = card.querySelector('.progress-bar');
@@ -256,6 +406,12 @@ function setLoadProgress(text, percent, isError = false) {
 function clearLoadProgress() {
     const card = $('load-progress');
     if (card) card.remove();
+    // If the progress card had taken over the empty-state, swap in a
+    // ready-state hint so the chat surface isn't left blank.
+    const empty = document.querySelector('#messages .empty');
+    if (empty && empty.childElementCount === 0 && !empty.textContent.trim()) {
+        empty.textContent = 'Ready — ask anything below.';
+    }
 }
 
 // Pull a percent like "15% completed" out of the runtime's stage message.
@@ -266,7 +422,48 @@ function parsePercentFromStage(stage) {
 }
 
 // --- Settings dialog ---
-$('open-settings').addEventListener('click', () => $('settings').showModal());
+// ⋯ button → toggle popup menu anchored above the button.
+$('open-settings').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const menu = $('composer-menu');
+    const btn = $('open-settings');
+    if (!menu || !btn) return;
+    if (!menu.hidden) {
+        menu.hidden = true;
+        return;
+    }
+    const rect = btn.getBoundingClientRect();
+    menu.style.left = `${rect.left}px`;
+    menu.style.top  = `${rect.top - 4}px`;
+    menu.style.transform = 'translateY(-100%)';
+    menu.hidden = false;
+});
+// Click-outside closes the menu.
+document.addEventListener('click', (e) => {
+    const menu = $('composer-menu');
+    if (!menu || menu.hidden) return;
+    if (e.target.closest('#composer-menu') || e.target.closest('#open-settings')) return;
+    menu.hidden = true;
+});
+$('menu-info')?.addEventListener('click', () => {
+    $('composer-menu').hidden = true;
+    $('info-dialog')?.showModal();
+});
+$('menu-webgpu')?.addEventListener('click', () => {
+    $('composer-menu').hidden = true;
+    $('settings')?.showModal();
+});
+$('menu-discord')?.addEventListener('click', () => {
+    // Native <a target="_blank"> handles the navigation; we just close the menu.
+    $('composer-menu').hidden = true;
+});
+$('menu-clear')?.addEventListener('click', () => {
+    $('composer-menu').hidden = true;
+    $('clear-convo')?.click();
+});
+$('menu-close')?.addEventListener('click', () => {
+    $('composer-menu').hidden = true;
+});
 
 // --- Model picker ---
 //
@@ -421,6 +618,25 @@ async function launchPicker() {
         currentModelId: getCurrentEngineModelId(),
     });
     if (!result?.model_id) return;
+    if (result.mode === 'download') {
+        // Cache weights to IndexedDB without making this the active engine.
+        // Implemented as load-then-unload via the page-direct engine — keeps
+        // weights cached locally; existing _engine is replaced (single-slot
+        // WebGPU constraint).
+        setLoadProgress(`Downloading ${result.model_id}…`, null);
+        try {
+            await loadEngine(result.model_id, (text) => {
+                setLoadProgress(text || 'Downloading…', parsePercentFromStage(text));
+            });
+            await unloadEngine?.();
+            _loadedModelId = null;
+            setLoadProgress(`${result.model_id} cached.`, 100);
+            setTimeout(clearLoadProgress, 2000);
+        } catch (e) {
+            setLoadProgress(`Download failed: ${e?.message ?? e}`, null, true);
+        }
+        return;
+    }
     localStorage.setItem(SELECTED_MODEL_KEY, result.model_id);
     await startModelLoad(result.model_id);
 }
@@ -435,6 +651,12 @@ $('open-model-picker')?.addEventListener('click', async (e) => {
 // Empty-state CTA on the chat surface. The empty div is replaced after the user
 // clears a conversation — guard for the case where boot races with that path.
 $('empty-state-cta')?.addEventListener('click', () => launchPicker());
+
+// Composer brain icon — leftmost button, opens the model picker directly.
+$('open-brain-picker')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    launchPicker();
+});
 
 // --- Clear conversation ---
 $('clear-convo').addEventListener('click', () => {
@@ -454,6 +676,7 @@ $('composer').addEventListener('submit', async (e) => {
     input.value = '';
     $('send').disabled = true;
     input.disabled = true;
+    window.__brandStartTyping?.();
 
     let assistantText = '';
     const assistantEl = addAssistantBubble();
@@ -506,6 +729,7 @@ $('composer').addEventListener('submit', async (e) => {
     } catch (err) {
         assistantEl.textContent = `(error: ${err.message})`;
     } finally {
+        window.__brandStopTyping?.();
         input.disabled = false;
         $('send').disabled = false;
         input.focus();
@@ -544,7 +768,24 @@ $('composer').addEventListener('submit', async (e) => {
                 renderToolAttachment(row, payload?.for_ui);
             }
         } else if (event === 'done') {
-            // Nothing to do — reader finished.
+            // Surface terminal errors and empty-stop states so the user
+            // isn't left staring at a blank bubble. Token paths overwrite
+            // assistantText already, so this only fires when nothing
+            // streamed in.
+            const reason = payload?.reason;
+            const errText = payload?.error;
+            if (reason === 'error') {
+                assistantText = `_(agent error: ${errText || 'unknown'})_`;
+                renderAssistantContent(assistantEl, assistantText);
+            } else if (reason === 'max_rounds_exceeded') {
+                if (!assistantText) {
+                    assistantText = '_(stopped: max tool-use rounds exceeded)_';
+                    renderAssistantContent(assistantEl, assistantText);
+                }
+            } else if (reason === 'stop' && !assistantText && toolRows.size === 0) {
+                assistantText = '_(model returned no content)_';
+                renderAssistantContent(assistantEl, assistantText);
+            }
         }
     }
 });
