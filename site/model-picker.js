@@ -283,7 +283,10 @@ const SORT_OPTIONS = [
     { value: 'popular', label: 'Most popular' },
     { value: 'smallest', label: 'Smallest first' },
     { value: 'largest', label: 'Largest first' },
-    { value: 'az', label: 'A–Z' },
+    { value: 'az', label: 'Model A–Z' },
+    { value: 'za', label: 'Model Z–A' },
+    { value: 'provider-az', label: 'Provider A–Z' },
+    { value: 'provider-za', label: 'Provider Z–A' },
 ];
 
 function smallestVramMb(group) {
@@ -320,87 +323,127 @@ function formatDownloads(n) {
     return `${n} ↓`;
 }
 
-function renderCard(group, ctx) {
+function renderTableRow(group, ctx) {
     const initialVariant = ctx.selection?.base_id === group.base_id
         ? ctx.selection.variant
         : group.variants[Math.floor(group.variants.length / 2)] || group.variants[0];
     const isCached = ctx.cached.has(group.base_id);
     const isActive = group.variants.some((v) => v.id === ctx.active);
-    const popularity = group.variants
-        .map((v) => ctx.popularity[v.id]?.downloads || 0)
-        .reduce((a, b) => a + b, 0);
 
-    const card = el('div', {
-        class: ['mp-card', isActive ? 'active' : '', ctx.selection?.base_id === group.base_id ? 'selected' : ''].filter(Boolean).join(' '),
+    const tr = el('tr', {
+        class: ['mp-row', isActive ? 'is-active' : '', isCached && !isActive ? 'is-cached' : ''].filter(Boolean).join(' '),
         'data-base-id': group.base_id,
-    }, [
-        el('div', { class: 'mp-card-top' }, [
-            el('div', {}, [
-                el('div', { class: 'mp-card-title' }, [
-                    group.base_id,
-                    group.has_tools ? el('span', { class: 'mp-badge tools' }, ['🔧 tools']) : null,
-                    isCached && !isActive ? el('span', { class: 'mp-badge cached' }, ['✓ Downloaded']) : null,
-                    isActive ? el('span', { class: 'mp-badge active' }, ['✓ Active']) : null,
-                    isCached && !isActive ? el('button', {
-                        type: 'button',
-                        class: 'mp-trash',
-                        'aria-label': `Delete cached ${group.base_id}`,
-                        title: 'Delete cached files',
-                        onClick: (e) => {
-                            e.stopPropagation();
-                            ctx.onDeleteCached?.(group);
-                        },
-                    }, ['🗑']) : null,
-                ]),
-                el('div', { class: 'mp-card-subtitle' }, [
-                    [group.family, group.params_label].filter(Boolean).join(' · '),
-                ]),
-            ]),
-            el('div', { class: 'mp-card-actions' }, [
-                el('button', {
-                    type: 'button',
-                    class: `mp-star ${ctx.favorites?.has(group.base_id) ? 'active' : ''}`,
-                    'aria-label': ctx.favorites?.has(group.base_id) ? `Unfavorite ${group.base_id}` : `Favorite ${group.base_id}`,
-                    title: ctx.favorites?.has(group.base_id) ? 'Unfavorite' : 'Favorite',
-                    onClick: (e) => {
-                        e.stopPropagation();
-                        ctx.onFavoriteToggle?.(group.base_id);
-                    },
-                }, [ctx.favorites?.has(group.base_id) ? '★' : '☆']),
-                group.hf_url ? el('a', {
-                    class: 'mp-card-link',
-                    href: group.hf_url,
-                    target: '_blank',
-                    rel: 'noopener',
-                    title: 'Open on HuggingFace',
-                    onClick: (e) => e.stopPropagation(),
-                }, ['HF ↗']) : null,
-            ]),
+    });
+
+    // Model cell — name + HF link + favorite star + delete-cached trash
+    // (the last two preserved from the pre-rebase card layout, PR #42).
+    const isFav = ctx.favorites?.has(group.base_id);
+    const favoriteBtn = el('button', {
+        type: 'button',
+        class: `mp-star ${isFav ? 'active' : ''}`,
+        'aria-label': isFav ? `Unfavorite ${group.base_id}` : `Favorite ${group.base_id}`,
+        title: isFav ? 'Unfavorite' : 'Favorite',
+        onClick: (e) => {
+            e.stopPropagation();
+            ctx.onFavoriteToggle?.(group.base_id);
+        },
+    }, [isFav ? '★' : '☆']);
+    const trashBtn = isCached && !isActive ? el('button', {
+        type: 'button',
+        class: 'mp-trash',
+        'aria-label': `Delete cached ${group.base_id}`,
+        title: 'Delete cached files',
+        onClick: (e) => {
+            e.stopPropagation();
+            ctx.onDeleteCached?.(group);
+        },
+    }, ['🗑']) : null;
+    const modelCell = el('td', { class: 'mp-cell-model' }, [
+        el('div', { class: 'mp-cell-model-name' }, [
+            favoriteBtn,
+            group.base_id,
+            trashBtn,
         ]),
-        el('div', { class: 'mp-card-stats' }, [
-            el('span', {}, [el('strong', {}, [formatBytes(initialVariant?.vram_mb)])]),
-            popularity ? el('span', {}, [formatDownloads(popularity)]) : null,
-            group.ctx ? el('span', {}, [`${Math.round(group.ctx / 1024)}k ctx`]) : null,
+        el('div', { class: 'mp-cell-model-sub' }, [
+            [group.family, group.params_label].filter(Boolean).join(' · '),
+            group.hf_url ? el('a', {
+                class: 'mp-cell-hf-link',
+                href: group.hf_url,
+                target: '_blank',
+                rel: 'noopener',
+                title: 'Open on HuggingFace',
+                onClick: (e) => e.stopPropagation(),
+            }, [' · HF ↗']) : null,
         ]),
-        !isActive && group.variants.length > 1 ? renderQualityPicker(group, initialVariant) : null,
     ]);
-    return card;
+    tr.appendChild(modelCell);
+
+    // Provider.
+    tr.appendChild(el('td', { class: 'mp-cell-provider' }, [group.family || '—']));
+
+    // Variant dropdown.
+    const variantCell = el('td', { class: 'mp-cell-variant' });
+    variantCell.appendChild(renderQualityPicker(group, initialVariant));
+    tr.appendChild(variantCell);
+
+    // Size — updates when variant changes.
+    tr.appendChild(el('td', { class: 'mp-cell-size' }, [
+        el('strong', { class: 'mp-size-value' }, [formatBytes(initialVariant?.vram_mb)]),
+    ]));
+
+    // Capabilities — Tools, Vision (vision detection lives in group.has_vision if set).
+    const caps = el('td', { class: 'mp-cell-caps' });
+    if (group.has_tools) caps.appendChild(el('span', { class: 'mp-badge tools' }, ['🔧 tools']));
+    if (group.ctx) caps.appendChild(el('span', { class: 'mp-badge ctx' }, [`${Math.round(group.ctx / 1024)}k ctx`]));
+    tr.appendChild(caps);
+
+    // Status.
+    let statusText, statusClass;
+    if (isActive) { statusText = '✓ Loaded'; statusClass = 'is-loaded'; }
+    else if (isCached) { statusText = '✓ Cached'; statusClass = 'is-cached'; }
+    else { statusText = '—'; statusClass = 'is-empty'; }
+    tr.appendChild(el('td', { class: `mp-cell-status ${statusClass}` }, [statusText]));
+
+    // Actions — Download + Load buttons.
+    const actionCell = el('td', { class: 'mp-cell-actions' });
+    const downloadBtn = el('button', {
+        class: 'mp-action-btn mp-download-btn',
+        type: 'button',
+        disabled: isCached || isActive ? '' : undefined,
+        title: isCached ? 'Already cached' : 'Download weights to browser cache',
+    }, [isCached || isActive ? 'Cached' : 'Download']);
+    const loadBtn = el('button', {
+        class: 'mp-action-btn mp-load-btn primary',
+        type: 'button',
+        disabled: isActive ? '' : undefined,
+        title: isActive ? 'Currently active' : 'Make this the active chat model',
+    }, [isActive ? 'Loaded' : 'Load']);
+    actionCell.appendChild(downloadBtn);
+    actionCell.appendChild(loadBtn);
+    tr.appendChild(actionCell);
+
+    return tr;
 }
 
 function renderQualityPicker(group, initialVariant) {
+    // Single dropdown replaces the dense variant-pill row. Each option
+    // includes the quality label + its quantization sublabel so users can
+    // still tell variants apart without four side-by-side buttons.
     const wrap = el('div', { class: 'mp-quality' });
+    const select = el('select', {
+        class: 'mp-quality-select',
+        'aria-label': 'Variant',
+        onClick: (e) => e.stopPropagation(),
+    });
     for (const v of group.variants) {
-        const btn = el('button', {
-            type: 'button',
-            class: v.id === initialVariant?.id ? 'selected' : '',
+        const opt = el('option', {
+            value: v.id,
             'data-variant-id': v.id,
-            onClick: (e) => e.stopPropagation(),
-        }, [
-            v.label,
-            el('span', { class: 'mp-quality-sub' }, [v.sublabel]),
-        ]);
-        wrap.appendChild(btn);
+            selected: v.id === initialVariant?.id ? '' : undefined,
+        }, [`${v.label} (${v.sublabel})`]);
+        select.appendChild(opt);
     }
+    wrap.appendChild(select);
     return wrap;
 }
 
@@ -423,28 +466,44 @@ export function renderPickerDom(ctx) {
             'aria-label': 'Search models',
             onInput: (e) => ctx.onFiltersChange({ ...ctx.filters, search: e.target.value }),
         }),
-        el('div', { class: 'mp-chip-group', 'aria-label': 'Size filter' }, SIZE_TIERS.map((tier) =>
-            el('button', {
-                type: 'button',
-                class: `mp-chip ${ctx.filters.sizes.includes(tier.id) ? 'active' : ''}`,
-                onClick: () => {
-                    const next = ctx.filters.sizes.includes(tier.id)
-                        ? ctx.filters.sizes.filter((x) => x !== tier.id)
-                        : [...ctx.filters.sizes, tier.id];
-                    ctx.onFiltersChange({ ...ctx.filters, sizes: next });
-                },
-            }, [tier.label]))),
-        el('div', { class: 'mp-chip-group', 'aria-label': 'Family filter' }, FAMILY_CHIP_OPTIONS.map((fam) =>
-            el('button', {
-                type: 'button',
-                class: `mp-chip ${ctx.filters.families.includes(fam) ? 'active' : ''}`,
-                onClick: () => {
-                    const next = ctx.filters.families.includes(fam)
-                        ? ctx.filters.families.filter((x) => x !== fam)
-                        : [...ctx.filters.families, fam];
-                    ctx.onFiltersChange({ ...ctx.filters, families: next });
-                },
-            }, [fam]))),
+        el('select', {
+            class: 'mp-filter-select',
+            'aria-label': 'Size filter',
+            onChange: (e) => {
+                const v = e.target.value;
+                ctx.onFiltersChange({ ...ctx.filters, sizes: v ? [v] : [] });
+            },
+        }, [
+            (() => {
+                const o = el('option', { value: '' }, ['All sizes']);
+                if (ctx.filters.sizes.length === 0) o.selected = true;
+                return o;
+            })(),
+            ...SIZE_TIERS.map((tier) => {
+                const o = el('option', { value: tier.id }, [tier.label]);
+                if (ctx.filters.sizes[0] === tier.id) o.selected = true;
+                return o;
+            }),
+        ]),
+        el('select', {
+            class: 'mp-filter-select',
+            'aria-label': 'Provider filter',
+            onChange: (e) => {
+                const v = e.target.value;
+                ctx.onFiltersChange({ ...ctx.filters, families: v ? [v] : [] });
+            },
+        }, [
+            (() => {
+                const o = el('option', { value: '' }, ['All providers']);
+                if (ctx.filters.families.length === 0) o.selected = true;
+                return o;
+            })(),
+            ...FAMILY_CHIP_OPTIONS.map((fam) => {
+                const o = el('option', { value: fam }, [fam]);
+                if (ctx.filters.families[0] === fam) o.selected = true;
+                return o;
+            }),
+        ]),
         el('label', { class: 'mp-toggle' }, [
             el('input', {
                 type: 'checkbox',
@@ -480,24 +539,84 @@ export function renderPickerDom(ctx) {
         el('div', { class: 'mp-result-count', 'data-result-count': true }, []),
     ]);
 
-    // Grid
-    const grid = el('div', { class: 'mp-grid' });
-    const gridWrap = el('div', { class: 'mp-grid-wrap' }, [grid]);
+    // Table — clickable headers toggle ascending/descending sort for that
+    // column. The Sort dropdown (in the filter row) still works as the
+    // canonical control; clicking a header just swaps `filters.sort` to the
+    // matching value.
+    const sortHeader = (label, asc, desc) => {
+        const isActive = ctx.filters.sort === asc || ctx.filters.sort === desc;
+        const indicator = ctx.filters.sort === asc ? ' ▲'
+            : ctx.filters.sort === desc ? ' ▼'
+            : '';
+        const th = el('th', {
+            class: `mp-th-sortable ${isActive ? 'is-active' : ''}`,
+            role: 'button',
+            tabindex: '0',
+            onClick: () => {
+                const next = ctx.filters.sort === asc ? desc : asc;
+                ctx.onFiltersChange({ ...ctx.filters, sort: next });
+            },
+        }, [label + indicator]);
+        return th;
+    };
+    const thead = el('thead', {}, [
+        el('tr', {}, [
+            sortHeader('Model', 'az', 'za'),
+            sortHeader('Provider', 'provider-az', 'provider-za'),
+            el('th', { class: 'mp-th-variant' }, ['Variant']),
+            sortHeader('Size', 'smallest', 'largest'),
+            el('th', { class: 'mp-th-caps' }, ['Capabilities']),
+            el('th', { class: 'mp-th-status' }, ['Status']),
+            el('th', { class: 'mp-th-actions' }, ['Actions']),
+        ]),
+    ]);
+    const tbody = el('tbody', { class: 'mp-tbody' });
+    const table = el('table', { class: 'mp-table' }, [thead, tbody]);
+    const tableWrap = el('div', { class: 'mp-table-wrap' }, [table]);
 
-    // Footer
-    const summaryEl = el('div', { class: 'mp-footer-summary placeholder' }, ['Pick a model to continue.']);
-    const loadBtn = el('button', { class: 'primary', type: 'button', disabled: true, onClick: ctx.onLoad }, ['Load model']);
-    const footer = el('div', { class: 'mp-footer' }, [summaryEl, loadBtn]);
+    // Footer dropped — per-row Download/Load buttons replace the global one,
+    // and the header's ✕ provides the cancel path.
 
     dialog.appendChild(header);
     dialog.appendChild(filtersEl);
-    dialog.appendChild(gridWrap);
-    dialog.appendChild(footer);
+    dialog.appendChild(tableWrap);
 
-    return { dialog, grid, summaryEl, loadBtn, filtersEl };
+    // `grid` field aliases tbody for back-compat with rerenderGrid logic;
+    // `loadBtn`/`summaryEl` retained as null so legacy destructuring doesn't crash.
+    return { dialog, grid: tbody, thead, summaryEl: null, loadBtn: null, filtersEl };
 }
 
-export { renderCard, smallestVramMb };
+/** Rebuild the thead in place so the active-sort indicator (▲/▼) tracks
+ *  `ctx.filters.sort`. Called from openPicker's onFiltersChange. */
+export function rerenderTableHeader(thead, ctx) {
+    if (!thead) return;
+    const sortHeader = (label, asc, desc) => {
+        const isActive = ctx.filters.sort === asc || ctx.filters.sort === desc;
+        const indicator = ctx.filters.sort === asc ? ' ▲'
+            : ctx.filters.sort === desc ? ' ▼'
+            : '';
+        return el('th', {
+            class: `mp-th-sortable ${isActive ? 'is-active' : ''}`,
+            role: 'button',
+            tabindex: '0',
+            onClick: () => {
+                const next = ctx.filters.sort === asc ? desc : asc;
+                ctx.onFiltersChange({ ...ctx.filters, sort: next });
+            },
+        }, [label + indicator]);
+    };
+    thead.replaceChildren(el('tr', {}, [
+        sortHeader('Model', 'az', 'za'),
+        sortHeader('Provider', 'provider-az', 'provider-za'),
+        el('th', { class: 'mp-th-variant' }, ['Variant']),
+        sortHeader('Size', 'smallest', 'largest'),
+        el('th', { class: 'mp-th-caps' }, ['Capabilities']),
+        el('th', { class: 'mp-th-status' }, ['Status']),
+        el('th', { class: 'mp-th-actions' }, ['Actions']),
+    ]));
+}
+
+export { renderTableRow as renderCard, smallestVramMb };
 
 const FILTERS_LS_KEY = 'gizza:picker-filters';
 const FAVORITES_LS_KEY = 'gizza:picker-favorites';
@@ -606,6 +725,15 @@ export function applyFilters(groups, filters, popularity, cached, favorites = ne
         case 'az':
             filtered.sort((a, b) => a.base_id.localeCompare(b.base_id));
             break;
+        case 'za':
+            filtered.sort((a, b) => b.base_id.localeCompare(a.base_id));
+            break;
+        case 'provider-az':
+            filtered.sort((a, b) => (a.family || '').localeCompare(b.family || ''));
+            break;
+        case 'provider-za':
+            filtered.sort((a, b) => (b.family || '').localeCompare(a.family || ''));
+            break;
         case 'downloaded-popular':
         default:
             filtered.sort((a, b) => {
@@ -696,7 +824,12 @@ export async function openPicker({
             },
             onFiltersChange: (next) => {
                 filters = next;
+                // Keep ctx.filters live so per-render closures (e.g. the
+                // sortable header click handler) read fresh state on each
+                // click instead of the value captured at first render.
+                ctx.filters = filters;
                 writePersistedFilters(filters);
+                rerenderHeader();
                 rerenderGrid();
             },
             onFavoriteToggle: (baseId) => {
@@ -722,19 +855,20 @@ export async function openPicker({
             const filtered = applyFilters(groups, filters, popularity, cached, favorites);
             dom.grid.innerHTML = '';
             if (filtered.length === 0) {
-                dom.grid.appendChild(el('div', { class: 'mp-empty' }, [
+                const emptyRow = el('tr', {}, [el('td', { colspan: '7', class: 'mp-empty' }, [
                     'No models match these filters · ',
                     el('a', { onClick: clearFilters }, ['Clear filters']),
-                ]));
+                ])]);
+                dom.grid.appendChild(emptyRow);
             } else {
                 for (const g of filtered) {
-                    const card = renderCard(g, {
+                    const row = renderTableRow(g, {
                         cached, active, popularity, selection, favorites,
                         onFavoriteToggle: ctx.onFavoriteToggle,
                         onDeleteCached: ctx.onDeleteCached,
                     });
-                    bindCardEvents(card, g);
-                    dom.grid.appendChild(card);
+                    bindCardEvents(row, g);
+                    dom.grid.appendChild(row);
                 }
             }
             updateResultCount(dom.filtersEl, groups.length, filtered.length, clearFilters);
@@ -742,6 +876,7 @@ export async function openPicker({
 
         function clearFilters() {
             filters = { ...DEFAULT_FILTERS };
+            ctx.filters = filters;
             writePersistedFilters(filters);
             // Reset filter UI by re-rendering the dialog from scratch is heavy;
             // simpler: replace the dialog contents.
@@ -749,56 +884,44 @@ export async function openPicker({
             dom.dialog.replaceChildren(...newDom.dialog.children);
             // Rebind references to the new DOM
             dom.grid = newDom.grid;
+            dom.thead = newDom.thead;
             dom.summaryEl = newDom.summaryEl;
             dom.loadBtn = newDom.loadBtn;
             dom.filtersEl = newDom.filtersEl;
             // Reset selection
             selection = null;
             ctx.selection = null;
-            setSummaryPlaceholder(dom.summaryEl);
-            dom.loadBtn.disabled = true;
             rerenderGrid();
         }
 
-        function bindCardEvents(card, group) {
-            const variantBtns = card.querySelectorAll('.mp-quality button');
-            // Pick the variant currently shown as selected (the "Balanced" middle one)
-            let currentVariant = null;
-            for (const btn of variantBtns) {
-                if (btn.classList.contains('selected')) {
-                    currentVariant = group.variants.find((v) => v.id === btn.dataset.variantId);
-                    break;
-                }
-            }
-            if (!currentVariant) currentVariant = group.variants[Math.floor(group.variants.length / 2)] || group.variants[0];
+        function rerenderHeader() {
+            rerenderTableHeader(dom.thead, ctx);
+        }
 
-            for (const btn of variantBtns) {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    for (const b of variantBtns) b.classList.remove('selected');
-                    btn.classList.add('selected');
-                    currentVariant = group.variants.find((v) => v.id === btn.dataset.variantId);
-                    // Update size in stats row
-                    const stats = card.querySelector('.mp-card-stats strong');
-                    if (stats) stats.textContent = formatBytes(currentVariant.vram_mb);
-                    // If this card is the selected one, update footer
-                    if (selection?.base_id === group.base_id) {
-                        selection = { base_id: group.base_id, variant: currentVariant };
-                        ctx.selection = selection;
-                        setSummary(dom.summaryEl, group, currentVariant, popularity);
-                    }
-                });
-            }
+        function bindCardEvents(row, group) {
+            const select = row.querySelector('.mp-quality-select');
+            let currentVariant = group.variants.find((v) => v.id === select?.value)
+                || group.variants[Math.floor(group.variants.length / 2)]
+                || group.variants[0];
 
-            card.addEventListener('click', () => {
-                if (card.classList.contains('active')) return;
-                // Clear other selections
-                for (const c of dom.grid.querySelectorAll('.mp-card.selected')) c.classList.remove('selected');
-                card.classList.add('selected');
+            select?.addEventListener('change', () => {
+                currentVariant = group.variants.find((v) => v.id === select.value) || currentVariant;
+                const sizeEl = row.querySelector('.mp-size-value');
+                if (sizeEl) sizeEl.textContent = formatBytes(currentVariant.vram_mb);
+            });
+
+            const downloadBtn = row.querySelector('.mp-download-btn');
+            downloadBtn?.addEventListener('click', () => {
                 selection = { base_id: group.base_id, variant: currentVariant };
                 ctx.selection = selection;
-                setSummary(dom.summaryEl, group, currentVariant, popularity);
-                dom.loadBtn.disabled = false;
+                close({ model_id: currentVariant.id, mode: 'download' });
+            });
+
+            const loadBtn = row.querySelector('.mp-load-btn');
+            loadBtn?.addEventListener('click', () => {
+                selection = { base_id: group.base_id, variant: currentVariant };
+                ctx.selection = selection;
+                close({ model_id: currentVariant.id, mode: 'load' });
             });
         }
 

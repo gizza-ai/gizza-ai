@@ -16,6 +16,15 @@ dialog#model-picker {
     color: var(--color-ink);
     display: flex;
     flex-direction: column;
+    /* Consistent brand voice — Itim throughout the picker, including
+     * native form controls (input, select) which otherwise inherit
+     * the UA's default sans. */
+    font-family: var(--font-display);
+}
+dialog#model-picker input,
+dialog#model-picker select,
+dialog#model-picker button {
+    font-family: var(--font-display);
 }
 dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
 
@@ -74,23 +83,28 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
 }
 .mp-search:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 
-.mp-chip-group { display: flex; gap: 4px; flex-wrap: wrap; }
-.mp-chip {
-    padding: 6px 12px;
-    font-size: 12px;
+.mp-filter-select {
+    padding: 6px 28px 6px 12px;
+    font-size: 13px;
     font-family: var(--font-display);
-    background: var(--color-surface-card);
+    background-color: var(--color-surface-card);
+    background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+                      linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+    background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
     border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-md);
     color: var(--color-ink);
-    border-radius: var(--radius-pill);
     cursor: pointer;
-    transition: background 120ms ease, border-color 120ms ease;
+    appearance: none;
+    -webkit-appearance: none;
+    min-width: 140px;
 }
-.mp-chip:hover { border-color: var(--color-ink); }
-.mp-chip.active {
-    background: var(--color-primary);
+.mp-filter-select:hover { border-color: var(--color-ink); }
+.mp-filter-select:focus {
+    outline: none;
     border-color: var(--color-primary);
-    color: var(--color-on-primary);
 }
 
 .mp-toggle {
@@ -129,24 +143,113 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
 }
 .mp-result-count a:hover { text-decoration: underline; }
 
-/* ─── Card grid ────────────────────────────────────────────────────────── */
-.mp-grid-wrap {
+/* ─── Table layout ─────────────────────────────────────────────────────── */
+.mp-table-wrap {
     flex: 1 1 auto;
     overflow-y: auto;
     padding: var(--space-lg);
 }
-.mp-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-base);
-    max-width: 1200px;
+.mp-table {
+    width: 100%;
+    max-width: 1280px;
     margin: 0 auto;
+    border-collapse: collapse;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    font-size: 13px;
 }
-@media (max-width: 960px) { .mp-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px) { .mp-grid { grid-template-columns: 1fr; } }
+.mp-table thead {
+    background: var(--color-canvas-soft);
+}
+.mp-table th {
+    text-align: left;
+    padding: var(--space-sm) var(--space-base);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-hairline);
+    user-select: none;
+}
+.mp-th-sortable {
+    cursor: pointer;
+    transition: color 120ms ease;
+}
+.mp-th-sortable:hover { color: var(--color-ink); }
+.mp-th-sortable.is-active { color: var(--color-ink); }
+.mp-table td {
+    padding: var(--space-sm) var(--space-base);
+    border-bottom: 1px solid var(--color-hairline-soft);
+    vertical-align: middle;
+}
+.mp-row:hover {
+    background: var(--color-canvas-soft);
+}
+.mp-row.is-active {
+    background: #fff7f1;
+}
+.mp-row:last-child td { border-bottom: none; }
+
+.mp-cell-model-name {
+    font-weight: 500;
+    color: var(--color-ink);
+}
+.mp-cell-model-sub {
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-top: 2px;
+}
+.mp-cell-hf-link {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+.mp-cell-hf-link:hover { text-decoration: underline; }
+.mp-cell-provider { color: var(--color-body); }
+.mp-cell-size strong { font-weight: 500; color: var(--color-ink); }
+.mp-cell-status.is-loaded { color: #065f46; font-weight: 500; }
+.mp-cell-status.is-cached { color: var(--color-body); }
+.mp-cell-status.is-empty  { color: var(--color-muted-soft); }
+.mp-cell-caps { white-space: nowrap; }
+
+.mp-cell-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+.mp-action-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+}
+.mp-action-btn:hover:not(:disabled) { border-color: var(--color-ink); }
+.mp-action-btn:disabled {
+    color: var(--color-muted-soft);
+    cursor: default;
+    background: var(--color-canvas-soft);
+}
+.mp-action-btn.primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+.mp-action-btn.primary:hover:not(:disabled) { background: var(--color-primary-active); border-color: var(--color-primary-active); }
+.mp-action-btn.primary:disabled {
+    background: var(--color-canvas-soft);
+    border-color: var(--color-hairline-strong);
+    color: var(--color-muted-soft);
+}
 
 .mp-empty {
-    grid-column: 1 / -1;
     text-align: center;
     padding: var(--space-xxl) 0;
     color: var(--color-muted);
@@ -154,99 +257,47 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
 }
 .mp-empty a { color: var(--color-primary); cursor: pointer; }
 
-/* ─── Card ─────────────────────────────────────────────────────────────── */
-.mp-card {
-    background: var(--color-surface-card);
-    border: 1px solid var(--color-hairline-strong);
-    border-radius: var(--radius-lg);
-    padding: var(--space-base);
-    cursor: pointer;
-    position: relative;
-    transition: border-color 120ms ease, background 120ms ease;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-}
-.mp-card:hover { border-color: var(--color-ink); }
-.mp-card.selected {
-    border-color: var(--color-primary);
-    background: #fff7f1;
-}
-.mp-card.active {
-    border-color: var(--color-primary);
-    cursor: default;
-}
-.mp-card.active:hover { border-color: var(--color-primary); }
-
-.mp-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-sm); }
-.mp-card-title { font-size: 14px; font-weight: 500; color: var(--color-ink); line-height: 1.3; }
-.mp-card-subtitle { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
-.mp-card-link {
-    color: var(--color-primary);
-    text-decoration: none;
-    font-size: 12px;
-    flex-shrink: 0;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-}
-.mp-card-link:hover { background: rgba(245, 78, 0, 0.08); text-decoration: underline; }
-
 .mp-badge {
     display: inline-block;
     font-size: 10px;
     padding: 2px 6px;
     border-radius: var(--radius-pill);
-    margin-left: 6px;
-    vertical-align: 1px;
+    margin-right: 4px;
     font-weight: 500;
 }
 .mp-badge.tools { background: #fff7ed; color: #c2410c; }
+.mp-badge.ctx { background: var(--color-canvas-soft); color: var(--color-body); }
 .mp-badge.cached { background: #ecfdf5; color: #065f46; }
 .mp-badge.active { background: var(--color-primary); color: var(--color-on-primary); }
 
-.mp-card-stats {
-    display: flex;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    font-size: 12px;
-    color: var(--color-body);
-}
-.mp-card-stats strong { color: var(--color-ink); font-weight: 500; }
-
-/* ─── Quality picker (segmented buttons inside the card) ───────────────── */
+/* ─── Quality picker (single dropdown inside the card) ─────────────────── */
 .mp-quality {
     display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
 }
-.mp-quality button {
-    flex: 1 1 0;
-    min-width: 70px;
-    padding: 6px 8px;
+.mp-quality-select {
+    width: 100%;
+    padding: 8px 32px 8px 10px;
     font-family: var(--font-display);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 500;
-    background: var(--color-canvas-soft);
+    background-color: var(--color-canvas-soft);
+    background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+                      linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
     border: 1px solid var(--color-hairline-strong);
     border-radius: var(--radius-sm);
     cursor: pointer;
     color: var(--color-ink);
-    text-align: center;
     line-height: 1.2;
+    appearance: none;
+    -webkit-appearance: none;
 }
-.mp-quality button:hover { border-color: var(--color-ink); }
-.mp-quality button.selected {
-    background: var(--color-primary);
+.mp-quality-select:hover { border-color: var(--color-ink); }
+.mp-quality-select:focus {
+    outline: none;
     border-color: var(--color-primary);
-    color: var(--color-on-primary);
-}
-.mp-quality button .mp-quality-sub {
-    display: block;
-    font-size: 9px;
-    font-weight: 400;
-    opacity: 0.7;
-    margin-top: 1px;
-    font-family: var(--font-mono);
 }
 
 /* ─── Sticky footer ────────────────────────────────────────────────────────── */

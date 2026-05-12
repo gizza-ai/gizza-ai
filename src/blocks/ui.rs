@@ -106,36 +106,81 @@ fn render_chat() -> maud::Markup {
             body {
                 sa-header {
                     a slot="brand" href="/" class="brand" {
-                        img src="/gis.png" alt="" class="brand-logo";
+                        div class="brand-logo brand-mascot" data-pose="resting" {
+                            img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="";
+                            video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden {}
+                            div class="brand-eyes" aria-hidden="true" {
+                                div class="brand-eye-socket brand-eye-left" {
+                                    img class="brand-eye" src="/eye.png" alt="";
+                                }
+                                div class="brand-eye-socket brand-eye-right" {
+                                    img class="brand-eye" src="/eye.png" alt="";
+                                }
+                            }
+                        }
                         h1 { "gizza-ai" }
                     }
-                    // Empty button — gizza.css draws the Lucide `settings` icon
+                    // Empty button — gizza.css draws a three-dot horizontal icon
                     // via `::before { mask-image }` once the button lands in the
-                    // composer. No textContent needed (was an emoji placeholder).
-                    button slot="actions" id="open-settings" type="button" aria-label="Settings" {}
+                    // composer. Clicking it opens the composer popup menu.
+                    button slot="actions" id="open-settings" type="button" aria-label="Menu" {}
                 }
                 sa-chat {
                     div slot="messages" id="messages" {
                         div class="empty" {
-                            button id="empty-state-cta" type="button" class="empty-state-cta" { "Choose a model" }
+                            span class="empty-msg" {
+                                "I can't do much without a brain, please "
+                                button id="empty-state-cta" type="button" class="empty-state-link" { "choose a model" }
+                                "."
+                            }
                         }
                     }
                     form slot="composer" id="composer" autocomplete="off" {
                         div id="upload-chips" class="upload-chips empty" {}
                         textarea id="user-input" name="user_message" placeholder="Ask anything…" rows="2" {}
+                        button id="open-brain-picker" type="button" aria-label="Choose model" title="Choose model" {}
                         button id="attach" type="button" aria-label="Attach file" title="Attach image or video" {}
                         button id="send" type="submit" disabled { "Send" }
                         input id="file-picker" type="file" accept="image/*,video/*" multiple style="display:none;";
                     }
                 }
+                // Composer popup menu — positioned near the ⋮ button by JS.
+                div id="composer-menu" role="menu" hidden {
+                    button id="menu-info" type="button" role="menuitem" { "Info" }
+                    button id="menu-webgpu" type="button" role="menuitem" { "WebGPU help" }
+                    a id="menu-discord" role="menuitem" href="https://discord.gg/jKqMcbrVzm" target="_blank" rel="noopener" { "Join Discord" }
+                    button id="menu-clear" type="button" role="menuitem" { "Clear conversation" }
+                    button id="menu-close" type="button" role="menuitem" { "Close" }
+                }
+                // About / Info modal.
+                dialog id="info-dialog" {
+                    form method="dialog" {
+                        h2 { "About gizza.ai" }
+                        p {
+                            "gizza.ai is a browser-local AI chat. All inference runs on "
+                            "your device via WebGPU + WebAssembly — your conversations "
+                            "never leave your browser."
+                        }
+                        p class="help" {
+                            "Source on GitHub: "
+                            a href="https://github.com/gizza-ai/gizza-ai" target="_blank" rel="noopener" {
+                                "github.com/gizza-ai/gizza-ai"
+                            }
+                        }
+                        button value="close" { "Close" }
+                    }
+                }
                 dialog id="settings" {
                     form method="dialog" {
-                        h2 { "Settings" }
+                        h2 { "WebGPU help" }
 
-                        // WebGPU status banner — shown only when the browser
-                        // lacks WebGPU. Populated by gizza-app.js at load.
-                        div id="webgpu-warning" hidden {
-                            h3 { "WebGPU not available" }
+                        // WebGPU instructions block. Now always visible — the
+                        // dialog opens from the ⋮ menu's "WebGPU help" item, so
+                        // users browse the tabs even when WebGPU works.
+                        // gizza-app.js still toggles the `data-warn` state when
+                        // an adapter is missing (used for top-of-dialog banner
+                        // styling, if any).
+                        div id="webgpu-warning" {
                             p class="help" {
                                 "Model inference requires WebGPU. Follow the steps for your browser:"
                             }
@@ -200,8 +245,10 @@ fn render_chat() -> maud::Markup {
                             }
                         }
 
-                        button id="open-model-picker" type="button" { "Choose model" }
-                        button id="clear-convo" type="button" { "Clear conversation" }
+                        // Keep #clear-convo in the DOM (the menu's Clear item
+                        // delegates to it) but hide it visually inside this
+                        // dialog — Clear belongs in the menu, not here.
+                        button id="clear-convo" type="button" hidden { "Clear conversation" }
                         button value="close" { "Close" }
                     }
                 }
