@@ -90,6 +90,13 @@ pub async fn initialize() -> Result<(), JsValue> {
     let browser_llm: Arc<dyn wafer_core::interfaces::llm::service::LlmService> =
         Arc::new(solobase_browser::llm::BrowserLlmService::new());
 
+    // 5c. Browser image service — Janus-Pro-1B via transformers.js on WebGPU.
+    //     Registered on the MultiBackendImageService router under the label
+    //     "browser"; BrowserImageService::claims_backend matches the
+    //     `"transformers-image"` backend_id that ImageRequest will carry.
+    let browser_image: Arc<dyn wafer_core::interfaces::image::service::ImageService> =
+        Arc::new(solobase_browser::image::BrowserImageService::new());
+
     // 6. Build WAFER runtime via SolobaseBuilder. We reuse solobase's
     //    builder for the service blocks, middleware, router, and
     //    site-main flow, and inject gizza-specific routes via
@@ -103,6 +110,7 @@ pub async fn initialize() -> Result<(), JsValue> {
         .network(solobase_browser::make_network_service())
         .logger(solobase_browser::make_console_logger())
         .llm_service("browser", browser_llm)
+        .image_service("browser", browser_image)
         .block_settings(features)
         .block_config(
             "wafer-run/security-headers",
