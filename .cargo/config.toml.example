@@ -15,6 +15,7 @@
 wafer-run = { path = "../wafer-run/crates/wafer-run" }
 wafer-block = { path = "../wafer-run/crates/wafer-block" }
 wafer-core = { path = "../wafer-run/crates/wafer-core" }
+wafer-sdk = { path = "../wafer-run/sdks/rust" }
 wafer-sql-utils = { path = "../wafer-run/crates/wafer-sql-utils" }
 wafer-block-config = { path = "../wafer-run/crates/wafer-block-config" }
 wafer-block-cors = { path = "../wafer-run/crates/wafer-block-cors" }
