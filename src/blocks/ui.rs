@@ -125,10 +125,6 @@ fn render_chat() -> maud::Markup {
                     // composer. Clicking it opens the composer popup menu.
                     button slot="actions" id="open-settings" type="button" aria-label="Menu" {}
                 }
-                div id="mode-tabs" class="mode-tabs" role="tablist" aria-label="Mode" {
-                    button class="mode-tab mode-tab--active" data-mode="chat" type="button" role="tab" aria-selected="true" { "Chat" }
-                    button class="mode-tab" data-mode="image" type="button" role="tab" aria-selected="false" { "Image" }
-                }
                 sa-chat {
                     div slot="messages" id="messages" {
                         div class="empty" {
@@ -146,36 +142,6 @@ fn render_chat() -> maud::Markup {
                         button id="attach" type="button" aria-label="Attach file" title="Attach image or video" {}
                         button id="send" type="submit" disabled { "Send" }
                         input id="file-picker" type="file" accept="image/*,video/*" multiple style="display:none;";
-                    }
-                }
-                // Image-mode surface. Hidden in chat mode by gizza-app.js's
-                // renderModeSurface(); shown when the user picks the Image tab.
-                div id="image-composer" hidden {
-                    label {
-                        "Prompt"
-                        textarea class="image-prompt" rows="2" placeholder="a cat reading a book" {}
-                    }
-                    details class="image-advanced" {
-                        summary { "Advanced" }
-                        div class="image-adv-grid" {
-                            label { "Negative" input type="text" class="image-negative"; }
-                            label { "Steps"    input type="number" class="image-steps"    value="1" min="1" max="50"; }
-                            label { "Width"    input type="number" class="image-width"    value="512"; }
-                            label { "Height"   input type="number" class="image-height"   value="512"; }
-                            label { "Guidance" input type="number" class="image-guidance" value="0" step="0.1"; }
-                            label { "Seed"     input type="number" class="image-seed"     placeholder="random"; }
-                        }
-                    }
-                    div class="image-actions" {
-                        button class="image-brain" id="open-image-picker" type="button" aria-label="Choose image model" title="Choose image model" { "🧠" }
-                        button class="image-draw" type="button" { "Draw" }
-                    }
-                }
-                div id="image-result" hidden {
-                    img class="image-result-img" alt="generated image";
-                    div class="image-result-actions" {
-                        button class="image-save"  type="button" { "Save" }
-                        button class="image-regen" type="button" { "Regenerate" }
                     }
                 }
                 // Composer popup menu — positioned near the ⋮ button by JS.
