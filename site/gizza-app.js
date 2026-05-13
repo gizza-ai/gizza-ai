@@ -17,7 +17,7 @@ import { openPicker } from '/model-picker.js';
 // picker integration for choosing among multiple image models is a follow-up
 // (the existing picker is heavily designed around WebLLM's variant-grouped
 // rows and would need a parallel render path to host a single-row model).
-const IMAGE_MODEL_ID = 'Xenova/sd-turbo';
+const IMAGE_MODEL_ID = 'onnx-community/Janus-Pro-1B-ONNX';
 const IMAGE_BACKEND_ID = 'transformers-image';
 let imageEngineLoaded = false;
 
