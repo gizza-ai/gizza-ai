@@ -271,6 +271,50 @@ sa-header #open-settings { display: none; }
   letter-spacing: 0;
 }
 
+/* ─── Confirm-yes-no chips (slash-command confirmation flow) ──────────── */
+.confirm-chips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.confirm-chips .confirm-question {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-ink);
+}
+
+.confirm-chips .confirm-buttons {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.confirm-chips .confirm-yes,
+.confirm-chips .confirm-no {
+  font: inherit;
+  padding: var(--space-xxs) var(--space-base);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.confirm-chips .confirm-yes:hover,
+.confirm-chips .confirm-no:hover {
+  background: var(--color-canvas-soft);
+}
+
+.confirm-chips .confirm-yes {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-canvas);
+}
+
+.confirm-chips .confirm-yes:hover {
+  filter: brightness(1.1);
+}
+
 /* ─── Tool-call chips ─────────────────────────────────────────────────── */
 .tool-call {
   align-self: flex-start;
