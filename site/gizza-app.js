@@ -10,16 +10,7 @@ import {
     renderChips,
 } from './pending.js';
 import { loadEngine, unloadEngine } from '/webllm-engine.js';
-import { loadEngine as loadImageEngine, unloadEngine as unloadImageEngine } from '/t2i-engine.js';
 import { openPicker } from '/model-picker.js';
-
-// Image-mode constants. SD-Turbo is the only model in the prototype; the
-// picker integration for choosing among multiple image models is a follow-up
-// (the existing picker is heavily designed around WebLLM's variant-grouped
-// rows and would need a parallel render path to host a single-row model).
-const IMAGE_MODEL_ID = 'Xenova/sd-turbo';
-const IMAGE_BACKEND_ID = 'transformers-image';
-let imageEngineLoaded = false;
 
 const history = []; // OpenAI-format messages.
 
@@ -71,66 +62,6 @@ document.title = 'gizza.ai';
         send.parentElement.insertBefore(cog, send);
     }
 }
-
-// Mode state — Chat (text) vs Image (T2I). Persisted to localStorage so
-// reloads restore the user's last surface. Tab clicks call setMode(), which
-// swaps composer + result surface visibility. Picker open routes through the
-// current mode so the capability pill is preselected.
-const MODE_STORAGE_KEY = 'gizza.mode';
-let mode = localStorage.getItem(MODE_STORAGE_KEY) === 'image' ? 'image' : 'chat';
-
-function setMode(next) {
-    if (next !== 'chat' && next !== 'image') return;
-    mode = next;
-    localStorage.setItem(MODE_STORAGE_KEY, next);
-    document.body.dataset.mode = next;
-    for (const tab of document.querySelectorAll('.mode-tab')) {
-        const isActive = tab.dataset.mode === next;
-        tab.classList.toggle('mode-tab--active', isActive);
-        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    }
-    renderModeSurface();
-}
-
-// Mode-aware show/hide. Image composer + result are rendered by render_chat()
-// but hidden in chat mode; sa-chat surfaces (messages + composer form) are
-// hidden in image mode. The empty-state prose changes per mode.
-function renderModeSurface() {
-    const chatComposer = document.getElementById('composer');
-    const chatMessages = document.getElementById('messages');
-    const imageComposer = document.getElementById('image-composer');
-    const imageResult = document.getElementById('image-result');
-    if (chatComposer) chatComposer.hidden = mode === 'image';
-    if (chatMessages) chatMessages.hidden = mode === 'image';
-    if (imageComposer) imageComposer.hidden = mode !== 'image';
-    if (imageResult) imageResult.hidden = mode !== 'image';
-    updateEmptyState();
-}
-
-function updateEmptyState() {
-    const empty = document.querySelector('#messages .empty .empty-msg');
-    if (!empty) return;
-    if (mode === 'image') {
-        empty.innerHTML =
-            'Pick an image model to start drawing. <button class="empty-state-link" id="empty-state-cta" type="button">choose a model</button>.';
-    } else {
-        empty.innerHTML =
-            "I can't do much without a brain, please <button class=\"empty-state-link\" id=\"empty-state-cta\" type=\"button\">choose a model</button>.";
-    }
-}
-
-// Tab strip click delegation. Single listener at the document level since
-// the tab buttons are server-rendered and never re-created.
-document.addEventListener('click', (e) => {
-    const tab = e.target.closest('.mode-tab');
-    if (!tab) return;
-    setMode(tab.dataset.mode);
-});
-
-// Initial render — apply whatever mode was restored from localStorage, which
-// also normalises tab aria/active classes against the server-rendered chat
-// default in case the user previously left in image mode.
-setMode(mode);
 
 function el(tag, attrs = {}, text = '') {
     const e = document.createElement(tag);
@@ -725,106 +656,6 @@ $('empty-state-cta')?.addEventListener('click', () => launchPicker());
 $('open-brain-picker')?.addEventListener('click', (e) => {
     e.preventDefault();
     launchPicker();
-});
-
-// --- Image mode: Draw / Save / Regenerate / Load --------------------------
-//
-// MVP: only one image model (SD-Turbo). First Draw click auto-loads the
-// engine; subsequent generates are sub-second on WebGPU. Slot exclusion vs
-// chat: loading the image engine unloads any chat engine via webllm-engine's
-// `unloadEngine`, because both consume the same WebGPU device.
-
-function readImageParams() {
-    const v = (sel, parse) => {
-        const el = document.querySelector(sel);
-        if (!el || !el.value) return undefined;
-        const out = parse(el.value);
-        return Number.isFinite(out) || typeof out === 'string' ? out : undefined;
-    };
-    return {
-        negative_prompt: document.querySelector('.image-negative')?.value || undefined,
-        width:  v('.image-width',  Number),
-        height: v('.image-height', Number),
-        steps:  v('.image-steps',  Number),
-        guidance_scale: v('.image-guidance', Number),
-        seed:   v('.image-seed', Number),
-    };
-}
-
-async function ensureImageEngineLoaded(setStatus) {
-    if (imageEngineLoaded) return;
-    setStatus?.('Loading SD-Turbo (~500 MB, one-time)…');
-    // Slot exclusion: unload any active chat engine first so the WebGPU
-    // device isn't held by two pipelines simultaneously.
-    try { await unloadEngine(); } catch (_e) {}
-    await loadImageEngine(IMAGE_MODEL_ID, (msg) => {
-        if (msg) setStatus?.(msg);
-    });
-    imageEngineLoaded = true;
-    setStatus?.('');
-}
-
-async function drawImage() {
-    const promptEl = document.querySelector('.image-prompt');
-    const drawBtn = document.querySelector('.image-draw');
-    const imgEl = document.querySelector('.image-result-img');
-    const result = document.getElementById('image-result');
-
-    const prompt = promptEl?.value.trim();
-    if (!prompt) return;
-
-    drawBtn.disabled = true;
-    const setStatus = (msg) => { drawBtn.textContent = msg || 'Draw'; };
-    try {
-        setStatus('Drawing…');
-        await ensureImageEngineLoaded(setStatus);
-        setStatus('Drawing…');
-        const resp = await fetch('/b/image/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                backend_id: IMAGE_BACKEND_ID,
-                model: IMAGE_MODEL_ID,
-                prompt,
-                params: readImageParams(),
-            }),
-        });
-        if (!resp.ok) {
-            const text = await resp.text();
-            throw new Error(`generate failed: ${resp.status} ${text}`);
-        }
-        const blob = await resp.blob();
-        const url = URL.createObjectURL(blob);
-        if (imgEl.src && imgEl.src.startsWith('blob:')) {
-            URL.revokeObjectURL(imgEl.src);
-        }
-        imgEl.src = url;
-        result.hidden = false;
-    } catch (e) {
-        console.error('drawImage failed:', e);
-        alert(e.message || String(e));
-    } finally {
-        drawBtn.disabled = false;
-        setStatus('');
-    }
-}
-
-document.addEventListener('click', (e) => {
-    if (e.target.closest('.image-draw'))  drawImage();
-    if (e.target.closest('.image-regen')) drawImage();
-    if (e.target.closest('.image-save')) {
-        const imgEl = document.querySelector('.image-result-img');
-        if (!imgEl?.src) return;
-        const a = document.createElement('a');
-        a.href = imgEl.src;
-        a.download = 'gizza-image.png';
-        a.click();
-    }
-    if (e.target.closest('#open-image-picker')) {
-        // No image picker in MVP — the brain icon in the image composer is
-        // a placeholder for future use. For now, just acknowledge.
-        alert('Image picker coming soon. SD-Turbo loads automatically on first Draw.');
-    }
 });
 
 // --- Clear conversation ---
