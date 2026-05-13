@@ -136,6 +136,203 @@ function updateToolRow(row, ok, result) {
     row.classList.add(ok ? 'is-done' : 'is-error');
 }
 
+// PR 6: slash-command autocomplete.
+//
+// Fetches `/b/agent/commands` once on page init (cached in localStorage
+// for one hour) and wires an input listener on the composer textarea
+// that:
+//
+//   - Pattern-matches `^/[A-Za-z0-9_-]*$` on the textarea value (no
+//     whitespace allowed — `/imagine ` is already past the autocomplete
+//     surface).
+//   - Filters the command list by prefix, then by substring, on the
+//     post-slash characters.
+//   - Renders matches as a list above the composer; ArrowUp/Down
+//     navigates highlight, Tab/Enter completes to `/<cmd> `, Escape
+//     dismisses.
+const SLASH_CACHE_KEY = 'gizza.commands.cache';
+const SLASH_CACHE_TTL_MS = 60 * 60 * 1000; // 1h
+const SLASH_RE = /^\/([A-Za-z0-9_-]*)$/;
+
+let slashCommands = null;  // Array<{cmd, description}> or null until first fetch.
+let slashDropdown = null;
+let slashIndex = 0;
+let slashFiltered = [];
+
+function readSlashCache() {
+    try {
+        const raw = localStorage.getItem(SLASH_CACHE_KEY);
+        if (!raw) return null;
+        const { at, data } = JSON.parse(raw);
+        if (!at || !Array.isArray(data)) return null;
+        if (Date.now() - at > SLASH_CACHE_TTL_MS) return null;
+        return data;
+    } catch {
+        return null;
+    }
+}
+
+function writeSlashCache(data) {
+    try {
+        localStorage.setItem(SLASH_CACHE_KEY, JSON.stringify({ at: Date.now(), data }));
+    } catch { /* quota / privacy mode — silently skip */ }
+}
+
+async function fetchSlashCommands(force = false) {
+    if (!force) {
+        const cached = readSlashCache();
+        if (cached) {
+            slashCommands = cached;
+            return;
+        }
+    }
+    try {
+        const resp = await fetch('/b/agent/commands');
+        if (!resp.ok) { slashCommands = []; return; }
+        const data = await resp.json();
+        if (!Array.isArray(data)) { slashCommands = []; return; }
+        slashCommands = data;
+        writeSlashCache(data);
+    } catch { slashCommands = []; }
+}
+
+function ensureSlashDropdown() {
+    if (slashDropdown) return slashDropdown;
+    const composer = document.getElementById('composer');
+    const input = document.getElementById('user-input');
+    if (!composer || !input) return null;
+    slashDropdown = el('div', {
+        id: 'slash-autocomplete',
+        role: 'listbox',
+        'aria-label': 'Slash commands',
+        hidden: '',
+    });
+    // Insert before the textarea so it stacks above visually via CSS.
+    composer.insertBefore(slashDropdown, input);
+    return slashDropdown;
+}
+
+function hideSlashDropdown() {
+    if (!slashDropdown) return;
+    slashDropdown.hidden = true;
+    slashDropdown.replaceChildren();
+    slashFiltered = [];
+    slashIndex = 0;
+}
+
+function renderSlashDropdown(query) {
+    if (!slashCommands || slashCommands.length === 0) {
+        hideSlashDropdown();
+        return;
+    }
+    const dropdown = ensureSlashDropdown();
+    if (!dropdown) return;
+    const lowered = query.toLowerCase();
+    // Prefix matches first, substring matches after — both stable.
+    const prefix = slashCommands.filter((c) => c.cmd.toLowerCase().startsWith(lowered));
+    const substr = slashCommands.filter(
+        (c) => !c.cmd.toLowerCase().startsWith(lowered)
+            && c.cmd.toLowerCase().includes(lowered),
+    );
+    slashFiltered = [...prefix, ...substr];
+    if (slashFiltered.length === 0) {
+        hideSlashDropdown();
+        return;
+    }
+    if (slashIndex >= slashFiltered.length) slashIndex = 0;
+    dropdown.replaceChildren();
+    slashFiltered.forEach((cmd, i) => {
+        const item = el('button', {
+            class: 'slash-item' + (i === slashIndex ? ' is-active' : ''),
+            role: 'option',
+            type: 'button',
+            'aria-selected': i === slashIndex ? 'true' : 'false',
+            'data-cmd': cmd.cmd,
+        });
+        item.appendChild(el('span', { class: 'slash-cmd' }, `/${cmd.cmd}`));
+        if (cmd.description) {
+            item.appendChild(el('span', { class: 'slash-desc' }, cmd.description));
+        }
+        item.addEventListener('mousedown', (e) => {
+            // mousedown rather than click so we win the race against the
+            // textarea's blur handler which would have hidden the dropdown.
+            e.preventDefault();
+            completeSlash(cmd.cmd);
+        });
+        dropdown.appendChild(item);
+    });
+    dropdown.hidden = false;
+}
+
+function completeSlash(cmd) {
+    const input = document.getElementById('user-input');
+    if (!input) return;
+    input.value = `/${cmd} `;
+    hideSlashDropdown();
+    input.focus();
+    // Move caret to end.
+    const end = input.value.length;
+    input.setSelectionRange(end, end);
+}
+
+function handleSlashInput() {
+    const input = document.getElementById('user-input');
+    if (!input) return;
+    const match = SLASH_RE.exec(input.value);
+    if (!match) {
+        hideSlashDropdown();
+        return;
+    }
+    if (!slashCommands) {
+        // First slash before fetch completed — kick a fetch and bail; the
+        // user is likely still typing, the next keystroke will re-render
+        // once the cache is warm.
+        fetchSlashCommands(true).then(() => {
+            if (SLASH_RE.test(input.value)) handleSlashInput();
+        });
+        return;
+    }
+    renderSlashDropdown(match[1]);
+}
+
+function handleSlashKeydown(e) {
+    if (!slashDropdown || slashDropdown.hidden || slashFiltered.length === 0) return;
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        slashIndex = (slashIndex + 1) % slashFiltered.length;
+        const input = document.getElementById('user-input');
+        renderSlashDropdown(SLASH_RE.exec(input.value)?.[1] ?? '');
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        slashIndex = (slashIndex - 1 + slashFiltered.length) % slashFiltered.length;
+        const input = document.getElementById('user-input');
+        renderSlashDropdown(SLASH_RE.exec(input.value)?.[1] ?? '');
+    } else if (e.key === 'Tab' || e.key === 'Enter') {
+        // Enter would otherwise submit the form — intercept and complete.
+        e.preventDefault();
+        const chosen = slashFiltered[slashIndex];
+        if (chosen) completeSlash(chosen.cmd);
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        hideSlashDropdown();
+    }
+}
+
+// Wire up the autocomplete once the DOM is ready. fetchSlashCommands
+// runs in the background; the input handler is responsive even before
+// it resolves (slashCommands stays null and renderSlashDropdown bails).
+(function initSlashAutocomplete() {
+    const input = document.getElementById('user-input');
+    if (!input) return;
+    input.addEventListener('input', handleSlashInput);
+    input.addEventListener('keydown', handleSlashKeydown);
+    input.addEventListener('blur', () => {
+        // Slight delay so a mousedown on the dropdown gets to fire first.
+        setTimeout(hideSlashDropdown, 100);
+    });
+    fetchSlashCommands();
+})();
+
 // PR 5: render an inline [Yes]/[No] confirmation chip pair into the
 // assistant bubble. `payload` is the SSE `confirm` event body:
 // `{question, yes: {cmd, params}, no: null}`. The Yes button hides the
