@@ -29,16 +29,6 @@ const FAMILY_MAP = {
     snowflake: 'Snowflake',
 };
 
-// WebLLM 0.2.74 only enables ChatCompletionRequest.tools on 3 model
-// families (5 total quant variants). Keep this list in lock-step with
-// src/blocks/agent.rs::model_supports_tools so the picker's 🔧 badge
-// matches what the agent will actually advertise to the LLM.
-const TOOL_SUPPORT_HINTS = [
-    'Hermes-2-Pro-Llama-3-8B',
-    'Hermes-2-Pro-Mistral-7B',
-    'Hermes-3-Llama-3.1-8B',
-];
-
 const QUALITY_LABELS = {
     'q0f16': { label: 'High quality', sublabel: 'q0f16' },
     'q0f32': { label: 'High quality', sublabel: 'q0f32' },
@@ -84,7 +74,6 @@ export function groupModels(prebuiltList) {
                 base_id: baseId,
                 family: detectFamily(baseId),
                 params_label: paramsLabel(baseId),
-                has_tools: false,
                 has_vision: /vision/i.test(baseId),
                 hf_url: entry.model || null,
                 ctx: entry.overrides?.context_window_size || null,
@@ -99,7 +88,6 @@ export function groupModels(prebuiltList) {
         // quality button. Keep the first occurrence — that's the larger-context
         // model_id which appears earlier in the prebuilt list.
         if (group.variants.some((v) => v.quant === quant)) {
-            if (TOOL_SUPPORT_HINTS.some((h) => entry.model_id.includes(h))) group.has_tools = true;
             continue;
         }
         const labelDef = QUALITY_LABELS[quant] || { label: quant, sublabel: quant };
@@ -111,7 +99,6 @@ export function groupModels(prebuiltList) {
             vram_mb: entry.vram_required_MB || null,
             hf_url: entry.model || null,
         });
-        if (TOOL_SUPPORT_HINTS.some((h) => entry.model_id.includes(h))) group.has_tools = true;
         if (!group.ctx && entry.overrides?.context_window_size) group.ctx = entry.overrides.context_window_size;
     }
     // Sort variants within each group by quality tier
@@ -399,9 +386,8 @@ function renderTableRow(group, ctx) {
         el('strong', { class: 'mp-size-value' }, [formatBytes(initialVariant?.vram_mb)]),
     ]));
 
-    // Capabilities — Tools, Vision (vision detection lives in group.has_vision if set).
+    // Capabilities — Vision (vision detection lives in group.has_vision if set).
     const caps = el('td', { class: 'mp-cell-caps' });
-    if (group.has_tools) caps.appendChild(el('span', { class: 'mp-badge tools' }, ['🔧 tools']));
     if (group.ctx) caps.appendChild(el('span', { class: 'mp-badge ctx' }, [`${Math.round(group.ctx / 1024)}k ctx`]));
     tr.appendChild(caps);
 
@@ -511,14 +497,6 @@ export function renderPickerDom(ctx) {
                 if (ctx.filters.families[0] === fam) o.selected = true;
                 return o;
             }),
-        ]),
-        el('label', { class: 'mp-toggle' }, [
-            el('input', {
-                type: 'checkbox',
-                checked: ctx.filters.toolsOnly ? true : false,
-                onChange: (e) => ctx.onFiltersChange({ ...ctx.filters, toolsOnly: e.target.checked }),
-            }),
-            'Tools-capable',
         ]),
         el('label', { class: 'mp-toggle' }, [
             el('input', {
@@ -654,7 +632,6 @@ const DEFAULT_FILTERS = {
     search: '',
     sizes: [],
     families: [],
-    toolsOnly: false,
     visionOnly: false,
     favoritesOnly: false,
     sort: 'downloaded-popular',
@@ -709,7 +686,6 @@ export function applyFilters(groups, filters, popularity, cached, favorites = ne
     const search = filters.search.trim().toLowerCase();
     let filtered = groups.filter((g) => {
         if (search && !g.base_id.toLowerCase().includes(search) && !g.family.toLowerCase().includes(search)) return false;
-        if (filters.toolsOnly && !g.has_tools) return false;
         if (filters.visionOnly && !g.has_vision) return false;
         if (filters.favoritesOnly && !favorites.has(g.base_id)) return false;
         if (!familyMatches(g, filters.families)) return false;

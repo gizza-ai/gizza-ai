@@ -74,9 +74,9 @@ test('groupModels: tool-capable detection on Qwen2.5/Hermes families', () => {
     assert.ok(qwen, 'fixture should contain Qwen2.5-1.5B-Instruct');
     assert.ok(hermes, 'fixture should contain Hermes-2-Pro-Llama-3-8B');
     assert.ok(phi, 'fixture should contain Phi-3.5-mini-instruct');
-    assert.equal(qwen.has_tools, true, 'Qwen2.5 should be tool-capable');
-    assert.equal(hermes.has_tools, true, 'Hermes-2-Pro should be tool-capable');
-    assert.equal(phi.has_tools, false, 'Phi-3.5 should NOT be tool-capable');
+    assert.equal(qwen.has_tools, undefined, 'has_tools field is gone after slash-commands refactor');
+    assert.equal(hermes.has_tools, undefined);
+    assert.equal(phi.has_tools, undefined);
 });
 
 test('groupModels: vision flag on Phi-3.5-vision', () => {
@@ -195,7 +195,7 @@ test('fetchHfPopularity: fetch error → returns cached, never throws', async ()
 import { applyFilters } from '../../site/model-picker.js';
 
 function DEFAULT_FILTERS_FOR_TEST() {
-    return { search: '', sizes: [], families: [], toolsOnly: false, visionOnly: false, favoritesOnly: false, sort: 'downloaded-popular' };
+    return { search: '', sizes: [], families: [], visionOnly: false, favoritesOnly: false, sort: 'downloaded-popular' };
 }
 
 test('applyFilters: search narrows by name', () => {
@@ -205,16 +205,10 @@ test('applyFilters: search narrows by name', () => {
     for (const g of filtered) assert.match(g.base_id.toLowerCase(), /qwen/);
 });
 
-test('applyFilters: tools-only excludes Phi', () => {
-    const groups = groupModels(fixture);
-    const filtered = applyFilters(groups, { ...DEFAULT_FILTERS_FOR_TEST(), toolsOnly: true, sort: 'az' }, {}, new Set());
-    assert.equal(filtered.find((g) => g.base_id === 'Phi-3.5-mini-instruct'), undefined);
-});
-
 test('applyFilters: downloaded-popular puts cached groups first', () => {
     const groups = groupModels(fixture);
-    const cachedBase = groups.find((g) => g.has_tools)?.base_id;
-    assert.ok(cachedBase, 'fixture should contain at least one tool-capable group');
+    const cachedBase = groups[0]?.base_id;
+    assert.ok(cachedBase, 'fixture should contain at least one group');
     const filtered = applyFilters(groups, DEFAULT_FILTERS_FOR_TEST(), {}, new Set([cachedBase]));
     assert.equal(filtered[0].base_id, cachedBase);
 });
@@ -226,13 +220,11 @@ test('readPersistedFilters: legacy payload (no favoritesOnly) reads back with fa
     localStorage.setItem('gizza:picker-filters', JSON.stringify({
         sizes: ['small'],
         families: ['Llama'],
-        toolsOnly: true,
         visionOnly: false,
         sort: 'az',
     }));
     const read = readPersistedFilters({ localStorage });
     assert.equal(read.favoritesOnly, false, 'legacy payload should read back with favoritesOnly:false');
-    assert.equal(read.toolsOnly, true, 'existing fields should still merge through');
     assert.equal(read.sort, 'az');
 });
 
