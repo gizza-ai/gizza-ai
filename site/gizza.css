@@ -271,6 +271,119 @@ sa-header #open-settings { display: none; }
   letter-spacing: 0;
 }
 
+/* ─── Slash-command autocomplete dropdown ─────────────────────────────── */
+#slash-autocomplete {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: var(--space-xs);
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+#slash-autocomplete[hidden] {
+  display: none;
+}
+
+#slash-autocomplete .slash-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2px;
+  width: 100%;
+  height: auto;
+  text-align: left;
+  padding: var(--space-xs) var(--space-base);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+#slash-autocomplete .slash-item:last-child {
+  border-bottom: none;
+}
+
+#slash-autocomplete .slash-item::before {
+  content: none;
+}
+
+#slash-autocomplete .slash-item:hover,
+#slash-autocomplete .slash-item.is-active {
+  background: var(--color-canvas-soft);
+}
+
+#slash-autocomplete .slash-cmd {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+#slash-autocomplete .slash-desc {
+  font-size: 13px;
+  color: var(--color-body);
+}
+
+/* The composer must be relatively-positioned so the absolute-positioned
+ * autocomplete anchors to it. */
+#composer {
+  position: relative;
+}
+
+/* ─── Confirm-yes-no chips (slash-command confirmation flow) ──────────── */
+.confirm-chips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.confirm-chips .confirm-question {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-ink);
+}
+
+.confirm-chips .confirm-buttons {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.confirm-chips .confirm-yes,
+.confirm-chips .confirm-no {
+  font: inherit;
+  padding: var(--space-xxs) var(--space-base);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.confirm-chips .confirm-yes:hover,
+.confirm-chips .confirm-no:hover {
+  background: var(--color-canvas-soft);
+}
+
+.confirm-chips .confirm-yes {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: var(--color-canvas);
+}
+
+.confirm-chips .confirm-yes:hover {
+  filter: brightness(1.1);
+}
+
 /* ─── Tool-call chips ─────────────────────────────────────────────────── */
 .tool-call {
   align-self: flex-start;

@@ -64,6 +64,22 @@ fn image_fetch_skill_is_embedded() {
 }
 
 #[test]
+fn imagine_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/imagine"),
+        "gizza-ai/imagine should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/imagine")
+        .expect("imagine");
+    assert!(!bytes.is_empty(), "imagine wasm bytes non-empty");
+    assert_eq!(&bytes[..4], b"\0asm", "imagine bytes look like wasm");
+}
+
+#[test]
 fn image_resize_skill_is_embedded() {
     assert!(
         gizza_ai::skills::SKILLS
