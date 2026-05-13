@@ -172,10 +172,7 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
     //       Hermes-2-Pro-Mistral-7B-q4f16_1-MLC
     //       Hermes-3-Llama-3.1-8B-{q4f32_1, q4f16_1}-MLC
     //     Keep in sync with site/model-picker.js's TOOL_SUPPORT_HINTS.
-    let model_id_for_tools = req
-        .model_id
-        .as_deref()
-        .unwrap_or(MVP_MODEL_ID);
+    let model_id_for_tools = req.model_id.as_deref().unwrap_or(MVP_MODEL_ID);
     let model_supports_tools = [
         "Hermes-2-Pro-Llama-3-8B",
         "Hermes-2-Pro-Mistral-7B",
