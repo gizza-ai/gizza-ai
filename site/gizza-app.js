@@ -63,10 +63,25 @@ document.title = 'gizza.ai';
     }
 }
 
-function el(tag, attrs = {}, text = '') {
+function el(tag, attrs = {}, children = '') {
     const e = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
-    if (text) e.textContent = text;
+    for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'onClick' && typeof v === 'function') e.addEventListener('click', v);
+        else if (k === 'onInput' && typeof v === 'function') e.addEventListener('input', v);
+        else if (k === 'onChange' && typeof v === 'function') e.addEventListener('change', v);
+        else if (v === true) e.setAttribute(k, '');
+        else if (v !== false && v != null) e.setAttribute(k, v);
+    }
+    if (Array.isArray(children)) {
+        for (const c of children) {
+            if (c == null) continue;
+            e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+        }
+    } else if (children instanceof Node) {
+        e.appendChild(children);
+    } else if (children) {
+        e.textContent = children;
+    }
     return e;
 }
 
@@ -92,6 +107,215 @@ function addAssistantBubble() {
     msgs.appendChild(bubble);
     scrollToBottom();
     return text;
+}
+
+// Playful cycling status while we wait for the model. Returns a handle whose
+// `.stop()` clears the timer and the placeholder. If the node has been written
+// to before stop(), we leave the content alone (caller has rendered real text).
+const THINKING_WORDS = [
+    'thinking', 'pondering', 'noodling', 'cooking', 'untangling',
+    'brewing', 'mulling', 'ruminating', 'cogitating', 'plotting',
+    'figuring', 'churning', 'simmering', 'percolating',
+];
+function startThinking(node, opening = null) {
+    if (!node) return { stop: () => {} };
+    const pick = (i) => `${opening || THINKING_WORDS[i % THINKING_WORDS.length]}`;
+    let i = Math.floor(Math.random() * THINKING_WORDS.length);
+    const span = el('span', { class: 'thinking' });
+    const word = el('span', { class: 'thinking-word' }, pick(i));
+    const dots = el('span', { class: 'thinking-dots' }, '…');
+    span.appendChild(word);
+    span.appendChild(dots);
+    node.replaceChildren(span);
+    const timer = setInterval(() => {
+        i++;
+        word.textContent = pick(i);
+    }, 1500);
+    let stopped = false;
+    return {
+        stop: () => {
+            if (stopped) return;
+            stopped = true;
+            clearInterval(timer);
+            // If the placeholder is still the only child, clear it so the
+            // caller can write real content. If the caller already wrote, the
+            // span will have been replaced — nothing to do.
+            if (node.firstChild === span) node.replaceChildren();
+        },
+    };
+}
+
+// Modal popup for the raw JSON behind a formatted slash result. Reuses
+// <dialog> for native ESC/focus-trap behaviour.
+function showRawPopup(raw, title = 'Raw result') {
+    let pretty = raw;
+    try { pretty = JSON.stringify(JSON.parse(raw), null, 2); } catch (_e) { /* not JSON — show as-is */ }
+    const dlg = el('dialog', { class: 'raw-popup' });
+    const header = el('div', { class: 'raw-popup-header' }, [
+        el('h3', {}, title),
+        el('button', { class: 'raw-popup-close', 'aria-label': 'Close', onClick: () => dlg.close() }, '✕'),
+    ]);
+    const body = el('pre', { class: 'raw-popup-body' }, el('code', {}, pretty));
+    const footer = el('div', { class: 'raw-popup-footer' }, [
+        el('button', {
+            class: 'raw-popup-copy',
+            onClick: async () => {
+                try { await navigator.clipboard.writeText(pretty); } catch (_e) {}
+                const ok = el('span', { class: 'raw-popup-copied' }, 'Copied');
+                footer.appendChild(ok);
+                setTimeout(() => ok.remove(), 1200);
+            },
+        }, 'Copy'),
+    ]);
+    dlg.appendChild(header);
+    dlg.appendChild(body);
+    dlg.appendChild(footer);
+    document.body.appendChild(dlg);
+    dlg.addEventListener('close', () => dlg.remove());
+    dlg.showModal();
+}
+
+// Append a small {} icon button to a bubble that opens the raw popup on click.
+function appendRawButton(bubble, raw) {
+    if (!raw) return;
+    const btn = el('button', {
+        class: 'raw-toggle',
+        type: 'button',
+        title: 'Show raw output',
+        'aria-label': 'Show raw output',
+        onClick: () => showRawPopup(raw),
+    }, '{ }');
+    bubble.appendChild(document.createTextNode(' '));
+    bubble.appendChild(btn);
+}
+
+// Cheap deterministic templating for slash-skill results whose shape is small
+// and unambiguous (single-key results, error envelopes, clock format). Returns
+// the rendered string when a template matches, or `null` to fall through to
+// the LLM-format pass. Saves a full LLM round-trip + the small-model verbosity
+// for simple cases like `/calculator 5+5` → `{"result": 10}`.
+function templateSimpleResult(cmd, raw) {
+    let v;
+    try { v = JSON.parse(raw); } catch { return null; }
+    if (v == null || typeof v !== 'object' || Array.isArray(v)) return null;
+    const keys = Object.keys(v);
+
+    // Error envelope: every skill emits `{error: "..."}` on failure.
+    if (keys.length === 1 && typeof v.error === 'string') {
+        return `**Error:** ${v.error}`;
+    }
+
+    // /calculator → {result: number}
+    if (cmd === 'calculator' && keys.length === 1 && typeof v.result === 'number') {
+        // Render floats without trailing zeros: 8.0 → 8, 3.14 → 3.14.
+        const n = Number.isInteger(v.result) ? String(v.result) : String(v.result);
+        return `**${n}**`;
+    }
+
+    // /clock → {time: "ISO 8601", tz: "UTC"}
+    if (cmd === 'clock' && typeof v.time === 'string') {
+        // Prettify the ISO timestamp to "YYYY-MM-DD HH:MM:SS UTC" so users
+        // don't have to mentally parse the T-separator.
+        const m = v.time.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})/);
+        const stamp = m ? `${m[1]} ${m[2]}` : v.time;
+        const tz = typeof v.tz === 'string' ? v.tz : 'UTC';
+        return `**${stamp} ${tz}**`;
+    }
+
+    // /web-fetch → {status, url, content_type?, body, truncated}
+    // Known shape, so we template rather than feeding (potentially huge)
+    // page bodies to a small LLM. Raw button still gives the full body.
+    if (cmd === 'web-fetch' && typeof v.status === 'number' && typeof v.body === 'string') {
+        const url = typeof v.url === 'string' ? v.url : '';
+        const ct = typeof v.content_type === 'string' && v.content_type ? v.content_type : 'unknown';
+        const trunc = v.truncated ? ' (truncated)' : '';
+        const bytes = v.body.length;
+        const head = `**${v.status}** from \`${url}\` — ${bytes} chars, ${ct}${trunc}.`;
+        // Short bodies: inline a preview so the user sees the content immediately.
+        if (bytes > 0 && bytes <= 400) {
+            return `${head}\n\n\`\`\`\n${v.body}\n\`\`\``;
+        }
+        return head;
+    }
+
+    // Generic one-key string-value (e.g. some future `{summary: "..."}` shape).
+    if (keys.length === 1 && typeof v[keys[0]] === 'string' && v[keys[0]].length <= 200) {
+        return v[keys[0]];
+    }
+
+    return null;
+}
+
+// Asks the loaded LLM to summarize a slash-skill JSON result in plain language.
+// Streams tokens into `bubbleText` (replacing whatever was there). On any
+// failure (no model, network error, …) falls back to the raw output so the
+// user still sees something. Returns when the stream completes.
+async function formatSlashResultWithLLM({ cmd, args, raw, bubbleText }) {
+    const modelId = selectedModelId();
+    if (!modelId) {
+        bubbleText.textContent = raw;
+        return;
+    }
+    // Limit prompt size — huge fetched documents shouldn't blow up the LLM.
+    const MAX = 4000;
+    const slice = raw.length > MAX ? `${raw.slice(0, MAX)}\n…[truncated, ${raw.length} bytes total]` : raw;
+    const prompt =
+        `The user ran the slash-command \`/${cmd}${args ? ' ' + args : ''}\`. ` +
+        `The skill returned this JSON output:\n\n\`\`\`json\n${slice}\n\`\`\`\n\n` +
+        `Reply with a short, friendly answer in plain language that directly addresses ` +
+        `what the user asked. Use 1–2 sentences. Do not mention "the JSON", "the skill", ` +
+        `or "the output" — just state the result naturally.`;
+    const thinker = startThinking(bubbleText, 'summarizing');
+    let acc = '';
+    try {
+        const resp = await fetch('/b/agent/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_message: prompt,
+                messages: [],
+                model_id: modelId,
+            }),
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let idx;
+            while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                const frame = buffer.slice(0, idx);
+                buffer = buffer.slice(idx + 2);
+                const lines = frame.split('\n');
+                let event = '';
+                let data = '';
+                for (const line of lines) {
+                    if (line.startsWith('event:')) event = line.slice(6).trim();
+                    else if (line.startsWith('data:')) data += line.slice(5).replace(/^ /, '');
+                }
+                if (event === 'token') {
+                    let p; try { p = JSON.parse(data); } catch { p = null; }
+                    if (p?.delta) {
+                        if (acc === '') thinker.stop();
+                        acc += p.delta;
+                        renderAssistantContent(bubbleText, acc);
+                        scrollToBottom();
+                    }
+                }
+            }
+        }
+    } catch (_e) {
+        // fall through — show raw
+    } finally {
+        thinker.stop();
+        if (!acc) {
+            // LLM produced nothing — fall back to raw so user sees something.
+            bubbleText.textContent = raw;
+        }
+    }
 }
 
 // Render assistant text as markdown with syntax-highlighted code blocks.
@@ -644,42 +868,6 @@ if (brandMascot) {
 // Progress card \u2014 created lazily inside the Settings dialog while the model
 // downloads. Holds the verbose stage message so the Load model button text
 // can stay short.
-function setLoadProgress(text, percent, isError = false) {
-    let card = $('load-progress');
-    if (!card) {
-        card = el('div', { id: 'load-progress', class: 'progress-card' });
-        const stage = el('div', { class: 'progress-stage' });
-        const bar = el('div', { class: 'progress-bar' });
-        const fill = el('div', { class: 'progress-bar-fill' });
-        bar.appendChild(fill);
-        card.appendChild(stage);
-        card.appendChild(bar);
-        // Prefer to show progress inline in the chat surface so it's visible
-        // when the user kicked off the load from the empty-state CTA (the
-        // settings dialog is closed in that flow). Fall back to next-to the
-        // settings dialog's load button when the empty state has been
-        // dismissed.
-        const empty = document.querySelector('#messages .empty');
-        const loadBtn = $('open-model-picker') || $('load-model');
-        if (empty) {
-            empty.replaceChildren(card);
-        } else if (loadBtn) {
-            loadBtn.parentNode.insertBefore(card, loadBtn);
-        }
-    }
-    card.querySelector('.progress-stage').textContent = text || '';
-    const bar = card.querySelector('.progress-bar');
-    const fill = card.querySelector('.progress-bar-fill');
-    if (typeof percent === 'number' && !isNaN(percent)) {
-        const pct = Math.max(0, Math.min(100, percent));
-        fill.style.width = `${pct}%`;
-        bar.classList.remove('is-indeterminate');
-    } else {
-        bar.classList.add('is-indeterminate');
-    }
-    card.classList.toggle('is-error', !!isError);
-}
-
 function clearLoadProgress() {
     const card = $('load-progress');
     if (card) card.remove();
@@ -689,13 +877,6 @@ function clearLoadProgress() {
     if (empty && empty.childElementCount === 0 && !empty.textContent.trim()) {
         empty.textContent = 'Ready — ask anything below.';
     }
-}
-
-// Pull a percent like "15% completed" out of the runtime's stage message.
-function parsePercentFromStage(stage) {
-    if (!stage) return null;
-    const m = stage.match(/(\d+(?:\.\d+)?)\s*%/);
-    return m ? parseFloat(m[1]) : null;
 }
 
 // --- Settings dialog ---
@@ -852,39 +1033,6 @@ function getCurrentEngineModelId() {
     return _loadedModelId;
 }
 
-async function startModelLoad(modelId) {
-    // If no modelId passed, fall back to whatever is persisted in localStorage.
-    const id = modelId || selectedModelId();
-    const btn = $('open-model-picker') || $('load-model');
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Downloading\u2026';
-    }
-    setLoadProgress('Starting\u2026', null);
-    try {
-        await loadEngine(id, (text) => {
-            if (btn) btn.textContent = 'Downloading\u2026';
-            setLoadProgress(text || 'Downloading\u2026', parsePercentFromStage(text));
-        });
-        _loadedModelId = id;
-        if (btn) btn.textContent = 'Ready';
-        clearLoadProgress();
-        $('send').disabled = false;
-    } catch (e) {
-        const msg = String(e?.message ?? e);
-        if (/compatible GPU|WebGPU|gpu adapter/i.test(msg)) {
-            const warn = $('webgpu-warning');
-            if (warn) warn.hidden = false;
-            if (btn) btn.textContent = 'Load model';
-            clearLoadProgress();
-        } else {
-            if (btn) btn.textContent = 'Try again';
-            setLoadProgress(msg, null, true);
-        }
-        if (btn) btn.disabled = false;
-    }
-}
-
 // --- Picker overlay integration ---
 
 // Start fetching the WebLLM module at page load so the first picker open
@@ -897,30 +1045,48 @@ async function launchPicker() {
     const prebuiltList = mod?.prebuiltAppConfig?.model_list || [];
     const result = await openPicker({
         prebuiltList,
-        currentModelId: getCurrentEngineModelId(),
+        getCurrentModelId: getCurrentEngineModelId,
+        loadEngine,
+        unloadEngine,
+        // Picker drives load/unload itself; reflect the result onto the chat
+        // surface as the active model changes (incl. on unload → null).
+        onActiveChange: (modelId) => {
+            _loadedModelId = modelId;
+            const send = $('send');
+            if (send) send.disabled = !modelId;
+            if (modelId) {
+                localStorage.setItem(SELECTED_MODEL_KEY, modelId);
+            }
+            const btn = $('open-model-picker') || $('load-model');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = modelId ? 'Change model' : 'Load model';
+            }
+            if (modelId) clearLoadProgress();
+            // Swap the bootstrap "I can't do much without a brain…" copy
+            // for a friendlier ready hint. On unload (modelId === null) we
+            // restore the cold-state copy so the chat surface explains
+            // again why nothing's happening.
+            const empty = document.querySelector('#messages .empty');
+            if (empty) {
+                if (modelId) {
+                    empty.replaceChildren(document.createTextNode('Ready — ask anything below.'));
+                } else if (empty.childElementCount === 0) {
+                    // Only restore the prompt if we previously replaced it
+                    // with a plain text node; if the original maud HTML is
+                    // still there, leave it alone.
+                    empty.replaceChildren(document.createTextNode("I can't do much without a brain — load one from the picker."));
+                }
+            }
+        },
     });
-    if (!result?.model_id) return;
-    if (result.mode === 'download') {
-        // Cache weights to IndexedDB without making this the active engine.
-        // Implemented as load-then-unload via the page-direct engine — keeps
-        // weights cached locally; existing _engine is replaced (single-slot
-        // WebGPU constraint).
-        setLoadProgress(`Downloading ${result.model_id}…`, null);
-        try {
-            await loadEngine(result.model_id, (text) => {
-                setLoadProgress(text || 'Downloading…', parsePercentFromStage(text));
-            });
-            await unloadEngine?.();
-            _loadedModelId = null;
-            setLoadProgress(`${result.model_id} cached.`, 100);
-            setTimeout(clearLoadProgress, 2000);
-        } catch (e) {
-            setLoadProgress(`Download failed: ${e?.message ?? e}`, null, true);
-        }
-        return;
+    // After the picker closes, persist the final active model. If the user
+    // closed the picker mid-load, `result` reflects the active model at close
+    // time (which may not yet be the in-flight one); `onActiveChange` above
+    // will fire when the load eventually completes.
+    if (result?.model_id) {
+        localStorage.setItem(SELECTED_MODEL_KEY, result.model_id);
     }
-    localStorage.setItem(SELECTED_MODEL_KEY, result.model_id);
-    await startModelLoad(result.model_id);
 }
 
 // Settings → Choose model (closes the dialog so the full-screen picker takes over).
@@ -963,6 +1129,12 @@ $('composer').addEventListener('submit', async (e) => {
     let assistantText = '';
     const assistantEl = addAssistantBubble();
     const toolRows = new Map(); // tool-call id -> DOM row
+    // Show a cycling status while we wait for the first token / tool_result.
+    const thinker = startThinking(assistantEl);
+    // Slash-command bookkeeping so the tool_result handler can call the LLM
+    // formatter with the original cmd + args.
+    const slashCmd = text.match(/^\/(\S+)(?:\s+(.+))?$/);
+    const slashFollowups = [];
 
     const pendingUploads = getPending();
     const uploads = await Promise.all(
@@ -1004,13 +1176,31 @@ $('composer').addEventListener('submit', async (e) => {
         }
         if (buffer.trim()) processFrame(buffer);
 
+        // Slash-command path: try a cheap deterministic template first; only
+        // fall back to the LLM-summarize pass for complex shapes. Either way,
+        // attach a `{ }` button so the user can see the raw JSON.
+        for (const f of slashFollowups) {
+            const templated = templateSimpleResult(f.cmd, f.raw);
+            if (templated !== null) {
+                assistantEl.replaceChildren();
+                renderAssistantContent(assistantEl, templated);
+            } else {
+                await formatSlashResultWithLLM({
+                    cmd: f.cmd, args: f.args, raw: f.raw, bubbleText: assistantEl,
+                });
+            }
+            appendRawButton(assistantEl.parentElement, f.raw);
+        }
+
         if (assistantText) {
             history.push({ role: 'assistant', content: assistantText });
         }
         roundTripCompleted = true;
     } catch (err) {
+        thinker.stop();
         assistantEl.textContent = `(error: ${err.message})`;
     } finally {
+        thinker.stop();
         window.__brandStopTyping?.();
         input.disabled = false;
         $('send').disabled = false;
@@ -1037,34 +1227,43 @@ $('composer').addEventListener('submit', async (e) => {
         try { payload = JSON.parse(data); } catch { payload = data; }
 
         if (event === 'token' && payload?.delta) {
+            if (assistantText === '') thinker.stop();
             assistantText += payload.delta;
             renderAssistantContent(assistantEl, assistantText);
             scrollToBottom();
         } else if (event === 'tool_call') {
+            thinker.stop();
             const row = addToolRow(payload?.name ?? '?', payload?.arguments ?? '');
             toolRows.set(payload?.id ?? crypto.randomUUID(), row);
         } else if (event === 'tool_result') {
+            thinker.stop();
             const row = toolRows.get(payload?.id);
             if (row) {
                 updateToolRow(row, !payload?.error, payload?.result ?? payload?.error ?? '');
                 renderToolAttachment(row, payload?.for_ui);
             } else {
                 // Slash-command path: no preceding tool_call event because
-                // the user-typed `/<cmd>` IS the call. Render the result
-                // (and any inline-media attachment) into the assistant
-                // bubble. The textual summary is purely informational —
-                // _for_ui carries the image/video for the user.
+                // the user-typed `/<cmd>` IS the call. Run the result
+                // through the LLM for a plain-language summary and stash the
+                // raw JSON behind a small `{ }` button. `for_ui` (images,
+                // video) skips the formatter — the media speaks for itself.
                 const summary = payload?.result ?? payload?.error ?? '';
-                if (summary && !payload?.for_ui) {
-                    assistantText += summary;
-                    renderAssistantContent(assistantEl, assistantText);
-                }
                 if (payload?.for_ui) {
                     renderToolAttachment(assistantEl, payload.for_ui);
+                } else if (summary) {
+                    // Defer the LLM formatting until the SSE stream is done
+                    // so we don't race the original stream with a fresh
+                    // /b/agent/chat. Park the work and run it after the loop.
+                    slashFollowups.push({
+                        cmd: slashCmd?.[1] || '?',
+                        args: slashCmd?.[2] || '',
+                        raw: summary,
+                    });
                 }
                 scrollToBottom();
             }
         } else if (event === 'confirm') {
+            thinker.stop();
             // PR 5: ambiguous slash-command params — backend asks the user
             // to confirm before dispatching. Render a question line and
             // [Yes]/[No] chips into the assistant bubble.
@@ -1083,6 +1282,7 @@ $('composer').addEventListener('submit', async (e) => {
                 renderAssistantContent(assistantEl, assistantText);
             });
         } else if (event === 'done') {
+            thinker.stop();
             // Surface terminal errors and empty-stop states so the user
             // isn't left staring at a blank bubble. Token paths overwrite
             // assistantText already, so this only fires when nothing

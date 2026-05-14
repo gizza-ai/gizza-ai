@@ -271,6 +271,86 @@ const SIZE_TIERS = [
     { id: 'large', label: 'Large (5+ GB)', min_mb: 5120 },
 ];
 
+/**
+ * Curated brain tiers shown on the picker landing.
+ *
+ * Each tier carries a `f16` and `f32` variant. `q4f16_1` quantizations are
+ * smaller but require the WebGPU `shader-f16` feature — older GPUs and many
+ * Linux drivers don't expose it, so we probe at open time
+ * ([`probeShaderF16`]) and resolve to the f32 fallback when missing. Picks
+ * are all Qwen2.5 for ladder coherence — same family, just more brain.
+ * Medium is flagged `recommended` so the empty-state defaults to it.
+ */
+const BRAIN_TIERS = [
+    {
+        id: 'small',
+        label: 'Small brain',
+        emoji: '🧠',
+        variants: {
+            f16: { id: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC', size_gb: 0.9 },
+            f32: { id: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC', size_gb: 1.0 },
+        },
+        tagline: 'Fastest. Quick chats and simple slash commands.',
+    },
+    {
+        id: 'medium',
+        label: 'Medium brain',
+        emoji: '🧠',
+        variants: {
+            f16: { id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC', size_gb: 1.6 },
+            f32: { id: 'Qwen2.5-1.5B-Instruct-q4f32_1-MLC', size_gb: 1.9 },
+        },
+        tagline: 'Balanced. Reliably understands slash commands.',
+        recommended: true,
+    },
+    {
+        id: 'big',
+        label: 'Big brain',
+        emoji: '🧠',
+        variants: {
+            f16: { id: 'Qwen2.5-3B-Instruct-q4f16_1-MLC', size_gb: 2.4 },
+            f32: { id: 'Qwen2.5-3B-Instruct-q4f32_1-MLC', size_gb: 2.9 },
+        },
+        tagline: 'Smartest. Better reasoning, longer to load.',
+    },
+];
+
+/**
+ * Probe the user's WebGPU adapter for the `shader-f16` feature. q4f16
+ * quantizations emit `enable f16;` at the top of their compute shader and the
+ * device rejects compilation if the feature is absent. We default to `false`
+ * on any error so the picker always lands on a working variant.
+ */
+export async function probeShaderF16() {
+    try {
+        if (typeof navigator === 'undefined' || !navigator.gpu) return false;
+        const adapter = await navigator.gpu.requestAdapter();
+        return !!adapter?.features?.has('shader-f16');
+    } catch (_e) {
+        return false;
+    }
+}
+
+/** Resolve a tier to its concrete `(model_id, size_gb)` based on the f16 probe. */
+function resolveTierVariant(tier, f16Supported) {
+    const v = f16Supported && tier.variants.f16 ? tier.variants.f16 : tier.variants.f32;
+    return { ...tier, model_id: v.id, size_gb: v.size_gb };
+}
+
+/**
+ * Locate the (group, variant) tuple for a tier's `model_id` in the grouped
+ * model list. Returns `null` when WebLLM has dropped the exact variant (rare
+ * but possible across versions). Caller can use that to grey out the card
+ * with a "model not available in this WebLLM version" message.
+ */
+function resolveTierGroupVariant(groups, modelId) {
+    for (const g of groups) {
+        const v = g.variants.find((x) => x.id === modelId);
+        if (v) return { group: g, variant: v };
+    }
+    return null;
+}
+
 const FAMILY_CHIP_OPTIONS = ['Llama', 'Qwen', 'Phi', 'Hermes', 'Gemma', 'Mistral', 'Other'];
 
 const SORT_OPTIONS = [
@@ -318,20 +398,51 @@ function formatDownloads(n) {
     return `${n} ↓`;
 }
 
+/**
+ * Does a quant string carry an f16 payload that the WebGPU shader will need
+ * the `shader-f16` extension for? Any `…f16…` substring matches (covers
+ * `q0f16`, `q4f16_1`, `q3f16_1`, etc.); `q*f32*` quants compile without the
+ * extension and are universally supported.
+ */
+function requiresShaderF16(quant) {
+    return /f16/i.test(quant || '');
+}
+
+/**
+ * Pick a sensible default variant for a row in the custom-table view. When
+ * `shader-f16` is missing we prefer the first non-f16 variant so the row
+ * lands on a loadable quantization; falls back to the middle variant (which
+ * the UI will mark disabled) if every variant needs f16.
+ */
+function pickInitialVariant(group, f16Supported) {
+    const middle = group.variants[Math.floor(group.variants.length / 2)] || group.variants[0];
+    if (f16Supported) return middle;
+    return group.variants.find((v) => !requiresShaderF16(v.quant)) || middle;
+}
+
 function renderTableRow(group, ctx) {
+    const f16Supported = ctx.f16Supported !== false;
     const initialVariant = ctx.selection?.base_id === group.base_id
         ? ctx.selection.variant
-        : group.variants[Math.floor(group.variants.length / 2)] || group.variants[0];
+        : pickInitialVariant(group, f16Supported);
     const isCached = ctx.cached.has(group.base_id);
     const isActive = group.variants.some((v) => v.id === ctx.active);
+    const loadingVariantId = ctx.loading?.variantId || null;
+    const loadingInGroup = loadingVariantId
+        && group.variants.some((v) => v.id === loadingVariantId);
+    const anyLoad = loadingVariantId != null;
+    const initialBlockedByF16 = !f16Supported && requiresShaderF16(initialVariant?.quant);
 
     const tr = el('tr', {
-        class: ['mp-row', isActive ? 'is-active' : '', isCached && !isActive ? 'is-cached' : ''].filter(Boolean).join(' '),
+        class: ['mp-row',
+            isActive ? 'is-active' : '',
+            isCached && !isActive ? 'is-cached' : '',
+            loadingInGroup ? 'is-loading' : '',
+        ].filter(Boolean).join(' '),
         'data-base-id': group.base_id,
     });
 
-    // Model cell — name + HF link + favorite star + delete-cached trash
-    // (the last two preserved from the pre-rebase card layout, PR #42).
+    // Model cell — favorite star + name (+ HF link on sub line).
     const isFav = ctx.favorites?.has(group.base_id);
     const favoriteBtn = el('button', {
         type: 'button',
@@ -343,7 +454,7 @@ function renderTableRow(group, ctx) {
             ctx.onFavoriteToggle?.(group.base_id);
         },
     }, [isFav ? '★' : '☆']);
-    const trashBtn = isCached && !isActive ? el('button', {
+    const trashBtn = isCached && !isActive && !loadingInGroup ? el('button', {
         type: 'button',
         class: 'mp-trash',
         'aria-label': `Delete cached ${group.base_id}`,
@@ -356,7 +467,7 @@ function renderTableRow(group, ctx) {
     const modelCell = el('td', { class: 'mp-cell-model' }, [
         el('div', { class: 'mp-cell-model-name' }, [
             favoriteBtn,
-            group.base_id,
+            el('span', { class: 'mp-cell-model-title' }, [group.base_id]),
             trashBtn,
         ]),
         el('div', { class: 'mp-cell-model-sub' }, [
@@ -376,9 +487,15 @@ function renderTableRow(group, ctx) {
     // Provider.
     tr.appendChild(el('td', { class: 'mp-cell-provider' }, [group.family || '—']));
 
-    // Variant dropdown.
+    // Variant dropdown — disabled while this row is loading. Inside the
+    // dropdown, f16 quantizations are individually disabled when the user's
+    // GPU lacks `shader-f16`.
     const variantCell = el('td', { class: 'mp-cell-variant' });
-    variantCell.appendChild(renderQualityPicker(group, initialVariant));
+    const qualityPicker = renderQualityPicker(group, initialVariant, f16Supported);
+    if (loadingInGroup) {
+        qualityPicker.querySelector('select')?.setAttribute('disabled', '');
+    }
+    variantCell.appendChild(qualityPicker);
     tr.appendChild(variantCell);
 
     // Size — updates when variant changes.
@@ -386,43 +503,84 @@ function renderTableRow(group, ctx) {
         el('strong', { class: 'mp-size-value' }, [formatBytes(initialVariant?.vram_mb)]),
     ]));
 
-    // Capabilities — Vision (vision detection lives in group.has_vision if set).
+    // Capabilities.
     const caps = el('td', { class: 'mp-cell-caps' });
     if (group.ctx) caps.appendChild(el('span', { class: 'mp-badge ctx' }, [`${Math.round(group.ctx / 1024)}k ctx`]));
     tr.appendChild(caps);
 
-    // Status.
-    let statusText, statusClass;
-    if (isActive) { statusText = '✓ Loaded'; statusClass = 'is-loaded'; }
-    else if (isCached) { statusText = '✓ Cached'; statusClass = 'is-cached'; }
-    else { statusText = '—'; statusClass = 'is-empty'; }
-    tr.appendChild(el('td', { class: `mp-cell-status ${statusClass}` }, [statusText]));
+    // Status — also hosts the per-row progress + error display.
+    let statusCell;
+    if (loadingInGroup) {
+        const pct = ctx.loading?.percent;
+        statusCell = el('td', { class: 'mp-cell-status is-loading' }, [
+            el('div', { class: 'mp-load-progress' }, [
+                el('div', {
+                    class: 'mp-load-progress-bar',
+                    style: typeof pct === 'number' ? `width: ${Math.max(0, Math.min(100, pct))}%` : 'width: 0%',
+                }),
+            ]),
+            el('div', { class: 'mp-load-progress-text' }, [
+                ctx.loading?.text || 'Starting…',
+            ]),
+        ]);
+    } else if (ctx.errorForBase === group.base_id && ctx.errorText) {
+        statusCell = el('td', { class: 'mp-cell-status is-error', title: ctx.errorText }, [
+            el('span', { class: 'mp-status-error' }, [`! ${ctx.errorText.slice(0, 60)}`]),
+        ]);
+    } else if (isActive) {
+        statusCell = el('td', { class: 'mp-cell-status is-loaded' }, ['✓ Loaded']);
+    } else if (isCached) {
+        statusCell = el('td', { class: 'mp-cell-status is-cached' }, ['✓ Cached']);
+    } else {
+        statusCell = el('td', { class: 'mp-cell-status is-empty' }, ['—']);
+    }
+    tr.appendChild(statusCell);
 
-    // Actions — Download + Load buttons.
+    // Actions — single button. Three states:
+    //   - this row is loading → "Loading…" (disabled)
+    //   - this row is the active engine → "Unload"
+    //   - otherwise → "Load" (disabled when another row is loading)
     const actionCell = el('td', { class: 'mp-cell-actions' });
-    const downloadBtn = el('button', {
-        class: 'mp-action-btn mp-download-btn',
-        type: 'button',
-        disabled: isCached || isActive ? '' : undefined,
-        title: isCached ? 'Already cached' : 'Download weights to browser cache',
-    }, [isCached || isActive ? 'Cached' : 'Download']);
-    const loadBtn = el('button', {
-        class: 'mp-action-btn mp-load-btn primary',
-        type: 'button',
-        disabled: isActive ? '' : undefined,
-        title: isActive ? 'Currently active' : 'Make this the active chat model',
-    }, [isActive ? 'Loaded' : 'Load']);
-    actionCell.appendChild(downloadBtn);
-    actionCell.appendChild(loadBtn);
+    let btn;
+    if (loadingInGroup) {
+        btn = el('button', {
+            class: 'mp-action-btn mp-load-btn primary',
+            type: 'button',
+            disabled: '',
+        }, ['Loading…']);
+    } else if (isActive) {
+        btn = el('button', {
+            class: 'mp-action-btn mp-unload-btn',
+            type: 'button',
+            disabled: anyLoad ? '' : undefined,
+            title: 'Release GPU memory (keeps cache)',
+        }, ['Unload']);
+    } else {
+        const disableForF16 = initialBlockedByF16;
+        let btnTitle;
+        if (anyLoad) btnTitle = 'Another model is loading…';
+        else if (disableForF16) btnTitle = 'shader-f16 not supported by your GPU — pick a different variant';
+        else btnTitle = isCached ? 'Load into GPU' : 'Download & load';
+        btn = el('button', {
+            class: 'mp-action-btn mp-load-btn primary',
+            type: 'button',
+            disabled: anyLoad || disableForF16 ? '' : undefined,
+            title: btnTitle,
+        }, ['Load']);
+    }
+    actionCell.appendChild(btn);
     tr.appendChild(actionCell);
 
     return tr;
 }
 
-function renderQualityPicker(group, initialVariant) {
+function renderQualityPicker(group, initialVariant, f16Supported = true) {
     // Single dropdown replaces the dense variant-pill row. Each option
     // includes the quality label + its quantization sublabel so users can
-    // still tell variants apart without four side-by-side buttons.
+    // still tell variants apart without four side-by-side buttons. f16
+    // variants are marked disabled (with a hint) when the user's WebGPU
+    // adapter lacks the `shader-f16` feature — the shader fails to compile
+    // otherwise.
     const wrap = el('div', { class: 'mp-quality' });
     const select = el('select', {
         class: 'mp-quality-select',
@@ -430,26 +588,180 @@ function renderQualityPicker(group, initialVariant) {
         onClick: (e) => e.stopPropagation(),
     });
     for (const v of group.variants) {
+        const blocked = !f16Supported && requiresShaderF16(v.quant);
+        const label = blocked
+            ? `${v.label} (${v.sublabel}) — needs shader-f16`
+            : `${v.label} (${v.sublabel})`;
         const opt = el('option', {
             value: v.id,
             'data-variant-id': v.id,
+            'data-needs-f16': blocked ? 'true' : undefined,
+            disabled: blocked ? '' : undefined,
             selected: v.id === initialVariant?.id ? '' : undefined,
-        }, [`${v.label} (${v.sublabel})`]);
+        }, [label]);
         select.appendChild(opt);
     }
     wrap.appendChild(select);
     return wrap;
 }
 
+/**
+ * Tier-card landing view: three big "brain" cards + a "Custom brain" panel
+ * (the full table) gated behind a link. Reuses the same `ctx.loading` /
+ * `ctx.active` state and the same `performLoad` / `performUnload` handlers
+ * the table view drives, so the load lifecycle is identical from either path.
+ *
+ * `ctx.onLoadModelId(modelId)` and `ctx.onUnload()` are the entry points;
+ * `ctx.onSwitchView('custom')` flips the picker to the full table.
+ */
+function renderTierCards(ctx) {
+    const wrap = el('div', { class: 'mp-tiers' });
+
+    // Intro line — sets the brain-metaphor expectation.
+    wrap.appendChild(el('p', { class: 'mp-tiers-intro' }, [
+        'Pick a brain to load into your browser. Bigger = smarter + slower download.',
+    ]));
+
+    const grid = el('div', { class: 'mp-tier-grid' });
+
+    // `ctx.tiers` is the f16/f32-resolved list from openPicker; fall back to
+    // raw BRAIN_TIERS with the f32 variant in case someone calls
+    // renderTierCards in isolation (e.g. tests).
+    const tiers = ctx.tiers
+        || BRAIN_TIERS.map((t) => resolveTierVariant(t, false));
+
+    for (const tier of tiers) {
+        const resolved = resolveTierGroupVariant(ctx.groups, tier.model_id);
+        const available = !!resolved;
+        const isActive = ctx.active === tier.model_id;
+        const isCached = available && ctx.cached.has(resolved.group.base_id);
+        const isLoading = ctx.loading?.variantId === tier.model_id;
+        const anyLoad = ctx.loading?.variantId != null;
+
+        const cardClasses = ['mp-tier-card'];
+        if (tier.recommended) cardClasses.push('is-recommended');
+        if (isActive) cardClasses.push('is-active');
+        if (isLoading) cardClasses.push('is-loading');
+        if (!available) cardClasses.push('is-unavailable');
+
+        const card = el('div', {
+            class: cardClasses.join(' '),
+            'data-tier-id': tier.id,
+            'data-model-id': tier.model_id,
+        });
+
+        // Head: emoji + label + (optional) recommended badge.
+        const head = el('div', { class: 'mp-tier-head' }, [
+            el('span', { class: 'mp-tier-emoji' }, [tier.emoji]),
+            el('div', { class: 'mp-tier-titles' }, [
+                el('h3', { class: 'mp-tier-label' }, [tier.label]),
+                el('div', { class: 'mp-tier-sub' }, [`${tier.size_gb} GB · ${tier.model_id.split('-q')[0]}`]),
+            ]),
+        ]);
+        if (tier.recommended) {
+            head.appendChild(el('span', { class: 'mp-tier-badge' }, ['Recommended']));
+        }
+        card.appendChild(head);
+
+        card.appendChild(el('p', { class: 'mp-tier-tagline' }, [tier.tagline]));
+
+        // Progress (only while this tier is loading).
+        if (isLoading) {
+            const pct = ctx.loading?.percent;
+            card.appendChild(el('div', { class: 'mp-tier-progress' }, [
+                el('div', {
+                    class: 'mp-tier-progress-bar',
+                    style: typeof pct === 'number' ? `width: ${Math.max(0, Math.min(100, pct))}%` : 'width: 0%',
+                }),
+            ]));
+            card.appendChild(el('div', { class: 'mp-tier-progress-text' }, [ctx.loading?.text || 'Starting…']));
+        }
+
+        // Status — only render when there's something meaningful to say. An
+        // empty cold-state card just shows the Load button + no status text.
+        let status = null;
+        if (isActive) {
+            status = el('div', { class: 'mp-tier-status is-loaded' }, ['✓ Loaded']);
+        } else if (isCached) {
+            status = el('div', { class: 'mp-tier-status is-cached' }, ['✓ Cached']);
+        } else if (!available) {
+            status = el('div', { class: 'mp-tier-status is-unavailable' }, ['Not in this version']);
+        }
+        // While loading, the progress bar + text above the foot communicate
+        // the live state — no extra label needed in the foot row.
+
+        // Foot needs to render a placeholder element when status is null so
+        // the button stays right-aligned via space-between.
+        const statusSlot = status || el('div', { class: 'mp-tier-status-placeholder' });
+
+        let btn;
+        if (isLoading) {
+            btn = el('button', { class: 'mp-tier-btn primary', type: 'button', disabled: '' }, ['Loading…']);
+        } else if (isActive) {
+            btn = el('button', {
+                class: 'mp-tier-btn mp-tier-unload',
+                type: 'button',
+                disabled: anyLoad ? '' : undefined,
+                title: 'Release GPU memory (keeps cached files)',
+                onClick: () => ctx.onUnload?.(),
+            }, ['Unload']);
+        } else if (!available) {
+            btn = el('button', { class: 'mp-tier-btn primary', type: 'button', disabled: '' }, ['Unavailable']);
+        } else {
+            btn = el('button', {
+                class: 'mp-tier-btn primary',
+                type: 'button',
+                disabled: anyLoad ? '' : undefined,
+                onClick: () => ctx.onLoadModelId?.(tier.model_id),
+            }, ['Load brain']);
+        }
+
+        card.appendChild(el('div', { class: 'mp-tier-foot' }, [statusSlot, btn]));
+        grid.appendChild(card);
+    }
+
+    wrap.appendChild(grid);
+
+    // "Custom brain" escape hatch — drops into the full table view.
+    wrap.appendChild(el('div', { class: 'mp-tiers-footer' }, [
+        el('button', {
+            class: 'mp-tiers-more',
+            type: 'button',
+            onClick: () => ctx.onSwitchView?.('custom'),
+        }, ['Custom brain — browse all models →']),
+    ]));
+
+    return wrap;
+}
+
 export function renderPickerDom(ctx) {
-    // ctx: { groups, popularity, cached, active, selection, filters, onClose, onSelect, onLoad, onFiltersChange }
+    // ctx: { groups, popularity, cached, active, selection, filters, view,
+    //        onClose, onFiltersChange, onSwitchView, onLoadModelId, onUnload }
     const dialog = el('dialog', { id: 'model-picker' });
+    const view = ctx.view === 'custom' ? 'custom' : 'tiers';
 
     // Header
-    const header = el('div', { class: 'mp-header' }, [
-        el('h2', {}, ['Choose a model']),
+    const headerChildren = [
+        el('h2', {}, [view === 'custom' ? 'Choose a model' : 'Pick a brain']),
         el('button', { class: 'mp-close', 'aria-label': 'Close', onClick: ctx.onClose }, ['✕']),
-    ]);
+    ];
+    if (view === 'custom') {
+        // Show a back-to-tiers affordance only in the full-table view.
+        headerChildren.splice(1, 0, el('button', {
+            class: 'mp-back',
+            type: 'button',
+            'aria-label': 'Back to brain tiers',
+            onClick: () => ctx.onSwitchView?.('tiers'),
+        }, ['← Back']));
+    }
+    const header = el('div', { class: 'mp-header' }, headerChildren);
+
+    // Tier-card landing: short-circuit before building filters + table.
+    if (view === 'tiers') {
+        dialog.appendChild(header);
+        dialog.appendChild(renderTierCards(ctx));
+        return { dialog, grid: null, thead: null, summaryEl: null, loadBtn: null, filtersEl: null, view };
+    }
 
     // Filter row
     const filtersEl = el('div', { class: 'mp-filters' }, [
@@ -564,6 +876,19 @@ export function renderPickerDom(ctx) {
     // and the header's ✕ provides the cancel path.
 
     dialog.appendChild(header);
+    // shader-f16 warning banner — surfaces the GPU limitation up-front so the
+    // user understands why some Variant dropdown rows look greyed out.
+    if (ctx.f16Supported === false) {
+        dialog.appendChild(el('div', { class: 'mp-f16-banner' }, [
+            el('span', { class: 'mp-f16-banner-icon' }, ['⚠']),
+            el('span', {}, [
+                'Your GPU doesn\'t support the WebGPU ',
+                el('code', {}, ['shader-f16']),
+                ' feature. Variants using f16 quantization are disabled — ',
+                'pick an f32 variant instead.',
+            ]),
+        ]));
+    }
     dialog.appendChild(filtersEl);
     dialog.appendChild(tableWrap);
 
@@ -777,40 +1102,77 @@ function updateResultCount(filtersEl, total, visible, onClear) {
     }
 }
 
+/** Parse a percent value out of a WebLLM init-progress text like
+ *  "Loading model from cache[12/24]: 50% complete, 8 secs elapsed.". Returns
+ *  `null` when no integer percent is present. */
+function parsePercentFromText(text) {
+    if (typeof text !== 'string') return null;
+    const m = text.match(/(\d+(?:\.\d+)?)\s*%/);
+    if (m) return Math.max(0, Math.min(100, parseFloat(m[1])));
+    const frac = text.match(/\[(\d+)\/(\d+)\]/);
+    if (frac) {
+        const a = parseInt(frac[1], 10);
+        const b = parseInt(frac[2], 10);
+        if (b > 0) return Math.max(0, Math.min(100, (a / b) * 100));
+    }
+    return null;
+}
+
 /**
- * Open the model picker. Returns a Promise that resolves with
- *   { model_id }     when the user clicks Load
- *   null             when the user closes without choosing
+ * Open the model picker. The picker owns the full load/unload lifecycle while
+ * open: clicking Load downloads + loads in-modal with per-row progress;
+ * clicking Unload on the active row releases the engine; closing (✕/Esc) does
+ * NOT cancel a load in flight — it keeps running in the shared engine module.
  *
- * Caller is responsible for kicking off the actual model download with the
- * returned model_id — this picker only commits a selection.
+ * Caller provides:
+ *   loadEngine(modelId, onProgress) → Promise<void>
+ *   unloadEngine()                  → Promise<void>
+ *   getCurrentModelId()             → string|null  (read latest active model)
+ *   onActiveChange(modelId|null)    — invoked every time the active model
+ *                                      changes (on successful load or unload)
+ *
+ * Resolves with `{ model_id }` (the active model when the picker closes) or
+ * `null` if nothing is loaded at close time.
  */
 export async function openPicker({
     prebuiltList,
-    currentModelId = null,
+    getCurrentModelId = () => null,
+    loadEngine,
+    unloadEngine,
+    onActiveChange = () => {},
 } = {}) {
     const groups = groupModels(prebuiltList);
     const popularity = await fetchHfPopularity();
-    const { cached, active } = await getCachedAndActive(groups, currentModelId);
+    const currentModelId = getCurrentModelId();
+    const { cached } = await getCachedAndActive(groups, currentModelId);
+    let active = currentModelId;
+
+    // Resolve each brain tier to a concrete model_id based on whether the
+    // user's WebGPU adapter exposes `shader-f16`. This is a one-shot probe;
+    // the result feeds renderTierCards via ctx.tiers.
+    const f16Supported = await probeShaderF16();
+    const tiers = BRAIN_TIERS.map((t) => resolveTierVariant(t, f16Supported));
 
     let filters = readPersistedFilters();
     let selection = null; // { base_id, variant }
     const favorites = readPersistedFavorites();
 
+    // In-modal load state. Only one load may be in flight at a time.
+    let loading = null;       // { variantId, baseId, text, percent }
+    let errorForBase = null;  // last failure: which base_id
+    let errorText = null;     // last failure: message to surface
+
+    // Picker view mode. Default to the curated tier-card landing; the user can
+    // flip to the full table via the "Custom brain →" link.
+    let view = 'tiers';
+
     return new Promise((resolve) => {
         const ctx = {
             groups, popularity, cached, active, selection, filters, favorites,
-            onClose: () => close(null),
-            onSelect: () => {},
-            onLoad: () => {
-                if (!selection) return;
-                close({ model_id: selection.variant.id });
-            },
+            loading, errorForBase, errorText, view, tiers, f16Supported,
+            onClose: () => close(),
             onFiltersChange: (next) => {
                 filters = next;
-                // Keep ctx.filters live so per-render closures (e.g. the
-                // sortable header click handler) read fresh state on each
-                // click instead of the value captured at first render.
                 ctx.filters = filters;
                 writePersistedFilters(filters);
                 rerenderHeader();
@@ -820,23 +1182,150 @@ export async function openPicker({
                 if (favorites.has(baseId)) favorites.delete(baseId);
                 else favorites.add(baseId);
                 writePersistedFavorites(favorites);
-                rerenderGrid();
+                rerenderEverything();
             },
             onDeleteCached: async (group) => {
                 if (!window.confirm(`Delete cached ${group.base_id}?`)) return;
                 await deleteCachedModel(group);
-                const refresh = await getCachedAndActive(groups, currentModelId);
+                const refresh = await getCachedAndActive(groups, active);
                 cached.clear();
                 for (const id of refresh.cached) cached.add(id);
-                rerenderGrid();
+                rerenderEverything();
             },
+            onSwitchView: (next) => {
+                view = next === 'custom' ? 'custom' : 'tiers';
+                ctx.view = view;
+                rebuildDialogBody();
+            },
+            onLoadModelId: (modelId) => {
+                const found = resolveTierGroupVariant(groups, modelId);
+                if (found) performLoad(found.group, found.variant);
+            },
+            onUnload: () => performUnload(),
         };
 
         const dom = renderPickerDom(ctx);
         document.body.appendChild(dom.dialog);
 
+        // Switch views by rebuilding the dialog's children in place. The
+        // dialog element itself is preserved so the `close` listener stays
+        // attached and `showModal` doesn't need to fire again. In tier mode
+        // the body is fully rendered by renderPickerDom; in custom mode the
+        // table skeleton lands but rows are populated by rerenderGrid().
+        function rebuildDialogBody() {
+            syncCtx();
+            const fresh = renderPickerDom(ctx);
+            dom.dialog.replaceChildren(...fresh.dialog.children);
+            dom.grid = fresh.grid;
+            dom.thead = fresh.thead;
+            dom.summaryEl = fresh.summaryEl;
+            dom.loadBtn = fresh.loadBtn;
+            dom.filtersEl = fresh.filtersEl;
+            dom.view = fresh.view;
+            if (view === 'custom') rerenderGrid();
+        }
+
+        function syncCtx() {
+            ctx.active = active;
+            ctx.loading = loading;
+            ctx.errorForBase = errorForBase;
+            ctx.errorText = errorText;
+        }
+
+        async function performLoad(group, variant) {
+            if (loading) return; // another load already in flight
+            if (typeof loadEngine !== 'function') return;
+            errorForBase = null;
+            errorText = null;
+            loading = { variantId: variant.id, baseId: group.base_id, text: 'Starting…', percent: null };
+            syncCtx();
+            rerenderGrid();
+
+            const onProgress = (text) => {
+                // The picker may have closed mid-load; skip DOM updates if so.
+                if (!dom.dialog.isConnected) return;
+                if (!loading || loading.variantId !== variant.id) return;
+                loading.text = text || 'Downloading…';
+                loading.percent = parsePercentFromText(text);
+                // Lightweight in-place update: avoid full grid rerender on
+                // every progress tick (which would discard select/scroll).
+                updateRowProgressInPlace(group.base_id, loading);
+            };
+
+            try {
+                await loadEngine(variant.id, onProgress);
+                active = variant.id;
+                cached.add(group.base_id);
+                onActiveChange(active);
+            } catch (e) {
+                errorForBase = group.base_id;
+                errorText = String(e?.message ?? e);
+            } finally {
+                loading = null;
+                if (dom.dialog.isConnected) {
+                    syncCtx();
+                    rerenderGrid();
+                }
+            }
+        }
+
+        async function performUnload() {
+            if (loading) return;
+            if (typeof unloadEngine !== 'function') return;
+            try {
+                await unloadEngine();
+            } catch (_e) { /* unload is best-effort */ }
+            active = null;
+            onActiveChange(null);
+            syncCtx();
+            if (dom.dialog.isConnected) rerenderGrid();
+        }
+
+        function updateRowProgressInPlace(baseId, loadingState) {
+            // Update the per-row bar (custom-table view).
+            const row = dom.grid?.querySelector(
+                `tr.mp-row[data-base-id="${CSS.escape(baseId)}"]`,
+            );
+            if (row) {
+                const text = row.querySelector('.mp-load-progress-text');
+                const bar = row.querySelector('.mp-load-progress-bar');
+                if (text) text.textContent = loadingState.text || 'Downloading…';
+                if (bar) {
+                    const pct = loadingState.percent;
+                    bar.style.width = typeof pct === 'number'
+                        ? `${Math.max(0, Math.min(100, pct))}%`
+                        : '0%';
+                }
+            }
+            // Update the matching tier card (tier-card view). The tier card
+            // matches on the exact model_id, not the base_id, so we look it
+            // up by data-model-id.
+            const card = dom.dialog.querySelector(
+                `.mp-tier-card[data-model-id="${CSS.escape(loadingState.variantId)}"]`,
+            );
+            if (card) {
+                const text = card.querySelector('.mp-tier-progress-text');
+                const bar = card.querySelector('.mp-tier-progress-bar');
+                if (text) text.textContent = loadingState.text || 'Downloading…';
+                if (bar) {
+                    const pct = loadingState.percent;
+                    bar.style.width = typeof pct === 'number'
+                        ? `${Math.max(0, Math.min(100, pct))}%`
+                        : '0%';
+                }
+            }
+        }
+
         function rerenderGrid() {
+            // Tier-card view: rebuild only the .mp-tiers panel so the dialog
+            // children aren't disturbed.
+            if (view === 'tiers') {
+                const old = dom.dialog.querySelector('.mp-tiers');
+                if (old) old.replaceWith(renderTierCards(ctx));
+                return;
+            }
             const filtered = applyFilters(groups, filters, popularity, cached, favorites);
+            if (!dom.grid) return;
             dom.grid.innerHTML = '';
             if (filtered.length === 0) {
                 const emptyRow = el('tr', {}, [el('td', { colspan: '7', class: 'mp-empty' }, [
@@ -848,31 +1337,30 @@ export async function openPicker({
                 for (const g of filtered) {
                     const row = renderTableRow(g, {
                         cached, active, popularity, selection, favorites,
+                        loading, errorForBase, errorText, f16Supported,
                         onFavoriteToggle: ctx.onFavoriteToggle,
                         onDeleteCached: ctx.onDeleteCached,
                     });
-                    bindCardEvents(row, g);
+                    bindRowEvents(row, g);
                     dom.grid.appendChild(row);
                 }
             }
-            updateResultCount(dom.filtersEl, groups.length, filtered.length, clearFilters);
+            if (dom.filtersEl) {
+                updateResultCount(dom.filtersEl, groups.length, filtered.length, clearFilters);
+            }
         }
 
         function clearFilters() {
             filters = { ...DEFAULT_FILTERS };
             ctx.filters = filters;
             writePersistedFilters(filters);
-            // Reset filter UI by re-rendering the dialog from scratch is heavy;
-            // simpler: replace the dialog contents.
             const newDom = renderPickerDom({ ...ctx, filters });
             dom.dialog.replaceChildren(...newDom.dialog.children);
-            // Rebind references to the new DOM
             dom.grid = newDom.grid;
             dom.thead = newDom.thead;
             dom.summaryEl = newDom.summaryEl;
             dom.loadBtn = newDom.loadBtn;
             dom.filtersEl = newDom.filtersEl;
-            // Reset selection
             selection = null;
             ctx.selection = null;
             rerenderGrid();
@@ -882,44 +1370,57 @@ export async function openPicker({
             rerenderTableHeader(dom.thead, ctx);
         }
 
-        function bindCardEvents(row, group) {
+        function bindRowEvents(row, group) {
             const select = row.querySelector('.mp-quality-select');
             let currentVariant = group.variants.find((v) => v.id === select?.value)
-                || group.variants[Math.floor(group.variants.length / 2)]
-                || group.variants[0];
+                || pickInitialVariant(group, f16Supported);
+
+            const loadBtn = row.querySelector('.mp-load-btn');
+
+            const refreshLoadGate = () => {
+                if (!loadBtn) return;
+                const blocked = !f16Supported && requiresShaderF16(currentVariant?.quant);
+                loadBtn.disabled = !!(loading || blocked);
+                if (blocked) {
+                    loadBtn.title = 'shader-f16 not supported by your GPU — pick a different variant';
+                } else if (loading) {
+                    loadBtn.title = 'Another model is loading…';
+                } else {
+                    loadBtn.title = '';
+                }
+            };
 
             select?.addEventListener('change', () => {
                 currentVariant = group.variants.find((v) => v.id === select.value) || currentVariant;
                 const sizeEl = row.querySelector('.mp-size-value');
                 if (sizeEl) sizeEl.textContent = formatBytes(currentVariant.vram_mb);
+                refreshLoadGate();
             });
 
-            const downloadBtn = row.querySelector('.mp-download-btn');
-            downloadBtn?.addEventListener('click', () => {
-                selection = { base_id: group.base_id, variant: currentVariant };
-                ctx.selection = selection;
-                close({ model_id: currentVariant.id, mode: 'download' });
-            });
-
-            const loadBtn = row.querySelector('.mp-load-btn');
             loadBtn?.addEventListener('click', () => {
-                selection = { base_id: group.base_id, variant: currentVariant };
-                ctx.selection = selection;
-                close({ model_id: currentVariant.id, mode: 'load' });
+                if (loading) return;
+                if (!f16Supported && requiresShaderF16(currentVariant?.quant)) return;
+                performLoad(group, currentVariant);
+            });
+
+            const unloadBtn = row.querySelector('.mp-unload-btn');
+            unloadBtn?.addEventListener('click', () => {
+                if (loading) return;
+                performUnload();
             });
         }
 
-        function close(value) {
+        function close() {
             try { dom.dialog.close(); } catch (_e) {}
             dom.dialog.remove();
-            resolve(value);
+            resolve(active ? { model_id: active } : null);
         }
 
-        // Esc key closes via <dialog> default; we still need to clean up DOM
+        // Esc closes via <dialog> default; ensure we clean up DOM and resolve.
         dom.dialog.addEventListener('close', () => {
             if (dom.dialog.parentElement) {
                 dom.dialog.remove();
-                resolve(null);
+                resolve(active ? { model_id: active } : null);
             }
         });
 

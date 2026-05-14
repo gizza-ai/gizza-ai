@@ -1189,3 +1189,134 @@ dialog button[value="close"] {
     cursor: pointer;
 }
 .empty-state-link:hover { color: var(--color-primary-active); }
+
+/* ─── Cycling "thinking…" placeholder in an empty assistant bubble ────── */
+.thinking {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+    color: var(--color-muted);
+    font-style: italic;
+}
+.thinking-word {
+    display: inline-block;
+    animation: thinking-fade 1.5s ease-in-out infinite;
+}
+.thinking-dots {
+    display: inline-block;
+    animation: thinking-pulse 1.2s ease-in-out infinite;
+}
+@keyframes thinking-fade {
+    0%, 100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+}
+@keyframes thinking-pulse {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50%      { transform: translateY(-1px); opacity: 1; }
+}
+
+/* ─── { } button next to a formatted slash-skill answer ────────────────── */
+.raw-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-family: var(--sa-mono, ui-monospace, "SF Mono", monospace);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--color-canvas-soft);
+    color: var(--color-muted);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    vertical-align: baseline;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.raw-toggle:hover {
+    background: var(--color-surface-strong);
+    color: var(--color-ink);
+    border-color: var(--color-hairline-strong);
+}
+
+/* ─── Raw-JSON popup dialog ────────────────────────────────────────────── */
+dialog.raw-popup {
+    width: min(720px, 90vw);
+    max-height: 80vh;
+    padding: 0;
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-card);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    overflow: hidden;
+}
+dialog.raw-popup::backdrop { background: rgba(0,0,0,0.4); }
+.raw-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-base);
+    border-bottom: 1px solid var(--color-hairline);
+    background: var(--color-canvas-soft);
+}
+.raw-popup-header h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-ink);
+}
+.raw-popup-close {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+.raw-popup-close:hover { color: var(--color-ink); background: var(--color-surface-strong); }
+.raw-popup-body {
+    margin: 0;
+    padding: var(--space-base);
+    max-height: 60vh;
+    overflow: auto;
+    font-family: var(--sa-mono, ui-monospace, "SF Mono", monospace);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-ink);
+    background: var(--color-canvas);
+    white-space: pre;
+}
+.raw-popup-body code {
+    font-family: inherit;
+    background: none;
+    padding: 0;
+}
+.raw-popup-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-base);
+    border-top: 1px solid var(--color-hairline);
+    background: var(--color-canvas-soft);
+}
+.raw-popup-copy {
+    padding: 6px 14px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+.raw-popup-copy:hover { background: var(--color-primary-active); border-color: var(--color-primary-active); }
+.raw-popup-copied {
+    font-size: 12px;
+    color: var(--color-success);
+}

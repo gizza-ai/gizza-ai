@@ -3,17 +3,23 @@
  * don't collide with `dialog#settings`. Tokens come from gizza.css. */
 
 dialog#model-picker {
-    /* Override the small centered modal style from gizza.css */
-    width: 100vw;
-    height: 100vh;
-    max-width: none;
-    max-height: none;
-    margin: 0;
+    /* Centered card overlay. The dialog element auto-centers when its margin
+     * is `auto`; we size it to a comfortable max but cap it at 92vw / 88vh so
+     * it stays well inside the viewport with breathing room around it. */
+    width: min(1100px, 92vw);
+    height: min(820px, 88vh);
+    max-width: 1100px;
+    max-height: 88vh;
+    margin: auto;
     padding: 0;
-    border: none;
-    border-radius: 0;
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-lg);
     background: var(--color-canvas);
     color: var(--color-ink);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.22),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     /* Consistent brand voice — Itim throughout the picker, including
@@ -26,7 +32,27 @@ dialog#model-picker select,
 dialog#model-picker button {
     font-family: var(--font-display);
 }
-dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
+dialog#model-picker::backdrop {
+    background: rgba(15, 15, 20, 0.5);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* On narrow viewports (mobile / split-screen) the centered card wastes more
+ * space on chrome than it saves; collapse back to full-screen so the table
+ * + tier cards get every pixel. */
+@media (max-width: 720px) {
+    dialog#model-picker {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
 
 /* ─── Header ───────────────────────────────────────────────────────────── */
 .mp-header {
@@ -196,11 +222,23 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
 .mp-cell-model-name {
     font-weight: 500;
     color: var(--color-ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.mp-cell-model-title {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .mp-cell-model-sub {
     font-size: 11px;
     color: var(--color-muted);
     margin-top: 2px;
+    margin-left: 30px;  /* align under title (after star) */
 }
 .mp-cell-hf-link {
     color: var(--color-primary);
@@ -247,6 +285,59 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
     background: var(--color-canvas-soft);
     border-color: var(--color-hairline-strong);
     color: var(--color-muted-soft);
+}
+.mp-action-btn.mp-unload-btn {
+    background: var(--color-surface-card);
+    border-color: #b91c1c;
+    color: #b91c1c;
+}
+.mp-action-btn.mp-unload-btn:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #991b1b;
+    color: #991b1b;
+}
+.mp-action-btn.mp-unload-btn:disabled {
+    color: var(--color-muted-soft);
+    border-color: var(--color-hairline-strong);
+    background: var(--color-canvas-soft);
+}
+
+/* ─── Per-row load progress in the Status cell ─────────────────────────── */
+.mp-cell-status.is-loading {
+    min-width: 180px;
+}
+.mp-load-progress {
+    width: 100%;
+    height: 6px;
+    background: var(--color-canvas-soft);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--color-hairline-soft);
+}
+.mp-load-progress-bar {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 200ms ease;
+}
+.mp-load-progress-text {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--color-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+.mp-cell-status.is-error {
+    color: #b91c1c;
+    font-weight: 500;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mp-row.is-loading {
+    background: #fff7f1;
 }
 
 .mp-empty {
@@ -357,18 +448,26 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
 }
 
 .mp-star {
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
     background: transparent;
     border: none;
-    padding: 4px 8px;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1;
     cursor: pointer;
-    color: var(--color-muted);
-    border-radius: var(--radius-md);
+    color: var(--color-muted-soft);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 120ms ease, transform 120ms ease;
 }
-.mp-star:hover { background: rgba(0, 0, 0, 0.04); color: var(--color-ink); }
+.mp-star:hover { color: #f59e0b; transform: scale(1.1); }
+.mp-star:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .mp-star.active { color: #f59e0b; }
-.mp-star.active:hover { background: rgba(245, 158, 11, 0.08); }
+.mp-star.active:hover { color: #d97706; }
 
 .mp-trash {
     background: transparent;
@@ -382,3 +481,265 @@ dialog#model-picker::backdrop { background: rgba(0, 0, 0, 0.4); }
     border-radius: var(--radius-md);
 }
 .mp-trash:hover { background: rgba(220, 38, 38, 0.08); color: #b91c1c; }
+
+/* ─── Brain-tier landing view ──────────────────────────────────────────── */
+.mp-tiers {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+}
+.mp-tiers-intro {
+    margin: 0;
+    max-width: 720px;
+    text-align: center;
+    color: var(--color-body);
+    font-size: 15px;
+    line-height: 1.5;
+}
+.mp-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+    gap: var(--space-base);
+    width: 100%;
+    max-width: 960px;
+}
+@media (max-width: 820px) {
+    .mp-tier-grid { grid-template-columns: 1fr; }
+}
+
+.mp-tier-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-base);
+    /* Reserve enough vertical space for the progress bar + text so the foot
+     * row doesn't shift down when loading starts. Tagline (flex: 1 auto)
+     * absorbs the slack while idle. */
+    min-height: 230px;
+    transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+.mp-tier-card:hover { border-color: var(--color-hairline-strong); }
+.mp-tier-card.is-recommended {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+}
+.mp-tier-card.is-active {
+    border-color: var(--color-success);
+    background: #f5fdf9;
+}
+.mp-tier-card.is-loading {
+    border-color: var(--color-primary);
+    background: #fff7f1;
+}
+.mp-tier-card.is-unavailable {
+    opacity: 0.55;
+    background: var(--color-canvas-soft);
+}
+
+.mp-tier-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+}
+.mp-tier-emoji {
+    font-size: 32px;
+    line-height: 1;
+    flex: 0 0 auto;
+}
+.mp-tier-titles { flex: 1 1 auto; min-width: 0; }
+.mp-tier-label {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-ink);
+    line-height: 1.2;
+}
+.mp-tier-sub {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--color-muted);
+    font-family: var(--sa-mono, ui-monospace, "SF Mono", monospace);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.mp-tier-badge {
+    position: absolute;
+    top: -10px;
+    right: var(--space-base);
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border-radius: var(--radius-pill);
+}
+
+.mp-tier-tagline {
+    margin: 0 0 var(--space-base);
+    color: var(--color-body);
+    font-size: 13px;
+    line-height: 1.45;
+    flex: 1 1 auto;
+}
+
+.mp-tier-progress {
+    width: 100%;
+    height: 6px;
+    margin-bottom: 6px;
+    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-hairline-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.mp-tier-progress-bar {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 200ms ease;
+}
+.mp-tier-progress-text {
+    margin-bottom: var(--space-xs);
+    font-size: 11px;
+    color: var(--color-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-tier-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-top: auto;
+}
+.mp-tier-status {
+    font-size: 12px;
+    font-weight: 500;
+}
+.mp-tier-status.is-loaded { color: var(--color-success); }
+.mp-tier-status.is-cached { color: var(--color-body); }
+.mp-tier-status.is-empty  { color: var(--color-muted-soft); }
+.mp-tier-status.is-unavailable { color: var(--color-muted-soft); font-style: italic; }
+.mp-tier-status.is-loading { color: transparent; }
+
+.mp-tier-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-display);
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-md);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+}
+.mp-tier-btn:hover:not(:disabled) { border-color: var(--color-ink); }
+.mp-tier-btn:disabled {
+    color: var(--color-muted-soft);
+    cursor: default;
+    background: var(--color-canvas-soft);
+}
+.mp-tier-btn.primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+.mp-tier-btn.primary:hover:not(:disabled) {
+    background: var(--color-primary-active);
+    border-color: var(--color-primary-active);
+}
+.mp-tier-btn.primary:disabled {
+    background: var(--color-canvas-soft);
+    border-color: var(--color-hairline-strong);
+    color: var(--color-muted-soft);
+}
+.mp-tier-btn.mp-tier-unload {
+    background: var(--color-surface-card);
+    border-color: #b91c1c;
+    color: #b91c1c;
+}
+.mp-tier-btn.mp-tier-unload:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #991b1b;
+    color: #991b1b;
+}
+
+.mp-tiers-footer {
+    margin-top: var(--space-base);
+    text-align: center;
+}
+.mp-tiers-more {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: background 120ms ease;
+}
+.mp-tiers-more:hover {
+    background: rgba(0,0,0,0.04);
+    text-decoration: underline;
+}
+
+/* Back arrow in the header when on the Custom view. */
+.mp-back {
+    background: transparent;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    padding: 4px 10px;
+    margin-right: auto;
+    margin-left: var(--space-base);
+    font-family: var(--font-display);
+    font-size: 13px;
+    color: var(--color-ink);
+    cursor: pointer;
+}
+.mp-back:hover { border-color: var(--color-ink); background: var(--color-surface-strong); }
+
+/* ─── shader-f16 unsupported banner (custom view only) ─────────────────── */
+.mp-f16-banner {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 10px var(--space-lg);
+    background: #fff4e0;
+    border-bottom: 1px solid #f4d8a0;
+    color: #7a5510;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.mp-f16-banner-icon {
+    flex: 0 0 auto;
+    font-size: 16px;
+    line-height: 1;
+}
+.mp-f16-banner code {
+    background: rgba(0, 0, 0, 0.04);
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+    font-family: var(--sa-mono, ui-monospace, "SF Mono", monospace);
+    font-size: 12px;
+}
+
+/* Faded styling for f16-blocked variants inside the Variant dropdown. */
+.mp-quality-select option[data-needs-f16="true"] {
+    color: var(--color-muted-soft);
+    font-style: italic;
+}
