@@ -145,28 +145,70 @@ function startThinking(node, opening = null) {
     };
 }
 
-// Modal popup for the raw JSON behind a formatted slash result. Reuses
-// <dialog> for native ESC/focus-trap behaviour.
-function showRawPopup(raw, title = 'Raw result') {
-    let pretty = raw;
-    try { pretty = JSON.stringify(JSON.parse(raw), null, 2); } catch (_e) { /* not JSON — show as-is */ }
+// Modal popup with two tabs (Input | Output) for the raw JSON behind a
+// formatted slash result. Lets users see what the LLM extracted from their
+// message vs what the skill returned — useful for debugging cases like a
+// /calculator typo where the LLM read 't2' as a variable.
+function showRawPopup({ input, output, title = 'Raw' } = {}) {
+    const pretty = (v) => {
+        if (v == null) return '(none)';
+        if (typeof v === 'string') {
+            try { return JSON.stringify(JSON.parse(v), null, 2); } catch { return v; }
+        }
+        try { return JSON.stringify(v, null, 2); } catch { return String(v); }
+    };
+    const inputText = pretty(input);
+    const outputText = pretty(output);
+
     const dlg = el('dialog', { class: 'raw-popup' });
+
+    // Header with tabs.
+    let activeTab = output != null ? 'output' : 'input';
+    const inputBtn = el('button', {
+        class: 'raw-popup-tab',
+        type: 'button',
+        onClick: () => switchTab('input'),
+    }, 'Input');
+    const outputBtn = el('button', {
+        class: 'raw-popup-tab',
+        type: 'button',
+        onClick: () => switchTab('output'),
+    }, 'Output');
+    const closeBtn = el('button', {
+        class: 'raw-popup-close',
+        'aria-label': 'Close',
+        onClick: () => dlg.close(),
+    }, '✕');
+    const tabs = el('div', { class: 'raw-popup-tabs' }, [inputBtn, outputBtn]);
     const header = el('div', { class: 'raw-popup-header' }, [
         el('h3', {}, title),
-        el('button', { class: 'raw-popup-close', 'aria-label': 'Close', onClick: () => dlg.close() }, '✕'),
+        tabs,
+        closeBtn,
     ]);
-    const body = el('pre', { class: 'raw-popup-body' }, el('code', {}, pretty));
-    const footer = el('div', { class: 'raw-popup-footer' }, [
-        el('button', {
-            class: 'raw-popup-copy',
-            onClick: async () => {
-                try { await navigator.clipboard.writeText(pretty); } catch (_e) {}
-                const ok = el('span', { class: 'raw-popup-copied' }, 'Copied');
-                footer.appendChild(ok);
-                setTimeout(() => ok.remove(), 1200);
-            },
-        }, 'Copy'),
-    ]);
+
+    const codeNode = el('code', {}, activeTab === 'output' ? outputText : inputText);
+    const body = el('pre', { class: 'raw-popup-body' }, codeNode);
+
+    const copyBtn = el('button', {
+        class: 'raw-popup-copy',
+        onClick: async () => {
+            const txt = activeTab === 'output' ? outputText : inputText;
+            try { await navigator.clipboard.writeText(txt); } catch (_e) {}
+            const ok = el('span', { class: 'raw-popup-copied' }, 'Copied');
+            footer.appendChild(ok);
+            setTimeout(() => ok.remove(), 1200);
+        },
+    }, 'Copy');
+    const footer = el('div', { class: 'raw-popup-footer' }, [copyBtn]);
+
+    function switchTab(name) {
+        activeTab = name;
+        codeNode.textContent = name === 'output' ? outputText : inputText;
+        inputBtn.classList.toggle('is-active', name === 'input');
+        outputBtn.classList.toggle('is-active', name === 'output');
+    }
+    switchTab(activeTab);
+
     dlg.appendChild(header);
     dlg.appendChild(body);
     dlg.appendChild(footer);
@@ -176,14 +218,16 @@ function showRawPopup(raw, title = 'Raw result') {
 }
 
 // Append a small {} icon button to a bubble that opens the raw popup on click.
-function appendRawButton(bubble, raw) {
-    if (!raw) return;
+// `input` is what the LLM dispatched to the skill (extracted params); `output`
+// is what the skill returned. Both are stringified for the popup.
+function appendRawButton(bubble, { input, output } = {}) {
+    if (input == null && output == null) return;
     const btn = el('button', {
         class: 'raw-toggle',
         type: 'button',
-        title: 'Show raw output',
-        'aria-label': 'Show raw output',
-        onClick: () => showRawPopup(raw),
+        title: 'Show raw input + output',
+        'aria-label': 'Show raw input + output',
+        onClick: () => showRawPopup({ input, output }),
     }, '{ }');
     bubble.appendChild(document.createTextNode(' '));
     bubble.appendChild(btn);
@@ -314,6 +358,78 @@ async function formatSlashResultWithLLM({ cmd, args, raw, bubbleText }) {
         if (!acc) {
             // LLM produced nothing — fall back to raw so user sees something.
             bubbleText.textContent = raw;
+        }
+    }
+}
+
+/**
+ * When a slash skill returns an error, run a small LLM follow-up that takes
+ * the user's original message + the skill error and emits a friendly
+ * "did you mean…?" suggestion in plain language. Falls back to the raw error
+ * envelope when no model is loaded or the LLM call fails.
+ */
+async function suggestCorrectionWithLLM({ cmd, args, error, userMessage, bubbleText }) {
+    const modelId = selectedModelId();
+    if (!modelId) {
+        bubbleText.textContent = `Error: ${error}`;
+        return;
+    }
+    const prompt =
+        `The user typed: ${JSON.stringify(userMessage)}\n\n` +
+        `That dispatched the \`/${cmd}\` skill, which failed with this error:\n\n` +
+        `> ${error}\n\n` +
+        `Write a one-sentence response in plain language explaining what likely went wrong, ` +
+        `and (if possible) suggest a corrected version of the user's message. ` +
+        `Do not echo the error verbatim and do not mention "the skill" or "the LLM" — ` +
+        `just talk to the user like a helpful assistant.`;
+    const thinker = startThinking(bubbleText, 'figuring');
+    let acc = '';
+    try {
+        const resp = await fetch('/b/agent/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_message: prompt,
+                messages: [],
+                model_id: modelId,
+            }),
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let idx;
+            while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                const frame = buffer.slice(0, idx);
+                buffer = buffer.slice(idx + 2);
+                const lines = frame.split('\n');
+                let event = '';
+                let data = '';
+                for (const line of lines) {
+                    if (line.startsWith('event:')) event = line.slice(6).trim();
+                    else if (line.startsWith('data:')) data += line.slice(5).replace(/^ /, '');
+                }
+                if (event === 'token') {
+                    let p; try { p = JSON.parse(data); } catch { p = null; }
+                    if (p?.delta) {
+                        if (acc === '') thinker.stop();
+                        acc += p.delta;
+                        renderAssistantContent(bubbleText, acc);
+                        scrollToBottom();
+                    }
+                }
+            }
+        }
+    } catch (_e) {
+        // fall through — show raw error
+    } finally {
+        thinker.stop();
+        if (!acc) {
+            bubbleText.textContent = `Error: ${error}`;
         }
     }
 }
@@ -1176,20 +1292,44 @@ $('composer').addEventListener('submit', async (e) => {
         }
         if (buffer.trim()) processFrame(buffer);
 
-        // Slash-command path: try a cheap deterministic template first; only
-        // fall back to the LLM-summarize pass for complex shapes. Either way,
-        // attach a `{ }` button so the user can see the raw JSON.
+        // Slash-command path. For each parked slash tool_result:
+        //
+        //  1. If the skill returned `{error: …}`, run an LLM correction
+        //     follow-up — feed the original user message + the error back to
+        //     the model and ask for a friendly "did you mean…?" suggestion.
+        //     Beats dumping a raw stack trace at the user.
+        //  2. Otherwise try the cheap deterministic template
+        //     (calculator/clock/web-fetch/…). When it matches we render
+        //     instantly and skip the LLM pass.
+        //  3. Otherwise fall through to the LLM-format pass.
+        //
+        // Either way the `{ }` button gets appended with both `input` (what
+        // the LLM dispatched to the skill) and `raw` (what the skill
+        // returned), so users can flip between the two in the popup.
         for (const f of slashFollowups) {
-            const templated = templateSimpleResult(f.cmd, f.raw);
-            if (templated !== null) {
-                assistantEl.replaceChildren();
-                renderAssistantContent(assistantEl, templated);
-            } else {
-                await formatSlashResultWithLLM({
-                    cmd: f.cmd, args: f.args, raw: f.raw, bubbleText: assistantEl,
+            let parsed = null;
+            try { parsed = JSON.parse(f.raw); } catch { /* not JSON */ }
+            const skillError = parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+                && typeof parsed.error === 'string'
+                ? parsed.error : null;
+
+            if (skillError) {
+                await suggestCorrectionWithLLM({
+                    cmd: f.cmd, args: f.args, error: skillError, userMessage: text,
+                    bubbleText: assistantEl,
                 });
+            } else {
+                const templated = templateSimpleResult(f.cmd, f.raw);
+                if (templated !== null) {
+                    assistantEl.replaceChildren();
+                    renderAssistantContent(assistantEl, templated);
+                } else {
+                    await formatSlashResultWithLLM({
+                        cmd: f.cmd, args: f.args, raw: f.raw, bubbleText: assistantEl,
+                    });
+                }
             }
-            appendRawButton(assistantEl.parentElement, f.raw);
+            appendRawButton(assistantEl.parentElement, { input: f.input, output: f.raw });
         }
 
         if (assistantText) {
@@ -1254,9 +1394,14 @@ $('composer').addEventListener('submit', async (e) => {
                     // Defer the LLM formatting until the SSE stream is done
                     // so we don't race the original stream with a fresh
                     // /b/agent/chat. Park the work and run it after the loop.
+                    // `input` is the params the agent dispatched to the skill
+                    // (added in agent.rs alongside `result`) — surfaced in the
+                    // `{ }` popup's Input tab so users can see what the LLM
+                    // understood from their message.
                     slashFollowups.push({
                         cmd: slashCmd?.[1] || '?',
                         args: slashCmd?.[2] || '',
+                        input: payload?.input ?? null,
                         raw: summary,
                     });
                 }

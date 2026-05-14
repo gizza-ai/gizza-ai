@@ -1256,7 +1256,7 @@ dialog.raw-popup::backdrop { background: rgba(0,0,0,0.4); }
 .raw-popup-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: var(--space-base);
     padding: var(--space-sm) var(--space-base);
     border-bottom: 1px solid var(--color-hairline);
     background: var(--color-canvas-soft);
@@ -1267,6 +1267,30 @@ dialog.raw-popup::backdrop { background: rgba(0,0,0,0.4); }
     font-size: 16px;
     font-weight: 500;
     color: var(--color-ink);
+    flex: 0 0 auto;
+}
+.raw-popup-tabs {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 4px;
+}
+.raw-popup-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 4px 12px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.raw-popup-tab:hover { color: var(--color-ink); }
+.raw-popup-tab.is-active {
+    color: var(--color-ink);
+    background: var(--color-surface-card);
+    border-color: var(--color-hairline);
+    font-weight: 500;
 }
 .raw-popup-close {
     background: transparent;
