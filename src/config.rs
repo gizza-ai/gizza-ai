@@ -148,7 +148,11 @@ fn seed_auto_generated() {
             );
             continue;
         }
-        let secret: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
+        use std::fmt::Write as _;
+        let mut secret = String::with_capacity(bytes.len() * 2);
+        for b in &bytes {
+            write!(&mut secret, "{b:02x}").expect("writing to String never fails");
+        }
 
         let id = format!("var_{}", uuid::Uuid::new_v4());
         let sensitive: i32 = if var.is_sensitive() { 1 } else { 0 };

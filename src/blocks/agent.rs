@@ -160,7 +160,7 @@ fn handle_commands(ctx: &dyn Context) -> OutputStream {
         .into_iter()
         .map(|(cmd, desc)| serde_json::json!({ "cmd": cmd, "description": desc }))
         .collect();
-    let body = serde_json::to_vec(&entries).unwrap_or_else(|_| b"[]".to_vec());
+    let body = serde_json::to_vec(&entries).expect("serde_json::Value always serializes");
     OutputStream::respond_with_meta(
         body,
         vec![
@@ -427,7 +427,7 @@ async fn build_skill_params(
         let no_required = schema
             .get("required")
             .and_then(|r| r.as_array())
-            .map_or(true, |arr| arr.is_empty());
+            .is_none_or(|arr| arr.is_empty());
         return if no_required {
             ParamExtraction::Extracted(serde_json::json!({}))
         } else {
@@ -606,7 +606,7 @@ async fn run_skill_dispatch(
         }
     }
 
-    let args_bytes = serde_json::to_vec(&params).unwrap_or_else(|_| b"{}".to_vec());
+    let args_bytes = serde_json::to_vec(&params).expect("serde_json::Value always serializes");
     let mut msg = Message::new("http");
     msg.set_meta(META_REQ_ACTION, "create");
     msg.set_meta(
