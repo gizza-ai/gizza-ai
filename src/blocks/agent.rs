@@ -5,7 +5,10 @@
 //!     Request:  { "user_message": "...", "messages": [...], "model_id"?, "uploads"?, "confirm_yes"? }
 //!     Response: text/event-stream:
 //!       event: token        data: { "delta": "..." }                    — assistant LLM text
-//!       event: tool_result  data: { "id", "result", "for_ui"? }         — skill output
+//!       event: tool_result  data: { "id", "input", "result", "for_ui"? } — skill output
+//!         `input`  — the extracted params dispatched to the skill (lets
+//!                    the UI show users what the LLM understood from their
+//!                    slash command in a side-by-side Input/Output view).
 //!       event: confirm      data: { "question", "yes": {cmd, params} }  — PR 5 stub
 //!       event: done         data: { "reason": "stop" | "error", "error"? }
 //!
@@ -591,6 +594,7 @@ async fn run_skill_dispatch(
                 "tool_result",
                 &serde_json::json!({
                     "id": id,
+                    "input": params,
                     "result": format!(r#"{{"error":"unknown_ref","message":"no attachment for ref {ref_id:?}"}}"#),
                 }),
             ));
@@ -626,6 +630,7 @@ async fn run_skill_dispatch(
 
     let mut payload = serde_json::json!({
         "id": id,
+        "input": params,
         "result": outcome.for_llm,
     });
     if let Some(ref for_ui) = outcome.for_ui {
