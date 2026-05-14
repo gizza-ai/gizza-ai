@@ -53,8 +53,10 @@ pub trait FfmpegService: wafer_block::MaybeSend + wafer_block::MaybeSync + 'stat
 #[cfg(target_arch = "wasm32")]
 pub struct BrowserFfmpegService;
 
-// wasm32 is single-threaded; the service holds no JS state of its own
-// (the FFmpeg instance lives in the JS module). Mirrors BrowserNetworkService.
+// SAFETY: wasm32 is single-threaded; this is a unit struct holding no JS handles.
+// The FFmpeg instance lives in the JS module, not in this Rust value. Required
+// because the FfmpegService trait bound is MaybeSend + MaybeSync. Mirrors
+// BrowserNetworkService in solobase-browser.
 #[cfg(target_arch = "wasm32")]
 unsafe impl Send for BrowserFfmpegService {}
 #[cfg(target_arch = "wasm32")]
