@@ -1,9 +1,21 @@
 //! gizza-ai/image-resize — fetch an image URL or attachment ref, resize via ffmpeg, return envelope.
 
+// The #[wafer_block] macro emits the impl gated to wasm32 (the macro generates
+// a native registration call that requires ::new()). All the supporting imports,
+// constants, and the Args type are only used inside the wasm32-gated impl, so
+// they appear "unused" when running native unit tests. The block-local helpers
+// (`build_argv`, `output_filename`, etc.) remain native-compilable so the unit
+// tests below can exercise them.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use serde::{Deserialize, Serialize};
+use gizza_ai_block_utils::{
+    derive_filename, dispatch_ffmpeg_runtime, mime_to_ext, pick_source, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, Source,
+};
+use serde::Deserialize;
 use wafer_sdk::*;
 
 const MAX_INPUT_BYTES: usize = 4 * 1024 * 1024; // 4 MiB
@@ -23,22 +35,6 @@ struct Args {
     fit: Option<String>,
 }
 
-enum Source {
-    Url(String),
-    Ref(String),
-}
-
-impl Args {
-    fn source(&self) -> Result<Source, String> {
-        match (&self.url, &self.r#ref) {
-            (Some(u), None) => Ok(Source::Url(u.clone())),
-            (None, Some(r)) => Ok(Source::Ref(r.clone())),
-            (Some(_), Some(_)) => Err("provide exactly one of `url` or `ref`".into()),
-            (None, None) => Err("`url` or `ref` is required".into()),
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Eq)]
 enum Fit { Contain, Cover, Stretch }
 
@@ -49,35 +45,6 @@ fn parse_fit(s: Option<&str>) -> Result<Fit, String> {
         "stretch" => Ok(Fit::Stretch),
         other     => Err(format!("invalid fit {other:?}; expected contain|cover|stretch")),
     }
-}
-
-#[derive(Serialize)]
-struct FfmpegReq {
-    args: Vec<String>,
-    inputs: Vec<(String, Vec<u8>)>,
-    output: String,
-}
-
-#[derive(Deserialize)]
-struct FfmpegResp {
-    exit_code: i32,
-    output: Vec<u8>,
-    log: String,
-}
-
-#[derive(Serialize)]
-struct ForUi {
-    data_url: String,
-    mime: String,
-    filename: String,
-}
-
-#[derive(Serialize)]
-struct Envelope {
-    #[serde(rename = "_for_llm")]
-    for_llm: String,
-    #[serde(rename = "_for_ui")]
-    for_ui: ForUi,
 }
 
 fn build_argv(in_name: &str, out_name: &str, w: Option<u32>, h: Option<u32>, fit: Fit) -> Vec<String> {
@@ -93,57 +60,6 @@ fn build_argv(in_name: &str, out_name: &str, w: Option<u32>, h: Option<u32>, fit
     vec!["-i".into(), in_name.into(), "-vf".into(), vf, out_name.into()]
 }
 
-#[allow(dead_code)]
-fn mime_to_ext(mime: &str) -> Option<&'static str> {
-    match mime {
-        "image/png"  => Some("png"),
-        "image/jpeg" => Some("jpg"),
-        "image/webp" => Some("webp"),
-        _ => None,
-    }
-}
-
-#[allow(dead_code)]
-fn derive_filename(url: &str) -> String {
-    let after_scheme = url.split("://").nth(1).unwrap_or(url);
-    let path = after_scheme.split('/').skip(1).collect::<Vec<_>>().join("/");
-    let path = path.split('?').next().unwrap_or("");
-    let path = path.split('#').next().unwrap_or("");
-    let last = path.rsplit('/').next().unwrap_or("");
-    let decoded = percent_decode(last);
-    let cleaned: String = decoded.chars().filter(|c| !c.is_control() && *c != '\u{FFFD}').collect();
-    if cleaned.is_empty() { "image".to_string() } else { cleaned }
-}
-
-#[allow(dead_code)]
-fn percent_decode(s: &str) -> String {
-    let bytes = s.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let (Some(h), Some(l)) = (hex_val(bytes[i + 1]), hex_val(bytes[i + 2])) {
-                out.push((h << 4) | l);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&out).into_owned()
-}
-
-#[allow(dead_code)]
-fn hex_val(b: u8) -> Option<u8> {
-    match b {
-        b'0'..=b'9' => Some(b - b'0'),
-        b'a'..=b'f' => Some(b - b'a' + 10),
-        b'A'..=b'F' => Some(b - b'A' + 10),
-        _ => None,
-    }
-}
-
 fn output_filename(input_filename: &str, w: Option<u32>, h: Option<u32>, ext: &str) -> String {
     let base = input_filename.rsplitn(2, '.').last().unwrap_or(input_filename);
     let suffix = match (w, h) {
@@ -153,7 +69,6 @@ fn output_filename(input_filename: &str, w: Option<u32>, h: Option<u32>, ext: &s
     format!("{base}{suffix}.{ext}")
 }
 
-#[allow(dead_code)]
 fn summary(source: &str, w: Option<u32>, h: Option<u32>, output_size: usize, mime: &str) -> String {
     match (w, h) {
         (Some(w), Some(h)) => format!("resized {source} to {w}x{h} ({output_size} {mime})"),
@@ -163,33 +78,12 @@ fn summary(source: &str, w: Option<u32>, h: Option<u32>, output_size: usize, mim
     }
 }
 
-/// Dispatch a request to `gizza-ai/ffmpeg-runtime` via the raw streaming ABI.
-///
-/// ffmpeg-runtime uses a consumer-controlled JSON wire format (FfmpegReq/Resp
-/// serde_json), NOT a wafer-run service. We hand it an opaque `Vec<u8>`
-/// payload and accept opaque chunks back. The transport (CallStream/
-/// ResponseStream) is the new binary-transport ABI; only the encoding inside
-/// the chunks is JSON.
-#[allow(dead_code)]
-fn dispatch_ffmpeg_runtime(payload: &[u8]) -> Result<Vec<u8>, WaferError> {
-    let msg = Message::new("ffmpeg.exec");
-    let mut call = wafer_sdk::stream::CallStream::open("gizza-ai/ffmpeg-runtime", &msg)?;
-    call.write_chunk(payload)?;
-    let mut resp = call.finish()?;
-    let mut out = Vec::new();
-    while let Some(chunk) = resp.next_chunk()? {
-        out.extend(chunk);
-    }
-    Ok(out)
-}
-
 #[cfg(target_arch = "wasm32")]
 struct ImageResize;
 
 // The #[wafer_block] macro emits a native registration call requiring ::new()
 // on the impl; skill-style impls don't have one. Gate the struct + impl to
-// wasm32 so unit tests can still compile natively (the helpers above are
-// unconditional).
+// wasm32 so unit tests can still compile natively.
 #[cfg(target_arch = "wasm32")]
 #[wafer_block(
     name = "gizza-ai/image-resize",
@@ -252,7 +146,7 @@ impl ImageResize {
         }
 
         // 2. Resolve source — URL fetch or attachment lookup.
-        let (input_bytes, mime, in_filename) = match args.source() {
+        let (input_bytes, mime, in_filename) = match pick_source(args.url.as_deref(), args.r#ref.as_deref()) {
             Err(e) => return GuestResult::error(WaferError::new(
                 ErrorCode::INVALID_ARGUMENT,
                 format!("invalid image-resize args: {e}"),
@@ -306,7 +200,7 @@ impl ImageResize {
                     ));
                 }
 
-                let filename = derive_filename(&u);
+                let filename = derive_filename(&u, "image");
                 (net.body, mime, filename)
             }
             Ok(Source::Ref(id)) => {
@@ -472,33 +366,4 @@ mod tests {
         assert_eq!(output_filename("cat.png", Some(640), None, "png"), "cat-resized.png");
     }
 
-    #[test]
-    fn args_url_only_ok() {
-        let a = Args { url: Some("u".into()), r#ref: None, width: None, height: None, fit: None };
-        match a.source().expect("ok") {
-            Source::Url(u) => assert_eq!(u, "u"),
-            _ => panic!("expected Url"),
-        }
-    }
-
-    #[test]
-    fn args_ref_only_ok() {
-        let a = Args { url: None, r#ref: Some("call_1".into()), width: None, height: None, fit: None };
-        match a.source().expect("ok") {
-            Source::Ref(r) => assert_eq!(r, "call_1"),
-            _ => panic!("expected Ref"),
-        }
-    }
-
-    #[test]
-    fn args_both_url_and_ref_errors() {
-        let a = Args { url: Some("u".into()), r#ref: Some("r".into()), width: None, height: None, fit: None };
-        assert!(a.source().is_err());
-    }
-
-    #[test]
-    fn args_neither_errors() {
-        let a = Args { url: None, r#ref: None, width: None, height: None, fit: None };
-        assert!(a.source().is_err());
-    }
 }

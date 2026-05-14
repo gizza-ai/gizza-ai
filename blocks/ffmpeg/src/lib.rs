@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use gizza_ai_block_utils::{dispatch_ffmpeg_runtime, FfmpegReq, FfmpegResp};
 use serde::{Deserialize, Serialize};
 use wafer_sdk::*;
 
@@ -11,22 +12,6 @@ const MAX_BYTES: usize = 16 * 1024 * 1024; // 16 MiB
 #[derive(Deserialize)]
 struct Args {
     url: String,
-}
-
-#[derive(Serialize)]
-struct FfmpegReq {
-    args: Vec<String>,
-    inputs: Vec<(String, Vec<u8>)>,
-    output: String,
-}
-
-#[derive(Deserialize)]
-struct FfmpegResp {
-    #[allow(dead_code)]
-    exit_code: i32,
-    #[allow(dead_code)]
-    output: Vec<u8>,
-    log: String,
 }
 
 #[derive(Serialize)]
@@ -150,20 +135,3 @@ impl FfmpegSkill {
     }
 }
 
-/// Dispatch a request to `gizza-ai/ffmpeg-runtime` via the raw streaming ABI.
-///
-/// The ffmpeg-runtime block uses a consumer-controlled JSON wire format (not a
-/// wafer-run service), so we hand it an opaque `Vec<u8>` payload and accept
-/// opaque chunks back. The transport (CallStream/ResponseStream) is still the
-/// new binary-transport ABI; only the encoding inside the chunks is JSON.
-fn dispatch_ffmpeg_runtime(payload: &[u8]) -> Result<Vec<u8>, WaferError> {
-    let msg = Message::new("ffmpeg.exec");
-    let mut call = wafer_sdk::stream::CallStream::open("gizza-ai/ffmpeg-runtime", &msg)?;
-    call.write_chunk(payload)?;
-    let mut resp = call.finish()?;
-    let mut out = Vec::new();
-    while let Some(chunk) = resp.next_chunk()? {
-        out.extend(chunk);
-    }
-    Ok(out)
-}

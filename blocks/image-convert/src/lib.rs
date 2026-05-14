@@ -1,9 +1,18 @@
 //! gizza-ai/image-convert — fetch an image URL or attachment ref, transcode to a different format.
 
+// The #[wafer_block] macro emits the impl gated to wasm32; supporting imports,
+// constants, and the Args type are only used there. See image-resize for the
+// full rationale.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use serde::{Deserialize, Serialize};
+use gizza_ai_block_utils::{
+    derive_filename, dispatch_ffmpeg_runtime, mime_to_ext, pick_source, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, Source,
+};
+use serde::Deserialize;
 use wafer_sdk::*;
 
 const MAX_INPUT_BYTES: usize = 4 * 1024 * 1024;
@@ -19,49 +28,6 @@ struct Args {
     format: String,
     #[serde(default)]
     quality: Option<u8>,
-}
-
-enum Source {
-    Url(String),
-    Ref(String),
-}
-
-impl Args {
-    fn source(&self) -> Result<Source, String> {
-        match (&self.url, &self.r#ref) {
-            (Some(u), None) => Ok(Source::Url(u.clone())),
-            (None, Some(r)) => Ok(Source::Ref(r.clone())),
-            (Some(_), Some(_)) => Err("provide exactly one of `url` or `ref`".into()),
-            (None, None) => Err("`url` or `ref` is required".into()),
-        }
-    }
-}
-
-#[derive(Serialize)]
-struct FfmpegReq {
-    args: Vec<String>,
-    inputs: Vec<(String, Vec<u8>)>,
-    output: String,
-}
-
-#[derive(Deserialize)]
-struct FfmpegResp {
-    exit_code: i32,
-    output: Vec<u8>,
-    log: String,
-}
-
-#[derive(Serialize)]
-struct ForUi {
-    data_url: String,
-    mime: String,
-    filename: String,
-}
-
-#[derive(Serialize)]
-struct Envelope {
-    #[serde(rename = "_for_llm")] for_llm: String,
-    #[serde(rename = "_for_ui")]  for_ui: ForUi,
 }
 
 /// Map web-conventional quality 1-100 to ffmpeg's -q:v range 31 (worst) – 2 (best).
@@ -80,16 +46,6 @@ fn format_to_mime_and_ext(fmt: &str) -> Option<(&'static str, &'static str)> {
     }
 }
 
-#[allow(dead_code)]
-fn mime_to_ext(mime: &str) -> Option<&'static str> {
-    match mime {
-        "image/png"  => Some("png"),
-        "image/jpeg" => Some("jpg"),
-        "image/webp" => Some("webp"),
-        _ => None,
-    }
-}
-
 fn build_argv(in_name: &str, out_name: &str, format: &str, quality: u8) -> Vec<String> {
     let mut argv = vec!["-i".to_string(), in_name.to_string()];
     if format != "png" {
@@ -100,63 +56,9 @@ fn build_argv(in_name: &str, out_name: &str, format: &str, quality: u8) -> Vec<S
     argv
 }
 
-#[allow(dead_code)]
-fn derive_filename(url: &str) -> String {
-    let after_scheme = url.split("://").nth(1).unwrap_or(url);
-    let path = after_scheme.split('/').skip(1).collect::<Vec<_>>().join("/");
-    let path = path.split('?').next().unwrap_or("");
-    let path = path.split('#').next().unwrap_or("");
-    let last = path.rsplit('/').next().unwrap_or("");
-    let decoded = percent_decode(last);
-    let cleaned: String = decoded.chars().filter(|c| !c.is_control() && *c != '\u{FFFD}').collect();
-    if cleaned.is_empty() { "image".to_string() } else { cleaned }
-}
-
-#[allow(dead_code)]
-fn percent_decode(s: &str) -> String {
-    let bytes = s.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let (Some(h), Some(l)) = (hex_val(bytes[i + 1]), hex_val(bytes[i + 2])) {
-                out.push((h << 4) | l);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&out).into_owned()
-}
-
-#[allow(dead_code)]
-fn hex_val(b: u8) -> Option<u8> {
-    match b {
-        b'0'..=b'9' => Some(b - b'0'),
-        b'a'..=b'f' => Some(b - b'a' + 10),
-        b'A'..=b'F' => Some(b - b'A' + 10),
-        _ => None,
-    }
-}
-
 fn output_filename(input_filename: &str, new_ext: &str) -> String {
     let base = input_filename.rsplitn(2, '.').last().unwrap_or(input_filename);
     format!("{base}.{new_ext}")
-}
-
-#[allow(dead_code)]
-fn dispatch_ffmpeg_runtime(payload: &[u8]) -> Result<Vec<u8>, WaferError> {
-    let msg = Message::new("ffmpeg.exec");
-    let mut call = wafer_sdk::stream::CallStream::open("gizza-ai/ffmpeg-runtime", &msg)?;
-    call.write_chunk(payload)?;
-    let mut resp = call.finish()?;
-    let mut out = Vec::new();
-    while let Some(chunk) = resp.next_chunk()? {
-        out.extend(chunk);
-    }
-    Ok(out)
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -214,7 +116,7 @@ impl ImageConvert {
         let quality = args.quality.unwrap_or(DEFAULT_QUALITY);
 
         // Resolve source — URL fetch or attachment lookup.
-        let (input_bytes, in_mime, in_filename) = match args.source() {
+        let (input_bytes, in_mime, in_filename) = match pick_source(args.url.as_deref(), args.r#ref.as_deref()) {
             Err(e) => return GuestResult::error(WaferError::new(
                 ErrorCode::INVALID_ARGUMENT,
                 format!("invalid image-convert args: {e}"),
@@ -259,7 +161,7 @@ impl ImageConvert {
                         format!("input image too large: {} bytes (cap {} bytes)", net.body.len(), MAX_INPUT_BYTES),
                     ));
                 }
-                let filename = derive_filename(&u);
+                let filename = derive_filename(&u, "image");
                 (net.body, in_mime, filename)
             }
             Ok(Source::Ref(id)) => {
@@ -395,33 +297,4 @@ mod tests {
         assert_eq!(output_filename("cat.png", "jpg"), "cat.jpg");
     }
 
-    #[test]
-    fn args_url_only_ok() {
-        let a = Args { url: Some("u".into()), r#ref: None, format: "jpeg".into(), quality: None };
-        match a.source().expect("ok") {
-            Source::Url(u) => assert_eq!(u, "u"),
-            _ => panic!("expected Url"),
-        }
-    }
-
-    #[test]
-    fn args_ref_only_ok() {
-        let a = Args { url: None, r#ref: Some("call_1".into()), format: "jpeg".into(), quality: None };
-        match a.source().expect("ok") {
-            Source::Ref(r) => assert_eq!(r, "call_1"),
-            _ => panic!("expected Ref"),
-        }
-    }
-
-    #[test]
-    fn args_both_url_and_ref_errors() {
-        let a = Args { url: Some("u".into()), r#ref: Some("r".into()), format: "jpeg".into(), quality: None };
-        assert!(a.source().is_err());
-    }
-
-    #[test]
-    fn args_neither_errors() {
-        let a = Args { url: None, r#ref: None, format: "jpeg".into(), quality: None };
-        assert!(a.source().is_err());
-    }
 }

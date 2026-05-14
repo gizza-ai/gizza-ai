@@ -12,7 +12,8 @@
 //! `_for_ui` with the data: URL), matching `gizza-ai/image-fetch`.
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use serde::{Deserialize, Serialize};
+use gizza_ai_block_utils::{Envelope, ForUi};
+use serde::Deserialize;
 use wafer_sdk::clients::image::{ImageParams, ImageRequest};
 use wafer_sdk::*;
 
@@ -22,21 +23,6 @@ const MODEL_ID: &str = "onnx-community/Janus-Pro-1B-ONNX";
 #[derive(Deserialize)]
 struct Args {
     prompt: String,
-}
-
-#[derive(Serialize)]
-struct ForUi {
-    data_url: String,
-    mime: String,
-    filename: String,
-}
-
-#[derive(Serialize)]
-struct Envelope {
-    #[serde(rename = "_for_llm")]
-    for_llm: String,
-    #[serde(rename = "_for_ui")]
-    for_ui: ForUi,
 }
 
 struct Imagine;

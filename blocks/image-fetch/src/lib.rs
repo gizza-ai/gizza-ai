@@ -8,7 +8,8 @@
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use serde::{Deserialize, Serialize};
+use gizza_ai_block_utils::{derive_filename, Envelope, ForUi};
+use serde::Deserialize;
 use wafer_sdk::*;
 
 const MAX_BYTES: usize = 4 * 1024 * 1024; // 4 MiB
@@ -16,21 +17,6 @@ const MAX_BYTES: usize = 4 * 1024 * 1024; // 4 MiB
 #[derive(Deserialize)]
 struct Args {
     url: String,
-}
-
-#[derive(Serialize)]
-struct ForUi {
-    data_url: String,
-    mime: String,
-    filename: String,
-}
-
-#[derive(Serialize)]
-struct Envelope {
-    #[serde(rename = "_for_llm")]
-    for_llm: String,
-    #[serde(rename = "_for_ui")]
-    for_ui: ForUi,
 }
 
 struct ImageFetch;
@@ -143,7 +129,7 @@ impl ImageFetch {
         let data_url = format!("data:{mime};base64,{encoded}");
 
         // 6. Derive filename from URL last path segment.
-        let filename = derive_filename(&args.url);
+        let filename = derive_filename(&args.url, "image");
 
         // 7. Build envelope.
         let env = Envelope {
@@ -162,55 +148,5 @@ impl ImageFetch {
                 format!("serialize envelope: {e}"),
             )),
         }
-    }
-}
-
-/// Best-effort: take the URL's last path segment, percent-decode it, strip
-/// non-printable / control characters, fall back to "image" if empty.
-/// No `url` crate dependency — we do the minimum manually to keep the wasm
-/// payload small.
-fn derive_filename(url: &str) -> String {
-    let after_scheme = url.split("://").nth(1).unwrap_or(url);
-    let path = after_scheme.split('/').skip(1).collect::<Vec<_>>().join("/");
-    let path = path.split('?').next().unwrap_or("");
-    let path = path.split('#').next().unwrap_or("");
-    let last = path.rsplit('/').next().unwrap_or("");
-    let decoded = percent_decode(last);
-    let cleaned: String = decoded
-        .chars()
-        .filter(|c| !c.is_control() && *c != '\u{FFFD}')
-        .collect();
-    if cleaned.is_empty() {
-        "image".to_string()
-    } else {
-        cleaned
-    }
-}
-
-/// Inline percent-decoder for ASCII URLs. Skips invalid escapes silently.
-fn percent_decode(s: &str) -> String {
-    let bytes = s.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let (Some(h), Some(l)) = (hex_val(bytes[i + 1]), hex_val(bytes[i + 2])) {
-                out.push((h << 4) | l);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&out).into_owned()
-}
-
-fn hex_val(b: u8) -> Option<u8> {
-    match b {
-        b'0'..=b'9' => Some(b - b'0'),
-        b'a'..=b'f' => Some(b - b'a' + 10),
-        b'A'..=b'F' => Some(b - b'A' + 10),
-        _ => None,
     }
 }

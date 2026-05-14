@@ -1,9 +1,18 @@
 //! gizza-ai/video-transcode — fetch a video URL or attachment ref, transcode to a target container.
 
+// The #[wafer_block] macro emits the impl gated to wasm32; supporting imports,
+// constants, and the Args type are only used there. See image-resize for the
+// full rationale.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use serde::{Deserialize, Serialize};
+use gizza_ai_block_utils::{
+    derive_filename, dispatch_ffmpeg_runtime, mime_to_ext, pick_source, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, Source,
+};
+use serde::Deserialize;
 use wafer_sdk::*;
 
 const MAX_INPUT_BYTES: usize = 10 * 1024 * 1024;
@@ -21,51 +30,6 @@ struct Args {
     quality: Option<u8>,
 }
 
-enum Source {
-    Url(String),
-    Ref(String),
-}
-
-impl Args {
-    fn source(&self) -> Result<Source, String> {
-        match (&self.url, &self.r#ref) {
-            (Some(u), None) => Ok(Source::Url(u.clone())),
-            (None, Some(r)) => Ok(Source::Ref(r.clone())),
-            (Some(_), Some(_)) => Err("provide exactly one of `url` or `ref`".into()),
-            (None, None) => Err("`url` or `ref` is required".into()),
-        }
-    }
-}
-
-#[derive(Serialize)]
-struct FfmpegReq {
-    args: Vec<String>,
-    inputs: Vec<(String, Vec<u8>)>,
-    output: String,
-}
-
-#[derive(Deserialize)]
-struct FfmpegResp {
-    exit_code: i32,
-    output: Vec<u8>,
-    log: String,
-}
-
-#[derive(Serialize)]
-struct ForUi {
-    data_url: String,
-    mime: String,
-    filename: String,
-}
-
-#[derive(Serialize)]
-struct Envelope {
-    #[serde(rename = "_for_llm")]
-    for_llm: String,
-    #[serde(rename = "_for_ui")]
-    for_ui: ForUi,
-}
-
 /// Map web-conventional quality 1-100 to ffmpeg's CRF range 0 (best) – 51 (worst).
 fn quality_to_crf(q: u8) -> u8 {
     let q = q.clamp(1, 100) as f32;
@@ -77,17 +41,6 @@ fn format_to_mime_and_ext(fmt: &str) -> Option<(&'static str, &'static str)> {
     match fmt {
         "mp4" => Some(("video/mp4", "mp4")),
         "webm" => Some(("video/webm", "webm")),
-        _ => None,
-    }
-}
-
-#[allow(dead_code)]
-fn mime_to_ext(mime: &str) -> Option<&'static str> {
-    match mime {
-        "video/mp4" => Some("mp4"),
-        "video/webm" => Some("webm"),
-        "video/quicktime" => Some("mov"),
-        "video/x-matroska" => Some("mkv"),
         _ => None,
     }
 }
@@ -124,59 +77,9 @@ fn build_argv(in_name: &str, out_name: &str, format: &str, crf: u8) -> Vec<Strin
     }
 }
 
-#[allow(dead_code)]
-fn derive_filename(url: &str) -> String {
-    let after_scheme = url.split("://").nth(1).unwrap_or(url);
-    let path = after_scheme.split('/').skip(1).collect::<Vec<_>>().join("/");
-    let path = path.split('?').next().unwrap_or("");
-    let path = path.split('#').next().unwrap_or("");
-    let last = path.rsplit('/').next().unwrap_or("");
-    let decoded = percent_decode(last);
-    if decoded.is_empty() {
-        "video".into()
-    } else {
-        decoded
-    }
-}
-
-#[allow(dead_code)]
-fn percent_decode(s: &str) -> String {
-    let bytes = s.as_bytes();
-    let mut out = Vec::with_capacity(s.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            let hi = (bytes[i + 1] as char).to_digit(16);
-            let lo = (bytes[i + 2] as char).to_digit(16);
-            if let (Some(h), Some(l)) = (hi, lo) {
-                out.push((h * 16 + l) as u8);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8(out).unwrap_or_else(|_| s.to_string())
-}
-
-#[allow(dead_code)]
 fn output_filename(in_filename: &str, out_ext: &str) -> String {
     let stem = in_filename.rsplit_once('.').map(|(s, _)| s).unwrap_or(in_filename);
     format!("{stem}.{out_ext}")
-}
-
-#[allow(dead_code)]
-fn dispatch_ffmpeg_runtime(payload: &[u8]) -> Result<Vec<u8>, WaferError> {
-    let msg = Message::new("ffmpeg.exec");
-    let mut call = wafer_sdk::stream::CallStream::open("gizza-ai/ffmpeg-runtime", &msg)?;
-    call.write_chunk(payload)?;
-    let mut resp = call.finish()?;
-    let mut out = Vec::new();
-    while let Some(chunk) = resp.next_chunk()? {
-        out.extend(chunk);
-    }
-    Ok(out)
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -240,7 +143,7 @@ impl VideoTranscode {
         }
         let crf = quality_to_crf(args.quality.unwrap_or(DEFAULT_QUALITY));
 
-        let (input_bytes, in_mime, in_filename) = match args.source() {
+        let (input_bytes, in_mime, in_filename) = match pick_source(args.url.as_deref(), args.r#ref.as_deref()) {
             Err(e) => {
                 return GuestResult::error(WaferError::new(
                     ErrorCode::INVALID_ARGUMENT,
@@ -300,7 +203,7 @@ impl VideoTranscode {
                         ),
                     ));
                 }
-                let filename = derive_filename(&u);
+                let filename = derive_filename(&u, "video");
                 (net.body, in_mime, filename)
             }
             Ok(Source::Ref(id)) => {
@@ -451,53 +354,4 @@ mod tests {
         assert_eq!(argv.last().map(String::as_str), Some("out.webm"));
     }
 
-    #[test]
-    fn args_url_only_ok() {
-        let a = Args {
-            url: Some("u".into()),
-            r#ref: None,
-            format: "mp4".into(),
-            quality: None,
-        };
-        match a.source().expect("ok") {
-            Source::Url(u) => assert_eq!(u, "u"),
-            _ => panic!("expected Url"),
-        }
-    }
-
-    #[test]
-    fn args_ref_only_ok() {
-        let a = Args {
-            url: None,
-            r#ref: Some("call_1".into()),
-            format: "mp4".into(),
-            quality: None,
-        };
-        match a.source().expect("ok") {
-            Source::Ref(r) => assert_eq!(r, "call_1"),
-            _ => panic!("expected Ref"),
-        }
-    }
-
-    #[test]
-    fn args_both_url_and_ref_errors() {
-        let a = Args {
-            url: Some("u".into()),
-            r#ref: Some("r".into()),
-            format: "mp4".into(),
-            quality: None,
-        };
-        assert!(a.source().is_err());
-    }
-
-    #[test]
-    fn args_neither_errors() {
-        let a = Args {
-            url: None,
-            r#ref: None,
-            format: "mp4".into(),
-            quality: None,
-        };
-        assert!(a.source().is_err());
-    }
 }
