@@ -75,7 +75,7 @@ const DEFAULT_MODEL_ID: &str = "Qwen2.5-1.5B-Instruct-q4f32_1-MLC";
 /// caller uses `Display` to render the user-facing message, then wraps it in
 /// an `error_response` or SSE `done` event.
 #[derive(Debug, thiserror::Error)]
-enum AgentError {
+pub(crate) enum AgentError {
     #[error("invalid upload id {0:?}: must start with \"upload_\"")]
     UploadIdInvalid(String),
     #[error("upload {id:?}: only image/* and video/* are accepted, got {mime}")]
