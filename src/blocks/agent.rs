@@ -70,6 +70,29 @@ const SKILL_PREFIX: &str = "gizza-ai/";
 /// Default WebLLM model id. Used when the request omits `model_id`.
 const DEFAULT_MODEL_ID: &str = "Qwen2.5-1.5B-Instruct-q4f32_1-MLC";
 
+/// Internal errors for the agent block. Each variant maps to a distinct
+/// failure mode in `decode_uploads` or `openai_json_to_chat_message`. The
+/// caller uses `Display` to render the user-facing message, then wraps it in
+/// an `error_response` or SSE `done` event.
+#[derive(Debug, thiserror::Error)]
+enum AgentError {
+    #[error("invalid upload id {0:?}: must start with \"upload_\"")]
+    UploadIdInvalid(String),
+    #[error("upload {id:?}: only image/* and video/* are accepted, got {mime}")]
+    UploadUnsupportedMime { id: String, mime: String },
+    #[error("upload {id:?}: base64 decode failed: {source}")]
+    UploadBase64 {
+        id: String,
+        source: base64::DecodeError,
+    },
+    #[error("upload {id:?}: {bytes} bytes exceeds 10 MiB cap")]
+    UploadTooLarge { id: String, bytes: usize },
+    #[error("missing role")]
+    MissingRole,
+    #[error("unknown role: {0}")]
+    UnknownRole(String),
+}
+
 pub struct AgentBlock;
 
 #[derive(Debug, Deserialize)]
@@ -226,7 +249,7 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
 
     let staged_uploads = match decode_uploads(&req.uploads) {
         Ok(v) => v,
-        Err(e) => return error_response(400, "bad_request", &e),
+        Err(e) => return error_response(400, "bad_request", &e.to_string()),
     };
 
     let model_id = req
@@ -809,31 +832,30 @@ pub(crate) fn parse_skill_response(body: &str) -> ToolOutcome {
 /// `"upload_"`.
 pub(crate) fn decode_uploads(
     entries: &[UploadEntry],
-) -> Result<Vec<(String, Attachment, String)>, String> {
+) -> Result<Vec<(String, Attachment, String)>, AgentError> {
     const MAX_UPLOAD_BYTES: usize = 10 * 1024 * 1024;
     let mut staged = Vec::with_capacity(entries.len());
     for u in entries {
         if !u.id.starts_with("upload_") {
-            return Err(format!(
-                "invalid upload id {:?}: must start with \"upload_\"",
-                u.id
-            ));
+            return Err(AgentError::UploadIdInvalid(u.id.clone()));
         }
         if !(u.mime.starts_with("image/") || u.mime.starts_with("video/")) {
-            return Err(format!(
-                "upload {:?}: only image/* and video/* are accepted, got {}",
-                u.id, u.mime
-            ));
+            return Err(AgentError::UploadUnsupportedMime {
+                id: u.id.clone(),
+                mime: u.mime.clone(),
+            });
         }
         let bytes = B64
             .decode(&u.bytes_base64)
-            .map_err(|e| format!("upload {:?}: base64 decode failed: {e}", u.id))?;
+            .map_err(|source| AgentError::UploadBase64 {
+                id: u.id.clone(),
+                source,
+            })?;
         if bytes.len() > MAX_UPLOAD_BYTES {
-            return Err(format!(
-                "upload {:?}: {} bytes exceeds 10 MiB cap",
-                u.id,
-                bytes.len()
-            ));
+            return Err(AgentError::UploadTooLarge {
+                id: u.id.clone(),
+                bytes: bytes.len(),
+            });
         }
         let display_name = u.filename.clone().unwrap_or_else(|| {
             if u.mime.starts_with("image/") {
@@ -891,18 +913,18 @@ pub(crate) fn build_upload_history_prefix(
 // Message conversion
 // ---------------------------------------------------------------------------
 
-fn openai_json_to_chat_message(v: &serde_json::Value) -> Result<ChatMessage, String> {
+fn openai_json_to_chat_message(v: &serde_json::Value) -> Result<ChatMessage, AgentError> {
     let role_str = v
         .get("role")
         .and_then(|r| r.as_str())
-        .ok_or("missing role")?;
+        .ok_or(AgentError::MissingRole)?;
 
     let role = match role_str {
         "system" => ChatRole::System,
         "user" => ChatRole::User,
         "assistant" => ChatRole::Assistant,
         "tool" => ChatRole::Tool,
-        other => return Err(format!("unknown role: {other}")),
+        other => return Err(AgentError::UnknownRole(other.to_string())),
     };
 
     let content = ChatContent::Text(

@@ -5,6 +5,101 @@
 
 use serde::{Deserialize, Serialize};
 use wafer_block::core_types::{Message, WaferError};
+use wafer_sdk::ErrorCode;
+
+// ---------------------------------------------------------------------------
+// SkillError — replaces verbose `match { Ok=>.., Err=>return GuestResult::error(..) }`
+// chains in skill block handlers. Each variant maps to a wafer ErrorCode at
+// `From<SkillError> for WaferError` so callers can write idiomatic `?`-based
+// code and wrap the final result with `GuestResult::error(e.into())`.
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, thiserror::Error)]
+pub enum SkillError {
+    /// User-facing argument-validation failure (bad JSON, missing field,
+    /// out-of-range value, conflicting `url`/`ref`, unsupported `format`, etc.).
+    #[error("{0}")]
+    InvalidArgs(String),
+
+    /// Network response with HTTP status >= 400.
+    #[error("HTTP {status} for {url}")]
+    HttpStatus { status: u16, url: String },
+
+    /// Returned content-type or attachment mime didn't match the expected class.
+    #[error("expected {expected} content-type, got {actual}")]
+    UnexpectedMime {
+        expected: &'static str,
+        actual: String,
+    },
+
+    /// Input or output exceeded its byte cap.
+    #[error("{kind} too large: {bytes} bytes (cap {cap} bytes)")]
+    TooLarge {
+        kind: &'static str,
+        bytes: usize,
+        cap: usize,
+    },
+
+    /// `lookup_attachment` returned `Ok(None)`.
+    #[error("no attachment found for ref {0:?}")]
+    AttachmentNotFound(String),
+
+    /// `ffmpeg-runtime` reported a non-zero exit code.
+    #[error("ffmpeg failed (exit {exit}): {snippet}")]
+    FfmpegExitNonZero { exit: i32, snippet: String },
+
+    /// `serde_json::to_vec` / `from_slice` failed. Internal error (the input
+    /// is host-built, not user-supplied) when serializing; an args parse
+    /// failure should use `InvalidArgs` instead.
+    #[error("serialize/parse failed: {0}")]
+    Serialize(String),
+
+    /// Propagated from any host call (`do_request`, `lookup_attachment`,
+    /// `dispatch_ffmpeg_runtime`, etc.). `WaferError` doesn't implement
+    /// `std::error::Error`, so we wrap it explicitly rather than via `#[from]`.
+    #[error("{0}")]
+    Wafer(WaferError),
+}
+
+impl From<WaferError> for SkillError {
+    fn from(err: WaferError) -> Self {
+        SkillError::Wafer(err)
+    }
+}
+
+impl From<SkillError> for WaferError {
+    fn from(err: SkillError) -> Self {
+        match err {
+            SkillError::Wafer(w) => w,
+            SkillError::InvalidArgs(_) | SkillError::UnexpectedMime { .. } => {
+                WaferError::new(ErrorCode::INVALID_ARGUMENT, err.to_string())
+            }
+            SkillError::HttpStatus { .. } => {
+                WaferError::new(ErrorCode::UNAVAILABLE, err.to_string())
+            }
+            SkillError::TooLarge { .. } => WaferError::new(ErrorCode::OUT_OF_RANGE, err.to_string()),
+            SkillError::AttachmentNotFound(_) => {
+                WaferError::new(ErrorCode::NOT_FOUND, err.to_string())
+            }
+            SkillError::FfmpegExitNonZero { .. } | SkillError::Serialize(_) => {
+                WaferError::new(ErrorCode::INTERNAL, err.to_string())
+            }
+        }
+    }
+}
+
+/// Extension to attach a `SkillError::InvalidArgs("invalid <name> args: <e>")`
+/// label to any `Result<T, impl Display>`. Used at the top of each block's
+/// `run()` to label JSON parse errors with the block name.
+pub trait SkillResultExt<T> {
+    fn invalid_args(self, block: &str) -> Result<T, SkillError>;
+}
+
+impl<T, E: std::fmt::Display> SkillResultExt<T> for Result<T, E> {
+    fn invalid_args(self, block: &str) -> Result<T, SkillError> {
+        self.map_err(|e| SkillError::InvalidArgs(format!("invalid {block} args: {e}")))
+    }
+}
 
 // ---------------------------------------------------------------------------
 // Source enum — used by every block that accepts either `url` or `ref`.
@@ -247,5 +342,47 @@ mod tests {
     #[test]
     fn mime_to_ext_unknown() {
         assert_eq!(mime_to_ext("application/pdf"), None);
+    }
+
+    #[test]
+    fn skill_error_invalid_args_maps_to_invalid_argument() {
+        let we: WaferError = SkillError::InvalidArgs("bad".into()).into();
+        assert_eq!(we.code, ErrorCode::INVALID_ARGUMENT);
+        assert_eq!(we.message, "bad");
+    }
+
+    #[test]
+    fn skill_error_too_large_maps_to_out_of_range() {
+        let we: WaferError = SkillError::TooLarge {
+            kind: "input",
+            bytes: 1,
+            cap: 2,
+        }
+        .into();
+        assert_eq!(we.code, ErrorCode::OUT_OF_RANGE);
+    }
+
+    #[test]
+    fn skill_error_attachment_not_found_maps_to_not_found() {
+        let we: WaferError = SkillError::AttachmentNotFound("call_1".into()).into();
+        assert_eq!(we.code, ErrorCode::NOT_FOUND);
+    }
+
+    #[test]
+    fn skill_error_wafer_passes_through() {
+        let inner = WaferError::new(ErrorCode::UNAVAILABLE, "underlying");
+        let we: WaferError = SkillError::Wafer(inner).into();
+        assert_eq!(we.code, ErrorCode::UNAVAILABLE);
+        assert_eq!(we.message, "underlying");
+    }
+
+    #[test]
+    fn invalid_args_helper_prefixes_with_block_name() {
+        let r: Result<(), _> = Err("bad json");
+        let err = r.invalid_args("image-resize").unwrap_err();
+        assert!(matches!(
+            err,
+            SkillError::InvalidArgs(ref s) if s == "invalid image-resize args: bad json"
+        ));
     }
 }
