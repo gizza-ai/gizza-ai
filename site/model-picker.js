@@ -1252,11 +1252,13 @@ export async function openPicker({
                 updateRowProgressInPlace(group.base_id, loading);
             };
 
+            let loadOk = false;
             try {
                 await loadEngine(variant.id, onProgress);
                 active = variant.id;
                 cached.add(group.base_id);
                 onActiveChange(active);
+                loadOk = true;
             } catch (e) {
                 errorForBase = group.base_id;
                 errorText = String(e?.message ?? e);
@@ -1267,6 +1269,10 @@ export async function openPicker({
                     rerenderGrid();
                 }
             }
+            // Auto-close the picker on first successful load so the user
+            // lands back on the chat surface ready to type. Errors keep the
+            // picker open so the user can read the failure + retry.
+            if (loadOk && dom.dialog.isConnected) close();
         }
 
         async function performUnload() {

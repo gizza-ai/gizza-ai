@@ -666,6 +666,18 @@ function handleSlashKeydown(e) {
     if (!input) return;
     input.addEventListener('input', handleSlashInput);
     input.addEventListener('keydown', handleSlashKeydown);
+    // Enter (without Shift) submits the chat form. Shift+Enter falls
+    // through to the textarea's native newline behaviour. Slash-autocomplete
+    // handler runs first and calls preventDefault when the dropdown is up,
+    // so the `defaultPrevented` guard keeps this submit out of the way of
+    // completion.
+    input.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || e.shiftKey) return;
+        if (e.defaultPrevented) return;
+        e.preventDefault();
+        const form = document.getElementById('composer');
+        form?.requestSubmit?.();
+    });
     input.addEventListener('blur', () => {
         // Slight delay so a mousedown on the dropdown gets to fire first.
         setTimeout(hideSlashDropdown, 100);
