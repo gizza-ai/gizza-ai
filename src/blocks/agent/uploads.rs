@@ -2,6 +2,7 @@
 //! that lets a plain-chat turn see the uploaded refs in context.
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
+use gizza_ai_block_utils::default_filename_for_mime;
 use wafer_block::Attachment;
 
 use super::{AgentError, UploadEntry};
@@ -37,15 +38,10 @@ pub(super) fn decode_uploads(
                 bytes: bytes.len(),
             });
         }
-        let display_name = u.filename.clone().unwrap_or_else(|| {
-            if u.mime.starts_with("image/") {
-                "image".into()
-            } else if u.mime.starts_with("video/") {
-                "video".into()
-            } else {
-                "file".into()
-            }
-        });
+        let display_name = u
+            .filename
+            .clone()
+            .unwrap_or_else(|| default_filename_for_mime(&u.mime).to_string());
         let att = Attachment {
             mime: u.mime.clone(),
             bytes,

@@ -86,7 +86,10 @@ pub(super) async fn run_skill_dispatch(
         }
     }
 
-    let args_bytes = serde_json::to_vec(&params).expect("serde_json::Value always serializes");
+    // serde_json::Value always serializes successfully, but `.expect()` is a
+    // hard trap on wasm32 — fall back to an empty object instead. The skill
+    // block will surface its own InvalidArgs if it requires a non-empty body.
+    let args_bytes = serde_json::to_vec(&params).unwrap_or_else(|_| b"{}".to_vec());
     let mut msg = Message::new("http");
     msg.set_meta(META_REQ_ACTION, "create");
     msg.set_meta(

@@ -180,6 +180,16 @@ fn hex_val(b: u8) -> Option<u8> {
     }
 }
 
+/// Swap a filename's last `.ext` for `new_ext`. Falls back to appending if
+/// `filename` has no extension.
+pub fn replace_extension(filename: &str, new_ext: &str) -> String {
+    let base = filename
+        .rsplit_once('.')
+        .map(|(s, _)| s)
+        .unwrap_or(filename);
+    format!("{base}.{new_ext}")
+}
+
 // ---------------------------------------------------------------------------
 // AssetKind — image vs video, controls MIME prefix, expected-label, kind-label,
 // and default filename used by `fetch_from_url` / `load_from_attachment`.
@@ -337,6 +347,32 @@ pub fn load_from_attachment(
 // ---------------------------------------------------------------------------
 // MIME → extension
 // ---------------------------------------------------------------------------
+
+/// Map a top-level MIME class to a default display filename: `image/*` →
+/// `"image"`, `video/*` → `"video"`, everything else → `"file"`. Used when
+/// a user upload arrives without a filename of its own.
+pub fn default_filename_for_mime(mime: &str) -> &'static str {
+    if mime.starts_with("image/") {
+        "image"
+    } else if mime.starts_with("video/") {
+        "video"
+    } else {
+        "file"
+    }
+}
+
+/// Reject a quality value outside `1..=100`, returning a `SkillError::InvalidArgs`
+/// labeled with the block name. `None` (i.e. quality omitted) is accepted.
+pub fn validate_quality_1_100(quality: Option<u8>, block: &str) -> Result<(), SkillError> {
+    if let Some(q) = quality {
+        if !(1..=100).contains(&q) {
+            return Err(SkillError::InvalidArgs(format!(
+                "invalid {block} args: quality must be 1-100, got {q}"
+            )));
+        }
+    }
+    Ok(())
+}
 
 /// Map a MIME type to a file extension for ffmpeg's virtual filesystem.
 /// Knows the image and video formats every gizza-ai block accepts.
@@ -499,6 +535,47 @@ mod tests {
     #[test]
     fn mime_to_ext_unknown() {
         assert_eq!(mime_to_ext("application/pdf"), None);
+    }
+
+    #[test]
+    fn replace_extension_swaps_last_segment() {
+        assert_eq!(replace_extension("cat.png", "jpg"), "cat.jpg");
+        assert_eq!(replace_extension("video.foo.mp4", "webm"), "video.foo.webm");
+    }
+
+    #[test]
+    fn replace_extension_appends_when_no_dot() {
+        assert_eq!(replace_extension("cat", "png"), "cat.png");
+    }
+
+    #[test]
+    fn default_filename_for_mime_classes() {
+        assert_eq!(default_filename_for_mime("image/png"), "image");
+        assert_eq!(default_filename_for_mime("image/jpeg"), "image");
+        assert_eq!(default_filename_for_mime("video/mp4"), "video");
+        assert_eq!(default_filename_for_mime("video/webm"), "video");
+        assert_eq!(default_filename_for_mime("application/pdf"), "file");
+        assert_eq!(default_filename_for_mime(""), "file");
+    }
+
+    #[test]
+    fn validate_quality_1_100_accepts_none_and_valid() {
+        assert!(validate_quality_1_100(None, "x").is_ok());
+        assert!(validate_quality_1_100(Some(1), "x").is_ok());
+        assert!(validate_quality_1_100(Some(100), "x").is_ok());
+        assert!(validate_quality_1_100(Some(50), "x").is_ok());
+    }
+
+    #[test]
+    fn validate_quality_1_100_rejects_zero_and_over_100() {
+        let err = validate_quality_1_100(Some(0), "image-convert").unwrap_err();
+        let msg = format!("{err}");
+        assert!(msg.contains("invalid image-convert args"));
+        assert!(msg.contains("got 0"));
+        let err = validate_quality_1_100(Some(101), "video-transcode").unwrap_err();
+        let msg = format!("{err}");
+        assert!(msg.contains("invalid video-transcode args"));
+        assert!(msg.contains("got 101"));
     }
 
     #[test]

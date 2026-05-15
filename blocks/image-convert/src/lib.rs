@@ -7,8 +7,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, pick_source, AssetKind, Envelope, FfmpegReq, FfmpegResp,
-    ForUi, SkillError, SkillResultExt, Source,
+    dispatch_ffmpeg_runtime, mime_to_ext, pick_source, replace_extension, validate_quality_1_100,
+    AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError, SkillResultExt, Source,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -57,11 +57,6 @@ fn build_argv(in_name: &str, out_name: &str, format: &str, quality: u8) -> Vec<S
     argv
 }
 
-fn output_filename(input_filename: &str, new_ext: &str) -> String {
-    let base = input_filename.rsplitn(2, '.').last().unwrap_or(input_filename);
-    format!("{base}.{new_ext}")
-}
-
 #[cfg(target_arch = "wasm32")]
 struct ImageConvert;
 
@@ -108,13 +103,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
             args.format
         ))
     })?;
-    if let Some(q) = args.quality {
-        if !(1..=100).contains(&q) {
-            return Err(SkillError::InvalidArgs(format!(
-                "invalid image-convert args: quality must be 1-100, got {q}"
-            )));
-        }
-    }
+    validate_quality_1_100(args.quality, "image-convert")?;
     let quality = args.quality.unwrap_or(DEFAULT_QUALITY);
 
     let (input_bytes, in_mime, in_filename) =
@@ -159,7 +148,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = ff.output.len();
     let encoded = B64.encode(&ff.output);
     let data_url = format!("data:{out_mime};base64,{encoded}");
-    let filename = output_filename(&in_filename, out_ext);
+    let filename = replace_extension(&in_filename, out_ext);
     let env = Envelope {
         for_llm: format!(
             "converted {} from {} to {} ({})",
@@ -215,8 +204,4 @@ mod tests {
         assert!(argv.iter().any(|a| a == "-q:v"));
     }
 
-    #[test]
-    fn output_filename_replaces_extension() {
-        assert_eq!(output_filename("cat.png", "jpg"), "cat.jpg");
-    }
 }
