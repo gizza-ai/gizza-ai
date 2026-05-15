@@ -9,7 +9,6 @@
 //! the Service Worker instead of letting the runtime start with empty config.
 
 use std::collections::HashMap;
-use std::fmt::Write as _;
 
 #[cfg(target_arch = "wasm32")]
 use solobase_browser::bridge;
@@ -172,21 +171,22 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     Ok(vars)
 }
 
-/// Generate 32 random bytes, hex-encode, and `INSERT OR IGNORE` into the
-/// variables table. Used for keys solobase's upstream config-var machinery
-/// doesn't yet auto-generate. Sensitive bit is forced on.
+/// Sample 32 random bytes and return them hex-encoded. Used to seed
+/// auth-runtime secrets that solobase's upstream config-var machinery
+/// doesn't yet auto-generate. The `key` argument is for error labelling only.
 #[cfg(target_arch = "wasm32")]
-fn seed_random_secret(id: &str, key: &str, description: &str) -> Result<(), JsValue> {
+fn random_secret_hex(key: &str) -> Result<String, JsValue> {
     let mut bytes = [0u8; 32];
     getrandom::getrandom(&mut bytes)
         .map_err(|e| JsValue::from_str(&format!("config: getrandom for {key}: {e}")))?;
-    let mut secret = String::with_capacity(bytes.len() * 2);
-    for b in &bytes {
-        // write! on a String never fails — but we still propagate to keep
-        // the function clean of .expect() panics on wasm32.
-        write!(&mut secret, "{b:02x}")
-            .map_err(|e| JsValue::from_str(&format!("config: hex encode for {key}: {e}")))?;
-    }
+    Ok(hex::encode(bytes))
+}
+
+/// Generate a per-browser random secret and `INSERT OR IGNORE` it into the
+/// variables table. Sensitive bit is forced on.
+#[cfg(target_arch = "wasm32")]
+fn seed_random_secret(id: &str, key: &str, description: &str) -> Result<(), JsValue> {
+    let secret = random_secret_hex(key)?;
     let params = serde_json::json!([id, key, key, description, secret]);
     exec_or_err(
         "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
@@ -214,17 +214,7 @@ fn seed_auto_generated() -> Result<(), JsValue> {
             continue;
         }
 
-        // Generate a random 32-byte hex secret
-        let mut bytes = [0u8; 32];
-        getrandom::getrandom(&mut bytes).map_err(|e| {
-            JsValue::from_str(&format!("config: getrandom for {}: {e}", var.key))
-        })?;
-        let mut secret = String::with_capacity(bytes.len() * 2);
-        for b in &bytes {
-            write!(&mut secret, "{b:02x}").map_err(|e| {
-                JsValue::from_str(&format!("config: hex encode for {}: {e}", var.key))
-            })?;
-        }
+        let secret = random_secret_hex(&var.key)?;
 
         let id = format!("var_{}", uuid::Uuid::new_v4());
         let sensitive: i32 = if var.is_sensitive() { 1 } else { 0 };
