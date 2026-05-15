@@ -3,6 +3,9 @@
 //! Pulled out of the duplicated copies in `blocks/image-*` and `blocks/video-*`.
 //! Each block crate depends on this via a `path = "../../block-utils"` dep.
 
+#[cfg(target_arch = "wasm32")]
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use wafer_block::core_types::{Message, WaferError};
 use wafer_sdk::ErrorCode;
@@ -175,6 +178,160 @@ fn hex_val(b: u8) -> Option<u8> {
         b'A'..=b'F' => Some(b - b'A' + 10),
         _ => None,
     }
+}
+
+// ---------------------------------------------------------------------------
+// AssetKind — image vs video, controls MIME prefix, expected-label, kind-label,
+// and default filename used by `fetch_from_url` / `load_from_attachment`.
+// Pulled out of the duplicated fetch helpers in blocks/image-* and blocks/video-*.
+// ---------------------------------------------------------------------------
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum AssetKind {
+    Image,
+    Video,
+}
+
+// Methods are only consumed by the wasm-gated fetch/load functions below
+// (plus tests). On host non-test builds, they look unused — silence the lint
+// rather than peppering each method with cfg attributes.
+#[allow(dead_code)]
+impl AssetKind {
+    pub(crate) fn mime_prefix(self) -> &'static str {
+        match self {
+            Self::Image => "image/",
+            Self::Video => "video/",
+        }
+    }
+
+    pub(crate) fn expected_url_label(self) -> &'static str {
+        match self {
+            Self::Image => "image/*",
+            Self::Video => "video/*",
+        }
+    }
+
+    pub(crate) fn expected_attachment_label(self) -> &'static str {
+        match self {
+            Self::Image => "image/* attachment",
+            Self::Video => "video/* attachment",
+        }
+    }
+
+    pub(crate) fn too_large_label(self) -> &'static str {
+        match self {
+            Self::Image => "input image",
+            Self::Video => "input video",
+        }
+    }
+
+    pub(crate) fn default_filename(self) -> &'static str {
+        match self {
+            Self::Image => "image",
+            Self::Video => "video",
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Fetch / load — bytes from URL or attachment, validated to a given AssetKind.
+// Both return (bytes, mime, filename).
+// ---------------------------------------------------------------------------
+
+/// GET `url`, validate `Content-Type` matches `kind`, enforce `max_bytes` against
+/// both the `Content-Length` header (if present) and the body. Returns the bytes,
+/// the normalized lowercase MIME (parameters stripped), and a filename derived
+/// from the URL's last path segment.
+///
+/// wasm-only because `wafer_sdk::clients::network` is wasm-gated in the SDK.
+#[cfg(target_arch = "wasm32")]
+pub fn fetch_from_url(
+    url: &str,
+    kind: AssetKind,
+    max_bytes: usize,
+) -> Result<(Vec<u8>, String, String), SkillError> {
+    let net = wafer_sdk::clients::network::do_request("GET", url, &HashMap::new(), None)?;
+    if net.status_code >= 400 {
+        return Err(SkillError::HttpStatus {
+            status: net.status_code,
+            url: url.to_string(),
+        });
+    }
+    let raw_mime = net
+        .headers
+        .iter()
+        .find(|(k, _)| k.eq_ignore_ascii_case("content-type"))
+        .and_then(|(_, vs)| vs.first().cloned())
+        .unwrap_or_else(|| "application/octet-stream".to_string());
+    let mime: String = raw_mime
+        .split(';')
+        .next()
+        .unwrap_or("")
+        .trim()
+        .to_lowercase();
+    if !mime.starts_with(kind.mime_prefix()) {
+        return Err(SkillError::UnexpectedMime {
+            expected: kind.expected_url_label(),
+            actual: mime,
+        });
+    }
+    if let Some(cl) = net
+        .headers
+        .iter()
+        .find(|(k, _)| k.eq_ignore_ascii_case("content-length"))
+        .and_then(|(_, vs)| vs.first())
+        .and_then(|v| v.trim().parse::<usize>().ok())
+    {
+        if cl > max_bytes {
+            return Err(SkillError::TooLarge {
+                kind: kind.too_large_label(),
+                bytes: cl,
+                cap: max_bytes,
+            });
+        }
+    }
+    if net.body.len() > max_bytes {
+        return Err(SkillError::TooLarge {
+            kind: kind.too_large_label(),
+            bytes: net.body.len(),
+            cap: max_bytes,
+        });
+    }
+    let filename = derive_filename(url, kind.default_filename());
+    Ok((net.body, mime, filename))
+}
+
+/// Look up attachment `id`, validate its mime matches `kind`, enforce `max_bytes`.
+/// Returns the bytes, the attachment's mime, and its filename (falling back to
+/// `kind`'s default if the attachment carries none).
+///
+/// wasm-only because `wafer_sdk::lookup_attachment` is wasm-gated in the SDK.
+#[cfg(target_arch = "wasm32")]
+pub fn load_from_attachment(
+    id: &str,
+    kind: AssetKind,
+    max_bytes: usize,
+) -> Result<(Vec<u8>, String, String), SkillError> {
+    let att = wafer_sdk::lookup_attachment(id)
+        .map_err(|e| SkillError::Serialize(e.to_string()))?
+        .ok_or_else(|| SkillError::AttachmentNotFound(id.to_string()))?;
+    if !att.mime.starts_with(kind.mime_prefix()) {
+        return Err(SkillError::UnexpectedMime {
+            expected: kind.expected_attachment_label(),
+            actual: att.mime,
+        });
+    }
+    if att.bytes.len() > max_bytes {
+        return Err(SkillError::TooLarge {
+            kind: kind.too_large_label(),
+            bytes: att.bytes.len(),
+            cap: max_bytes,
+        });
+    }
+    let filename = att
+        .filename
+        .unwrap_or_else(|| kind.default_filename().to_string());
+    Ok((att.bytes, att.mime, filename))
 }
 
 // ---------------------------------------------------------------------------
@@ -374,6 +531,26 @@ mod tests {
         let we: WaferError = SkillError::Wafer(inner).into();
         assert_eq!(we.code, ErrorCode::UNAVAILABLE);
         assert_eq!(we.message, "underlying");
+    }
+
+    #[test]
+    fn asset_kind_image_labels() {
+        let k = AssetKind::Image;
+        assert_eq!(k.mime_prefix(), "image/");
+        assert_eq!(k.expected_url_label(), "image/*");
+        assert_eq!(k.expected_attachment_label(), "image/* attachment");
+        assert_eq!(k.too_large_label(), "input image");
+        assert_eq!(k.default_filename(), "image");
+    }
+
+    #[test]
+    fn asset_kind_video_labels() {
+        let k = AssetKind::Video;
+        assert_eq!(k.mime_prefix(), "video/");
+        assert_eq!(k.expected_url_label(), "video/*");
+        assert_eq!(k.expected_attachment_label(), "video/* attachment");
+        assert_eq!(k.too_large_label(), "input video");
+        assert_eq!(k.default_filename(), "video");
     }
 
     #[test]
