@@ -1,6 +1,11 @@
 //! gizza-ai/ffmpeg — fetch a URL, run `ffmpeg -i input` on the bytes,
 //! return the log.
 
+// The #[wafer_block] macro emits wasm-only registration; supporting imports
+// and the Args type are only used inside that impl. See image-resize for
+// the full rationale.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
 use std::collections::HashMap;
 
 use gizza_ai_block_utils::{
@@ -22,8 +27,16 @@ struct ToolResp {
     info: String,
 }
 
+/// argv for an ffprobe-style inspection — read `input` from ffmpeg's
+/// virtual FS, emit format/stream metadata on stderr, no output file.
+fn build_inspect_argv() -> Vec<String> {
+    vec!["-i".into(), "input".into()]
+}
+
+#[cfg(target_arch = "wasm32")]
 struct FfmpegSkill;
 
+#[cfg(target_arch = "wasm32")]
 #[wafer_block(
     name = "gizza-ai/ffmpeg",
     version = "0.1.0",
@@ -51,6 +64,7 @@ impl FfmpegSkill {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("ffmpeg")?;
 
@@ -72,7 +86,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     // Hand bytes to gizza-ai/ffmpeg-runtime (consumer-controlled JSON
     // protocol, NOT a wafer-run service — must encode via serde_json).
     let ffreq = serde_json::to_vec(&FfmpegReq {
-        args: vec!["-i".into(), "input".into()],
+        args: build_inspect_argv(),
         inputs: vec![("input".into(), net.body)],
         output: String::new(),
     })
@@ -89,4 +103,26 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     };
     serde_json::to_vec(&tool)
         .map_err(|e| SkillError::Serialize(format!("serialize tool response: {e}")))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn argv_uses_input_filename_with_dash_i() {
+        let argv = build_inspect_argv();
+        assert_eq!(argv, vec!["-i", "input"]);
+    }
+
+    #[test]
+    fn tool_resp_serializes_url_and_info() {
+        let tool = ToolResp {
+            url: "https://x.test/a.mp4".to_string(),
+            info: "Stream #0: Video".to_string(),
+        };
+        let json: serde_json::Value = serde_json::from_slice(&serde_json::to_vec(&tool).unwrap()).unwrap();
+        assert_eq!(json["url"], "https://x.test/a.mp4");
+        assert_eq!(json["info"], "Stream #0: Video");
+    }
 }
