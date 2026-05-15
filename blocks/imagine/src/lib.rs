@@ -11,11 +11,17 @@
 //! and bifurcates LLM history (sees `_for_llm`) from UI rendering (sees
 //! `_for_ui` with the data: URL), matching `gizza-ai/image-fetch`.
 
+// The #[wafer_block] macro emits wasm-only registration; supporting imports
+// and the Args type are only used inside that impl.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{Envelope, ForUi, SkillError, SkillResultExt};
 use serde::Deserialize;
-use wafer_sdk::clients::image::{ImageParams, ImageRequest};
 use wafer_sdk::*;
+
+#[cfg(target_arch = "wasm32")]
+use wafer_sdk::clients::image::{ImageParams, ImageRequest};
 
 const BACKEND_ID: &str = "browser";
 const MODEL_ID: &str = "onnx-community/Janus-Pro-1B-ONNX";
@@ -25,8 +31,23 @@ struct Args {
     prompt: String,
 }
 
+/// Normalize and validate a prompt — trim surrounding whitespace and
+/// reject empty / whitespace-only input. The error is the user-facing
+/// `SkillError::InvalidArgs` so the agent can surface it directly.
+fn validate_prompt(prompt: &str) -> Result<String, SkillError> {
+    let trimmed = prompt.trim();
+    if trimmed.is_empty() {
+        return Err(SkillError::InvalidArgs(
+            "imagine: prompt must not be empty".into(),
+        ));
+    }
+    Ok(trimmed.to_string())
+}
+
+#[cfg(target_arch = "wasm32")]
 struct Imagine;
 
+#[cfg(target_arch = "wasm32")]
 #[wafer_block(
     name = "gizza-ai/imagine",
     version = "0.1.0",
@@ -55,20 +76,15 @@ impl Imagine {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("imagine")?;
-
-    let trimmed = args.prompt.trim();
-    if trimmed.is_empty() {
-        return Err(SkillError::InvalidArgs(
-            "imagine: prompt must not be empty".into(),
-        ));
-    }
+    let trimmed = validate_prompt(&args.prompt)?;
 
     let req = ImageRequest {
         backend_id: BACKEND_ID.to_string(),
         model: MODEL_ID.to_string(),
-        prompt: trimmed.to_string(),
+        prompt: trimmed.clone(),
         params: ImageParams::default(),
         extra: serde_json::Value::Null,
     };
@@ -96,4 +112,31 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         },
     };
     serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn validate_prompt_trims_surrounding_whitespace() {
+        assert_eq!(validate_prompt("  a cat  ").unwrap(), "a cat");
+        assert_eq!(validate_prompt("\ta cat\n").unwrap(), "a cat");
+    }
+
+    #[test]
+    fn validate_prompt_rejects_empty() {
+        let err = validate_prompt("").unwrap_err();
+        assert!(matches!(err, SkillError::InvalidArgs(ref s) if s.contains("must not be empty")));
+    }
+
+    #[test]
+    fn validate_prompt_rejects_whitespace_only() {
+        for s in ["   ", "\t\t", "\n\n", " \t \n "] {
+            assert!(
+                matches!(validate_prompt(s), Err(SkillError::InvalidArgs(_))),
+                "expected InvalidArgs for {s:?}"
+            );
+        }
+    }
 }

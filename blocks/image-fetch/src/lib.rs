@@ -5,6 +5,10 @@
 //! agent block recognises the envelope and bifurcates LLM history (gets
 //! `_for_llm`) from UI rendering (gets `_for_ui` with the data: URL).
 
+// The #[wafer_block] macro emits wasm-only registration; supporting imports
+// and the Args type are only used inside that impl.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
@@ -19,8 +23,26 @@ struct Args {
     url: String,
 }
 
+/// Pull the lowercased MIME class out of an HTTP `Content-Type` header
+/// value (e.g. `"image/png; charset=binary"` → `"image/png"`). Falls back
+/// to `application/octet-stream` when absent / malformed.
+fn parse_content_type_mime(headers: &HashMap<String, Vec<String>>) -> String {
+    let raw = headers
+        .iter()
+        .find(|(k, _)| k.eq_ignore_ascii_case("content-type"))
+        .and_then(|(_, vs)| vs.first().cloned())
+        .unwrap_or_else(|| "application/octet-stream".to_string());
+    raw.split(';')
+        .next()
+        .unwrap_or("")
+        .trim()
+        .to_lowercase()
+}
+
+#[cfg(target_arch = "wasm32")]
 struct ImageFetch;
 
+#[cfg(target_arch = "wasm32")]
 #[wafer_block(
     name = "gizza-ai/image-fetch",
     version = "0.1.0",
@@ -48,6 +70,7 @@ impl ImageFetch {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-fetch")?;
 
@@ -59,19 +82,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         });
     }
 
-    // Content-type check (case-insensitive header lookup, first value, strip ; params).
-    let raw_mime = resp
-        .headers
-        .iter()
-        .find(|(k, _)| k.eq_ignore_ascii_case("content-type"))
-        .and_then(|(_, vs)| vs.first().cloned())
-        .unwrap_or_else(|| "application/octet-stream".to_string());
-    let mime: String = raw_mime
-        .split(';')
-        .next()
-        .unwrap_or("")
-        .trim()
-        .to_lowercase();
+    let mime = parse_content_type_mime(&resp.headers);
     if !mime.starts_with("image/") {
         return Err(SkillError::UnexpectedMime {
             expected: "image/*",
@@ -119,4 +130,35 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         },
     };
     serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_content_type_strips_params_and_lowercases() {
+        let mut headers = HashMap::new();
+        headers.insert(
+            "Content-Type".to_string(),
+            vec!["IMAGE/PNG; charset=binary".to_string()],
+        );
+        assert_eq!(parse_content_type_mime(&headers), "image/png");
+    }
+
+    #[test]
+    fn parse_content_type_handles_case_insensitive_header_name() {
+        let mut headers = HashMap::new();
+        headers.insert(
+            "content-type".to_string(),
+            vec!["image/jpeg".to_string()],
+        );
+        assert_eq!(parse_content_type_mime(&headers), "image/jpeg");
+    }
+
+    #[test]
+    fn parse_content_type_falls_back_when_header_missing() {
+        let headers: HashMap<String, Vec<String>> = HashMap::new();
+        assert_eq!(parse_content_type_mime(&headers), "application/octet-stream");
+    }
 }
