@@ -70,8 +70,7 @@ const AGENT_COMMANDS_PATH: &str = "/b/agent/commands";
 /// `/<cmd>` → `<SKILL_PREFIX><cmd>` for registry lookup.
 const SKILL_PREFIX: &str = "gizza-ai/";
 
-/// Default WebLLM model id. Used when the request omits `model_id`.
-const DEFAULT_MODEL_ID: &str = "Qwen2.5-1.5B-Instruct-q4f32_1-MLC";
+use super::DEFAULT_MODEL_ID;
 
 /// Internal errors for the agent block. Each variant maps to a distinct
 /// failure mode in `decode_uploads` or `openai_json_to_chat_message`. The
@@ -186,7 +185,9 @@ fn handle_commands(ctx: &dyn Context) -> OutputStream {
         .into_iter()
         .map(|(cmd, desc)| serde_json::json!({ "cmd": cmd, "description": desc }))
         .collect();
-    let body = serde_json::to_vec(&entries).expect("serde_json::Value always serializes");
+    // serde_json::Value always serializes successfully, but `.expect()` is a
+    // hard trap on wasm32 — fall back to an empty array instead.
+    let body = serde_json::to_vec(&entries).unwrap_or_else(|_| b"[]".to_vec());
     OutputStream::respond_with_meta(
         body,
         vec![

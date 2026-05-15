@@ -49,6 +49,10 @@ wafer-block-config = { git = "https://github.com/wafer-run/wafer-run", branch = 
 solobase-core = { path = "../solobase/crates/solobase-core", default-features = false }
 solobase-browser = { path = "../solobase/crates/solobase-browser" }
 
+# Shared helpers across all gizza-ai skill blocks (URL parsing, MIME tables,
+# ffmpeg-runtime dispatch, response envelope, quality validation).
+gizza-ai-block-utils = { path = "block-utils" }
+
 [build-dependencies]
 serde_json = "1"
 

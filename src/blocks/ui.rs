@@ -15,9 +15,7 @@ use wafer_block::{
     types::BlockInfo,
 };
 
-/// The WebLLM model id used for MVP. Picked for small size + tool-call support.
-/// Plan C makes this user-pickable.
-const MVP_MODEL_ID: &str = "Qwen2.5-1.5B-Instruct-q4f32_1-MLC";
+use super::DEFAULT_MODEL_ID;
 
 pub struct UiBlock;
 
@@ -256,7 +254,7 @@ fn render_chat() -> maud::Markup {
                 script {
                     (PreEscaped(format!(
                         "window.__GIZZA_MODEL_ID = {:?};",
-                        MVP_MODEL_ID
+                        DEFAULT_MODEL_ID
                     )))
                 }
                 // Framework-provided page-side WebLLM engine. Two consumers:

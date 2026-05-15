@@ -5,3 +5,8 @@ pub mod agent;
 pub mod ffmpeg;
 #[cfg(target_arch = "wasm32")]
 pub mod ui;
+
+/// Default WebLLM model id used by the agent dispatcher and the UI template
+/// fallback. Picked for small size + tool-call support. Plan C makes this
+/// user-pickable.
+pub(crate) const DEFAULT_MODEL_ID: &str = "Qwen2.5-1.5B-Instruct-q4f32_1-MLC";
