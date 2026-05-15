@@ -4,6 +4,30 @@ Short handoff note — captures what's still to do after the Plan B MVP
 merge. `FUTURE.md` is the long-term catalogue; this file is "what I'd
 actually pick up next session."
 
+## Audit closeout follow-ups (2026-05-15 — post PR #61)
+
+`docs/rust-review-2026-05-14.md` was deleted in PR #61 after closing the
+deferred items (rustfmt config, rust-version=1.82, `is_none_or`,
+`Result<_, String>` → `SkillError` / `ExtractionError`, agent module-doc
+→ `docs/architecture/agent-block.md`, type-state `SourceFields` across 6
+image/video blocks). A few items from that audit were left on the floor:
+
+- **Pre-merge clippy on the wasm32-wasip1 sub-workspaces.** The host
+  crate is clippy-clean; each block crate has its own `Cargo.toml` and
+  is never linted by CI. Add a `justfile` recipe that loops `cargo +nightly
+  clippy --target wasm32-wasip1 --all-targets` over `block-utils/` and
+  `blocks/*/`, and wire it into the GH Actions `test` workflow.
+- **Trim remaining module-doc rationale.** `src/lib.rs:1-9` and
+  `src/blocks/ui.rs:1-5` still describe high-level architecture in `//!`
+  comments. Either keep (they're short) or move to
+  `docs/architecture/`. Also: the 5–10 line `//` blocks inside
+  `handle_chat`'s confirmation round-trip path (`agent.rs:~239`,
+  `~285`) are protocol-flavor — fine to keep, but flagging.
+- **let-else / .clone audit** — intentionally skipped. let-else doesn't
+  cleanly bind `Err` variants, and the `Attachment` clone path is gated
+  to 10 MiB once-per-dispatch (audit itself rated "low magnitude").
+  Revisit if either pattern becomes a hotspot.
+
 ## Resume here (2026-05-05 — post sub-project 5 image-ops merge)
 
 A productive day across three repos. Stack of merges, top to bottom:
