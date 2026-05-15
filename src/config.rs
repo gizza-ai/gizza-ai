@@ -152,9 +152,8 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
 
     // 4. Load all variables
     let json = query_or_err("SELECT key, value FROM variables", "[]")?;
-    let rows: Vec<serde_json::Value> = serde_json::from_str(&json).map_err(|e| {
-        JsValue::from_str(&format!("config: parse variables result failed: {e}"))
-    })?;
+    let rows: Vec<serde_json::Value> = serde_json::from_str(&json)
+        .map_err(|e| JsValue::from_str(&format!("config: parse variables result failed: {e}")))?;
 
     let mut vars = HashMap::new();
     for row in rows {

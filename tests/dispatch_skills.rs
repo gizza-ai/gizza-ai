@@ -6,11 +6,12 @@
 //! → fake network → response → web-fetch parses → ToolResp) round-trips
 //! correctly. No browser, no LLM, no Playwright.
 
-use std::collections::{BTreeMap, HashMap};
-use std::sync::Arc;
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::Arc,
+};
 
-use base64::engine::general_purpose::STANDARD as B64_STANDARD;
-use base64::Engine as _;
+use base64::{engine::general_purpose::STANDARD as B64_STANDARD, Engine as _};
 use serde_json::json;
 use wafer_block::{
     codec,

@@ -17,7 +17,6 @@ use solobase_core::builder::{self, SolobaseBuilder};
 use solobase_core::RouteAccess;
 #[cfg(target_arch = "wasm32")]
 use wafer_core::interfaces::config::service::ConfigService;
-
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 

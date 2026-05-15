@@ -7,8 +7,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, pick_source, replace_extension, validate_quality_1_100,
-    AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError, SkillResultExt, Source,
+    dispatch_ffmpeg_runtime, mime_to_ext, replace_extension, validate_quality_1_100, AssetKind,
+    Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -22,10 +22,8 @@ const DEFAULT_QUALITY: u8 = 75;
 
 #[derive(Deserialize, Debug)]
 struct Args {
-    #[serde(default)]
-    url: Option<String>,
-    #[serde(default)]
-    r#ref: Option<String>,
+    #[serde(flatten)]
+    source: SourceFields,
     format: String,
     #[serde(default)]
     quality: Option<u8>,
@@ -127,11 +125,10 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     validate_quality_1_100(args.quality, "video-transcode")?;
     let crf = quality_to_crf(args.quality.unwrap_or(DEFAULT_QUALITY));
 
-    let (input_bytes, in_mime, in_filename) =
-        match pick_source(args.url.as_deref(), args.r#ref.as_deref()).invalid_args("video-transcode")? {
-            Source::Url(u) => fetch_from_url(&u, AssetKind::Video, MAX_INPUT_BYTES)?,
-            Source::Ref(id) => load_from_attachment(&id, AssetKind::Video, MAX_INPUT_BYTES)?,
-        };
+    let (input_bytes, in_mime, in_filename) = match args.source.into_inner() {
+        Source::Url(u) => fetch_from_url(&u, AssetKind::Video, MAX_INPUT_BYTES)?,
+        Source::Ref(id) => load_from_attachment(&id, AssetKind::Video, MAX_INPUT_BYTES)?,
+    };
 
     let in_ext = mime_to_ext(&in_mime).unwrap_or("bin");
     let ffmpeg_in = format!("in.{in_ext}");
