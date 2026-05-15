@@ -204,3 +204,78 @@ The code is in good shape overall — well-structured, decent test coverage (esp
 4. **Drop `#[allow(dead_code)]` attrs** once #1 lands (they're a smell, not a fix).
 
 (1) and (2) are the same refactor and probably one PR; (3) is a 1-line follow-up.
+
+---
+
+## Resolution status — 2026-05-15
+
+Worked through this doc in eight PRs over a follow-up session. Two merged; the rest are open. Below: disposition of each finding above, plus items this doc didn't catch.
+
+### Per-finding disposition
+
+| # | Finding | Status | Where |
+|---|---|---|---|
+| Clippy | `is_none_or` warning at `agent.rs:427` | ✅ Resolved, but inverted — see "Trade-offs" below | PR `chore/nice-to-haves` |
+| 1 | Cross-block duplication | ✅ Done | `blocks/_common/` materialised as `block-utils/` — PR #52 (merged) extracted `fetch_from_url` / `load_from_attachment` / `AssetKind` / 6 image+video blocks now share it. PR `refactor/small-cleanups` added `default_filename_for_mime`, `validate_quality_1_100`, `replace_extension`. |
+| 2 | `#[allow(dead_code)]` on helpers | ✅ Largely fixed | Once helpers moved into `block-utils`, the per-block crates only need a crate-level `#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]` to silence host-side unused-import warnings for the macro-emitted impls. That single crate attr is documented inline as the wafer_block-macro side effect. |
+| 3 | `match { Ok/Err => return }` chains | ✅ Done | PR #52 introduced `block_utils::SkillError` + `SkillResultExt::invalid_args(block)`. Every image/video block's `run()` now uses `?`. `image-resize` shrank from ~500 LOC to ~245. |
+| 4 | `Result<_, String>` callers | 🟡 Partial | `decode_uploads`, `openai_json_to_chat_message`, and the LLM-side error helpers now use a proper `AgentError` enum (PR #53 agent.rs split moved them into `agent/uploads.rs` / `agent/messages.rs` / `agent/slash.rs`). `pick_source`, `collect_chat_text`, and `ParamExtraction::Error` still return `String` — deferred (cost > benefit for these short-lived strings). |
+| 5 | `unsafe impl Send + Sync` on `BrowserFfmpegService` | ✅ Done — but the opposite direction this doc suggested | PR `chore/nice-to-haves` deleted both impls. They were dead code: `wafer_block::compat::MaybeSend`/`MaybeSync` blanket-implement for any `?Sized` type on wasm32, so a unit struct satisfies them auto-magically. The "promote to SAFETY comment" advice in this doc was right that the comment was good, but missed that the impl itself was unnecessary. |
+| 6 | Module doc comments doing too much | ❌ Deferred | The `agent.rs:1-37` route-table doc moved verbatim into `agent.rs` after the agent split (PR #53) — still 37 lines at top of file. Pulling protocol prose to `docs/architecture/` is in scope but didn't make this round. |
+| 7 | `let-else` opportunities | ❌ Deferred | Stylistic only. |
+| 8 | `.clone()` audit | ❌ Deferred | Stylistic; the doc itself agreed "Low magnitude". |
+| 9 | `parse_skill_response` / `is_prompt_shaped` chains | ❌ Skipped by design | Doc said "leave them alone". Confirmed during the agent split — they read fine. |
+| 10 | Tests use `.expect("ok")` + `_ => panic!()` | ❌ Deferred | Cosmetic. |
+| 11 | JSON Args type-state | ❌ Deferred | Doc said "only worth it once you have the shared block crate from #1". The shared crate now exists; this remains a real follow-up but didn't make this round. |
+| Nit | rustfmt `group_imports` / `imports_granularity` | ❌ Not done | Worth adding to a rustfmt.toml in a small follow-up. |
+| Nit | `.unwrap_or_else(\|_\| b"[]")` → `.expect(...)` | ❌ Reverted, see "Trade-offs" | PR `refactor/small-cleanups` deliberately went the OTHER direction. |
+| Nit | hex encoding via `hex` crate | ✅ Done | PR `refactor/hex-encoder` (stacked on `refactor/bootstrap-robustness`) — added `hex = "0.4"` dep and a `random_secret_hex(key)` helper that pairs `getrandom` + `hex::encode`. |
+
+### Newly surfaced findings (not in this doc)
+
+The follow-up session caught a few items this audit didn't:
+
+1. **Hardcoded MVP auth secrets in `src/lib.rs:137-142`** — a `.block_config("suppers-ai/auth", { JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD, INTERNAL_SECRET })` override that silently shipped the same dev secret to every browser, defeating the auto-generate path that `config.rs::seed_auto_generated()` already runs. Worse: `ADMIN_EMAIL: "admin@gizza.local"` (lib.rs) disagreed with `INSERT OR IGNORE 'admin@solobase.local'` (config.rs), making the DB seed dead code. **Resolution:** PR `refactor/bootstrap-robustness` removes the override; per-browser random secrets come from a new `seed_random_secret()` pass in `config.rs`.
+
+2. **Silent SQL bootstrap failures** — `config.rs::exec_or_warn` logged a warning and continued on every schema-create failure; `db_query_raw` errors fell back to an empty string → empty vars → runtime started with zero config. A real OPFS quota or schema error looked indistinguishable from a healthy boot. **Resolution:** same PR — bootstrap fns now return `Result<_, JsValue>`, `initialize()` propagates with `?`, the Service Worker surfaces the error.
+
+3. **Duplicate model-ID constant** — `agent.rs:DEFAULT_MODEL_ID` and `ui.rs:MVP_MODEL_ID` both hardcoded `"Qwen2.5-1.5B-Instruct-q4f32_1-MLC"`. **Resolution:** moved to `src/blocks/mod.rs::DEFAULT_MODEL_ID` in PR `refactor/small-cleanups`.
+
+4. **`.expect()` on `serde_json::to_vec` on wasm32 hot paths** — `agent.rs::handle_commands` and `agent::dispatch::run_skill_dispatch` both panic-trap on wasm32 if serialization fails (it can't, but `.expect()` is a hard abort with no diagnostic on wasm32). **Resolution:** same PR — both use recoverable `.unwrap_or_else(|_| b"…".to_vec())` fallbacks. This is the conscious inversion of nit #1 above.
+
+5. **`agent.rs` was 1414 lines** — bundled six concerns (slash parsing, LLM extraction, skill dispatch, plain chat, upload decode, SSE encoding). **Resolution:** PR #53 (merged) split into `agent/{slash,dispatch,chat,uploads,messages,sse}.rs` + slimmed-down entry `agent.rs` (404 lines).
+
+6. **Six blocks shipped with zero `#[cfg(test)]` coverage** — `calculator`, `clock`, `ffmpeg`, `imagine`, `web-fetch`, `image-fetch`. **Resolution:** PR `tests/pure-compute-blocks` adds 20 host-runnable unit tests across them following the existing pattern (gate the macro impl wasm32-only, extract pure helpers, test them on host).
+
+7. **Envelope vs flat response shapes were inconsistent** — `image-fetch`/`imagine` emitted `Envelope { _for_llm, _for_ui }`; `web-fetch`/`ffmpeg` emitted flat per-block `ToolResp`. The rule (Envelope iff renderable artifact, flat otherwise) was implicit. **Resolution:** PR `docs/response-shape-convention` formalises the rule in `block-utils/src/lib.rs` with a module-level comment. Every existing block already followed it; the audit gap was just "never written down".
+
+### Trade-offs and disagreements with the original doc
+
+**Clippy `unnecessary_map_or` vs MSRV (clippy bullet + nit):** the doc said `.map_or(true, ...)` should become `.is_none_or(...)` (Rust 1.82+, Oct 2024). The codebase doesn't declare `rust-version` in `Cargo.toml`, so implicit MSRV is "whatever was stable at first build." We reverted to `.map_or(true, ...)` in PR `chore/nice-to-haves` to keep the implicit MSRV permissive. The clippy warning will return until either (a) we add `rust-version = "1.82"` to Cargo.toml, or (b) we add a targeted `#[allow(clippy::unnecessary_map_or)]`. Worth picking one in a follow-up.
+
+**`.unwrap_or_else` vs `.expect` for infallible serialization (nit):** the doc said `.expect("serde_json::Value always serializes")` is fine because Apollo Ch.4 allows `.expect()` when failure is impossible. We went the other way in `refactor/small-cleanups`: on wasm32, `.expect()` is a hard panic-trap with no diagnostic, so `.unwrap_or_else(|_| b"…".to_vec())` produces an empty body that the caller handles instead. Defensible either way; we prioritised wasm32-runtime resilience over expressiveness about invariants.
+
+### What's deferred
+
+For a future audit pass:
+
+- `Result<_, String>` in `pick_source`, `collect_chat_text`, `ParamExtraction::Error` (item #4, partial)
+- Module-doc-too-verbose (item #6) — move protocol prose to `docs/architecture/agent-block.md`
+- JSON Args type-state via `#[serde(untagged)]` (item #11) — now that `block-utils` exists, this is a clean fit
+- rustfmt.toml with `group_imports` + `imports_granularity` (nit)
+- Decide on explicit `rust-version` and resolve the clippy `is_none_or` tension
+
+### Eight PRs
+
+| Branch | Status | Net LOC | Findings closed |
+|---|---|---|---|
+| `refactor/fetch-dedup` (#52) | ✅ merged | −269 | #1, #2 partial, #3 |
+| `refactor/split-agent-rs` (#53) | ✅ merged | +25 (1414→404 largest file) | newly-surfaced #5 |
+| `refactor/small-cleanups` | 🟡 open | +60 | #5 dedup, #7 helper, #9 helpers, newly-surfaced #3, #4 |
+| `refactor/bootstrap-robustness` | 🟡 open | +71 | newly-surfaced #1, #2 |
+| `tests/pure-compute-blocks` | 🟡 open | +331 | newly-surfaced #6 |
+| `docs/response-shape-convention` | 🟡 open | +42 (doc-only) | newly-surfaced #7 |
+| `chore/nice-to-haves` | 🟡 open | −1 net | #5 unsafe-impl + #13/`is_none_or` revert |
+| `refactor/hex-encoder` (stacks on bootstrap) | 🟡 open | −9 net | nit hex |
+
+Plus one upstream PR on `wafer-run/wafer-run` (`fix/dedup-build-increment-field-where`) — duplicate `build_increment_field_where` defined twice; blocks every downstream gizza-ai CI run until merged.
