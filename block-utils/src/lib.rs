@@ -106,21 +106,72 @@ impl<T, E: std::fmt::Display> SkillResultExt<T> for Result<T, E> {
 
 // ---------------------------------------------------------------------------
 // Source enum — used by every block that accepts either `url` or `ref`.
+// The `SourceFields` newtype below validates "exactly one of url|ref" at
+// deserialize time so block `Args` structs can just `#[serde(flatten)]` it
+// and skip the per-block `pick_source(...)` validation step.
 // ---------------------------------------------------------------------------
 
+#[derive(Debug, Clone)]
 pub enum Source {
     Url(String),
     Ref(String),
 }
 
+/// JSON-deserializable wrapper over `Source`. Validates "exactly one of
+/// `url` / `ref`" at deserialize time via `try_from`. Block crates flatten
+/// this into their `Args`:
+///
+/// ```ignore
+/// #[derive(Deserialize)]
+/// struct Args {
+///     #[serde(flatten)]
+///     source: SourceFields,
+///     width: Option<u32>,
+/// }
+/// ```
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(try_from = "RawSourceFields")]
+pub struct SourceFields(pub Source);
+
+impl SourceFields {
+    pub fn into_inner(self) -> Source {
+        self.0
+    }
+}
+
+#[derive(serde::Deserialize)]
+struct RawSourceFields {
+    #[serde(default)]
+    url: Option<String>,
+    #[serde(default, rename = "ref")]
+    ref_id: Option<String>,
+}
+
+impl TryFrom<RawSourceFields> for SourceFields {
+    type Error = String;
+    fn try_from(raw: RawSourceFields) -> Result<Self, String> {
+        match (raw.url, raw.ref_id) {
+            (Some(u), None) => Ok(SourceFields(Source::Url(u))),
+            (None, Some(r)) => Ok(SourceFields(Source::Ref(r))),
+            (Some(_), Some(_)) => Err("provide exactly one of `url` or `ref`".into()),
+            (None, None) => Err("`url` or `ref` is required".into()),
+        }
+    }
+}
+
 /// Pick a `Source` from the two optional fields. Exactly one of `url` /
 /// `ref_id` must be set.
-pub fn pick_source(url: Option<&str>, ref_id: Option<&str>) -> Result<Source, String> {
+///
+/// Prefer flattening `SourceFields` into your `Args` struct — this function
+/// is kept for ad-hoc callers and tests.
+pub fn pick_source(url: Option<&str>, ref_id: Option<&str>) -> Result<Source, SkillError> {
     match (url, ref_id) {
         (Some(u), None) => Ok(Source::Url(u.to_string())),
         (None, Some(r)) => Ok(Source::Ref(r.to_string())),
-        (Some(_), Some(_)) => Err("provide exactly one of `url` or `ref`".into()),
-        (None, None) => Err("`url` or `ref` is required".into()),
+        (Some(_), Some(_)) => Err(SkillError::InvalidArgs(
+            "provide exactly one of `url` or `ref`".into(),
+        )),
+        (None, None) => Err(SkillError::InvalidArgs("`url` or `ref` is required".into())),
     }
 }
 
@@ -557,6 +608,44 @@ mod tests {
     #[test]
     fn pick_source_rejects_neither() {
         assert!(pick_source(None, None).is_err());
+    }
+
+    #[test]
+    fn source_fields_deserializes_url() {
+        let v: SourceFields = serde_json::from_str(r#"{"url":"u"}"#).unwrap();
+        assert!(matches!(v.0, Source::Url(ref u) if u == "u"));
+    }
+
+    #[test]
+    fn source_fields_deserializes_ref() {
+        let v: SourceFields = serde_json::from_str(r#"{"ref":"call_1"}"#).unwrap();
+        assert!(matches!(v.0, Source::Ref(ref r) if r == "call_1"));
+    }
+
+    #[test]
+    fn source_fields_rejects_both() {
+        let err = serde_json::from_str::<SourceFields>(r#"{"url":"u","ref":"r"}"#).unwrap_err();
+        assert!(err.to_string().contains("exactly one"));
+    }
+
+    #[test]
+    fn source_fields_rejects_neither() {
+        let err = serde_json::from_str::<SourceFields>(r#"{}"#).unwrap_err();
+        assert!(err.to_string().contains("required"));
+    }
+
+    #[test]
+    fn source_fields_flattens_alongside_other_fields() {
+        #[derive(serde::Deserialize)]
+        struct A {
+            #[serde(flatten)]
+            source: SourceFields,
+            #[serde(default)]
+            width: Option<u32>,
+        }
+        let a: A = serde_json::from_str(r#"{"url":"u","width":200}"#).unwrap();
+        assert!(matches!(a.source.0, Source::Url(ref u) if u == "u"));
+        assert_eq!(a.width, Some(200));
     }
 
     #[test]
