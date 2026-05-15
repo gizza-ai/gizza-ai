@@ -61,15 +61,17 @@ pub async fn initialize() -> Result<(), JsValue> {
     // 1. Load sql.js WASM + open/create the OPFS database.
     solobase_browser::db_init().await;
 
-    // 2. Seed variables and load config.
-    let vars = config::seed_and_load_variables();
+    // 2. Seed variables and load config. Failures here mean the OPFS
+    //    schema-create or seed write itself errored — there is no useful
+    //    runtime state to recover into, so propagate to the Service Worker.
+    let vars = config::seed_and_load_variables()?;
     web_sys::console::log_1(
         &format!("gizza-ai: {} variables loaded from database", vars.len()).into(),
     );
 
     // 3. Load feature flag settings (curated for gizza — only auth/llm/
     //    local-llm/messages are enabled).
-    let features = config::load_block_settings();
+    let features = config::load_block_settings()?;
 
     // 4. Extract JWT secret.
     let jwt_secret = vars
@@ -131,15 +133,14 @@ pub async fn initialize() -> Result<(), JsValue> {
                 )
             }),
         )
-        .block_config(
-            "suppers-ai/auth",
-            serde_json::json!({
-                "SUPPERS_AI__AUTH__JWT_SECRET": "gizza-mvp-dev-jwt-secret-not-for-production",
-                "SUPPERS_AI__AUTH__ADMIN_EMAIL": "admin@gizza.local",
-                "SUPPERS_AI__AUTH__ADMIN_PASSWORD": "admin",
-                "SUPPERS_AI__AUTH__INTERNAL_SECRET": "gizza-mvp-dev-internal-secret",
-            }),
-        )
+        // The auth block reads its config (JWT_SECRET, ADMIN_EMAIL,
+        // ADMIN_PASSWORD, INTERNAL_SECRET) from the config service we just
+        // populated from `vars`. The DB seed in `config.rs` is the single
+        // source of truth: admin email/password from the `INSERT OR IGNORE`
+        // seed, JWT/INTERNAL secrets from the per-browser random `seed_random_secret`
+        // call. No `.block_config("suppers-ai/auth", ...)` override here —
+        // historically that override silently shipped the same hardcoded MVP
+        // values to every user, defeating the auto-generate path.
         .block_config(
             "suppers-ai/llm",
             serde_json::json!({
