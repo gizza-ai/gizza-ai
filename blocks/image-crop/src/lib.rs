@@ -5,15 +5,16 @@
 // full rationale.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
-use std::collections::HashMap;
-
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    derive_filename, dispatch_ffmpeg_runtime, mime_to_ext, pick_source, Envelope, FfmpegReq,
-    FfmpegResp, ForUi, SkillError, SkillResultExt, Source,
+    dispatch_ffmpeg_runtime, mime_to_ext, pick_source, AssetKind, Envelope, FfmpegReq, FfmpegResp,
+    ForUi, SkillError, SkillResultExt, Source,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
+
+#[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::{fetch_from_url, load_from_attachment};
 
 const MAX_INPUT_BYTES: usize = 4 * 1024 * 1024;
 const MAX_OUTPUT_BYTES: usize = 4 * 1024 * 1024;
@@ -95,8 +96,8 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 
     let (input_bytes, mime, in_filename) =
         match pick_source(args.url.as_deref(), args.r#ref.as_deref()).invalid_args("image-crop")? {
-            Source::Url(u) => fetch_image_from_url(&u)?,
-            Source::Ref(id) => load_image_from_attachment(&id)?,
+            Source::Url(u) => fetch_from_url(&u, AssetKind::Image, MAX_INPUT_BYTES)?,
+            Source::Ref(id) => load_from_attachment(&id, AssetKind::Image, MAX_INPUT_BYTES)?,
         };
 
     let ext = mime_to_ext(&mime).ok_or_else(|| {
@@ -148,81 +149,6 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         },
     };
     serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
-}
-
-#[cfg(target_arch = "wasm32")]
-fn fetch_image_from_url(url: &str) -> Result<(Vec<u8>, String, String), SkillError> {
-    let net = wafer_sdk::clients::network::do_request("GET", url, &HashMap::new(), None)?;
-    if net.status_code >= 400 {
-        return Err(SkillError::HttpStatus {
-            status: net.status_code,
-            url: url.to_string(),
-        });
-    }
-    let raw_mime = net
-        .headers
-        .iter()
-        .find(|(k, _)| k.eq_ignore_ascii_case("content-type"))
-        .and_then(|(_, vs)| vs.first().cloned())
-        .unwrap_or_else(|| "application/octet-stream".to_string());
-    let mime: String = raw_mime
-        .split(';')
-        .next()
-        .unwrap_or("")
-        .trim()
-        .to_lowercase();
-    if !mime.starts_with("image/") {
-        return Err(SkillError::UnexpectedMime {
-            expected: "image/*",
-            actual: mime,
-        });
-    }
-    if let Some(cl) = net
-        .headers
-        .iter()
-        .find(|(k, _)| k.eq_ignore_ascii_case("content-length"))
-        .and_then(|(_, vs)| vs.first())
-        .and_then(|v| v.trim().parse::<usize>().ok())
-    {
-        if cl > MAX_INPUT_BYTES {
-            return Err(SkillError::TooLarge {
-                kind: "input image",
-                bytes: cl,
-                cap: MAX_INPUT_BYTES,
-            });
-        }
-    }
-    if net.body.len() > MAX_INPUT_BYTES {
-        return Err(SkillError::TooLarge {
-            kind: "input image",
-            bytes: net.body.len(),
-            cap: MAX_INPUT_BYTES,
-        });
-    }
-    let filename = derive_filename(url, "image");
-    Ok((net.body, mime, filename))
-}
-
-#[cfg(target_arch = "wasm32")]
-fn load_image_from_attachment(id: &str) -> Result<(Vec<u8>, String, String), SkillError> {
-    let att = wafer_sdk::lookup_attachment(id)
-        .map_err(|e| SkillError::Serialize(e.to_string()))?
-        .ok_or_else(|| SkillError::AttachmentNotFound(id.to_string()))?;
-    if !att.mime.starts_with("image/") {
-        return Err(SkillError::UnexpectedMime {
-            expected: "image/* attachment",
-            actual: att.mime,
-        });
-    }
-    if att.bytes.len() > MAX_INPUT_BYTES {
-        return Err(SkillError::TooLarge {
-            kind: "input image",
-            bytes: att.bytes.len(),
-            cap: MAX_INPUT_BYTES,
-        });
-    }
-    let filename = att.filename.unwrap_or_else(|| "image".into());
-    Ok((att.bytes, att.mime, filename))
 }
 
 #[cfg(test)]
