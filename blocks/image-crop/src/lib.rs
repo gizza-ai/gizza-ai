@@ -7,8 +7,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, pick_source, AssetKind, Envelope, FfmpegReq, FfmpegResp,
-    ForUi, SkillError, SkillResultExt, Source,
+    dispatch_ffmpeg_runtime, mime_to_ext, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi,
+    SkillError, SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -21,10 +21,8 @@ const MAX_OUTPUT_BYTES: usize = 4 * 1024 * 1024;
 
 #[derive(Deserialize, Debug)]
 struct Args {
-    #[serde(default)]
-    url: Option<String>,
-    #[serde(default)]
-    r#ref: Option<String>,
+    #[serde(flatten)]
+    source: SourceFields,
     x: u32,
     y: u32,
     width: u32,
@@ -94,11 +92,10 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         ));
     }
 
-    let (input_bytes, mime, in_filename) =
-        match pick_source(args.url.as_deref(), args.r#ref.as_deref()).invalid_args("image-crop")? {
-            Source::Url(u) => fetch_from_url(&u, AssetKind::Image, MAX_INPUT_BYTES)?,
-            Source::Ref(id) => load_from_attachment(&id, AssetKind::Image, MAX_INPUT_BYTES)?,
-        };
+    let (input_bytes, mime, in_filename) = match args.source.into_inner() {
+        Source::Url(u) => fetch_from_url(&u, AssetKind::Image, MAX_INPUT_BYTES)?,
+        Source::Ref(id) => load_from_attachment(&id, AssetKind::Image, MAX_INPUT_BYTES)?,
+    };
 
     let ext = mime_to_ext(&mime).ok_or_else(|| {
         SkillError::InvalidArgs(format!("unsupported input mime: {mime}"))

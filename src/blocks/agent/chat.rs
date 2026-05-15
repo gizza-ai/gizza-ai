@@ -3,12 +3,9 @@
 
 use futures::{pin_mut, StreamExt};
 use wafer_block::context::Context;
-use wafer_core::clients::llm::{
-    ChatMessage, ChatParams, ChatRequest, ChunkDelta, FinishReason,
-};
+use wafer_core::clients::llm::{ChatMessage, ChatParams, ChatRequest, ChunkDelta, FinishReason};
 
-use super::messages::openai_json_to_chat_message;
-use super::sse::encode_sse_event;
+use super::{messages::openai_json_to_chat_message, sse::encode_sse_event};
 
 pub(super) async fn run_plain_chat(
     ctx: &dyn Context,

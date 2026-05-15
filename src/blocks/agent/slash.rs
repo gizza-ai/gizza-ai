@@ -33,10 +33,7 @@ pub(super) fn parse_slash(user_message: &str) -> Option<(&str, &str)> {
 
 /// Find the `SkillTool` descriptor for `gizza-ai/<cmd>` in the registry,
 /// requiring `role == SkillRole::Skill`.
-pub(super) fn lookup_skill_tool<'a>(
-    blocks: &'a [BlockInfo],
-    cmd: &str,
-) -> Option<&'a SkillTool> {
+pub(super) fn lookup_skill_tool<'a>(blocks: &'a [BlockInfo], cmd: &str) -> Option<&'a SkillTool> {
     let full = format!("{SKILL_PREFIX}{cmd}");
     blocks
         .iter()
@@ -61,7 +58,21 @@ pub(super) enum ParamExtraction {
         params: serde_json::Value,
     },
     /// Hard failure (LLM call errored, JSON decode failed, etc.).
-    Error(String),
+    Error(ExtractionError),
+}
+
+/// Typed failures from `extract_via_llm` / `collect_chat_text`. Renders to a
+/// human-readable string for the SSE `done.error` payload.
+#[derive(Debug, Clone, thiserror::Error)]
+pub(super) enum ExtractionError {
+    #[error("LLM extraction call failed: {0}")]
+    ChatCallFailed(String),
+    #[error("extraction stream error: {0}")]
+    Stream(String),
+    #[error("LLM extraction did not return JSON. Got: {0}")]
+    NotJson(String),
+    #[error("LLM extraction returned invalid JSON: {err}. Got: {got}")]
+    InvalidJson { err: String, got: String },
 }
 
 /// Decide whether the schema is `{prompt: string}` only with `required:
@@ -96,13 +107,10 @@ pub(super) async fn build_skill_params(
     if trimmed.is_empty() {
         // No args. Only OK when the schema accepts an empty object — i.e. no
         // required fields. Otherwise the caller will emit an empty-arg error.
-        // Equivalent to `.is_none_or(|arr| arr.is_empty())`, but spelled
-        // out for compatibility with Rust < 1.82 (the rest of this crate
-        // is conservative about MSRV-affecting APIs).
         let no_required = schema
             .get("required")
             .and_then(|r| r.as_array())
-            .map_or(true, |arr| arr.is_empty());
+            .is_none_or(|arr| arr.is_empty());
         return if no_required {
             ParamExtraction::Extracted(serde_json::json!({}))
         } else {
@@ -156,7 +164,7 @@ async fn extract_via_llm(
 
     let stream = match wafer_core::clients::llm::chat_stream(ctx, &req).await {
         Ok(s) => s,
-        Err(e) => return ParamExtraction::Error(format!("LLM extraction call failed: {e}")),
+        Err(e) => return ParamExtraction::Error(ExtractionError::ChatCallFailed(e.to_string())),
     };
 
     let text = match collect_chat_text(stream).await {
@@ -164,23 +172,17 @@ async fn extract_via_llm(
         Err(e) => return ParamExtraction::Error(e),
     };
 
-    let json = match strip_to_json(&text) {
-        Some(j) => j,
-        None => {
-            return ParamExtraction::Error(format!(
-                "LLM extraction did not return JSON. Got: {}",
-                truncate(&text, 200)
-            ));
-        }
+    let Some(json) = strip_to_json(&text) else {
+        return ParamExtraction::Error(ExtractionError::NotJson(truncate(&text, 200).to_string()));
     };
 
     let value: serde_json::Value = match serde_json::from_str(&json) {
         Ok(v) => v,
         Err(e) => {
-            return ParamExtraction::Error(format!(
-                "LLM extraction returned invalid JSON: {e}. Got: {}",
-                truncate(&json, 200)
-            ));
+            return ParamExtraction::Error(ExtractionError::InvalidJson {
+                err: e.to_string(),
+                got: truncate(&json, 200).to_string(),
+            });
         }
     };
 
@@ -200,12 +202,12 @@ async fn extract_via_llm(
 
 async fn collect_chat_text(
     stream: impl futures::Stream<Item = Result<ChatChunk, WaferError>>,
-) -> Result<String, String> {
+) -> Result<String, ExtractionError> {
     pin_mut!(stream);
     let mut text = String::new();
     while let Some(item) = stream.next().await {
         match item {
-            Err(e) => return Err(format!("extraction stream error: {e}")),
+            Err(e) => return Err(ExtractionError::Stream(e.to_string())),
             Ok(chunk) => {
                 if let ChunkDelta::Text(t) = chunk.delta {
                     text.push_str(&t);
@@ -346,12 +348,14 @@ mod tests {
 
     #[test]
     fn lookup_skill_tool_resolves_short_name() {
-        let blocks = [BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "")
-            .role(SkillRole::Skill)
-            .tool(SkillTool {
-                description: "Generate image".into(),
-                parameters: serde_json::json!({}),
-            })];
+        let blocks = [
+            BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "")
+                .role(SkillRole::Skill)
+                .tool(SkillTool {
+                    description: "Generate image".into(),
+                    parameters: serde_json::json!({}),
+                }),
+        ];
         let tool = lookup_skill_tool(&blocks, "imagine").expect("found");
         assert_eq!(tool.description, "Generate image");
     }
@@ -370,10 +374,7 @@ mod tests {
     #[test]
     fn strip_to_json_extracts_balanced_object_from_prose() {
         let s = "Sure! Here is the JSON: {\"prompt\":\"a cat\"} done.";
-        assert_eq!(
-            strip_to_json(s).as_deref(),
-            Some(r#"{"prompt":"a cat"}"#)
-        );
+        assert_eq!(strip_to_json(s).as_deref(), Some(r#"{"prompt":"a cat"}"#));
     }
 
     #[test]

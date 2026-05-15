@@ -3,15 +3,11 @@
 //! body into an LLM-safe summary and an optional UI render hint.
 
 use wafer_block::{
-    context::Context,
-    core_types::Message,
-    meta::META_REQ_ACTION,
-    streams::output::BufferedResponse,
-    Attachment,
+    context::Context, core_types::Message, meta::META_REQ_ACTION,
+    streams::output::BufferedResponse, Attachment,
 };
 
-use super::sse::encode_sse_event;
-use super::SKILL_PREFIX;
+use super::{sse::encode_sse_event, SKILL_PREFIX};
 
 /// Output of a skill dispatch split into an LLM-safe summary and an optional
 /// UI render hint.
@@ -92,10 +88,7 @@ pub(super) async fn run_skill_dispatch(
     let args_bytes = serde_json::to_vec(&params).unwrap_or_else(|_| b"{}".to_vec());
     let mut msg = Message::new("http");
     msg.set_meta(META_REQ_ACTION, "create");
-    msg.set_meta(
-        wafer_block::meta::META_REQ_RESOURCE,
-        format!("/b/{cmd}"),
-    );
+    msg.set_meta(wafer_block::meta::META_REQ_RESOURCE, format!("/b/{cmd}"));
 
     let outcome = match ctx
         .call_block_buffered_with_attachments(&block_name, msg, &args_bytes, outgoing)

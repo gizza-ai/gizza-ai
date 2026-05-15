@@ -1,40 +1,11 @@
 //! gizza-ai/agent — chat agent block with user-invoked slash-command skills.
 //!
 //! Routes:
-//!   POST /b/agent/chat
-//!     Request:  { "user_message": "...", "messages": [...], "model_id"?, "uploads"?, "confirm_yes"? }
-//!     Response: text/event-stream:
-//!       event: token        data: { "delta": "..." }                    — assistant LLM text
-//!       event: tool_result  data: { "id", "input", "result", "for_ui"? } — skill output
-//!         `input`  — the extracted params dispatched to the skill (lets
-//!                    the UI show users what the LLM understood from their
-//!                    slash command in a side-by-side Input/Output view).
-//!       event: confirm      data: { "question", "yes": {cmd, params} }  — PR 5 stub
-//!       event: done         data: { "reason": "stop" | "error", "error"? }
+//!   POST /b/agent/chat       text/event-stream of token/tool_result/confirm/done events
+//!   GET  /b/agent/commands   JSON list of `{cmd, description}` for the picker
 //!
-//!   GET /b/agent/commands
-//!     Response: application/json
-//!       [ { "cmd": "<short-name>", "description": "..." }, ... ]
-//!
-//! Slash-command flow (when user_message starts with `/`):
-//!   1. Parse leading `/<cmd>` + remainder text.
-//!   2. Look up `gizza-ai/<cmd>` in the block registry. Unknown command →
-//!      `done` event with an error reason.
-//!   3. Read the block's `BlockInfo::tool` (description + JSON-Schema
-//!      parameters), then build the params payload:
-//!      - Verbatim path: schema is `{"prompt": string, required:["prompt"]}`-
-//!        shaped → `{"prompt": "<remainder>"}`.
-//!      - LLM extraction path: schema has other/more fields → ask the LLM to
-//!        emit a JSON object matching the schema. Stub for PR 5: if the LLM
-//!        returns `{"__unsure": "..."}`, emit a `confirm` SSE event and end.
-//!   4. Dispatch via `ctx.call_block_buffered_with_attachments`.
-//!   5. Parse the skill's response envelope (`_for_llm` / `_for_ui`) and emit
-//!      a single `tool_result` SSE event, then `done`.
-//!
-//! Non-slash flow: plain LLM chat, no `tools[]` advertisement. Tokens are
-//! buffered into the SSE response body as `token` events. There is no
-//! multi-round agent loop — that surface is replaced by user-invoked slash
-//! commands.
+//! Protocol shape, slash-command flow, and confirm-chip semantics are
+//! documented in `docs/architecture/agent-block.md`.
 
 mod chat;
 mod dispatch;
@@ -44,7 +15,12 @@ mod sse;
 mod uploads;
 
 use async_trait::async_trait;
+use chat::run_plain_chat;
+use dispatch::run_skill_dispatch;
 use serde::Deserialize;
+use slash::{build_skill_params, lookup_skill_tool, parse_slash, ParamExtraction};
+use sse::{encode_sse_event, error_response, sse_response};
+use uploads::{build_upload_history_prefix, decode_uploads};
 use wafer_block::{
     block::Block,
     context::Context,
@@ -53,12 +29,6 @@ use wafer_block::{
     streams::{input::InputStream, output::OutputStream},
     types::{BlockInfo, SkillRole},
 };
-
-use chat::run_plain_chat;
-use dispatch::run_skill_dispatch;
-use slash::{build_skill_params, lookup_skill_tool, parse_slash, ParamExtraction};
-use sse::{encode_sse_event, error_response, sse_response};
-use uploads::{build_upload_history_prefix, decode_uploads};
 
 /// The agent block's chat endpoint.
 const AGENT_CHAT_PATH: &str = "/b/agent/chat";
@@ -328,7 +298,7 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
             ParamExtraction::Error(e) => {
                 sse.push_str(&encode_sse_event(
                     "done",
-                    &serde_json::json!({ "reason": "error", "error": e }),
+                    &serde_json::json!({ "reason": "error", "error": e.to_string() }),
                 ));
                 return sse_response(sse);
             }
@@ -362,8 +332,9 @@ async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use wafer_block::types::SkillTool;
+
+    use super::*;
 
     #[test]
     fn list_skill_commands_filters_to_skills_strips_prefix_and_sorts() {

@@ -4,7 +4,9 @@ use wafer_core::clients::llm::{ChatContent, ChatMessage, ChatRole, ToolCall as L
 
 use super::AgentError;
 
-pub(super) fn openai_json_to_chat_message(v: &serde_json::Value) -> Result<ChatMessage, AgentError> {
+pub(super) fn openai_json_to_chat_message(
+    v: &serde_json::Value,
+) -> Result<ChatMessage, AgentError> {
     let role_str = v
         .get("role")
         .and_then(|r| r.as_str())
