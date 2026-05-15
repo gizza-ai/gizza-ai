@@ -392,8 +392,45 @@ pub fn dispatch_ffmpeg_runtime(payload: &[u8]) -> Result<Vec<u8>, WaferError> {
 }
 
 // ---------------------------------------------------------------------------
-// Agent-side response envelope (LLM history vs UI render)
+// Response shapes — Envelope vs flat
 // ---------------------------------------------------------------------------
+//
+// A skill block's response goes through `agent::dispatch::parse_skill_response`
+// (see `src/blocks/agent/dispatch.rs`). The agent splits the response into
+// two halves:
+//   - `for_llm` — the text the LLM sees in chat history.
+//   - `for_ui`  — an optional structured render hint the frontend uses to
+//                 render an inline image/video.
+//
+// Two response shapes are valid, and the choice is mechanical:
+//
+//   1. **Envelope** — use this when the block produces a renderable
+//      artifact (image, video, audio, anything the UI should display
+//      inline). The block emits a JSON object with two keys:
+//        - `"_for_llm"`: a short text summary (e.g. "generated 50KB PNG
+//           for prompt: a cat"). The LLM never sees the raw bytes, only
+//           this summary.
+//        - `"_for_ui"`:  `{data_url, mime, filename}` for inline render.
+//      Implemented by the `Envelope` struct below. Used by every block
+//      in `blocks/image-*` and `blocks/video-*`, plus `imagine` and
+//      `image-fetch`.
+//
+//   2. **Flat / plain JSON** — use this when the response is structured
+//      data the LLM should read directly: HTTP body text, calculator
+//      result, ffmpeg log, current time, etc. Each block declares its
+//      own `#[derive(Serialize)] struct Resp { … }` (or builds a
+//      `serde_json::json!({…})` inline for trivial cases) and returns
+//      its bytes. The agent treats the whole body as `for_llm` and sets
+//      `for_ui = None`.
+//      Used by `web-fetch`, `ffmpeg`, `calculator`, `clock`.
+//
+// The agent decision is "envelope iff the body parses as a JSON object
+// with a string `_for_llm` field" — see
+// `agent::dispatch::parse_skill_response`. Adding a `_for_llm` key
+// without a `_for_ui` is also valid Envelope use (the UI just won't
+// render anything), but in practice every renderable artifact has both.
+// Do not invent a third shape — extend Envelope (add fields under
+// `_for_ui` and update `ForUi`) or stay flat.
 
 /// Render hint for the chat UI. The agent block strips this off and forwards
 /// it to the frontend as `tool_result.for_ui`.
@@ -404,9 +441,14 @@ pub struct ForUi {
     pub filename: String,
 }
 
-/// Envelope a skill block emits when it has a renderable artifact: the LLM
-/// gets `_for_llm` as a plain-text summary; the UI gets `_for_ui` as a
-/// structured render hint.
+/// Response shape for skill blocks that produce a renderable artifact.
+///
+/// See the module-level "Response shapes" notes above for when to use this
+/// vs a plain `#[derive(Serialize)]` struct.
+///
+/// - `_for_llm`: text summary the LLM sees (never the raw bytes).
+/// - `_for_ui`:  structured render hint for the frontend (data URL + MIME
+///   + filename).
 #[derive(Serialize)]
 pub struct Envelope {
     #[serde(rename = "_for_llm")]
