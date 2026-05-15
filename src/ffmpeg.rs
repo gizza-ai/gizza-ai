@@ -50,17 +50,13 @@ pub trait FfmpegService: wafer_block::MaybeSend + wafer_block::MaybeSync + 'stat
 /// Browser-side ffmpeg service. Uses `@ffmpeg/ffmpeg` from jsdelivr via
 /// the wasm-bindgen module at `js/ffmpeg.js`. wasm32-only — native tests
 /// substitute their own `FfmpegService` impl.
+///
+/// Note: no explicit `unsafe impl Send + Sync` is needed. `FfmpegService`'s
+/// `MaybeSend + MaybeSync` bound is a blanket no-op on wasm32 (any `?Sized`
+/// type satisfies it — see `wafer_block::compat`), and this unit struct
+/// holds no fields. The FFmpeg instance lives in the JS module.
 #[cfg(target_arch = "wasm32")]
 pub struct BrowserFfmpegService;
-
-// SAFETY: wasm32 is single-threaded; this is a unit struct holding no JS handles.
-// The FFmpeg instance lives in the JS module, not in this Rust value. Required
-// because the FfmpegService trait bound is MaybeSend + MaybeSync. Mirrors
-// BrowserNetworkService in solobase-browser.
-#[cfg(target_arch = "wasm32")]
-unsafe impl Send for BrowserFfmpegService {}
-#[cfg(target_arch = "wasm32")]
-unsafe impl Sync for BrowserFfmpegService {}
 
 #[cfg(target_arch = "wasm32")]
 #[derive(Serialize)]

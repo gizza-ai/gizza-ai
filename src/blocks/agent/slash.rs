@@ -96,10 +96,13 @@ pub(super) async fn build_skill_params(
     if trimmed.is_empty() {
         // No args. Only OK when the schema accepts an empty object — i.e. no
         // required fields. Otherwise the caller will emit an empty-arg error.
+        // Equivalent to `.is_none_or(|arr| arr.is_empty())`, but spelled
+        // out for compatibility with Rust < 1.82 (the rest of this crate
+        // is conservative about MSRV-affecting APIs).
         let no_required = schema
             .get("required")
             .and_then(|r| r.as_array())
-            .is_none_or(|arr| arr.is_empty());
+            .map_or(true, |arr| arr.is_empty());
         return if no_required {
             ParamExtraction::Extracted(serde_json::json!({}))
         } else {
