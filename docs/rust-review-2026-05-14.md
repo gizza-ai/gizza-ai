@@ -278,4 +278,4 @@ For a future audit pass:
 | `chore/nice-to-haves` | 🟡 open | −1 net | #5 unsafe-impl + #13/`is_none_or` revert |
 | `refactor/hex-encoder` (stacks on bootstrap) | 🟡 open | −9 net | nit hex |
 
-Plus one upstream PR on `wafer-run/wafer-run` (`fix/dedup-build-increment-field-where`) — duplicate `build_increment_field_where` defined twice; blocks every downstream gizza-ai CI run until merged.
+Plus one upstream PR on `wafer-run/wafer-run` (`fix/dedup-build-increment-field-where`, #76) — duplicate `build_increment_field_where` defined twice; was blocking every downstream gizza-ai CI run. **Merged 2026-05-15.** Downstream PRs #54–#56 need a CI re-run to pick up the fix; #57–#59 already passed because they branched before the dup landed.
