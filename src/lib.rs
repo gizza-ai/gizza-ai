@@ -48,7 +48,7 @@ pub fn module_start() {
 ///
 /// Must be called exactly once when the Service Worker starts, before any
 /// `handle_request()` call. Async because it awaits `solobase_browser::db_init()`
-/// and `wafer.start_without_bind()`.
+/// and `wafer.seal()`.
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
@@ -210,9 +210,9 @@ pub async fn initialize() -> Result<(), JsValue> {
         web_sys::console::log_1(&format!("gizza-ai: skill '{name}' registered").into());
     }
 
-    // 7. Start runtime.
+    // 7. Seal the runtime (lazy init — blocks Init on first dispatch).
     wafer
-        .start_without_bind()
+        .seal()
         .await
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
