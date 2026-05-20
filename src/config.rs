@@ -17,6 +17,8 @@ use wasm_bindgen::JsValue;
 /// Run a write SQL statement, propagating any failure as a JsValue with the
 /// SQL snippet attached for debuggability. The bridge already raises on bad
 /// SQL; this just labels the error.
+// exec_or_err / query_or_err wrap bridge::db_exec_raw / bridge::db_query_raw —
+// the only execute primitive available at bootstrap, before the wafer runtime exists.
 #[cfg(target_arch = "wasm32")]
 fn exec_or_err(sql: &str, params: &str) -> Result<(), JsValue> {
     bridge::db_exec_raw(sql, params).map(|_| ()).map_err(|e| {
@@ -54,10 +56,6 @@ fn short(sql: &str) -> String {
 /// `Vec<SeaValue>`. The JS bridge expects a JSON-encoded array.  This helper
 /// converts and serializes in one place, factoring the pattern that would
 /// otherwise repeat at every callsite.
-///
-/// Note: `exec_or_err` / `query_or_err` are kept as-is — they wrap
-/// `bridge::db_exec_raw` / `bridge::db_query_raw` (the only execute primitive
-/// available at bootstrap, before the wafer runtime exists).
 #[cfg(target_arch = "wasm32")]
 fn json_params(values: Vec<wafer_sql_utils::SeaValue>) -> Result<String, JsValue> {
     let json_vals = wafer_sql_utils::value::sea_values_to_json(values);
@@ -76,6 +74,10 @@ fn json_params(values: Vec<wafer_sql_utils::SeaValue>) -> Result<String, JsValue
 /// There are no env vars to seed from in the browser — only auto-generated
 /// secrets and previously-stored values.
 pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
+    use wafer_block::db::ListOptions;
+    use wafer_sql_utils::{query, upsert, Backend};
+    use serde_json::json;
+
     // 1. Create variables table if it does not exist.
     //
     // gizza-ai bootstrap: variables table is wafer-run-shared; schema is
@@ -113,91 +115,83 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     // 2. Seed default admin account for browser build.
     //    Email: admin@solobase.local / Password: admin
     //    This is local-only (OPFS) so a simple default is acceptable.
-    {
-        use wafer_sql_utils::{upsert, Backend};
-        let stmt = upsert::build_upsert(
-            "variables",
-            &[
-                ("id".into(), serde_json::json!("var_admin_email")),
-                (
-                    "key".into(),
-                    serde_json::json!("SUPPERS_AI__AUTH__ADMIN_EMAIL"),
-                ),
-                ("name".into(), serde_json::json!("Admin Email")),
-                (
-                    "description".into(),
-                    serde_json::json!("Admin account email"),
-                ),
-                ("value".into(), serde_json::json!("admin@solobase.local")),
-                ("sensitive".into(), serde_json::json!(0)),
-                ("created_at".into(), serde_json::json!(now.clone())),
-                ("updated_at".into(), serde_json::json!(now.clone())),
-            ],
-            &["key"],
-            &[], // insert-or-ignore: empty update columns
-            Backend::Sqlite,
-        );
-        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-    }
-    {
-        use wafer_sql_utils::{upsert, Backend};
-        let stmt = upsert::build_upsert(
-            "variables",
-            &[
-                ("id".into(), serde_json::json!("var_admin_pass")),
-                (
-                    "key".into(),
-                    serde_json::json!("SUPPERS_AI__AUTH__ADMIN_PASSWORD"),
-                ),
-                ("name".into(), serde_json::json!("Admin Password")),
-                (
-                    "description".into(),
-                    serde_json::json!("Admin account password"),
-                ),
-                ("value".into(), serde_json::json!("admin")),
-                ("sensitive".into(), serde_json::json!(1)),
-                ("created_at".into(), serde_json::json!(now.clone())),
-                ("updated_at".into(), serde_json::json!(now.clone())),
-            ],
-            &["key"],
-            &[], // insert-or-ignore: empty update columns
-            Backend::Sqlite,
-        );
-        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-    }
+    let stmt = upsert::build_upsert(
+        "variables",
+        &[
+            ("id".into(), json!("var_admin_email")),
+            (
+                "key".into(),
+                json!("SUPPERS_AI__AUTH__ADMIN_EMAIL"),
+            ),
+            ("name".into(), json!("Admin Email")),
+            (
+                "description".into(),
+                json!("Admin account email"),
+            ),
+            ("value".into(), json!("admin@solobase.local")),
+            ("sensitive".into(), json!(0)),
+            ("created_at".into(), json!(now.as_str())),
+            ("updated_at".into(), json!(now.as_str())),
+        ],
+        &["key"],
+        &[], // insert-or-ignore: empty update columns
+        Backend::Sqlite,
+    );
+    exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+
+    let stmt = upsert::build_upsert(
+        "variables",
+        &[
+            ("id".into(), json!("var_admin_pass")),
+            (
+                "key".into(),
+                json!("SUPPERS_AI__AUTH__ADMIN_PASSWORD"),
+            ),
+            ("name".into(), json!("Admin Password")),
+            (
+                "description".into(),
+                json!("Admin account password"),
+            ),
+            ("value".into(), json!("admin")),
+            ("sensitive".into(), json!(1)),
+            ("created_at".into(), json!(now.as_str())),
+            ("updated_at".into(), json!(now.as_str())),
+        ],
+        &["key"],
+        &[], // insert-or-ignore: empty update columns
+        Backend::Sqlite,
+    );
+    exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
 
     // Inject the framework's page-side WebLLM engine into every SSR-rendered
     // page served via solobase-core's layout (admin UI, etc.). gizza's own
     // /b/ui page has its own maud template that loads /webllm-engine.js
     // directly, so this seed is strictly for framework-rendered surfaces.
-    {
-        use wafer_sql_utils::{upsert, Backend};
-        let stmt = upsert::build_upsert(
-            "variables",
-            &[
-                ("id".into(), serde_json::json!("var_embedded_scripts")),
-                (
-                    "key".into(),
-                    serde_json::json!("SOLOBASE_SHARED__EMBEDDED_SCRIPTS"),
+    let stmt = upsert::build_upsert(
+        "variables",
+        &[
+            ("id".into(), json!("var_embedded_scripts")),
+            (
+                "key".into(),
+                json!("SOLOBASE_SHARED__EMBEDDED_SCRIPTS"),
+            ),
+            ("name".into(), json!("Embedded Scripts")),
+            (
+                "description".into(),
+                json!(
+                    "Module-script URLs injected into every SSR page"
                 ),
-                ("name".into(), serde_json::json!("Embedded Scripts")),
-                (
-                    "description".into(),
-                    serde_json::json!(
-                        "Module-script URLs injected into every SSR page"
-                    ),
-                ),
-                ("value".into(), serde_json::json!("/webllm-engine.js")),
-                ("sensitive".into(), serde_json::json!(0)),
-                ("created_at".into(), serde_json::json!(now.clone())),
-                ("updated_at".into(), serde_json::json!(now.clone())),
-            ],
-            &["key"],
-            &[], // insert-or-ignore: empty update columns
-            Backend::Sqlite,
-        );
-        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-    }
+            ),
+            ("value".into(), json!("/webllm-engine.js")),
+            ("sensitive".into(), json!(0)),
+            ("created_at".into(), json!(now.as_str())),
+            ("updated_at".into(), json!(now.as_str())),
+        ],
+        &["key"],
+        &[], // insert-or-ignore: empty update columns
+        Backend::Sqlite,
+    );
+    exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
 
     // 2b. Seed placeholders for auth block's required OAuth + domain config.
     //     gizza-ai runs anonymously — it doesn't use OAuth sign-in — but the
@@ -213,22 +207,21 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_ID", ""),
         ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_SECRET", ""),
     ] {
-        use wafer_sql_utils::{upsert, Backend};
         let id = format!("var_{}", key.to_lowercase().replace("__", "_"));
         let stmt = upsert::build_upsert(
             "variables",
             &[
-                ("id".into(), serde_json::json!(id)),
-                ("key".into(), serde_json::json!(key)),
-                ("name".into(), serde_json::json!(key)),
+                ("id".into(), json!(id)),
+                ("key".into(), json!(key)),
+                ("name".into(), json!(key)),
                 (
                     "description".into(),
-                    serde_json::json!("Placeholder — gizza-ai runs anonymously"),
+                    json!("Placeholder — gizza-ai runs anonymously"),
                 ),
-                ("value".into(), serde_json::json!(val)),
-                ("sensitive".into(), serde_json::json!(0)),
-                ("created_at".into(), serde_json::json!(now.clone())),
-                ("updated_at".into(), serde_json::json!(now.clone())),
+                ("value".into(), json!(val)),
+                ("sensitive".into(), json!(0)),
+                ("created_at".into(), json!(now.as_str())),
+                ("updated_at".into(), json!(now.as_str())),
             ],
             &["key"],
             &[], // insert-or-ignore: empty update columns
@@ -261,35 +254,31 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     seed_auto_generated(&now)?;
 
     // 4. Load all variables
-    {
-        use wafer_block::db::ListOptions;
-        use wafer_sql_utils::{query, Backend};
-        let stmt = query::build_select_columns(
-            "variables",
-            &["key", "value"],
-            &ListOptions::default(),
-            None,
-            Backend::Sqlite,
-        );
-        let json = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-        let rows: Vec<serde_json::Value> = serde_json::from_str(&json).map_err(|e| {
-            JsValue::from_str(&format!("config: parse variables result failed: {e}"))
-        })?;
+    let stmt = query::build_select_columns(
+        "variables",
+        &["key", "value"],
+        &ListOptions::default(),
+        None,
+        Backend::Sqlite,
+    );
+    let json_str = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+    let rows: Vec<serde_json::Value> = serde_json::from_str(&json_str).map_err(|e| {
+        JsValue::from_str(&format!("config: parse variables result failed: {e}"))
+    })?;
 
-        let mut vars = HashMap::new();
-        for row in rows {
-            let key = row.get("key").and_then(|v| v.as_str()).unwrap_or_default();
-            let value = row
-                .get("value")
-                .and_then(|v| v.as_str())
-                .unwrap_or_default();
-            if !key.is_empty() {
-                vars.insert(key.to_string(), value.to_string());
-            }
+    let mut vars = HashMap::new();
+    for row in rows {
+        let key = row.get("key").and_then(|v| v.as_str()).unwrap_or_default();
+        let value = row
+            .get("value")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default();
+        if !key.is_empty() {
+            vars.insert(key.to_string(), value.to_string());
         }
-
-        Ok(vars)
     }
+
+    Ok(vars)
 }
 
 /// Sample 32 random bytes and return them hex-encoded. Used to seed
@@ -316,18 +305,19 @@ fn seed_random_secret(
     now: &str,
 ) -> Result<(), JsValue> {
     use wafer_sql_utils::{upsert, Backend};
+    use serde_json::json;
     let secret = random_secret_hex(key)?;
     let stmt = upsert::build_upsert(
         "variables",
         &[
-            ("id".into(), serde_json::json!(id)),
-            ("key".into(), serde_json::json!(key)),
-            ("name".into(), serde_json::json!(key)),
-            ("description".into(), serde_json::json!(description)),
-            ("value".into(), serde_json::json!(secret)),
-            ("sensitive".into(), serde_json::json!(1)),
-            ("created_at".into(), serde_json::json!(now)),
-            ("updated_at".into(), serde_json::json!(now)),
+            ("id".into(), json!(id)),
+            ("key".into(), json!(key)),
+            ("name".into(), json!(key)),
+            ("description".into(), json!(description)),
+            ("value".into(), json!(secret)),
+            ("sensitive".into(), json!(1)),
+            ("created_at".into(), json!(now)),
+            ("updated_at".into(), json!(now)),
         ],
         &["key"],
         &[], // insert-or-ignore: empty update columns
@@ -352,6 +342,9 @@ fn seed_random_secret(
 /// and generates random hex values for any that don't already exist in the
 /// variables table.
 fn seed_auto_generated(now: &str) -> Result<(), JsValue> {
+    use wafer_sql_utils::{upsert, Backend};
+    use serde_json::json;
+
     let block_infos = solobase_core::blocks::all_block_infos();
     let all_vars = solobase_core::config_vars::collect_all_config_vars(&block_infos);
 
@@ -366,27 +359,24 @@ fn seed_auto_generated(now: &str) -> Result<(), JsValue> {
         let sensitive: i32 = if var.is_sensitive() { 1 } else { 0 };
 
         // INSERT OR IGNORE — existing DB values take priority
-        {
-            use wafer_sql_utils::{upsert, Backend};
-            let stmt = upsert::build_upsert(
-                "variables",
-                &[
-                    ("id".into(), serde_json::json!(id)),
-                    ("key".into(), serde_json::json!(var.key)),
-                    ("name".into(), serde_json::json!(var.name)),
-                    ("description".into(), serde_json::json!(var.description)),
-                    ("value".into(), serde_json::json!(secret)),
-                    ("warning".into(), serde_json::json!(var.warning)),
-                    ("sensitive".into(), serde_json::json!(sensitive)),
-                    ("created_at".into(), serde_json::json!(now)),
-                    ("updated_at".into(), serde_json::json!(now)),
-                ],
-                &["key"],
-                &[], // insert-or-ignore: empty update columns
-                Backend::Sqlite,
-            );
-            exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-        }
+        let stmt = upsert::build_upsert(
+            "variables",
+            &[
+                ("id".into(), json!(id)),
+                ("key".into(), json!(var.key)),
+                ("name".into(), json!(var.name)),
+                ("description".into(), json!(var.description)),
+                ("value".into(), json!(secret)),
+                ("warning".into(), json!(var.warning)),
+                ("sensitive".into(), json!(sensitive)),
+                ("created_at".into(), json!(now)),
+                ("updated_at".into(), json!(now)),
+            ],
+            &["key"],
+            &[], // insert-or-ignore: empty update columns
+            Backend::Sqlite,
+        );
+        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
     }
 
     Ok(())
@@ -464,6 +454,10 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     // generates the same shape in Rust, letting us use `upsert::build_upsert`
     // (INSERT OR IGNORE semantics via empty update-columns slice) and the
     // pre-computed `now` timestamp, consistent with the seed_* helpers above.
+    use wafer_block::db::ListOptions;
+    use wafer_sql_utils::{query, upsert, Backend};
+    use serde_json::json;
+
     let now = chrono::Utc::now().to_rfc3339();
     let defaults: &[(&str, bool)] = &[
         ("suppers-ai/auth", true),
@@ -481,16 +475,15 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     ];
 
     for &(block_name, enabled) in defaults {
-        use wafer_sql_utils::{upsert, Backend};
         let block_id = format!("block_{}", uuid::Uuid::new_v4());
         let stmt = upsert::build_upsert(
             "suppers_ai__admin__block_settings",
             &[
-                ("id".into(), serde_json::json!(block_id)),
-                ("block_name".into(), serde_json::json!(block_name)),
-                ("enabled".into(), serde_json::json!(enabled as i32)),
-                ("created_at".into(), serde_json::json!(now.clone())),
-                ("updated_at".into(), serde_json::json!(now.clone())),
+                ("id".into(), json!(block_id)),
+                ("block_name".into(), json!(block_name)),
+                ("enabled".into(), json!(enabled as i32)),
+                ("created_at".into(), json!(now.as_str())),
+                ("updated_at".into(), json!(now.as_str())),
             ],
             &["block_name"], // unique constraint column
             &[],             // insert-or-ignore: empty update columns
@@ -500,34 +493,30 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     }
 
     // Read all settings
-    {
-        use wafer_block::db::ListOptions;
-        use wafer_sql_utils::{query, Backend};
-        let stmt = query::build_select_columns(
-            "suppers_ai__admin__block_settings",
-            &["block_name", "enabled"],
-            &ListOptions::default(),
-            None,
-            Backend::Sqlite,
-        );
-        let json = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-        let rows: Vec<serde_json::Value> = serde_json::from_str(&json).map_err(|e| {
-            JsValue::from_str(&format!("config: parse block_settings result failed: {e}"))
-        })?;
+    let stmt = query::build_select_columns(
+        "suppers_ai__admin__block_settings",
+        &["block_name", "enabled"],
+        &ListOptions::default(),
+        None,
+        Backend::Sqlite,
+    );
+    let json_str = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+    let rows: Vec<serde_json::Value> = serde_json::from_str(&json_str).map_err(|e| {
+        JsValue::from_str(&format!("config: parse block_settings result failed: {e}"))
+    })?;
 
-        let mut map = HashMap::new();
-        for row in rows {
-            let name = row
-                .get("block_name")
-                .and_then(|v| v.as_str())
-                .unwrap_or_default()
-                .to_string();
-            let enabled = row.get("enabled").and_then(|v| v.as_i64()).unwrap_or(1) != 0;
-            if !name.is_empty() {
-                map.insert(name, enabled);
-            }
+    let mut map = HashMap::new();
+    for row in rows {
+        let name = row
+            .get("block_name")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+        let enabled = row.get("enabled").and_then(|v| v.as_i64()).unwrap_or(1) != 0;
+        if !name.is_empty() {
+            map.insert(name, enabled);
         }
-
-        Ok(solobase_core::features::BlockSettings::from_map(map))
     }
+
+    Ok(solobase_core::features::BlockSettings::from_map(map))
 }
