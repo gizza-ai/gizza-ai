@@ -7,8 +7,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi,
-    SkillError, SkillResultExt, Source, SourceFields,
+    dispatch_ffmpeg_runtime, filename_with_suffix, mime_to_ext, AssetKind, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -39,10 +39,6 @@ fn build_argv(in_name: &str, out_name: &str, x: u32, y: u32, w: u32, h: u32) -> 
     ]
 }
 
-fn output_filename(input_filename: &str, ext: &str) -> String {
-    let base = input_filename.rsplitn(2, '.').last().unwrap_or(input_filename);
-    format!("{base}-cropped.{ext}")
-}
 
 #[cfg(target_arch = "wasm32")]
 struct ImageCrop;
@@ -133,7 +129,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = ff.output.len();
     let encoded = B64.encode(&ff.output);
     let data_url = format!("data:{mime};base64,{encoded}");
-    let filename = output_filename(&in_filename, ext);
+    let filename = filename_with_suffix(&in_filename, "-cropped", ext);
     let env = Envelope {
         for_llm: format!(
             "cropped {} at ({},{}) {}x{} ({} {})",
@@ -166,6 +162,6 @@ mod tests {
 
     #[test]
     fn output_filename_appends_cropped_suffix() {
-        assert_eq!(output_filename("cat.png", "png"), "cat-cropped.png");
+        assert_eq!(filename_with_suffix("cat.png", "-cropped", "png"), "cat-cropped.png");
     }
 }

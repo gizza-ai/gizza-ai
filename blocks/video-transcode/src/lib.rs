@@ -7,8 +7,9 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, replace_extension, validate_quality_1_100, AssetKind,
-    Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
+    dispatch_ffmpeg_runtime, format_to_mime_and_ext, mime_to_ext, replace_extension,
+    validate_quality_1_100, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError,
+    SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -36,13 +37,6 @@ fn quality_to_crf(q: u8) -> u8 {
     crf.round().clamp(0.0, 51.0) as u8
 }
 
-fn format_to_mime_and_ext(fmt: &str) -> Option<(&'static str, &'static str)> {
-    match fmt {
-        "mp4" => Some(("video/mp4", "mp4")),
-        "webm" => Some(("video/webm", "webm")),
-        _ => None,
-    }
-}
 
 fn build_argv(in_name: &str, out_name: &str, format: &str, crf: u8) -> Vec<String> {
     match format {
@@ -116,7 +110,7 @@ impl VideoTranscode {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("video-transcode")?;
-    let (out_mime, out_ext) = format_to_mime_and_ext(&args.format).ok_or_else(|| {
+    let (out_mime, out_ext) = format_to_mime_and_ext(AssetKind::Video, &args.format).ok_or_else(|| {
         SkillError::InvalidArgs(format!(
             "invalid video-transcode args: format {:?} not supported (mp4|webm)",
             args.format

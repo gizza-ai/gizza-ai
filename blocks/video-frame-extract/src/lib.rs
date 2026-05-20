@@ -7,8 +7,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi,
-    SkillError, SkillResultExt, Source, SourceFields,
+    dispatch_ffmpeg_runtime, filename_with_suffix, mime_to_ext, AssetKind, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -26,9 +26,6 @@ struct Args {
     timestamp: f64,
 }
 
-fn in_filename_stem(name: &str) -> &str {
-    name.rsplit_once('.').map(|(s, _)| s).unwrap_or(name)
-}
 
 fn build_argv(in_name: &str, out_name: &str, timestamp: f64) -> Vec<String> {
     vec![
@@ -130,8 +127,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = ff.output.len();
     let encoded = B64.encode(&ff.output);
     let data_url = format!("data:image/png;base64,{encoded}");
-    let stem = in_filename_stem(&in_filename);
-    let filename = format!("{stem}-frame-{}.png", args.timestamp);
+    let filename = filename_with_suffix(&in_filename, &format!("-frame-{}", args.timestamp), "png");
 
     let env = Envelope {
         for_llm: format!(
