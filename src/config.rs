@@ -247,20 +247,59 @@ fn seed_auto_generated() -> Result<(), JsValue> {
 /// Reads the `suppers_ai__admin__block_settings` table (creating it if needed)
 /// and returns a `BlockSettings` with the enabled/disabled state of each block.
 pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, JsValue> {
-    // Ensure table exists
-    exec_or_err(
-        "CREATE TABLE IF NOT EXISTS suppers_ai__admin__block_settings (
-            block_name TEXT PRIMARY KEY,
-            enabled INTEGER DEFAULT 1,
-            created_at TEXT DEFAULT (datetime('now')),
-            updated_at TEXT DEFAULT (datetime('now'))
-        )",
+    // PRECONDITION: `wafer.init_block(suppers-ai/admin)` must have already
+    // run before this function is called — admin's migration is the single
+    // source of schema truth for `suppers_ai__admin__block_settings`. See
+    // `initialize()` in `lib.rs` for the ordering. Removing the pre-create
+    // eliminates the schema-drift class of bug that took down the solobase
+    // demo in solobase #210/#211 (mirrored in #212 for solobase-web; this
+    // is the matching gizza-ai change).
+    //
+    // One-shot migration for legacy OPFS state: users who visited a build
+    // before this restructure have a stale 4-column `block_settings` table
+    // that admin's `CREATE TABLE IF NOT EXISTS` no-op'd against, leaving
+    // the `id`/`current_hash`/`blessed_hash` columns missing. Detect that
+    // case via `pragma_table_info` and recreate the table with the
+    // canonical schema. block_settings rows are runtime config (enabled
+    // flags + per-block migration hashes), not user data — losing them on
+    // this one-shot migration is acceptable; defaults below re-seed.
+    let table_info = query_or_err(
+        "SELECT name FROM pragma_table_info('suppers_ai__admin__block_settings')",
         "[]",
-    )?;
+    )
+    .unwrap_or_else(|_| "[]".to_string());
+    let has_id_column = table_info.contains("\"id\"");
+    let table_exists = table_info != "[]" && !table_info.is_empty();
+    if table_exists && !has_id_column {
+        exec_or_err(
+            "DROP TABLE IF EXISTS suppers_ai__admin__block_settings",
+            "[]",
+        )?;
+        exec_or_err(
+            "CREATE TABLE suppers_ai__admin__block_settings (
+                id            TEXT PRIMARY KEY,
+                block_name    TEXT NOT NULL UNIQUE,
+                enabled       INTEGER NOT NULL DEFAULT 1,
+                current_hash  TEXT NOT NULL DEFAULT '',
+                blessed_hash  TEXT NOT NULL DEFAULT '',
+                created_at    TEXT NOT NULL,
+                updated_at    TEXT NOT NULL
+            )",
+            "[]",
+        )?;
+        exec_or_err(
+            "CREATE UNIQUE INDEX IF NOT EXISTS suppers_ai__admin__block_settings_block_name_uniq \
+             ON suppers_ai__admin__block_settings (block_name)",
+            "[]",
+        )?;
+    }
 
     // Seed defaults for known blocks — gizza-ai only uses auth, llm,
     // local-llm, and messages. Everything else is explicitly disabled
-    // so the feature block factory skips creation/registration.
+    // so the feature block factory skips creation/registration. The strict
+    // schema demands `id`, `created_at`, `updated_at`; generate them
+    // inline via SQLite builtins so the seed remains a one-shot SQL
+    // statement per block.
     let defaults: &[(&str, bool)] = &[
         ("suppers-ai/auth", true),
         ("suppers-ai/llm", true),
@@ -279,7 +318,9 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     for &(name, default) in defaults {
         let params = serde_json::json!([name, default as i32]);
         exec_or_err(
-            "INSERT OR IGNORE INTO suppers_ai__admin__block_settings (block_name, enabled) VALUES (?, ?)",
+            "INSERT OR IGNORE INTO suppers_ai__admin__block_settings \
+             (id, block_name, enabled, created_at, updated_at) \
+             VALUES (lower(hex(randomblob(16))), ?, ?, datetime('now'), datetime('now'))",
             &params.to_string(),
         )?;
     }

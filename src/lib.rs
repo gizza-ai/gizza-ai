@@ -60,59 +60,53 @@ pub async fn initialize() -> Result<(), JsValue> {
     // 1. Load sql.js WASM + open/create the OPFS database.
     solobase_browser::db_init().await;
 
-    // 2. Seed variables and load config. Failures here mean the OPFS
-    //    schema-create or seed write itself errored — there is no useful
-    //    runtime state to recover into, so propagate to the Service Worker.
-    let vars = config::seed_and_load_variables()?;
-    web_sys::console::log_1(
-        &format!("gizza-ai: {} variables loaded from database", vars.len()).into(),
-    );
+    // ── Phase 1 ─────────────────────────────────────────────────────────────
+    // Build the runtime with EMPTY config + EMPTY BlockSettings. We can't
+    // pre-fill them from OPFS yet because the `suppers_ai__admin__block_settings`
+    // table only exists after admin's `lifecycle(Init)` has run its
+    // migrations — and admin can't run until the wafer is built and sealed.
+    // gizza-ai's own `variables` table is independent of the admin tables
+    // and CAN be seeded earlier, but for symmetry with the solobase-web
+    // restructure (and so any future schema additions to the gizza vars
+    // table can also rely on a known runtime baseline) we defer all seeding
+    // to Phase 3. See solobase #212 for the equivalent rewrite there.
+    let config_svc: Arc<dyn ConfigService> =
+        Arc::new(wafer_block_config::service::EnvConfigService::new());
+    let initial_block_settings =
+        solobase_core::features::BlockSettings::from_map(std::collections::HashMap::new());
 
-    // 3. Load feature flag settings (curated for gizza — only auth/llm/
-    //    local-llm/messages are enabled).
-    let features = config::load_block_settings()?;
-
-    // 4. Extract JWT secret.
-    let jwt_secret = vars
-        .get("SUPPERS_AI__AUTH__JWT_SECRET")
-        .cloned()
-        .unwrap_or_default();
-
-    // 5. Build config service.
-    let config_svc = wafer_block_config::service::EnvConfigService::new();
-    for (key, value) in &vars {
-        config_svc.set(key, value);
-    }
-
-    // 5b. Browser WebLLM service — provided by solobase-browser in Phase D.
+    // Browser WebLLM service — provided by solobase-browser in Phase D.
     //     Registered on the MultiBackendLlmService router under the label
     //     "browser"; BrowserLlmService::claims_backend matches the
     //     `"webllm"` backend_id that ChatRequest will carry.
     let browser_llm: Arc<dyn wafer_core::interfaces::llm::service::LlmService> =
         Arc::new(solobase_browser::llm::BrowserLlmService::new());
 
-    // 5c. Browser image service — Janus-Pro-1B via transformers.js on WebGPU.
+    // Browser image service — Janus-Pro-1B via transformers.js on WebGPU.
     //     Registered on the MultiBackendImageService router under the label
     //     "browser"; BrowserImageService::claims_backend matches the
     //     `"transformers-image"` backend_id that ImageRequest will carry.
     let browser_image: Arc<dyn wafer_core::interfaces::image::service::ImageService> =
         Arc::new(solobase_browser::image::BrowserImageService::new());
 
-    // 6. Build WAFER runtime via SolobaseBuilder. We reuse solobase's
-    //    builder for the service blocks, middleware, router, and
-    //    site-main flow, and inject gizza-specific routes via
-    //    `add_route` so /, /b/ui/, and /b/agent/ reach gizza's native
-    //    blocks as Public tier (no auth required — gizza runs anonymous).
-    let (mut wafer, storage_block) = SolobaseBuilder::new()
+    // Crypto starts with an empty JWT secret; the persisted secret is loaded
+    // in Phase 3 and installed via `BrowserCryptoService::set_jwt_secret`.
+    let crypto_concrete = Arc::new(solobase_browser::crypto::BrowserCryptoService::new(
+        String::new(),
+    ));
+    let crypto_svc: Arc<dyn wafer_core::interfaces::crypto::service::CryptoService> =
+        crypto_concrete.clone();
+
+    let builder = SolobaseBuilder::new()
         .database(solobase_browser::make_database_service())
         .storage(solobase_browser::make_storage_service())
-        .config(Arc::new(config_svc))
-        .crypto(solobase_browser::make_crypto_service(jwt_secret))
+        .config(config_svc.clone())
+        .crypto(crypto_svc)
         .network(solobase_browser::make_network_service())
         .logger(solobase_browser::make_console_logger())
         .llm_service("browser", browser_llm)
         .image_service("browser", browser_image)
-        .block_settings(features)
+        .block_settings(initial_block_settings)
         .block_config(
             "wafer-run/security-headers",
             serde_json::json!({
@@ -155,7 +149,10 @@ pub async fn initialize() -> Result<(), JsValue> {
         // route (e.g. `/b/agent/chat`) before more specific extras.
         .add_route("/b/ui", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/ui/", "gizza-ai/ui", RouteAccess::Public)
-        .add_route("/b/agent/", "gizza-ai/agent", RouteAccess::Public)
+        .add_route("/b/agent/", "gizza-ai/agent", RouteAccess::Public);
+    let block_settings_handle = builder.block_settings_handle();
+
+    let (mut wafer, storage_block) = builder
         .build()
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
@@ -210,11 +207,62 @@ pub async fn initialize() -> Result<(), JsValue> {
         web_sys::console::log_1(&format!("gizza-ai: skill '{name}' registered").into());
     }
 
-    // 7. Seal the runtime (lazy init — blocks Init on first dispatch).
+    // 7. Seal the runtime.
     wafer
         .seal()
         .await
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
+
+    // ── Phase 2 ─────────────────────────────────────────────────────────────
+    // Run admin's `lifecycle(Init)` so its migrations create the canonical
+    // `suppers_ai__admin__block_settings` (+ `suppers_ai__admin__variables`)
+    // tables. gizza-ai disables admin in its feature flags so it never
+    // routes there, but other enabled blocks' migrations call
+    // `migration_helper::write_state` against `block_settings` and need
+    // the strict schema in place. Forcing the admin Init unconditionally
+    // here mirrors the solobase-web restructure (#212) and avoids the
+    // schema-drift pre-create pattern (`load_block_settings` no longer
+    // pre-creates the admin table).
+    if let Err(e) = wafer
+        .init_block(solobase_core::blocks::admin::ADMIN_BLOCK_ID)
+        .await
+    {
+        web_sys::console::error_1(&format!("gizza-ai: admin block Init failed: {e}").into());
+        return Err(JsValue::from_str(&format!("admin init failed: {e}")));
+    }
+
+    // ── Phase 3 ─────────────────────────────────────────────────────────────
+    // Now the admin tables exist. Seed/load against them, then publish into
+    // the services the wafer already holds:
+    //  - `config_svc` (mutated via Arc<dyn ConfigService>::set)
+    //  - `block_settings_handle` (the shared RwLock the router's FeatureConfig
+    //    also reads from)
+    //  - `crypto_concrete` (rotated via set_jwt_secret)
+    let vars = config::seed_and_load_variables()?;
+    web_sys::console::log_1(
+        &format!("gizza-ai: {} variables loaded from database", vars.len()).into(),
+    );
+    let features = config::load_block_settings()?;
+    for (key, value) in &vars {
+        config_svc.set(key, value);
+    }
+    config_svc.set(
+        solobase_core::features::BLOCK_SETTINGS_CONFIG_KEY,
+        &features.to_config_json(),
+    );
+    *block_settings_handle
+        .write()
+        .expect("BlockSettings RwLock poisoned") = features;
+    if let Some(secret) = vars.get("SUPPERS_AI__AUTH__JWT_SECRET") {
+        crypto_concrete.set_jwt_secret(secret.clone());
+    }
+
+    // ── Phase 4 ─────────────────────────────────────────────────────────────
+    // Eager Init the remaining blocks. Slot caching makes admin's second
+    // init a no-op. Auth's bootstrap reads BOOTSTRAP_ADMIN_{EMAIL,PASSWORD}
+    // via config_client::get_default (which now sees the values we just
+    // pushed into `config_svc`).
+    wafer.init_all_blocks().await;
 
     // 8. Inject WRAP grants.
     builder::post_start(&wafer, &storage_block);
