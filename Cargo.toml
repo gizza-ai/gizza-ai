@@ -43,6 +43,7 @@ maud = { version = "0.26", default-features = false }
 wafer-run = { git = "https://github.com/wafer-run/wafer-run", branch = "main", default-features = false, features = ["wasmi"] }
 wafer-block = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 wafer-core = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
+wafer-sql-utils = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 
 # Config service (EnvConfigService).
 wafer-block-config = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }

@@ -48,6 +48,23 @@ fn short(sql: &str) -> String {
     }
 }
 
+/// Serialize builder-emitted parameter values for the JS bridge.
+///
+/// `wafer_sql_utils` builders return a `Statement` whose `values` field holds
+/// `Vec<SeaValue>`. The JS bridge expects a JSON-encoded array.  This helper
+/// converts and serializes in one place, factoring the pattern that would
+/// otherwise repeat at every callsite.
+///
+/// Note: `exec_or_err` / `query_or_err` are kept as-is — they wrap
+/// `bridge::db_exec_raw` / `bridge::db_query_raw` (the only execute primitive
+/// available at bootstrap, before the wafer runtime exists).
+#[cfg(target_arch = "wasm32")]
+fn json_params(values: Vec<wafer_sql_utils::SeaValue>) -> Result<String, JsValue> {
+    let json_vals = wafer_sql_utils::value::sea_values_to_json(values);
+    serde_json::to_string(&json_vals)
+        .map_err(|e| JsValue::from_str(&format!("config: serialize params failed: {e:?}")))
+}
+
 // ---------------------------------------------------------------------------
 // Variable seeding and loading
 // ---------------------------------------------------------------------------
@@ -59,7 +76,13 @@ fn short(sql: &str) -> String {
 /// There are no env vars to seed from in the browser — only auto-generated
 /// secrets and previously-stored values.
 pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
-    // 1. Create variables table if it does not exist
+    // 1. Create variables table if it does not exist.
+    //
+    // gizza-ai bootstrap: variables table is wafer-run-shared; schema is
+    // defined here as a hand-written string because `ddl::build_create_table`
+    // requires a `Table` struct — coupling gizza-ai to wafer-run's schema
+    // definition machinery for a one-off bootstrap DDL trades more code for
+    // less clarity.  The equivalent index is similarly hand-written.
     exec_or_err(
         "CREATE TABLE IF NOT EXISTS variables (
             id TEXT PRIMARY KEY,
@@ -80,29 +103,101 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         "[]",
     )?;
 
+    // Pre-compute a timestamp for all seeds in this call.  The original SQL
+    // used `datetime('now')` (a SQLite function evaluated server-side), but
+    // `wafer_sql_utils` builders bind values as parameters and cannot carry
+    // raw SQL expressions.  A pre-computed RFC-3339 string is functionally
+    // equivalent for bootstrap seeding.
+    let now = chrono::Utc::now().to_rfc3339();
+
     // 2. Seed default admin account for browser build.
     //    Email: admin@solobase.local / Password: admin
     //    This is local-only (OPFS) so a simple default is acceptable.
-    exec_or_err(
-        "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
-         VALUES ('var_admin_email', 'SUPPERS_AI__AUTH__ADMIN_EMAIL', 'Admin Email', 'Admin account email', 'admin@solobase.local', 0, datetime('now'), datetime('now'))",
-        "[]",
-    )?;
-    exec_or_err(
-        "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
-         VALUES ('var_admin_pass', 'SUPPERS_AI__AUTH__ADMIN_PASSWORD', 'Admin Password', 'Admin account password', 'admin', 1, datetime('now'), datetime('now'))",
-        "[]",
-    )?;
+    {
+        use wafer_sql_utils::{upsert, Backend};
+        let stmt = upsert::build_upsert(
+            "variables",
+            &[
+                ("id".into(), serde_json::json!("var_admin_email")),
+                (
+                    "key".into(),
+                    serde_json::json!("SUPPERS_AI__AUTH__ADMIN_EMAIL"),
+                ),
+                ("name".into(), serde_json::json!("Admin Email")),
+                (
+                    "description".into(),
+                    serde_json::json!("Admin account email"),
+                ),
+                ("value".into(), serde_json::json!("admin@solobase.local")),
+                ("sensitive".into(), serde_json::json!(0)),
+                ("created_at".into(), serde_json::json!(now.clone())),
+                ("updated_at".into(), serde_json::json!(now.clone())),
+            ],
+            &["key"],
+            &[], // insert-or-ignore: empty update columns
+            Backend::Sqlite,
+        );
+        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+    }
+    {
+        use wafer_sql_utils::{upsert, Backend};
+        let stmt = upsert::build_upsert(
+            "variables",
+            &[
+                ("id".into(), serde_json::json!("var_admin_pass")),
+                (
+                    "key".into(),
+                    serde_json::json!("SUPPERS_AI__AUTH__ADMIN_PASSWORD"),
+                ),
+                ("name".into(), serde_json::json!("Admin Password")),
+                (
+                    "description".into(),
+                    serde_json::json!("Admin account password"),
+                ),
+                ("value".into(), serde_json::json!("admin")),
+                ("sensitive".into(), serde_json::json!(1)),
+                ("created_at".into(), serde_json::json!(now.clone())),
+                ("updated_at".into(), serde_json::json!(now.clone())),
+            ],
+            &["key"],
+            &[], // insert-or-ignore: empty update columns
+            Backend::Sqlite,
+        );
+        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+    }
 
     // Inject the framework's page-side WebLLM engine into every SSR-rendered
     // page served via solobase-core's layout (admin UI, etc.). gizza's own
     // /b/ui page has its own maud template that loads /webllm-engine.js
     // directly, so this seed is strictly for framework-rendered surfaces.
-    exec_or_err(
-        "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
-         VALUES ('var_embedded_scripts', 'SOLOBASE_SHARED__EMBEDDED_SCRIPTS', 'Embedded Scripts', 'Module-script URLs injected into every SSR page', '/webllm-engine.js', 0, datetime('now'), datetime('now'))",
-        "[]",
-    )?;
+    {
+        use wafer_sql_utils::{upsert, Backend};
+        let stmt = upsert::build_upsert(
+            "variables",
+            &[
+                ("id".into(), serde_json::json!("var_embedded_scripts")),
+                (
+                    "key".into(),
+                    serde_json::json!("SOLOBASE_SHARED__EMBEDDED_SCRIPTS"),
+                ),
+                ("name".into(), serde_json::json!("Embedded Scripts")),
+                (
+                    "description".into(),
+                    serde_json::json!(
+                        "Module-script URLs injected into every SSR page"
+                    ),
+                ),
+                ("value".into(), serde_json::json!("/webllm-engine.js")),
+                ("sensitive".into(), serde_json::json!(0)),
+                ("created_at".into(), serde_json::json!(now.clone())),
+                ("updated_at".into(), serde_json::json!(now.clone())),
+            ],
+            &["key"],
+            &[], // insert-or-ignore: empty update columns
+            Backend::Sqlite,
+        );
+        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+    }
 
     // 2b. Seed placeholders for auth block's required OAuth + domain config.
     //     gizza-ai runs anonymously — it doesn't use OAuth sign-in — but the
@@ -118,15 +213,28 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_ID", ""),
         ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_SECRET", ""),
     ] {
-        let sql = format!(
-            "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
-             VALUES ('var_{}', '{}', '{}', 'Placeholder — gizza-ai runs anonymously', '{}', 0, datetime('now'), datetime('now'))",
-            key.to_lowercase().replace("__", "_"),
-            key,
-            key,
-            val
+        use wafer_sql_utils::{upsert, Backend};
+        let id = format!("var_{}", key.to_lowercase().replace("__", "_"));
+        let stmt = upsert::build_upsert(
+            "variables",
+            &[
+                ("id".into(), serde_json::json!(id)),
+                ("key".into(), serde_json::json!(key)),
+                ("name".into(), serde_json::json!(key)),
+                (
+                    "description".into(),
+                    serde_json::json!("Placeholder — gizza-ai runs anonymously"),
+                ),
+                ("value".into(), serde_json::json!(val)),
+                ("sensitive".into(), serde_json::json!(0)),
+                ("created_at".into(), serde_json::json!(now.clone())),
+                ("updated_at".into(), serde_json::json!(now.clone())),
+            ],
+            &["key"],
+            &[], // insert-or-ignore: empty update columns
+            Backend::Sqlite,
         );
-        exec_or_err(&sql, "[]")?;
+        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
     }
 
     // 2c. Seed per-browser random secrets for auth-runtime keys.
@@ -140,34 +248,48 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         "var_auth_jwt_secret",
         "SUPPERS_AI__AUTH__JWT_SECRET",
         "JWT signing secret (gizza-local)",
+        &now,
     )?;
     seed_random_secret(
         "var_auth_internal_secret",
         "SUPPERS_AI__AUTH__INTERNAL_SECRET",
         "Internal-endpoint shared secret (gizza-local)",
+        &now,
     )?;
 
     // 3. Auto-generate secrets for config vars marked with auto_generate
-    seed_auto_generated()?;
+    seed_auto_generated(&now)?;
 
     // 4. Load all variables
-    let json = query_or_err("SELECT key, value FROM variables", "[]")?;
-    let rows: Vec<serde_json::Value> = serde_json::from_str(&json)
-        .map_err(|e| JsValue::from_str(&format!("config: parse variables result failed: {e}")))?;
+    {
+        use wafer_block::db::ListOptions;
+        use wafer_sql_utils::{query, Backend};
+        let stmt = query::build_select_columns(
+            "variables",
+            &["key", "value"],
+            &ListOptions::default(),
+            None,
+            Backend::Sqlite,
+        );
+        let json = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+        let rows: Vec<serde_json::Value> = serde_json::from_str(&json).map_err(|e| {
+            JsValue::from_str(&format!("config: parse variables result failed: {e}"))
+        })?;
 
-    let mut vars = HashMap::new();
-    for row in rows {
-        let key = row.get("key").and_then(|v| v.as_str()).unwrap_or_default();
-        let value = row
-            .get("value")
-            .and_then(|v| v.as_str())
-            .unwrap_or_default();
-        if !key.is_empty() {
-            vars.insert(key.to_string(), value.to_string());
+        let mut vars = HashMap::new();
+        for row in rows {
+            let key = row.get("key").and_then(|v| v.as_str()).unwrap_or_default();
+            let value = row
+                .get("value")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default();
+            if !key.is_empty() {
+                vars.insert(key.to_string(), value.to_string());
+            }
         }
-    }
 
-    Ok(vars)
+        Ok(vars)
+    }
 }
 
 /// Sample 32 random bytes and return them hex-encoded. Used to seed
@@ -183,19 +305,44 @@ fn random_secret_hex(key: &str) -> Result<String, JsValue> {
 
 /// Generate a per-browser random secret and `INSERT OR IGNORE` it into the
 /// variables table. Sensitive bit is forced on.
+///
+/// `now` is the RFC-3339 timestamp pre-computed by the caller — passed in
+/// so all seeds within a boot share the same `created_at` / `updated_at`.
 #[cfg(target_arch = "wasm32")]
-fn seed_random_secret(id: &str, key: &str, description: &str) -> Result<(), JsValue> {
+fn seed_random_secret(
+    id: &str,
+    key: &str,
+    description: &str,
+    now: &str,
+) -> Result<(), JsValue> {
+    use wafer_sql_utils::{upsert, Backend};
     let secret = random_secret_hex(key)?;
-    let params = serde_json::json!([id, key, key, description, secret]);
-    exec_or_err(
-        "INSERT OR IGNORE INTO variables (id, key, name, description, value, sensitive, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))",
-        &params.to_string(),
-    )
+    let stmt = upsert::build_upsert(
+        "variables",
+        &[
+            ("id".into(), serde_json::json!(id)),
+            ("key".into(), serde_json::json!(key)),
+            ("name".into(), serde_json::json!(key)),
+            ("description".into(), serde_json::json!(description)),
+            ("value".into(), serde_json::json!(secret)),
+            ("sensitive".into(), serde_json::json!(1)),
+            ("created_at".into(), serde_json::json!(now)),
+            ("updated_at".into(), serde_json::json!(now)),
+        ],
+        &["key"],
+        &[], // insert-or-ignore: empty update columns
+        Backend::Sqlite,
+    );
+    exec_or_err(&stmt.sql, &json_params(stmt.values)?)
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn seed_random_secret(_id: &str, _key: &str, _description: &str) -> Result<(), JsValue> {
+fn seed_random_secret(
+    _id: &str,
+    _key: &str,
+    _description: &str,
+    _now: &str,
+) -> Result<(), JsValue> {
     Ok(())
 }
 
@@ -204,7 +351,7 @@ fn seed_random_secret(_id: &str, _key: &str, _description: &str) -> Result<(), J
 /// Reads all block config var declarations, finds those needing auto-generation,
 /// and generates random hex values for any that don't already exist in the
 /// variables table.
-fn seed_auto_generated() -> Result<(), JsValue> {
+fn seed_auto_generated(now: &str) -> Result<(), JsValue> {
     let block_infos = solobase_core::blocks::all_block_infos();
     let all_vars = solobase_core::config_vars::collect_all_config_vars(&block_infos);
 
@@ -219,20 +366,27 @@ fn seed_auto_generated() -> Result<(), JsValue> {
         let sensitive: i32 = if var.is_sensitive() { 1 } else { 0 };
 
         // INSERT OR IGNORE — existing DB values take priority
-        let params = serde_json::json!([
-            id,
-            var.key,
-            var.name,
-            var.description,
-            secret,
-            var.warning,
-            sensitive
-        ]);
-        exec_or_err(
-            "INSERT OR IGNORE INTO variables (id, key, name, description, value, warning, sensitive, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))",
-            &params.to_string(),
-        )?;
+        {
+            use wafer_sql_utils::{upsert, Backend};
+            let stmt = upsert::build_upsert(
+                "variables",
+                &[
+                    ("id".into(), serde_json::json!(id)),
+                    ("key".into(), serde_json::json!(var.key)),
+                    ("name".into(), serde_json::json!(var.name)),
+                    ("description".into(), serde_json::json!(var.description)),
+                    ("value".into(), serde_json::json!(secret)),
+                    ("warning".into(), serde_json::json!(var.warning)),
+                    ("sensitive".into(), serde_json::json!(sensitive)),
+                    ("created_at".into(), serde_json::json!(now)),
+                    ("updated_at".into(), serde_json::json!(now)),
+                ],
+                &["key"],
+                &[], // insert-or-ignore: empty update columns
+                Backend::Sqlite,
+            );
+            exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+        }
     }
 
     Ok(())
@@ -263,6 +417,13 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     // canonical schema. block_settings rows are runtime config (enabled
     // flags + per-block migration hashes), not user data — losing them on
     // this one-shot migration is acceptable; defaults below re-seed.
+    //
+    // gizza-ai bootstrap DDL: the PRAGMA introspection query, DROP TABLE,
+    // CREATE TABLE, and CREATE INDEX below are kept as hand-written strings.
+    // These are one-shot migration/schema statements; using the DDL builders
+    // (`ddl::build_create_table` etc.) would require defining Table structs
+    // for a schema owned by solobase-core, coupling gizza-ai to that
+    // definition for no practical benefit at bootstrap time.
     let table_info = query_or_err(
         "SELECT name FROM pragma_table_info('suppers_ai__admin__block_settings')",
         "[]",
@@ -300,6 +461,11 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     // schema demands `id`, `created_at`, `updated_at`; generate them
     // inline via SQLite builtins so the seed remains a one-shot SQL
     // statement per block.
+    //
+    // This INSERT keeps `lower(hex(randomblob(16)))` as a hand-written
+    // SQL expression because that SQLite function generates the row id
+    // server-side; it cannot be represented as a parameter-bound value
+    // in the wafer_sql_utils builder API.
     let defaults: &[(&str, bool)] = &[
         ("suppers-ai/auth", true),
         ("suppers-ai/llm", true),
@@ -326,26 +492,34 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     }
 
     // Read all settings
-    let json = query_or_err(
-        "SELECT block_name, enabled FROM suppers_ai__admin__block_settings",
-        "[]",
-    )?;
-    let rows: Vec<serde_json::Value> = serde_json::from_str(&json).map_err(|e| {
-        JsValue::from_str(&format!("config: parse block_settings result failed: {e}"))
-    })?;
+    {
+        use wafer_block::db::ListOptions;
+        use wafer_sql_utils::{query, Backend};
+        let stmt = query::build_select_columns(
+            "suppers_ai__admin__block_settings",
+            &["block_name", "enabled"],
+            &ListOptions::default(),
+            None,
+            Backend::Sqlite,
+        );
+        let json = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
+        let rows: Vec<serde_json::Value> = serde_json::from_str(&json).map_err(|e| {
+            JsValue::from_str(&format!("config: parse block_settings result failed: {e}"))
+        })?;
 
-    let mut map = HashMap::new();
-    for row in rows {
-        let name = row
-            .get("block_name")
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string();
-        let enabled = row.get("enabled").and_then(|v| v.as_i64()).unwrap_or(1) != 0;
-        if !name.is_empty() {
-            map.insert(name, enabled);
+        let mut map = HashMap::new();
+        for row in rows {
+            let name = row
+                .get("block_name")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string();
+            let enabled = row.get("enabled").and_then(|v| v.as_i64()).unwrap_or(1) != 0;
+            if !name.is_empty() {
+                map.insert(name, enabled);
+            }
         }
-    }
 
-    Ok(solobase_core::features::BlockSettings::from_map(map))
+        Ok(solobase_core::features::BlockSettings::from_map(map))
+    }
 }
