@@ -457,15 +457,14 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
 
     // Seed defaults for known blocks — gizza-ai only uses auth, llm,
     // local-llm, and messages. Everything else is explicitly disabled
-    // so the feature block factory skips creation/registration. The strict
-    // schema demands `id`, `created_at`, `updated_at`; generate them
-    // inline via SQLite builtins so the seed remains a one-shot SQL
-    // statement per block.
+    // so the feature block factory skips creation/registration.
     //
-    // This INSERT keeps `lower(hex(randomblob(16)))` as a hand-written
-    // SQL expression because that SQLite function generates the row id
-    // server-side; it cannot be represented as a parameter-bound value
-    // in the wafer_sql_utils builder API.
+    // `randomblob(16)` was a SQLite server-side expression used only as a
+    // UUID-shaped row ID — no security property. `uuid::Uuid::new_v4()`
+    // generates the same shape in Rust, letting us use `upsert::build_upsert`
+    // (INSERT OR IGNORE semantics via empty update-columns slice) and the
+    // pre-computed `now` timestamp, consistent with the seed_* helpers above.
+    let now = chrono::Utc::now().to_rfc3339();
     let defaults: &[(&str, bool)] = &[
         ("suppers-ai/auth", true),
         ("suppers-ai/llm", true),
@@ -481,14 +480,23 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
         ("suppers-ai/vector", false),
     ];
 
-    for &(name, default) in defaults {
-        let params = serde_json::json!([name, default as i32]);
-        exec_or_err(
-            "INSERT OR IGNORE INTO suppers_ai__admin__block_settings \
-             (id, block_name, enabled, created_at, updated_at) \
-             VALUES (lower(hex(randomblob(16))), ?, ?, datetime('now'), datetime('now'))",
-            &params.to_string(),
-        )?;
+    for &(block_name, enabled) in defaults {
+        use wafer_sql_utils::{upsert, Backend};
+        let block_id = format!("block_{}", uuid::Uuid::new_v4());
+        let stmt = upsert::build_upsert(
+            "suppers_ai__admin__block_settings",
+            &[
+                ("id".into(), serde_json::json!(block_id)),
+                ("block_name".into(), serde_json::json!(block_name)),
+                ("enabled".into(), serde_json::json!(enabled as i32)),
+                ("created_at".into(), serde_json::json!(now.clone())),
+                ("updated_at".into(), serde_json::json!(now.clone())),
+            ],
+            &["block_name"], // unique constraint column
+            &[],             // insert-or-ignore: empty update columns
+            Backend::Sqlite,
+        );
+        exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
     }
 
     // Read all settings
