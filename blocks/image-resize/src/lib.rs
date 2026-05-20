@@ -10,8 +10,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi,
-    SkillError, SkillResultExt, Source, SourceFields,
+    dispatch_ffmpeg_runtime, filename_with_suffix, mime_to_ext, AssetKind, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -59,14 +59,6 @@ fn build_argv(in_name: &str, out_name: &str, w: Option<u32>, h: Option<u32>, fit
     vec!["-i".into(), in_name.into(), "-vf".into(), vf, out_name.into()]
 }
 
-fn output_filename(input_filename: &str, w: Option<u32>, h: Option<u32>, ext: &str) -> String {
-    let base = input_filename.rsplitn(2, '.').last().unwrap_or(input_filename);
-    let suffix = match (w, h) {
-        (Some(w), Some(h)) => format!("-{}x{}", w, h),
-        _ => "-resized".to_string(),
-    };
-    format!("{base}{suffix}.{ext}")
-}
 
 fn summary(source: &str, w: Option<u32>, h: Option<u32>, output_size: usize, mime: &str) -> String {
     match (w, h) {
@@ -183,7 +175,11 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = ff.output.len();
     let encoded = B64.encode(&ff.output);
     let data_url = format!("data:{mime};base64,{encoded}");
-    let filename = output_filename(&in_filename, args.width, args.height, ext);
+    let dim_suffix = match (args.width, args.height) {
+        (Some(w), Some(h)) => format!("-{}x{}", w, h),
+        _ => "-resized".to_string(),
+    };
+    let filename = filename_with_suffix(&in_filename, &dim_suffix, ext);
     let env = Envelope {
         for_llm: summary(&in_filename, args.width, args.height, output_size, &mime),
         for_ui: ForUi {
@@ -249,11 +245,11 @@ mod tests {
 
     #[test]
     fn output_filename_uses_dim_suffix_when_both_given() {
-        assert_eq!(output_filename("cat.png", Some(640), Some(480), "png"), "cat-640x480.png");
+        assert_eq!(filename_with_suffix("cat.png", "-640x480", "png"), "cat-640x480.png");
     }
 
     #[test]
     fn output_filename_uses_resized_suffix_when_one_dim() {
-        assert_eq!(output_filename("cat.png", Some(640), None, "png"), "cat-resized.png");
+        assert_eq!(filename_with_suffix("cat.png", "-resized", "png"), "cat-resized.png");
     }
 }

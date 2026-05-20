@@ -241,6 +241,40 @@ pub fn replace_extension(filename: &str, new_ext: &str) -> String {
     format!("{base}.{new_ext}")
 }
 
+/// Strip a filename's last extension, append `suffix`, then add `new_ext`.
+///
+/// ```text
+/// filename_with_suffix("cat.png", "-resized", "jpg")  → "cat-resized.jpg"
+/// filename_with_suffix("cat",     "-resized", "jpg")  → "cat-resized.jpg"
+/// filename_with_suffix("a.b.mp4", "-trimmed", "mp4")  → "a.b-trimmed.mp4"
+/// ```
+pub fn filename_with_suffix(input: &str, suffix: &str, new_ext: &str) -> String {
+    let stem = match input.rsplit_once('.') {
+        Some((s, _)) => s,
+        None => input,
+    };
+    format!("{stem}{suffix}.{new_ext}")
+}
+
+/// Map a `(kind, format-string)` pair to `(mime, extension)`.
+///
+/// Returns `None` for unrecognised format strings. The format strings are the
+/// user-facing API values each block accepts (e.g. `"jpeg"` not `"jpg"`).
+///
+/// Supported:
+/// - `AssetKind::Image`: `"jpeg"` → `("image/jpeg", "jpg")`, `"png"`, `"webp"`
+/// - `AssetKind::Video`: `"mp4"` → `("video/mp4", "mp4")`, `"webm"`
+pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static str, &'static str)> {
+    match (kind, fmt) {
+        (AssetKind::Image, "jpeg") => Some(("image/jpeg", "jpg")),
+        (AssetKind::Image, "png")  => Some(("image/png",  "png")),
+        (AssetKind::Image, "webp") => Some(("image/webp", "webp")),
+        (AssetKind::Video, "mp4")  => Some(("video/mp4",  "mp4")),
+        (AssetKind::Video, "webm") => Some(("video/webm", "webm")),
+        _ => None,
+    }
+}
+
 // ---------------------------------------------------------------------------
 // AssetKind — image vs video, controls MIME prefix, expected-label, kind-label,
 // and default filename used by `fetch_from_url` / `load_from_attachment`.
@@ -677,6 +711,36 @@ mod tests {
     #[test]
     fn replace_extension_appends_when_no_dot() {
         assert_eq!(replace_extension("cat", "png"), "cat.png");
+    }
+
+    #[test]
+    fn filename_with_suffix_replaces_extension() {
+        assert_eq!(filename_with_suffix("cat.png", "-resized", "jpg"), "cat-resized.jpg");
+    }
+
+    #[test]
+    fn filename_with_suffix_no_extension() {
+        assert_eq!(filename_with_suffix("cat", "-resized", "jpg"), "cat-resized.jpg");
+    }
+
+    #[test]
+    fn filename_with_suffix_multiple_dots() {
+        // Only the LAST dot-segment is treated as the extension
+        assert_eq!(filename_with_suffix("video.tmp.mp4", "-trimmed", "mp4"), "video.tmp-trimmed.mp4");
+    }
+
+    #[test]
+    fn format_to_mime_and_ext_image() {
+        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "jpeg"), Some(("image/jpeg", "jpg")));
+        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "png"),  Some(("image/png",  "png")));
+        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "webp"), Some(("image/webp", "webp")));
+        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "bogus"), None);
+    }
+
+    #[test]
+    fn format_to_mime_and_ext_video() {
+        assert_eq!(format_to_mime_and_ext(AssetKind::Video, "mp4"),  Some(("video/mp4",  "mp4")));
+        assert_eq!(format_to_mime_and_ext(AssetKind::Video, "webm"), Some(("video/webm", "webm")));
     }
 
     #[test]

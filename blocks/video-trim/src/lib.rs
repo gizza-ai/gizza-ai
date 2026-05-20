@@ -7,8 +7,8 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi,
-    SkillError, SkillResultExt, Source, SourceFields,
+    dispatch_ffmpeg_runtime, mime_to_ext, replace_extension, AssetKind, Envelope, FfmpegReq,
+    FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -41,10 +41,6 @@ fn build_argv(in_name: &str, out_name: &str, start: f64, duration: f64) -> Vec<S
     ]
 }
 
-fn output_filename(in_filename: &str, out_ext: &str) -> String {
-    let stem = in_filename.rsplit_once('.').map(|(s, _)| s).unwrap_or(in_filename);
-    format!("{stem}.{out_ext}")
-}
 
 #[cfg(target_arch = "wasm32")]
 struct VideoTrim;
@@ -138,7 +134,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = ff.output.len();
     let encoded = B64.encode(&ff.output);
     let data_url = format!("data:video/mp4;base64,{encoded}");
-    let filename = output_filename(&in_filename, "mp4");
+    let filename = replace_extension(&in_filename, "mp4");
     let env = Envelope {
         for_llm: format!(
             "trimmed {} to [{}s, {}s+{}s] ({} bytes mp4)",
