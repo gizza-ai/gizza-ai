@@ -67,7 +67,7 @@ enum AgentError {
 
 pub struct AgentBlock;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, PartialEq, Deserialize)]
 struct AgentRequest {
     #[serde(default)]
     user_message: String,
@@ -88,13 +88,13 @@ struct AgentRequest {
     confirm_yes: Option<ConfirmYes>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct ConfirmYes {
     cmd: String,
     params: serde_json::Value,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 struct UploadEntry {
     id: String,
     mime: String,
@@ -197,13 +197,7 @@ fn list_skill_commands(blocks: &[BlockInfo]) -> Vec<(String, String)> {
 async fn handle_chat(ctx: &dyn Context, input: InputStream) -> OutputStream {
     let body_bytes = input.collect_to_bytes().await;
     let req: AgentRequest = if body_bytes.is_empty() {
-        AgentRequest {
-            user_message: String::new(),
-            messages: Vec::new(),
-            model_id: None,
-            uploads: Vec::new(),
-            confirm_yes: None,
-        }
+        AgentRequest::default()
     } else {
         match serde_json::from_slice(&body_bytes) {
             Ok(v) => v,
@@ -372,5 +366,17 @@ mod tests {
         let bare = BlockInfo::new("gizza-ai/x", "0.1.0", "handler@v1", "").role(SkillRole::Skill);
         let cmds = list_skill_commands(&[bare]);
         assert!(cmds.is_empty());
+    }
+
+    // -----------------------------------------------------------------------
+    // AgentRequest — fix #8: Default must match parsing an empty JSON object
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn agent_request_default_matches_empty_object_parse() {
+        let from_default = AgentRequest::default();
+        let from_empty: AgentRequest =
+            serde_json::from_str("{}").expect("empty object parses");
+        assert_eq!(from_default, from_empty);
     }
 }
