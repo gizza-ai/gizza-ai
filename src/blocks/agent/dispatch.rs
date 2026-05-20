@@ -41,6 +41,16 @@ pub(super) fn parse_skill_response(body: &str) -> ToolOutcome {
     }
 }
 
+/// Build a valid JSON string representing a `tool_failed` error payload.
+///
+/// Avoids the `format!("... \"{e}\" ...")` footgun — if the error message
+/// contains `"` or `\n`, the raw format produces invalid JSON. serde_json
+/// handles all escaping correctly.
+pub(super) fn build_tool_failed_payload(message: &str) -> String {
+    serde_json::to_string(&serde_json::json!({"error": "tool_failed", "message": message}))
+        .expect("serializing static struct never fails")
+}
+
 /// Dispatch one skill and emit the resulting `tool_result` + `done` SSE
 /// events into `sse`. `invocation` is a short string used to mint the
 /// `tool_result.id` (e.g. "slash", "confirmed") to avoid id collisions with
@@ -99,7 +109,7 @@ pub(super) async fn run_skill_dispatch(
             parse_skill_response(&result_text)
         }
         Err(e) => ToolOutcome {
-            for_llm: format!("{{\"error\": \"tool_failed\", \"message\": \"{e}\"}}"),
+            for_llm: build_tool_failed_payload(&e.to_string()),
             for_ui: None,
         },
     };
@@ -155,5 +165,18 @@ mod tests {
         let outcome = parse_skill_response(body);
         assert_eq!(outcome.for_llm, "ok");
         assert!(outcome.for_ui.is_none());
+    }
+
+    // -----------------------------------------------------------------------
+    // tool_failed_payload — fix #7: must produce valid JSON even with special chars
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn tool_failed_payload_escapes_special_chars() {
+        let payload = build_tool_failed_payload("oops \"quoted\" and\nnewline");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&payload).expect("must be valid JSON");
+        assert_eq!(parsed["error"], "tool_failed");
+        assert_eq!(parsed["message"], "oops \"quoted\" and\nnewline");
     }
 }

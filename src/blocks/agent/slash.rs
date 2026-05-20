@@ -252,10 +252,9 @@ fn strip_to_json(text: &str) -> Option<String> {
 }
 
 fn truncate(s: &str, max: usize) -> String {
-    if s.len() <= max {
-        s.to_string()
-    } else {
-        format!("{}…", &s[..max])
+    match s.char_indices().nth(max) {
+        Some((i, _)) => format!("{}…", &s[..i]),
+        None => s.to_string(),
     }
 }
 
@@ -398,5 +397,23 @@ mod tests {
     fn strip_to_json_returns_none_when_no_object() {
         assert!(strip_to_json("just text").is_none());
         assert!(strip_to_json("{unbalanced").is_none());
+    }
+
+    // -----------------------------------------------------------------------
+    // truncate — fix #12: must not panic on multibyte UTF-8
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn truncate_does_not_panic_on_multibyte() {
+        // `é` is 2 bytes in UTF-8; max=3 must NOT slice mid-codepoint.
+        // "café" is [c, a, f, é(2 bytes)] = 5 bytes; 3 chars = "caf".
+        let s = "café apartment";
+        assert_eq!(truncate(s, 3), "caf…");
+        // max exactly matches string length (4 chars) — no ellipsis appended.
+        assert_eq!(truncate("café", 4), "café");
+        // max past the end — return as-is.
+        assert_eq!(truncate("ab", 10), "ab");
+        // max=0 — return ellipsis only.
+        assert_eq!(truncate("hello", 0), "…");
     }
 }
