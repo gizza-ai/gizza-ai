@@ -7,8 +7,9 @@
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, mime_to_ext, replace_extension, validate_quality_1_100, AssetKind,
-    Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
+    dispatch_ffmpeg_runtime, format_to_mime_and_ext, mime_to_ext, replace_extension,
+    validate_quality_1_100, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError,
+    SkillResultExt, Source, SourceFields,
 };
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -36,14 +37,6 @@ fn quality_to_qv(q: u8) -> u8 {
     qv.round().clamp(2.0, 31.0) as u8
 }
 
-fn format_to_mime_and_ext(fmt: &str) -> Option<(&'static str, &'static str)> {
-    match fmt {
-        "jpeg" => Some(("image/jpeg", "jpg")),
-        "png"  => Some(("image/png",  "png")),
-        "webp" => Some(("image/webp", "webp")),
-        _ => None,
-    }
-}
 
 fn build_argv(in_name: &str, out_name: &str, format: &str, quality: u8) -> Vec<String> {
     let mut argv = vec!["-i".to_string(), in_name.to_string()];
@@ -95,7 +88,7 @@ impl ImageConvert {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-convert")?;
-    let (out_mime, out_ext) = format_to_mime_and_ext(&args.format).ok_or_else(|| {
+    let (out_mime, out_ext) = format_to_mime_and_ext(AssetKind::Image, &args.format).ok_or_else(|| {
         SkillError::InvalidArgs(format!(
             "invalid image-convert args: format {:?} not supported (jpeg|png|webp)",
             args.format
