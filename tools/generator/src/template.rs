@@ -8,7 +8,11 @@ use maud::{html, PreEscaped, DOCTYPE};
 /// markdown-rendered SEO section.
 pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
     let canonical = format!("https://{}.gizza.ai/", meta.subdomain);
-    let client_cfg = meta.client_config().to_string();
+    // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
+    // literal "</script>" in any value would break out of the element. serde_json
+    // does not escape '/', so we neutralize the closing-tag sequence. Values are
+    // repo-authored today; this is defense-in-depth against a future meta.toml.
+    let client_cfg = meta.client_config().to_string().replace("</", "<\\/");
     let json_ld = serde_json::json!({
         "@context": "https://schema.org",
         "@type": "WebApplication",
@@ -20,7 +24,8 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "publisher": { "@type": "Organization", "name": "gizza.ai", "url": "https://gizza.ai" }
     })
-    .to_string();
+    .to_string()
+    .replace("</", "<\\/");
 
     let markup = html! {
         (DOCTYPE)
