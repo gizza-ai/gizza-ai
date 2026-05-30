@@ -1,0 +1,16 @@
+subdomain     = "calculator"
+title         = "Free Online Calculator — gizza.ai"
+description   = "Evaluate any arithmetic expression instantly in your browser. Supports +, −, ×, ÷, parentheses and functions. No sign-up, runs offline."
+h1            = "Free Online Calculator"
+hero_subtitle = "Type a math expression and get the answer instantly — runs entirely in your browser."
+wasm          = "gizza_ai_calculator_web"
+export        = "evaluate"
+live          = false
+output_label  = "Result"
+format        = "number"
+
+[[input]]
+name        = "expr"
+label       = "Expression"
+placeholder = "2 + 2 * 3"
+source      = "field"
