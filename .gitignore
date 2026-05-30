@@ -20,3 +20,6 @@ tests/test-results/
 
 # Brainstorming companion mockups
 .superpowers/
+
+# native worktree tool
+.claude/worktrees/
