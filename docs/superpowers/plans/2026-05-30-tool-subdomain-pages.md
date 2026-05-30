@@ -500,7 +500,7 @@ path = "src/main.rs"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
-maud = "0.27"
+maud = "0.26"
 pulldown-cmark = "0.12"
 ```
 
@@ -1160,42 +1160,51 @@ git commit -m "feat(tool-page): generic client driver (window.GIZZA_TOOL)"
 
 - [ ] **Step 1: Write the core with its test** — `blocks/clock/core/src/lib.rs`
 
-```rust
-//! gizza-ai/clock core — UTC ISO-8601 formatting shared by the chat skill
-//! block and the standalone web page. Pure; no IO, no wafer/wasm-bindgen.
+> **Contract note:** the existing clock skill returns
+> `{ "time": "<rfc3339 with +00:00>", "tz": "UTC" }` (via `chrono`'s
+> `DateTime::to_rfc3339()`), and its block test pins `2026-04-20T12:00:00+00:00`.
+> To honor the spec's "no chat behavior change", the core keeps `chrono` and
+> reproduces that exact format. Do NOT switch to a `Z`-suffixed hand-rolled
+> formatter — it would change the chat output and break the test.
 
-/// Format a Unix timestamp (seconds) as UTC ISO-8601, e.g. "2026-05-30T12:00:00Z".
-/// Uses Howard Hinnant's civil-from-days algorithm.
-pub fn format_iso8601(secs: i64) -> String {
-    let days = secs.div_euclid(86_400);
-    let rem = secs.rem_euclid(86_400);
-    let (hh, mm, ss) = (rem / 3600, (rem % 3600) / 60, rem % 60);
-    let z = days + 719_468;
-    let era = z.div_euclid(146_097);
-    let doe = z - era * 146_097;
-    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = doy - (153 * mp + 2) / 5 + 1;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 };
-    let y = if m <= 2 { y + 1 } else { y };
-    format!("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z", y, m, d, hh, mm, ss)
+```rust
+//! gizza-ai/clock core — UTC RFC-3339 formatting shared by the chat skill block
+//! and the standalone web page. Pure; no IO, no wafer/wasm-bindgen. Keeps
+//! `chrono` so the formatted string byte-matches the existing skill contract.
+
+use chrono::{DateTime, Utc};
+
+/// Format an already-resolved UTC datetime as RFC-3339, e.g.
+/// "2026-04-20T12:00:00+00:00". This is the exact form the chat skill emits.
+pub fn format_rfc3339(dt: DateTime<Utc>) -> String {
+    dt.to_rfc3339()
+}
+
+/// Format a Unix timestamp (seconds) as UTC RFC-3339. Used by the web page,
+/// which supplies `Date.now()/1000` from JS. Returns an empty string only for
+/// timestamps outside chrono's representable range (not reachable in practice).
+pub fn format_secs(secs: i64) -> String {
+    DateTime::<Utc>::from_timestamp(secs, 0)
+        .map(|dt| dt.to_rfc3339())
+        .unwrap_or_default()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::TimeZone as _;
 
     #[test]
-    fn epoch_is_unix_zero() {
-        assert_eq!(format_iso8601(0), "1970-01-01T00:00:00Z");
+    fn format_rfc3339_matches_skill_contract() {
+        let dt = Utc.with_ymd_and_hms(2026, 4, 20, 12, 0, 0).unwrap();
+        assert_eq!(format_rfc3339(dt), "2026-04-20T12:00:00+00:00");
     }
 
     #[test]
-    fn known_timestamp() {
+    fn format_secs_epoch_and_known() {
+        assert_eq!(format_secs(0), "1970-01-01T00:00:00+00:00");
         // 1_700_000_000 = 2023-11-14T22:13:20Z
-        assert_eq!(format_iso8601(1_700_000_000), "2023-11-14T22:13:20Z");
+        assert_eq!(format_secs(1_700_000_000), "2023-11-14T22:13:20+00:00");
     }
 }
 ```
@@ -1214,6 +1223,7 @@ edition = "2021"
 rust-version = "1.82"
 
 [dependencies]
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
 ```
 
 - [ ] **Step 3: Run core test**
@@ -1227,18 +1237,28 @@ Expected: PASS, 2 tests.
 gizza-ai-clock-core = { path = "core" }
 ```
 
-Then replace `blocks/clock/src/lib.rs` with:
+Then replace `blocks/clock/src/lib.rs` with the version below. It preserves the
+existing `{ "time": ..., "tz": "UTC" }` contract and the existing block test
+(which is kept verbatim) — only the formatting string now comes from `core`:
 
 ```rust
-//! gizza-ai/clock — returns the current time.
+//! gizza-ai/clock — returns current UTC time as JSON.
 //!
-//! Thin chat-skill wrapper around `gizza-ai-clock-core`. Takes no args, returns
-//! `{ "iso": "...", "unix": <secs> }`. Uses the host clock via
-//! `wafer_sdk::now_unix_millis()` so it works identically native + wasm.
-
+//! The time string is formatted by `gizza-ai-clock-core` (shared with the
+//! standalone clock.gizza.ai page). The #[wafer_block] macro emits wasm-only
+//! registration; `build_response` is testable on host.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 use wafer_sdk::*;
+
+/// Build the JSON response body for a clock reading. Extracted so host tests can
+/// pin the shape against a known timestamp.
+fn build_response(now: chrono::DateTime<chrono::Utc>) -> serde_json::Value {
+    serde_json::json!({
+        "time": gizza_ai_clock_core::format_rfc3339(now),
+        "tz": "UTC",
+    })
+}
 
 #[cfg(target_arch = "wasm32")]
 struct Clock;
@@ -1248,9 +1268,9 @@ struct Clock;
     name = "gizza-ai/clock",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Clock skill",
+    summary = "Current time skill",
     skill(
-        description = "Return the current UTC date and time. No arguments needed.",
+        description = "Get the current UTC time. Returns ISO 8601 timestamp.",
         parameters = r#"{
             "type": "object",
             "properties": {},
@@ -1260,19 +1280,45 @@ struct Clock;
 )]
 impl Clock {
     fn handle(_msg: Message, _body: Vec<u8>) -> GuestResult {
-        let millis = now_unix_millis();
-        let secs = millis / 1000;
-        let iso = gizza_ai_clock_core::format_iso8601(secs);
-        let body = serde_json::json!({ "iso": iso, "unix": secs });
-        GuestResult::respond(serde_json::to_vec(&body).unwrap_or_default())
+        let body = build_response(chrono::Utc::now());
+        let bytes = serde_json::to_vec(&body).unwrap_or_default();
+        GuestResult::respond(bytes)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::TimeZone as _;
+
+    #[test]
+    fn response_pins_iso_timestamp_and_utc_tz() {
+        let now = chrono::Utc.with_ymd_and_hms(2026, 4, 20, 12, 0, 0).unwrap();
+        let v = build_response(now);
+        assert_eq!(v["time"], "2026-04-20T12:00:00+00:00");
+        assert_eq!(v["tz"], "UTC");
+    }
+
+    #[test]
+    fn response_serializes_to_compact_json() {
+        let now = chrono::Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+        let v = build_response(now);
+        let s = serde_json::to_string(&v).unwrap();
+        assert!(s.contains(r#""time":"2026-01-01T00:00:00+00:00""#));
+        assert!(s.contains(r#""tz":"UTC""#));
     }
 }
 ```
 
-- [ ] **Step 5: Verify block builds (native)**
+> `blocks/clock/Cargo.toml` already depends on `chrono` and `serde_json` (keep
+> those); just add the `gizza-ai-clock-core` path dep from Step 4. The block's
+> own `chrono` dep stays because `build_response` takes a `DateTime<Utc>` and
+> `handle` calls `chrono::Utc::now()`.
 
-Run: `cd $ROOT/blocks/clock && cargo build`
-Expected: builds clean.
+- [ ] **Step 5: Verify block builds + existing test passes (native)**
+
+Run: `cd $ROOT/blocks/clock && cargo test`
+Expected: builds clean; 2 tests pass (the same two that passed before the refactor).
 
 - [ ] **Step 6: Web wrapper** — `blocks/clock/web/src/lib.rs`
 
@@ -1281,10 +1327,11 @@ Expected: builds clean.
 
 use wasm_bindgen::prelude::*;
 
-/// Format a Unix timestamp (seconds, supplied by JS) as UTC ISO-8601.
+/// Format a Unix timestamp (seconds, supplied by JS as Date.now()/1000) as UTC
+/// RFC-3339, matching the chat skill's output exactly.
 #[wasm_bindgen]
 pub fn format_time(unix_secs: i64) -> String {
-    gizza_ai_clock_core::format_iso8601(unix_secs)
+    gizza_ai_clock_core::format_secs(unix_secs)
 }
 ```
 
@@ -1750,7 +1797,7 @@ test("clock page shows a live UTC timestamp", async ({ page }) => {
   await page.goto(`${BASE}/tools/clock/`);
   await expect(page).toHaveTitle(/Current UTC Time/);
   await expect(page.locator("#tool-output")).toHaveText(
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|\+00:00)$/,
     { timeout: 10_000 }
   );
 });
