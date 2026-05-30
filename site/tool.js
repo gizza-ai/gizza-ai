@@ -16,8 +16,13 @@ function showError(message) {
 }
 
 function formatNumber(v) {
-  // Trim float noise without forcing decimals on integers.
-  return Number.isFinite(v) ? String(Math.round(v * 1e12) / 1e12) : String(v);
+  if (!Number.isFinite(v)) return String(v);
+  // Trim float noise without forcing decimals on integers — but only when the
+  // *1e12 scaling stays finite. For very large magnitudes (|v| > ~1.8e296) the
+  // scaling would overflow to Infinity and misreport a valid finite result, so
+  // fall back to the unrounded value there.
+  const scaled = Math.round(v * 1e12) / 1e12;
+  return Number.isFinite(scaled) ? String(scaled) : String(v);
 }
 
 // Collect call args in declared order. "field" → input value; "clock" → now (s).
