@@ -23,3 +23,7 @@ tests/test-results/
 
 # native worktree tool
 .claude/worktrees/
+
+# per-tool web wasm build output
+blocks/*/web/pkg/
+blocks/*/web/target/
