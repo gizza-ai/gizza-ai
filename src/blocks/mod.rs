@@ -3,7 +3,7 @@
 #[cfg(any(target_arch = "wasm32", test))]
 pub mod agent;
 pub mod ffmpeg;
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", test))]
 pub mod ui;
 
 /// Default WebLLM model id used by the agent dispatcher and the UI template
