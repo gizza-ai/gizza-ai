@@ -179,7 +179,7 @@ pub async fn initialize() -> Result<(), JsValue> {
     // 6b. Register the SW-side external-asset loader before start so any
     // block init that triggers an asset load sees the real loader (not
     // the NoopAssetLoader default).
-    wafer.set_asset_loader(solobase_browser::make_sw_asset_loader());
+    wafer.set_asset_loader(&solobase_browser::make_sw_asset_loader());
 
     // 6c. Register gizza-ai's native blocks (agent + ui) and every
     // embedded skill WASM from skills::SKILLS (produced by build.rs).
