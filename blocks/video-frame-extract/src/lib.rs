@@ -51,7 +51,7 @@ struct VideoFrameExtract;
     version = "0.1.0",
     interface = "handler@v1",
     summary = "Extract a single frame from a video at a given timestamp",
-    capabilities(callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
+    requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Extract a single frame from a video at the given timestamp (seconds), output as PNG. The PNG is naturally chainable into image-resize, image-crop, or image-convert via ref. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = r#"{

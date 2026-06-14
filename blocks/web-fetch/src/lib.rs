@@ -55,7 +55,7 @@ struct WebFetch;
     version = "0.1.0",
     interface = "handler@v1",
     summary = "Fetch a URL and return its body",
-    capabilities(callable_blocks = ["wafer-run/network"]),
+    requires = ["wafer-run/network"],
     skill(
         description = "Fetch a URL and return its body as text. Optionally limit the response size.",
         parameters = r#"{

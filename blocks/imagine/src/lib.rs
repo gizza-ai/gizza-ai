@@ -83,7 +83,7 @@ struct Imagine;
     version = "0.1.0",
     interface = "handler@v1",
     summary = "Generate an image from a text prompt",
-    capabilities(callable_blocks = ["wafer-run/image"]),
+    requires = ["wafer-run/image"],
     skill(
         description = "Generate an image from a text prompt. Renders inline in the chat. \
                        Requires WebGPU in the browser (uses shader-f16 when available, \
