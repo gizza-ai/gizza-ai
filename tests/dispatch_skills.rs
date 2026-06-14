@@ -42,7 +42,7 @@ impl Block for FakeNetworkBlock {
         let expected_kind = wafer_block::ServiceOp::NETWORK_DO_REQUEST;
         if msg.kind != expected_kind {
             return OutputStream::error(WaferError::new(
-                ErrorCode::INVALID_ARGUMENT,
+                ErrorCode::InvalidArgument,
                 format!("FakeNetworkBlock: unexpected msg.kind {}", msg.kind),
             ));
         }
@@ -51,7 +51,7 @@ impl Block for FakeNetworkBlock {
             Ok(r) => r,
             Err(e) => {
                 return OutputStream::error(WaferError::new(
-                    ErrorCode::INVALID_ARGUMENT,
+                    ErrorCode::InvalidArgument,
                     format!("FakeNetworkBlock: invalid wire::network::Request: {e}"),
                 ));
             }
@@ -124,7 +124,7 @@ impl Block for FakeNetworkBlock {
                 Err(e) => {
                     let _ = sink
                         .error(WaferError::new(
-                            ErrorCode::INTERNAL,
+                            ErrorCode::Internal,
                             format!("FakeNetworkBlock: encoding header: {e}"),
                         ))
                         .await;

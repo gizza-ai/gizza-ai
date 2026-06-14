@@ -49,7 +49,7 @@ struct ImageCrop;
     version = "0.1.0",
     interface = "handler@v1",
     summary = "Crop a rectangular region from an image fetched by URL or from a prior tool call ref",
-    capabilities(callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
+    requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Crop a rectangular region from an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = r#"{

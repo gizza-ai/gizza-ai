@@ -17,13 +17,11 @@ wafer-block = { path = "../wafer-run/crates/wafer-block" }
 wafer-core = { path = "../wafer-run/crates/wafer-core" }
 wafer-sdk = { path = "../wafer-run/sdks/rust" }
 wafer-sql-utils = { path = "../wafer-run/crates/wafer-sql-utils" }
-wafer-block-config = { path = "../wafer-run/crates/wafer-block-config" }
 wafer-block-cors = { path = "../wafer-run/crates/wafer-block-cors" }
 wafer-block-crypto = { path = "../wafer-run/crates/wafer-block-crypto" }
 wafer-block-http-listener = { path = "../wafer-run/crates/wafer-block-http-listener" }
 wafer-block-inspector = { path = "../wafer-run/crates/wafer-block-inspector" }
 wafer-block-local-storage = { path = "../wafer-run/crates/wafer-block-local-storage" }
-wafer-block-logger = { path = "../wafer-run/crates/wafer-block-logger" }
 wafer-block-network = { path = "../wafer-run/crates/wafer-block-network" }
 wafer-block-readonly-guard = { path = "../wafer-run/crates/wafer-block-readonly-guard" }
 wafer-block-router = { path = "../wafer-run/crates/wafer-block-router" }

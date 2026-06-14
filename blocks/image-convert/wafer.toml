@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert an image to a different format (JPEG, PNG, WebP)."

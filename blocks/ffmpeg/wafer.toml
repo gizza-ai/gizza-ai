@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ffmpeg"
+version = "0.1.0"
+abi = 1
+summary = "Inspect a media file's codec/duration/dimensions via ffmpeg."
