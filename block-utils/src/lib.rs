@@ -75,17 +75,17 @@ impl From<SkillError> for WaferError {
         match err {
             SkillError::Wafer(w) => w,
             SkillError::InvalidArgs(_) | SkillError::UnexpectedMime { .. } => {
-                WaferError::new(ErrorCode::INVALID_ARGUMENT, err.to_string())
+                WaferError::new(ErrorCode::InvalidArgument, err.to_string())
             }
             SkillError::HttpStatus { .. } => {
-                WaferError::new(ErrorCode::UNAVAILABLE, err.to_string())
+                WaferError::new(ErrorCode::Unavailable, err.to_string())
             }
-            SkillError::TooLarge { .. } => WaferError::new(ErrorCode::OUT_OF_RANGE, err.to_string()),
+            SkillError::TooLarge { .. } => WaferError::new(ErrorCode::OutOfRange, err.to_string()),
             SkillError::AttachmentNotFound(_) => {
-                WaferError::new(ErrorCode::NOT_FOUND, err.to_string())
+                WaferError::new(ErrorCode::NotFound, err.to_string())
             }
             SkillError::FfmpegExitNonZero { .. } | SkillError::Serialize(_) => {
-                WaferError::new(ErrorCode::INTERNAL, err.to_string())
+                WaferError::new(ErrorCode::Internal, err.to_string())
             }
         }
     }
@@ -776,7 +776,7 @@ mod tests {
     #[test]
     fn skill_error_invalid_args_maps_to_invalid_argument() {
         let we: WaferError = SkillError::InvalidArgs("bad".into()).into();
-        assert_eq!(we.code, ErrorCode::INVALID_ARGUMENT);
+        assert_eq!(we.code, ErrorCode::InvalidArgument);
         assert_eq!(we.message, "bad");
     }
 
@@ -788,20 +788,20 @@ mod tests {
             cap: 2,
         }
         .into();
-        assert_eq!(we.code, ErrorCode::OUT_OF_RANGE);
+        assert_eq!(we.code, ErrorCode::OutOfRange);
     }
 
     #[test]
     fn skill_error_attachment_not_found_maps_to_not_found() {
         let we: WaferError = SkillError::AttachmentNotFound("call_1".into()).into();
-        assert_eq!(we.code, ErrorCode::NOT_FOUND);
+        assert_eq!(we.code, ErrorCode::NotFound);
     }
 
     #[test]
     fn skill_error_wafer_passes_through() {
-        let inner = WaferError::new(ErrorCode::UNAVAILABLE, "underlying");
+        let inner = WaferError::new(ErrorCode::Unavailable, "underlying");
         let we: WaferError = SkillError::Wafer(inner).into();
-        assert_eq!(we.code, ErrorCode::UNAVAILABLE);
+        assert_eq!(we.code, ErrorCode::Unavailable);
         assert_eq!(we.message, "underlying");
     }
 

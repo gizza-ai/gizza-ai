@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "calculator"
+version = "0.1.0"
+abi = 1
+summary = "Evaluate an arithmetic expression."

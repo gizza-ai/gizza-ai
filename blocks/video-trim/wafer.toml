@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-trim"
+version = "0.1.0"
+abi = 1
+summary = "Trim a video to a [start, start+duration] window."

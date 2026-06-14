@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-transcode"
+version = "0.1.0"
+abi = 1
+summary = "Transcode a video to mp4 or webm."

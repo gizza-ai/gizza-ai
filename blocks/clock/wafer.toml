@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "clock"
+version = "0.1.0"
+abi = 1
+summary = "Get the current wall-clock time."
