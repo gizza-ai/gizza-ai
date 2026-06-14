@@ -71,7 +71,7 @@ pub async fn initialize() -> Result<(), JsValue> {
     // table can also rely on a known runtime baseline) we defer all seeding
     // to Phase 3. See solobase #212 for the equivalent rewrite there.
     let config_svc: Arc<dyn ConfigService> =
-        Arc::new(wafer_block_config::service::EnvConfigService::new());
+        Arc::new(wafer_core::service_blocks::config::EnvConfigService::new());
     let initial_block_settings =
         solobase_core::features::BlockSettings::from_map(std::collections::HashMap::new());
 
