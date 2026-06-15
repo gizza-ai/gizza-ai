@@ -42,7 +42,7 @@ struct FfmpegSkill;
     version = "0.1.0",
     interface = "handler@v1",
     summary = "Inspect a media file via ffmpeg",
-    capabilities(callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
+    requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Run ffprobe on a media URL and return format/stream metadata.",
         parameters = r#"{

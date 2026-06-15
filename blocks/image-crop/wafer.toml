@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-crop"
+version = "0.1.0"
+abi = 1
+summary = "Crop a rectangular region from an image fetched by URL."

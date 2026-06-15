@@ -48,7 +48,7 @@ struct ImageFetch;
     version = "0.1.0",
     interface = "handler@v1",
     summary = "Fetch an image URL and return it for inline display",
-    capabilities(callable_blocks = ["wafer-run/network"]),
+    requires = ["wafer-run/network"],
     skill(
         description = "Fetch an image from a URL and render it inline.",
         parameters = r#"{

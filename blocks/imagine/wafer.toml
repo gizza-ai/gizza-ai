@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "imagine"
+version = "0.1.0"
+abi = 1
+summary = "Generate an image from a text prompt."
