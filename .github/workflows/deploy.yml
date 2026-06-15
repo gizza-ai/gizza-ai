@@ -8,6 +8,14 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are scoped to the
+    # `production` GitHub environment, so the job must target it — otherwise
+    # `secrets.*` resolves to empty and wrangler fails with "necessary to set
+    # a CLOUDFLARE_API_TOKEN". (The environment's deployment-branch policy
+    # must allow `main`, which is the only branch this workflow runs on.)
+    environment:
+      name: production
+      url: https://gizza.ai
     steps:
       - name: Checkout gizza-ai
         uses: actions/checkout@v4
