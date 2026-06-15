@@ -269,8 +269,9 @@ pub async fn initialize() -> Result<(), JsValue> {
 
     web_sys::console::log_1(&"gizza-ai: WAFER runtime started".into());
 
-    // 9. Store in framework's thread_local.
-    solobase_browser::runtime::store_wafer(wafer);
+    // 9. Store in framework's thread_local. Errors if a runtime is already
+    //    stored (double-init) — surface that as a boot failure.
+    solobase_browser::runtime::store_wafer(wafer).map_err(|e| JsValue::from_str(&e.to_string()))?;
 
     Ok(())
 }

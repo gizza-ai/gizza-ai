@@ -20,3 +20,10 @@ tests/test-results/
 
 # Brainstorming companion mockups
 .superpowers/
+
+# native worktree tool
+.claude/worktrees/
+
+# per-tool web wasm build output
+blocks/*/web/pkg/
+blocks/*/web/target/

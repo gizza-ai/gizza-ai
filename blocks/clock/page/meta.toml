@@ -1,0 +1,15 @@
+subdomain     = "clock"
+title         = "Current UTC Time — gizza.ai"
+description   = "See the current UTC date and time, updating live in your browser. No sign-up, runs offline."
+h1            = "Current UTC Time"
+hero_subtitle = "The current Coordinated Universal Time, ticking live in your browser."
+wasm          = "gizza_ai_clock_web"
+export        = "format_time"
+live          = true
+interval_ms   = 1000
+output_label  = "Current time (UTC)"
+format        = "text"
+
+[[input]]
+name   = "unix"
+source = "clock"

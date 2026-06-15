@@ -1,21 +1,12 @@
-name: Deploy to GitHub Pages
+name: Deploy to Cloudflare Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout gizza-ai
@@ -77,21 +68,24 @@ jobs:
         working-directory: gizza-ai
         run: solobase build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Build tool pages
+        # Per-tool web wasm + rendered standalone pages into pkg/tools/.
+        # Mirrors gizza-ai/justfile's `build-tools` recipe.
+        working-directory: gizza-ai
+        run: |
+          for dir in blocks/*/page; do
+            tool="$(basename "$(dirname "$dir")")"
+            wasm-pack build "blocks/$tool/web" --target web --release --out-dir pkg
+          done
+          cargo run --manifest-path tools/generator/Cargo.toml -- .
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to Cloudflare Pages
+        # workingDirectory is gizza-ai so wrangler finds the sibling `functions/`
+        # directory (the Pages Functions middleware that does the *.gizza.ai
+        # subdomain rewrite) next to the deployed `pkg/` assets.
+        uses: cloudflare/wrangler-action@v3
         with:
-          path: gizza-ai/pkg
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: gizza-ai
+          command: pages deploy pkg --project-name=gizza-ai --branch=main
