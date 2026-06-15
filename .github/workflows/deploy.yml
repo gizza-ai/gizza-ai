@@ -95,6 +95,24 @@ jobs:
           done
           cargo run --manifest-path tools/generator/Cargo.toml -- .
 
+      - name: Ensure Pages project exists
+        # `pages deploy` does NOT create the project — a fresh account fails
+        # with "Project not found ... [code: 8000007]". Create it once if
+        # missing (idempotent: skipped when it already exists). Requires the
+        # API token to carry the "Cloudflare Pages: Edit" permission; a
+        # read-only token will fail loudly here rather than at the deploy step.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if npx --yes wrangler@4.100.0 pages project list \
+               | grep -qE '(^|[^A-Za-z0-9_-])gizza-ai([^A-Za-z0-9_-]|$)'; then
+            echo "Pages project 'gizza-ai' already exists — skipping create."
+          else
+            echo "Pages project 'gizza-ai' not found — creating it."
+            npx --yes wrangler@4.100.0 pages project create gizza-ai --production-branch=main
+          fi
+
       - name: Deploy to Cloudflare Pages
         # workingDirectory is gizza-ai so wrangler finds the sibling `functions/`
         # directory (the Pages Functions middleware that does the *.gizza.ai
