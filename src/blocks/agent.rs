@@ -27,7 +27,7 @@ use wafer_block::{
     core_types::{LifecycleEvent, Message, MetaEntry, WaferError},
     meta::{META_RESP_CONTENT_TYPE, META_RESP_STATUS},
     streams::{input::InputStream, output::OutputStream},
-    types::{BlockInfo, SkillRole},
+    types::BlockInfo,
 };
 
 /// The agent block's chat endpoint.
@@ -148,7 +148,7 @@ impl Block for AgentBlock {
 // ---------------------------------------------------------------------------
 
 /// Enumerate every registered block whose name starts with `gizza-ai/` and
-/// has `role == Some(SkillRole::Skill)` with a tool descriptor. Returns the
+/// exposes a tool descriptor (i.e. is an agent-callable skill). Returns the
 /// list as a JSON body for the frontend slash-autocomplete dropdown (PR 6).
 fn handle_commands(ctx: &dyn Context) -> OutputStream {
     let entries: Vec<serde_json::Value> = list_skill_commands(&ctx.registered_blocks())
@@ -178,12 +178,10 @@ fn handle_commands(ctx: &dyn Context) -> OutputStream {
 fn list_skill_commands(blocks: &[BlockInfo]) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = blocks
         .iter()
-        .filter_map(|info| match (&info.role, &info.tool) {
-            (Some(SkillRole::Skill), Some(tool)) => {
-                let cmd = info.name.strip_prefix(SKILL_PREFIX)?;
-                Some((cmd.to_string(), tool.description.clone()))
-            }
-            _ => None,
+        .filter_map(|info| {
+            let tool = info.tool.as_ref()?;
+            let cmd = info.name.strip_prefix(SKILL_PREFIX)?;
+            Some((cmd.to_string(), tool.description.clone()))
         })
         .collect();
     out.sort_by(|a, b| a.0.cmp(&b.0));
@@ -333,20 +331,17 @@ mod tests {
     #[test]
     fn list_skill_commands_filters_to_skills_strips_prefix_and_sorts() {
         let skill_a = BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "")
-            .role(SkillRole::Skill)
             .tool(SkillTool {
                 description: "Generate image".into(),
                 parameters: serde_json::json!({}),
             });
         let skill_b = BlockInfo::new("gizza-ai/clock", "0.1.0", "handler@v1", "")
-            .role(SkillRole::Skill)
             .tool(SkillTool {
                 description: "Current time".into(),
                 parameters: serde_json::json!({}),
             });
         let non_skill = BlockInfo::new("gizza-ai/ui", "0.1.0", "handler@v1", "");
         let other_prefix = BlockInfo::new("suppers-ai/other", "0.1.0", "handler@v1", "")
-            .role(SkillRole::Skill)
             .tool(SkillTool {
                 description: "should be filtered".into(),
                 parameters: serde_json::json!({}),
@@ -359,13 +354,6 @@ mod tests {
                 ("imagine".to_string(), "Generate image".to_string()),
             ]
         );
-    }
-
-    #[test]
-    fn list_skill_commands_skips_skills_without_tool() {
-        let bare = BlockInfo::new("gizza-ai/x", "0.1.0", "handler@v1", "").role(SkillRole::Skill);
-        let cmds = list_skill_commands(&[bare]);
-        assert!(cmds.is_empty());
     }
 
     // -----------------------------------------------------------------------
