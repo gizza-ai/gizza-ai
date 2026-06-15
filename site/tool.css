@@ -1,0 +1,40 @@
+/* Standalone tool page — option C layout. Pairs with site-kit design-system.css. */
+:root { --tool-accent: #4f46e5; --tool-ink: #0f172a; --tool-muted: #6b7280; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--tool-ink); background: #fff; }
+
+.tool-nav { display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 20px; border-bottom: 1px solid #e5e7eb; max-width: 880px; margin: 0 auto; }
+.tool-brand { display: flex; align-items: center; gap: 8px; font-weight: 700;
+  text-decoration: none; color: var(--tool-ink); }
+.tool-brand img { width: 30px; height: 30px; object-fit: contain; }
+.tool-chat-link { color: var(--tool-accent); font-weight: 600; text-decoration: none; font-size: 14px; }
+
+.tool-main { max-width: 880px; margin: 0 auto; padding: 24px 20px 0; }
+.tool-hero { text-align: center; padding: 12px 0 8px; }
+.tool-hero h1 { font-size: clamp(24px, 5vw, 34px); font-weight: 800; margin: 4px 0; }
+.tool-hero-sub { color: var(--tool-muted); max-width: 460px; margin: 0 auto; }
+
+.tool-widget { border: 2px solid #d1d5db; border-radius: 12px; padding: 18px;
+  background: #fafafa; max-width: 380px; margin: 18px auto 0; text-align: left; }
+.tool-field-label, .tool-output-label { font-size: 11px; text-transform: uppercase;
+  letter-spacing: .04em; color: #94a3b8; display: block; }
+.tool-input { width: 100%; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px;
+  padding: 10px; margin: 6px 0 12px; font-size: 16px; }
+.tool-input:focus { outline: 2px solid var(--tool-accent); border-color: var(--tool-accent); }
+.tool-output { display: block; background: #eef2ff; border-radius: 8px; padding: 12px;
+  font-weight: 700; font-size: 20px; min-height: 1.4em; word-break: break-word; }
+.tool-output.error { background: #fef2f2; color: #b91c1c; font-size: 14px; font-weight: 600; }
+
+.tool-content { max-width: 720px; margin: 28px auto 0; line-height: 1.6; color: #374151; }
+.tool-content h2 { font-size: 20px; margin-top: 24px; }
+.tool-content h3 { font-size: 16px; margin-top: 18px; }
+.tool-content code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+
+.tool-footer { background: var(--tool-ink); color: #94a3b8; margin-top: 36px;
+  padding: 22px 20px; }
+.tool-footer > * { max-width: 720px; margin-left: auto; margin-right: auto; }
+.tool-footer-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; }
+.tool-footer-brand img { width: 26px; height: 26px; object-fit: contain; }
+.tool-footer p { font-size: 13px; line-height: 1.6; margin: 10px auto 0; }
+.tool-footer a { color: #a5b4fc; font-weight: 600; text-decoration: none; }
