@@ -5,7 +5,7 @@ use futures::{pin_mut, StreamExt};
 use wafer_block::{
     context::Context,
     core_types::WaferError,
-    types::{BlockInfo, SkillRole, SkillTool},
+    types::{BlockInfo, SkillTool},
 };
 use wafer_core::clients::llm::{
     ChatChunk, ChatContent, ChatMessage, ChatParams, ChatRequest, ChatRole, ChunkDelta,
@@ -31,13 +31,13 @@ pub(super) fn parse_slash(user_message: &str) -> Option<(&str, &str)> {
     Some((cmd, args))
 }
 
-/// Find the `SkillTool` descriptor for `gizza-ai/<cmd>` in the registry,
-/// requiring `role == SkillRole::Skill`.
+/// Find the `SkillTool` descriptor for `gizza-ai/<cmd>` in the registry.
+/// A block is an agent-callable skill iff it carries a `tool` descriptor.
 pub(super) fn lookup_skill_tool<'a>(blocks: &'a [BlockInfo], cmd: &str) -> Option<&'a SkillTool> {
     let full = format!("{SKILL_PREFIX}{cmd}");
     blocks
         .iter()
-        .find(|info| info.name == full && matches!(info.role, Some(SkillRole::Skill)))
+        .find(|info| info.name == full)
         .and_then(|info| info.tool.as_ref())
 }
 
@@ -348,12 +348,10 @@ mod tests {
     #[test]
     fn lookup_skill_tool_resolves_short_name() {
         let blocks = [
-            BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "")
-                .role(SkillRole::Skill)
-                .tool(SkillTool {
-                    description: "Generate image".into(),
-                    parameters: serde_json::json!({}),
-                }),
+            BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "").tool(SkillTool {
+                description: "Generate image".into(),
+                parameters: serde_json::json!({}),
+            }),
         ];
         let tool = lookup_skill_tool(&blocks, "imagine").expect("found");
         assert_eq!(tool.description, "Generate image");
