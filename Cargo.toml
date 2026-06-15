@@ -68,3 +68,16 @@ gloo-timers = { version = "0.3", features = ["futures"] }
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt"] }
 async-trait = "0.1"
+
+# Size-optimized release profile for the Cloudflare-Pages wasm bundle.
+# `solobase build` compiles this crate to wasm with `--release`; without
+# these settings the app wasm is ~29 MB and Cloudflare Pages rejects it
+# ("Pages only supports files up to 25 MiB in size"). With them it drops
+# to a few MB. Mirrors solobase's and site's release profiles (and is what
+# solobase's own cloudflare `profile_check` recommends).
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
