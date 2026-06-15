@@ -82,7 +82,13 @@ jobs:
 
       - name: Build site
         working-directory: gizza-ai
-        run: solobase build
+        # `--release` is required: without it `solobase build` runs
+        # `wasm-pack build --dev`, producing an unoptimized ~29 MB app wasm
+        # that Cloudflare Pages rejects (25 MiB/file limit). With `--release`
+        # (+ the size-optimized [profile.release] in Cargo.toml) the bundle
+        # drops to a few MB. The per-tool wasm-pack builds below already use
+        # `--release`.
+        run: solobase build --release
 
       - name: Build tool pages
         # Per-tool web wasm + rendered standalone pages into pkg/tools/.
