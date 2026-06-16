@@ -1,0 +1,82 @@
+/* Hammer button in the composer (between brain @col1 and attach @col3). */
+#composer #open-tools {
+  grid-column: 2;
+  background: transparent;
+  color: var(--color-muted);
+}
+#composer #open-tools::before {
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9'/><path d='m18 15 4-4'/><path d='m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5'/></svg>");
+          mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9'/><path d='m18 15 4-4'/><path d='m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5'/></svg>");
+}
+#composer #open-tools:hover {
+  background: var(--color-canvas-soft);
+  color: var(--color-ink);
+}
+
+/* Tools modal — reuses the base dialog/::backdrop styling from gizza.css. */
+#tools-modal {
+  width: min(560px, 92vw);
+  max-height: 80vh;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.tools-modal-head {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  padding: var(--space-base);
+  border-bottom: 1px solid var(--color-hairline-strong);
+}
+#tools-search {
+  flex: 1;
+  font: inherit;
+  padding: var(--space-sm) var(--space-base);
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: 10px;
+  background: var(--color-canvas-soft);
+  color: var(--color-ink);
+}
+#tools-close {
+  border: none;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 8px;
+}
+#tools-close:hover { background: var(--color-canvas-soft); color: var(--color-ink); }
+
+.tools-results {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs);
+  overflow-y: auto;
+}
+.tools-results li a {
+  display: block;
+  padding: var(--space-sm) var(--space-base);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.tools-results li a:hover { background: var(--color-canvas-soft); }
+.tools-results .tool-title { display: block; font-weight: 600; color: var(--color-ink); }
+.tools-results .tool-desc { display: block; font-size: 0.875rem; color: var(--color-muted); }
+
+.tools-empty, .tools-error {
+  padding: var(--space-lg) var(--space-base);
+  text-align: center;
+  color: var(--color-muted);
+}
+.tools-error button {
+  margin-left: var(--space-xs);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  color: var(--color-primary, inherit);
+}
