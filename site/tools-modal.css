@@ -49,12 +49,15 @@
   color: var(--color-muted);
   font-size: 1.1rem;
   cursor: pointer;
+  /* margin:0 overrides the global dialog form-button top margin (which spaces
+     the "Close" button in other dialogs) so the ✕ lines up with the search box. */
+  margin: 0;
   padding: var(--space-xs) var(--space-sm);
   border-radius: 8px;
 }
 #tools-close:hover { background: var(--color-canvas-soft); color: var(--color-ink); }
 /* The close button is wrapped in a <form method="dialog"> for native close;
-   display:contents keeps it a direct flex item in the head row. */
+   display:contents keeps the button a direct flex item in the head row. */
 .tools-close-form { display: contents; }
 
 #tools-results {
