@@ -33,8 +33,10 @@ The tools' logic, agent contract, and embedding already exist as build artifacts
 | Concern | Single source of truth (existing artifact) |
 |---|---|
 | Tool **logic** | `blocks/<tool>/target/block.wasm` — the exact wasm the chat loads |
-| Agent **contract** (description + JSON schema) | `blocks/<tool>/manifest.json` → `{ "role": "skill", "tool": { "description", "parameters" } }` — the same schema the chat sends to the LLM |
-| **Embedding** | `build.rs` already emits `SKILLS: &[(&str, &[u8])]` from `blocks/*/target/block.wasm` + `manifest.json` |
+| Agent **contract** (name + description + JSON schema) | **`block.info()` → `BlockInfo` → `Option<SkillTool { description, parameters }>`**, emitted into the wasm by the `#[wafer_block(skill(…))]` macro. This is the exact source the chat uses (`src/blocks/agent/slash.rs:36` `lookup_skill_tool(blocks: &[BlockInfo], cmd) -> Option<&SkillTool>`). The CLI reads it at runtime from the loaded block — **not** from `manifest.json`. |
+| **Embedding** | `build.rs` emits the skill wasm bytes; name + schema come from `block.info()` after `load_from_bytes`, so the CLI needs no `manifest.json` at all. (The app's existing `build.rs` keeps using `manifest.json` for its own `SKILLS: &[(&str,&[u8])]` table — unchanged.) |
+
+> **Schema source — corrected during planning.** An earlier draft named `blocks/<tool>/manifest.json`'s `tool` object as the schema source. The authoritative source is actually `block.info().tool` (the `SkillTool` the macro bakes into the wasm), which the chat already uses. This is strictly *more* single-source and sidesteps a real wart: the three `video-*` blocks have stale `manifest.json` files missing their `tool` object even though their Rust `skill(parameters=…)` is complete — irrelevant to the CLI, since it reads `info()`, not the manifest.
 
 The only environment-specific parts are the **injected host services**. This is an
 existing pattern: the `FfmpegService` trait (`src/ffmpeg.rs:46`) already has a browser
@@ -89,13 +91,18 @@ wasmi-skill host; today only `initialize()` (wasm32, `src/lib.rs`) loads these b
 ```
 gizza tool <name> [args…]
   1. resolve <name> → "gizza-ai/<name>"
-  2. boot native Wafer (wasmi) ONCE per invocation:
-       - register each embedded skill block as a WasmiBlock (same SKILLS table)
-       - register native host services: HttpNetworkService, NativeFfmpegService,
-         and stub services for unsupported capabilities (imagine)
-  3. map args → JSON body          (schema-driven, from manifest.json tool.parameters)
-  4. ctx.call_block_buffered("gizza-ai/<name>", msg, body) → response bytes
-  5. parse_skill_response(bytes) → { for_llm, for_ui }      (same envelope contract)
+  2. boot a MINIMAL native Wafer (wasmi) ONCE per invocation:
+       - Wafer::builder().disable_inventory().disable_lockfile().build()
+       - load each embedded skill wasm → WasmiBlock; register under info().name
+       - register ONLY the host blocks a tool needs:
+           gizza-ai/ffmpeg-runtime (FfmpegBlock + NativeFfmpegService),
+           wafer-run/network (HttpNetworkService) — via wafer_core::service_blocks,
+           and stub services for unsupported capabilities (imagine's image service)
+       - wafer.seal().await
+  3. map args → JSON body          (schema-driven, from block.info().tool.parameters)
+  4. wafer.run_block("gizza-ai/<name>", msg, InputStream::from_bytes(body)).await
+       → OutputStream → .collect_buffered().await? → BufferedResponse{ body, .. }
+  5. parse_skill_response(body) → { for_llm, for_ui }      (same envelope contract)
   6. render:
        default     → print for_llm (human text)
        --json      → print the full { _for_llm, _for_ui } envelope
@@ -103,9 +110,16 @@ gizza tool <name> [args…]
   7. exit 0 on success; non-zero on tool error / unsupported / bad args
 ```
 
-The tools cannot tell they are in a CLI: the message they receive
-(`msg.kind`, `META_REQ_ACTION="create"`, `META_REQ_RESOURCE="/b/<name>"`) mirrors the
-chat dispatch (`src/blocks/agent/dispatch.rs:98-102`).
+**Not `SolobaseBuilder`.** The gizza app boots a full solobase runtime (database, auth,
+crypto, storage, llm, …) via `SolobaseBuilder` (`src/lib.rs:100-130`). The CLI needs none
+of that: pure tools need zero services, host tools need only `ffmpeg-runtime` + network.
+So the CLI uses a **raw `Wafer::builder()`** and registers only the blocks a tool call
+needs — which also keeps it off the browser-only `solobase-browser` crate. Dispatch is
+the host-side `Wafer::run_block(...).collect_buffered()` (the host equivalent of the
+chat's in-block `ctx.call_block_buffered`; `wafer-run/tests/wasmi_block_test.rs` and
+`integration_test.rs` exercise this on native tokio). The message the tool receives
+(`msg.kind`, `META_REQ_ACTION="create"`, `META_REQ_RESOURCE="/b/<name>"`) mirrors the chat
+dispatch (`src/blocks/agent/dispatch.rs:98-102`).
 
 ## Where it lives + the one bit of restructuring
 
@@ -159,7 +173,7 @@ so agents and scripts can branch on it. Every tool dispatches through the same p
 
 ## The arg + output contract
 
-### Input — schema-driven, three layers, single source = `manifest.json tool.parameters`
+### Input — schema-driven, three layers, single source = `block.info().tool.parameters`
 
 1. **Positional** — when the schema's `required` properties are scalar (string/number),
    positional args fill them in `required` order. Drives the headline UX:
@@ -197,11 +211,11 @@ instead the CLI accepts a local file via `file=<path>` / stdin for tools that ta
 already understands. (Detail to finalize in the plan: map `file=` to the block's existing
 `Source` enum without a new block code path.)
 
-## Discovery + `SKILL.md` + library reuse — all from the same manifests
+## Discovery + `SKILL.md` + library reuse — all from `block.info()`
 
-- **`gizza tool list`** → table of `name`, `summary` from each `manifest.json`.
-- **`gizza tool describe <name>`** → the tool's `description` + `parameters` schema (human
-  or `--json`).
+- **`gizza tool list`** → for each loaded skill block, `info().name` + `info().tool.description`.
+- **`gizza tool describe <name>`** → the tool's `description` + `parameters` schema from
+  `info().tool` (human or `--json`).
 - **`SKILL.md` is generated**, not hand-written: a small generator (a `gizza tool
   gen-skill` subcommand, or a `build.rs`/`xtask` step) renders `SKILL.md` from
   `gizza tool list --json`. A CI check asserts the committed `SKILL.md` matches
@@ -248,8 +262,9 @@ already understands. (Detail to finalize in the plan: map `file=` to the block's
   a block code path.
 - Whether `SKILL.md` generation is a CLI subcommand or an `xtask` — both read the same
   `tool list --json`.
-- Whether the `cli` crate vendors a second copy of the `SKILLS` `build.rs` or both crates
-  call a shared `build-support` helper (prefer the shared helper).
+- The CLI's `build.rs` embeds the skill **wasm bytes** (`&[&[u8]]`); name + schema are read
+  from `block.info()` at load, so it needs no `manifest.json`. (It does not need to share
+  the app's manifest-based `SKILLS` table — a small bytes-only embed is simpler.)
 
 ## Change-set summary (all under `gizza-ai/`)
 
@@ -260,7 +275,7 @@ already understands. (Detail to finalize in the plan: map `file=` to the block's
    registration, `tool` subcommand (`run`/`list`/`describe`), schema-driven arg mapping,
    envelope rendering, exit-code policy.
 3. **`NativeFfmpegService`** (shell-out) + **stub services** for unsupported capabilities.
-4. **Shared `SKILLS` embedding** (factor the app `build.rs` logic into a helper both
-   crates use).
+4. **CLI `build.rs`** embedding the skill **wasm bytes** (bytes-only; name + schema from
+   `block.info()` at load — no `manifest.json` dependency).
 5. **Generated `SKILL.md`** + CI drift check.
 6. **Tests** per the Testing section.
