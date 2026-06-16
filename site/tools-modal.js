@@ -50,6 +50,7 @@ function initToolsModal() {
 
   async function load() {
     errorBox.hidden = true;
+    empty.hidden = true;
     if (all) {
       render();
       return;
