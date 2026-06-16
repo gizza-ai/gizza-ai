@@ -24,6 +24,13 @@ test('matches on description', () => {
   assert.equal(r[0].slug, 'clock');
 });
 
+test('matches on slug even when title/description do not', () => {
+  // clock's title is "Current UTC Time" — only the slug contains "clock".
+  const r = filterTools(LIST, 'clock');
+  assert.equal(r.length, 1);
+  assert.equal(r[0].slug, 'clock');
+});
+
 test('no match returns empty array', () => {
   assert.deepEqual(filterTools(LIST, 'zzznope'), []);
 });

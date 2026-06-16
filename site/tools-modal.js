@@ -6,12 +6,14 @@
 
 const INDEX_URL = '/tools/_index.json';
 
-/** Pure: substring match (case-insensitive) over title + description. */
+/** Pure: substring match (case-insensitive) over title + description + slug.
+ * Slug is included so a tool's common name (e.g. "clock") finds it even when
+ * the title doesn't contain it ("Current UTC Time"). */
 export function filterTools(list, query) {
   const q = query.trim().toLowerCase();
   if (!q) return list;
   return list.filter(
-    (t) => (t.title + ' ' + t.description).toLowerCase().includes(q),
+    (t) => (t.title + ' ' + t.description + ' ' + t.slug).toLowerCase().includes(q),
   );
 }
 
