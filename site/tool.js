@@ -1,6 +1,6 @@
 // Generic standalone-tool driver. Reads window.GIZZA_TOOL (baked by the page
 // generator), loads the tool's wasm-bindgen module, wires inputs to the
-// exported function, and renders the result. Shared by every tool subdomain.
+// exported function, and renders the result. Shared by every tool page (/tools/<slug>/).
 
 const cfg = window.GIZZA_TOOL;
 const out = document.getElementById(cfg.output.elementId);

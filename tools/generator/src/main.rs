@@ -33,11 +33,11 @@ fn run() -> Result<(), String> {
     }
 
     for (tool_dir, m) in &metas {
-        let out = pkg_tools.join(&m.subdomain);
+        let out = pkg_tools.join(&m.slug);
         fs::create_dir_all(&out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
 
         let content_md = fs::read_to_string(tool_dir.join("page/content.md"))
-            .map_err(|e| format!("read content.md for {}: {e}", m.subdomain))?;
+            .map_err(|e| format!("read content.md for {}: {e}", m.slug))?;
         let content_html = render_markdown(&content_md);
         let html = template::render_page(m, &content_html);
         fs::write(out.join("index.html"), html)
@@ -52,12 +52,12 @@ fn run() -> Result<(), String> {
 
         copy_file(&root.join("site/tool.js"), &out.join("tool.js"))?;
         copy_file(&root.join("site/tool.css"), &out.join("tool.css"))?;
-        eprintln!("rendered tools/{}/", m.subdomain);
+        eprintln!("rendered tools/{}/", m.slug);
     }
 
-    let subdomains: Vec<String> = metas.iter().map(|(_, m)| m.subdomain.clone()).collect();
+    let slugs: Vec<String> = metas.iter().map(|(_, m)| m.slug.clone()).collect();
     let pkg = root.join("pkg");
-    fs::write(pkg.join("sitemap.xml"), seo::sitemap(&subdomains))
+    fs::write(pkg.join("sitemap.xml"), seo::sitemap(&slugs))
         .map_err(|e| format!("write sitemap.xml: {e}"))?;
     fs::write(pkg.join("robots.txt"), seo::robots())
         .map_err(|e| format!("write robots.txt: {e}"))?;
@@ -65,7 +65,7 @@ fn run() -> Result<(), String> {
     Ok(())
 }
 
-/// Find every `blocks/<tool>/page/meta.toml`, parse it, sorted by subdomain.
+/// Find every `blocks/<tool>/page/meta.toml`, parse it, sorted by slug.
 fn collect_tool_metas(blocks: &Path) -> Result<Vec<(PathBuf, ToolMeta)>, String> {
     let mut out = Vec::new();
     if !blocks.is_dir() {
@@ -82,7 +82,7 @@ fn collect_tool_metas(blocks: &Path) -> Result<Vec<(PathBuf, ToolMeta)>, String>
         let m = ToolMeta::from_toml(&text)?;
         out.push((entry.path(), m));
     }
-    out.sort_by(|a, b| a.1.subdomain.cmp(&b.1.subdomain));
+    out.sort_by(|a, b| a.1.slug.cmp(&b.1.slug));
     Ok(out)
 }
 

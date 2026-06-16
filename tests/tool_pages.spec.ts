@@ -2,8 +2,8 @@ import { test, expect } from './fixtures';
 
 // Tool pages render to pkg/tools/<sub>/ (output of the generator). The Playwright
 // webServer (playwright.config.ts) serves ../pkg, so these resolve at
-// /tools/<sub>/. The *.gizza.ai subdomain rewrite is covered by
-// functions/routing.test.mjs (node test), not here.
+// /tools/<slug>/. Tool pages are served at apex paths (no subdomains); the
+// runtime Service Worker bypasses /tools/ (see js/sw-bypass.test.js).
 
 test.describe('standalone tool pages', () => {
   test('calculator page computes and has SEO tags', async ({ page }) => {

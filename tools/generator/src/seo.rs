@@ -1,10 +1,10 @@
 //! Sitemap / robots / JSON-LD helpers.
 
-/// Build a sitemap listing the apex site and every tool subdomain.
-pub fn sitemap(subdomains: &[String]) -> String {
+/// Build a sitemap listing the apex site and every tool page under /tools/.
+pub fn sitemap(slugs: &[String]) -> String {
     let mut urls = String::from("  <url><loc>https://gizza.ai/</loc></url>\n");
-    for s in subdomains {
-        urls.push_str(&format!("  <url><loc>https://{s}.gizza.ai/</loc></url>\n"));
+    for s in slugs {
+        urls.push_str(&format!("  <url><loc>https://gizza.ai/tools/{s}/</loc></url>\n"));
     }
     format!(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n{urls}</urlset>\n"
@@ -21,11 +21,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn sitemap_lists_apex_and_subdomains() {
+    fn sitemap_lists_apex_and_slugs() {
         let xml = sitemap(&["calculator".into(), "clock".into()]);
         assert!(xml.contains("<loc>https://gizza.ai/</loc>"));
-        assert!(xml.contains("<loc>https://calculator.gizza.ai/</loc>"));
-        assert!(xml.contains("<loc>https://clock.gizza.ai/</loc>"));
+        assert!(xml.contains("<loc>https://gizza.ai/tools/calculator/</loc>"));
+        assert!(xml.contains("<loc>https://gizza.ai/tools/clock/</loc>"));
         assert!(xml.starts_with("<?xml"));
     }
 
