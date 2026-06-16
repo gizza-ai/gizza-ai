@@ -5,6 +5,7 @@
 //! Assumes each tool's wasm-pack output already exists at
 //! `blocks/<tool>/web/pkg/`.
 
+mod index;
 mod meta;
 mod seo;
 mod template;
@@ -54,6 +55,15 @@ fn run() -> Result<(), String> {
         copy_file(&root.join("site/tool.css"), &out.join("tool.css"))?;
         eprintln!("rendered tools/{}/", m.slug);
     }
+
+    // Static index for the in-app tools modal (fetched client-side; lives under
+    // /tools/ so it is covered by the runtime SW's /tools/ bypass).
+    let metas_only: Vec<ToolMeta> = metas.iter().map(|(_, m)| m.clone()).collect();
+    fs::write(
+        pkg_tools.join("_index.json"),
+        index::tools_index_json(&metas_only),
+    )
+    .map_err(|e| format!("write tools/_index.json: {e}"))?;
 
     let slugs: Vec<String> = metas.iter().map(|(_, m)| m.slug.clone()).collect();
     let pkg = root.join("pkg");
