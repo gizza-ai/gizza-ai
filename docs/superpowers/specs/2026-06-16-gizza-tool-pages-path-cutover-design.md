@@ -80,8 +80,9 @@ Browser → gizza.ai/  (or any /b/… backend route)
 
 ## Testing
 
-- **Generator unit tests** (`cargo test` in `tools/generator`): canonical/JSON-LD/og + sitemap assert the `/tools/<slug>/` form; `meta` parse test asserts the `slug` field.
-- **Playwright** (`tests/tool_pages.spec.ts`): path serving + SW-bypass (no runtime boot) + apex app still boots.
+- **Generator unit tests** (`cargo test --manifest-path tools/generator/Cargo.toml`): canonical/JSON-LD/og + sitemap assert the `/tools/<slug>/` form; `meta` parse test asserts the `slug` field. The generator is a standalone crate (not a workspace member), so these are wired into CI explicitly.
+- **SW-bypass guard** (`js/sw-bypass.test.js`, run by `node --test js/*.test.js`): asserts the generated `pkg/sw.js` contains `startsWith('/tools/')`. This is the deterministic guard for the load-bearing change — it runs in CI after `solobase build` and catches removal of the `/tools/` prefix. (A Playwright behavioral "no runtime boot" assertion is impractical here: the test harness serves tool pages from a plain static server with no Service Worker active, so it can't reproduce the apex-origin SW interaction.)
+- **Playwright** (`tests/tool_pages.spec.ts`): already tests path serving (`/tools/<slug>/` renders + computes); unchanged except a stale comment.
 - **Post-deploy smoke** (real domain, after the deploy run is green):
   - `curl -sI https://gizza.ai/tools/calculator/` → 200; body `<title>Free Online Calculator — gizza.ai</title>` (already green pre-cutover via static serving).
   - In a browser that has already visited `gizza.ai` (so the runtime SW is installed + controlling): open `gizza.ai/tools/calculator/`, confirm DevTools shows the page served from static assets with **no** `[gizza-ai] Loading WASM…` console line and no `gizza_ai_bg.wasm` request.
@@ -90,7 +91,7 @@ Browser → gizza.ai/  (or any /b/… backend route)
 ## Risks & mitigations
 
 - **SW propagation to returning visitors.** `sw.js` cache-busts via `?v=<sha>` on every deploy, so a visitor who already has the old (no-`/tools/`-bypass) SW gets the updated SW automatically on next visit/update — no manual unregister needed. Worst case for a split-second stale SW: the first tool-page hit is handled by the runtime (404/slow) until the SW updates; acceptable and self-healing, and irrelevant to first-time visitors who install the new SW immediately.
-- **Forgotten bypass = silent regression.** If `/tools/` is omitted from `extra_bypass_prefix`, tool pages would be swallowed by the runtime in real browsers (but pass a naive `curl`, which never runs SWs). The Playwright "no runtime boot" assertion is the guard.
+- **Forgotten bypass = silent regression.** If `/tools/` is omitted from `extra_bypass_prefix`, tool pages would be swallowed by the runtime in real browsers (but pass a naive `curl`, which never runs SWs). The `js/sw-bypass.test.js` build-output guard catches this in CI.
 - **Pages trailing-slash behavior.** `gizza.ai/tools/calculator` (no slash) 308-redirects to `…/calculator/`; canonical uses the slash form to match. No action beyond using the trailing slash in the canonical.
 
 ## Rollout
