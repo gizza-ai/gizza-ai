@@ -37,9 +37,8 @@ function initToolsModal() {
   const results = dialog.querySelector('#tools-results');
   const empty = dialog.querySelector('#tools-empty');
   const errorBox = dialog.querySelector('#tools-error');
-  const closeBtn = dialog.querySelector('#tools-close');
   const retryBtn = dialog.querySelector('#tools-retry');
-  if (!search || !results || !empty || !errorBox || !closeBtn || !retryBtn) return;
+  if (!search || !results || !empty || !errorBox || !retryBtn) return;
 
   let all = null; // cached index once loaded
 
@@ -75,7 +74,11 @@ function initToolsModal() {
     load();
   });
   search.addEventListener('input', render);
-  closeBtn.addEventListener('click', () => dialog.close());
+  // Close ✕ uses native <form method="dialog"> (no JS needed). Also close on
+  // a backdrop click (clicking outside the modal content).
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
   retryBtn.addEventListener('click', () => {
     all = null;
     load();

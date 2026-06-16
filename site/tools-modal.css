@@ -48,6 +48,9 @@
   border-radius: 8px;
 }
 #tools-close:hover { background: var(--color-canvas-soft); color: var(--color-ink); }
+/* The close button is wrapped in a <form method="dialog"> for native close;
+   display:contents keeps it a direct flex item in the head row. */
+.tools-close-form { display: contents; }
 
 #tools-results {
   list-style: none;

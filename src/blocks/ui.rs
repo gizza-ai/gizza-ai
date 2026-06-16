@@ -174,7 +174,10 @@ fn render_chat() -> maud::Markup {
                 dialog id="tools-modal" aria-label="Tools" {
                     div class="tools-modal-head" {
                         input id="tools-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools";
-                        button id="tools-close" type="button" aria-label="Close" { "✕" }
+                        // Native dialog close — works even if tools-modal.js fails to load.
+                        form method="dialog" class="tools-close-form" {
+                            button id="tools-close" type="submit" value="close" aria-label="Close" { "✕" }
+                        }
                     }
                     ul id="tools-results" {}
                     p id="tools-empty" class="tools-empty" hidden { "No tools match your search." }
