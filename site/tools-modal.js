@@ -76,8 +76,11 @@ function initToolsModal() {
     load();
   });
   search.addEventListener('input', render);
-  // Close ✕ uses native <form method="dialog"> (no JS needed). Also close on
-  // a backdrop click (clicking outside the modal content).
+  // Close paths, belt-and-suspenders: the ✕ uses a native <form method="dialog">
+  // (works with no JS), but we also wire a JS click as a fallback in case the
+  // rendered markup is an older plain button. And close on a backdrop click.
+  const closeBtn = dialog.querySelector('#tools-close');
+  if (closeBtn) closeBtn.addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) dialog.close();
   });
