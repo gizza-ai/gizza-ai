@@ -483,7 +483,7 @@ Next to the other dialogs (e.g. right after the `dialog id="info-dialog" { … }
                         input id="tools-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools";
                         button id="tools-close" type="button" aria-label="Close" { "✕" }
                     }
-                    ul id="tools-results" class="tools-results" {}
+                    ul id="tools-results" {}
                     p id="tools-empty" class="tools-empty" hidden { "No tools match your search." }
                     p id="tools-error" class="tools-error" hidden {
                         "Couldn’t load tools. "
