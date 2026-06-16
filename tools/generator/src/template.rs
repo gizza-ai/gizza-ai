@@ -7,7 +7,7 @@ use maud::{html, PreEscaped, DOCTYPE};
 /// Render the full HTML document for a tool page. `content_html` is the
 /// markdown-rendered SEO section.
 pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
-    let canonical = format!("https://{}.gizza.ai/", meta.subdomain);
+    let canonical = format!("https://{}.gizza.ai/", meta.slug);
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
     // literal "</script>" in any value would break out of the element. serde_json
     // does not escape '/', so we neutralize the closing-tag sequence. Values are
@@ -105,7 +105,7 @@ mod tests {
     fn sample() -> ToolMeta {
         ToolMeta::from_toml(
             r#"
-subdomain     = "calculator"
+slug          = "calculator"
 title         = "Free Online Calculator — gizza.ai"
 description   = "Evaluate expressions instantly."
 h1            = "Free Online Calculator"
