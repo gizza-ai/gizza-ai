@@ -20,6 +20,9 @@ pub struct ToolMeta {
     pub slug: String,
     pub title: String,
     pub description: String,
+    /// Extra search keywords for the tools modal (not displayed). Optional.
+    #[serde(default)]
+    pub tags: Vec<String>,
     pub h1: String,
     pub hero_subtitle: String,
     /// wasm-pack output basename (without extension), e.g. "gizza_ai_calculator_web".
