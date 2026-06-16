@@ -49,22 +49,22 @@
 }
 #tools-close:hover { background: var(--color-canvas-soft); color: var(--color-ink); }
 
-.tools-results {
+#tools-results {
   list-style: none;
   margin: 0;
   padding: var(--space-xs);
   overflow-y: auto;
 }
-.tools-results li a {
+#tools-results li a {
   display: block;
   padding: var(--space-sm) var(--space-base);
   border-radius: 10px;
   text-decoration: none;
   color: inherit;
 }
-.tools-results li a:hover { background: var(--color-canvas-soft); }
-.tools-results .tool-title { display: block; font-weight: 600; color: var(--color-ink); }
-.tools-results .tool-desc { display: block; font-size: 0.875rem; color: var(--color-muted); }
+#tools-results li a:hover { background: var(--color-canvas-soft); }
+#tools-results .tool-title { display: block; font-weight: 600; color: var(--color-ink); }
+#tools-results .tool-desc { display: block; font-size: 0.875rem; color: var(--color-muted); }
 
 .tools-empty, .tools-error {
   padding: var(--space-lg) var(--space-base);

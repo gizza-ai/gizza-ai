@@ -37,6 +37,7 @@ function initToolsModal() {
   const errorBox = dialog.querySelector('#tools-error');
   const closeBtn = dialog.querySelector('#tools-close');
   const retryBtn = dialog.querySelector('#tools-retry');
+  if (!search || !results || !empty || !errorBox || !closeBtn || !retryBtn) return;
 
   let all = null; // cached index once loaded
 
@@ -55,7 +56,7 @@ function initToolsModal() {
     }
     results.innerHTML = '';
     try {
-      const res = await fetch(INDEX_URL, { cache: 'no-cache' });
+      const res = await fetch(INDEX_URL);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       all = await res.json();
       render();
