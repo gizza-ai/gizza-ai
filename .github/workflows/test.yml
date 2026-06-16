@@ -80,6 +80,10 @@ jobs:
         working-directory: gizza-ai
         run: cargo test
 
+      - name: Tool-page generator tests
+        working-directory: gizza-ai
+        run: cargo test --manifest-path tools/generator/Cargo.toml
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

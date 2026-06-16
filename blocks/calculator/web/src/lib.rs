@@ -1,5 +1,5 @@
 //! Browser-facing wasm-bindgen wrapper around `gizza-ai-calculator-core`.
-//! Compiled with wasm-pack for the standalone calculator.gizza.ai page.
+//! Compiled with wasm-pack for the standalone /tools/calculator/ page.
 
 use wasm_bindgen::prelude::*;
 

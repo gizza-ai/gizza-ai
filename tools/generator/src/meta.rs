@@ -17,7 +17,7 @@ pub struct Input {
 /// Full metadata for a single tool page.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct ToolMeta {
-    pub subdomain: String,
+    pub slug: String,
     pub title: String,
     pub description: String,
     pub h1: String,
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn parses_calculator_meta() {
         let text = r#"
-subdomain     = "calculator"
+slug          = "calculator"
 title         = "Free Online Calculator — gizza.ai"
 description   = "desc"
 h1            = "Free Online Calculator"
@@ -93,7 +93,7 @@ placeholder = "2 + 2 * 3"
 source      = "field"
 "#;
         let m = ToolMeta::from_toml(text).unwrap();
-        assert_eq!(m.subdomain, "calculator");
+        assert_eq!(m.slug, "calculator");
         assert_eq!(m.export, "evaluate");
         assert_eq!(m.inputs.len(), 1);
         assert_eq!(m.inputs[0].source, "field");
@@ -103,7 +103,7 @@ source      = "field"
     #[test]
     fn parses_live_tool_without_inputs_fields() {
         let text = r#"
-subdomain     = "clock"
+slug          = "clock"
 title         = "t"
 description   = "d"
 h1            = "h"
@@ -128,7 +128,7 @@ source = "clock"
     #[test]
     fn builds_client_config_json() {
         let text = r#"
-subdomain     = "calculator"
+slug          = "calculator"
 title         = "t"
 description   = "d"
 h1            = "h"

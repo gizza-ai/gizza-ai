@@ -7,7 +7,7 @@ boot_redirect = "/"
 manifest_path = "../solobase"
 
 [assets]
-extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js", "/pending.js", "/gis.png", "/gis_no_eyes.png", "/gis_a_job_no_eyes.png", "/eye.png", "/gis_video_idle.mp4", "/gis_video_typing_loop.mp4", "/gis_video_typing_finish.mp4", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/model-picker.js", "/model-picker.css", "/tool.js", "/tool.css"]
+extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js", "/pending.js", "/gis.png", "/gis_no_eyes.png", "/gis_a_job_no_eyes.png", "/eye.png", "/gis_video_idle.mp4", "/gis_video_typing_loop.mp4", "/gis_video_typing_finish.mp4", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/model-picker.js", "/model-picker.css", "/tool.js", "/tool.css", "/tools/"]
 
 [[assets.overlay]]
 from = "site/index.html"
