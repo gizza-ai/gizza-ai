@@ -81,3 +81,19 @@ lto = true
 codegen-units = 1
 strip = true
 panic = "abort"
+
+# wasm-opt flags for the `--release` build that `solobase build --release`
+# runs via `wasm-pack`. Two things matter here:
+#   * `--all-features` — rustc emits bulk-memory ops (memory.copy/fill) by
+#     default, but wasm-pack's bundled `wasm-opt` rejects them unless the
+#     feature is enabled ("Bulk memory operations require bulk memory
+#     [--enable-bulk-memory]"), so the default `wasm-opt -O` aborts validation.
+#   * `-Oz` — size-optimize, which (with `[profile.release]` above) keeps the
+#     bundle under Cloudflare Pages' 25 MiB per-file limit.
+# Mirrors solobase-web / solobase-browser, the proven Cloudflare wasm build.
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Oz", "--all-features"]
+
+# Debug builds skip wasm-opt entirely (fast iteration; size doesn't matter).
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false
