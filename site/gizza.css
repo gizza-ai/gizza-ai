@@ -447,7 +447,7 @@ sa-header #open-settings { display: none; }
 
 #composer {
   display: grid;
-  grid-template-columns: auto auto auto 1fr auto;
+  grid-template-columns: auto auto auto auto 1fr auto;
   grid-template-rows: 1fr auto;
   gap: var(--space-xs);
   align-items: end;
@@ -536,7 +536,7 @@ sa-header #open-settings { display: none; }
 /* Settings cog — ghost button after the brain. Lucide `settings` icon.
  * Soft canvas-soft hover ring, no fill at rest. */
 #composer #open-settings {
-  grid-column: 2;
+  grid-column: 3;
   background: transparent;
   color: var(--color-muted);
 }
@@ -586,7 +586,7 @@ sa-header #open-settings { display: none; }
 
 /* Send button — Cursor Orange disc on the right of the action row. */
 #composer #send {
-  grid-column: 5;
+  grid-column: 6;
   background: var(--color-primary);
   color: var(--color-on-primary);
 }
@@ -1105,7 +1105,7 @@ dialog button[value="close"] {
  * Just provide the icon mask. */
 #composer #attach {
   grid-row: 2;
-  grid-column: 3;
+  grid-column: 4;
 }
 #composer #attach::before {
   content: "";

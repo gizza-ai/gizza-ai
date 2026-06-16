@@ -1,6 +1,7 @@
 slug          = "calculator"
 title         = "Free Online Calculator — gizza.ai"
 description   = "Evaluate any arithmetic expression instantly in your browser. Supports +, −, ×, ÷, parentheses and functions. No sign-up, runs offline."
+tags          = ["math", "maths", "arithmetic", "sum", "percentage"]
 h1            = "Free Online Calculator"
 hero_subtitle = "Type a math expression and get the answer instantly — runs entirely in your browser."
 wasm          = "gizza_ai_calculator_web"
