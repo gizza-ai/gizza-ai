@@ -149,9 +149,9 @@ fn render_chat() -> maud::Markup {
                     section class="gizza-tools" aria-label="Standalone tools" {
                         h2 { "Tools" }
                         ul {
-                            @for (sub, title) in TOOLS {
+                            @for (slug, title) in TOOLS {
                                 li {
-                                    a href=(format!("https://{sub}.gizza.ai")) { (title) }
+                                    a href=(format!("/tools/{slug}/")) { (title) }
                                 }
                             }
                         }
@@ -295,7 +295,7 @@ mod tests {
         let s = html.into_string();
         // TOOLS is populated from blocks/*/page/meta.toml at build time.
         assert!(s.contains("class=\"gizza-tools\""), "tools section present");
-        assert!(s.contains("https://calculator.gizza.ai"), "calculator link present");
-        assert!(s.contains("https://clock.gizza.ai"), "clock link present");
+        assert!(s.contains("/tools/calculator/"), "calculator link present");
+        assert!(s.contains("/tools/clock/"), "clock link present");
     }
 }

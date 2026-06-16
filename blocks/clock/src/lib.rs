@@ -1,7 +1,7 @@
 //! gizza-ai/clock — returns current UTC time as JSON.
 //!
 //! The time string is formatted by `gizza-ai-clock-core` (shared with the
-//! standalone clock.gizza.ai page). The #[wafer_block] macro emits wasm-only
+//! standalone /tools/clock/ page). The #[wafer_block] macro emits wasm-only
 //! registration; `build_response` is testable on host.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
