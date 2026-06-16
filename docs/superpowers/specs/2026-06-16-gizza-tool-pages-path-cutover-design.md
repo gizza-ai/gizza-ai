@@ -22,7 +22,7 @@ The standalone, lightweight per-tool bundles (their own ~21–130K wasm, no full
 
 ## Non-goals (YAGNI)
 
-- No `/tools/` index/landing page and no new "Tools" nav link in the app (tools stay discoverable via `sitemap.xml` and their own back-links to `gizza.ai`).
+- No *new* `/tools/` index/landing page. (The app **already** renders a "Tools" interlink section on its home page — generated from `blocks/*/page/meta.toml` via `build.rs` → `ui.rs`. This design **repoints those existing links** from `<slug>.gizza.ai` to `/tools/<slug>/`; it does not add a new index.) Tools also stay discoverable via `sitemap.xml`.
 - No redirects from the old `<slug>.gizza.ai` hostnames: those never resolved publicly (DNS was never wired for subdomains), so there are no inbound links or search-index entries to preserve, and a redirect would require re-introducing the very subdomain infrastructure we're removing.
 - No change to how tool pages or their wasm are *built*.
 
@@ -57,12 +57,15 @@ The field is no longer a hostname; calling it `subdomain` is misleading (violate
 
 ### 4. Delete the subdomain machinery
 - Delete **`functions/_middleware.js`**, **`functions/routing.mjs`**, **`functions/routing.test.mjs`**. With everything served at paths, the host→path rewrite has no remaining job; removing the Pages Function also drops a per-request Function invocation on the apex app. (Confirmed these three files are the entire `functions/` directory.)
-- **`tests/tool_pages.spec.ts`** — repoint from "subdomain Host header rewrites to `/tools/<slug>`" to the path-based contract:
-  - `GET /tools/calculator/` and `/tools/clock/` → 200 with the standalone page (correct `<title>`).
-  - The SW bypass leaves tool pages static — assert no runtime boot (e.g. the page does not log `[gizza-ai] Loading WASM` / does not fetch the app's `gizza_ai_bg.wasm`).
-  - `GET /` still serves the app shell.
+- **`tests/tool_pages.spec.ts`** — already tests path serving (`/tools/calculator/`, `/tools/clock/` render via a static server); it never tested subdomains. Only its stale header comment (which references the deleted `functions/routing.test.mjs`) needs fixing. The "stays static / no runtime boot" guard is `js/sw-bypass.test.js` (see Testing), not a Playwright assertion.
 
-### 5. Dashboard ops (manual, post-merge — user)
+### 5. App-side tool list — `build.rs` + `ui.rs` (the missed consumers)
+The `subdomain` meta key has two more readers beyond the generator; both must move to the path form or the build silently breaks:
+- **`build.rs`** — scans each `blocks/<tool>/page/meta.toml` via `toml_str_value(&meta_text, "subdomain")` to generate the `TOOLS: &[(&str, &str)]` const. After the §3 key rename it must read `"slug"`; otherwise `TOOLS` is empty. Rename the key it reads and the local `subdomain`/comment wording → `slug`.
+- **`src/blocks/ui.rs`** — the home page's "Tools" interlink section renders `a href=(format!("https://{sub}.gizza.ai"))` per `TOOLS` entry. Change to `a href=(format!("/tools/{slug}/"))` (relative apex path; works on any host, and the SW `/tools/` bypass passes it through). Update its test `renders_tools_interlink` (asserts `https://calculator.gizza.ai` / `https://clock.gizza.ai`) → `/tools/calculator/` / `/tools/clock/`. This test is an end-to-end guard for `meta.toml` → `build.rs` → `ui.rs`; it currently **fails on this branch** (TOOLS empty after §3), and fixing both readers turns it green.
+- **Stale doc comments** (cosmetic, for a clean cutover): `blocks/calculator/web/src/lib.rs` ("calculator.gizza.ai page"), `blocks/clock/src/lib.rs` ("clock.gizza.ai page"), `site/tool.js` ("every tool subdomain") → reword to the `/tools/<slug>/` page form.
+
+### 6. Dashboard ops (manual, post-merge — user)
 - In Cloudflare → Pages → `gizza-ai` → Custom domains, **remove `calculator.gizza.ai` and `clock.gizza.ai`** (added during the deploy bring-up; unused after this cutover). Keep `gizza.ai` and `www.gizza.ai`. No wildcard DNS, no Worker.
 
 ## Data flow (after cutover)
@@ -82,6 +85,7 @@ Browser → gizza.ai/  (or any /b/… backend route)
 
 - **Generator unit tests** (`cargo test --manifest-path tools/generator/Cargo.toml`): canonical/JSON-LD/og + sitemap assert the `/tools/<slug>/` form; `meta` parse test asserts the `slug` field. The generator is a standalone crate (not a workspace member), so these are wired into CI explicitly.
 - **SW-bypass guard** (`js/sw-bypass.test.js`, run by `node --test js/*.test.js`): asserts the generated `pkg/sw.js` contains `startsWith('/tools/')`. This is the deterministic guard for the load-bearing change — it runs in CI after `solobase build` and catches removal of the `/tools/` prefix. (A Playwright behavioral "no runtime boot" assertion is impractical here: the test harness serves tool pages from a plain static server with no Service Worker active, so it can't reproduce the apex-origin SW interaction.)
+- **App tool-link test** (`src/blocks/ui.rs::renders_tools_interlink`, run by root `cargo test`): asserts the home-page Tools section links to `/tools/calculator/` and `/tools/clock/`. End-to-end guard for `meta.toml` (slug) → `build.rs` (TOOLS) → `ui.rs` (link). Root `cargo test` already runs in CI.
 - **Playwright** (`tests/tool_pages.spec.ts`): already tests path serving (`/tools/<slug>/` renders + computes); unchanged except a stale comment.
 - **Post-deploy smoke** (real domain, after the deploy run is green):
   - `curl -sI https://gizza.ai/tools/calculator/` → 200; body `<title>Free Online Calculator — gizza.ai</title>` (already green pre-cutover via static serving).
@@ -96,4 +100,8 @@ Browser → gizza.ai/  (or any /b/… backend route)
 
 ## Rollout
 
-Single gizza PR (branch + PR per workspace rules) containing changes 1–4. Merge to `main` triggers the existing Cloudflare Pages deploy. After it's green, do the dashboard cleanup (5). No solobase PR; no wafer-run PR.
+Single gizza PR (branch + PR per workspace rules) containing changes 1–5. Merge to `main` triggers the existing Cloudflare Pages deploy. After it's green, do the dashboard cleanup (6). No solobase PR; no wafer-run PR.
+
+## Correction (2026-06-16, during implementation)
+
+The original draft listed a non-goal "no app→tool links (none found)". That was wrong — the check used a `grep -v '//'` filter that silently excluded every `https://` URL. The app **does** link to the tools: `src/blocks/ui.rs` renders a home-page "Tools" section, fed by a `build.rs`-generated `TOOLS` const sourced from the `subdomain` key in `blocks/*/page/meta.toml`. The §3 key rename made `build.rs` read an absent key (→ empty `TOOLS` → failing `renders_tools_interlink` test). §5 was added to repoint both readers (`build.rs`, `ui.rs`) to `/tools/<slug>/`. Lesson: never filter `//` when grepping for URLs.

@@ -296,7 +296,112 @@ test are obsolete. Removes a per-request Pages Function on the apex app."
 
 ---
 
-### Task 6: Run the generator's unit tests in CI
+### Task 6: Repoint the app's tool list — `build.rs` + `ui.rs` (the missed consumers)
+
+The `subdomain` meta key has two readers outside the generator. After Task 1 renamed the key to `slug`, `build.rs` reads an absent key → the generated `TOOLS` const is empty → the home-page "Tools" section disappears and its test fails. This task fixes both readers and repoints the link to the path form. (This corrects a wrong assumption in the original spec; see the spec's "Correction" section. The `renders_tools_interlink` test currently FAILS on this branch.)
+
+**Files:**
+- Modify: `build.rs` (reads `page/meta.toml`, generates `TOOLS`)
+- Modify: `src/blocks/ui.rs` (renders the Tools section + its test `renders_tools_interlink`)
+- Modify (comments only): `blocks/calculator/web/src/lib.rs`, `blocks/clock/src/lib.rs`, `site/tool.js`
+
+- [ ] **Step 1: Update the failing test to assert path URLs**
+
+In `src/blocks/ui.rs`, in `fn renders_tools_interlink` (~line 296), change:
+
+```rust
+        assert!(s.contains("https://calculator.gizza.ai"), "calculator link present");
+        assert!(s.contains("https://clock.gizza.ai"), "clock link present");
+```
+
+to:
+
+```rust
+        assert!(s.contains("/tools/calculator/"), "calculator link present");
+        assert!(s.contains("/tools/clock/"), "clock link present");
+```
+
+- [ ] **Step 2: Run the test to confirm it fails**
+
+Run: `cargo test renders_tools_interlink`
+Expected: FAIL — currently it panics at `"tools section present"` because `TOOLS` is empty (build.rs reads the now-absent `subdomain` key).
+
+- [ ] **Step 3: Fix `build.rs` to read the `slug` key**
+
+In `build.rs`, change the meta read (~line 44–48) from:
+
+```rust
+                if let (Some(subdomain), Some(h1)) = (
+                    toml_str_value(&meta_text, "subdomain"),
+                    toml_str_value(&meta_text, "h1"),
+                ) {
+                    tools.push((subdomain, h1));
+                }
+```
+
+to:
+
+```rust
+                if let (Some(slug), Some(h1)) = (
+                    toml_str_value(&meta_text, "slug"),
+                    toml_str_value(&meta_text, "h1"),
+                ) {
+                    tools.push((slug, h1));
+                }
+```
+
+Also rename the `subdomain` wording in `build.rs` comments/loop vars to `slug` for accuracy: line 29 `// (subdomain, title)` → `// (slug, title)`; line 82 `// Sort tools by subdomain` → `// Sort tools by slug`; line 104 generated-comment `// (subdomain, title) for every tool…` → `// (slug, title) for every tool…`; line 106 `for (subdomain, title) in &tools` → `for (slug, title) in &tools`; line 108 `({subdomain:?}, …)` → `({slug:?}, …)`.
+
+- [ ] **Step 4: Fix `ui.rs` to link to the path form**
+
+In `src/blocks/ui.rs` (~line 152–154), change:
+
+```rust
+                            @for (sub, title) in TOOLS {
+                                li {
+                                    a href=(format!("https://{sub}.gizza.ai")) { (title) }
+                                }
+```
+
+to:
+
+```rust
+                            @for (slug, title) in TOOLS {
+                                li {
+                                    a href=(format!("/tools/{slug}/")) { (title) }
+                                }
+```
+
+(Relative apex path; works on any host, and the SW `/tools/` bypass passes it through.)
+
+- [ ] **Step 5: Run the test to confirm it passes**
+
+Run: `cargo test renders_tools_interlink`
+Expected: PASS — `TOOLS` is populated (build.rs reads `slug`) and the rendered links are `/tools/calculator/`, `/tools/clock/`.
+
+- [ ] **Step 6: Reword stale doc comments (cosmetic)**
+
+- `blocks/calculator/web/src/lib.rs:2`: `//! Compiled with wasm-pack for the standalone calculator.gizza.ai page.` → `//! Compiled with wasm-pack for the standalone /tools/calculator/ page.`
+- `blocks/clock/src/lib.rs:4`: reword `standalone clock.gizza.ai page` → `standalone /tools/clock/ page`.
+- `site/tool.js:3`: `Shared by every tool subdomain.` → `Shared by every tool page (/tools/<slug>/).`
+
+- [ ] **Step 7: Run the full lib test suite and commit**
+
+Run: `cargo test --lib`
+Expected: PASS (incl. `renders_tools_interlink`).
+
+```bash
+git add build.rs src/blocks/ui.rs blocks/calculator/web/src/lib.rs blocks/clock/src/lib.rs site/tool.js
+git commit -m "feat(gizza): repoint app tool list to /tools/<slug> paths
+
+build.rs now reads the renamed slug key (else TOOLS is empty); the home-page
+Tools section links to /tools/<slug>/ instead of <slug>.gizza.ai. Reword stale
+subdomain comments."
+```
+
+---
+
+### Task 7: Run the generator's unit tests in CI
 
 `tools/generator` is a standalone crate (`gizza-tool-pages`), not a workspace member, so the existing `cargo test` step does not run it — the URL/slug guards from Tasks 1–3 would not gate. Add an explicit step.
 
@@ -327,7 +432,7 @@ git commit -m "ci(gizza): run the gizza-tool-pages generator unit tests"
 
 ---
 
-### Task 7: Push and open the PR
+### Task 8: Push and open the PR
 
 - [ ] **Step 1: Push the branch**
 
@@ -346,6 +451,7 @@ Cloudflare Pages can't do wildcard custom domains, so per-tool subdomains don't 
 
 - SW bypass /tools/ (solobase.toml) so the runtime SW leaves tool pages static — guarded by js/sw-bypass.test.js
 - generator canonical/og/sitemap → /tools/<slug>/; rename subdomain field → slug
+- app home-page Tools section links → /tools/<slug>/ (build.rs reads slug; ui.rs path link)
 - delete the dead functions/ subdomain middleware
 - run the generator unit tests in CI
 
