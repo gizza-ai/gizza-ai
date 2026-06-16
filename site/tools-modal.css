@@ -19,6 +19,11 @@
   max-height: 80vh;
   padding: 0;
   overflow: hidden;
+}
+/* Gate display on [open] so the browser's `dialog:not([open]) { display:none }`
+   still hides it when closed — an unconditional `display:flex` (id selector)
+   would override that and leave the modal visible after close. */
+#tools-modal[open] {
   display: flex;
   flex-direction: column;
 }
