@@ -171,7 +171,7 @@ fn render_chat() -> maud::Markup {
                     }
                 }
                 // Searchable tools directory — opened by the composer hammer (#open-tools).
-                dialog id="tools-modal" {
+                dialog id="tools-modal" aria-label="Tools" {
                     div class="tools-modal-head" {
                         input id="tools-search" type="search" placeholder="Search tools…" autocomplete="off" aria-label="Search tools";
                         button id="tools-close" type="button" aria-label="Close" { "✕" }
