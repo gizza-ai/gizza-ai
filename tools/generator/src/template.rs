@@ -52,7 +52,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
             body {
                 header class="tool-nav" {
                     a class="tool-brand" href="https://gizza.ai" {
-                        img src="https://gizza.ai/logo.webp" alt="gizza.ai logo";
+                        img src="/logo.webp" alt="gizza.ai logo";
                         span { "gizza.ai" }
                     }
                     a class="tool-chat-link" href="https://gizza.ai" { "Open AI chat →" }
@@ -80,7 +80,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                 }
                 footer class="tool-footer" {
                     div class="tool-footer-brand" {
-                        img src="https://gizza.ai/logo.webp" alt="";
+                        img src="/logo.webp" alt="";
                         span { "⚡ Powered by gizza.ai" }
                     }
                     p {
