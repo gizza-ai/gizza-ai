@@ -1,7 +1,10 @@
 # Markdown tool-page twins (per-tool `index.md`)
 
 **Date:** 2026-06-17
-**Status:** Design approved (scope narrowed to per-tool `.md`); ready for plan.
+**Status:** Implemented + unit-tested (generator suite green) and verified by a
+real `gizza-tool-pages` run — `index.md` produced for all 5 page-tools
+(field/file/live variants correct) and each `index.html` links its twin via
+`<link rel="alternate" type="text/markdown">`. Branch `feat/md-tool-pages`.
 
 ## Problem
 
