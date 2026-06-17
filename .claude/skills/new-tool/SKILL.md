@@ -33,6 +33,10 @@ the build/test/PR commands. Follow these steps in order:
    - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning `{argv,out_name}`).
    - `page/meta.toml` + `page/content.md` — real title/desc/tags/inputs (field ORDER must
      match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures.
+   - `manifest.json` — the scaffold generates it (build.rs needs it; `wafer build` does
+     NOT). Update `summary` + the `tool.description`/`tool.parameters` to match your
+     `src/lib.rs` skill() schema (the runtime reads schemas from the macro/`info()`, so
+     this is informational, but keep it consistent).
 7. **Build:** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace` (from
    `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
    `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`. Fix

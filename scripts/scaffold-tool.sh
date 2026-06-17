@@ -136,6 +136,30 @@ abi = 1
 summary = "TODO: one-line summary."
 EOF
 
+# manifest.json is NOT produced by \`wafer build\` — it is a committed, hand-kept
+# file that the repo build.rs requires (alongside target/block.wasm) to include
+# the block in the app + CLI. Generate it here; the skill syncs the tool section
+# to the src/lib.rs skill() schema (the runtime reads schemas from info(), so the
+# tool section is informational, but build.rs needs the file + name to exist).
+cat > "$dir/manifest.json" <<EOF
+{
+  "name": "gizza-ai/$slug",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "TODO: one-line summary.",
+  "role": "skill",
+  "tool": {
+    "description": "TODO: describe what this tool does and its inputs.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": { "input": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}
+EOF
+
 cat > "$dir/page/meta.toml" <<EOF
 slug          = "$slug"
 title         = "TODO — gizza.ai"
