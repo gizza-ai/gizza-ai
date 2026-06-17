@@ -213,9 +213,17 @@ already understands. (Detail to finalize in the plan: map `file=` to the block's
 
 ## Discovery + `SKILL.md` + library reuse — all from `block.info()`
 
-- **`gizza tool list`** → for each loaded skill block, `info().name` + `info().tool.description`.
-- **`gizza tool describe <name>`** → the tool's `description` + `parameters` schema from
-  `info().tool` (human or `--json`).
+- **`gizza list`** → for each loaded skill block, `info().name` + `info().tool.description`.
+- **`gizza describe <name>`** → the tool's `description` + `parameters` schema from
+  `info().tool` (human or `--json-out`).
+
+> **CLI surface — ratified during implementation.** Discovery is `gizza list` /
+> `gizza describe`, NOT `gizza tool list` / `gizza tool describe`. The `gizza tool`
+> subcommand uses clap `trailing_var_arg` to capture `<name> [args…]` so the headline
+> `gizza tool calculator 2*2` works; that makes `gizza tool list` parse "list" as a tool
+> name. You cannot have both a bare-name run form and `tool`-namespaced subcommands
+> cleanly in clap, so discovery lives at the top level. Run flags: `--json` (full body),
+> `--json-out` (envelope out), `--out <file>` (binary).
 - **`SKILL.md` is generated**, not hand-written: a small generator (a `gizza tool
   gen-skill` subcommand, or a `build.rs`/`xtask` step) renders `SKILL.md` from
   `gizza tool list --json`. A CI check asserts the committed `SKILL.md` matches
