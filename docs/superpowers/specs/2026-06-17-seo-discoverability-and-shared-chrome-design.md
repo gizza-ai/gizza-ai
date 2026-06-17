@@ -1,7 +1,7 @@
 # SEO/AI discoverability + shared site chrome — design
 
-**Date:** 2026-06-17
-**Status:** approved (design); ready for implementation plan
+**Date:** 2026-06-17 (rebased onto `main` `461a701` on 2026-06-18)
+**Status:** approved (design); reconciled with merged #84/#85; ready for implementation plan
 **Repo:** `gizza-ai`
 
 ## Goal
@@ -30,7 +30,23 @@ gizza.ai renders HTML two ways, both via **maud**:
 2. **`/tools/<slug>/` — standalone tool pages** (`tools/generator/src/template.rs`),
    rendered by the native `gizza-tool-pages` binary from `blocks/<slug>/page/meta.toml`.
    These already have good SEO (`title`, description, canonical, OG, Twitter,
-   JSON-LD `WebApplication`) and a thin logo nav + footer.
+   JSON-LD `WebApplication`) and a thin logo nav + footer. As of **#85**, each page
+   also emits a clean markdown twin **`index.md`** (new module
+   `tools/generator/src/markdown.rs`, `tool_markdown(meta, content_md)`) and links
+   it via `<link rel="alternate" type="text/markdown" href="index.md">` — an
+   AI-readable per-page surface my `llms.txt` indexes into.
+
+> **Reconciliation with merged `main` (`461a701`).** This design was written
+> against `a99487f`; PRs **#84** (chat-ffmpeg page-side bridge) and **#85**
+> (per-tool `index.md` twins) have since merged and this branch is rebased onto
+> them. The #85 effort deliberately **kept** the per-tool `index.md` +
+> `rel=alternate` and **deferred** root `/llms.txt`, `sitemap.xml`, `robots.txt`,
+> the `solobase.toml` SW-bypass, and the `seo.rs` deletion **to this effort**
+> (commit `e300b09`). The only shared file is generator `main.rs` (already
+> rebased; #85 added an `index.md` write + `mod markdown` that this effort
+> preserves). Net effect: the AI-friendliness story splits cleanly — #85 owns
+> per-page markdown detail; this effort owns the cross-tool index (`llms.txt`) +
+> sitemap/robots + apex meta + shared chrome.
 
 `tools/generator` is its **own** single-package workspace with only
 `maud`/`serde`/`toml`/`pulldown-cmark` — it deliberately does not depend on the
@@ -51,8 +67,10 @@ The existing tools modal (`site/tools-modal.js`) already fetches
 
 - No per-tool standalone pages for the 9 chat-only tools (sitemap lists only
   tools that have a real page → no 404s).
-- No `llms-full.txt` (the machine-readable full catalog is `/tools/_index.json`
-  + `gizza list`).
+- No `llms-full.txt` (per-page detail is already the #85 `/tools/<slug>/index.md`
+  twins; the machine-readable full catalog is `/tools/_index.json` + `gizza list`).
+- No changes to #85's per-tool `index.md` / `markdown.rs` / `rel=alternate` —
+  that surface is done and this effort only links into it.
 - No marketing pages (pricing/templates/etc. from the reference screenshot do
   not exist on gizza and are not being created).
 
@@ -125,9 +143,11 @@ $GIZZA list --json-out | jq -r '.[].name | sub("^gizza-ai/"; "")' | sort
 3. **`pkg/llms.txt`** — [llmstxt.org](https://llmstxt.org) format:
    - `# gizza.ai`
    - a `>` summary blockquote (browser-local AI chat + tools; private; CLI).
-   - `## Tools` — one bullet per tool from `gizza list`
-     (`- [name](url): description` when a page exists; `- name: description`
-     otherwise), so it stays drift-free.
+   - `## Tools` — one bullet per tool from `gizza list`, drift-free. For tools
+     **with a page**, link to the clean markdown twin
+     `$BASE_URL/tools/<slug>/index.md` (the #85 `index.md` — better for LLMs than
+     the HTML page, per that effort's coordination note); for chat-only tools,
+     `- <name>: <description>` (no link; note "available in chat + via the gizza CLI").
    - `## Resources` — GitHub, Discord, CLI README, SKILL.md.
    - a closing note pointing AI agents at `/tools/_index.json` and the `gizza`
      CLI as the authoritative machine-readable catalog (keeps llms.txt an
@@ -138,7 +158,19 @@ $GIZZA list --json-out | jq -r '.[].name | sub("^gizza-ai/"; "")' | sort
 `tools/generator/src/seo.rs` is **deleted**, and the `sitemap`/`robots` writes
 (+ `mod seo` + slug collection) are removed from `main.rs`. The bash script is
 now the only writer of these files (eliminates the two-writer drift). The
-generator keeps producing pages + `_index.json`.
+generator keeps producing pages + `_index.json` **and the #85 per-tool
+`index.md` write + `mod markdown` (untouched)**. Drop the now-stale "matches the
+literal used in `seo.rs`" comment in `markdown.rs` when `seo.rs` is removed (its
+`SITE` const stays; `template.rs` keeps its own literal).
+
+### Serve the root SEO files (`solobase.toml`)
+
+`#85` dropped the `/llms.txt` SW-bypass and left it to this effort. Add
+`/sitemap.xml`, `/robots.txt`, and `/llms.txt` to `extra_bypass_prefix` so the
+runtime service worker never intercepts them (crawlers fetch them edge-direct
+regardless, but in-browser navigations must hit the static asset). These files
+are written into `pkg/` root by `gen-seo.sh`, not overlaid from `site/`, so no
+`[[assets.overlay]]` entry is needed for them — only the bypass.
 
 ### Apex `<head>` SEO gap-fill (`src/blocks/ui.rs`)
 
@@ -232,10 +264,11 @@ target the new brand wordmark. This is the highest-risk change; it is covered by
 - `src/blocks/ui.rs` — SEO `<head>`; replace `sa-header` with shared header; load header assets; update tests.
 - `site/gizza-app.js` — retarget the brand/`#open-settings` lookups.
 - `site/tools-modal.js` — import `filterTools` from `tools-index.js`.
-- `solobase.toml` — overlays + `extra_bypass_prefix` for `header.css`/`header.js`/`tools-index.js`.
+- `solobase.toml` — overlays + `extra_bypass_prefix` for `header.css`/`header.js`/`tools-index.js`, plus bypass for `/sitemap.xml`, `/robots.txt`, `/llms.txt`.
 - `tools/generator/Cargo.toml` — add `gizza-chrome` path dep.
-- `tools/generator/src/main.rs` — drop sitemap/robots writes + `mod seo` + slug collection; copy header assets into each tool dir.
-- `tools/generator/src/template.rs` — use shared header/footer; link header assets.
+- `tools/generator/src/main.rs` — drop sitemap/robots writes + `mod seo` + slug collection; **keep** the #85 `index.md` write + `mod markdown`; copy header assets into each tool dir.
+- `tools/generator/src/template.rs` — use shared header/footer; **keep** the #85 `<link rel="alternate" type="text/markdown">`; link header assets.
+- `tools/generator/src/markdown.rs` — drop the stale "matches `seo.rs`" comment (no behavior change).
 - `.github/workflows/deploy.yml` — build gizza CLI + run `gen-seo.sh`.
 - `.github/workflows/test.yml` — run `gen-seo.test.sh` + chrome crate tests.
 - `justfile` — `seo` recipe.
