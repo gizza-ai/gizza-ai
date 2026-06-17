@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "http-request"
+version = "0.1.0"
+abi = 1
+summary = "Make a full HTTP request and return status, headers, and body."
