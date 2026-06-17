@@ -39,8 +39,10 @@ the build/test/PR commands. Follow these steps in order:
      this is informational, but keep it consistent).
 7. **Build:** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace` (from
    `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
-   `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`. Fix
-   compile/test failures (≤3 attempts) before escalating.
+   `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`; then
+   **regenerate the agent tool list** — `cargo run --manifest-path cli/Cargo.toml --bin
+   gizza -- gen-skill` (updates the root `SKILL.md`; CI's drift check fails without this).
+   Fix compile/test failures (≤3 attempts) before escalating.
 8. **Test (type-aware)** — see reference.md:
    - unit (always) + wafer fixtures (always);
    - **Playwright** the page (pure + ffmpeg): add a spec in `tests/` driving `/tools/<slug>/`;
