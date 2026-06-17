@@ -303,6 +303,12 @@ fn render_chat() -> maud::Markup {
                 //     which routes through ctx.call_block("wafer-run/llm",
                 //     ...) → BrowserLlmService::chat → postMessage page.
                 script type="module" src="/webllm-engine.js" {}
+                // Page-side text-to-image (imagine) engine — image-* bridge
+                // already exists upstream; loading it is the whole fix.
+                script type="module" src="/t2i-engine.js" {}
+                // Page-side chat ffmpeg engine — runs ffmpeg in the window and
+                // replies to the SW (see js/ffmpeg-bridge.js / js/ffmpeg-engine.js).
+                script type="module" src="/ffmpeg-engine.js" {}
                 script type="module" src="/gizza-app.js" {}
                 script type="module" src="/tools-modal.js" {}
             }
@@ -339,5 +345,18 @@ mod tests {
         assert!(s.contains("blob/main/cli/README.md"), "links to the CLI tool");
         // slotted into the composer slot (sa-chat) so it sits under the input card.
         assert!(s.contains(r#"p slot="composer" class="composer-note""#));
+    }
+
+    #[test]
+    fn loads_page_side_engines_for_chat_ffmpeg_and_imagine() {
+        let s = render_chat().into_string();
+        assert!(
+            s.contains(r#"src="/ffmpeg-engine.js""#),
+            "chat ffmpeg page engine loaded"
+        );
+        assert!(
+            s.contains(r#"src="/t2i-engine.js""#),
+            "imagine (t2i) page engine loaded"
+        );
     }
 }
