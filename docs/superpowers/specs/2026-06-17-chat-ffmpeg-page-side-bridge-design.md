@@ -1,7 +1,30 @@
 # Chat ffmpeg page-side bridge (+ imagine fix, SW-tool audit)
 
 **Date:** 2026-06-17
-**Status:** Design approved (Approach D); ready for implementation plan.
+**Status:** Implemented (Approach D) on `feat/chat-ffmpeg-page-side-bridge`.
+
+**Verified (automated):**
+- JS unit + round-trip + sw-bypass: **31/31** (`npm test`). Rust: **38** lib tests
+  incl. the `ui.rs` engine-load test.
+- `solobase build` succeeded and the generated glue imports the
+  `snippets/.../js/ffmpeg-bridge.js` snippet — i.e. the `BrowserFfmpegService`
+  rebind is wired into the wasm.
+- Browser e2e (`tests/chat-ffmpeg-bridge.spec.ts`): **real ffmpeg runs page-side
+  via `ffmpeg-engine.js`** (grayscale of a 2×2 PNG → `exit_code 0`, non-empty
+  output). Hosted on a static tool page because the chat root's `<h1>` depends on
+  an external CDN web component (flaky headless).
+- Console diagnostic on the chat page `/`: `webllm-engine.js`, `t2i-engine.js`,
+  and `ffmpeg-engine.js` all load with **no page errors** — the chat ffmpeg +
+  imagine engines are wired correctly at the page level.
+
+**Pending manual smoke (NOT run here — needs a real browser + model + WebGPU):**
+- Full LLM-driven chat path: load a model, invoke an ffmpeg-backed tool, confirm
+  a media result renders and the SW logs no `import() is disallowed` error.
+- `imagine`/WebGPU end-to-end generation (graceful fallback otherwise).
+- Note: the chat boot is flaky in headless on this branch's solobase pin (the
+  known loader recovery-loop, fixed separately via the
+  `chore/bump-solobase-pin-loader-recovery` pin bump) plus the external
+  `sa-header` CDN — neither is an ffmpeg defect.
 
 ## Problem
 
