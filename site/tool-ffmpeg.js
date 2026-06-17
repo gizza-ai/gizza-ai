@@ -1,5 +1,11 @@
 // ffmpeg tool-page helpers + run flow. Pure helpers are unit-tested; runFfmpeg
 // is wired by tool.js for runtime === "ffmpeg" tools.
+//
+// Constraints (kept simple on purpose — the new-tool skill clones this shape):
+//   * exactly ONE file input (the first source="file" input);
+//   * the OUTPUT media type is inferred from the produced filename's extension
+//     (`out_name`, which the tool's web/build_argv chooses), NOT the input file's
+//     MIME — so a format/container change (e.g. video transcode) renders correctly.
 
 export function inputNameFor(filename) {
   const dot = filename.lastIndexOf(".");
@@ -9,6 +15,19 @@ export function inputNameFor(filename) {
 
 export function dataUrlFor(mime, b64) {
   return `data:${mime};base64,${b64}`;
+}
+
+const EXT_MIME = {
+  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp",
+  gif: "image/gif", bmp: "image/bmp", avif: "image/avif",
+  mp4: "video/mp4", webm: "video/webm", mov: "video/quicktime", mkv: "video/x-matroska",
+};
+
+// MIME for the produced file, from its extension (e.g. "out.mp4" -> "video/mp4").
+export function mimeForOutput(outName) {
+  const dot = outName.lastIndexOf(".");
+  const ext = dot >= 0 ? outName.slice(dot + 1).toLowerCase() : "";
+  return EXT_MIME[ext] || "application/octet-stream";
 }
 
 function bytesToB64(u8) {
@@ -45,6 +64,6 @@ export async function runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs) {
     const snippet = (resp.log || "").split("\n").filter(Boolean).slice(-1)[0] || "ffmpeg failed";
     return { ok: false, error: snippet };
   }
-  const mime = file.type || "application/octet-stream";
+  const mime = mimeForOutput(plan.out_name);
   return { ok: true, dataUrl: dataUrlFor(mime, resp.output_b64), mime, outName: plan.out_name };
 }

@@ -87,6 +87,9 @@ mod tests {
     fn parse_fit_default_is_contain() { assert_eq!(parse_fit(None).unwrap(), Fit::Contain); }
 
     #[test]
+    fn parse_fit_empty_is_contain() { assert_eq!(parse_fit(Some("")).unwrap(), Fit::Contain); }
+
+    #[test]
     fn parse_fit_rejects_unknown() { assert!(parse_fit(Some("squish")).is_err()); }
 
     #[test]

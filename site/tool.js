@@ -48,6 +48,13 @@ async function main() {
     const { ffmpegExec } = await import("./ffmpeg.js");
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
+    if (!media || !dl) {
+      // ffmpeg runtime requires a media output (format "image"/"video"); a
+      // misconfigured tool (e.g. runtime=ffmpeg + format=text) has no place to
+      // render the result. Fail loudly instead of throwing on a null element.
+      showError("tool misconfigured: ffmpeg runtime needs an image/video output");
+      return;
+    }
     const fileMeta = cfg.inputs.find((i) => i.source === "file");
     const fileInput = fileMeta ? document.getElementById("in-" + fileMeta.name) : null;
     const fieldInputs = cfg.inputs.filter((i) => i.source === "field");
