@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["."]
+members = [".", "core"]
 
 [package]
 name = "gizza-ai-image-resize-block"
@@ -15,6 +15,7 @@ crate-type = ["cdylib", "rlib"]
 wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 gizza-ai-block-utils = { path = "../../block-utils" }
+gizza-ai-image-resize-core = { path = "core" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 base64 = "0.22"
