@@ -167,6 +167,17 @@ fn render_chat() -> maud::Markup {
                                 "github.com/gizza-ai/gizza-ai"
                             }
                         }
+                        p class="help" {
+                            "Prefer the terminal? Run the same tools with the "
+                            a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md" target="_blank" rel="noopener" {
+                                "gizza CLI"
+                            }
+                            " — or let an LLM agent drive them via "
+                            a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md" target="_blank" rel="noopener" {
+                                "SKILL.md"
+                            }
+                            "."
+                        }
                         button value="close" { "Close" }
                     }
                 }
@@ -300,5 +311,13 @@ mod tests {
         assert!(s.contains(r#"id="tools-modal""#), "tools modal present");
         assert!(s.contains(r#"id="tools-search""#), "search input present");
         assert!(!s.contains("class=\"gizza-tools\""), "old inline list removed");
+    }
+
+    #[test]
+    fn about_dialog_links_to_cli_and_skill() {
+        let s = render_chat().into_string();
+        assert!(s.contains("gizza CLI"), "About dialog mentions the CLI");
+        assert!(s.contains("blob/main/cli/README.md"), "links to the CLI docs");
+        assert!(s.contains("blob/main/SKILL.md"), "links to SKILL.md for agents");
     }
 }
