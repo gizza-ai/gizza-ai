@@ -143,6 +143,16 @@ fn render_chat() -> maud::Markup {
                         button id="send" type="submit" disabled { "Send" }
                         input id="file-picker" type="file" accept="image/*,video/*" multiple style="display:none;";
                     }
+                    // Disclaimer below the composer. Also slotted into sa-chat's
+                    // "composer" slot (slots accept multiple elements), so it sits
+                    // directly under the input card.
+                    p slot="composer" class="composer-note" {
+                        "AI can make mistakes — and so can the same tools run via the "
+                        a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md" target="_blank" rel="noopener" { "gizza CLI" }
+                        " or "
+                        a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md" target="_blank" rel="noopener" { "SKILL.md" }
+                        ". Double-check anything important."
+                    }
                 }
                 // Composer popup menu — positioned near the ⋮ button by JS.
                 div id="composer-menu" role="menu" hidden {
@@ -319,5 +329,14 @@ mod tests {
         assert!(s.contains("gizza CLI"), "About dialog mentions the CLI");
         assert!(s.contains("blob/main/cli/README.md"), "links to the CLI docs");
         assert!(s.contains("blob/main/SKILL.md"), "links to SKILL.md for agents");
+    }
+
+    #[test]
+    fn renders_composer_disclaimer() {
+        let s = render_chat().into_string();
+        assert!(s.contains(r#"class="composer-note""#), "disclaimer present");
+        assert!(s.contains("AI can make mistakes"), "disclaimer text present");
+        // slotted into the composer slot (sa-chat) so it sits under the input card.
+        assert!(s.contains(r#"p slot="composer" class="composer-note""#));
     }
 }
