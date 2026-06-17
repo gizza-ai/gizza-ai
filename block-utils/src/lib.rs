@@ -3,6 +3,8 @@
 //! Pulled out of the duplicated copies in `blocks/image-*` and `blocks/video-*`.
 //! Each block crate depends on this via a `path = "../../block-utils"` dep.
 
+pub mod ffmpeg;
+
 #[cfg(target_arch = "wasm32")]
 use std::collections::HashMap;
 
