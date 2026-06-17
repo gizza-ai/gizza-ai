@@ -1,0 +1,29 @@
+slug          = "video-silence-cut"
+title         = "Cut Silence from a Video Online — gizza.ai"
+description   = "Remove silent gaps from a video right in your browser to tighten pacing. Set a loudness threshold and minimum gap length. Runs locally, nothing is uploaded, free."
+tags          = ["video", "silence", "jump-cut", "trim", "editing", "pacing", "screen-recording"]
+h1            = "Cut Silence from a Video"
+hero_subtitle = "Pick a video, set the silence threshold — quiet gaps are trimmed in your browser, nothing is uploaded. (Single-pass: audio is de-silenced; video may drift out of sync.)"
+wasm          = "gizza_ai_video_silence_cut_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Tightened video"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "threshold_db"
+source      = "field"
+label       = "Silence threshold (dB, e.g. -30)"
+placeholder = "-30"
+
+[[input]]
+name        = "min_silence"
+source      = "field"
+label       = "Minimum gap to cut (seconds)"
+placeholder = "0.5"
