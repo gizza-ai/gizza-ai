@@ -43,6 +43,50 @@ async function main() {
     showError("Failed to load tool.");
     return;
   }
+  if (cfg.runtime === "ffmpeg") {
+    const { runFfmpeg } = await import("./tool-ffmpeg.js");
+    const { ffmpegExec } = await import("./ffmpeg.js");
+    const media = document.getElementById("tool-output-media");
+    const dl = document.getElementById("tool-output-download");
+    const fileMeta = cfg.inputs.find((i) => i.source === "file");
+    const fileInput = fileMeta ? document.getElementById("in-" + fileMeta.name) : null;
+    const fieldInputs = cfg.inputs.filter((i) => i.source === "field");
+
+    async function run() {
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      if (!file) return;
+      out.textContent = "Processing…";
+      out.classList.remove("error");
+      media.hidden = true;
+      dl.hidden = true;
+      // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
+      // marshal correctly; leave non-numeric (e.g. "contain") as strings.
+      const fieldArgs = fieldInputs.map((i) => {
+        const el = document.getElementById(i.elementId);
+        const v = el ? el.value : "";
+        return v === "" ? 0 : isNaN(Number(v)) ? v : Number(v);
+      });
+      const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
+      if (r.ok) {
+        out.textContent = "";
+        media.src = r.dataUrl;
+        media.hidden = false;
+        dl.href = r.dataUrl;
+        dl.download = r.outName;
+        dl.hidden = false;
+      } else {
+        showError(r.error);
+      }
+    }
+
+    if (fileInput) fileInput.addEventListener("change", run);
+    for (const i of fieldInputs) {
+      const el = document.getElementById(i.elementId);
+      if (el) el.addEventListener("input", run);
+    }
+    return;
+  }
+
   const fn = mod[cfg.export];
 
   function compute() {
