@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
-use gizza_cli::{args, render, runtime};
+use gizza_cli::{args, render, runtime, skill_md};
 
 #[derive(Parser)]
 #[command(name = "gizza", version)]
@@ -44,6 +44,12 @@ enum Commands {
         /// Print the parameters JSON Schema
         #[arg(long = "json-out")]
         json_out: bool,
+    },
+    /// Generate SKILL.md in the current directory (run from the gizza-ai repo root)
+    GenSkill {
+        /// Check that the existing SKILL.md is up to date; exit 1 if stale or missing
+        #[arg(long)]
+        check: bool,
     },
 }
 
@@ -158,6 +164,51 @@ async fn main() {
             let rendered = render::render(&body, json_out);
             println!("{}", rendered.stdout);
             std::process::exit(rendered.exit_code);
+        }
+        Commands::GenSkill { check } => {
+            // boot_minimal is sufficient: gen-skill only needs metadata.
+            let rt = match runtime::boot_minimal().await {
+                Ok(rt) => rt,
+                Err(e) => {
+                    eprintln!("Boot error: {e}");
+                    std::process::exit(1);
+                }
+            };
+            let rendered = skill_md::render_skill_md(rt.tools());
+            let dest = PathBuf::from("SKILL.md");
+            if check {
+                match std::fs::read_to_string(&dest) {
+                    Ok(existing) if existing == rendered => {
+                        std::process::exit(0);
+                    }
+                    Ok(existing) => {
+                        eprintln!("SKILL.md is stale. Re-run `gizza gen-skill` from the gizza-ai root to update it.");
+                        // Print a rough diff hint: first differing line.
+                        for (i, (a, b)) in existing.lines().zip(rendered.lines()).enumerate() {
+                            if a != b {
+                                eprintln!("  First difference at line {}:", i + 1);
+                                eprintln!("  - {a}");
+                                eprintln!("  + {b}");
+                                break;
+                            }
+                        }
+                        std::process::exit(1);
+                    }
+                    Err(_) => {
+                        eprintln!(
+                            "SKILL.md not found at {}. Run `gizza gen-skill` from the gizza-ai root.",
+                            dest.display()
+                        );
+                        std::process::exit(1);
+                    }
+                }
+            } else {
+                if let Err(e) = std::fs::write(&dest, &rendered) {
+                    eprintln!("Failed to write {}: {e}", dest.display());
+                    std::process::exit(1);
+                }
+                println!("Written {}", dest.display());
+            }
         }
     }
 }
