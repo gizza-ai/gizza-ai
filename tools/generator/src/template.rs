@@ -36,6 +36,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                 title { (meta.title) }
                 meta name="description" content=(meta.description);
                 link rel="canonical" href=(canonical);
+                link rel="alternate" type="text/markdown" href="index.md";
                 meta property="og:type" content="website";
                 meta property="og:title" content=(meta.title);
                 meta property="og:description" content=(meta.description);
@@ -145,6 +146,10 @@ source      = "field"
         let html = render_page(&sample(), "<h2>About</h2>");
         assert!(html.contains("<title>Free Online Calculator — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/calculator/">"#));
+        assert!(
+            html.contains(r#"<link rel="alternate" type="text/markdown" href="index.md">"#),
+            "markdown twin discovery link present",
+        );
         assert!(html.contains("application/ld+json"));
         assert!(html.contains(r#"id="in-expr""#));
         assert!(html.contains(r#"id="tool-output""#));
