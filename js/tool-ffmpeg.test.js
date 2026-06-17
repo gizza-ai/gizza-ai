@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { inputNameFor, dataUrlFor } from "../site/tool-ffmpeg.js";
+import { inputNameFor, dataUrlFor, mimeForOutput } from "../site/tool-ffmpeg.js";
 
 test("inputNameFor derives in.<ext> from a filename", () => {
   assert.equal(inputNameFor("cat.PNG"), "in.png");
@@ -10,4 +10,11 @@ test("inputNameFor derives in.<ext> from a filename", () => {
 
 test("dataUrlFor builds a base64 data URL", () => {
   assert.equal(dataUrlFor("image/png", "AAAA"), "data:image/png;base64,AAAA");
+});
+
+test("mimeForOutput infers from the output extension, not the input", () => {
+  assert.equal(mimeForOutput("out.png"), "image/png");
+  assert.equal(mimeForOutput("out.mp4"), "video/mp4");
+  assert.equal(mimeForOutput("out.webm"), "video/webm");
+  assert.equal(mimeForOutput("out.unknown"), "application/octet-stream");
 });
