@@ -68,10 +68,24 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                                     input id=(format!("in-{}", input.name)) class="tool-input"
                                           type="text" placeholder=(input.placeholder)
                                           autocomplete="off" autocapitalize="off" spellcheck="false";
+                                } @else if input.source == "file" {
+                                    label class="tool-field-label" for=(format!("in-{}", input.name)) { (input.label) }
+                                    input id=(format!("in-{}", input.name)) class="tool-file"
+                                          type="file" accept=(input.accept);
                                 }
                             }
                             div class="tool-output-label" { (meta.output_label) }
-                            output id="tool-output" class="tool-output" { "" }
+                            @if meta.format == "image" || meta.format == "video" {
+                                @if meta.format == "image" {
+                                    img id="tool-output-media" class="tool-output-media" alt="" hidden;
+                                } @else {
+                                    video id="tool-output-media" class="tool-output-media" controls hidden {}
+                                }
+                                a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
+                                output id="tool-output" class="tool-output" { "" }
+                            } @else {
+                                output id="tool-output" class="tool-output" { "" }
+                            }
                         }
                     }
                     section class="tool-content" {
@@ -137,5 +151,47 @@ source      = "field"
         assert!(html.contains("window.GIZZA_TOOL"));
         assert!(html.contains("Powered by gizza.ai"));
         assert!(html.contains("<h2>About</h2>"));
+    }
+
+    fn ffmpeg_sample() -> ToolMeta {
+        ToolMeta::from_toml(
+            r#"
+slug          = "image-resize"
+title         = "Resize"
+description   = "d"
+h1            = "Resize an image"
+hero_subtitle = "s"
+wasm          = "gizza_ai_image_resize_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Resized image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name   = "width"
+source = "field"
+label  = "Width (px)"
+placeholder = "640"
+"#,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn renders_file_input_and_media_output() {
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>");
+        assert!(html.contains(r#"type="file""#), "file input present");
+        assert!(html.contains(r#"id="in-image""#), "file input id");
+        assert!(html.contains(r#"accept="image/*""#), "accept attr");
+        assert!(html.contains(r#"id="in-width""#), "field input still present");
+        assert!(html.contains(r#"id="tool-output-media""#), "media output element");
+        assert!(html.contains(r#"id="tool-output-download""#), "download link");
+        assert!(html.contains(r#"id="tool-output""#), "status output for errors");
     }
 }
