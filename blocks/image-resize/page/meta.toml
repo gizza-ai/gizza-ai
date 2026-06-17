@@ -1,0 +1,35 @@
+slug          = "image-resize"
+title         = "Resize an Image Online — gizza.ai"
+description   = "Resize any image right in your browser — set a width and/or height, pick a fit mode. No upload to a server, runs locally, free."
+tags          = ["image", "resize", "scale", "thumbnail", "dimensions"]
+h1            = "Resize an Image"
+hero_subtitle = "Pick an image, set a size — it's resized in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_resize_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Resized image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Width (px)"
+placeholder = "640"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height (px)"
+placeholder = "(optional)"
+
+[[input]]
+name        = "fit"
+source      = "field"
+label       = "Fit (contain|cover|stretch)"
+placeholder = "contain"
