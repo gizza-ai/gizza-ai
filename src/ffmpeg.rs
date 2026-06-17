@@ -1,11 +1,21 @@
 //! gizza-ai ffmpeg invocation primitive.
 //!
-//! Bridges `gizza-ai/ffmpeg-runtime` block requests into JS-side
-//! `@ffmpeg/ffmpeg`. Mirrors the `BrowserNetworkService` pattern from
-//! `solobase-browser/src/network.rs`.
+//! The shared types (`ExecArgs`, `ExecResult`, `FfmpegError`, `FfmpegService`
+//! trait, and `FfmpegBlock`) now live in `gizza-ai-block-utils::ffmpeg` so
+//! they can be used by both the browser app (wasm32) and the native CLI.
+//!
+//! This file keeps only the browser-side implementation: `BrowserFfmpegService`
+//! and its `BridgeInput`/`BridgeResponse` helpers. `BrowserFfmpegService` uses
+//! `#[wasm_bindgen(module = "/js/ffmpeg.js")]`, which is resolved relative to
+//! THIS crate's root and must stay here.
+
+// Re-export the shared types for convenience so callers within the app crate
+// can still write `ffmpeg::FfmpegService` without changing every reference.
+pub use gizza_ai_block_utils::ffmpeg::{ExecArgs, ExecResult, FfmpegBlock, FfmpegError, FfmpegService};
 
 #[cfg(target_arch = "wasm32")]
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
+#[cfg(target_arch = "wasm32")]
 use serde::{Deserialize, Serialize};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -15,36 +25,6 @@ use wasm_bindgen::prelude::*;
 extern "C" {
     #[wasm_bindgen(js_name = ffmpegExec)]
     pub async fn ffmpeg_exec(args_json: &str, inputs_json: &str, output_name: &str) -> JsValue;
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExecArgs {
-    pub args: Vec<String>,
-    /// `(filename, bytes)` pairs — written to ffmpeg's virtual FS before exec.
-    pub inputs: Vec<(String, Vec<u8>)>,
-    /// Filename to read back after exec.
-    pub output: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExecResult {
-    pub exit_code: i32,
-    pub output: Vec<u8>,
-    pub log: String,
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum FfmpegError {
-    #[error("bridge serialization: {0}")]
-    Serialize(String),
-    #[error("bridge call returned malformed response: {0}")]
-    Bridge(String),
-}
-
-#[cfg_attr(target_arch = "wasm32", async_trait::async_trait(?Send))]
-#[cfg_attr(not(target_arch = "wasm32"), async_trait::async_trait)]
-pub trait FfmpegService: wafer_block::MaybeSend + wafer_block::MaybeSync + 'static {
-    async fn exec(&self, args: ExecArgs) -> Result<ExecResult, FfmpegError>;
 }
 
 /// Browser-side ffmpeg service. Uses `@ffmpeg/ffmpeg` from jsdelivr via

@@ -461,6 +461,27 @@ sa-header #open-settings { display: none; }
   transition: border-color 120ms ease;
 }
 
+/* Disclaimer line below the composer card. Slotted into sa-chat's "composer"
+ * slot after the form, so it sits directly under the input box. Small, muted,
+ * centered — pulled up snug under the card. */
+.composer-note {
+  max-width: 880px;
+  margin: calc(-1 * var(--space-xs)) auto 0;
+  padding: 0 var(--space-lg) var(--space-xs);
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted-soft);
+}
+
+.composer-note a {
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.composer-note a:hover { color: var(--color-primary); }
+
 #composer textarea {
   grid-column: 1 / -1;
   grid-row: 1;

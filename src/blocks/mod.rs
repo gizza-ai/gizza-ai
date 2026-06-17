@@ -2,7 +2,6 @@
 
 #[cfg(any(target_arch = "wasm32", test))]
 pub mod agent;
-pub mod ffmpeg;
 #[cfg(any(target_arch = "wasm32", test))]
 pub mod ui;
 

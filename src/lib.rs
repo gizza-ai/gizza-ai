@@ -190,11 +190,12 @@ pub async fn initialize() -> Result<(), JsValue> {
         .register_block("gizza-ai/ui", Arc::new(blocks::ui::UiBlock))
         .map_err(|e| JsValue::from_str(&format!("register gizza-ai/ui: {e}")))?;
 
-    let ffmpeg_svc: Arc<dyn ffmpeg::FfmpegService> = Arc::new(ffmpeg::BrowserFfmpegService);
+    let ffmpeg_svc: Arc<dyn gizza_ai_block_utils::ffmpeg::FfmpegService> =
+        Arc::new(ffmpeg::BrowserFfmpegService);
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(blocks::ffmpeg::FfmpegBlock::new(ffmpeg_svc)),
+            Arc::new(gizza_ai_block_utils::ffmpeg::FfmpegBlock::new(ffmpeg_svc)),
         )
         .map_err(|e| JsValue::from_str(&format!("register gizza-ai/ffmpeg-runtime: {e}")))?;
 
