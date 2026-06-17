@@ -6,6 +6,7 @@
 //! `blocks/<tool>/web/pkg/`.
 
 mod index;
+mod markdown;
 mod meta;
 mod seo;
 mod template;
@@ -43,6 +44,8 @@ fn run() -> Result<(), String> {
         let html = template::render_page(m, &content_html);
         fs::write(out.join("index.html"), html)
             .map_err(|e| format!("write index.html: {e}"))?;
+        fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md))
+            .map_err(|e| format!("write index.md: {e}"))?;
 
         let web_pkg = tool_dir.join("web/pkg");
         copy_file(&web_pkg.join(format!("{}.js", m.wasm)), &out.join(format!("{}.js", m.wasm)))?;
