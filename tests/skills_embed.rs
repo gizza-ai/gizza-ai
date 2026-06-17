@@ -128,6 +128,22 @@ fn image_convert_skill_is_embedded() {
 }
 
 #[test]
+fn heic_to_jpg_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/heic-to-jpg"),
+        "gizza-ai/heic-to-jpg should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/heic-to-jpg")
+        .expect("heic-to-jpg");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
+
+#[test]
 fn video_frame_extract_skill_is_embedded() {
     assert!(
         gizza_ai::skills::SKILLS

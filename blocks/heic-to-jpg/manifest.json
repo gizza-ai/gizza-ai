@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/heic-to-jpg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an Apple HEIC/HEIF photo to JPEG or PNG.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Convert an Apple HEIC/HEIF photo to JPEG (default) or PNG. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":    { "type": "string", "description": "HEIC/HEIF image URL (HTTP/HTTPS)." },
+        "ref":    { "type": "string", "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref." },
+        "format": { "type": "string", "enum": ["jpg", "png"], "description": "Target format (default: jpg)." }
+      },
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
