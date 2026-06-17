@@ -110,9 +110,12 @@ by the existing `/tools/` bypass.
 
   ## Tools
 
-  - [{title}](/tools/{slug}/index.md): {description}
+  - [{title}](https://gizza.ai/tools/{slug}/index.md): {description}
   … one per tool, in the generator's existing order
   ```
+
+  Links are **absolute** (`https://gizza.ai/...`) so an `llms.txt` fetched
+  standalone via WebFetch resolves them correctly.
 
 ### Modify: `tools/generator/src/main.rs`
 
