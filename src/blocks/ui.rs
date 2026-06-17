@@ -147,11 +147,11 @@ fn render_chat() -> maud::Markup {
                     // "composer" slot (slots accept multiple elements), so it sits
                     // directly under the input card.
                     p slot="composer" class="composer-note" {
-                        "AI can make mistakes — and so can the same tools run via the "
-                        a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md" target="_blank" rel="noopener" { "gizza CLI" }
-                        " or "
+                        "Take it with a pinch of salt 🦀 — I'm confidently wrong sometimes, and so are the "
+                        a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md" target="_blank" rel="noopener" { "CLI tool" }
+                        " and "
                         a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md" target="_blank" rel="noopener" { "SKILL.md" }
-                        ". Double-check anything important."
+                        "."
                     }
                 }
                 // Composer popup menu — positioned near the ⋮ button by JS.
@@ -335,7 +335,8 @@ mod tests {
     fn renders_composer_disclaimer() {
         let s = render_chat().into_string();
         assert!(s.contains(r#"class="composer-note""#), "disclaimer present");
-        assert!(s.contains("AI can make mistakes"), "disclaimer text present");
+        assert!(s.contains("pinch of salt"), "disclaimer text present");
+        assert!(s.contains("blob/main/cli/README.md"), "links to the CLI tool");
         // slotted into the composer slot (sa-chat) so it sits under the input card.
         assert!(s.contains(r#"p slot="composer" class="composer-note""#));
     }
