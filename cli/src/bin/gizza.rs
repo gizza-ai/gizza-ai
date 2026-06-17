@@ -163,7 +163,7 @@ async fn main() {
 }
 
 async fn boot_or_die() -> runtime::ToolRuntime {
-    match runtime::boot_minimal().await {
+    match runtime::boot_full().await {
         Ok(rt) => rt,
         Err(e) => {
             eprintln!("Boot error: {e}");

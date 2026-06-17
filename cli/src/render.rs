@@ -46,9 +46,17 @@ pub fn render(body: &[u8], json_mode: bool) -> Rendered {
                 .get("message")
                 .and_then(|m| m.as_str())
                 .unwrap_or_else(|| err.as_str().unwrap_or("tool error"));
+            // unsupported_in_cli: the imagine tool requires a browser GPU.
+            // Exit 3 distinguishes "capability not available in this runtime"
+            // from generic tool errors (exit 1).
+            let exit_code = if err.as_str() == Some("unsupported_in_cli") {
+                3
+            } else {
+                1
+            };
             return Rendered {
                 stdout: msg.to_string(),
-                exit_code: 1,
+                exit_code,
             };
         }
     }
