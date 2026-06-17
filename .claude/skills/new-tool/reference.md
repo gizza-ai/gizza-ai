@@ -2,7 +2,7 @@
 
 ## Build + test commands (each blocks/<slug>/ and tools/generator are SEPARATE cargo workspaces)
 - `cd blocks/<slug> && cargo test --workspace` — core + block unit tests
-- `cd blocks/<slug> && wafer build` — wasm32 chat block → target/block.wasm + manifest.json (run from INSIDE the dir; NO path arg)
+- `cd blocks/<slug> && wafer build` — wasm32 chat block → target/block.wasm (run from INSIDE the dir; NO path arg). It does NOT generate/update `manifest.json` — that file is scaffold-generated and hand-synced (build.rs requires it).
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — from repo root → web/pkg/<wasm>.js + _bg.wasm
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders pkg/tools/<slug>/
 - `solobase build` — rebuild app + all blocks into pkg/
@@ -16,6 +16,7 @@
 - `web/src/lib.rs`: `#[wasm_bindgen] pub fn <export>(...) -> Result<T, JsValue>` — the `<export>` name MUST match `page/meta.toml`'s `export`.
 - `page/meta.toml`: real slug/title/description/tags/h1/hero_subtitle; `format` = "number"|"text"; one `[[input]] source="field"` per arg — input NAMES + ORDER must equal the web fn's params.
 - `page/content.md`: real SEO copy.
+- `manifest.json` + `wafer.toml`: scaffold-generated. Update the `summary` in both, and `manifest.json`'s `tool.description`/`tool.parameters` to match your `src/lib.rs` skill() schema (runtime reads schemas from the macro/`info()`; these are kept consistent for build.rs + hygiene).
 - `tests/*.json`: wafer fixtures (recipe below).
 
 ### ffmpeg (reference: blocks/image-resize)
