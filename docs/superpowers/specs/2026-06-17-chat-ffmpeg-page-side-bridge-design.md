@@ -167,17 +167,26 @@ surfaces: bundled under `/tools/` for the standalone pages, and root-served at
 - **request** (SW → page):
   `{ type:'ffmpeg-exec-request', id, args_json, inputs_json, output_name }`
 - **response** (page → SW):
-  `{ type:'ffmpeg-exec-response', id, ok, result?:{ exit_code, output_b64, log }, error? }`
-- `id` — gizza-owned monotonic counter string (no `Date.now()`/random needed).
+  `{ type:'ffmpeg-exec-response', id, exit_code, output_b64, log }`
+- `id` — gizza-owned monotonic counter string (`ffmpeg-<n>`; no
+  `Date.now()`/random needed).
+- The bridge's `ffmpegExec` **always resolves** with `{ exit_code, output_b64,
+  log }` and never rejects — so the Rust binding (`ffmpeg_exec(...) -> JsValue`,
+  which `.await`s with no rejection handling) stays byte-for-byte unchanged
+  except its `module` path. Failures are encoded as `exit_code: -1`,
+  `output_b64: ''`, `log: <reason>`.
 
 ## Error handling
 
-- ffmpeg nonzero exit / empty output / page exception → `ok:false, error` →
-  `BrowserFfmpegService` maps to `FfmpegError` → `FfmpegBlock` returns
-  `ErrorCode::Unavailable` (existing path, unchanged).
-- No window client available → reject immediately with a clear error (don't
-  hang). No artificial timeout — a long encode must not be killed; the page
-  always posts a terminal response (success or error).
+- ffmpeg nonzero exit / empty output → the real `exit_code` + empty
+  `output_b64` flow back through `BridgeResponse` → `FfmpegBlock` (existing
+  path; the block already treats this as a failed exec).
+- Page exception (ffmpeg threw) → engine encodes `exit_code: -1`, `log: <error>`
+  and still posts a terminal response (never a rejected promise).
+- No window client available → the SW-side bridge resolves the pending request
+  itself with `exit_code: -1, log: 'no window client…'` (don't hang, don't
+  reject). No artificial timeout — a long encode must not be killed; the page
+  always posts a terminal response.
 - `imagine` with no WebGPU → existing graceful `webgpu-unavailable` fallback in
   the imagine block.
 
