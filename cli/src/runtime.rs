@@ -8,7 +8,7 @@ use wafer_block::{
     streams::{input::InputStream, output::TerminalNotResponse},
 };
 use wafer_block::Block;
-use wafer_run::{Wafer, WasmiBlock};
+use wafer_run::{FuelLimit, Wafer, WasmiBlock};
 
 use crate::SKILL_WASMS;
 
@@ -100,7 +100,13 @@ fn register_skills(
     metas: &mut Vec<ToolMeta>,
 ) -> Result<()> {
     for bytes in SKILL_WASMS {
-        let block = WasmiBlock::load_from_bytes(bytes).context("load skill wasm")?;
+        // gizza is a single-user, trusted CLI: opt skill calls out of the
+        // default 100M fuel cap so heavy tools (e.g. the `phonenumber` crate)
+        // run to completion instead of trapping with `all fuel consumed`.
+        // The Unmetered policy is set on the builder via `fuel_per_call` and
+        // read back here so every load site expresses it the same way.
+        let block = WasmiBlock::load_from_bytes_with_fuel(bytes, wafer.fuel_limit())
+            .context("load skill wasm")?;
         let info = block.info();
         let name = info.name.clone();
         // Capture SkillTool metadata if the block exposes one.
@@ -133,6 +139,8 @@ pub async fn boot_minimal() -> Result<ToolRuntime> {
     let mut wafer = Wafer::builder()
         .disable_inventory()
         .disable_lockfile()
+        // Trusted single-user CLI: skill calls run unmetered (see register_skills).
+        .fuel_per_call(FuelLimit::Unmetered)
         .build()
         .context("build wafer")?;
     let mut names = Vec::new();
@@ -152,6 +160,8 @@ pub async fn boot_full() -> Result<ToolRuntime> {
     let mut wafer = Wafer::builder()
         .disable_inventory()
         .disable_lockfile()
+        // Trusted single-user CLI: skill calls run unmetered (see register_skills).
+        .fuel_per_call(FuelLimit::Unmetered)
         .build()
         .context("build wafer")?;
 
