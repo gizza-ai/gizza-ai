@@ -6,6 +6,7 @@
 //! `blocks/<tool>/web/pkg/`.
 
 mod index;
+mod markdown;
 mod meta;
 mod seo;
 mod template;
