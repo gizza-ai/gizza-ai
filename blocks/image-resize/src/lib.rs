@@ -13,6 +13,7 @@ use gizza_ai_block_utils::{
     dispatch_ffmpeg_runtime, filename_with_suffix, mime_to_ext, AssetKind, Envelope, FfmpegReq,
     FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
 };
+use gizza_ai_image_resize_core::{build_argv, parse_fit, Fit};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -33,32 +34,6 @@ struct Args {
     #[serde(default)]
     fit: Option<String>,
 }
-
-#[derive(Debug, PartialEq, Eq)]
-enum Fit { Contain, Cover, Stretch }
-
-fn parse_fit(s: Option<&str>) -> Result<Fit, String> {
-    match s.unwrap_or("contain") {
-        "contain" => Ok(Fit::Contain),
-        "cover"   => Ok(Fit::Cover),
-        "stretch" => Ok(Fit::Stretch),
-        other     => Err(format!("invalid fit {other:?}; expected contain|cover|stretch")),
-    }
-}
-
-fn build_argv(in_name: &str, out_name: &str, w: Option<u32>, h: Option<u32>, fit: Fit) -> Vec<String> {
-    let (sw, sh) = (
-        w.map(|v| v.to_string()).unwrap_or_else(|| "-1".to_string()),
-        h.map(|v| v.to_string()).unwrap_or_else(|| "-1".to_string()),
-    );
-    let vf = match fit {
-        Fit::Stretch => format!("scale={sw}:{sh}"),
-        Fit::Contain => format!("scale={sw}:{sh}:force_original_aspect_ratio=decrease"),
-        Fit::Cover   => format!("scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh}"),
-    };
-    vec!["-i".into(), in_name.into(), "-vf".into(), vf, out_name.into()]
-}
-
 
 fn summary(source: &str, w: Option<u32>, h: Option<u32>, output_size: usize, mime: &str) -> String {
     match (w, h) {
@@ -194,54 +169,6 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn argv_contain_both_dims() {
-        let argv = build_argv("in.png", "out.png", Some(640), Some(480), Fit::Contain);
-        assert_eq!(argv, vec![
-            "-i".to_string(),
-            "in.png".to_string(),
-            "-vf".to_string(),
-            "scale=640:480:force_original_aspect_ratio=decrease".to_string(),
-            "out.png".to_string(),
-        ]);
-    }
-
-    #[test]
-    fn argv_contain_width_only_uses_minus_one_height() {
-        let argv = build_argv("in.png", "out.png", Some(640), None, Fit::Contain);
-        assert!(argv.iter().any(|a| a == "scale=640:-1:force_original_aspect_ratio=decrease"));
-    }
-
-    #[test]
-    fn argv_contain_height_only_uses_minus_one_width() {
-        let argv = build_argv("in.png", "out.png", None, Some(480), Fit::Contain);
-        assert!(argv.iter().any(|a| a == "scale=-1:480:force_original_aspect_ratio=decrease"));
-    }
-
-    #[test]
-    fn argv_stretch_no_aspect_ratio_flag() {
-        let argv = build_argv("in.png", "out.png", Some(640), Some(480), Fit::Stretch);
-        let vf = argv.iter().find(|a| a.starts_with("scale=")).unwrap();
-        assert_eq!(vf, "scale=640:480");
-    }
-
-    #[test]
-    fn argv_cover_uses_two_stage_filter() {
-        let argv = build_argv("in.png", "out.png", Some(640), Some(480), Fit::Cover);
-        let vf = argv.iter().find(|a| a.starts_with("scale=")).unwrap();
-        assert_eq!(vf, "scale=640:480:force_original_aspect_ratio=increase,crop=640:480");
-    }
-
-    #[test]
-    fn parse_fit_default_is_contain() {
-        assert_eq!(parse_fit(None).unwrap(), Fit::Contain);
-    }
-
-    #[test]
-    fn parse_fit_rejects_unknown() {
-        assert!(parse_fit(Some("squish")).is_err());
-    }
 
     #[test]
     fn output_filename_uses_dim_suffix_when_both_given() {
