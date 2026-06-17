@@ -60,11 +60,12 @@ async function main() {
       media.hidden = true;
       dl.hidden = true;
       // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
-      // marshal correctly; leave non-numeric (e.g. "contain") as strings.
+      // marshal correctly; leave non-numeric (e.g. "contain") and empty strings
+      // as strings — the WASM function handles empty via its own defaults.
       const fieldArgs = fieldInputs.map((i) => {
         const el = document.getElementById(i.elementId);
         const v = el ? el.value : "";
-        return v === "" ? 0 : isNaN(Number(v)) ? v : Number(v);
+        return v !== "" && !isNaN(Number(v)) ? Number(v) : v;
       });
       const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
       if (r.ok) {

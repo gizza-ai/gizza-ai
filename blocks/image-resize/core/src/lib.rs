@@ -6,10 +6,10 @@ pub enum Fit { Contain, Cover, Stretch }
 
 pub fn parse_fit(s: Option<&str>) -> Result<Fit, String> {
     match s.unwrap_or("contain") {
-        "contain" => Ok(Fit::Contain),
-        "cover"   => Ok(Fit::Cover),
-        "stretch" => Ok(Fit::Stretch),
-        other     => Err(format!("invalid fit {other:?}; expected contain|cover|stretch")),
+        "" | "contain" => Ok(Fit::Contain),
+        "cover"        => Ok(Fit::Cover),
+        "stretch"      => Ok(Fit::Stretch),
+        other          => Err(format!("invalid fit {other:?}; expected contain|cover|stretch")),
     }
 }
 
