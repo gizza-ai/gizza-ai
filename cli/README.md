@@ -50,19 +50,13 @@ gizza describe calculator           # schema for one tool
 gizza describe calculator --json-out
 ```
 
-## Generate / check SKILL.md
+## SKILL.md (agent contract)
 
-`SKILL.md` at the repo root is a machine-readable contract (YAML frontmatter + Markdown) that teaches an LLM agent how to drive the CLI. It is generated from live tool metadata.
-
-```sh
-# (Re)write SKILL.md — run from the gizza-ai repo root:
-cargo run --manifest-path cli/Cargo.toml --bin gizza -- gen-skill
-
-# Check that the committed SKILL.md is up to date (CI / maintainers):
-cargo run --manifest-path cli/Cargo.toml --bin gizza -- gen-skill --check
-```
-
-After changing tool metadata (descriptions, parameter schemas, adding/removing tools), re-run `gen-skill` and commit the updated `SKILL.md`.
+`SKILL.md` at the repo root is a small, **static** machine-readable contract (YAML
+frontmatter + Markdown) that teaches an LLM agent how to drive the CLI. It does NOT
+enumerate the tools — instead it tells the agent to discover them live with `gizza list`
+and `gizza describe <name>`, so it never bloats or goes stale as tools are added. No
+generation/regeneration step is needed.
 
 ## Exit codes
 
