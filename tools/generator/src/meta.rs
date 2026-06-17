@@ -6,12 +6,16 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct Input {
     pub name: String,
-    /// "field" = a visible text input; "clock" = current unix seconds, supplied by JS.
+    /// "field" = a visible text input; "clock" = current unix seconds, supplied by JS;
+    /// "file" = a file picker, for ffmpeg tools.
     pub source: String,
     #[serde(default)]
     pub label: String,
     #[serde(default)]
     pub placeholder: String,
+    /// For source="file": the `accept` attribute (e.g. "image/*", "video/*").
+    #[serde(default)]
+    pub accept: String,
 }
 
 /// Full metadata for a single tool page.
@@ -36,8 +40,15 @@ pub struct ToolMeta {
     pub output_label: String,
     /// "number" or "text" — how to render the result.
     pub format: String,
+    /// "wasm" (pure compute, default) or "ffmpeg" (file in → media out via browser ffmpeg).
+    #[serde(default = "default_runtime")]
+    pub runtime: String,
     #[serde(default, rename = "input")]
     pub inputs: Vec<Input>,
+}
+
+fn default_runtime() -> String {
+    "wasm".to_string()
 }
 
 impl ToolMeta {
@@ -56,6 +67,7 @@ impl ToolMeta {
                     "name": i.name,
                     "source": i.source,
                     "elementId": format!("in-{}", i.name),
+                    "accept": i.accept,
                 })
             })
             .collect();
@@ -67,6 +79,7 @@ impl ToolMeta {
             "inputs": inputs,
             "output": { "label": self.output_label, "elementId": "tool-output" },
             "format": self.format,
+            "runtime": self.runtime,
         })
     }
 }
@@ -156,5 +169,57 @@ source      = "field"
         assert_eq!(cfg["inputs"][0]["source"], "field");
         assert_eq!(cfg["output"]["label"], "Result");
         assert_eq!(cfg["format"], "number");
+    }
+
+    #[test]
+    fn parses_ffmpeg_meta_with_file_input() {
+        let text = r#"
+slug          = "image-resize"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "gizza_ai_image_resize_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Resized image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name   = "width"
+source = "field"
+label  = "Width (px)"
+"#;
+        let m = ToolMeta::from_toml(text).unwrap();
+        assert_eq!(m.runtime, "ffmpeg");
+        assert_eq!(m.inputs[0].source, "file");
+        assert_eq!(m.inputs[0].accept, "image/*");
+        let cfg = m.client_config();
+        assert_eq!(cfg["runtime"], "ffmpeg");
+        assert_eq!(cfg["inputs"][0]["accept"], "image/*");
+        assert_eq!(cfg["format"], "image");
+    }
+
+    #[test]
+    fn runtime_defaults_to_wasm() {
+        let text = r#"
+slug = "calculator"
+title = "t"
+description = "d"
+h1 = "h"
+hero_subtitle = "s"
+wasm = "w"
+export = "evaluate"
+output_label = "Result"
+format = "number"
+"#;
+        let m = ToolMeta::from_toml(text).unwrap();
+        assert_eq!(m.runtime, "wasm");
     }
 }
