@@ -240,6 +240,38 @@ Fetch an image from a URL and render it inline.
 }
 ```
 
+### image-grayscale
+
+Convert an image to grayscale. Provide url (HTTP/HTTPS) or ref from a prior image tool call.
+
+```json
+{
+  "oneOf": [
+    {
+      "required": [
+        "url"
+      ]
+    },
+    {
+      "required": [
+        "ref"
+      ]
+    }
+  ],
+  "properties": {
+    "ref": {
+      "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref.",
+      "type": "string"
+    },
+    "url": {
+      "description": "Image URL (HTTP/HTTPS).",
+      "type": "string"
+    }
+  },
+  "type": "object"
+}
+```
+
 ### image-resize
 
 Resize an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).
@@ -462,6 +494,26 @@ Fetch a URL and return its body as text. Optionally limit the response size.
   },
   "required": [
     "url"
+  ],
+  "type": "object"
+}
+```
+
+### word-count
+
+Count the words, characters, and lines in a block of text.
+
+```json
+{
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "description": "The text to analyze.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text"
   ],
   "type": "object"
 }
