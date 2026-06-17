@@ -17,14 +17,52 @@ async function ensureFfmpeg() {
     if (ffmpegInstancePromise) return ffmpegInstancePromise;
 
     ffmpegInstancePromise = (async () => {
+        // The ESM build of @ffmpeg/ffmpeg creates a *module worker* via
+        //   new Worker(new URL("./worker.js", import.meta.url), {type:"module"})
+        // where import.meta.url is the jsDelivr CDN URL. Chrome blocks cross-origin
+        // module workers unless the origin opts in to COOP/COEP. Work around this
+        // by fetching the worker script, rewriting its relative imports to absolute
+        // CDN URLs, and serving it from a same-origin blob URL. The blob worker is
+        // then passed as classWorkerURL so the FFmpeg class uses it instead.
+        const CDN_ESM_BASE = `https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/dist/esm/`;
+        const WORKER_URL = CDN_ESM_BASE + "worker.js";
+
         const mod = await import(
             `https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@${FFMPEG_VERSION}/+esm`
         );
+
+        let classWorkerURL;
+        try {
+            const resp = await fetch(WORKER_URL);
+            if (resp.ok) {
+                // Rewrite relative ./foo.js imports to absolute CDN URLs so they
+                // resolve correctly when the script runs from a blob: origin.
+                let src = await resp.text();
+                src = src.replace(/from "(\.[^"]+)"/g, (_, rel) =>
+                    `from "${new URL(rel, WORKER_URL).href}"`
+                );
+                src = src.replace(/import "(\.[^"]+)"/g, (_, rel) =>
+                    `import "${new URL(rel, WORKER_URL).href}"`
+                );
+                classWorkerURL = URL.createObjectURL(
+                    new Blob([src], { type: "text/javascript" })
+                );
+            }
+        } catch (_) {
+            // If fetch or blob creation fails, fall back to the default load
+            // (will only work when COOP/COEP headers are served).
+        }
+
         const inst = new mod.FFmpeg();
-        await inst.load({
-            coreURL: `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.js`,
-            wasmURL: `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/umd/ffmpeg-core.wasm`,
-        });
+        // Use the ESM core when our blob worker imports it via dynamic import():
+        // the UMD build doesn't expose a default export so .default would be
+        // undefined, which ffmpeg's worker treats as a load failure.
+        const loadOpts = {
+            coreURL: `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/esm/ffmpeg-core.js`,
+            wasmURL: `https://cdn.jsdelivr.net/npm/@ffmpeg/core@${CORE_VERSION}/dist/esm/ffmpeg-core.wasm`,
+        };
+        if (classWorkerURL) loadOpts.classWorkerURL = classWorkerURL;
+        await inst.load(loadOpts);
         ffmpegInstance = inst;
         return inst;
     })();
