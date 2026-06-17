@@ -7,7 +7,6 @@ pub mod args;
 pub mod ffmpeg_native;
 pub mod render;
 pub mod runtime;
-pub mod skill_md;
 
 use anyhow::Result;
 

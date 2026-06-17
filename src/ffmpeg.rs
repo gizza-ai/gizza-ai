@@ -6,8 +6,9 @@
 //!
 //! This file keeps only the browser-side implementation: `BrowserFfmpegService`
 //! and its `BridgeInput`/`BridgeResponse` helpers. `BrowserFfmpegService` uses
-//! `#[wasm_bindgen(module = "/js/ffmpeg.js")]`, which is resolved relative to
-//! THIS crate's root and must stay here.
+//! `#[wasm_bindgen(module = "/js/ffmpeg-bridge.js")]`, which posts the work to a
+//! window client (ffmpeg can't run in the Service Worker) and is resolved
+//! relative to THIS crate's root, so it must stay here.
 
 // Re-export the shared types for convenience so callers within the app crate
 // can still write `ffmpeg::FfmpegService` without changing every reference.
@@ -21,15 +22,16 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
-#[wasm_bindgen(module = "/js/ffmpeg.js")]
+#[wasm_bindgen(module = "/js/ffmpeg-bridge.js")]
 extern "C" {
     #[wasm_bindgen(js_name = ffmpegExec)]
     pub async fn ffmpeg_exec(args_json: &str, inputs_json: &str, output_name: &str) -> JsValue;
 }
 
-/// Browser-side ffmpeg service. Uses `@ffmpeg/ffmpeg` from jsdelivr via
-/// the wasm-bindgen module at `js/ffmpeg.js`. wasm32-only — native tests
-/// substitute their own `FfmpegService` impl.
+/// Browser-side ffmpeg service. Delegates to a window client via the
+/// wasm-bindgen bridge at `js/ffmpeg-bridge.js`, which postMessages a page
+/// running `@ffmpeg/ffmpeg` (the Service Worker can't run ffmpeg itself).
+/// wasm32-only — native tests substitute their own `FfmpegService` impl.
 ///
 /// Note: no explicit `unsafe impl Send + Sync` is needed. `FfmpegService`'s
 /// `MaybeSend + MaybeSync` bound is a blanket no-op on wasm32 (any `?Sized`

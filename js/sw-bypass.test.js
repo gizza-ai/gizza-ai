@@ -19,3 +19,18 @@ test('sw.js bypasses /tools/ so tool pages stay static', () => {
     'sw.js is missing the /tools/ bypass — check extra_bypass_prefix in solobase.toml',
   );
 });
+
+test('sw.js bypasses /ffmpeg-engine.js and /ffmpeg.js so the chat ffmpeg bridge loads statically', () => {
+  assert.ok(existsSync(swPath), 'pkg/sw.js missing — run `solobase build` first');
+  const src = readFileSync(swPath, 'utf8');
+  assert.match(
+    src,
+    /startsWith\(['"]\/ffmpeg-engine\.js['"]\)/,
+    'sw.js is missing the /ffmpeg-engine.js bypass — check extra_bypass_prefix in solobase.toml',
+  );
+  assert.match(
+    src,
+    /startsWith\(['"]\/ffmpeg\.js['"]\)/,
+    'sw.js is missing the /ffmpeg.js bypass — check extra_bypass_prefix in solobase.toml',
+  );
+});
