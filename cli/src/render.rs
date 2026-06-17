@@ -1,5 +1,32 @@
 //! Turn a skill's response body into terminal output + an exit code.
+use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use serde_json::Value;
+
+/// A binary payload extracted from a `_for_ui.data_url` response envelope.
+pub struct BinaryOut {
+    /// Suggested filename (from `_for_ui.filename` or `"output.bin"`).
+    pub filename: String,
+    /// Decoded bytes.
+    pub bytes: Vec<u8>,
+}
+
+/// Extract a binary payload from a `_for_ui.data_url` response envelope.
+///
+/// Returns `None` if the body is not JSON, has no `_for_ui`, or has no
+/// `data_url` with a base64 segment.
+pub fn extract_binary(body: &[u8]) -> Option<BinaryOut> {
+    let v: Value = serde_json::from_slice(body).ok()?;
+    let ui = v.get("_for_ui")?;
+    let data_url = ui.get("data_url")?.as_str()?;
+    let b64 = data_url.split(";base64,").nth(1)?;
+    let bytes = B64.decode(b64).ok()?;
+    let filename = ui
+        .get("filename")
+        .and_then(|f| f.as_str())
+        .unwrap_or("output.bin")
+        .to_string();
+    Some(BinaryOut { filename, bytes })
+}
 
 /// The rendered output of a skill response.
 pub struct Rendered {
@@ -64,6 +91,14 @@ fn trim_number(v: &Value) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn data_url_extracts_bytes_and_filename() {
+        let body = br#"{"_for_llm":"made png","_for_ui":{"data_url":"data:image/png;base64,AAAA","filename":"out.png","mime":"image/png"}}"#;
+        let bin = super::extract_binary(body).expect("some");
+        assert_eq!(bin.filename, "out.png");
+        assert_eq!(bin.bytes, vec![0, 0, 0]);
+    }
 
     #[test]
     fn result_number_human() {
