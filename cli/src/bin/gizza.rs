@@ -17,8 +17,9 @@ enum Commands {
         /// Tool name (without gizza-ai/ prefix, or full gizza-ai/name)
         name: String,
         /// Positional arguments: bare values (matched to required schema fields
-        /// in order) or key=value pairs.
-        #[arg(trailing_var_arg = true)]
+        /// in order) or key=value pairs. Flags (--json-out, --out, --json) may
+        /// appear anywhere. For a value that begins with '-', put `--` first
+        /// (e.g. `gizza tool calculator -- -5+3`).
         tool_args: Vec<String>,
         /// JSON input body (mutually exclusive with positional args)
         #[arg(long = "json")]
