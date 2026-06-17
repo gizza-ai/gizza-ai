@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/image-grayscale",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an image to grayscale",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an image to grayscale. Provide url (HTTP/HTTPS) or ref from a prior image tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS)." },
+        "ref": { "type": "string", "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref." }
+      },
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}

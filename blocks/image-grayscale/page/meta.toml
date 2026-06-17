@@ -1,0 +1,17 @@
+slug          = "image-grayscale"
+title         = "Convert an Image to Grayscale — gizza.ai"
+description   = "Convert any image to grayscale instantly in your browser. No upload to a server, runs locally, completely free."
+tags          = ["image", "grayscale", "convert", "black-and-white", "filter"]
+h1            = "Convert an Image to Grayscale"
+hero_subtitle = "Pick an image — it's converted to grayscale in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_grayscale_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Grayscale image"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "Image"
