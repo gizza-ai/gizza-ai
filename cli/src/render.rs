@@ -86,6 +86,20 @@ pub fn render(body: &[u8], json_mode: bool) -> Rendered {
     }
 }
 
+/// The safe default output path for a tool-supplied filename: basename only,
+/// never escaping the current directory.
+///
+/// When `--out` is not supplied by the user, the filename comes from the tool
+/// response's `_for_ui.filename`. That value is derived from a URL path segment
+/// and may contain `/` or `..`. This function strips all directory components
+/// so the output always lands in the cwd.
+pub fn safe_default_out(filename: &str) -> std::path::PathBuf {
+    let base = std::path::Path::new(filename)
+        .file_name()
+        .unwrap_or_else(|| std::ffi::OsStr::new("output.bin"));
+    std::path::PathBuf::from(base)
+}
+
 fn trim_number(v: &Value) -> String {
     if let Some(f) = v.as_f64() {
         if f.fract() == 0.0 {
@@ -125,5 +139,29 @@ mod tests {
     fn envelope_for_llm() {
         let r = render(br#"{"_for_llm":"resized cat to 64x64","_for_ui":{}}"#, false);
         assert_eq!(r.stdout, "resized cat to 64x64");
+    }
+
+    #[test]
+    fn strips_traversal() {
+        assert_eq!(
+            safe_default_out("/../../tmp/pwned.png"),
+            std::path::PathBuf::from("pwned.png")
+        );
+        assert_eq!(
+            safe_default_out("cat.png"),
+            std::path::PathBuf::from("cat.png")
+        );
+        assert_eq!(
+            safe_default_out("a/b/c.png"),
+            std::path::PathBuf::from("c.png")
+        );
+    }
+
+    #[test]
+    fn empty_filename_falls_back_to_output_bin() {
+        assert_eq!(
+            safe_default_out(""),
+            std::path::PathBuf::from("output.bin")
+        );
     }
 }

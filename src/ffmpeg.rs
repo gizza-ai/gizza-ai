@@ -11,7 +11,7 @@
 
 // Re-export the shared types for convenience so callers within the app crate
 // can still write `ffmpeg::FfmpegService` without changing every reference.
-pub use gizza_ai_block_utils::ffmpeg::{ExecArgs, ExecResult, FfmpegError, FfmpegService};
+pub use gizza_ai_block_utils::ffmpeg::{ExecArgs, ExecResult, FfmpegBlock, FfmpegError, FfmpegService};
 
 #[cfg(target_arch = "wasm32")]
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};

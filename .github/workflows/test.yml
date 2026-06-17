@@ -80,6 +80,14 @@ jobs:
         working-directory: gizza-ai
         run: cargo test
 
+      - name: CLI tests
+        working-directory: gizza-ai
+        run: cargo test --manifest-path cli/Cargo.toml
+
+      - name: SKILL.md drift check
+        working-directory: gizza-ai
+        run: cargo run --manifest-path cli/Cargo.toml --bin gizza -- gen-skill --check
+
       - name: Tool-page generator tests
         working-directory: gizza-ai
         run: cargo test --manifest-path tools/generator/Cargo.toml

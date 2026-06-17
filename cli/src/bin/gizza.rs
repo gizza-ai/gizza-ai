@@ -130,7 +130,7 @@ async fn main() {
             };
             // Check for a binary data_url envelope.
             if let Some(bin) = render::extract_binary(&body) {
-                let dest = out.unwrap_or_else(|| PathBuf::from(&bin.filename));
+                let dest = out.unwrap_or_else(|| render::safe_default_out(&bin.filename));
                 if let Err(e) = std::fs::write(&dest, &bin.bytes) {
                     eprintln!("Failed to write {}: {e}", dest.display());
                     std::process::exit(1);

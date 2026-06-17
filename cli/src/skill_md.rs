@@ -58,7 +58,7 @@ pub fn render_skill_md(tools: &[ToolMeta]) -> String {
     out.push_str("| 1    | Tool error (invalid input, compute failure) |\n");
     out.push_str("| 2    | Usage error (unknown tool, missing required arg) |\n");
     out.push_str("| 3    | Unsupported in CLI (e.g. `imagine` requires a browser GPU; use gizza.ai) |\n");
-    out.push_str("\n");
+    out.push('\n');
     out.push_str("### Example\n\n");
     out.push_str("```sh\n");
     out.push_str("$ gizza tool calculator \"2*2\"\n");

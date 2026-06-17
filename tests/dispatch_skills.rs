@@ -262,7 +262,7 @@ async fn ffmpeg_block_dispatches_to_service() {
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(svc)),
+            Arc::new(gizza_ai::ffmpeg::FfmpegBlock::new(svc)),
         )
         .expect("register ffmpeg-runtime");
 
@@ -319,7 +319,7 @@ async fn ffmpeg_skill_two_hop_dispatch() {
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(ffmpeg_svc)),
+            Arc::new(gizza_ai::ffmpeg::FfmpegBlock::new(ffmpeg_svc)),
         )
         .expect("register ffmpeg-runtime");
 
@@ -534,7 +534,7 @@ async fn dispatch_image_op(
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(svc_dyn)),
+            Arc::new(gizza_ai::ffmpeg::FfmpegBlock::new(svc_dyn)),
         )
         .expect("register ffmpeg-runtime");
     wafer
@@ -1062,7 +1062,7 @@ async fn dispatch_chains_resize_then_crop_via_ref() {
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(crop_svc)),
+            Arc::new(gizza_ai::ffmpeg::FfmpegBlock::new(crop_svc)),
         )
         .expect("register ffmpeg-runtime");
     wafer
@@ -1401,7 +1401,7 @@ async fn dispatch_chains_video_frame_extract_then_image_resize_via_ref() {
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(resize_svc)),
+            Arc::new(gizza_ai::ffmpeg::FfmpegBlock::new(resize_svc)),
         )
         .expect("register ffmpeg-runtime");
     wafer
@@ -1479,7 +1479,7 @@ async fn dispatch_uploaded_image_then_resize_via_ref() {
     wafer
         .register_block(
             "gizza-ai/ffmpeg-runtime",
-            Arc::new(gizza_ai::blocks::ffmpeg::FfmpegBlock::new(resize_svc)),
+            Arc::new(gizza_ai::ffmpeg::FfmpegBlock::new(resize_svc)),
         )
         .expect("register ffmpeg-runtime");
     wafer

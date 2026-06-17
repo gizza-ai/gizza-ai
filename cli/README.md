@@ -37,7 +37,7 @@ gizza tool calculator --json '{"expr":"sqrt(144)"}'
 gizza tool calculator "2+2" --json-out
 
 # Write binary output (image, video) to a file
-gizza tool image-resize width=64 height=64 --out thumbnail.png
+gizza tool image-resize url=https://example.com/cat.png width=64 --out thumbnail.png
 ```
 
 ## Discovery
