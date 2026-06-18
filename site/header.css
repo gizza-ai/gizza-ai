@@ -197,7 +197,7 @@
   pointer-events: none;
 }
 
-#tools-search {
+#explore-search {
   width: 100%;
   padding: 8px 10px 8px 32px;
   font-family: inherit;
@@ -211,18 +211,18 @@
   box-sizing: border-box;
 }
 
-#tools-search::placeholder {
+#explore-search::placeholder {
   color: #9ca3af;
 }
 
-#tools-search:focus {
+#explore-search:focus {
   border-color: var(--tool-accent, #4f46e5);
   background: #fff;
 }
 
 /* ─── Results list ──────────────────────────────────────────────────────── */
 
-#tools-results,
+#explore-results,
 .mega-menu__results {
   list-style: none;
   margin: 0;
