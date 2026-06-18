@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/http-request",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Make a full HTTP request and return status, headers, and body.",
+  "role": "skill",
+  "tool": {
+    "description": "Make a full HTTP request to an http(s) URL: choose the method (GET/POST/PUT/PATCH/DELETE/HEAD), set custom headers and query parameters, and send an optional request body. Returns the status (code + reason), the response headers, and the body (pretty-printed when it is JSON). Only public URLs are allowed — loopback and private addresses are blocked.",
+    "parameters": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url":     { "type": "string", "description": "Absolute http or https URL to request." },
+        "method":  { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"], "description": "HTTP method (default GET)." },
+        "headers": { "type": "object", "additionalProperties": { "type": "string" }, "description": "Request headers as a name->value map." },
+        "query":   { "type": "object", "additionalProperties": { "type": "string" }, "description": "Query parameters merged into the URL as a name->value map." },
+        "body":    { "type": "string", "description": "Optional raw request body. If you set a JSON content-type header, pass JSON text here as-is." }
+      }
+    }
+  }
+}
