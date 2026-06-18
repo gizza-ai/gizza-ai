@@ -148,25 +148,11 @@ fn render_chat() -> maud::Markup {
                 // in the rendered DOM for getElementById('open-settings').
                 (gizza_chrome::header(
                     html! {
-                        a href="/" class="brand" {
-                            div class="brand-logo brand-mascot" data-pose="resting" {
-                                img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="";
-                                video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden {}
-                                div class="brand-eyes" aria-hidden="true" {
-                                    div class="brand-eye-socket brand-eye-left" {
-                                        img class="brand-eye" src="/eye.png" alt="";
-                                    }
-                                    div class="brand-eye-socket brand-eye-right" {
-                                        img class="brand-eye" src="/eye.png" alt="";
-                                    }
-                                }
-                            }
-                            h1 id="brand-wordmark" { "gizza-ai" }
-                        }
-                        // Empty button — gizza.css draws a three-dot horizontal
-                        // icon via `::before { mask-image }` once the button
-                        // lands in the composer. Clicking it opens the composer
-                        // popup menu. gizza-app.js moves it into the composer.
+                        // No logo in the chat header — the mascot/wordmark live in
+                        // the empty-state greeting (below). The header carries only
+                        // #open-settings, which gizza.css hides here and gizza-app.js
+                        // relocates into the composer at load; it only has to EXIST
+                        // in the rendered DOM for getElementById('open-settings').
                         button id="open-settings" type="button" aria-label="Menu" {}
                     },
                     gizza_chrome::Active::Chat,
@@ -174,6 +160,24 @@ fn render_chat() -> maud::Markup {
                 sa-chat {
                     div slot="messages" id="messages" {
                         div class="empty" {
+                            // Mascot + wordmark greeting — its "old" home, above
+                            // the empty-state copy. Animated by gizza-app.js (eyes /
+                            // video) which queries these hooks by id/class anywhere.
+                            div class="brand chat-greeting" {
+                                div class="brand-logo brand-mascot" data-pose="resting" {
+                                    img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="";
+                                    video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden {}
+                                    div class="brand-eyes" aria-hidden="true" {
+                                        div class="brand-eye-socket brand-eye-left" {
+                                            img class="brand-eye" src="/eye.png" alt="";
+                                        }
+                                        div class="brand-eye-socket brand-eye-right" {
+                                            img class="brand-eye" src="/eye.png" alt="";
+                                        }
+                                    }
+                                }
+                                h1 id="brand-wordmark" { "gizza-ai" }
+                            }
                             span class="empty-msg" {
                                 "I can't do much without a brain, please "
                                 button id="empty-state-cta" type="button" class="empty-state-link" { "choose a model" }
