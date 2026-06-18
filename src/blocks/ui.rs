@@ -17,6 +17,19 @@ use wafer_block::{
 
 use super::DEFAULT_MODEL_ID;
 
+/// Canonical SEO / social metadata for the apex page.
+///
+/// Single source consumed by BOTH the Service-Worker/SSR render
+/// ([`render_chat`]) and the static, crawler-facing shell `site/index.html`
+/// (which `solobase.toml` overlays as the deployed `index.html`). A no-JS
+/// crawler or social-card scraper only ever sees that static shell, so the SEO
+/// `<head>` must be present there too — the `static_shell_carries_seo_head`
+/// test fails if the shell drifts from these values.
+const SEO_TITLE: &str = "gizza.ai — free, private AI chat in your browser";
+const SEO_DESCRIPTION: &str = "gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+const SEO_CANONICAL: &str = "https://gizza.ai/";
+const SEO_OG_IMAGE: &str = "https://gizza.ai/gis.png";
+
 pub struct UiBlock;
 
 #[cfg_attr(target_arch = "wasm32", async_trait(?Send))]
@@ -109,17 +122,17 @@ fn render_chat() -> maud::Markup {
             head {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
-                title { "gizza.ai — free, private AI chat in your browser" }
-                meta name="description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
-                link rel="canonical" href="https://gizza.ai/";
+                title { (SEO_TITLE) }
+                meta name="description" content=(SEO_DESCRIPTION);
+                link rel="canonical" href=(SEO_CANONICAL);
                 meta property="og:type" content="website";
-                meta property="og:title" content="gizza.ai — free, private AI chat in your browser";
-                meta property="og:description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
-                meta property="og:url" content="https://gizza.ai/";
-                meta property="og:image" content="https://gizza.ai/gis.png";
+                meta property="og:title" content=(SEO_TITLE);
+                meta property="og:description" content=(SEO_DESCRIPTION);
+                meta property="og:url" content=(SEO_CANONICAL);
+                meta property="og:image" content=(SEO_OG_IMAGE);
                 meta name="twitter:card" content="summary";
-                meta name="twitter:title" content="gizza.ai — free, private AI chat in your browser";
-                meta name="twitter:description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                meta name="twitter:title" content=(SEO_TITLE);
+                meta name="twitter:description" content=(SEO_DESCRIPTION);
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-chat.js" {}
@@ -473,6 +486,38 @@ mod tests {
         assert!(
             s.contains(r#""@type":"Organization""#),
             "JSON-LD Organization type present"
+        );
+    }
+
+    /// The cold, crawler-facing apex is the static `site/index.html` overlay
+    /// (`solobase.toml` copies it to the deployed `index.html`) — NOT
+    /// [`render_chat`], which is the Service-Worker/SSR path a no-JS crawler or
+    /// social-card scraper (Twitter/Slack/LinkedIn) never executes. So the SEO
+    /// `<head>` must be present statically here too, kept in sync with
+    /// `render_chat` via the shared `SEO_*` constants (this test is the guard).
+    #[test]
+    fn static_shell_carries_seo_head() {
+        let shell = include_str!("../../site/index.html");
+        assert!(
+            shell.contains(SEO_TITLE),
+            "static shell <title>/og:title uses the SEO title"
+        );
+        assert!(
+            shell.contains(SEO_DESCRIPTION),
+            "static shell has the SEO meta description"
+        );
+        assert!(
+            shell.contains(&format!(r#"rel="canonical" href="{SEO_CANONICAL}""#)),
+            "static shell has the canonical link"
+        );
+        assert!(shell.contains("og:title"), "static shell has OG title");
+        assert!(
+            shell.contains("twitter:card"),
+            "static shell has the Twitter card"
+        );
+        assert!(
+            shell.contains("application/ld+json"),
+            "static shell has JSON-LD"
         );
     }
 }
