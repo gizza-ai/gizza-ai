@@ -108,8 +108,8 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                         (icon_chevron_down())
                     }
 
-                    // ── Mega-menu panel ────────────────────────────────────
-                    .mega-menu #explore-panel role="dialog" aria-label="Explore panel" {
+                    // ── Mega-menu panel (starts closed; header.js toggles `hidden`) ──
+                    .mega-menu #explore-panel hidden role="dialog" aria-label="Explore panel" {
                         // Column 1: Tools search
                         //   header.js fetches /tools/_index.json on first open,
                         //   runs filterTools() on input, renders ≤8 windowed rows
@@ -301,6 +301,7 @@ mod tests {
         assert!(h.contains("id=\"explore-search\""));       // Explore mega-menu search input
         assert!(h.contains("id=\"explore-results\""));     // results container header.js fills
         assert!(h.contains("Explore"));                    // mega-menu trigger label
+        assert!(h.contains("id=\"explore-panel\" hidden")); // panel starts CLOSED (header.js toggles `hidden`)
     }
 
     #[test]
