@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-vectorize-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+vtracer = { version = "0.6", default-features = false }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
