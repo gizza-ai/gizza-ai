@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/vectorize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Trace a raster image into a scalable SVG.",
+  "role": "skill",
+  "tool": {
+    "description": "Trace a raster image (logo, sketch, icon) into a clean, scalable SVG. Provide the image as a `url` (http/https) or a `ref` to an uploaded attachment. Returns the SVG for inline display and download. Use this when the user asks to vectorize / convert an image to SVG / make a logo scalable.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":  { "type": "string", "description": "HTTP/HTTPS URL of the raster image (PNG/JPEG/WebP/GIF) to vectorize." },
+        "ref":  { "type": "string", "description": "Reference id of an uploaded image attachment to vectorize (alternative to url)." },
+        "mode": { "type": "string", "enum": ["color", "bw"], "description": "Trace mode: 'color' (default, multi-color logos/icons) or 'bw' (black-and-white sketches/line art)." },
+        "color_precision": { "type": "integer", "minimum": 1, "maximum": 8, "description": "Color-channel precision in color mode, 1-8 (default 6). Higher = more colors/detail, larger SVG." },
+        "filter_speckle":  { "type": "integer", "minimum": 0, "maximum": 128, "description": "Discard speckles smaller than this (default 4). Higher = cleaner output." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
