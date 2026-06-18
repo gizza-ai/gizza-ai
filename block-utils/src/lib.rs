@@ -5,6 +5,18 @@
 
 pub mod ffmpeg;
 
+/// Per-call linear-memory cap (in 64 KiB wasm pages) that gizza's trusted,
+/// single-user runtime grants every skill `WasmiBlock`. 1024 pages = 64 MiB.
+///
+/// wafer-run defaults to 256 pages / 16 MiB, which is enough for the light
+/// tools but OOM-traps memory-heavy ones (e.g. the `syntect`+bundled-font
+/// `code-screenshot` render needs ~24 MiB). gizza is local/trusted, so both
+/// its native CLI and browser runtimes raise the cap to this value at every
+/// skill load site; the hosted multi-tenant runtime keeps the 256-page
+/// default. Defined here (shared by `gizza-cli` and the browser `gizza-ai`
+/// crate) so the value lives in exactly one place.
+pub const GIZZA_MAX_WASM_MEMORY_PAGES: u32 = 1024;
+
 #[cfg(target_arch = "wasm32")]
 use std::collections::HashMap;
 
