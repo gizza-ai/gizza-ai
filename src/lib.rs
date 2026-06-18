@@ -18,6 +18,10 @@ use solobase_core::RouteAccess;
 #[cfg(target_arch = "wasm32")]
 use wafer_core::interfaces::config::service::ConfigService;
 #[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::GIZZA_MAX_WASM_MEMORY_PAGES;
+#[cfg(target_arch = "wasm32")]
+use wafer_run::{FuelLimit, ResourceLimits};
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 pub mod blocks;
@@ -200,8 +204,23 @@ pub async fn initialize() -> Result<(), JsValue> {
         .map_err(|e| JsValue::from_str(&format!("register gizza-ai/ffmpeg-runtime: {e}")))?;
 
     for (name, bytes) in skills::SKILLS {
-        let wasmi = wafer_run::wasm::WasmiBlock::load_from_bytes(bytes)
-            .map_err(|e| JsValue::from_str(&format!("loading skill {name}: {e}")))?;
+        // gizza is a browser-local, single-user, trusted app: opt skill calls
+        // out of the default 100M fuel cap AND raise the 256-page / 16 MiB
+        // memory cap so heavy tools (e.g. the `phonenumber` crate, or the
+        // `syntect`+font `code-screenshot` render that needs ~24 MiB) run to
+        // completion instead of trapping with `all fuel consumed` (fuel) or
+        // `unreachable`/OOM (memory). The runtime here is built via
+        // `SolobaseBuilder` (which goes through `Wafer::new`, leaving the
+        // default metered/256-page caps), so we express the same policy
+        // explicitly at the load site — matching the CLI surface.
+        let wasmi = wafer_run::wasm::WasmiBlock::load_from_bytes_with_limits(
+            bytes,
+            ResourceLimits {
+                fuel: FuelLimit::Unmetered,
+                memory_pages: GIZZA_MAX_WASM_MEMORY_PAGES,
+            },
+        )
+        .map_err(|e| JsValue::from_str(&format!("loading skill {name}: {e}")))?;
         wafer
             .register_block(*name, Arc::new(wasmi))
             .map_err(|e| JsValue::from_str(&format!("registering skill {name}: {e}")))?;
