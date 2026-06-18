@@ -8,3 +8,7 @@ serve port="8001":
 # Run the e2e smoke test.
 test:
     cd tests && npx playwright test
+
+# Generate sitemap.xml, robots.txt, and llms.txt into pkg/.
+seo:
+    GIZZA=cli/target/release/gizza scripts/gen-seo.sh

@@ -101,6 +101,13 @@ jobs:
           done
           cargo run --manifest-path tools/generator/Cargo.toml -- .
 
+      - name: Build gizza CLI
+        run: cargo install --path gizza-ai/cli
+
+      - name: Generate SEO files
+        working-directory: gizza-ai
+        run: scripts/gen-seo.sh
+
       - name: Ensure Pages project exists
         # `pages deploy` does NOT create the project — a fresh account fails
         # with "Project not found ... [code: 8000007]". Create it once if

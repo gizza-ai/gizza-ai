@@ -104,39 +104,25 @@ main#app {
 }
 
 /* ─── Header band ──────────────────────────────────────────────────────── */
-/* Match the chat band's max-width (880px) and inline padding so the brand's
- * left edge aligns with the composer's left edge. The kit's <sa-header>
- * exposes its inner row via part="container", which lets us constrain it
- * from outside the shadow DOM without forking the component. */
-sa-header {
-  background: #EEEDED;
-}
-sa-header::part(container) {
-  max-width: 880px;
+/* The shared gizza-chrome header (`header.css`, `.site-header`) owns the
+ * sticky row, hairline divider, and right-hand nav/mega-menu. We tint the
+ * chat's band to match the composer surface. */
+.site-header {
   background: #EEEDED;
 }
 sa-chat::part(composer) {
   background: #EEEDED;
   border-top-color: transparent;
 }
-/* Make the brand fill the row so the slotted <a class="brand"> can center
- * itself across the header band. The default shadow layout sets brand
- * flex:0 0 auto + nav flex:1 1 auto, which pins the brand to the left. */
-sa-header::part(brand) {
-  flex: 1 1 auto;
-  justify-content: center;
-}
-sa-header::part(nav) {
-  flex: 0 0 auto;
-}
 
-/* ─── Brand (slotted into <sa-header>) ─────────────────────────────────── */
+/* ─── Brand (passed into the shared header as the `brand` block) ────────── */
 
-/* Wordmark + crab mascot. The kit's <sa-header> provides the chrome
- * container, sticky behavior, and hairline divider. We just style the
- * slotted contents — magazine voice (400), Cursor Orange wordmark, crab
- * to the left. */
-sa-header .brand {
+/* Wordmark + crab mascot. `gizza-chrome::header` wraps this block in
+ * `.site-header__brand`; we style the chat-specific contents here —
+ * magazine voice (400), Cursor Orange wordmark, crab to the left. The
+ * explicit mascot/eye sizes below use class selectors so they outrank
+ * header.css's `.site-header__brand img { width: 30px }` element rule. */
+.brand {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,7 +132,7 @@ sa-header .brand {
   flex: 1 1 auto;
   width: 100%;
 }
-sa-header .brand-logo {
+.brand-logo {
   width: 168px;
   height: 168px;
   flex-shrink: 0;
@@ -159,27 +145,31 @@ sa-header .brand-logo {
  * overlays it during animation, and two pupil overlays that track the
  * mouse. The .brand-still and .brand-video both fill the box; the JS state
  * machine toggles which is visible. Eye sockets are absolutely positioned
- * over the white eyeball areas of the still images. */
-sa-header .brand-mascot {
+ * over the white eyeball areas of the still images.
+ *
+ * `.brand-still`/`.brand-eye` are class selectors so they outrank
+ * header.css's `.site-header__brand img { width: 30px }` element rule and
+ * the mascot is not collapsed to the tool-page logo size. */
+.brand-mascot {
   position: relative;
 }
-sa-header .brand-still,
-sa-header .brand-video {
+.brand-still,
+.brand-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
-sa-header .brand-video[hidden] { display: none; }
-sa-header .brand-still[hidden] { display: none; }
+.brand-video[hidden] { display: none; }
+.brand-still[hidden] { display: none; }
 
-sa-header .brand-eyes {
+.brand-eyes {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
-sa-header .brand-eye-socket {
+.brand-eye-socket {
   position: absolute;
   width: 8.5%;  /* slightly smaller than the white eyeball so the pupil
                  * stays inside the iris with room to roam */
@@ -191,7 +181,7 @@ sa-header .brand-eye-socket {
   justify-content: center;
   transform: translate(-50%, -50%);
 }
-sa-header .brand-eye {
+.brand-eye {
   width: 55%;
   height: 55%;
   object-fit: contain;
@@ -200,26 +190,27 @@ sa-header .brand-eye {
 
 /* Per-pose pupil placement — coordinates measured visually from each
  * source PNG's white eyeball centers (1254×1254 canvas). */
-sa-header .brand-mascot[data-pose="resting"] .brand-eye-left  { left: 45.0%; top: 60.5%; }
-sa-header .brand-mascot[data-pose="resting"] .brand-eye-right { left: 58.0%; top: 60.5%; }
-sa-header .brand-mascot[data-pose="sign"]    .brand-eye-left  { left: 45.5%; top: 58.2%; }
-sa-header .brand-mascot[data-pose="sign"]    .brand-eye-right { left: 56.5%; top: 58.2%; }
+.brand-mascot[data-pose="resting"] .brand-eye-left  { left: 45.0%; top: 60.5%; }
+.brand-mascot[data-pose="resting"] .brand-eye-right { left: 58.0%; top: 60.5%; }
+.brand-mascot[data-pose="sign"]    .brand-eye-left  { left: 45.5%; top: 58.2%; }
+.brand-mascot[data-pose="sign"]    .brand-eye-right { left: 56.5%; top: 58.2%; }
 
 /* Hide eyes while a video is playing (the video has its own baked-in eyes). */
-sa-header .brand-mascot[data-pose="video"] .brand-eyes { display: none; }
-sa-header .brand h1 {
+.brand-mascot[data-pose="video"] .brand-eyes { display: none; }
+.brand h1 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 44px;
   font-weight: 400;
   color: inherit;
   letter-spacing: -0.02em;
+  text-transform: none; /* the messages area inherits uppercase; brand stays lowercase */
 }
 
 /* The settings cog renders inside the composer once gizza-app.js moves it
- * there at init. Hide it in its original slot so there's no flash of
- * unstyled glyph during boot. */
-sa-header #open-settings { display: none; }
+ * there at init. Hide it in its original slot (sibling of `.brand` inside
+ * `.site-header__brand`) so there's no flash of unstyled glyph during boot. */
+.site-header__brand #open-settings { display: none; }
 
 /* ─── Chat band ────────────────────────────────────────────────────────── */
 /* Layout (max-width, vertical sizing, padding) is owned by <sa-chat>.
@@ -1039,8 +1030,8 @@ dialog button[value="close"] {
 /* ─── Mobile ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
-  sa-header .brand h1 { font-size: 30px; }
-  sa-header .brand-logo { width: 110px; height: 110px; }
+  .brand h1 { font-size: 30px; }
+  .brand-logo { width: 110px; height: 110px; }
   #composer { width: calc(100% - var(--space-lg)); padding: var(--space-sm) var(--space-sm) var(--space-xs); }
   .bubble { max-width: 92%; }
   dialog { padding: var(--space-lg); }

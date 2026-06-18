@@ -4,7 +4,7 @@
 
 use crate::meta::{Input, ToolMeta};
 
-/// Public site origin — matches the literal used in `seo.rs` + `template.rs`.
+/// Public site origin — matches the literal used in `template.rs`.
 const SITE: &str = "https://gizza.ai";
 
 /// Render a tool's `index.md`: a generated header (description, run-it, inputs,

@@ -8,7 +8,6 @@
 mod index;
 mod markdown;
 mod meta;
-mod seo;
 mod template;
 
 use std::fs;
@@ -56,6 +55,9 @@ fn run() -> Result<(), String> {
 
         copy_file(&root.join("site/tool.js"), &out.join("tool.js"))?;
         copy_file(&root.join("site/tool.css"), &out.join("tool.css"))?;
+        copy_file(&root.join("site/header.css"), &out.join("header.css"))?;
+        copy_file(&root.join("site/header.js"), &out.join("header.js"))?;
+        copy_file(&root.join("site/tools-index.js"), &out.join("tools-index.js"))?;
         if m.runtime == "ffmpeg" {
             copy_file(&root.join("js/ffmpeg.js"), &out.join("ffmpeg.js"))?;
             copy_file(&root.join("site/tool-ffmpeg.js"), &out.join("tool-ffmpeg.js"))?;
@@ -72,12 +74,26 @@ fn run() -> Result<(), String> {
     )
     .map_err(|e| format!("write tools/_index.json: {e}"))?;
 
-    let slugs: Vec<String> = metas.iter().map(|(_, m)| m.slug.clone()).collect();
-    let pkg = root.join("pkg");
-    fs::write(pkg.join("sitemap.xml"), seo::sitemap(&slugs))
-        .map_err(|e| format!("write sitemap.xml: {e}"))?;
-    fs::write(pkg.join("robots.txt"), seo::robots())
-        .map_err(|e| format!("write robots.txt: {e}"))?;
+    // `/tools/` landing page — a build-time card grid of every tool, rendered
+    // from the same `metas` as the per-tool pages + `_index.json` (one source of
+    // truth, no drift). Its chrome assets are copied alongside so `./header.css`
+    // etc. resolve when the page is served at `/tools/`.
+    fs::write(
+        pkg_tools.join("index.html"),
+        template::render_tools_index(&metas_only),
+    )
+    .map_err(|e| format!("write tools/index.html: {e}"))?;
+    // Markdown twin of the landing page (the "tools .md page") for LLMs/agents.
+    fs::write(
+        pkg_tools.join("index.md"),
+        index::tools_catalog_md(&metas_only),
+    )
+    .map_err(|e| format!("write tools/index.md: {e}"))?;
+    copy_file(&root.join("site/tool.css"), &pkg_tools.join("tool.css"))?;
+    copy_file(&root.join("site/header.css"), &pkg_tools.join("header.css"))?;
+    copy_file(&root.join("site/header.js"), &pkg_tools.join("header.js"))?;
+    copy_file(&root.join("site/tools-index.js"), &pkg_tools.join("tools-index.js"))?;
+    eprintln!("rendered tools/ (landing page, {} tools)", metas_only.len());
 
     Ok(())
 }

@@ -83,16 +83,50 @@ impl Block for UiBlock {
 }
 
 fn render_chat() -> maud::Markup {
+    // JSON-LD: neutralize </script> break-out sequences, same as template.rs.
+    let json_ld = serde_json::json!({
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "name": "gizza.ai",
+                "url": "https://gizza.ai"
+            },
+            {
+                "@type": "WebSite",
+                "name": "gizza.ai",
+                "url": "https://gizza.ai",
+                "description": "Free, private AI chat and tools — all inference runs in your browser via WebGPU, your conversations never leave your device."
+            }
+        ]
+    })
+    .to_string()
+    .replace("</", "<\\/");
+
     html! {
         (DOCTYPE)
         html lang="en" {
             head {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
-                title { "gizza-ai" }
+                title { "gizza.ai — free, private AI chat in your browser" }
+                meta name="description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                link rel="canonical" href="https://gizza.ai/";
+                meta property="og:type" content="website";
+                meta property="og:title" content="gizza.ai — free, private AI chat in your browser";
+                meta property="og:description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                meta property="og:url" content="https://gizza.ai/";
+                meta property="og:image" content="https://gizza.ai/gis.png";
+                meta name="twitter:card" content="summary";
+                meta name="twitter:title" content="gizza.ai — free, private AI chat in your browser";
+                meta name="twitter:description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                script type="application/ld+json" { (PreEscaped(json_ld)) }
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
-                script type="module" src="https://site-kit.suppers.ai/dist/components/sa-header.js" {}
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-chat.js" {}
+                // Shared gizza-chrome header — styling + behavior. Replaces the
+                // external sa-header web component. Asset delivery via solobase.toml
+                // overlay/bypass is a later task; referenced here.
+                link rel="stylesheet" href="/header.css";
                 // Markdown renderer for assistant messages.
                 script src="https://cdn.jsdelivr.net/npm/marked@13.0.0/marked.min.js" {}
                 // Syntax highlighting for fenced code blocks.
@@ -103,30 +137,47 @@ fn render_chat() -> maud::Markup {
                 link rel="stylesheet" href="/tools-modal.css";
             }
             body {
-                sa-header {
-                    a slot="brand" href="/" class="brand" {
-                        div class="brand-logo brand-mascot" data-pose="resting" {
-                            img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="";
-                            video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden {}
-                            div class="brand-eyes" aria-hidden="true" {
-                                div class="brand-eye-socket brand-eye-left" {
-                                    img class="brand-eye" src="/eye.png" alt="";
-                                }
-                                div class="brand-eye-socket brand-eye-right" {
-                                    img class="brand-eye" src="/eye.png" alt="";
-                                }
-                            }
-                        }
-                        h1 { "gizza-ai" }
-                    }
-                    // Empty button — gizza.css draws a three-dot horizontal icon
-                    // via `::before { mask-image }` once the button lands in the
-                    // composer. Clicking it opens the composer popup menu.
-                    button slot="actions" id="open-settings" type="button" aria-label="Menu" {}
-                }
+                // Shared gizza-chrome header. The animated mascot + wordmark are
+                // passed in as the `brand` block so the right-hand nav/mega-menu
+                // stays identical to the static tool pages.
+                //
+                // #open-settings lives INSIDE the brand block: the chrome
+                // `header(brand, active)` signature has no actions slot, and
+                // gizza-app.js relocates this button into the composer at load
+                // (its position in the header is moot), so it only has to EXIST
+                // in the rendered DOM for getElementById('open-settings').
+                (gizza_chrome::header(
+                    html! {
+                        // No logo in the chat header — the mascot/wordmark live in
+                        // the empty-state greeting (below). The header carries only
+                        // #open-settings, which gizza.css hides here and gizza-app.js
+                        // relocates into the composer at load; it only has to EXIST
+                        // in the rendered DOM for getElementById('open-settings').
+                        button id="open-settings" type="button" aria-label="Menu" {}
+                    },
+                    gizza_chrome::Active::Chat,
+                ))
                 sa-chat {
                     div slot="messages" id="messages" {
                         div class="empty" {
+                            // Mascot + wordmark greeting — its "old" home, above
+                            // the empty-state copy. Animated by gizza-app.js (eyes /
+                            // video) which queries these hooks by id/class anywhere.
+                            div class="brand chat-greeting" {
+                                div class="brand-logo brand-mascot" data-pose="resting" {
+                                    img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="";
+                                    video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden {}
+                                    div class="brand-eyes" aria-hidden="true" {
+                                        div class="brand-eye-socket brand-eye-left" {
+                                            img class="brand-eye" src="/eye.png" alt="";
+                                        }
+                                        div class="brand-eye-socket brand-eye-right" {
+                                            img class="brand-eye" src="/eye.png" alt="";
+                                        }
+                                    }
+                                }
+                                h1 id="brand-wordmark" { "gizza-ai" }
+                            }
                             span class="empty-msg" {
                                 "I can't do much without a brain, please "
                                 button id="empty-state-cta" type="button" class="empty-state-link" { "choose a model" }
@@ -309,6 +360,9 @@ fn render_chat() -> maud::Markup {
                 // Page-side chat ffmpeg engine — runs ffmpeg in the window and
                 // replies to the SW (see js/ffmpeg-bridge.js / js/ffmpeg-engine.js).
                 script type="module" src="/ffmpeg-engine.js" {}
+                // Shared header behavior: open/close the Explore mega-menu and
+                // power its Tools search (fetch /tools/_index.json, filterTools).
+                script type="module" src="/header.js" {}
                 script type="module" src="/gizza-app.js" {}
                 script type="module" src="/tools-modal.js" {}
             }
@@ -324,8 +378,10 @@ mod tests {
     fn renders_tools_button_and_modal() {
         let s = render_chat().into_string();
         assert!(s.contains(r#"id="open-tools""#), "hammer button present");
-        assert!(s.contains(r#"id="tools-modal""#), "tools modal present");
-        assert!(s.contains(r#"id="tools-search""#), "search input present");
+        // Assert BOTH the modal container and its search input are present so this
+        // test cannot pass on the header's explore-search alone.
+        assert!(s.contains(r#"id="tools-modal""#), "tools modal dialog present");
+        assert!(s.contains(r#"id="tools-search""#), "modal search input present (modal-owned id)");
         assert!(!s.contains("class=\"gizza-tools\""), "old inline list removed");
     }
 
@@ -357,6 +413,66 @@ mod tests {
         assert!(
             s.contains(r#"src="/t2i-engine.js""#),
             "imagine (t2i) page engine loaded"
+        );
+    }
+
+    #[test]
+    fn uses_shared_chrome_header_not_sa_header() {
+        let s = render_chat().into_string();
+        // Shared gizza-chrome header is rendered (its Explore-search input id).
+        assert!(
+            s.contains(r#"id="explore-search""#),
+            "shared chrome header (explore-search) present"
+        );
+        // The header's Explore mega-menu trigger is part of the shared chrome.
+        assert!(s.contains("Explore"), "shared header Explore trigger present");
+        // The external sa-header web component is gone (element + loader script).
+        assert!(
+            !s.contains("sa-header"),
+            "external sa-header web component removed"
+        );
+        // #open-settings must still exist for gizza-app.js getElementById().
+        assert!(
+            s.contains(r#"id="open-settings""#),
+            "#open-settings button still present for JS relocation"
+        );
+        // Mascot DOM hooks gizza-app.js animates must survive verbatim.
+        assert!(s.contains(r#"id="brand-still""#), "mascot #brand-still present");
+        assert!(s.contains(r#"id="brand-video""#), "mascot #brand-video present");
+        assert!(s.contains("brand-mascot"), "mascot .brand-mascot class present");
+        assert!(s.contains("brand-eye"), "mascot .brand-eye* hooks present");
+        // The new brand wordmark gizza-app.js retargets (id, not `sa-header h1`).
+        assert!(
+            s.contains(r#"id="brand-wordmark""#),
+            "brand wordmark has stable id for gizza-app.js"
+        );
+        // Chat-only composer menu stays untouched.
+        assert!(s.contains(r#"id="composer-menu""#), "#composer-menu present");
+        // Header assets are referenced in <head>.
+        assert!(s.contains(r#"href="/header.css""#), "header.css linked");
+        assert!(s.contains(r#"src="/header.js""#), "header.js loaded");
+    }
+
+    #[test]
+    fn head_has_seo_tags() {
+        let s = render_chat().into_string();
+        assert!(
+            s.contains(r#"rel="canonical" href="https://gizza.ai/""#),
+            "canonical link present"
+        );
+        assert!(
+            s.contains(r#"<meta name="description""#),
+            "meta description present"
+        );
+        assert!(s.contains("og:title"), "OG title present");
+        assert!(s.contains("twitter:card"), "Twitter card present");
+        assert!(
+            s.contains(r#""@type":"WebSite""#),
+            "JSON-LD WebSite type present"
+        );
+        assert!(
+            s.contains(r#""@type":"Organization""#),
+            "JSON-LD Organization type present"
         );
     }
 }
