@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "merge-pdf"
+version = "0.1.0"
+abi = 1
+summary = "Combine multiple PDFs into one."
