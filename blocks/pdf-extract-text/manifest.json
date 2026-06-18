@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/pdf-extract-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the selectable text from a PDF.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the selectable text from a PDF. Provide url (HTTP/HTTPS) or ref from a prior tool call, and optionally a 1-based page number (omit to extract every page). Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":  { "type": "string",  "description": "PDF URL (HTTP/HTTPS)." },
+        "ref":  { "type": "string",  "description": "Reference id from a prior tool call (e.g. \"call_42\"). Use either url or ref." },
+        "page": { "type": "integer", "minimum": 1, "description": "1-based page number to extract. Omit to extract all pages." }
+      },
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
