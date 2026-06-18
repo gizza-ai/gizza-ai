@@ -83,13 +83,44 @@ impl Block for UiBlock {
 }
 
 fn render_chat() -> maud::Markup {
+    // JSON-LD: neutralize </script> break-out sequences, same as template.rs.
+    let json_ld = serde_json::json!({
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "name": "gizza.ai",
+                "url": "https://gizza.ai"
+            },
+            {
+                "@type": "WebSite",
+                "name": "gizza.ai",
+                "url": "https://gizza.ai",
+                "description": "Free, private AI chat and tools — all inference runs in your browser via WebGPU, your conversations never leave your device."
+            }
+        ]
+    })
+    .to_string()
+    .replace("</", "<\\/");
+
     html! {
         (DOCTYPE)
         html lang="en" {
             head {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
-                title { "gizza-ai" }
+                title { "gizza.ai — free, private AI chat in your browser" }
+                meta name="description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                link rel="canonical" href="https://gizza.ai/";
+                meta property="og:type" content="website";
+                meta property="og:title" content="gizza.ai — free, private AI chat in your browser";
+                meta property="og:description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                meta property="og:url" content="https://gizza.ai/";
+                meta property="og:image" content="https://gizza.ai/gis.png";
+                meta name="twitter:card" content="summary";
+                meta name="twitter:title" content="gizza.ai — free, private AI chat in your browser";
+                meta name="twitter:description" content="gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
+                script type="application/ld+json" { (PreEscaped(json_ld)) }
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-header.js" {}
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-chat.js" {}
@@ -357,6 +388,29 @@ mod tests {
         assert!(
             s.contains(r#"src="/t2i-engine.js""#),
             "imagine (t2i) page engine loaded"
+        );
+    }
+
+    #[test]
+    fn head_has_seo_tags() {
+        let s = render_chat().into_string();
+        assert!(
+            s.contains(r#"rel="canonical" href="https://gizza.ai/""#),
+            "canonical link present"
+        );
+        assert!(
+            s.contains(r#"<meta name="description""#),
+            "meta description present"
+        );
+        assert!(s.contains("og:title"), "OG title present");
+        assert!(s.contains("twitter:card"), "Twitter card present");
+        assert!(
+            s.contains(r#""@type":"WebSite""#),
+            "JSON-LD WebSite type present"
+        );
+        assert!(
+            s.contains(r#""@type":"Organization""#),
+            "JSON-LD Organization type present"
         );
     }
 }
