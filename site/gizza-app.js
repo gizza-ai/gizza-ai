@@ -44,10 +44,12 @@ function selectedModelId() {
 
 // Brand text fix-ups — the maud HTML still ships "gizza-ai"; we override
 // here so the wordmark and tab title both read "gizza.ai" without a WASM
-// rebuild.
+// rebuild. The wordmark is now the shared gizza-chrome header's brand <h1>
+// (id="brand-wordmark"); the old `sa-header h1` selector is gone with the
+// external web component.
 document.title = 'gizza.ai';
 {
-    const wordmark = document.querySelector('sa-header h1');
+    const wordmark = document.getElementById('brand-wordmark');
     if (wordmark) wordmark.textContent = 'gizza.ai';
 }
 

@@ -35,6 +35,9 @@ futures = { version = "0.3", default-features = false, features = ["alloc"] }
 # HTML templating (for the UI block, Task 6)
 maud = { version = "0.26", default-features = false }
 
+# Shared header/footer/icon chrome (chat app + static tool pages share one copy).
+gizza-chrome = { path = "chrome" }
+
 # WAFER runtime — pinned to merged commit SHAs for reproducible CI.
 # For local dev against an unmerged sibling checkout, copy
 # .cargo/config.toml.example to .cargo/config.toml (gitignored).
