@@ -1,0 +1,413 @@
+/* header.css — shared site header, mega-menu, and footer styling.
+ *
+ * Design tokens match tool.css:
+ *   --tool-accent: #4f46e5   (indigo)
+ *   --tool-ink:    #0f172a
+ *   --tool-muted:  #6b7280
+ * Typography: system-ui stack (same as tool pages).
+ * These styles are loaded by standalone tool pages served at /tools/<slug>/.
+ */
+
+/* ─── Site Header ──────────────────────────────────────────────────────── */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.site-header__brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.site-header__brand a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  text-decoration: none;
+  color: var(--tool-ink, #0f172a);
+}
+
+.site-header__brand img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+/* ─── Navigation ───────────────────────────────────────────────────────── */
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tool-muted, #6b7280);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.nav-link:hover {
+  color: var(--tool-ink, #0f172a);
+  background: #f3f4f6;
+}
+
+.nav-link--active {
+  color: var(--tool-ink, #0f172a);
+  font-weight: 600;
+}
+
+/* GitHub / Discord icon links */
+.site-header__icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--tool-muted, #6b7280);
+  text-decoration: none;
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.site-header__icon-link:hover {
+  color: var(--tool-ink, #0f172a);
+  background: #f3f4f6;
+}
+
+.site-header__icon-link svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ─── Mega-menu wrapper ─────────────────────────────────────────────────── */
+
+.mega-menu-wrapper {
+  position: relative;
+}
+
+/* Trigger button — matches nav-link appearance */
+.mega-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tool-muted, #6b7280);
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 120ms ease, background 120ms ease;
+  line-height: 1.4;
+}
+
+.mega-menu__trigger:hover,
+.mega-menu__trigger[aria-expanded="true"] {
+  color: var(--tool-ink, #0f172a);
+  background: #f3f4f6;
+}
+
+.mega-menu__trigger svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 200ms ease;
+}
+
+.mega-menu__trigger[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+/* ─── Mega-menu panel ───────────────────────────────────────────────────── */
+
+.mega-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 520px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  padding: 16px;
+  display: flex;
+  gap: 24px;
+  z-index: 300;
+}
+
+/* Hide by default; header.js toggles the [hidden] attribute */
+.mega-menu[hidden] {
+  display: none;
+}
+
+/* Two-column layout */
+.mega-menu__col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.mega-menu__col--tools {
+  flex: 1.4 1 0; /* tools column slightly wider */
+}
+
+.mega-menu__col-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tool-muted, #6b7280);
+  margin: 0 0 10px;
+}
+
+/* ─── Tools search ──────────────────────────────────────────────────────── */
+
+.mega-menu__search-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.mega-menu__search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--tool-muted, #6b7280);
+  pointer-events: none;
+}
+
+#tools-search {
+  width: 100%;
+  padding: 8px 10px 8px 32px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: var(--tool-ink, #0f172a);
+  outline: none;
+  transition: border-color 120ms ease, background 120ms ease;
+  box-sizing: border-box;
+}
+
+#tools-search::placeholder {
+  color: #9ca3af;
+}
+
+#tools-search:focus {
+  border-color: var(--tool-accent, #4f46e5);
+  background: #fff;
+}
+
+/* ─── Results list ──────────────────────────────────────────────────────── */
+
+#tools-results,
+.mega-menu__results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mega-menu__result-link {
+  display: block;
+  padding: 7px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 120ms ease;
+}
+
+.mega-menu__result-link:hover {
+  background: #f3f4f6;
+}
+
+.mega-menu__result-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tool-ink, #0f172a);
+}
+
+.mega-menu__result-desc {
+  display: block;
+  font-size: 12px;
+  color: var(--tool-muted, #6b7280);
+  margin-top: 1px;
+}
+
+/* ─── Resource links column ─────────────────────────────────────────────── */
+
+.mega-menu__resource-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mega-menu__resource-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--tool-ink, #0f172a);
+  transition: background 120ms ease;
+}
+
+.mega-menu__resource-link:hover {
+  background: #f3f4f6;
+}
+
+.mega-menu__resource-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  flex-shrink: 0;
+  color: var(--tool-ink, #0f172a);
+}
+
+.mega-menu__resource-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mega-menu__resource-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mega-menu__resource-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tool-ink, #0f172a);
+}
+
+.mega-menu__resource-subtitle {
+  font-size: 12px;
+  color: var(--tool-muted, #6b7280);
+}
+
+/* ─── Site Footer ───────────────────────────────────────────────────────── */
+
+.site-footer {
+  background: var(--tool-ink, #0f172a);
+  color: #94a3b8;
+  padding: 32px 20px;
+  margin-top: 48px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+}
+
+.site-footer__brand {
+  max-width: 720px;
+  margin: 0 auto 24px;
+}
+
+.site-footer__logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-footer__logo:hover {
+  color: #e5e7eb;
+}
+
+.site-footer__blurb {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 8px 0 0;
+  color: #94a3b8;
+}
+
+.site-footer__cols {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.site-footer__col {
+  flex: 1 1 140px;
+}
+
+.site-footer__col-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+  margin: 0 0 10px;
+}
+
+.site-footer__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.site-footer__col a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 120ms ease;
+}
+
+.site-footer__col a:hover {
+  color: #fff;
+}
+
+/* ─── Mobile ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .site-header {
+    padding: 0 12px;
+  }
+
+  .mega-menu {
+    min-width: calc(100vw - 24px);
+    right: -12px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .site-footer__cols {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
