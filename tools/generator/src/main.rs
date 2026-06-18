@@ -8,7 +8,6 @@
 mod index;
 mod markdown;
 mod meta;
-mod seo;
 mod template;
 
 use std::fs;
@@ -71,13 +70,6 @@ fn run() -> Result<(), String> {
         index::tools_index_json(&metas_only),
     )
     .map_err(|e| format!("write tools/_index.json: {e}"))?;
-
-    let slugs: Vec<String> = metas.iter().map(|(_, m)| m.slug.clone()).collect();
-    let pkg = root.join("pkg");
-    fs::write(pkg.join("sitemap.xml"), seo::sitemap(&slugs))
-        .map_err(|e| format!("write sitemap.xml: {e}"))?;
-    fs::write(pkg.join("robots.txt"), seo::robots())
-        .map_err(|e| format!("write robots.txt: {e}"))?;
 
     Ok(())
 }
