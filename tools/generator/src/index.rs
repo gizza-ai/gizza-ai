@@ -25,6 +25,27 @@ pub fn tools_index_json(metas: &[ToolMeta]) -> String {
     serde_json::to_string(&entries).expect("serialize tools index")
 }
 
+/// Markdown catalog of every tool — the `text/markdown` twin of the `/tools/`
+/// landing page, for LLMs and AI agents. Built from the same `metas` as the
+/// HTML landing + `_index.json` (one source of truth, no drift).
+pub fn tools_catalog_md(metas: &[ToolMeta]) -> String {
+    let mut s = String::from(
+        "# gizza.ai tools\n\n> Every gizza.ai tool — free, private, browser-local utilities. \
+         Nothing leaves your device, no sign-up, works offline.\n\n",
+    );
+    for m in metas {
+        s.push_str(&format!(
+            "- [{}](https://gizza.ai/tools/{}/): {}\n",
+            m.h1, m.slug, m.description
+        ));
+    }
+    s.push_str(
+        "\nMachine-readable catalog: <https://gizza.ai/tools/_index.json>. \
+         Run any tool headlessly with `gizza tool <slug>` (see the CLI README).\n",
+    );
+    s
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -81,5 +102,14 @@ source      = "field"
     #[test]
     fn empty_metas_is_empty_array() {
         assert_eq!(tools_index_json(&[]), "[]");
+    }
+
+    #[test]
+    fn catalog_md_lists_tools_from_metas() {
+        let md = tools_catalog_md(&[calc()]);
+        assert!(md.starts_with("# gizza.ai tools"));
+        assert!(md.contains("[Free Online Calculator](https://gizza.ai/tools/calculator/)"));
+        assert!(md.contains("Evaluate expressions instantly."));
+        assert!(md.contains("/tools/_index.json"));
     }
 }
