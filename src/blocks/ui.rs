@@ -374,8 +374,10 @@ mod tests {
     fn renders_tools_button_and_modal() {
         let s = render_chat().into_string();
         assert!(s.contains(r#"id="open-tools""#), "hammer button present");
-        assert!(s.contains(r#"id="tools-modal""#), "tools modal present");
-        assert!(s.contains(r#"id="tools-search""#), "search input present");
+        // Assert BOTH the modal container and its search input are present so this
+        // test cannot pass on the header's explore-search alone.
+        assert!(s.contains(r#"id="tools-modal""#), "tools modal dialog present");
+        assert!(s.contains(r#"id="tools-search""#), "modal search input present (modal-owned id)");
         assert!(!s.contains("class=\"gizza-tools\""), "old inline list removed");
     }
 
@@ -413,10 +415,10 @@ mod tests {
     #[test]
     fn uses_shared_chrome_header_not_sa_header() {
         let s = render_chat().into_string();
-        // Shared gizza-chrome header is rendered (its Tools-search input id).
+        // Shared gizza-chrome header is rendered (its Explore-search input id).
         assert!(
-            s.contains(r#"id="tools-search""#),
-            "shared chrome header (tools-search) present"
+            s.contains(r#"id="explore-search""#),
+            "shared chrome header (explore-search) present"
         );
         // The header's Explore mega-menu trigger is part of the shared chrome.
         assert!(s.contains("Explore"), "shared header Explore trigger present");

@@ -119,14 +119,14 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                             .mega-menu__search-wrap {
                                 (icon_search())
                                 input
-                                    #tools-search
+                                    #explore-search
                                     type="search"
                                     placeholder="Search tools…"
                                     autocomplete="off"
                                     aria-label="Search tools"
                                     {}
                             }
-                            ul #tools-results .mega-menu__results aria-live="polite" aria-label="Tool results" {}
+                            ul #explore-results .mega-menu__results aria-live="polite" aria-label="Tool results" {}
                         }
 
                         // Column 2: Resources
@@ -298,8 +298,8 @@ mod tests {
         assert!(h.contains("BRANDX"));                     // caller brand passed through
         assert!(h.contains("github.com"));                 // GitHub link
         assert!(h.contains("discord"));                    // Discord link
-        assert!(h.contains("id=\"tools-search\""));        // Tools search input
-        assert!(h.contains("id=\"tools-results\""));       // results container header.js fills
+        assert!(h.contains("id=\"explore-search\""));       // Explore mega-menu search input
+        assert!(h.contains("id=\"explore-results\""));     // results container header.js fills
         assert!(h.contains("Explore"));                    // mega-menu trigger label
     }
 

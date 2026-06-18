@@ -157,8 +157,8 @@ source      = "field"
         let html = render_page(&sample(), "<h2>About</h2>");
         // Shared header markers from gizza-chrome
         assert!(
-            html.contains(r#"id="tools-search""#),
-            "shared header tools-search input present",
+            html.contains(r#"id="explore-search""#),
+            "shared header explore-search input present",
         );
         assert!(html.contains("Explore"), "shared header Explore mega-menu trigger present");
         // Shared footer columns from gizza-chrome

@@ -4,8 +4,8 @@
 // DOM contract (ids come from chrome/src/lib.rs header()):
 //   #explore-trigger  — <button> that opens/closes the mega-menu
 //   #explore-panel    — the <div class="mega-menu"> panel
-//   #tools-search     — <input type="search"> inside the mega-menu
-//   #tools-results    — <ul> to fill with filtered tool rows (≤8)
+//   #explore-search   — <input type="search"> inside the mega-menu
+//   #explore-results  — <ul> to fill with filtered tool rows (≤8)
 //
 // Fetch contract:
 //   GET /tools/_index.json → [{slug, title, description, tags}, ...]
@@ -30,11 +30,11 @@ function rowHtml(t) {
 function initHeader() {
   const trigger = document.getElementById('explore-trigger');
   const panel = document.getElementById('explore-panel');
-  const searchInput = document.getElementById('tools-search');
-  const resultsList = document.getElementById('tools-results');
+  const searchInput = document.getElementById('explore-search');
+  const resultsList = document.getElementById('explore-results');
 
-  // Bail if the chrome is absent from this page (e.g. the chat app does not
-  // render the new shared header yet).
+  // Bail if the chrome is absent from this page (should not happen — both the
+  // chat app and static tool pages render the shared gizza-chrome header).
   if (!trigger || !panel || !searchInput || !resultsList) return;
 
   let allTools = null; // cached after first fetch
