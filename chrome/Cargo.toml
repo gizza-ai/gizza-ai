@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["."]
+
+[package]
+name = "gizza-chrome"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "Shared header/footer/icon chrome for gizza.ai (both chat app and static tool pages)."
+license = "MIT"
+
+[dependencies]
+maud = { version = "0.26", default-features = false }
