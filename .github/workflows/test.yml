@@ -88,6 +88,14 @@ jobs:
         working-directory: gizza-ai
         run: cargo test --manifest-path tools/generator/Cargo.toml
 
+      - name: SEO generator tests
+        working-directory: gizza-ai
+        run: bash scripts/gen-seo.test.sh
+
+      - name: Chrome crate tests
+        working-directory: gizza-ai
+        run: cargo test --manifest-path chrome/Cargo.toml
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
