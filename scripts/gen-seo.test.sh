@@ -51,6 +51,14 @@ fi
 
 # --- robots.txt assertions ---
 robots="$tmpdir/pkg/robots.txt"
+if ! grep -qF "User-agent: *" "$robots"; then
+  echo "FAIL: robots.txt missing 'User-agent: *' line"
+  exit 1
+fi
+if ! grep -qF "Allow: /" "$robots"; then
+  echo "FAIL: robots.txt missing 'Allow: /' line"
+  exit 1
+fi
 if ! grep -qF "Sitemap: https://example.test/sitemap.xml" "$robots"; then
   echo "FAIL: robots.txt missing Sitemap: line"
   exit 1
@@ -60,6 +68,14 @@ fi
 llmstxt="$tmpdir/pkg/llms.txt"
 if ! grep -qF "# gizza.ai" "$llmstxt"; then
   echo "FAIL: llms.txt missing '# gizza.ai' heading"
+  exit 1
+fi
+if ! grep -qF "## Tools" "$llmstxt"; then
+  echo "FAIL: llms.txt missing '## Tools' heading"
+  exit 1
+fi
+if ! grep -qF "> " "$llmstxt"; then
+  echo "FAIL: llms.txt missing summary blockquote line (starting with '> ')"
   exit 1
 fi
 if ! grep -qF "https://example.test/tools/calculator/index.md" "$llmstxt"; then
