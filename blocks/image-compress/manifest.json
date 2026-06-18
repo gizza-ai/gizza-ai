@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/image-compress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-encode an image at a chosen quality to shrink its file size, keeping the same format.",
+  "role": "skill",
+  "tool": {
+    "description": "Compress (re-encode) an image at a chosen quality to shrink its file size, keeping the same format (jpg/png/webp). Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Lower quality = smaller file.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":     { "type": "string",  "description": "Image URL (HTTP/HTTPS). PNG, JPEG, or WebP." },
+        "ref":     { "type": "string",  "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref." },
+        "quality": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Output quality 1-100 (default 80). Lower = smaller file." }
+      },
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
