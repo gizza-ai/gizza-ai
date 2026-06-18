@@ -74,6 +74,21 @@ fn run() -> Result<(), String> {
     )
     .map_err(|e| format!("write tools/_index.json: {e}"))?;
 
+    // `/tools/` landing page — a build-time card grid of every tool, rendered
+    // from the same `metas` as the per-tool pages + `_index.json` (one source of
+    // truth, no drift). Its chrome assets are copied alongside so `./header.css`
+    // etc. resolve when the page is served at `/tools/`.
+    fs::write(
+        pkg_tools.join("index.html"),
+        template::render_tools_index(&metas_only),
+    )
+    .map_err(|e| format!("write tools/index.html: {e}"))?;
+    copy_file(&root.join("site/tool.css"), &pkg_tools.join("tool.css"))?;
+    copy_file(&root.join("site/header.css"), &pkg_tools.join("header.css"))?;
+    copy_file(&root.join("site/header.js"), &pkg_tools.join("header.js"))?;
+    copy_file(&root.join("site/tools-index.js"), &pkg_tools.join("tools-index.js"))?;
+    eprintln!("rendered tools/ (landing page, {} tools)", metas_only.len());
+
     Ok(())
 }
 
