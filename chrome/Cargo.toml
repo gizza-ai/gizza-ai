@@ -1,7 +1,3 @@
-[workspace]
-resolver = "2"
-members = ["."]
-
 [package]
 name = "gizza-chrome"
 version = "0.1.0"

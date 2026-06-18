@@ -55,6 +55,9 @@ fn run() -> Result<(), String> {
 
         copy_file(&root.join("site/tool.js"), &out.join("tool.js"))?;
         copy_file(&root.join("site/tool.css"), &out.join("tool.css"))?;
+        copy_file(&root.join("site/header.css"), &out.join("header.css"))?;
+        copy_file(&root.join("site/header.js"), &out.join("header.js"))?;
+        copy_file(&root.join("site/tools-index.js"), &out.join("tools-index.js"))?;
         if m.runtime == "ffmpeg" {
             copy_file(&root.join("js/ffmpeg.js"), &out.join("ffmpeg.js"))?;
             copy_file(&root.join("site/tool-ffmpeg.js"), &out.join("tool-ffmpeg.js"))?;

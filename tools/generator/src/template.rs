@@ -2,6 +2,7 @@
 //! with SEO `<head>` tags and JSON-LD.
 
 use crate::meta::ToolMeta;
+use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, PreEscaped, DOCTYPE};
 
 /// Render the full HTML document for a tool page. `content_html` is the
@@ -47,17 +48,21 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                 meta name="twitter:description" content=(meta.description);
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 link rel="stylesheet" href="./tool.css";
+                link rel="stylesheet" href="./header.css";
                 link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
+                script type="module" src="./header.js" {}
             }
             body {
-                header class="tool-nav" {
-                    a class="tool-brand" href="https://gizza.ai" {
-                        img src="/logo.webp" alt="gizza.ai logo";
-                        span { "gizza.ai" }
-                    }
-                    a class="tool-chat-link" href="https://gizza.ai" { "Open AI chat →" }
-                }
+                ({
+                    let brand = html! {
+                        a.tool-brand href="https://gizza.ai" {
+                            img src="/logo.webp" alt="gizza.ai logo";
+                            span { "gizza.ai" }
+                        }
+                    };
+                    chrome_header(brand, Active::Tool)
+                })
                 main class="tool-main" {
                     section class="tool-hero" {
                         h1 { (meta.h1) }
@@ -93,17 +98,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                         (PreEscaped(content_html))
                     }
                 }
-                footer class="tool-footer" {
-                    div class="tool-footer-brand" {
-                        img src="/logo.webp" alt="";
-                        span { "⚡ Powered by gizza.ai" }
-                    }
-                    p {
-                        strong { "gizza.ai" }
-                        " is a free, private AI assistant that runs entirely in your browser — no server, no sign-up, your data never leaves your device. It can chat, run tools like this one, and work with images and video. "
-                        a href="https://gizza.ai" { "Visit gizza.ai →" }
-                    }
-                }
+                (chrome_footer())
                 script { (PreEscaped(format!("window.GIZZA_TOOL = {client_cfg};"))) }
                 script type="module" src="./tool.js" {}
             }
@@ -154,8 +149,30 @@ source      = "field"
         assert!(html.contains(r#"id="in-expr""#));
         assert!(html.contains(r#"id="tool-output""#));
         assert!(html.contains("window.GIZZA_TOOL"));
-        assert!(html.contains("Powered by gizza.ai"));
         assert!(html.contains("<h2>About</h2>"));
+    }
+
+    #[test]
+    fn includes_shared_chrome_header_and_footer() {
+        let html = render_page(&sample(), "<h2>About</h2>");
+        // Shared header markers from gizza-chrome
+        assert!(
+            html.contains(r#"id="tools-search""#),
+            "shared header tools-search input present",
+        );
+        assert!(html.contains("Explore"), "shared header Explore mega-menu trigger present");
+        // Shared footer columns from gizza-chrome
+        assert!(html.contains("Tools"), "footer Tools column present");
+        assert!(html.contains("Resources"), "footer Resources column present");
+        // #85 rel=alternate link must survive the chrome migration
+        assert!(
+            html.contains(r#"<link rel="alternate" type="text/markdown" href="index.md">"#),
+            "#85 markdown twin discovery link preserved after chrome integration",
+        );
+        // Chrome asset links present (tools-index.js is copied alongside but not
+        // referenced directly — header.js imports it as a relative module)
+        assert!(html.contains("header.css"), "header.css link present");
+        assert!(html.contains("header.js"), "header.js script present");
     }
 
     fn ffmpeg_sample() -> ToolMeta {
