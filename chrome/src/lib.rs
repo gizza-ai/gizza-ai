@@ -69,6 +69,11 @@ pub fn icon_bot() -> Markup {
     svg(r#"<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>"#)
 }
 
+/// Lucide Heart icon (Donate link in mega-menu Resources column).
+pub fn icon_heart() -> Markup {
+    svg(r#"<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>"#)
+}
+
 // ── Header ────────────────────────────────────────────────────────────────────
 
 /// Shared sticky site header.
@@ -148,7 +153,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                                 }
                                 li {
                                     a.mega-menu__resource-link
-                                        href="https://discord.gg/gizza"
+                                        href="https://discord.com/invite/jKqMcbrVzm"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     {
@@ -186,6 +191,19 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                                     }
                                 }
                                 li {
+                                    a.mega-menu__resource-link
+                                        href="https://github.com/sponsors/Jsuppers"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    {
+                                        .mega-menu__resource-icon { (icon_heart()) }
+                                        .mega-menu__resource-text {
+                                            span.mega-menu__resource-title { "Donate" }
+                                            span.mega-menu__resource-subtitle { "Support the project" }
+                                        }
+                                    }
+                                }
+                                li {
                                     a.mega-menu__resource-link href="/about" {
                                         .mega-menu__resource-icon { (icon_info()) }
                                         .mega-menu__resource-text {
@@ -209,7 +227,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                     (icon_github())
                 }
                 a.site-header__icon-link
-                    href="https://discord.gg/gizza"
+                    href="https://discord.com/invite/jKqMcbrVzm"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Discord community"
@@ -242,18 +260,18 @@ pub fn footer() -> Markup {
             }
 
             .site-footer__cols {
-                // Tools column
-                nav.site-footer__col aria-label="Tools links" {
-                    h4.site-footer__col-title { "Tools" }
+                // Product — the human-facing surfaces. No per-tool list: the
+                // catalog grows into the thousands; "All tools" + the header
+                // Explore search are the browse mechanisms.
+                nav.site-footer__col aria-label="Product links" {
+                    h4.site-footer__col-title { "Product" }
                     ul {
+                        li { a href="/" { "Chat" } }
                         li { a href="/tools/" { "All tools" } }
-                        li { a href="/tools/calculator/" { "Calculator" } }
-                        li { a href="/tools/image-resize/" { "Image resize" } }
-                        li { a href="/tools/word-count/" { "Word count" } }
                     }
                 }
 
-                // Resources column
+                // Resources — community & support.
                 nav.site-footer__col aria-label="Resources links" {
                     h4.site-footer__col-title { "Resources" }
                     ul {
@@ -263,20 +281,38 @@ pub fn footer() -> Markup {
                             { "GitHub" }
                         }
                         li {
-                            a href="https://discord.gg/gizza"
+                            a href="https://discord.com/invite/jKqMcbrVzm"
                                 target="_blank" rel="noopener noreferrer"
                             { "Discord" }
+                        }
+                        li {
+                            a href="https://github.com/sponsors/Jsuppers"
+                                target="_blank" rel="noopener noreferrer"
+                            { "Donate" }
                         }
                         li {
                             a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
                                 target="_blank" rel="noopener noreferrer"
                             { "CLI" }
                         }
+                    }
+                }
+
+                // For AI & developers — the machine-readable / discoverability
+                // surfaces (these scale regardless of tool count).
+                nav.site-footer__col aria-label="For AI and developers" {
+                    h4.site-footer__col-title { "For AI & devs" }
+                    ul {
+                        li { a href="/llms.txt" { "llms.txt" } }
                         li {
                             a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md"
                                 target="_blank" rel="noopener noreferrer"
                             { "SKILL.md" }
                         }
+                        li { a href="/tools/index.md" { "Tools catalog (Markdown)" } }
+                        li { a href="/tools/_index.json" { "Tools catalog (JSON)" } }
+                        li { a href="/sitemap.xml" { "sitemap.xml" } }
+                        li { a href="/robots.txt" { "robots.txt" } }
                     }
                 }
             }
@@ -308,7 +344,9 @@ mod tests {
     fn footer_has_blurb_and_columns() {
         let f = footer().into_string();
         assert!(f.contains("free") && f.contains("private")); // the existing blurb words
-        assert!(f.contains("Tools") && f.contains("Resources"));
+        assert!(f.contains("Product") && f.contains("Resources") && f.contains("For AI"));
+        assert!(f.contains("Donate") && f.contains("/llms.txt")); // new discoverability links
+        assert!(!f.contains("/tools/calculator/")); // no hardcoded per-tool list (scales to thousands)
     }
 
     #[test]

@@ -70,7 +70,8 @@ done
 
   printf '\n## Resources\n\n'
   printf -- '- [GitHub](https://github.com/gizza-ai/gizza-ai): source code and issue tracker\n'
-  printf -- '- [Discord](https://discord.gg/gizza): community and support\n'
+  printf -- '- [Discord](https://discord.com/invite/jKqMcbrVzm): community and support\n'
+  printf -- '- [Donate](https://github.com/sponsors/Jsuppers): support the project\n'
   printf -- '- [CLI README](https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md): gizza CLI reference\n'
   printf -- '- [SKILL.md](https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md): agent integration guide\n\n'
   printf 'For the authoritative machine-readable tool catalog, see `/tools/_index.json` or\n'
