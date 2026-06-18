@@ -32,6 +32,22 @@ fn web_fetch_skill_is_embedded() {
 }
 
 #[test]
+fn xlsx_to_csv_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/xlsx-to-csv"),
+        "gizza-ai/xlsx-to-csv should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/xlsx-to-csv")
+        .expect("xlsx-to-csv");
+    assert!(!bytes.is_empty(), "xlsx-to-csv wasm bytes non-empty");
+    assert_eq!(&bytes[..4], b"\0asm", "xlsx-to-csv bytes look like wasm");
+}
+
+#[test]
 fn css_select_extract_skill_is_embedded() {
     assert!(
         gizza_ai::skills::SKILLS

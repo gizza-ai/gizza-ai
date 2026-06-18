@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-xlsx-to-csv-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust spreadsheet reader (.xlsx/.xlsm/.xls/.ods). default-features keeps
+# `dates` off; we stringify every cell ourselves so no chrono/locale deps are
+# pulled in. Compiles to wasm32-unknown-unknown (no C/system deps).
+calamine = { version = "0.26", default-features = false }
+
+[dev-dependencies]
+# Generates a tiny in-memory .xlsx fixture for the round-trip unit test.
+rust_xlsxwriter = "0.79"
