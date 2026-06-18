@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/css-select-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fetch a page and extract content matching a CSS selector.",
+  "role": "skill",
+  "tool": {
+    "description": "Fetch an http(s) page and extract content from every element matching a CSS selector. Returns a list of matches as their text content, inner HTML, or a named attribute's value.",
+    "parameters": {
+      "type": "object",
+      "required": ["url", "selector"],
+      "properties": {
+        "url":      { "type": "string", "description": "Absolute http or https URL of the page to fetch." },
+        "selector": { "type": "string", "description": "CSS selector to match elements (e.g. \"h2.title\", \"a\", \"div#main p\")." },
+        "extract":  { "type": "string", "enum": ["text", "html", "attr"], "description": "What to extract from each matched element: \"text\" (default) = concatenated text content, \"html\" = inner HTML, \"attr\" = the value of the attribute named by \"attr\"." },
+        "attr":     { "type": "string", "description": "Attribute name to read when extract=\"attr\" (e.g. \"href\"). Required when extract=\"attr\"; elements lacking it are skipped." },
+        "limit":    { "type": "integer", "minimum": 1, "description": "Maximum number of matches to return (default 100)." }
+      }
+    }
+  }
+}

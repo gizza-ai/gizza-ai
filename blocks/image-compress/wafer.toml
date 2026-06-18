@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-compress"
+version = "0.1.0"
+abi = 1
+summary = "Re-encode an image at a chosen quality to shrink its file size, keeping the same format."

@@ -1,0 +1,29 @@
+slug          = "url-encode"
+title         = "URL Encoder & Decoder — gizza.ai"
+description   = "Percent-encode or decode text and URLs instantly in your browser. Component or whole-URL mode, full Unicode support. Free, private, no sign-up."
+tags          = ["url encode", "url decode", "percent encoding", "uri", "query string"]
+h1            = "URL Encoder / Decoder"
+hero_subtitle = "Percent-encode or decode any text or URL — runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_url_encode_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text or URL"
+placeholder = "name=John Doe&city=São Paulo"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode (encode | decode, blank = encode)"
+placeholder = "encode"
+source      = "field"
+
+[[input]]
+name        = "target"
+label       = "Target (component | uri, blank = component)"
+placeholder = "component"
+source      = "field"
