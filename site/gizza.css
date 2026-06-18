@@ -204,6 +204,7 @@ sa-chat::part(composer) {
   font-weight: 400;
   color: inherit;
   letter-spacing: -0.02em;
+  text-transform: none; /* the messages area inherits uppercase; brand stays lowercase */
 }
 
 /* The settings cog renders inside the composer once gizza-app.js moves it
