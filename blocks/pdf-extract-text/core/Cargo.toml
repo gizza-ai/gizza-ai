@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-pdf-extract-text-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# default-features = false drops `rayon` (threads), `chrono`/`jiff`/`time`
+# (date crates). The parser + extraction are always-on in 0.36, so this keeps
+# the tree thread-free and compiles to wasm32-wasip1 (the `wafer build` target,
+# which provides getrandom 0.3's native WASI backend).
+lopdf = { version = "=0.36.0", default-features = false }
