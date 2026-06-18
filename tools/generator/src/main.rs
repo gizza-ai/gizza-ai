@@ -83,6 +83,12 @@ fn run() -> Result<(), String> {
         template::render_tools_index(&metas_only),
     )
     .map_err(|e| format!("write tools/index.html: {e}"))?;
+    // Markdown twin of the landing page (the "tools .md page") for LLMs/agents.
+    fs::write(
+        pkg_tools.join("index.md"),
+        index::tools_catalog_md(&metas_only),
+    )
+    .map_err(|e| format!("write tools/index.md: {e}"))?;
     copy_file(&root.join("site/tool.css"), &pkg_tools.join("tool.css"))?;
     copy_file(&root.join("site/header.css"), &pkg_tools.join("header.css"))?;
     copy_file(&root.join("site/header.js"), &pkg_tools.join("header.js"))?;

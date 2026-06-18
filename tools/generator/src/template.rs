@@ -28,6 +28,18 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
     .to_string()
     .replace("</", "<\\/");
 
+    // How to run THIS tool headlessly via the gizza CLI — derived from the
+    // tool's own inputs (first field's placeholder, or a url= for file tools).
+    let cli_example = match meta.inputs.first() {
+        Some(inp) if inp.source == "file" => {
+            format!("gizza tool {} 'url=https://example.com/input'", meta.slug)
+        }
+        Some(inp) if !inp.placeholder.is_empty() => {
+            format!("gizza tool {} '{}'", meta.slug, inp.placeholder)
+        }
+        _ => format!("gizza tool {}", meta.slug),
+    };
+
     let markup = html! {
         (DOCTYPE)
         html lang="en" {
@@ -50,6 +62,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                 link rel="stylesheet" href="./tool.css";
                 link rel="stylesheet" href="./header.css";
                 link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
+                style { (PreEscaped(TOOL_CLI_CSS)) }
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
                 script type="module" src="./header.js" {}
             }
@@ -97,6 +110,16 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                     section class="tool-content" {
                         (PreEscaped(content_html))
                     }
+                    section class="tool-cli" {
+                        h2 { "Run it from the terminal" }
+                        p { "Same engine as this page, headless — via the gizza CLI:" }
+                        pre class="tool-cli-code" { code { (cli_example) } }
+                        p class="tool-cli-note" {
+                            "New to the CLI? "
+                            a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
+                                target="_blank" rel="noopener noreferrer" { "Get gizza →" }
+                        }
+                    }
                 }
                 (chrome_footer())
                 script { (PreEscaped(format!("window.GIZZA_TOOL = {client_cfg};"))) }
@@ -106,6 +129,16 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
     };
     markup.into_string()
 }
+
+/// Inline styles for the per-tool "Run it from the terminal" CLI block.
+const TOOL_CLI_CSS: &str = r#"
+.tool-cli { max-width: 720px; margin: 32px auto 0; }
+.tool-cli h2 { font-size: 1.15rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
+.tool-cli > p { color: var(--tool-muted, #6b7280); margin: 0 0 10px; }
+.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; }
+.tool-cli-code code { color: inherit; background: none; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.tool-cli-note { font-size: .85rem; margin: 10px 0 0; }
+"#;
 
 /// Inline styles for the `/tools/` landing grid (uses the `--tool-*` tokens
 /// from `tool.css`, with literal fallbacks matching them).
@@ -269,8 +302,9 @@ source      = "field"
         );
         assert!(html.contains("Explore"), "shared header Explore mega-menu trigger present");
         // Shared footer columns from gizza-chrome
-        assert!(html.contains("Tools"), "footer Tools column present");
+        assert!(html.contains("Product"), "footer Product column present");
         assert!(html.contains("Resources"), "footer Resources column present");
+        assert!(html.contains("For AI"), "footer For AI & devs column present");
         // #85 rel=alternate link must survive the chrome migration
         assert!(
             html.contains(r#"<link rel="alternate" type="text/markdown" href="index.md">"#),
