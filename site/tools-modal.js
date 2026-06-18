@@ -4,7 +4,8 @@
 // /tools/ Service-Worker bypass; we fetch it once on first open and filter
 // client-side, so the page itself ships none of it.
 
-export { filterTools } from './tools-index.js';
+import { filterTools } from './tools-index.js';
+export { filterTools };
 
 const INDEX_URL = '/tools/_index.json';
 
