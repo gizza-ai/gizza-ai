@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/xlsx-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a spreadsheet (.xlsx/.xls/.ods) to CSV.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Convert a spreadsheet (.xlsx, .xlsm, .xls, or .ods) to CSV. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Optionally pick a sheet by name or 0-based index; defaults to the first sheet.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":   { "type": "string", "description": "Public HTTP/HTTPS URL of the spreadsheet to convert." },
+        "ref":   { "type": "string", "description": "Attachment id of an uploaded spreadsheet (alternative to url)." },
+        "sheet": { "type": "string", "description": "Worksheet to convert: a sheet name, or a 0-based index as a string (e.g. \"0\"). Defaults to the first sheet." }
+      },
+      "oneOf": [ { "required": ["url"] }, { "required": ["ref"] } ],
+      "additionalProperties": false
+    }
+  }
+}
