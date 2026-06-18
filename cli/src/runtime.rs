@@ -2,13 +2,14 @@
 use std::sync::Arc;
 
 use anyhow::{Context as _, Result};
+use gizza_ai_block_utils::GIZZA_MAX_WASM_MEMORY_PAGES;
 use wafer_block::{
     core_types::Message,
     meta::{META_REQ_ACTION, META_REQ_RESOURCE},
     streams::{input::InputStream, output::TerminalNotResponse},
 };
 use wafer_block::Block;
-use wafer_run::{Wafer, WasmiBlock};
+use wafer_run::{FuelLimit, Wafer, WasmiBlock};
 
 use crate::SKILL_WASMS;
 
@@ -100,7 +101,14 @@ fn register_skills(
     metas: &mut Vec<ToolMeta>,
 ) -> Result<()> {
     for bytes in SKILL_WASMS {
-        let block = WasmiBlock::load_from_bytes(bytes).context("load skill wasm")?;
+        // gizza is a single-user, trusted CLI: opt skill calls out of the
+        // default 100M fuel cap AND raise the 256-page / 16 MiB memory cap so
+        // heavy tools run to completion instead of trapping with `all fuel
+        // consumed` (fuel) or `unreachable`/OOM (memory). Both bounds are set
+        // on the builder (`fuel_per_call` + `max_wasm_memory_pages`) and read
+        // back here so every load site expresses the same policy.
+        let block = WasmiBlock::load_from_bytes_with_limits(bytes, wafer.resource_limits())
+            .context("load skill wasm")?;
         let info = block.info();
         let name = info.name.clone();
         // Capture SkillTool metadata if the block exposes one.
@@ -133,6 +141,10 @@ pub async fn boot_minimal() -> Result<ToolRuntime> {
     let mut wafer = Wafer::builder()
         .disable_inventory()
         .disable_lockfile()
+        // Trusted single-user CLI: skill calls run unmetered with a raised
+        // memory cap (see register_skills).
+        .fuel_per_call(FuelLimit::Unmetered)
+        .max_wasm_memory_pages(GIZZA_MAX_WASM_MEMORY_PAGES)
         .build()
         .context("build wafer")?;
     let mut names = Vec::new();
@@ -152,6 +164,10 @@ pub async fn boot_full() -> Result<ToolRuntime> {
     let mut wafer = Wafer::builder()
         .disable_inventory()
         .disable_lockfile()
+        // Trusted single-user CLI: skill calls run unmetered with a raised
+        // memory cap (see register_skills).
+        .fuel_per_call(FuelLimit::Unmetered)
+        .max_wasm_memory_pages(GIZZA_MAX_WASM_MEMORY_PAGES)
         .build()
         .context("build wafer")?;
 
