@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-code-screenshot-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# syntect: syntax highlighting. default-features=false drops the onig (C) regex
+# engine and the `plist`/yaml loaders we don't need at runtime; we enable the
+# pure-Rust `fancy-regex` engine plus the bundled (binary-dump) default syntaxes
+# and themes so nothing is loaded from disk at runtime (wasm has no fs access to
+# the host's syntax files). This keeps the whole stack pure-Rust → wasm32-safe.
+syntect = { version = "5", default-features = false, features = [
+    "default-fancy",
+] }
+# fontdue: pure-Rust TrueType rasterizer (no freetype / system fonts).
+fontdue = "0.9"
+# png: pure-Rust PNG encoder (lighter than the full `image` crate).
+png = "0.17"
