@@ -132,12 +132,12 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
 
 /// Inline styles for the per-tool "Run it from the terminal" CLI block.
 const TOOL_CLI_CSS: &str = r#"
-.tool-cli { max-width: 720px; margin: 32px auto 0; }
+.tool-cli { max-width: 720px; margin: 40px auto 64px; }
 .tool-cli h2 { font-size: 1.15rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
-.tool-cli > p { color: var(--tool-muted, #6b7280); margin: 0 0 10px; }
-.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; }
+.tool-cli > p { color: var(--tool-muted, #6b7280); margin: 0 0 12px; }
+.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; }
 .tool-cli-code code { color: inherit; background: none; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.tool-cli-note { font-size: .85rem; margin: 10px 0 0; }
+.tool-cli-note { font-size: .85rem; margin: 18px 0 0; color: var(--tool-muted, #6b7280); }
 "#;
 
 /// Inline styles for the `/tools/` landing grid (uses the `--tool-*` tokens
@@ -154,6 +154,39 @@ const TOOLS_INDEX_CSS: &str = r#"
 .tools-card__desc { font-size: .9rem; color: var(--tool-muted, #6b7280); margin: 0; line-height: 1.45; }
 .tools-card__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 10px; }
 .tools-card__tag { font-size: .72rem; color: var(--tool-accent, #4f46e5); background: rgba(79,70,229,.10); padding: 2px 9px; border-radius: 999px; }
+.tools-index__search { margin-top: 20px; }
+.tools-index__search input { width: 100%; max-width: 440px; padding: 11px 16px; border: 1px solid #e5e7eb; border-radius: 999px; font-size: .95rem; outline: none; }
+.tools-index__search input:focus { border-color: var(--tool-accent, #4f46e5); box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
+.tools-index__empty { text-align: center; color: var(--tool-muted, #6b7280); margin: 24px 0 8px; }
+.tools-grid li[hidden] { display: none; }
+"#;
+
+/// Client-side filter for the `/tools/` grid — reuses `filterTools` from
+/// `tools-index.js` (same matcher as the header Explore search) and just
+/// shows/hides the server-rendered cards, so they stay crawlable.
+const TOOLS_FILTER_JS: &str = r#"
+import { filterTools } from './tools-index.js';
+const input = document.getElementById('tools-filter');
+const grid = document.getElementById('tools-grid');
+const empty = document.getElementById('tools-empty');
+let tools = null;
+async function ensureData() {
+  if (tools) return;
+  try { tools = await (await fetch('_index.json')).json(); } catch { tools = []; }
+}
+async function apply() {
+  const q = input.value.trim();
+  if (q) await ensureData();
+  const matched = q ? new Set(filterTools(tools, q).map(t => t.slug)) : null;
+  let shown = 0;
+  for (const li of grid.querySelectorAll('li[data-slug]')) {
+    const on = !matched || matched.has(li.dataset.slug);
+    li.hidden = !on;
+    if (on) shown++;
+  }
+  empty.hidden = shown !== 0;
+}
+input.addEventListener('input', apply);
 "#;
 
 /// Render the `/tools/` landing page: shared chrome + a responsive card grid of
@@ -221,10 +254,17 @@ pub fn render_tools_index(metas: &[ToolMeta]) -> String {
                             "Free, private, browser-local tools. Everything runs in your browser — \
                              nothing leaves your device, no sign-up, works offline."
                         }
+                        div class="tools-index__search" {
+                            input #tools-filter type="search" placeholder="Search tools…"
+                                  autocomplete="off" autocapitalize="off" spellcheck="false"
+                                  aria-label="Search tools";
+                        }
                     }
-                    ul class="tools-grid" {
+                    // Cards are server-rendered (crawlable for SEO); the filter
+                    // below just shows/hides them client-side via filterTools.
+                    ul #tools-grid class="tools-grid" {
                         @for m in metas {
-                            li {
+                            li data-slug=(m.slug) {
                                 a class="tools-card" href=(format!("/tools/{}/", m.slug)) {
                                     h2 class="tools-card__title" { (m.h1) }
                                     p class="tools-card__desc" { (m.description) }
@@ -239,8 +279,10 @@ pub fn render_tools_index(metas: &[ToolMeta]) -> String {
                             }
                         }
                     }
+                    p #tools-empty class="tools-index__empty" hidden { "No tools match your search." }
                 }
                 (chrome_footer())
+                script type="module" { (PreEscaped(TOOLS_FILTER_JS)) }
             }
         }
     };
@@ -330,6 +372,9 @@ source      = "field"
         assert!(html.contains("Free Online Calculator"), "card shows the tool h1");
         assert!(html.contains("Evaluate expressions instantly."), "card shows the description");
         assert!(html.contains("tools-card"), "rendered as a card grid");
+        // live filter: a search input + per-card data-slug the JS keys on
+        assert!(html.contains(r#"id="tools-filter""#), "search filter input present");
+        assert!(html.contains(r#"data-slug="calculator""#), "cards carry data-slug for filtering");
     }
 
     fn ffmpeg_sample() -> ToolMeta {
