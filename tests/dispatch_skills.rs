@@ -81,6 +81,21 @@ impl Block for FakeNetworkBlock {
                 "https://example.test/web-fetch.txt" => {
                     (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec())
                 }
+                // A real 2-page PDF fixture served with the canonical PDF mime.
+                "https://example.test/sample.pdf" => {
+                    (200, "application/pdf", SAMPLE_PDF.to_vec())
+                }
+                // The same bytes served as application/octet-stream — the mime
+                // raw.githubusercontent.com uses for binary downloads. The
+                // pdf-extract-text block's AssetKind::Document must accept it.
+                "https://example.test/octet.pdf" => {
+                    (200, "application/octet-stream", SAMPLE_PDF.to_vec())
+                }
+                // Not a PDF, but served with a PDF mime — lopdf must reject the
+                // bytes even though the fetch-time mime check passes.
+                "https://example.test/fake.pdf" => {
+                    (200, "application/pdf", b"this is not a pdf".to_vec())
+                }
                 "https://example.test/sample.mp4" => (200, "video/mp4", b"FAKE_MP4_BYTES".to_vec()),
                 "https://example.test/sample.webm" => {
                     (200, "video/webm", b"FAKE_WEBM_BYTES".to_vec())
@@ -190,6 +205,122 @@ async fn web_fetch_round_trips_through_network_block() {
     );
     assert_eq!(parsed["body"], "WEBFETCH_OK_8f3a2", "body marker");
     assert_eq!(parsed["truncated"], false, "truncated flag");
+}
+
+// -- pdf-extract-text dispatch tests -----------------------------------------
+
+/// A real 2-page PDF fixture (built with lopdf) whose text layer contains
+/// "Gizza PDF Extract Page One" on page 1 and "Second Page Beta Marker" on
+/// page 2. Used to prove the wasmi-executed lopdf extraction round-trips.
+const SAMPLE_PDF: &[u8] = include_bytes!("fixtures/sample-text.pdf");
+const PDF_EXTRACT_WASM: &[u8] = include_bytes!("../blocks/pdf-extract-text/target/block.wasm");
+
+async fn dispatch_pdf_extract(args: serde_json::Value) -> Result<serde_json::Value, String> {
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block("wafer-run/network", Arc::new(FakeNetworkBlock))
+        .expect("register fake network");
+    wafer
+        .register_block(
+            "gizza-ai/pdf-extract-text",
+            Arc::new(WasmiBlock::load_from_bytes(PDF_EXTRACT_WASM).expect("load pdf-extract-text")),
+        )
+        .expect("register pdf-extract-text");
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let body = serde_json::to_vec(&args).expect("serialize");
+    let output = wafer
+        .run_block(
+            "gizza-ai/pdf-extract-text",
+            Message::new("invoke"),
+            InputStream::from_bytes(body),
+        )
+        .await;
+    match output.collect_buffered().await {
+        Ok(resp) => Ok(serde_json::from_slice(&resp.body).expect("response JSON")),
+        Err(e) => Err(format!("{e:?}")),
+    }
+}
+
+#[tokio::test]
+async fn pdf_extract_all_pages_returns_text() {
+    let resp = dispatch_pdf_extract(json!({ "url": "https://example.test/sample.pdf" }))
+        .await
+        .expect("happy path");
+    let text = resp["text"].as_str().expect("text field");
+    assert!(text.contains("Gizza"), "should contain page 1 text; got {text:?}");
+    assert!(
+        text.contains("Beta Marker"),
+        "all-pages extraction should include page 2 text; got {text:?}"
+    );
+    assert_eq!(resp["page"], serde_json::Value::Null, "page is null for all");
+    assert_eq!(resp["truncated"], false);
+    assert!(resp["chars"].as_u64().unwrap() > 0);
+}
+
+#[tokio::test]
+async fn pdf_extract_single_page_excludes_other_page() {
+    let resp = dispatch_pdf_extract(json!({ "url": "https://example.test/sample.pdf", "page": 2 }))
+        .await
+        .expect("page 2");
+    let text = resp["text"].as_str().expect("text field");
+    assert!(text.contains("Beta Marker"), "page 2 text; got {text:?}");
+    assert!(
+        !text.contains("Page One"),
+        "page 2 must not include page 1 text; got {text:?}"
+    );
+    assert_eq!(resp["page"], 2);
+}
+
+#[tokio::test]
+async fn pdf_extract_accepts_octet_stream_mime() {
+    // raw.githubusercontent.com serves PDFs as application/octet-stream; the
+    // Document AssetKind must accept it.
+    let resp = dispatch_pdf_extract(json!({ "url": "https://example.test/octet.pdf" }))
+        .await
+        .expect("octet-stream PDF should be accepted");
+    assert!(resp["text"].as_str().unwrap().contains("Gizza"));
+}
+
+#[tokio::test]
+async fn pdf_extract_rejects_page_out_of_range() {
+    let err = dispatch_pdf_extract(json!({ "url": "https://example.test/sample.pdf", "page": 99 }))
+        .await
+        .expect_err("page 99 of a 2-page PDF must error");
+    assert!(
+        err.contains("out of range")
+            || err.contains("INVALID_ARGUMENT")
+            || err.contains("InvalidArgument"),
+        "expected out-of-range error; got {err}"
+    );
+}
+
+#[tokio::test]
+async fn pdf_extract_rejects_non_pdf_bytes() {
+    let err = dispatch_pdf_extract(json!({ "url": "https://example.test/fake.pdf" }))
+        .await
+        .expect_err("non-PDF bytes must error");
+    assert!(
+        err.contains("failed to parse PDF")
+            || err.contains("INVALID_ARGUMENT")
+            || err.contains("InvalidArgument"),
+        "expected parse error; got {err}"
+    );
+}
+
+#[tokio::test]
+async fn pdf_extract_rejects_page_zero() {
+    let err = dispatch_pdf_extract(json!({ "url": "https://example.test/sample.pdf", "page": 0 }))
+        .await
+        .expect_err("page 0 must error (pages are 1-based)");
+    assert!(
+        err.contains(">= 1") || err.contains("INVALID_ARGUMENT") || err.contains("InvalidArgument"),
+        "expected 1-based error; got {err}"
+    );
 }
 
 // -- ffmpeg-runtime dispatch test ----------------------------------------------

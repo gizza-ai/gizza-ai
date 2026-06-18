@@ -1,0 +1,29 @@
+{
+  "name": "gizza-ai/merge-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine multiple PDFs into one.",
+  "role": "skill",
+  "tool": {
+    "description": "Combine multiple PDF files into a single PDF, in the given order. Provide at least two PDF sources; each source is either a URL or a `ref` to an uploaded PDF attachment.",
+    "parameters": {
+      "type": "object",
+      "required": ["inputs"],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "minItems": 2,
+          "description": "Ordered list of PDF sources to merge. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "description": "HTTP/HTTPS URL of a PDF to fetch." },
+              "ref": { "type": "string", "description": "Reference id of an uploaded PDF attachment." }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  }
+}

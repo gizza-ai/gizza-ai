@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-merge-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# lopdf with default features off: `default = [chrono, jiff, rayon, time]` pull
+# in clock/threading crates that aren't needed for merging and that (rayon)
+# don't build on wasm32. The PDF parser (nom-based) is always compiled in;
+# only the date/time and rayon helpers are feature-gated, so a featureless
+# lopdf still parses, merges, and serializes documents.
+lopdf = { version = "0.36", default-features = false }

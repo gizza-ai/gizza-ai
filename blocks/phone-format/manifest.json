@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/phone-format",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse, validate, and format an international phone number.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse, validate, and format an international phone number. Reports validity, E.164, national & international formats, the country/region, and the number type when derivable.",
+    "parameters": {
+      "type": "object",
+      "required": ["number"],
+      "properties": {
+        "number": { "type": "string", "description": "The phone number to analyze. May include a +country prefix, e.g. +1 415 555 2671." },
+        "region": { "type": "string", "description": "Optional ISO-3166 alpha-2 region code (e.g. US, GB, DE) used to interpret a number given without a + prefix." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

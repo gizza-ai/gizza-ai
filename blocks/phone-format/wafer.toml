@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "phone-format"
+version = "0.1.0"
+abi = 1
+summary = "Parse, validate, and format an international phone number."
