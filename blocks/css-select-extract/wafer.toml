@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "css-select-extract"
+version = "0.1.0"
+abi = 1
+summary = "Fetch a page and extract content matching a CSS selector."

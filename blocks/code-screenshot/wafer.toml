@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "code-screenshot"
+version = "0.1.0"
+abi = 1
+summary = "Render a code snippet into a syntax-highlighted PNG."

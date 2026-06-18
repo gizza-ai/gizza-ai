@@ -1,0 +1,23 @@
+slug          = "video-compress"
+title         = "Compress a Video Online — gizza.ai"
+description   = "Shrink a video's file size right in your browser — pick a quality (CRF), keep the format. Re-encodes locally with ffmpeg, nothing is uploaded, free."
+tags          = ["video", "compress", "shrink", "file size", "crf", "reencode", "smaller"]
+h1            = "Compress a Video"
+hero_subtitle = "Pick a video and a quality level — it's re-encoded smaller in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_compress_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Compressed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "crf"
+source      = "field"
+label       = "Quality / CRF (18-34, lower = better quality / larger)"
+placeholder = "28"
