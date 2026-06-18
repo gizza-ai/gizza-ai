@@ -68,14 +68,17 @@ pub mod core {
         let sel = Selector::parse(selector)
             .map_err(|e| format!("invalid CSS selector `{selector}`: {e}"))?;
 
-        if kind == ExtractKind::Attr {
-            let name = attr
-                .map(str::trim)
-                .filter(|s| !s.is_empty())
-                .ok_or_else(|| "`attr` is required when extract=\"attr\"".to_string())?;
-            // Validate up front so an empty page still reports the bad arg.
-            let _ = name;
-        }
+        // For attr extraction, resolve the (trimmed, non-empty) attribute name
+        // up front so a bad `attr` arg is reported even on an empty page.
+        let attr_name = if kind == ExtractKind::Attr {
+            Some(
+                attr.map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .ok_or_else(|| "`attr` is required when extract=\"attr\"".to_string())?,
+            )
+        } else {
+            None
+        };
 
         let doc = Html::parse_document(html);
         let mut out = Vec::new();
@@ -91,8 +94,8 @@ pub mod core {
                     out.push(el.inner_html());
                 }
                 ExtractKind::Attr => {
-                    // attr presence was validated above; safe to unwrap the name.
-                    let name = attr.unwrap().trim();
+                    // attr_name is Some for ExtractKind::Attr (validated above).
+                    let name = attr_name.expect("attr_name set for ExtractKind::Attr");
                     if let Some(v) = el.value().attr(name) {
                         out.push(v.to_string());
                     }
