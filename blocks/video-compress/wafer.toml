@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-compress"
+version = "0.1.0"
+abi = 1
+summary = "Shrink a video's file size with a single-pass CRF re-encode, keeping the format."

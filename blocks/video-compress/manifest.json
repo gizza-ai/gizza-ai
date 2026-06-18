@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/video-compress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shrink a video's file size with a single-pass CRF re-encode, keeping the format.",
+  "role": "skill",
+  "tool": {
+    "description": "Shrink a video's file size by re-encoding it at a chosen quality (CRF), keeping the container format. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Single-pass H.264/AAC re-encode — higher crf = smaller file / lower quality. This is a quality knob, not a target-size guarantee (true target-byte-size needs a 2-pass encode).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS)." },
+        "ref": { "type": "string", "description": "Reference id from a prior video tool call (e.g. \"call_42\"). Use either url or ref." },
+        "crf": { "type": "number", "minimum": 18, "maximum": 34, "description": "Quality/size knob (default 28). Lower = higher quality/larger; higher = smaller. Clamped to 18-34." }
+      },
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}

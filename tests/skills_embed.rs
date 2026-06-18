@@ -190,3 +190,19 @@ fn video_trim_skill_is_embedded() {
     assert!(!bytes.is_empty());
     assert_eq!(&bytes[..4], b"\0asm");
 }
+
+#[test]
+fn video_compress_skill_is_embedded() {
+    assert!(
+        gizza_ai::skills::SKILLS
+            .iter()
+            .any(|(n, _)| *n == "gizza-ai/video-compress"),
+        "gizza-ai/video-compress should be embedded — did you forget to build the block first?"
+    );
+    let (_, bytes) = gizza_ai::skills::SKILLS
+        .iter()
+        .find(|(n, _)| *n == "gizza-ai/video-compress")
+        .expect("video-compress");
+    assert!(!bytes.is_empty());
+    assert_eq!(&bytes[..4], b"\0asm");
+}
