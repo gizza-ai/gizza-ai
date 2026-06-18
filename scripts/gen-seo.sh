@@ -69,10 +69,10 @@ done
   done
 
   printf '\n## Resources\n\n'
-  printf -- '- [GitHub](https://github.com/suppers-ai/gizza-ai): source code and issue tracker\n'
+  printf -- '- [GitHub](https://github.com/gizza-ai/gizza-ai): source code and issue tracker\n'
   printf -- '- [Discord](https://discord.gg/gizza): community and support\n'
-  printf -- '- [CLI README](https://github.com/suppers-ai/gizza-ai/blob/main/cli/README.md): gizza CLI reference\n'
-  printf -- '- [SKILL.md](https://github.com/suppers-ai/gizza-ai/blob/main/SKILL.md): agent integration guide\n\n'
+  printf -- '- [CLI README](https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md): gizza CLI reference\n'
+  printf -- '- [SKILL.md](https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md): agent integration guide\n\n'
   printf 'For the authoritative machine-readable tool catalog, see `/tools/_index.json` or\n'
   printf 'run `gizza list --json-out`. The catalog is build-time static and always up to date.\n'
 } > "$PKG_DIR/llms.txt"

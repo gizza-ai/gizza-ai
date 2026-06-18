@@ -135,7 +135,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                             ul.mega-menu__resource-list {
                                 li {
                                     a.mega-menu__resource-link
-                                        href="https://github.com/suppers-ai/gizza-ai"
+                                        href="https://github.com/gizza-ai/gizza-ai"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     {
@@ -161,7 +161,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                                 }
                                 li {
                                     a.mega-menu__resource-link
-                                        href="https://github.com/suppers-ai/gizza-ai/blob/main/cli/README.md"
+                                        href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     {
@@ -174,7 +174,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
                                 }
                                 li {
                                     a.mega-menu__resource-link
-                                        href="https://github.com/suppers-ai/gizza-ai/blob/main/SKILL.md"
+                                        href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     {
@@ -201,7 +201,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
 
                 // ── Standalone GitHub + Discord icon links (always visible) ──
                 a.site-header__icon-link
-                    href="https://github.com/suppers-ai/gizza-ai"
+                    href="https://github.com/gizza-ai/gizza-ai"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="GitHub repository"
@@ -258,7 +258,7 @@ pub fn footer() -> Markup {
                     h4.site-footer__col-title { "Resources" }
                     ul {
                         li {
-                            a href="https://github.com/suppers-ai/gizza-ai"
+                            a href="https://github.com/gizza-ai/gizza-ai"
                                 target="_blank" rel="noopener noreferrer"
                             { "GitHub" }
                         }
@@ -268,12 +268,12 @@ pub fn footer() -> Markup {
                             { "Discord" }
                         }
                         li {
-                            a href="https://github.com/suppers-ai/gizza-ai/blob/main/cli/README.md"
+                            a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
                                 target="_blank" rel="noopener noreferrer"
                             { "CLI" }
                         }
                         li {
-                            a href="https://github.com/suppers-ai/gizza-ai/blob/main/SKILL.md"
+                            a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md"
                                 target="_blank" rel="noopener noreferrer"
                             { "SKILL.md" }
                         }
