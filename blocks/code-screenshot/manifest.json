@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/code-screenshot",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a code snippet into a syntax-highlighted PNG.",
+  "role": "skill",
+  "tool": {
+    "description": "Render a code snippet into a shareable, syntax-highlighted PNG image (carbon-style window chrome on a padded background). Use this when the user wants a picture/screenshot/carbon image of code rather than the code as text. Returns an image, not text.",
+    "parameters": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": { "type": "string", "description": "The source code to render. Required." },
+        "language": { "type": "string", "description": "Language for syntax highlighting (e.g. \"rust\", \"python\", \"javascript\", \"bash\"). Optional — unknown or omitted falls back to plain text." },
+        "theme": { "type": "string", "description": "Color theme name (e.g. \"base16-ocean.dark\", \"Solarized (dark)\", \"InspiredGitHub\"). Optional — defaults to a dark theme." }
+      }
+    }
+  }
+}

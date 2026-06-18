@@ -5,6 +5,18 @@
 
 pub mod ffmpeg;
 
+/// Per-call linear-memory cap (in 64 KiB wasm pages) that gizza's trusted,
+/// single-user runtime grants every skill `WasmiBlock`. 1024 pages = 64 MiB.
+///
+/// wafer-run defaults to 256 pages / 16 MiB, which is enough for the light
+/// tools but OOM-traps memory-heavy ones (e.g. the `syntect`+bundled-font
+/// `code-screenshot` render needs ~24 MiB). gizza is local/trusted, so both
+/// its native CLI and browser runtimes raise the cap to this value at every
+/// skill load site; the hosted multi-tenant runtime keeps the 256-page
+/// default. Defined here (shared by `gizza-cli` and the browser `gizza-ai`
+/// crate) so the value lives in exactly one place.
+pub const GIZZA_MAX_WASM_MEMORY_PAGES: u32 = 1024;
+
 #[cfg(target_arch = "wasm32")]
 use std::collections::HashMap;
 
@@ -189,7 +201,11 @@ pub fn pick_source(url: Option<&str>, ref_id: Option<&str>) -> Result<Source, Sk
 /// manually to keep the wasm payload small.
 pub fn derive_filename(url: &str, default: &str) -> String {
     let after_scheme = url.split("://").nth(1).unwrap_or(url);
-    let path: String = after_scheme.split('/').skip(1).collect::<Vec<_>>().join("/");
+    let path: String = after_scheme
+        .split('/')
+        .skip(1)
+        .collect::<Vec<_>>()
+        .join("/");
     let path = path.split('?').next().unwrap_or("");
     let path = path.split('#').next().unwrap_or("");
     let last = path.rsplit('/').next().unwrap_or("");
@@ -269,24 +285,43 @@ pub fn filename_with_suffix(input: &str, suffix: &str, new_ext: &str) -> String 
 pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static str, &'static str)> {
     match (kind, fmt) {
         (AssetKind::Image, "jpeg") => Some(("image/jpeg", "jpg")),
-        (AssetKind::Image, "png")  => Some(("image/png",  "png")),
+        (AssetKind::Image, "png") => Some(("image/png", "png")),
         (AssetKind::Image, "webp") => Some(("image/webp", "webp")),
-        (AssetKind::Video, "mp4")  => Some(("video/mp4",  "mp4")),
+        (AssetKind::Video, "mp4") => Some(("video/mp4", "mp4")),
         (AssetKind::Video, "webm") => Some(("video/webm", "webm")),
         _ => None,
     }
 }
 
 // ---------------------------------------------------------------------------
-// AssetKind — image vs video, controls MIME prefix, expected-label, kind-label,
-// and default filename used by `fetch_from_url` / `load_from_attachment`.
-// Pulled out of the duplicated fetch helpers in blocks/image-* and blocks/video-*.
+// AssetKind — image / video / document / any, controls MIME acceptance,
+// expected-label, kind-label, and default filename used by `fetch_from_url` /
+// `load_from_attachment`. Pulled out of the duplicated fetch helpers in
+// blocks/image-* and blocks/video-*.
+//
+// Acceptance is expressed as a single `accepts_mime(mime)` predicate rather than
+// a `mime_prefix` string, so a kind can match a MIME *family* (`image/`,
+// `video/`, `application/`) or accept everything (`Any`) without callers having
+// to know which matching mode applies. `Document` accepts the whole
+// `application/` class (pdf, ooxml, xls, ods, octet-stream, zip, …); the precise
+// file-type validation is left to the consuming parser (e.g. `lopdf`/`calamine`
+// reject non-matching bytes), so the fetch-time check stays permissive within
+// that class.
 // ---------------------------------------------------------------------------
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum AssetKind {
     Image,
     Video,
+    /// A binary document — accepts the `application/*` MIME class (PDF, OOXML
+    /// `.xlsx`/`.docx`, legacy `.xls`, OpenDocument `.ods`, `application/zip`
+    /// containers, and the generic `application/octet-stream` many static hosts
+    /// serve binaries as). The real format check happens when the bytes are
+    /// parsed downstream, not by the transport MIME.
+    Document,
+    /// Any bytes — no MIME validation at all. For tools that accept arbitrary
+    /// binary input and fully validate it themselves downstream.
+    Any,
 }
 
 // Methods are only consumed by the wasm-gated fetch/load functions below
@@ -294,10 +329,15 @@ pub enum AssetKind {
 // rather than peppering each method with cfg attributes.
 #[allow(dead_code)]
 impl AssetKind {
-    pub(crate) fn mime_prefix(self) -> &'static str {
+    /// Whether `mime` (already normalized: lowercase, parameters stripped) is
+    /// acceptable for this kind. `Image`/`Video`/`Document` match on the
+    /// `image/`/`video/`/`application/` prefix; `Any` accepts everything.
+    pub(crate) fn accepts_mime(self, mime: &str) -> bool {
         match self {
-            Self::Image => "image/",
-            Self::Video => "video/",
+            Self::Image => mime.starts_with("image/"),
+            Self::Video => mime.starts_with("video/"),
+            Self::Document => mime.starts_with("application/"),
+            Self::Any => true,
         }
     }
 
@@ -305,6 +345,8 @@ impl AssetKind {
         match self {
             Self::Image => "image/*",
             Self::Video => "video/*",
+            Self::Document => "application/*",
+            Self::Any => "any",
         }
     }
 
@@ -312,6 +354,8 @@ impl AssetKind {
         match self {
             Self::Image => "image/* attachment",
             Self::Video => "video/* attachment",
+            Self::Document => "application/* attachment",
+            Self::Any => "any attachment",
         }
     }
 
@@ -319,6 +363,8 @@ impl AssetKind {
         match self {
             Self::Image => "input image",
             Self::Video => "input video",
+            Self::Document => "input document",
+            Self::Any => "input file",
         }
     }
 
@@ -326,6 +372,8 @@ impl AssetKind {
         match self {
             Self::Image => "image",
             Self::Video => "video",
+            Self::Document => "document",
+            Self::Any => "file",
         }
     }
 }
@@ -366,7 +414,7 @@ pub fn fetch_from_url(
         .unwrap_or("")
         .trim()
         .to_lowercase();
-    if !mime.starts_with(kind.mime_prefix()) {
+    if !kind.accepts_mime(&mime) {
         return Err(SkillError::UnexpectedMime {
             expected: kind.expected_url_label(),
             actual: mime,
@@ -412,7 +460,14 @@ pub fn load_from_attachment(
     let att = wafer_sdk::lookup_attachment(id)
         .map_err(|e| SkillError::Serialize(e.to_string()))?
         .ok_or_else(|| SkillError::AttachmentNotFound(id.to_string()))?;
-    if !att.mime.starts_with(kind.mime_prefix()) {
+    let att_mime: String = att
+        .mime
+        .split(';')
+        .next()
+        .unwrap_or("")
+        .trim()
+        .to_lowercase();
+    if !kind.accepts_mime(&att_mime) {
         return Err(SkillError::UnexpectedMime {
             expected: kind.expected_attachment_label(),
             actual: att.mime,
@@ -590,7 +645,10 @@ mod tests {
 
     #[test]
     fn derive_filename_uses_last_path_segment() {
-        assert_eq!(derive_filename("https://x.test/path/cat.png", "image"), "cat.png");
+        assert_eq!(
+            derive_filename("https://x.test/path/cat.png", "image"),
+            "cat.png"
+        );
     }
 
     #[test]
@@ -617,7 +675,10 @@ mod tests {
 
     #[test]
     fn derive_filename_strips_control_chars() {
-        assert_eq!(derive_filename("https://x.test/a\x01b.png", "image"), "ab.png");
+        assert_eq!(
+            derive_filename("https://x.test/a\x01b.png", "image"),
+            "ab.png"
+        );
     }
 
     #[test]
@@ -717,32 +778,56 @@ mod tests {
 
     #[test]
     fn filename_with_suffix_replaces_extension() {
-        assert_eq!(filename_with_suffix("cat.png", "-resized", "jpg"), "cat-resized.jpg");
+        assert_eq!(
+            filename_with_suffix("cat.png", "-resized", "jpg"),
+            "cat-resized.jpg"
+        );
     }
 
     #[test]
     fn filename_with_suffix_no_extension() {
-        assert_eq!(filename_with_suffix("cat", "-resized", "jpg"), "cat-resized.jpg");
+        assert_eq!(
+            filename_with_suffix("cat", "-resized", "jpg"),
+            "cat-resized.jpg"
+        );
     }
 
     #[test]
     fn filename_with_suffix_multiple_dots() {
         // Only the LAST dot-segment is treated as the extension
-        assert_eq!(filename_with_suffix("video.tmp.mp4", "-trimmed", "mp4"), "video.tmp-trimmed.mp4");
+        assert_eq!(
+            filename_with_suffix("video.tmp.mp4", "-trimmed", "mp4"),
+            "video.tmp-trimmed.mp4"
+        );
     }
 
     #[test]
     fn format_to_mime_and_ext_image() {
-        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "jpeg"), Some(("image/jpeg", "jpg")));
-        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "png"),  Some(("image/png",  "png")));
-        assert_eq!(format_to_mime_and_ext(AssetKind::Image, "webp"), Some(("image/webp", "webp")));
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Image, "jpeg"),
+            Some(("image/jpeg", "jpg"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Image, "png"),
+            Some(("image/png", "png"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Image, "webp"),
+            Some(("image/webp", "webp"))
+        );
         assert_eq!(format_to_mime_and_ext(AssetKind::Image, "bogus"), None);
     }
 
     #[test]
     fn format_to_mime_and_ext_video() {
-        assert_eq!(format_to_mime_and_ext(AssetKind::Video, "mp4"),  Some(("video/mp4",  "mp4")));
-        assert_eq!(format_to_mime_and_ext(AssetKind::Video, "webm"), Some(("video/webm", "webm")));
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Video, "mp4"),
+            Some(("video/mp4", "mp4"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Video, "webm"),
+            Some(("video/webm", "webm"))
+        );
     }
 
     #[test]
@@ -810,7 +895,10 @@ mod tests {
     #[test]
     fn asset_kind_image_labels() {
         let k = AssetKind::Image;
-        assert_eq!(k.mime_prefix(), "image/");
+        assert!(k.accepts_mime("image/png"));
+        assert!(k.accepts_mime("image/jpeg"));
+        assert!(!k.accepts_mime("video/mp4"));
+        assert!(!k.accepts_mime("application/pdf"));
         assert_eq!(k.expected_url_label(), "image/*");
         assert_eq!(k.expected_attachment_label(), "image/* attachment");
         assert_eq!(k.too_large_label(), "input image");
@@ -820,11 +908,49 @@ mod tests {
     #[test]
     fn asset_kind_video_labels() {
         let k = AssetKind::Video;
-        assert_eq!(k.mime_prefix(), "video/");
+        assert!(k.accepts_mime("video/mp4"));
+        assert!(k.accepts_mime("video/webm"));
+        assert!(!k.accepts_mime("image/png"));
+        assert!(!k.accepts_mime("application/pdf"));
         assert_eq!(k.expected_url_label(), "video/*");
         assert_eq!(k.expected_attachment_label(), "video/* attachment");
         assert_eq!(k.too_large_label(), "input video");
         assert_eq!(k.default_filename(), "video");
+    }
+
+    #[test]
+    fn asset_kind_document_accepts_application_class() {
+        let k = AssetKind::Document;
+        // PDF (merge-pdf, pdf-extract-text).
+        assert!(k.accepts_mime("application/pdf"));
+        // OOXML spreadsheet + legacy xls + OpenDocument (xlsx-to-csv).
+        assert!(k.accepts_mime("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        assert!(k.accepts_mime("application/vnd.ms-excel"));
+        assert!(k.accepts_mime("application/vnd.oasis.opendocument.spreadsheet"));
+        // Generic binary types many static hosts serve documents as — the
+        // parser does the real format validation downstream.
+        assert!(k.accepts_mime("application/octet-stream"));
+        assert!(k.accepts_mime("application/zip"));
+        // But not non-application MIMEs (e.g. a GitHub raw redirect HTML page).
+        assert!(!k.accepts_mime("text/html"));
+        assert!(!k.accepts_mime("image/png"));
+        assert_eq!(k.expected_url_label(), "application/*");
+        assert_eq!(k.expected_attachment_label(), "application/* attachment");
+        assert_eq!(k.too_large_label(), "input document");
+        assert_eq!(k.default_filename(), "document");
+    }
+
+    #[test]
+    fn asset_kind_any_accepts_everything() {
+        let k = AssetKind::Any;
+        assert!(k.accepts_mime("text/html"));
+        assert!(k.accepts_mime("application/octet-stream"));
+        assert!(k.accepts_mime("image/png"));
+        assert!(k.accepts_mime(""));
+        assert_eq!(k.expected_url_label(), "any");
+        assert_eq!(k.expected_attachment_label(), "any attachment");
+        assert_eq!(k.too_large_label(), "input file");
+        assert_eq!(k.default_filename(), "file");
     }
 
     #[test]
