@@ -1,11 +1,28 @@
 //! gizza-ai/clock — returns current UTC time as JSON.
 //!
 //! The time string is formatted by `gizza-ai-clock-core` (shared with the
-//! standalone /tools/clock/ page). The #[wafer_block] macro emits wasm-only
-//! registration; `build_response` is testable on host.
+//! standalone /tools/clock/ page). The chat schema is derived from
+//! `descriptor()` (single source — shared shape across chat + CLI); clock takes
+//! no parameters, so the descriptor is `Input::None` with no params. The
+//! response shape is flat (`{ time, tz }`), so the handler builds it directly
+//! rather than going through `run_skill`'s `{ result: … }` envelope. The
+//! #[wafer_block] macro emits wasm-only registration; `build_response` is
+//! testable on host. No host calls — runs entirely inside the WASM sandbox.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
+use gizza_ai_block_utils::{Input, ToolDescriptor};
 use wafer_sdk::*;
+
+/// Single-source param descriptor → chat schema (and CLI). Clock takes no
+/// parameters, so this is `Input::None` with no `.param()` calls. See
+/// docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
+}
 
 /// Build the JSON response body for a clock reading. Extracted so host tests can
 /// pin the shape against a known timestamp.
@@ -27,15 +44,13 @@ struct Clock;
     summary = "Current time skill",
     skill(
         description = "Get the current UTC time. Returns ISO 8601 timestamp.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {},
-            "additionalProperties": false
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl Clock {
     fn handle(_msg: Message, _body: Vec<u8>) -> GuestResult {
+        // Flat response shape (`{ time, tz }`) — read directly by the LLM, so no
+        // `{ result: … }` envelope. See block-utils "Response shapes" notes.
         let body = build_response(chrono::Utc::now());
         let bytes = serde_json::to_vec(&body).unwrap_or_default();
         GuestResult::respond(bytes)
@@ -44,8 +59,9 @@ impl Clock {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use chrono::TimeZone as _;
+
+    use super::*;
 
     #[test]
     fn response_pins_iso_timestamp_and_utc_tz() {
@@ -62,5 +78,23 @@ mod tests {
         let s = serde_json::to_string(&v).unwrap();
         assert!(s.contains(r#""time":"2026-01-01T00:00:00+00:00""#));
         assert!(s.contains(r#""tz":"UTC""#));
+    }
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. Clock's authored
+    /// schema already had empty `properties` and `additionalProperties: false`,
+    /// which is exactly what `Input::None` with no params emits — an exact match.
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
     }
 }
