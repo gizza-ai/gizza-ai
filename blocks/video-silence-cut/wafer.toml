@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-silence-cut"
+version = "0.1.0"
+abi = 1
+summary = "Remove silent gaps from a video (correct two-pass, A/V stays in sync)."
