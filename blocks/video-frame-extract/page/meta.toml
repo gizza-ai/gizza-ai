@@ -1,0 +1,23 @@
+slug          = "video-frame-extract"
+title         = "Extract a Frame from a Video — gizza.ai"
+description   = "Grab a single frame from any video as a PNG image, right in your browser — pick a timestamp in seconds. Runs locally with ffmpeg, nothing is uploaded, free."
+tags          = ["video", "frame", "extract", "screenshot", "thumbnail", "still", "png"]
+h1            = "Extract a Video Frame"
+hero_subtitle = "Pick a video and a timestamp — a single frame is grabbed as a PNG in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_frame_extract_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Extracted frame (PNG)"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "timestamp"
+source      = "field"
+label       = "Timestamp (seconds)"
+placeholder = "1"
