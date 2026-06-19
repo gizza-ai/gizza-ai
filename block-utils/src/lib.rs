@@ -642,6 +642,30 @@ pub struct Envelope {
 // Tests
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Text-shape skill helper. Returns Result<Vec<u8>, SkillError>; the tool's
+// wasm `handle()` wraps Ok => GuestResult::respond, Err => GuestResult::error.
+// ---------------------------------------------------------------------------
+
+/// Serialize a success payload as `{ "result": <value> }`.
+pub fn respond_ok<T: serde::Serialize>(value: &T) -> Result<Vec<u8>, SkillError> {
+    serde_json::to_vec(&serde_json::json!({ "result": value }))
+        .map_err(|e| SkillError::Serialize(format!("serialize result: {e}")))
+}
+
+/// Run a text-shape skill: parse `A` from `body` (errors labeled
+/// `invalid <block> args: …`), call `f`, and shape `{ "result": … }`.
+pub fn run_skill<A, T, F>(body: &[u8], block: &str, f: F) -> Result<Vec<u8>, SkillError>
+where
+    A: serde::de::DeserializeOwned,
+    T: serde::Serialize,
+    F: FnOnce(A) -> Result<T, SkillError>,
+{
+    let args: A = serde_json::from_slice(body).invalid_args(block)?;
+    let out = f(args)?;
+    respond_ok(&out)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -964,5 +988,46 @@ mod tests {
             err,
             SkillError::InvalidArgs(ref s) if s == "invalid image-resize args: bad json"
         ));
+    }
+
+    #[derive(serde::Deserialize)]
+    struct EchoArgs {
+        text: String,
+    }
+    #[derive(serde::Serialize)]
+    struct EchoOut {
+        echo: String,
+    }
+
+    #[test]
+    fn run_skill_shapes_result_on_ok() {
+        let body = br#"{"text":"hi"}"#;
+        let out = run_skill(body, "echo", |a: EchoArgs| {
+            Ok::<_, SkillError>(EchoOut { echo: a.text })
+        })
+        .expect("ok path");
+        let v: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        assert_eq!(v["result"]["echo"], "hi");
+    }
+
+    #[test]
+    fn run_skill_labels_bad_json_as_invalid_args() {
+        let body = br#"{ not json"#;
+        let err = run_skill(body, "echo", |a: EchoArgs| {
+            Ok::<_, SkillError>(EchoOut { echo: a.text })
+        })
+        .expect_err("bad json must error");
+        assert!(matches!(err, SkillError::InvalidArgs(_)));
+        assert!(err.to_string().contains("invalid echo args"));
+    }
+
+    #[test]
+    fn run_skill_propagates_inner_error() {
+        let body = br#"{"text":"x"}"#;
+        let err = run_skill(body, "echo", |_a: EchoArgs| {
+            Err::<EchoOut, _>(SkillError::InvalidArgs("nope".into()))
+        })
+        .expect_err("inner error propagates");
+        assert!(matches!(err, SkillError::InvalidArgs(_)));
     }
 }
