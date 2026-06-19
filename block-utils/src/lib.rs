@@ -743,6 +743,15 @@ pub fn dispatch_ffmpeg(
     Ok(ff.output)
 }
 
+/// The result an ffmpeg page tool's `build_argv` returns to the JS page driver:
+/// the ffmpeg argument vector plus the output filename. Shared so every web
+/// wrapper stops redefining an identical local `struct Plan`.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ArgvPlan {
+    pub argv: Vec<String>,
+    pub out_name: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1130,5 +1139,16 @@ mod tests {
         let err = build_media_envelope(bytes, "image/png", "x.png".into(), "x".into(), 4)
             .expect_err("over cap");
         assert!(matches!(err, SkillError::TooLarge { .. }));
+    }
+
+    #[test]
+    fn argv_plan_serializes_to_argv_and_out_name() {
+        let plan = ArgvPlan {
+            argv: vec!["-i".into(), "in.png".into()],
+            out_name: "out.png".into(),
+        };
+        let v = serde_json::to_value(&plan).unwrap();
+        assert_eq!(v["argv"], serde_json::json!(["-i", "in.png"]));
+        assert_eq!(v["out_name"], "out.png");
     }
 }
