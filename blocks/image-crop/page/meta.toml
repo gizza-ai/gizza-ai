@@ -1,0 +1,41 @@
+slug          = "image-crop"
+title         = "Crop an Image Online — gizza.ai"
+description   = "Crop any image right in your browser — set the x/y offset and the width/height of the rectangle to keep. No upload to a server, runs locally, free."
+tags          = ["image", "crop", "trim", "cut", "rectangle"]
+h1            = "Crop an Image"
+hero_subtitle = "Pick an image, set the crop rectangle — it's cropped in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_crop_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Cropped image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "x"
+source      = "field"
+label       = "X offset (px)"
+placeholder = "0"
+
+[[input]]
+name        = "y"
+source      = "field"
+label       = "Y offset (px)"
+placeholder = "0"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Width (px)"
+placeholder = "640"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height (px)"
+placeholder = "480"
