@@ -27,6 +27,10 @@ pub enum ParamKind {
     Number,
     Enum(Vec<String>),
     Bool,
+    /// A JSON object whose values are strings — renders as
+    /// `{ "type": "object", "additionalProperties": { "type": "string" } }`
+    /// (e.g. an HTTP `headers` / `query` name→value map).
+    StringMap,
 }
 
 /// One logical parameter. `name` is the chat-schema property name, the page
@@ -40,6 +44,8 @@ pub struct Param {
     pub default: Option<serde_json::Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub minimum: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<f64>,
     pub description: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
@@ -57,6 +63,7 @@ impl Param {
             required: false,
             default: None,
             minimum: None,
+            maximum: None,
             description: String::new(),
             label: None,
             placeholder: None,
@@ -75,6 +82,10 @@ impl Param {
     pub fn boolean(name: &str) -> Self {
         Self::new(name, ParamKind::Bool)
     }
+    /// A `{ name: value }` object with string values (e.g. HTTP headers/query).
+    pub fn string_map(name: &str) -> Self {
+        Self::new(name, ParamKind::StringMap)
+    }
     pub fn enumv<const N: usize>(name: &str, variants: [&str; N]) -> Self {
         Self::new(
             name,
@@ -91,6 +102,10 @@ impl Param {
     }
     pub fn min(mut self, n: f64) -> Self {
         self.minimum = Some(n);
+        self
+    }
+    pub fn max(mut self, n: f64) -> Self {
+        self.maximum = Some(n);
         self
     }
     pub fn describe(mut self, s: &str) -> Self {
@@ -179,6 +194,10 @@ impl ToolDescriptor {
                     prop.insert("type".into(), json!("string"));
                     prop.insert("enum".into(), json!(variants));
                 }
+                ParamKind::StringMap => {
+                    prop.insert("type".into(), json!("object"));
+                    prop.insert("additionalProperties".into(), json!({ "type": "string" }));
+                }
             }
             if let Some(m) = p.minimum {
                 // Render whole-number bounds as JSON integers (`1`, not `1.0`)
@@ -190,6 +209,14 @@ impl ToolDescriptor {
                     prop.insert("minimum".into(), json!(m as i64));
                 } else {
                     prop.insert("minimum".into(), json!(m));
+                }
+            }
+            if let Some(m) = p.maximum {
+                // Same whole-number-as-integer rendering as `minimum`.
+                if m.fract() == 0.0 && m.is_finite() {
+                    prop.insert("maximum".into(), json!(m as i64));
+                } else {
+                    prop.insert("maximum".into(), json!(m));
                 }
             }
             if let Some(d) = &p.default {
@@ -323,5 +350,21 @@ mod tests {
         assert_eq!(v["properties"]["fit"]["default"], "contain");
         // optional params => no top-level required.
         assert!(v.get("required").is_none());
+    }
+
+    #[test]
+    fn schema_renders_maximum_and_string_map() {
+        let d = ToolDescriptor::new(Input::None)
+            .param(Param::integer("quality").min(1.0).max(100.0).describe("Q"))
+            .param(Param::string_map("headers").describe("H"));
+        let v: serde_json::Value =
+            serde_json::from_str(&d.to_schema_json()).expect("valid JSON schema");
+        assert_eq!(v["properties"]["quality"]["minimum"], 1);
+        assert_eq!(v["properties"]["quality"]["maximum"], 100);
+        assert_eq!(v["properties"]["headers"]["type"], "object");
+        assert_eq!(
+            v["properties"]["headers"]["additionalProperties"]["type"],
+            "string"
+        );
     }
 }
