@@ -1,25 +1,33 @@
-//! gizza-ai/video-transcode — fetch a video URL or attachment ref, transcode to a target container.
+//! gizza-ai/video-transcode — fetch a video URL or attachment ref, transcode to
+//! a different container/codec target via ffmpeg, return envelope.
+//!
+//! The chat schema is derived from `descriptor()` (single source — shared shape
+//! across chat + CLI + page); the handler delegates source-resolution, ffmpeg
+//! dispatch, and envelope-building to `block_utils`. Tool-specific validation
+//! (format enum, quality 1-100) and the pure `core` argv builder stay shared with
+//! the page. See
+//! docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
 
-// The #[wafer_block] macro emits the impl gated to wasm32; supporting imports,
-// constants, and the Args type are only used there. See image-resize for the
-// full rationale.
+// The #[wafer_block] macro emits the impl gated to wasm32 (the macro generates
+// a native registration call that requires ::new()). All the supporting imports,
+// constants, and the Args type are only used inside the wasm32-gated impl, so
+// they appear "unused" when running native unit tests. `descriptor()` /
+// `schema_json()` and the block-local helpers remain native-compilable so the
+// drift-guard + unit tests below can exercise them.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
-use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, format_to_mime_and_ext, mime_to_ext, replace_extension,
-    validate_quality_1_100, AssetKind, Envelope, FfmpegReq, FfmpegResp, ForUi, SkillError,
-    SkillResultExt, Source, SourceFields,
+    build_media_envelope, mime_to_ext, replace_extension, validate_quality_1_100, AssetKind, Input,
+    Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor,
 };
+#[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::{dispatch_ffmpeg, format_to_mime_and_ext, resolve_source};
+use gizza_ai_video_transcode_core::{build_argv, quality_to_crf, DEFAULT_QUALITY};
 use serde::Deserialize;
 use wafer_sdk::*;
 
-#[cfg(target_arch = "wasm32")]
-use gizza_ai_block_utils::{fetch_from_url, load_from_attachment};
-
-const MAX_INPUT_BYTES: usize = 10 * 1024 * 1024;
+const MAX_INPUT_BYTES: usize = 10 * 1024 * 1024; // 10 MiB
 const MAX_OUTPUT_BYTES: usize = 10 * 1024 * 1024;
-const DEFAULT_QUALITY: u8 = 75;
 
 #[derive(Deserialize, Debug)]
 struct Args {
@@ -30,49 +38,33 @@ struct Args {
     quality: Option<u8>,
 }
 
-/// Map web-conventional quality 1-100 to ffmpeg's CRF range 0 (best) – 51 (worst).
-fn quality_to_crf(q: u8) -> u8 {
-    let q = q.clamp(1, 100) as f32;
-    let crf = 51.0 - (q - 1.0) * (51.0 / 99.0);
-    crf.round().clamp(0.0, 51.0) as u8
+/// Single-source param descriptor → chat schema (and CLI + page). The drift-guard
+/// test below proves the derived schema matches the pre-retrofit authored one.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::Video)
+        .param(
+            Param::enumv("format", ["mp4", "webm"])
+                .required()
+                .describe("Output container format."),
+        )
+        .param(
+            Param::integer("quality")
+                .min(1.0)
+                .max(100.0)
+                .describe("Quality 1-100 (default 75). Lower = smaller file, lower quality."),
+        )
 }
 
-
-fn build_argv(in_name: &str, out_name: &str, format: &str, crf: u8) -> Vec<String> {
-    match format {
-        "mp4" => vec![
-            "-i".into(),
-            in_name.into(),
-            "-c:v".into(),
-            "libx264".into(),
-            "-c:a".into(),
-            "aac".into(),
-            "-crf".into(),
-            crf.to_string(),
-            "-movflags".into(),
-            "+faststart".into(),
-            out_name.into(),
-        ],
-        "webm" => vec![
-            "-i".into(),
-            in_name.into(),
-            "-c:v".into(),
-            "libvpx-vp9".into(),
-            "-c:a".into(),
-            "libopus".into(),
-            "-crf".into(),
-            crf.to_string(),
-            "-b:v".into(),
-            "0".into(),
-            out_name.into(),
-        ],
-        _ => Vec::new(),
-    }
+fn schema_json() -> String {
+    descriptor().to_schema_json()
 }
 
 #[cfg(target_arch = "wasm32")]
 struct VideoTranscode;
 
+// The #[wafer_block] macro emits a native registration call requiring ::new()
+// on the impl; skill-style impls don't have one. Gate the struct + impl to
+// wasm32 so unit tests can still compile natively.
 #[cfg(target_arch = "wasm32")]
 #[wafer_block(
     name = "gizza-ai/video-transcode",
@@ -82,20 +74,7 @@ struct VideoTranscode;
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Transcode a video to a different format (mp4 or webm). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Quality 1-100 maps to ffmpeg CRF (default 75).",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "url":     { "type": "string", "description": "Video URL (HTTP/HTTPS)." },
-                "ref":     { "type": "string", "description": "Reference id from a prior tool call (e.g. \"call_42\"). Use either url or ref." },
-                "format":  { "type": "string", "enum": ["mp4", "webm"], "description": "Output container format." },
-                "quality": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Quality 1-100 (default 75). Lower = smaller file, lower quality." }
-            },
-            "required": ["format"],
-            "oneOf": [
-                { "required": ["url"] },
-                { "required": ["ref"] }
-            ]
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl VideoTranscode {
@@ -109,101 +88,84 @@ impl VideoTranscode {
 
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
+    // 1. Validate args (tool-specific — format enum + quality 1-100).
     let args: Args = serde_json::from_slice(&body).invalid_args("video-transcode")?;
-    let (out_mime, out_ext) = format_to_mime_and_ext(AssetKind::Video, &args.format).ok_or_else(|| {
-        SkillError::InvalidArgs(format!(
-            "invalid video-transcode args: format {:?} not supported (mp4|webm)",
-            args.format
-        ))
-    })?;
+    let (out_mime, out_ext) =
+        format_to_mime_and_ext(AssetKind::Video, &args.format).ok_or_else(|| {
+            SkillError::InvalidArgs(format!(
+                "invalid video-transcode args: format {:?} not supported (mp4|webm)",
+                args.format
+            ))
+        })?;
     validate_quality_1_100(args.quality, "video-transcode")?;
-    let crf = quality_to_crf(args.quality.unwrap_or(DEFAULT_QUALITY));
+    let quality = args.quality.unwrap_or(DEFAULT_QUALITY);
+    let crf = quality_to_crf(quality);
+    let fmt = gizza_ai_video_transcode_core::parse_format(&args.format)
+        .map_err(|e| SkillError::InvalidArgs(format!("invalid video-transcode args: {e}")))?;
 
-    let (input_bytes, in_mime, in_filename) = match args.source.into_inner() {
-        Source::Url(u) => fetch_from_url(&u, AssetKind::Video, MAX_INPUT_BYTES)?,
-        Source::Ref(id) => load_from_attachment(&id, AssetKind::Video, MAX_INPUT_BYTES)?,
-    };
+    // 2. Resolve source — URL fetch or attachment lookup.
+    let (input_bytes, in_mime, in_filename) =
+        resolve_source(args.source.into_inner(), AssetKind::Video, MAX_INPUT_BYTES)?;
 
-    let in_ext = mime_to_ext(&in_mime).unwrap_or("bin");
+    // 3. Build ffmpeg argv (shared pure core). Output uses the TARGET format ext.
+    let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
     let ffmpeg_out = format!("out.{out_ext}");
-    let argv = build_argv(&ffmpeg_in, &ffmpeg_out, &args.format, crf);
+    let argv = build_argv(&ffmpeg_in, &ffmpeg_out, fmt, crf);
 
-    let req = FfmpegReq {
-        args: argv,
-        inputs: vec![(ffmpeg_in, input_bytes)],
-        output: ffmpeg_out,
-    };
-    let req_body = serde_json::to_vec(&req)
-        .map_err(|e| SkillError::Serialize(format!("serialize ffmpeg request: {e}")))?;
-    let ff_resp_bytes = dispatch_ffmpeg_runtime(&req_body)?;
-    let ff: FfmpegResp = serde_json::from_slice(&ff_resp_bytes)
-        .map_err(|e| SkillError::Serialize(format!("malformed ffmpeg response: {e}")))?;
+    // 4. Dispatch to ffmpeg-runtime.
+    let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out)?;
 
-    if ff.exit_code != 0 {
-        let snippet: String = ff.log.chars().take(200).collect();
-        return Err(SkillError::FfmpegExitNonZero {
-            exit: ff.exit_code,
-            snippet,
-        });
-    }
-    if ff.output.len() > MAX_OUTPUT_BYTES {
-        return Err(SkillError::TooLarge {
-            kind: "output video",
-            bytes: ff.output.len(),
-            cap: MAX_OUTPUT_BYTES,
-        });
-    }
-
-    let output_size = ff.output.len();
-    let encoded = B64.encode(&ff.output);
-    let data_url = format!("data:{out_mime};base64,{encoded}");
+    // 5. Envelope.
+    let output_size = output.len();
     let filename = replace_extension(&in_filename, out_ext);
-    let env = Envelope {
-        for_llm: format!(
-            "transcoded {} from {} to {} ({} bytes)",
-            in_filename, in_mime, out_mime, output_size
-        ),
-        for_ui: ForUi {
-            data_url,
-            mime: out_mime.to_string(),
-            filename,
-        },
-    };
-    serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
+    let for_llm = format!("transcoded {in_filename} from {in_mime} to {out_mime} ({output_size})");
+    build_media_envelope(
+        output.as_slice(),
+        out_mime,
+        filename,
+        for_llm,
+        MAX_OUTPUT_BYTES,
+    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. `to_schema_json`
+    /// emits `additionalProperties: false` uniformly (video-transcode's authored
+    /// schema lacked it — added below as intentional uniform hardening). The
+    /// `url`/`ref` property descriptions are centralized in `to_schema_json`, so
+    /// the expected JSON uses that shared wording.
     #[test]
-    fn quality_to_crf_endpoints() {
-        assert_eq!(quality_to_crf(100), 0);
-        assert_eq!(quality_to_crf(1), 51);
-        let mid = quality_to_crf(75);
-        assert!((12..=14).contains(&mid), "expected 12-14, got {mid}");
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "url":     { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+                    "ref":     { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+                    "format":  { "type": "string", "enum": ["mp4", "webm"], "description": "Output container format." },
+                    "quality": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Quality 1-100 (default 75). Lower = smaller file, lower quality." }
+                },
+                "additionalProperties": false,
+                "required": ["format"],
+                "oneOf": [
+                    { "required": ["url"] },
+                    { "required": ["ref"] }
+                ]
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
     }
 
     #[test]
-    fn argv_mp4_default() {
-        let argv = build_argv("in.mp4", "out.mp4", "mp4", 13);
-        assert_eq!(argv[0], "-i");
-        assert_eq!(argv[1], "in.mp4");
-        assert!(argv.iter().any(|a| a == "libx264"));
-        assert!(argv.iter().any(|a| a == "aac"));
-        assert!(argv.iter().any(|a| a == "13"));
-        assert!(argv.iter().any(|a| a == "+faststart"));
-        assert_eq!(argv.last().map(String::as_str), Some("out.mp4"));
-    }
-
-    #[test]
-    fn argv_webm_default() {
-        let argv = build_argv("in.mp4", "out.webm", "webm", 13);
-        assert!(argv.iter().any(|a| a == "libvpx-vp9"));
-        assert!(argv.iter().any(|a| a == "libopus"));
-        assert!(argv.iter().any(|a| a == "13"));
-        assert!(argv.iter().any(|a| a == "0")); // -b:v 0
-        assert_eq!(argv.last().map(String::as_str), Some("out.webm"));
+    fn output_filename_swaps_extension() {
+        assert_eq!(replace_extension("clip.mov", "mp4"), "clip.mp4");
+        assert_eq!(replace_extension("clip.mp4", "webm"), "clip.webm");
     }
 }
