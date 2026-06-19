@@ -29,8 +29,18 @@ the build/test/PR commands. Follow these steps in order:
 6. **Implement** (replace the `TODO`/`not implemented` stubs):
    - `core/src/lib.rs` — the pure logic (+ ≥1 happy-path & ≥1 error unit test). Use
      `f64` not `i64` for numeric params (the wasm BigInt gotcha).
-   - `src/lib.rs` — the real `skill(description, parameters)` schema + `Args` + delegation.
-   - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning `{argv,out_name}`).
+   - `src/lib.rs` — edit `descriptor()` to the tool's real params (the SINGLE SOURCE
+     for the chat schema AND the CLI; `parameters = schema_json()` is already wired, so
+     do NOT hand-write an inline JSON schema) + the `skill(description=...)` text. The
+     scaffold already delegates: `run_skill` (pure/no-page) or `resolve_source` →
+     `dispatch_ffmpeg` → `build_media_envelope` (ffmpeg). Param API:
+     `Param::string|integer|number|enumv|boolean|string_map(...)` +
+     `.required()/.default(v)/.min(n)/.max(n)/.describe(s)`; `Input::None` for
+     pure/param-only, `Input::Image|Video|Document|File` for a `url`⊕`ref` media input,
+     `source_list` for an array of sources. Exemplars: `blocks/url-encode` (pure),
+     `blocks/image-resize` (ffmpeg page), `blocks/web-fetch` (no-page, flat output).
+   - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning the
+     shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` — already wired by the scaffold).
    - `page/meta.toml` + `page/content.md` — real title/desc/tags/inputs (field ORDER must
      match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures.
    - `manifest.json` — the scaffold generates it (build.rs needs it; `wafer build` does
