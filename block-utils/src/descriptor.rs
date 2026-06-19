@@ -198,6 +198,10 @@ impl ToolDescriptor {
         let mut schema = Map::new();
         schema.insert("type".into(), json!("object"));
         schema.insert("properties".into(), Value::Object(properties));
+        // Tool schemas reject unknown params uniformly (hardening for LLM tool
+        // calls). Some hand-written schemas had this, some didn't — the
+        // descriptor makes it consistent.
+        schema.insert("additionalProperties".into(), json!(false));
         if !required.is_empty() {
             schema.insert("required".into(), Value::Array(required));
         }
@@ -264,6 +268,7 @@ mod tests {
             "The expression."
         );
         assert_eq!(v["required"], serde_json::json!(["expression"]));
+        assert_eq!(v["additionalProperties"], false, "schemas reject unknown params");
         assert!(v.get("oneOf").is_none(), "no url/ref oneOf for Input::None");
     }
 
