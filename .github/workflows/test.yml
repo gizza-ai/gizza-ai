@@ -96,6 +96,10 @@ jobs:
         working-directory: gizza-ai
         run: cargo test --manifest-path chrome/Cargo.toml
 
+      - name: block-utils tests
+        working-directory: gizza-ai
+        run: cargo test --manifest-path block-utils/Cargo.toml
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

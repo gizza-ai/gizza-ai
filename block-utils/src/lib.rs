@@ -5,6 +5,9 @@
 
 pub mod ffmpeg;
 
+pub mod descriptor;
+pub use descriptor::*;
+
 /// Per-call linear-memory cap (in 64 KiB wasm pages) that gizza's trusted,
 /// single-user runtime grants every skill `WasmiBlock`. 1024 pages = 64 MiB.
 ///
