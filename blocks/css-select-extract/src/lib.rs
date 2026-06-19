@@ -7,7 +7,7 @@
 
 use std::collections::HashMap;
 
-use gizza_ai_block_utils::{SkillError, SkillResultExt};
+use gizza_ai_block_utils::{Input, Param, SkillError, SkillResultExt, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use wafer_sdk::*;
 
@@ -128,6 +128,44 @@ struct ToolResp {
     matches: Vec<String>,
 }
 
+/// Single-source param descriptor → chat schema (and CLI). See
+/// docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
+/// css-select-extract is `Input::None` — `url` is a normal required string param
+/// (no `ref`), so there is no `url`⊕`ref` `oneOf`. Returning the flat `ToolResp`,
+/// the handler stays thin (like web-fetch) rather than going through `run_skill`.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+        .param(
+            Param::string("url")
+                .required()
+                .describe("Absolute http or https URL of the page to fetch."),
+        )
+        .param(
+            Param::string("selector")
+                .required()
+                .describe("CSS selector to match elements (e.g. \"h2.title\", \"a\", \"div#main p\")."),
+        )
+        .param(
+            Param::enumv("extract", ["text", "html", "attr"]).describe(
+                "What to extract from each matched element: \"text\" (default) = concatenated text content, \"html\" = inner HTML, \"attr\" = the value of the attribute named by \"attr\".",
+            ),
+        )
+        .param(
+            Param::string("attr").describe(
+                "Attribute name to read when extract=\"attr\" (e.g. \"href\"). Required when extract=\"attr\"; elements lacking it are skipped.",
+            ),
+        )
+        .param(
+            Param::integer("limit")
+                .min(1.0)
+                .describe("Maximum number of matches to return (default 100)."),
+        )
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
+}
+
 /// Extract a `Content-Type` header value (case-insensitive name match,
 /// first value in the multi-value list). Returns `None` if absent.
 fn extract_content_type(headers: &HashMap<String, Vec<String>>) -> Option<String> {
@@ -149,18 +187,7 @@ struct CssSelectExtract;
     requires = ["wafer-run/network"],
     skill(
         description = "Fetch an http(s) page and extract content from every element matching a CSS selector. Returns a list of matches as their text content, inner HTML, or a named attribute's value.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "url":      { "type": "string", "description": "Absolute http or https URL of the page to fetch." },
-                "selector": { "type": "string", "description": "CSS selector to match elements (e.g. \"h2.title\", \"a\", \"div#main p\")." },
-                "extract":  { "type": "string", "enum": ["text", "html", "attr"], "description": "What to extract from each matched element: \"text\" (default) = concatenated text content, \"html\" = inner HTML, \"attr\" = the value of the attribute named by \"attr\"." },
-                "attr":     { "type": "string", "description": "Attribute name to read when extract=\"attr\" (e.g. \"href\"). Required when extract=\"attr\"; elements lacking it are skipped." },
-                "limit":    { "type": "integer", "minimum": 1, "description": "Maximum number of matches to return (default 100)." }
-            },
-            "required": ["url", "selector"],
-            "additionalProperties": false
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl CssSelectExtract {
@@ -220,7 +247,36 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 
 #[cfg(test)]
 mod tests {
-    use super::core::{extract, ExtractKind};
+    use super::{
+        core::{extract, ExtractKind},
+        schema_json,
+    };
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. (to_schema_json
+    /// now emits `additionalProperties: false`, which css-select-extract's
+    /// authored schema already had; the descriptor renders `limit`'s minimum as
+    /// the JSON number `1`, same as the authored schema.)
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "url":      { "type": "string", "description": "Absolute http or https URL of the page to fetch." },
+                    "selector": { "type": "string", "description": "CSS selector to match elements (e.g. \"h2.title\", \"a\", \"div#main p\")." },
+                    "extract":  { "type": "string", "enum": ["text", "html", "attr"], "description": "What to extract from each matched element: \"text\" (default) = concatenated text content, \"html\" = inner HTML, \"attr\" = the value of the attribute named by \"attr\"." },
+                    "attr":     { "type": "string", "description": "Attribute name to read when extract=\"attr\" (e.g. \"href\"). Required when extract=\"attr\"; elements lacking it are skipped." },
+                    "limit":    { "type": "integer", "minimum": 1, "description": "Maximum number of matches to return (default 100)." }
+                },
+                "required": ["url", "selector"],
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
 
     const FIXTURE: &str = r#"
         <html><body>
