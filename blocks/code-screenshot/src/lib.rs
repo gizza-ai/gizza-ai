@@ -2,18 +2,24 @@
 //! shareable PNG (carbon-style window chrome + padded background).
 //!
 //! Input is plain text params (`code` required; `language`, `theme` optional) —
-//! NOT a file/url, so there is no `block-utils` Source / attachment lookup. The
-//! pure render lives in the `core` crate (syntect + fontdue + png, wasm-safe);
-//! this block parses args, calls `render_png`, base64-encodes the PNG, and emits
-//! the renderable `{_for_llm, _for_ui}` envelope (like `image-fetch`). There is
-//! NO standalone page (image-from-text fits neither page shape) — chat + CLI only.
+//! NOT a file/url, so the descriptor declares `Input::None` and there is no
+//! `block-utils` Source / attachment lookup. The chat schema is derived from
+//! `descriptor()` (single source — shared shape across chat + CLI; see
+//! docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md).
+//!
+//! The pure render lives in the `core` crate (syntect + fontdue + png,
+//! wasm-safe); this block parses args, calls `render_png` (UNCHANGED), and wraps
+//! the PNG bytes in the standard `{_for_llm, _for_ui}` media envelope via
+//! `block_utils::build_media_envelope`. There is NO standalone page
+//! (image-from-text fits neither page shape) — chat + CLI only.
 
 // The #[wafer_block] macro emits wasm-only registration; the supporting imports
 // and the Args type are only used inside that wasm32-gated impl.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
-use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use gizza_ai_block_utils::{Envelope, ForUi, SkillError, SkillResultExt};
+use gizza_ai_block_utils::{
+    build_media_envelope, Input, Param, SkillError, SkillResultExt, ToolDescriptor,
+};
 use gizza_ai_code_screenshot_core::{render_png, RenderError};
 use serde::Deserialize;
 use wafer_sdk::*;
@@ -29,6 +35,27 @@ struct Args {
     language: Option<String>,
     #[serde(default)]
     theme: Option<String>,
+}
+
+/// Single-source param descriptor → chat schema (and CLI). The input is text
+/// PARAMS (`code`/`language`/`theme`), not a url/ref, so `Input::None`.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+        .param(
+            Param::string("code")
+                .required()
+                .describe("The source code to render. Required."),
+        )
+        .param(Param::string("language").describe(
+            "Language for syntax highlighting (e.g. \"rust\", \"python\", \"javascript\", \"bash\"). Optional — unknown or omitted falls back to plain text.",
+        ))
+        .param(Param::string("theme").describe(
+            "Color theme name (e.g. \"base16-ocean.dark\", \"Solarized (dark)\", \"InspiredGitHub\"). Optional — defaults to a dark theme.",
+        ))
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
 }
 
 /// Map a core `RenderError` onto a user-facing `SkillError`.
@@ -51,16 +78,7 @@ struct CodeScreenshot;
     summary = "Render a code snippet into a syntax-highlighted PNG",
     skill(
         description = "Render a code snippet into a shareable, syntax-highlighted PNG image (carbon-style window chrome on a padded background). Use this when the user wants a picture/screenshot/carbon image of code rather than the code as text. Returns an image, not text.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "code": { "type": "string", "description": "The source code to render. Required." },
-                "language": { "type": "string", "description": "Language for syntax highlighting (e.g. \"rust\", \"python\", \"javascript\", \"bash\"). Optional — unknown or omitted falls back to plain text." },
-                "theme": { "type": "string", "description": "Color theme name (e.g. \"base16-ocean.dark\", \"Solarized (dark)\", \"InspiredGitHub\"). Optional — defaults to a dark theme." }
-            },
-            "required": ["code"],
-            "additionalProperties": false
-        }"#
+        parameters = schema_json()
     )
 )]
 impl CodeScreenshot {
@@ -80,14 +98,6 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         render_png(&args.code, args.language.as_deref(), args.theme.as_deref())
             .map_err(map_render_err)?;
 
-    if png.len() > MAX_OUTPUT_BYTES {
-        return Err(SkillError::TooLarge {
-            kind: "output image",
-            bytes: png.len(),
-            cap: MAX_OUTPUT_BYTES,
-        });
-    }
-
     let bytes = png.len();
     let line_count = args.code.lines().count().max(1);
     let lang = args
@@ -97,24 +107,44 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         .filter(|l| !l.is_empty())
         .unwrap_or("plaintext");
 
-    let encoded = B64.encode(&png);
-    let data_url = format!("data:image/png;base64,{encoded}");
-    let env = Envelope {
-        for_llm: format!(
-            "rendered a {width}x{height} PNG ({bytes} bytes) of {line_count} line(s) of {lang} code"
-        ),
-        for_ui: ForUi {
-            data_url,
-            mime: "image/png".to_string(),
-            filename: "code.png".to_string(),
-        },
-    };
-    serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
+    let for_llm = format!(
+        "rendered a {width}x{height} PNG ({bytes} bytes) of {line_count} line(s) of {lang} code"
+    );
+    build_media_envelope(
+        &png,
+        "image/png",
+        "code.png".to_string(),
+        for_llm,
+        MAX_OUTPUT_BYTES,
+    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. The authored
+    /// schema lacked `additionalProperties`; `to_schema_json` now emits it
+    /// uniformly, so it is added to the expected value here.
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "code": { "type": "string", "description": "The source code to render. Required." },
+                    "language": { "type": "string", "description": "Language for syntax highlighting (e.g. \"rust\", \"python\", \"javascript\", \"bash\"). Optional — unknown or omitted falls back to plain text." },
+                    "theme": { "type": "string", "description": "Color theme name (e.g. \"base16-ocean.dark\", \"Solarized (dark)\", \"InspiredGitHub\"). Optional — defaults to a dark theme." }
+                },
+                "required": ["code"],
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
 
     #[test]
     fn empty_code_maps_to_invalid_args() {
