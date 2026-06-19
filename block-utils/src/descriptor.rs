@@ -129,6 +129,86 @@ impl ToolDescriptor {
         self.params.push(p);
         self
     }
+
+    /// Render the chat-schema JSON for `#[wafer_block(skill(parameters = …))]`.
+    /// Single source: properties/enums/defaults/required and the media
+    /// `url`⊕`ref` `oneOf` are all derived from this descriptor.
+    pub fn to_schema_json(&self) -> String {
+        use serde_json::{json, Map, Value};
+
+        let mut properties = Map::new();
+
+        // Media/file/document tools take exactly one of `url` / `ref`.
+        let media_label = match self.input {
+            Input::Image => Some("Image"),
+            Input::Video => Some("Video"),
+            Input::Document => Some("Document"),
+            Input::File => Some("File"),
+            Input::None => None,
+        };
+        if let Some(label) = media_label {
+            properties.insert(
+                "url".into(),
+                json!({ "type": "string",
+                        "description": format!("{label} URL (HTTP/HTTPS). Use either url or ref.") }),
+            );
+            properties.insert(
+                "ref".into(),
+                json!({ "type": "string",
+                        "description": "Reference id from a prior tool call. Use either url or ref." }),
+            );
+        }
+
+        let mut required: Vec<Value> = Vec::new();
+        for p in &self.params {
+            let mut prop = Map::new();
+            match &p.kind {
+                ParamKind::String => {
+                    prop.insert("type".into(), json!("string"));
+                }
+                ParamKind::Integer => {
+                    prop.insert("type".into(), json!("integer"));
+                }
+                ParamKind::Number => {
+                    prop.insert("type".into(), json!("number"));
+                }
+                ParamKind::Bool => {
+                    prop.insert("type".into(), json!("boolean"));
+                }
+                ParamKind::Enum(variants) => {
+                    prop.insert("type".into(), json!("string"));
+                    prop.insert("enum".into(), json!(variants));
+                }
+            }
+            if let Some(m) = p.minimum {
+                prop.insert("minimum".into(), json!(m));
+            }
+            if let Some(d) = &p.default {
+                prop.insert("default".into(), d.clone());
+            }
+            if !p.description.is_empty() {
+                prop.insert("description".into(), json!(p.description));
+            }
+            properties.insert(p.name.clone(), Value::Object(prop));
+            if p.required {
+                required.push(json!(p.name));
+            }
+        }
+
+        let mut schema = Map::new();
+        schema.insert("type".into(), json!("object"));
+        schema.insert("properties".into(), Value::Object(properties));
+        if !required.is_empty() {
+            schema.insert("required".into(), Value::Array(required));
+        }
+        if media_label.is_some() {
+            schema.insert(
+                "oneOf".into(),
+                json!([{ "required": ["url"] }, { "required": ["ref"] }]),
+            );
+        }
+        Value::Object(schema).to_string()
+    }
 }
 
 #[cfg(test)]
@@ -165,5 +245,51 @@ mod tests {
         let json = serde_json::to_string(&d).expect("serialize");
         let back: ToolDescriptor = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(d, back);
+    }
+
+    #[test]
+    fn schema_for_pure_text_tool() {
+        // calculator: Input::None + one required string param.
+        let d = ToolDescriptor::new(Input::None)
+            .param(Param::string("expression").required().describe("The expression."));
+        let v: serde_json::Value =
+            serde_json::from_str(&d.to_schema_json()).expect("valid JSON schema");
+        assert_eq!(v["type"], "object");
+        assert_eq!(v["properties"]["expression"]["type"], "string");
+        assert_eq!(v["properties"]["expression"]["description"], "The expression.");
+        assert_eq!(v["required"], serde_json::json!(["expression"]));
+        assert!(v.get("oneOf").is_none(), "no url/ref oneOf for Input::None");
+    }
+
+    #[test]
+    fn schema_for_media_tool_has_url_ref_oneof_and_typed_params() {
+        // image-resize: Input::Image + optional integer(min) + enum(default).
+        let d = ToolDescriptor::new(Input::Image)
+            .param(Param::integer("width").min(1.0).describe("Target width in pixels."))
+            .param(Param::integer("height").min(1.0).describe("Target height in pixels."))
+            .param(
+                Param::enumv("fit", ["contain", "cover", "stretch"])
+                    .default("contain")
+                    .describe("Resize mode."),
+            );
+        let v: serde_json::Value =
+            serde_json::from_str(&d.to_schema_json()).expect("valid JSON schema");
+        // url/ref properties + exclusive oneOf.
+        assert_eq!(v["properties"]["url"]["type"], "string");
+        assert_eq!(v["properties"]["ref"]["type"], "string");
+        assert_eq!(
+            v["oneOf"],
+            serde_json::json!([{ "required": ["url"] }, { "required": ["ref"] }])
+        );
+        // typed params.
+        assert_eq!(v["properties"]["width"]["type"], "integer");
+        assert_eq!(v["properties"]["width"]["minimum"], 1.0);
+        assert_eq!(
+            v["properties"]["fit"]["enum"],
+            serde_json::json!(["contain", "cover", "stretch"])
+        );
+        assert_eq!(v["properties"]["fit"]["default"], "contain");
+        // optional params => no top-level required.
+        assert!(v.get("required").is_none());
     }
 }
