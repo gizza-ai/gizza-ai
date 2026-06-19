@@ -15,5 +15,6 @@ crate-type = ["cdylib", "rlib"]
 wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 gizza-ai-clock-core = { path = "core" }
+gizza-ai-block-utils = { path = "../../block-utils" }
 chrono = { version = "0.4", default-features = false, features = ["alloc", "clock"] }
 serde_json = "1"
