@@ -250,13 +250,19 @@ mod tests {
     #[test]
     fn schema_for_pure_text_tool() {
         // calculator: Input::None + one required string param.
-        let d = ToolDescriptor::new(Input::None)
-            .param(Param::string("expression").required().describe("The expression."));
+        let d = ToolDescriptor::new(Input::None).param(
+            Param::string("expression")
+                .required()
+                .describe("The expression."),
+        );
         let v: serde_json::Value =
             serde_json::from_str(&d.to_schema_json()).expect("valid JSON schema");
         assert_eq!(v["type"], "object");
         assert_eq!(v["properties"]["expression"]["type"], "string");
-        assert_eq!(v["properties"]["expression"]["description"], "The expression.");
+        assert_eq!(
+            v["properties"]["expression"]["description"],
+            "The expression."
+        );
         assert_eq!(v["required"], serde_json::json!(["expression"]));
         assert!(v.get("oneOf").is_none(), "no url/ref oneOf for Input::None");
     }
@@ -265,8 +271,16 @@ mod tests {
     fn schema_for_media_tool_has_url_ref_oneof_and_typed_params() {
         // image-resize: Input::Image + optional integer(min) + enum(default).
         let d = ToolDescriptor::new(Input::Image)
-            .param(Param::integer("width").min(1.0).describe("Target width in pixels."))
-            .param(Param::integer("height").min(1.0).describe("Target height in pixels."))
+            .param(
+                Param::integer("width")
+                    .min(1.0)
+                    .describe("Target width in pixels."),
+            )
+            .param(
+                Param::integer("height")
+                    .min(1.0)
+                    .describe("Target height in pixels."),
+            )
             .param(
                 Param::enumv("fit", ["contain", "cover", "stretch"])
                     .default("contain")
