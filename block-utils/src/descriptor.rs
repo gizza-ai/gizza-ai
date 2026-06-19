@@ -181,7 +181,16 @@ impl ToolDescriptor {
                 }
             }
             if let Some(m) = p.minimum {
-                prop.insert("minimum".into(), json!(m));
+                // Render whole-number bounds as JSON integers (`1`, not `1.0`)
+                // so an integer param's `minimum` matches what hand-authored
+                // schemas wrote and what `ParamKind::Integer` implies. `Param`
+                // stores `minimum` as f64; without this, every integer min
+                // would serialize as a float and drift from the authored schema.
+                if m.fract() == 0.0 && m.is_finite() {
+                    prop.insert("minimum".into(), json!(m as i64));
+                } else {
+                    prop.insert("minimum".into(), json!(m));
+                }
             }
             if let Some(d) = &p.default {
                 prop.insert("default".into(), d.clone());
@@ -268,7 +277,10 @@ mod tests {
             "The expression."
         );
         assert_eq!(v["required"], serde_json::json!(["expression"]));
-        assert_eq!(v["additionalProperties"], false, "schemas reject unknown params");
+        assert_eq!(
+            v["additionalProperties"], false,
+            "schemas reject unknown params"
+        );
         assert!(v.get("oneOf").is_none(), "no url/ref oneOf for Input::None");
     }
 
@@ -302,7 +314,8 @@ mod tests {
         );
         // typed params.
         assert_eq!(v["properties"]["width"]["type"], "integer");
-        assert_eq!(v["properties"]["width"]["minimum"], 1.0);
+        // Whole-number bounds render as JSON integers, not floats.
+        assert_eq!(v["properties"]["width"]["minimum"], 1);
         assert_eq!(
             v["properties"]["fit"]["enum"],
             serde_json::json!(["contain", "cover", "stretch"])
