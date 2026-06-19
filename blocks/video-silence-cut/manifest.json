@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/video-silence-cut",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove silent gaps from a video (correct two-pass, A/V stays in sync).",
+  "role": "skill",
+  "tool": {
+    "description": "Remove silent gaps from a video to tighten pacing (jump-cut style), keeping audio and video in sync via a two-pass detect-then-cut flow. Provide either url or ref. threshold_db is the silence loudness cutoff in dB (default -30) and min_silence is the shortest gap in seconds to trim (default 0.5). Output is mp4 (re-encoded H.264/AAC).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":          { "type": "string", "description": "Video URL (HTTP/HTTPS)." },
+        "ref":          { "type": "string", "description": "Reference id from a prior video tool call. Use either url or ref." },
+        "threshold_db": { "type": "number", "maximum": 0, "description": "Silence threshold in dB (default -30). Audio quieter than this counts as silence." },
+        "min_silence":  { "type": "number", "minimum": 0, "description": "Minimum silent-gap length in seconds to trim (default 0.5). Must be > 0." }
+      },
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
