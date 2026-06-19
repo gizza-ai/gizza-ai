@@ -666,6 +666,83 @@ where
     respond_ok(&out)
 }
 
+// ---------------------------------------------------------------------------
+// Media helpers. `build_media_envelope` is pure (native-testable); the source
+// resolver and ffmpeg dispatcher call host imports and are wasm-only.
+// ---------------------------------------------------------------------------
+
+use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
+
+/// Encode `out_bytes` (enforcing `max_out`) as a `data:` URL and wrap it in the
+/// standard image/video `Envelope` (`for_llm` summary + `for_ui` data URL).
+pub fn build_media_envelope(
+    out_bytes: &[u8],
+    mime: &str,
+    filename: String,
+    for_llm: String,
+    max_out: usize,
+) -> Result<Vec<u8>, SkillError> {
+    if out_bytes.len() > max_out {
+        return Err(SkillError::TooLarge {
+            kind: "output",
+            bytes: out_bytes.len(),
+            cap: max_out,
+        });
+    }
+    let data_url = format!("data:{mime};base64,{}", B64.encode(out_bytes));
+    let env = Envelope {
+        for_llm,
+        for_ui: ForUi {
+            data_url,
+            mime: mime.to_string(),
+            filename,
+        },
+    };
+    serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
+}
+
+/// Resolve a `Source` to `(bytes, mime, filename)` — the `url` fetch vs `ref`
+/// attachment branch every media tool repeats.
+#[cfg(target_arch = "wasm32")]
+pub fn resolve_source(
+    source: Source,
+    kind: AssetKind,
+    max_in: usize,
+) -> Result<(Vec<u8>, String, String), SkillError> {
+    match source {
+        Source::Url(u) => fetch_from_url(&u, kind, max_in),
+        Source::Ref(id) => load_from_attachment(&id, kind, max_in),
+    }
+}
+
+/// Run one ffmpeg-runtime call and return the output bytes, mapping a non-zero
+/// exit to `SkillError::FfmpegExitNonZero` (200-char log snippet).
+#[cfg(target_arch = "wasm32")]
+pub fn dispatch_ffmpeg(
+    argv: Vec<String>,
+    in_name: String,
+    in_bytes: Vec<u8>,
+    out_name: String,
+) -> Result<Vec<u8>, SkillError> {
+    let req = FfmpegReq {
+        args: argv,
+        inputs: vec![(in_name, in_bytes)],
+        output: out_name,
+    };
+    let req_body = serde_json::to_vec(&req)
+        .map_err(|e| SkillError::Serialize(format!("serialize ffmpeg request: {e}")))?;
+    let resp_bytes = dispatch_ffmpeg_runtime(&req_body)?;
+    let ff: FfmpegResp = serde_json::from_slice(&resp_bytes)
+        .map_err(|e| SkillError::Serialize(format!("malformed ffmpeg response: {e}")))?;
+    if ff.exit_code != 0 {
+        return Err(SkillError::FfmpegExitNonZero {
+            exit: ff.exit_code,
+            snippet: ff.log.chars().take(200).collect(),
+        });
+    }
+    Ok(ff.output)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1029,5 +1106,29 @@ mod tests {
         })
         .expect_err("inner error propagates");
         assert!(matches!(err, SkillError::InvalidArgs(_)));
+    }
+
+    #[test]
+    fn build_media_envelope_emits_data_url_and_caps_size() {
+        let bytes = b"\x89PNG\r\n\x1a\n";
+        let out = build_media_envelope(
+            bytes,
+            "image/png",
+            "cat-resized.png".into(),
+            "resized cat".into(),
+            1024,
+        )
+        .expect("under cap");
+        let v: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        // Envelope serde-renames to _for_llm / _for_ui.
+        assert_eq!(v["_for_llm"], "resized cat");
+        assert_eq!(v["_for_ui"]["mime"], "image/png");
+        assert_eq!(v["_for_ui"]["filename"], "cat-resized.png");
+        let data_url = v["_for_ui"]["data_url"].as_str().unwrap();
+        assert!(data_url.starts_with("data:image/png;base64,"));
+
+        let err = build_media_envelope(bytes, "image/png", "x.png".into(), "x".into(), 4)
+            .expect_err("over cap");
+        assert!(matches!(err, SkillError::TooLarge { .. }));
     }
 }
