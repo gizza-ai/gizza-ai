@@ -164,8 +164,8 @@ mod tests {
                 "properties": {
                     "url":    { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
                     "ref":    { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
-                    "width":  { "type": "integer", "minimum": 1.0, "description": "Target width in pixels." },
-                    "height": { "type": "integer", "minimum": 1.0, "description": "Target height in pixels." },
+                    "width":  { "type": "integer", "minimum": 1, "description": "Target width in pixels." },
+                    "height": { "type": "integer", "minimum": 1, "description": "Target height in pixels." },
                     "fit":    { "type": "string", "enum": ["contain", "cover", "stretch"], "description": "Resize mode (default: contain)." }
                 },
                 "additionalProperties": false,
