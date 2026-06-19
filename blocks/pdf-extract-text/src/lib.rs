@@ -1,9 +1,15 @@
 //! gizza-ai/pdf-extract-text — extract the selectable text from a PDF.
 //!
 //! Pipeline: parse `{url|ref}` + optional `page` → fetch the PDF bytes via
-//! `block-utils` (URL fetch through `wafer-run/network`, or an uploaded
-//! attachment ref) → delegate to the pure `core::extract` (lopdf) → return the
-//! extracted text as a flat JSON response the LLM reads directly.
+//! `block-utils` `resolve_source` (URL fetch through `wafer-run/network`, or an
+//! uploaded attachment ref) → delegate to the pure `core::extract` (lopdf) →
+//! return the extracted text as a flat JSON response the LLM reads directly.
+//!
+//! The chat schema is derived from `descriptor()` (single source — shared shape
+//! across chat + CLI). The handler stays thin (parse `Args`, run extraction,
+//! emit the flat `Resp` JSON) rather than going through `run_skill`, because
+//! pdf-extract-text's success shape is the flat `Resp` JSON, not the
+//! `{ "result": … }` wrapper `run_skill` produces.
 //!
 //! No page surface: a PDF is a binary file input and the output is plain text,
 //! which fits neither the pure-text nor the ffmpeg file→media page shapes — this
@@ -16,8 +22,10 @@
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
-use gizza_ai_block_utils::{fetch_from_url, load_from_attachment};
-use gizza_ai_block_utils::{AssetKind, SkillError, SkillResultExt, Source, SourceFields};
+use gizza_ai_block_utils::resolve_source;
+use gizza_ai_block_utils::{
+    AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor,
+};
 use gizza_ai_pdf_extract_text_core::extract;
 use serde::{Deserialize, Serialize};
 use wafer_sdk::*;
@@ -50,6 +58,22 @@ struct Resp {
     note: Option<String>,
 }
 
+/// Single-source param descriptor → chat schema (and CLI). See
+/// docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
+/// `Input::Document` emits the `url`⊕`ref` `oneOf` (a PDF arrives via URL fetch
+/// or an attachment ref); `page` is an optional 1-based integer.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::Document).param(
+        Param::integer("page")
+            .min(1.0)
+            .describe("1-based page number to extract. Omit to extract all pages."),
+    )
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
+}
+
 /// Clip `text` to at most `max_chars` unicode characters. Returns
 /// `(clipped, was_truncated)`.
 fn clip_chars(text: &str, max_chars: usize) -> (String, bool) {
@@ -72,22 +96,14 @@ struct PdfExtractText;
     requires = ["wafer-run/network"],
     skill(
         description = "Extract the selectable text from a PDF. Provide url (HTTP/HTTPS) or ref from a prior tool call, and optionally a 1-based page number (omit to extract every page). Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "url":  { "type": "string", "description": "PDF URL (HTTP/HTTPS)." },
-                "ref":  { "type": "string", "description": "Reference id from a prior tool call (e.g. \"call_42\"). Use either url or ref." },
-                "page": { "type": "integer", "minimum": 1, "description": "1-based page number to extract. Omit to extract all pages." }
-            },
-            "oneOf": [
-                { "required": ["url"] },
-                { "required": ["ref"] }
-            ]
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl PdfExtractText {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        // pdf-extract-text returns the flat Resp JSON directly (no
+        // `{ "result": … }` wrapper), so it keeps a thin handle rather than
+        // using run_skill.
         match run(body) {
             Ok(v) => GuestResult::respond(v),
             Err(e) => GuestResult::error(e.into()),
@@ -107,11 +123,13 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         }
     }
 
-    // 2. Resolve source — URL fetch or attachment lookup.
-    let (input_bytes, _mime, _filename) = match args.source.into_inner() {
-        Source::Url(u) => fetch_from_url(&u, AssetKind::Document, MAX_INPUT_BYTES)?,
-        Source::Ref(id) => load_from_attachment(&id, AssetKind::Document, MAX_INPUT_BYTES)?,
-    };
+    // 2. Resolve source — URL fetch or attachment lookup, validated to the
+    //    application/* document MIME class.
+    let (input_bytes, _mime, _filename) = resolve_source(
+        args.source.into_inner(),
+        AssetKind::Document,
+        MAX_INPUT_BYTES,
+    )?;
 
     // 3. Extract via the pure core (lopdf). Maps parse/range errors to InvalidArgs.
     let ex = extract(&input_bytes, args.page).map_err(SkillError::InvalidArgs)?;
@@ -137,7 +155,42 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 
 #[cfg(test)]
 mod tests {
+    use gizza_ai_block_utils::Source;
+
     use super::*;
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. Two intentional,
+    /// documented deltas from the hand-authored blob:
+    ///   - `additionalProperties: false` — `to_schema_json()` now emits this
+    ///     uniformly (the authored schema lacked it); tool schemas reject unknown
+    ///     params, a hardening change, so it is added to the expected blob.
+    ///   - the `url`/`ref` descriptions — these are fixed by `Input::Document`
+    ///     (single source), so the expected blob uses the descriptor-emitted
+    ///     wording rather than the old hand-authored strings.
+    /// `page` keeps its `integer`/`minimum: 1` shape (rendered as the JSON
+    /// integer `1`, not `1.0`).
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "url":  { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+                    "ref":  { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+                    "page": { "type": "integer", "minimum": 1, "description": "1-based page number to extract. Omit to extract all pages." }
+                },
+                "additionalProperties": false,
+                "oneOf": [
+                    { "required": ["url"] },
+                    { "required": ["ref"] }
+                ]
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
 
     #[test]
     fn args_parse_url_and_page() {
