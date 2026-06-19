@@ -2,6 +2,8 @@
 // generator), loads the tool's wasm-bindgen module, wires inputs to the
 // exported function, and renders the result. Shared by every tool page (/tools/<slug>/).
 
+import { queryPrefill } from "./query-prefill.js";
+
 const cfg = window.GIZZA_TOOL;
 const out = document.getElementById(cfg.output.elementId);
 
@@ -87,10 +89,41 @@ async function main() {
       }
     }
 
+    // Deep-link: prefill scalar fields; if ?url= is present, fetch the remote
+    // media into the file input and auto-run. Param names == input names.
+    const { fields: qpFields, url: qpUrl } = queryPrefill(cfg.inputs, location.search);
+    for (const f of qpFields) {
+      const el = document.getElementById(f.elementId);
+      if (el) el.value = f.value;
+    }
+    async function loadUrlIntoFile(url) {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const blob = await resp.blob();
+        const name = (url.split("/").pop() || "input").split("?")[0] || "input";
+        const dt = new DataTransfer();
+        dt.items.add(new File([blob], name, { type: blob.type }));
+        fileInput.files = dt.files;
+        return true;
+      } catch (e) {
+        showError(
+          "Couldn't fetch " + url + " — the host may block cross-origin access. " +
+            "Download it and choose the file instead."
+        );
+        return false;
+      }
+    }
+
     if (fileInput) fileInput.addEventListener("change", run);
     for (const i of fieldInputs) {
       const el = document.getElementById(i.elementId);
       if (el) el.addEventListener("input", run);
+    }
+    if (qpUrl && fileInput) {
+      loadUrlIntoFile(qpUrl).then((ok) => {
+        if (ok) run();
+      });
     }
     return;
   }
@@ -113,6 +146,13 @@ async function main() {
         showError(msg);
       }
     }
+  }
+
+  // Deep-link: prefill fields from the URL query, then the initial compute()
+  // below auto-runs with those values. Param names == input names.
+  for (const f of queryPrefill(cfg.inputs, location.search).fields) {
+    const el = document.getElementById(f.elementId);
+    if (el) el.value = f.value;
   }
 
   // Wire field inputs to live recompute.
