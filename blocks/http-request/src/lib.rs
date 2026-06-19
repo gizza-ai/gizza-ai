@@ -4,6 +4,12 @@
 //! request surface: any method, custom headers, query parameters merged into
 //! the URL, and an optional request body. It returns a readable report with the
 //! status line, the response headers, and the (pretty-printed-if-JSON) body.
+//!
+//! The chat schema is derived from `descriptor()` (single source — shared shape
+//! across chat + CLI). The handler stays thin (parse `Args`, run the request,
+//! emit the flat `ToolResp`) rather than going through `run_skill`, because
+//! http-request's success shape is the flat `ToolResp` JSON, not the
+//! `{ "result": … }` wrapper `run_skill` produces — same pattern as `web-fetch`.
 
 // The #[wafer_block] macro emits wasm-only registration; the host call and the
 // `Args` type are only used inside that impl. The pure request-building and
@@ -12,7 +18,7 @@
 
 use std::collections::HashMap;
 
-use gizza_ai_block_utils::{SkillError, SkillResultExt};
+use gizza_ai_block_utils::{Input, Param, SkillError, SkillResultExt, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use wafer_sdk::*;
 
@@ -51,8 +57,39 @@ struct ToolResp {
     truncated: bool,
 }
 
-/// The methods this tool accepts. Kept in sync with the JSON-Schema `enum` in
-/// `src/lib.rs`'s `skill(...)` and in `manifest.json`.
+/// Single-source param descriptor → chat schema (and CLI). See
+/// docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
+/// http-request is `Input::None` — `url` is a normal required string param (it
+/// has no `ref`), so there is no `url`⊕`ref` `oneOf`. `headers` and `query` are
+/// `Param::string_map` (name→value string maps).
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+        .param(
+            Param::string("url")
+                .required()
+                .describe("Absolute http or https URL to request."),
+        )
+        .param(
+            Param::enumv("method", ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
+                .describe("HTTP method (default GET)."),
+        )
+        .param(Param::string_map("headers").describe("Request headers as a name->value map."))
+        .param(
+            Param::string_map("query")
+                .describe("Query parameters merged into the URL as a name->value map."),
+        )
+        .param(Param::string("body").describe(
+            "Optional raw request body. If you set a JSON content-type header, pass JSON text here as-is.",
+        ))
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
+}
+
+/// The methods this tool accepts. Kept in sync with the JSON-Schema `enum` the
+/// descriptor renders into `skill(parameters = schema_json())` and with
+/// `manifest.json`.
 const ALLOWED_METHODS: [&str; 6] = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"];
 
 /// Validate + normalize the requested method. `None` defaults to `GET`. The
@@ -254,18 +291,7 @@ struct HttpRequest;
     requires = ["wafer-run/network"],
     skill(
         description = "Make a full HTTP request to an http(s) URL: choose the method, set custom headers and query parameters, and send an optional request body. Returns the status (code + reason), the response headers, and the body (pretty-printed when it is JSON). Only public URLs are allowed — loopback and private addresses are blocked.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "url":     { "type": "string", "description": "Absolute http or https URL to request." },
-                "method":  { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"], "description": "HTTP method (default GET)." },
-                "headers": { "type": "object", "additionalProperties": { "type": "string" }, "description": "Request headers as a name->value map." },
-                "query":   { "type": "object", "additionalProperties": { "type": "string" }, "description": "Query parameters merged into the URL as a name->value map." },
-                "body":    { "type": "string", "description": "Optional raw request body. If you set a JSON content-type header, pass JSON text here as-is." }
-            },
-            "required": ["url"],
-            "additionalProperties": false
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl HttpRequest {
@@ -308,6 +334,34 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // --- chat-schema drift guard --------------------------------------------
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema verbatim, so the LLM sees no drift. The
+    /// authored schema already had top-level `additionalProperties: false`, and
+    /// the `headers`/`query` string-map params keep their own inner
+    /// `additionalProperties: { "type": "string" }` — both are preserved here.
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "url":     { "type": "string", "description": "Absolute http or https URL to request." },
+                    "method":  { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"], "description": "HTTP method (default GET)." },
+                    "headers": { "type": "object", "additionalProperties": { "type": "string" }, "description": "Request headers as a name->value map." },
+                    "query":   { "type": "object", "additionalProperties": { "type": "string" }, "description": "Query parameters merged into the URL as a name->value map." },
+                    "body":    { "type": "string", "description": "Optional raw request body. If you set a JSON content-type header, pass JSON text here as-is." }
+                },
+                "required": ["url"],
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
 
     // --- normalize_method ---------------------------------------------------
 
