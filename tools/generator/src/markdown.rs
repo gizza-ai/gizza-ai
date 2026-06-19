@@ -41,6 +41,24 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str) -> String {
     s.push_str("## Output\n\n");
     s.push_str(&format!("- {} ({})\n\n", meta.output_label, meta.format));
 
+    // Query parameters: every page tool can be opened pre-filled and auto-run by
+    // URL. Param names == input names; a file input is driven by ?url=. This is
+    // the surface an LLM reads to drive the tool by link.
+    let qp: Vec<&Input> = meta.inputs.iter().filter(|i| i.source == "field").collect();
+    let has_file = meta.inputs.iter().any(|i| i.source == "file");
+    if !qp.is_empty() || has_file {
+        s.push_str("## Query parameters\n\n");
+        s.push_str("Open the tool pre-filled and auto-run via URL:\n\n");
+        for i in &qp {
+            let label = if i.label.is_empty() { i.name.as_str() } else { i.label.as_str() };
+            s.push_str(&format!("- `{}` — {}\n", i.name, label));
+        }
+        if has_file {
+            s.push_str("- `url` — fetch the input file from a public URL (CORS-permitting)\n");
+        }
+        s.push_str(&format!("\nExample: `{}`\n\n", example_deeplink(meta)));
+    }
+
     s.push_str("---\n\n");
     s.push_str(content_md.trim_end());
     s.push('\n');
@@ -59,6 +77,40 @@ fn cli_example(meta: &ToolMeta) -> String {
     } else {
         format!("gizza tool {}", meta.slug)
     }
+}
+
+/// Example deep-link URL for the "Query parameters" docs (markdown + page).
+/// Field inputs use their placeholder (or `value`) as a sample; a file input
+/// becomes `?url=…`. `pub(crate)` so `template.rs` renders the same example.
+pub(crate) fn example_deeplink(meta: &ToolMeta) -> String {
+    let mut pairs: Vec<String> = Vec::new();
+    for i in &meta.inputs {
+        if i.source == "file" {
+            pairs.push("url=https://example.com/input".to_string());
+        } else if i.source == "field" {
+            let sample = if i.placeholder.is_empty() {
+                "value"
+            } else {
+                i.placeholder.as_str()
+            };
+            pairs.push(format!("{}={}", i.name, urlencode(sample)));
+        }
+    }
+    format!("{}/tools/{}/?{}", SITE, meta.slug, pairs.join("&"))
+}
+
+/// Minimal percent-encoding for example URLs (keeps RFC 3986 unreserved chars).
+fn urlencode(s: &str) -> String {
+    let mut out = String::new();
+    for b in s.bytes() {
+        match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(b as char)
+            }
+            _ => out.push_str(&format!("%{b:02X}")),
+        }
+    }
+    out
 }
 
 #[cfg(test)]
@@ -160,5 +212,30 @@ source = "clock"
         let md = tool_markdown(&live_tool(), "prose");
         assert!(md.contains("`gizza tool clock`"), "no-arg CLI example");
         assert!(md.contains("_no manual inputs — runs automatically_"), "no manual inputs note");
+    }
+
+    #[test]
+    fn field_tool_documents_query_parameters_with_example() {
+        let md = tool_markdown(&field_tool(), "prose");
+        assert!(md.contains("## Query parameters"), "query-params section present");
+        assert!(md.contains("- `expr`"), "field param listed");
+        assert!(
+            md.contains("https://gizza.ai/tools/calculator/?expr="),
+            "example deep-link present"
+        );
+    }
+
+    #[test]
+    fn file_tool_documents_url_query_parameter() {
+        let md = tool_markdown(&file_tool(), "prose");
+        assert!(md.contains("## Query parameters"));
+        assert!(md.contains("- `url`"), "media tools document ?url=");
+    }
+
+    #[test]
+    fn live_tool_has_no_query_parameters_section() {
+        // clock has only a "clock" input — nothing to deep-link.
+        let md = tool_markdown(&live_tool(), "prose");
+        assert!(!md.contains("## Query parameters"), "no query-params for auto-only tools");
     }
 }

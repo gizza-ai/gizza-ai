@@ -1,6 +1,7 @@
 //! Renders the option-C tool page: top nav + hero tool + SEO content + footer,
 //! with SEO `<head>` tags and JSON-LD.
 
+use crate::markdown::example_deeplink;
 use crate::meta::ToolMeta;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, PreEscaped, DOCTYPE};
@@ -118,6 +119,13 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                             "New to the CLI? "
                             a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
                                 target="_blank" rel="noopener noreferrer" { "Get gizza →" }
+                        }
+                    }
+                    @if meta.inputs.iter().any(|i| i.source == "field" || i.source == "file") {
+                        section class="tool-cli" {
+                            h2 { "Open it by URL" }
+                            p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
+                            pre class="tool-cli-code" { code { (example_deeplink(meta)) } }
                         }
                     }
                 }
@@ -332,6 +340,16 @@ source      = "field"
         assert!(html.contains(r#"id="tool-output""#));
         assert!(html.contains("window.GIZZA_TOOL"));
         assert!(html.contains("<h2>About</h2>"));
+    }
+
+    #[test]
+    fn page_documents_query_param_deep_link() {
+        let html = render_page(&sample(), "<h2>About</h2>");
+        assert!(html.contains("Open it by URL"), "deep-link section present");
+        assert!(
+            html.contains("https://gizza.ai/tools/calculator/?expr="),
+            "example deep-link rendered on the page",
+        );
     }
 
     #[test]
