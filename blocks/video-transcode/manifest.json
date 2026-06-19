@@ -2,5 +2,24 @@
   "name": "gizza-ai/video-transcode",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Transcode a video to mp4 or webm."
+  "summary": "Transcode a video to mp4 or webm.",
+  "role": "skill",
+  "tool": {
+    "description": "Transcode a video to a different format (mp4 or webm). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Quality 1-100 maps to ffmpeg CRF (default 75).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":     { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref":     { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "format":  { "type": "string", "enum": ["mp4", "webm"], "description": "Output container format." },
+        "quality": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Quality 1-100 (default 75). Lower = smaller file, lower quality." }
+      },
+      "additionalProperties": false,
+      "required": ["format"],
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
 }
