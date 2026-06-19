@@ -31,6 +31,11 @@ pub enum ParamKind {
     /// `{ "type": "object", "additionalProperties": { "type": "string" } }`
     /// (e.g. an HTTP `headers` / `query` name→value map).
     StringMap,
+    /// An ordered array of `{ url | ref }` source objects (e.g. merge-pdf's
+    /// `inputs`). `u32` is `minItems` (0 = omit). Renders as
+    /// `{ "type":"array", "minItems":N, "items": { object with url+ref string
+    /// props, additionalProperties:false } }`.
+    SourceList(u32),
 }
 
 /// One logical parameter. `name` is the chat-schema property name, the page
@@ -85,6 +90,11 @@ impl Param {
     /// A `{ name: value }` object with string values (e.g. HTTP headers/query).
     pub fn string_map(name: &str) -> Self {
         Self::new(name, ParamKind::StringMap)
+    }
+    /// An ordered array of `{ url | ref }` sources, with at least `min_items`
+    /// entries (0 = no minimum). E.g. merge-pdf's `inputs`.
+    pub fn source_list(name: &str, min_items: u32) -> Self {
+        Self::new(name, ParamKind::SourceList(min_items))
     }
     pub fn enumv<const N: usize>(name: &str, variants: [&str; N]) -> Self {
         Self::new(
@@ -197,6 +207,23 @@ impl ToolDescriptor {
                 ParamKind::StringMap => {
                     prop.insert("type".into(), json!("object"));
                     prop.insert("additionalProperties".into(), json!({ "type": "string" }));
+                }
+                ParamKind::SourceList(min_items) => {
+                    prop.insert("type".into(), json!("array"));
+                    if *min_items > 0 {
+                        prop.insert("minItems".into(), json!(min_items));
+                    }
+                    prop.insert(
+                        "items".into(),
+                        json!({
+                            "type": "object",
+                            "properties": {
+                                "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
+                                "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+                            },
+                            "additionalProperties": false
+                        }),
+                    );
                 }
             }
             if let Some(m) = p.minimum {
@@ -366,5 +393,27 @@ mod tests {
             v["properties"]["headers"]["additionalProperties"]["type"],
             "string"
         );
+    }
+
+    #[test]
+    fn schema_renders_source_list() {
+        let d = ToolDescriptor::new(Input::None).param(
+            Param::source_list("inputs", 2)
+                .required()
+                .describe("Sources"),
+        );
+        let v: serde_json::Value = serde_json::from_str(&d.to_schema_json()).unwrap();
+        assert_eq!(v["properties"]["inputs"]["type"], "array");
+        assert_eq!(v["properties"]["inputs"]["minItems"], 2);
+        assert_eq!(v["properties"]["inputs"]["items"]["type"], "object");
+        assert_eq!(
+            v["properties"]["inputs"]["items"]["properties"]["url"]["type"],
+            "string"
+        );
+        assert_eq!(
+            v["properties"]["inputs"]["items"]["additionalProperties"],
+            false
+        );
+        assert_eq!(v["required"], serde_json::json!(["inputs"]));
     }
 }
