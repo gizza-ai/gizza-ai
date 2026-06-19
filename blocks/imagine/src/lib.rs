@@ -23,7 +23,9 @@
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
-use gizza_ai_block_utils::{Envelope, ForUi, SkillError, SkillResultExt};
+use gizza_ai_block_utils::{
+    Envelope, ForUi, Input, Param, SkillError, SkillResultExt, ToolDescriptor,
+};
 use serde::Deserialize;
 #[cfg(target_arch = "wasm32")]
 use wafer_sdk::clients::image::{ImageParams, ImageRequest};
@@ -47,6 +49,22 @@ const WEBGPU_UNAVAILABLE_USER_MESSAGE: &str =
 #[derive(Deserialize)]
 struct Args {
     prompt: String,
+}
+
+/// Single-source param descriptor → chat schema (and CLI/page). See
+/// docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
+/// `Input::None` because the prompt is a plain `String` param, not a binary
+/// upload; the image is *generated*, not consumed.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None).param(
+        Param::string("prompt")
+            .required()
+            .describe("Description of the image to generate."),
+    )
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
 }
 
 /// If `err` came from `requireWebGpuAdapter` (recognised via
@@ -88,14 +106,7 @@ struct Imagine;
         description = "Generate an image from a text prompt. Renders inline in the chat. \
                        Requires WebGPU in the browser (uses shader-f16 when available, \
                        falls back to fp32 otherwise). Output is a PNG.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "prompt": { "type": "string", "description": "Description of the image to generate." }
-            },
-            "required": ["prompt"],
-            "additionalProperties": false
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl Imagine {
@@ -160,6 +171,27 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema verbatim, so the LLM sees no drift.
+    /// imagine's authored schema already had `additionalProperties: false`,
+    /// so this is an exact match.
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "prompt": { "type": "string", "description": "Description of the image to generate." }
+                },
+                "required": ["prompt"],
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
 
     #[test]
     fn validate_prompt_trims_surrounding_whitespace() {
