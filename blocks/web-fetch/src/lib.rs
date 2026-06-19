@@ -1,4 +1,10 @@
 //! gizza-ai/web-fetch — fetches a URL via wafer-run/network.
+//!
+//! The chat schema is derived from `descriptor()` (single source — shared shape
+//! across chat + CLI). The handler stays thin (parse `Args`, run the fetch, emit
+//! the flat `ToolResp`) rather than going through `run_skill`, because web-fetch's
+//! success shape is the flat `ToolResp` JSON, not the `{ "result": … }` wrapper
+//! `run_skill` produces.
 
 // The #[wafer_block] macro emits wasm-only registration; supporting imports
 // and the Args type are only used inside that impl.
@@ -6,7 +12,7 @@
 
 use std::collections::HashMap;
 
-use gizza_ai_block_utils::{SkillError, SkillResultExt};
+use gizza_ai_block_utils::{Input, Param, SkillError, SkillResultExt, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use wafer_sdk::*;
 
@@ -26,6 +32,28 @@ struct ToolResp {
     content_type: Option<String>,
     body: String,
     truncated: bool,
+}
+
+/// Single-source param descriptor → chat schema (and CLI). See
+/// docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
+/// web-fetch is `Input::None` — `url` is a normal required string param (it has
+/// no `ref`), so there is no `url`⊕`ref` `oneOf`.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+        .param(
+            Param::string("url")
+                .required()
+                .describe("HTTP/HTTPS URL to fetch."),
+        )
+        .param(
+            Param::integer("max_bytes").min(1.0).describe(
+                "Maximum number of bytes to return (default: 1048576). Response is truncated if larger.",
+            ),
+        )
+}
+
+fn schema_json() -> String {
+    descriptor().to_schema_json()
 }
 
 /// Trim a body to `max_bytes`. Returns `(prefix, was_truncated)`.
@@ -58,19 +86,13 @@ struct WebFetch;
     requires = ["wafer-run/network"],
     skill(
         description = "Fetch a URL and return its body as text. Optionally limit the response size.",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "url":       { "type": "string", "description": "HTTP/HTTPS URL to fetch." },
-                "max_bytes": { "type": "integer", "minimum": 1, "description": "Maximum number of bytes to return (default: 1048576). Response is truncated if larger." }
-            },
-            "required": ["url"],
-            "additionalProperties": false
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl WebFetch {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        // web-fetch returns the flat ToolResp JSON directly (no `{ "result": … }`
+        // wrapper), so it keeps a thin handle rather than using run_skill.
         match run(body) {
             Ok(v) => GuestResult::respond(v),
             Err(e) => GuestResult::error(e.into()),
@@ -96,12 +118,36 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         body: body_str,
         truncated,
     };
-    serde_json::to_vec(&tool).map_err(|e| SkillError::Serialize(format!("serialize tool response: {e}")))
+    serde_json::to_vec(&tool)
+        .map_err(|e| SkillError::Serialize(format!("serialize tool response: {e}")))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. (to_schema_json
+    /// now emits `additionalProperties: false`, which web-fetch's authored
+    /// schema already had; the descriptor renders `max_bytes`'s minimum as the
+    /// JSON number `1`, same as the authored schema.)
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "url":       { "type": "string", "description": "HTTP/HTTPS URL to fetch." },
+                    "max_bytes": { "type": "integer", "minimum": 1, "description": "Maximum number of bytes to return (default: 1048576). Response is truncated if larger." }
+                },
+                "required": ["url"],
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
 
     #[test]
     fn maybe_truncate_clips_when_over_limit() {
@@ -152,10 +198,7 @@ mod tests {
         let mut headers = HashMap::new();
         headers.insert(
             "content-type".to_string(),
-            vec![
-                "application/json".to_string(),
-                "text/plain".to_string(),
-            ],
+            vec!["application/json".to_string(), "text/plain".to_string()],
         );
         assert_eq!(
             extract_content_type(&headers).as_deref(),
