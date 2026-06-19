@@ -1,0 +1,29 @@
+slug          = "image-convert"
+title         = "Convert an Image Online — gizza.ai"
+description   = "Convert any image to JPEG, PNG, or WebP right in your browser — pick a target format and quality. No upload to a server, runs locally, free."
+tags          = ["image", "convert", "format", "jpeg", "png", "webp", "transcode"]
+h1            = "Convert an Image"
+hero_subtitle = "Pick an image, choose a target format — it's converted in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_convert_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Converted image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Target format (jpeg|png|webp)"
+placeholder = "png"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (1-100)"
+placeholder = "85"
