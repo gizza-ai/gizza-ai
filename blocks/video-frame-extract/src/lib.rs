@@ -1,50 +1,65 @@
-//! gizza-ai/video-frame-extract — fetch a video URL or attachment ref, extract a single frame as PNG.
+//! gizza-ai/video-frame-extract — fetch a video URL or attachment ref, extract a
+//! single frame at a given timestamp, return it as a PNG envelope.
+//!
+//! The chat schema is derived from `descriptor()` (single source — shared shape
+//! across chat + CLI + page); the handler delegates source-resolution, ffmpeg
+//! dispatch, and envelope-building to `block_utils`. The pure `core` argv
+//! builder is shared with the standalone web page. The input is a video but the
+//! output is always a PNG image, so the page is `format="image"`. See
+//! docs/superpowers/specs/2026-06-19-gizza-shared-tool-abstraction-design.md.
 
-// The #[wafer_block] macro emits the impl gated to wasm32; supporting imports,
-// constants, and the Args type are only used there. See image-resize for the
-// full rationale.
+// The #[wafer_block] macro emits the impl gated to wasm32 (the macro generates
+// a native registration call that requires ::new()). All the supporting imports,
+// constants, and the Args type are only used inside the wasm32-gated impl, so
+// they appear "unused" when running native unit tests. `descriptor()` /
+// `schema_json()` remain native-compilable so the drift-guard below can exercise
+// them. See image-resize for the full rationale.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
-use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use gizza_ai_block_utils::{
-    dispatch_ffmpeg_runtime, filename_with_suffix, mime_to_ext, AssetKind, Envelope, FfmpegReq,
-    FfmpegResp, ForUi, SkillError, SkillResultExt, Source, SourceFields,
+    build_media_envelope, filename_with_suffix, mime_to_ext, AssetKind, Input, Param, SkillError,
+    SkillResultExt, ToolDescriptor,
 };
+#[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::{dispatch_ffmpeg, resolve_source};
+use gizza_ai_video_frame_extract_core::{build_argv, validate_timestamp, OUTPUT_NAME};
 use serde::Deserialize;
 use wafer_sdk::*;
 
-#[cfg(target_arch = "wasm32")]
-use gizza_ai_block_utils::{fetch_from_url, load_from_attachment};
-
-const MAX_INPUT_BYTES: usize = 10 * 1024 * 1024;
+const MAX_INPUT_BYTES: usize = 10 * 1024 * 1024; // 10 MiB
 const MAX_OUTPUT_BYTES: usize = 10 * 1024 * 1024;
+
+/// The output is always a PNG image, regardless of the input video container.
+const OUTPUT_MIME: &str = "image/png";
 
 #[derive(Deserialize, Debug)]
 struct Args {
     #[serde(flatten)]
-    source: SourceFields,
+    source: gizza_ai_block_utils::SourceFields,
     timestamp: f64,
 }
 
+/// Single-source param descriptor → chat schema (and CLI + page). The drift-guard
+/// test below proves the derived schema matches the pre-retrofit authored one.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::Video).param(
+        Param::number("timestamp")
+            .required()
+            .min(0.0)
+            .describe("Timestamp in seconds."),
+    )
+}
 
-fn build_argv(in_name: &str, out_name: &str, timestamp: f64) -> Vec<String> {
-    vec![
-        "-ss".into(),
-        format!("{timestamp}"),
-        "-i".into(),
-        in_name.into(),
-        "-frames:v".into(),
-        "1".into(),
-        "-update".into(),
-        "1".into(),
-        "-y".into(),
-        out_name.into(),
-    ]
+fn schema_json() -> String {
+    descriptor().to_schema_json()
 }
 
 #[cfg(target_arch = "wasm32")]
 struct VideoFrameExtract;
 
+// The #[wafer_block] macro emits a native registration call requiring ::new()
+// on the impl; skill-style impls don't have one. Gate the struct + impl to
+// wasm32 so unit tests can still compile natively.
 #[cfg(target_arch = "wasm32")]
 #[wafer_block(
     name = "gizza-ai/video-frame-extract",
@@ -54,19 +69,7 @@ struct VideoFrameExtract;
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Extract a single frame from a video at the given timestamp (seconds), output as PNG. The PNG is naturally chainable into image-resize, image-crop, or image-convert via ref. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call).",
-        parameters = r#"{
-            "type": "object",
-            "properties": {
-                "url":       { "type": "string" },
-                "ref":       { "type": "string" },
-                "timestamp": { "type": "number", "minimum": 0, "description": "Timestamp in seconds." }
-            },
-            "required": ["timestamp"],
-            "oneOf": [
-                { "required": ["url"] },
-                { "required": ["ref"] }
-            ]
-        }"#
+        parameters = schema_json()
     ),
 )]
 impl VideoFrameExtract {
@@ -80,82 +83,72 @@ impl VideoFrameExtract {
 
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
+    // 1. Validate args (tool-specific — timestamp must be >= 0 and finite).
     let args: Args = serde_json::from_slice(&body).invalid_args("video-frame-extract")?;
-    if args.timestamp < 0.0 || !args.timestamp.is_finite() {
-        return Err(SkillError::InvalidArgs(format!(
-            "invalid video-frame-extract args: timestamp must be >= 0 and finite, got {}",
-            args.timestamp
-        )));
-    }
+    validate_timestamp(args.timestamp)
+        .map_err(|e| SkillError::InvalidArgs(format!("invalid video-frame-extract args: {e}")))?;
 
-    let (input_bytes, in_mime, in_filename) = match args.source.into_inner() {
-        Source::Url(u) => fetch_from_url(&u, AssetKind::Video, MAX_INPUT_BYTES)?,
-        Source::Ref(id) => load_from_attachment(&id, AssetKind::Video, MAX_INPUT_BYTES)?,
-    };
+    // 2. Resolve source — URL fetch or attachment lookup (input is a video).
+    let (input_bytes, in_mime, in_filename) =
+        resolve_source(args.source.into_inner(), AssetKind::Video, MAX_INPUT_BYTES)?;
 
-    let in_ext = mime_to_ext(&in_mime).unwrap_or("bin");
+    // 3. Build ffmpeg argv (shared pure core). Output is always PNG.
+    let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
-    let ffmpeg_out = "out.png".to_string();
+    let ffmpeg_out = OUTPUT_NAME.to_string();
     let argv = build_argv(&ffmpeg_in, &ffmpeg_out, args.timestamp);
 
-    let req = FfmpegReq {
-        args: argv,
-        inputs: vec![(ffmpeg_in, input_bytes)],
-        output: ffmpeg_out,
-    };
-    let req_body = serde_json::to_vec(&req)
-        .map_err(|e| SkillError::Serialize(format!("serialize ffmpeg request: {e}")))?;
-    let ff_resp_bytes = dispatch_ffmpeg_runtime(&req_body)?;
-    let ff: FfmpegResp = serde_json::from_slice(&ff_resp_bytes)
-        .map_err(|e| SkillError::Serialize(format!("malformed ffmpeg response: {e}")))?;
+    // 4. Dispatch to ffmpeg-runtime.
+    let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out)?;
 
-    if ff.exit_code != 0 {
-        let snippet: String = ff.log.chars().take(200).collect();
-        return Err(SkillError::FfmpegExitNonZero {
-            exit: ff.exit_code,
-            snippet,
-        });
-    }
-    if ff.output.len() > MAX_OUTPUT_BYTES {
-        return Err(SkillError::TooLarge {
-            kind: "output frame",
-            bytes: ff.output.len(),
-            cap: MAX_OUTPUT_BYTES,
-        });
-    }
-
-    let output_size = ff.output.len();
-    let encoded = B64.encode(&ff.output);
-    let data_url = format!("data:image/png;base64,{encoded}");
+    // 5. Envelope — the extracted frame is an image/png.
+    let output_size = output.len();
     let filename = filename_with_suffix(&in_filename, &format!("-frame-{}", args.timestamp), "png");
-
-    let env = Envelope {
-        for_llm: format!(
-            "extracted frame at {}s from {} (PNG, {} bytes)",
-            args.timestamp, in_filename, output_size
-        ),
-        for_ui: ForUi {
-            data_url,
-            mime: "image/png".to_string(),
-            filename,
-        },
-    };
-    serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
+    let for_llm = format!(
+        "extracted frame at {}s from {} (PNG, {} bytes)",
+        args.timestamp, in_filename, output_size
+    );
+    build_media_envelope(&output, OUTPUT_MIME, filename, for_llm, MAX_OUTPUT_BYTES)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// Migration safety: the descriptor-derived chat schema must match the
+    /// pre-retrofit authored schema, so the LLM sees no drift. `to_schema_json`
+    /// emits `additionalProperties: false` uniformly (the authored schema lacked
+    /// it — added below as intentional uniform hardening) and centralizes the
+    /// `url`/`ref` property descriptions (the authored schema left them blank —
+    /// the expected JSON uses the shared `Input::Video` wording).
     #[test]
-    fn argv_default() {
-        let argv = build_argv("in.mp4", "out.png", 5.0);
-        assert_eq!(argv[0], "-ss");
-        assert_eq!(argv[1], "5");
-        assert_eq!(argv[2], "-i");
-        assert_eq!(argv[3], "in.mp4");
-        assert!(argv.iter().any(|a| a == "-frames:v"));
-        assert!(argv.iter().any(|a| a == "1"));
-        assert_eq!(argv.last().map(String::as_str), Some("out.png"));
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "url":       { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+                    "ref":       { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+                    "timestamp": { "type": "number", "minimum": 0, "description": "Timestamp in seconds." }
+                },
+                "additionalProperties": false,
+                "required": ["timestamp"],
+                "oneOf": [
+                    { "required": ["url"] },
+                    { "required": ["ref"] }
+                ]
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
+
+    #[test]
+    fn output_filename_uses_frame_timestamp_suffix_and_png() {
+        assert_eq!(
+            filename_with_suffix("clip.mp4", "-frame-5", "png"),
+            "clip-frame-5.png"
+        );
     }
 }
