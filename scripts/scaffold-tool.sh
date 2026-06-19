@@ -36,6 +36,7 @@ crate-type = ["cdylib", "rlib"]
 wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 ${crate}-core = { path = "core" }
+gizza-ai-block-utils = { path = "../../block-utils" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 EOF
@@ -85,14 +86,27 @@ pub fn run(input: &str) -> Result<String, JsValue> {
 EOF
 
 cat > "$dir/src/lib.rs" <<EOF
-//! gizza-ai/$slug — chat skill block (thin wrapper around core). The new-tool
-//! skill replaces the skill(description, parameters) schema + Args + delegation.
+//! gizza-ai/$slug — chat skill block on the shared tool abstraction.
+//! The chat schema is single-sourced from descriptor() (which also drives the
+//! CLI); handle() delegates to block_utils::run_skill. The new-tool skill edits
+//! descriptor()'s params + core::run to the tool's real inputs/logic.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+use gizza_ai_block_utils::{run_skill, Input, Param, SkillError, ToolDescriptor};
 use serde::Deserialize;
 use wafer_sdk::*;
 
 #[derive(Deserialize)]
 struct Args { input: String }
+
+/// Single source for the chat schema (and CLI). Edit the params to match the
+/// tool's real inputs — e.g. \`.param(Param::enumv("mode", ["a","b"]).default("a"))\`,
+/// \`.param(Param::integer("n").min(1.0))\`. Use Input::Image/Video/Document/File
+/// for tools that take a url/ref media input (see image-resize / web-fetch).
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+        .param(Param::string("input").required().describe("TODO: describe the input."))
+}
+fn schema_json() -> String { descriptor().to_schema_json() }
 
 #[cfg(target_arch = "wasm32")]
 struct Tool;
@@ -105,25 +119,21 @@ struct Tool;
     summary = "$slug skill",
     skill(
         description = "TODO: describe what this tool does and its inputs.",
-        parameters = r#"{ "type": "object", "properties": { "input": { "type": "string" } }, "required": ["input"], "additionalProperties": false }"#
+        parameters = schema_json()
     ),
 )]
 impl Tool {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
-        let args: Args = match serde_json::from_slice(&body) {
-            Ok(a) => a,
-            Err(e) => return respond_error(format!("invalid args: {e}")),
-        };
-        match ${ucrate}_core::run(&args.input) {
-            Ok(v) => GuestResult::respond(serde_json::to_vec(&serde_json::json!({ "result": v })).unwrap_or_default()),
-            Err(e) => respond_error(e),
+        // run_skill wraps the returned value in { "result": ... }. For a media
+        // tool, use resolve_source + dispatch_ffmpeg + build_media_envelope
+        // instead (see blocks/image-resize/src/lib.rs).
+        match run_skill(&body, "$slug", |a: Args| {
+            ${ucrate}_core::run(&a.input).map_err(SkillError::InvalidArgs)
+        }) {
+            Ok(v) => GuestResult::respond(v),
+            Err(e) => GuestResult::error(e.into()),
         }
     }
-}
-
-#[cfg(target_arch = "wasm32")]
-fn respond_error(msg: String) -> GuestResult {
-    GuestResult::respond(serde_json::to_vec(&serde_json::json!({ "error": msg })).unwrap_or_default())
 }
 EOF
 
@@ -188,17 +198,15 @@ EOF
 if [[ "$type" == ffmpeg ]]; then
   cat > "$dir/web/src/lib.rs" <<EOF
 //! Browser-facing wasm-bindgen wrapper for /tools/$slug/ (ffmpeg page).
-//! Builds the ffmpeg argv (pure, shared with the chat block via core).
-use serde::Serialize;
+//! Builds the ffmpeg argv (pure, shared with the chat block via core); returns
+//! the shared block_utils::ArgvPlan so the page driver gets { argv, out_name }.
+use gizza_ai_block_utils::ArgvPlan;
 use wasm_bindgen::prelude::*;
-
-#[derive(Serialize)]
-struct Plan { argv: Vec<String>, out_name: String }
 
 #[wasm_bindgen]
 pub fn build_argv(in_name: &str) -> Result<JsValue, JsValue> {
     let (argv, out_name) = ${ucrate}_core::plan(in_name).map_err(|e| JsValue::from_str(&e))?;
-    serde_wasm_bindgen::to_value(&Plan { argv, out_name }).map_err(|e| JsValue::from_str(&e.to_string()))
+    serde_wasm_bindgen::to_value(&ArgvPlan { argv, out_name }).map_err(|e| JsValue::from_str(&e.to_string()))
 }
 EOF
   cat > "$dir/web/Cargo.toml" <<EOF
@@ -213,9 +221,77 @@ crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen = "0.2"
-serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
+gizza-ai-block-utils = { path = "../../../block-utils" }
 ${crate}-core = { path = "../core" }
+EOF
+  cat > "$dir/src/lib.rs" <<EOF
+//! gizza-ai/$slug — media (ffmpeg) chat skill on the shared abstraction.
+//! Input::Image emits a url⊕ref oneOf; run() uses resolve_source → core::plan →
+//! dispatch_ffmpeg → build_media_envelope. The new-tool skill fills the params +
+//! core::plan logic. See blocks/image-resize/src/lib.rs for a full example.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+use gizza_ai_block_utils::{
+    build_media_envelope, mime_to_ext, AssetKind, Input, Param, SkillError, SourceFields,
+    ToolDescriptor,
+};
+// resolve_source / dispatch_ffmpeg call host imports → wasm-only (like run() below).
+#[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::{dispatch_ffmpeg, resolve_source};
+use serde::Deserialize;
+use wafer_sdk::*;
+
+const MAX_BYTES: usize = 8 * 1024 * 1024;
+
+#[derive(Deserialize)]
+struct Args {
+    #[serde(flatten)]
+    source: SourceFields,
+    // TODO: add the tool's scalar params, e.g. \`width: Option<u32>\`.
+}
+
+fn descriptor() -> ToolDescriptor {
+    // Input::Image → url⊕ref oneOf (use Input::Video for video tools).
+    ToolDescriptor::new(Input::Image)
+    // TODO: .param(Param::integer("width").min(1.0).describe("..."))
+}
+fn schema_json() -> String { descriptor().to_schema_json() }
+
+#[cfg(target_arch = "wasm32")]
+struct Tool;
+
+#[cfg(target_arch = "wasm32")]
+#[wafer_block(
+    name = "gizza-ai/$slug",
+    version = "0.1.0",
+    interface = "handler@v1",
+    summary = "$slug skill",
+    requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    skill(description = "TODO: describe the tool.", parameters = schema_json()),
+)]
+impl Tool {
+    fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        match run(body) {
+            Ok(v) => GuestResult::respond(v),
+            Err(e) => GuestResult::error(e.into()),
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
+    let args: Args = serde_json::from_slice(&body)
+        .map_err(|e| SkillError::InvalidArgs(format!("invalid $slug args: {e}")))?;
+    let (bytes, mime, in_name) =
+        resolve_source(args.source.into_inner(), AssetKind::Image, MAX_BYTES)?;
+    let ext = mime_to_ext(&mime)
+        .ok_or_else(|| SkillError::InvalidArgs(format!("unsupported mime: {mime}")))?;
+    let (argv, out_name) =
+        ${ucrate}_core::plan(&format!("in.{ext}")).map_err(SkillError::InvalidArgs)?;
+    let output = dispatch_ffmpeg(argv, format!("in.{ext}"), bytes, out_name)?;
+    // TODO: refine the output mime/filename/summary for this tool.
+    build_media_envelope(&output, &mime, in_name.clone(), format!("processed {in_name}"), MAX_BYTES)
+}
 EOF
   cat > "$dir/core/src/lib.rs" <<'EOF'
 //! __SLUG__ core — pure ffmpeg argv construction shared by the chat block + page.

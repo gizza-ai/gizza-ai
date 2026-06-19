@@ -12,7 +12,7 @@
 
 ### pure (reference: blocks/calculator)
 - `core/src/lib.rs`: replace `run` with the real fn(s) + at least one happy + one error `#[test]`. Use `f64` (never `i64`) for numeric params.
-- `src/lib.rs`: real `skill(description, parameters <JSON-Schema>)` + `Args` fields + delegation to core.
+- `src/lib.rs`: edit `descriptor()` to the real params — it single-sources the chat schema (`parameters = schema_json()` is pre-wired; do NOT hand-write inline JSON) — plus the `skill(description=...)` and `Args` fields; the scaffold delegates via `block_utils::run_skill`. Param API: `Param::string|integer|number|enumv|boolean|string_map(...)` + `.required()/.default(v)/.min(n)/.max(n)/.describe(s)`; `Input::None` for pure. Mirror `blocks/url-encode`.
 - `web/src/lib.rs`: `#[wasm_bindgen] pub fn <export>(...) -> Result<T, JsValue>` — the `<export>` name MUST match `page/meta.toml`'s `export`.
 - `page/meta.toml`: real slug/title/description/tags/h1/hero_subtitle; `format` = "number"|"text"; one `[[input]] source="field"` per arg — input NAMES + ORDER must equal the web fn's params.
 - `page/content.md`: real SEO copy.
@@ -21,8 +21,8 @@
 
 ### ffmpeg (reference: blocks/image-resize)
 - `core/src/lib.rs`: `pub fn plan(<params>, in_name: &str) -> Result<(Vec<String>, String), String>` — builds the ffmpeg argv (NO leading "ffmpeg") + `out_name` (keep the input extension). + unit tests.
-- `web/src/lib.rs`: `build_argv(<f64 numeric params...>, in_name: &str)` → `{argv, out_name}` (the scaffold's default is `build_argv(in_name)`; add the real params). `f64` for numeric (0 = "unset").
-- `src/lib.rs`: skill schema (url/ref + params) — mirror `blocks/image-resize/src/lib.rs` (it dispatches via `dispatch_ffmpeg_runtime`).
+- `web/src/lib.rs`: `build_argv(<f64 numeric params...>, in_name: &str)` → the shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` (scaffold default is `build_argv(in_name)`; add the real params). `f64` for numeric (0 = "unset").
+- `src/lib.rs`: `descriptor()` = `Input::Image`|`Video` + params (single-sources the `url`⊕`ref` oneOf + schema via `schema_json()`); `run()` = `resolve_source` → `dispatch_ffmpeg` → `build_media_envelope` (the scaffold wires this). Mirror `blocks/image-resize/src/lib.rs`.
 - `page/meta.toml`: `runtime="ffmpeg"`, `[[input]] source="file" accept="image/*"` first, then field inputs in `build_argv` param order, `format="image"`|"video".
 - FIELD ORDER in `meta.toml` MUST equal the web `build_argv` param order (`tool.js` passes the field values then `in_name`).
 
