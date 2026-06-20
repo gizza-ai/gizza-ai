@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/normalize-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-normalize an image (histogram stretch).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Auto-normalize (contrast-stretch) an image by mapping each color channel's used range to the full 0-255 dynamic range, brightening flat/low-contrast photos. clip_percent (0-45, default 0) ignores that fraction of extreme pixels per channel first so outliers don't flatten the result. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "clip_percent": { "type": "number", "minimum": 0, "maximum": 45, "description": "Percent of the darkest/lightest pixels per channel to ignore before stretching (0-45, default 0 = pure min/max auto-level). A small value like 1-2 ignores outliers." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
