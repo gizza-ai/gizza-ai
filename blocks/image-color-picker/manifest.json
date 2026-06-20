@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/image-color-picker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report the color at a pixel in an image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Report the color at a given pixel (x, y) in an image: hex (#rrggbb and #rrggbbaa), rgb()/rgba() strings, the individual r/g/b/a channels (0-255), and the nearest common color name, plus the image dimensions. Coordinates are 0-based from the top-left. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "x": { "type": "integer", "minimum": 0, "description": "Pixel X coordinate (0 = left edge)." },
+        "y": { "type": "integer", "minimum": 0, "description": "Pixel Y coordinate (0 = top edge)." }
+      },
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
