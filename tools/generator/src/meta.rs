@@ -16,6 +16,10 @@ pub struct Input {
     /// For source="file": the `accept` attribute (e.g. "image/*", "video/*").
     #[serde(default)]
     pub accept: String,
+    /// For source="field": render a multi-line `<textarea>` instead of a
+    /// single-line `<input>` (e.g. for batch/per-line input). Default false.
+    #[serde(default)]
+    pub multiline: bool,
 }
 
 /// Full metadata for a single tool page.

@@ -85,9 +85,15 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                             @for input in &meta.inputs {
                                 @if input.source == "field" {
                                     label class="tool-field-label" for=(format!("in-{}", input.name)) { (input.label) }
-                                    input id=(format!("in-{}", input.name)) class="tool-input"
-                                          type="text" placeholder=(input.placeholder)
-                                          autocomplete="off" autocapitalize="off" spellcheck="false";
+                                    @if input.multiline {
+                                        textarea id=(format!("in-{}", input.name)) class="tool-input" rows="4"
+                                              placeholder=(input.placeholder)
+                                              autocomplete="off" autocapitalize="off" spellcheck="false" {}
+                                    } @else {
+                                        input id=(format!("in-{}", input.name)) class="tool-input"
+                                              type="text" placeholder=(input.placeholder)
+                                              autocomplete="off" autocapitalize="off" spellcheck="false";
+                                    }
                                 } @else if input.source == "file" {
                                     label class="tool-field-label" for=(format!("in-{}", input.name)) { (input.label) }
                                     input id=(format!("in-{}", input.name)) class="tool-file"

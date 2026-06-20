@@ -16,6 +16,12 @@ struct Args {
     mode: String,
     #[serde(default)]
     target: String,
+    /// Convert each line of `text` independently (default false).
+    #[serde(default)]
+    per_line: bool,
+    /// Apply the operation this many times; the core clamps to 1..=16 (0 → 1).
+    #[serde(default)]
+    repeat: u32,
 }
 
 /// Single-source param descriptor → chat schema (and CLI). See
@@ -33,9 +39,21 @@ fn descriptor() -> ToolDescriptor {
                 .describe("Direction: 'encode' (default) percent-encodes, 'decode' reverses it."),
         )
         .param(
-            Param::enumv("target", ["component", "uri"])
+            Param::enumv("target", ["component", "uri", "form"])
                 .default("component")
-                .describe("Encode mode only: 'component' (default) escapes reserved chars for a single value; 'uri' preserves URL delimiters. Ignored when decoding."),
+                .describe("Encoding style. 'component' (default) escapes reserved chars for a single query value or path segment; 'uri' preserves URL delimiters for a whole URL; 'form' is application/x-www-form-urlencoded (a space becomes '+', and on decode '+' becomes a space)."),
+        )
+        .param(
+            Param::boolean("per_line")
+                .default(false)
+                .describe("When true, convert each line of the input independently (rejoined with newlines) — for a batch list of values or URLs. Default false."),
+        )
+        .param(
+            Param::integer("repeat")
+                .default(1)
+                .min(1.0)
+                .max(16.0)
+                .describe("Apply the operation this many times, 1-16. Use >1 to un-nest multiply-encoded input when decoding (or to double-encode). Default 1."),
         )
 }
 
@@ -53,7 +71,7 @@ struct UrlEncode;
     interface = "handler@v1",
     summary = "URL Encode skill",
     skill(
-        description = "Percent-encode or percent-decode text and URLs. Use mode='encode' (default) to make text URL-safe or mode='decode' to reverse it. When encoding, target='component' (default) escapes everything for a single query value or path segment (e.g. 'São Paulo' -> 'S%C3%A3o%20Paulo'); target='uri' encodes a whole URL while preserving its delimiters (: / ? # & = etc.).",
+        description = "Percent-encode or percent-decode text and URLs. Use mode='encode' (default) to make text URL-safe or mode='decode' to reverse it. When encoding, target='component' (default) escapes everything for a single query value or path segment (e.g. 'São Paulo' -> 'S%C3%A3o%20Paulo'); target='uri' encodes a whole URL while preserving its delimiters (: / ? # & = etc.); target='form' is application/x-www-form-urlencoded, where a space becomes '+' (and decodes back). Set per_line=true to convert each line of a batch list independently. Set repeat>1 (up to 16) to un-nest multiply-encoded input when decoding, or to double-encode.",
         parameters = schema_json()
     )
 )]
@@ -62,7 +80,7 @@ impl UrlEncode {
         // run_skill wraps the returned value in { "result": … } — url-encode's
         // existing success shape — and routes errors through GuestResult::error.
         match run_skill(&body, "url-encode", |a: Args| {
-            gizza_ai_url_encode_core::convert(&a.text, &a.mode, &a.target)
+            gizza_ai_url_encode_core::convert(&a.text, &a.mode, &a.target, a.per_line, a.repeat)
                 .map_err(SkillError::InvalidArgs)
         }) {
             Ok(v) => GuestResult::respond(v),
@@ -75,10 +93,10 @@ impl UrlEncode {
 mod tests {
     use super::*;
 
-    /// Migration safety: the descriptor-derived chat schema must match the
-    /// pre-retrofit authored schema, so the LLM sees no drift. (to_schema_json
-    /// now emits `additionalProperties: false` uniformly, which url-encode's
-    /// authored schema already had — so this is an exact match.)
+    /// Drift guard: the descriptor-derived chat schema must match this authored
+    /// schema, so any future change to the LLM-facing API is intentional and
+    /// reviewed. Regenerated 2026-06-20 by `/improve-tool` when `target` gained
+    /// `form` and the `per_line` / `repeat` params were added.
     #[test]
     fn schema_json_matches_authored_chat_schema() {
         let authored: serde_json::Value = serde_json::from_str(
@@ -87,7 +105,9 @@ mod tests {
                 "properties": {
                     "text": { "type": "string", "description": "The text or URL to encode or decode." },
                     "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) percent-encodes, 'decode' reverses it." },
-                    "target": { "type": "string", "enum": ["component", "uri"], "default": "component", "description": "Encode mode only: 'component' (default) escapes reserved chars for a single value; 'uri' preserves URL delimiters. Ignored when decoding." }
+                    "target": { "type": "string", "enum": ["component", "uri", "form"], "default": "component", "description": "Encoding style. 'component' (default) escapes reserved chars for a single query value or path segment; 'uri' preserves URL delimiters for a whole URL; 'form' is application/x-www-form-urlencoded (a space becomes '+', and on decode '+' becomes a space)." },
+                    "per_line": { "type": "boolean", "default": false, "description": "When true, convert each line of the input independently (rejoined with newlines) — for a batch list of values or URLs. Default false." },
+                    "repeat": { "type": "integer", "minimum": 1, "maximum": 16, "default": 1, "description": "Apply the operation this many times, 1-16. Use >1 to un-nest multiply-encoded input when decoding (or to double-encode). Default 1." }
                 },
                 "required": ["text"],
                 "additionalProperties": false

@@ -1,9 +1,9 @@
 slug          = "url-encode"
 title         = "URL Encoder & Decoder — gizza.ai"
-description   = "Percent-encode or decode text and URLs instantly in your browser. Component or whole-URL mode, full Unicode support. Free, private, no sign-up."
-tags          = ["url encode", "url decode", "percent encoding", "uri", "query string"]
+description   = "Percent-encode or decode text and URLs instantly in your browser. Component, whole-URL, or form (application/x-www-form-urlencoded) mode, batch per-line conversion, and recursive decode for double-encoded input. Full Unicode, free, private, no sign-up."
+tags          = ["url encode", "url decode", "percent encoding", "uri", "query string", "form urlencoded", "plus encoding", "batch", "double decode"]
 h1            = "URL Encoder / Decoder"
-hero_subtitle = "Percent-encode or decode any text or URL — runs entirely in your browser, no server, no sign-up."
+hero_subtitle = "Percent-encode or decode any text or URL — component, whole-URL, or form mode, batch and recursive options. Runs entirely in your browser, no server, no sign-up."
 wasm          = "gizza_ai_url_encode_web"
 export        = "run"
 live          = false
@@ -15,6 +15,7 @@ name        = "text"
 label       = "Text or URL"
 placeholder = "name=John Doe&city=São Paulo"
 source      = "field"
+multiline   = true
 
 [[input]]
 name        = "mode"
@@ -24,6 +25,18 @@ source      = "field"
 
 [[input]]
 name        = "target"
-label       = "Target (component | uri, blank = component)"
+label       = "Target (component | uri | form, blank = component)"
 placeholder = "component"
+source      = "field"
+
+[[input]]
+name        = "per_line"
+label       = "Per line (true = convert each line separately)"
+placeholder = "false"
+source      = "field"
+
+[[input]]
+name        = "repeat"
+label       = "Repeat (1–16; >1 un-nests double-encoded input)"
+placeholder = "1"
 source      = "field"
