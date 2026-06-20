@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/pgp-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt a message to OpenPGP public keys",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt a message to one or more OpenPGP (PGP/GPG) public keys, producing an ASCII-armored '-----BEGIN PGP MESSAGE-----' block that only the holders of the matching private keys can decrypt. Accepts one or more ASCII-armored public keys (paste several to encrypt to multiple recipients); each is encrypted to its encryption subkey (or encryption-capable primary). Uses AES-256. Runs locally — the message and keys never leave the device.",
+    "parameters": {
+      "type": "object",
+      "required": ["message", "keys"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "The plaintext message to encrypt."
+        },
+        "keys": {
+          "type": "string",
+          "description": "One or more recipient OpenPGP public keys, ASCII-armored (each a full -----BEGIN PGP PUBLIC KEY BLOCK----- ... block). Paste several to encrypt to multiple recipients."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
