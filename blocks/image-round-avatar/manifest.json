@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/image-round-avatar",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Crop an image into a circle or rounded-square avatar.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Crop an image into a circular or rounded-square avatar with transparent corners, returned as a PNG. The image is center-cropped to a square first. shape is 'circle' (default) or 'rounded'; size sets the output square size in pixels; radius sets the corner radius for the rounded shape. Edges are anti-aliased. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "shape": { "type": "string", "enum": ["circle", "rounded"], "default": "circle", "description": "Avatar shape: circle (default) or rounded (rounded square)." },
+        "size": { "type": "integer", "minimum": 1, "description": "Output square size in pixels (default: the cropped square's side). The image is center-cropped to a square first." },
+        "radius": { "type": "integer", "minimum": 0, "description": "Corner radius in pixels for the rounded shape (default ~20% of the side). Ignored for circle." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
