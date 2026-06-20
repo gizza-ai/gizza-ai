@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gunzip"
+version = "0.1.0"
+abi = 1
+summary = "Decompress a gzip (.gz) file."

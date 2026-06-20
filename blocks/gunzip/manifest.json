@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/gunzip",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decompress a gzip (.gz) file.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Decompress a gzip (.gz) file or blob back to its original bytes, returned as a downloadable file. The original filename is recovered from the gzip header when present (otherwise the .gz suffix is stripped). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). For .tar.gz archives use extract-tar instead.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
