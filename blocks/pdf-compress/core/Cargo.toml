@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-pdf-compress-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# lopdf with default features off: the defaults pull in chrono/jiff/rayon/time;
+# rayon does not build on wasm32. The nom-based PDF parser + serializer are
+# always compiled, so a featureless lopdf parses, compresses, and re-serializes.
+lopdf = { version = "0.36", default-features = false }
