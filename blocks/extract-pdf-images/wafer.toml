@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-pdf-images"
+version = "0.1.0"
+abi = 1
+summary = "Extract embedded images from a PDF as a ZIP."
