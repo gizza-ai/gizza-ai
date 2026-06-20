@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-encrypt-file-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# AES-256-GCM authenticated encryption + PBKDF2-HMAC-SHA256 key derivation, all
+# pure-Rust (wasm32-safe). getrandom provides the CSPRNG for the salt + nonce
+# (uses wasi random_get on wasm32-wasip1 and the OS RNG natively).
+aes-gcm = "0.10"
+pbkdf2 = { version = "0.12", default-features = false }
+hmac = "0.12"
+sha2 = "0.10"
+getrandom = "0.2"
