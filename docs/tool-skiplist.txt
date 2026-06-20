@@ -31,3 +31,4 @@ add-audio-to-video     # needs two media inputs (video + audio); gizza ffmpeg mo
 # url/ref oneOf, which the decode direction has no use for.
 base64-file-converter  # bidirectional file<->base64 = two IO shapes; split into base64-encode-file / base64-decode-file
 csv-to-json            # duplicate of blocks/csv-json-convert (already parses CSV->JSON with header/delimiter options + type inference)
+image-watermark        # text mode duplicates blocks/add-text-to-image (which covers caption/watermark text overlay); opacity+position are add-text-to-image improvements; the logo-overlay mode needs 2 media inputs (out of model)
