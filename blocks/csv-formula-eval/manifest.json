@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/csv-formula-eval",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add/transform CSV columns with formulas.",
+  "role": "skill",
+  "tool": {
+    "description": "Evaluate spreadsheet-style arithmetic formulas to add or transform CSV columns. `formulas` is one or more '<column> = <expression>' (separated by ';' or newlines); expressions reference other columns by header name and support + - * / %, ^, parentheses, and functions (sqrt, abs, min, max, round, etc.). A target naming an existing column replaces it; a new name appends one. Formulas run left-to-right. Non-numeric cells make a referencing formula blank for that row. First row must be a header with identifier-like column names.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text (first row is a header)." },
+        "formulas": { "type": "string", "description": "One or more '<column> = <expression>' formulas, separated by ';' or newlines. Expressions reference other columns by their (identifier-like) header name and support + - * / %, ^, parentheses, and functions like sqrt/abs/min/max/round. A target naming an existing column replaces it; a new name appends a column. Formulas run left-to-right so later ones can use earlier results." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "formulas"],
+      "additionalProperties": false
+    }
+  }
+}
