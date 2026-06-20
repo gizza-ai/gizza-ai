@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/protect-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Password-protect a PDF.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Add password encryption to a PDF using the standard security handler (AES-256). The returned PDF requires the password to open in any viewer. Provide the PDF as either url (HTTP/HTTPS) or ref, a required password, and optionally a separate owner_password. Runs locally — the PDF and password never leave the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "password": { "type": "string", "description": "The password that will be required to open the PDF." },
+        "owner_password": { "type": "string", "description": "Optional separate owner password (controls permissions). Defaults to the same value as password." }
+      },
+      "additionalProperties": false,
+      "required": ["password"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
