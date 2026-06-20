@@ -1,0 +1,45 @@
+slug          = "find-replace"
+title         = "Find and Replace Text Online — gizza.ai"
+description   = "Find and replace text with literal or regex matching, case-sensitive or not, all matches or just the first. Runs in your browser, nothing is uploaded, free."
+tags          = ["find and replace", "search replace", "regex replace", "text replace", "bulk replace"]
+h1            = "Find and Replace Text"
+hero_subtitle = "Literal or regular-expression replace, with case and global options. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_find_replace_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the text to search…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "find"
+label       = "Find"
+placeholder = "text or regex to find"
+source      = "field"
+
+[[input]]
+name        = "replace"
+label       = "Replace with"
+placeholder = "replacement (blank = delete matches)"
+source      = "field"
+
+[[input]]
+name        = "regex"
+label       = "Regular expression"
+source      = "field"
+
+[[input]]
+name        = "case_sensitive"
+label       = "Case sensitive"
+source      = "field"
+
+[[input]]
+name        = "global"
+label       = "Replace all (off = first only)"
+source      = "field"
