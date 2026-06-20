@@ -1,7 +1,7 @@
 # Handoff — `/improve-tool` skill (gizza-ai)
 
 **Date:** 2026-06-20
-**Status:** NOT STARTED — design first (brainstorm → spec → plan), then build. Nothing on disk yet.
+**Status:** ✅ SHIPPED 2026-06-20 — see "Status 2026-06-20 — SHIPPED" at the bottom.
 **Owner of the idea:** user (raised 2026-06-19 alongside the shared-code idea).
 
 ## The idea (verbatim intent)
@@ -84,3 +84,36 @@ expected schema, not assert against the old one.
 Invoke the **brainstorming** skill on `/improve-tool` (it's creative work — resolve the open
 questions above into a design before writing any skill files). Then spec → plan → build, exactly
 like `/new-tool` and the abstraction were done.
+
+---
+
+## Status 2026-06-20 — SHIPPED
+
+Built via brainstorm → spec → plan → subagent-driven execution.
+
+- **Skill:** `gizza-ai/.claude/skills/improve-tool/{SKILL.md,reference.md}` on branch
+  `feat/improve-tool-skill` → **PR for the skill itself**. Fully autonomous, 6-phase: verify+fix
+  the 3 surfaces (API/CLI/query) → parallel 5-competitor research → diff+rank (fit-to-model) →
+  comprehensive in-model improve (capabilities/copy-SEO/UX/visual) → re-test → review-only PR.
+  Hard rule: analyze competitors for ideas only, **never copy copy/branding/trademarks**.
+- **Design artifacts:** spec `docs/superpowers/specs/2026-06-20-improve-tool-skill-design.md`;
+  plan `docs/superpowers/plans/2026-06-20-improve-tool-skill.md`.
+- **Live proof:** ran the skill end-to-end on **url-encode** → **review-only PR #129**
+  (`feat/improve-url-encode`, NOT merged). Closed real in-model gaps from a top-5 competitor
+  analysis: `target=form` (space↔`+`), `per_line` batch, `repeat` 1–16 (un-nest double-encoding),
+  original copy/SEO rewrite, + a root-cause additive `multiline` textarea option in the shared
+  `tools/generator`. Drift-guard regenerated. All gates green (core 13, drift-guard 1, wafer
+  fixtures 6, wafer build/validate, wasm-pack, generator 20, Playwright 5/5 incl. query deep-link,
+  CLI smoke) EXCEPT `solobase build`, which is blocked by a **pre-existing, unrelated**
+  `css-select-extract` validation bug (documented, not fixed). Two independent code-reviews
+  (opus correctness `[]`, sonnet quality) → 1 cleanup applied (descriptor `repeat` max references
+  `core::MAX_REPEAT`).
+- **Friction folded back into the skill** (`reference.md`): page-passes-strings param-type gotcha,
+  `wafer test` fixture runner, drift-guard print-and-pipe recipe, generator/solobase-build abort
+  pitfalls.
+
+**Env caveat (this session only):** subagents could not run Bash here, so the skill's
+parallel-research fan-out + the proof were executed inline by the controller. The skill's
+subagent design is unchanged (correct for a normal environment).
+
+**Owed:** review/merge the skill PR; decide on PR #129 (proof improvement) — keep, merge, or close.
