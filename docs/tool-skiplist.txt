@@ -51,3 +51,4 @@ burn-subtitles         # needs 2 media inputs (video + .srt); single-input ffmpe
 csv-to-tsv  # dup of csv-change-delimiter (comma->tab is the default tab target)
 decrypt-file  # dup of encrypt-file (mode=decrypt already implemented)
 file-encryptor  # dup of encrypt-file (password AES-GCM encrypt+decrypt already implemented)
+javascript-runner  # needs a real JS engine (boa); boa compiles to wasm32-wasip1 but imports wasi poll_oneoff which the gizza wafer runtime does not provide -> fails to instantiate. No pure-Rust JS engine fits the minimal WASI host.
