@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/jq-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run a jq program against JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Run a jq program/filter against a JSON document and return the transformed output, using a pure-Rust jq implementation (jaq) with the jq standard library (map, select, group_by, etc.). A filter can produce zero, one, or many values — each is returned as a serialized JSON string in `outputs`. Set pretty=true to indent. Example query: '.items | map(.price) | add'.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string", "description": "The jq program/filter, e.g. '.users | map(.name)'." },
+        "json": { "type": "string", "description": "The JSON document to run the filter against." },
+        "pretty": { "type": "boolean", "default": false, "description": "Pretty-print (indent) each JSON output. Default false (compact)." }
+      },
+      "required": ["query", "json"],
+      "additionalProperties": false
+    }
+  }
+}
