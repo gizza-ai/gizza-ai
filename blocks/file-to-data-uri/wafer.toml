@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "file-to-data-uri"
+version = "0.1.0"
+abi = 1
+summary = "Encode a file as a base64 data: URI."
