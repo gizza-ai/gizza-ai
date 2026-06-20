@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "password-entropy"
+version = "0.1.0"
+abi = 1
+summary = "Estimate password strength (entropy bits)."

@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/password-entropy",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Estimate password strength (entropy bits).",
+  "role": "skill",
+  "tool": {
+    "description": "Estimate a password's strength in bits of entropy from its character set (lower/upper/digits/symbols) and length, give a rating (Very weak..Very strong) and a rough offline crack-time estimate, and flag weaknesses (too short, single character type, common password, repeated/sequential patterns). The password is analyzed locally and never stored or transmitted.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "password": { "type": "string", "description": "The password to analyze. It is processed locally and never stored or sent anywhere." }
+      },
+      "required": ["password"],
+      "additionalProperties": false
+    }
+  }
+}
