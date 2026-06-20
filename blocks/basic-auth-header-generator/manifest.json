@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/basic-auth-header-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build an HTTP Basic Authorization header.",
+  "role": "skill",
+  "tool": {
+    "description": "Build an HTTP Basic Authorization header value from a username and password: 'Basic ' + base64(username:password) per RFC 7617. Set full_header=true to get the whole 'Authorization: Basic …' line. The username must not contain a colon; the password may be empty.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "description": "The username (must not contain a colon)." },
+        "password": { "type": "string", "default": "", "description": "The password (may be empty)." },
+        "full_header": { "type": "boolean", "default": false, "description": "When true, return the full 'Authorization: Basic …' header line; otherwise just the 'Basic …' value. Default false." }
+      },
+      "required": ["username"],
+      "additionalProperties": false
+    }
+  }
+}

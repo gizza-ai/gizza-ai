@@ -1,0 +1,28 @@
+slug          = "basic-auth-header-generator"
+title         = "Basic Auth Header Generator — HTTP Authorization"
+description   = "Generate an HTTP Basic Authorization header from a username and password — base64(user:pass) per RFC 7617. Runs in your browser, nothing is sent, free."
+tags          = ["basic auth", "authorization header", "http basic", "base64 credentials", "rfc 7617", "api auth"]
+h1            = "Basic Auth Header Generator"
+hero_subtitle = "Turn a username and password into an HTTP Basic Authorization header. Computed in your browser — credentials never leave your device."
+wasm          = "gizza_ai_basic_auth_header_generator_web"
+export        = "run"
+live          = false
+output_label  = "Header"
+format        = "text"
+
+[[input]]
+name        = "username"
+label       = "Username"
+placeholder = "aladdin"
+source      = "field"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "opensesame"
+source      = "field"
+
+[[input]]
+name        = "full_header"
+label       = "Output full 'Authorization:' line"
+source      = "field"
