@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-group-by",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Group CSV rows and aggregate columns.",
+  "role": "skill",
+  "tool": {
+    "description": "Group CSV rows by one or more columns and aggregate other columns. `group_by` is comma-separated column names/indices; `aggregations` is a comma/semicolon list of 'column:func' (func = count/sum/avg/min/max) plus optional bare 'count' for the row count. Output has one row per group (first-seen order) with the group columns then the aggregated columns (named like 'sum_amount'). Requires a header row.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text (first row must be a header)." },
+        "group_by": { "type": "string", "description": "Column(s) to group by — comma-separated header names or 1-based indices." },
+        "aggregations": { "type": "string", "description": "Aggregations as a comma/semicolon list of 'column:func' (func = count/sum/avg/min/max), or bare 'count' for the per-group row count. E.g. 'amount:sum, qty:avg, count'." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "group_by", "aggregations"],
+      "additionalProperties": false
+    }
+  }
+}
