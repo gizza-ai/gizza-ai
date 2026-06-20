@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-change-delimiter"
+version = "0.1.0"
+abi = 1
+summary = "Change a CSV's field separator."
