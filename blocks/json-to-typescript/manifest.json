@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/json-to-typescript",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Infer TypeScript interfaces from JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Infer TypeScript interface/type definitions from a pasted JSON object or array. Nested objects become their own interfaces; arrays of objects are merged so keys missing in some elements become optional (?) and differing types become unions (e.g. number | string). root_name names the top-level type (default 'Root'); export=true (default) prefixes 'export'. Returns the TypeScript source.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "json": { "type": "string", "description": "A JSON object or array sample to infer TypeScript types from." },
+        "root_name": { "type": "string", "default": "Root", "description": "Name for the top-level interface/type (PascalCased). Default 'Root'." },
+        "export": { "type": "boolean", "default": true, "description": "Prefix declarations with 'export'. Default true." }
+      },
+      "required": ["json"],
+      "additionalProperties": false
+    }
+  }
+}
