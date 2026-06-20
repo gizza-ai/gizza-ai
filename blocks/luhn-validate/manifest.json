@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/luhn-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate a number with the Luhn algorithm.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a number against the Luhn (mod-10) check-digit algorithm — used by credit/debit cards, IMEI numbers, and many ID schemes. Spaces and dashes are ignored. Returns whether it's valid, the cleaned digits and length, the check digit that would make it valid (to spot a typo or generate one), and a best-effort payment-card brand.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "number": { "type": "string", "description": "The number to validate (credit card, IMEI, etc.). Spaces and dashes are ignored." }
+      },
+      "required": ["number"],
+      "additionalProperties": false
+    }
+  }
+}

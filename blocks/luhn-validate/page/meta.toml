@@ -1,0 +1,17 @@
+slug          = "luhn-validate"
+title         = "Luhn Validator — Check a Card / IMEI Number — gizza.ai"
+description   = "Validate a credit card, IMEI, or any number against the Luhn check-digit algorithm — instantly, in your browser. Nothing is uploaded, free."
+tags          = ["luhn", "credit card validator", "imei check", "checksum", "card number validator", "mod 10"]
+h1            = "Luhn Validator"
+hero_subtitle = "Paste a card, IMEI, or any number and check it against the Luhn algorithm. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_luhn_validate_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "number"
+label       = "Number"
+placeholder = "4242 4242 4242 4242"
+source      = "field"
