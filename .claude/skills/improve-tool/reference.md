@@ -10,8 +10,11 @@ URL query-params. Verify all three live, from a known-good baseline:
 
 - **API (LLM/chat schema + invoke):**
   - `cd blocks/<slug> && cargo test --workspace` (core + block units, incl. the drift-guard).
-  - Run the wafer fixtures: each `tests/*.json` is a `{"kind":"invoke","data":[…bytes…],"meta":[]}`
-    payload — the block invoke path. Confirm they pass.
+    The drift-guard lives in the *block* crate (`gizza-ai-<slug>-block`); a `tail`'d output can
+    scroll it off — grep for the test name to confirm it actually ran.
+  - `cd blocks/<slug> && wafer test` runs the `tests/*.json` fixtures (each a
+    `{"kind":"invoke","data":[…bytes…],"meta":[]}` invoke payload). It is a no-crash/handles-input
+    smoke gate, NOT an output assertion — assert exact outputs via the CLI + Playwright instead.
   - Confirm `descriptor()`/`info()` emits the tool schema (it's what the chat LLM sees).
 - **CLI:** `cargo install --path cli --force`, then `gizza tool <slug> "<args>"` returns a
   correct result (same wasmi runtime + block + schema as chat).
@@ -78,14 +81,39 @@ design** (page styling).
   with the web export params.
 - **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
 
+### param types across surfaces (GOTCHA — bit me on url-encode)
+
+A new param flows through three surfaces with DIFFERENT marshaling. Get this wrong and the page
+silently passes a string where the wasm export wants a `bool`/`u32`:
+
+- **Chat (LLM):** the descriptor type IS the wire type — `Param::boolean` → JSON `true`,
+  `Param::integer` → JSON `2`. Deserialize into a typed serde `Args` field (`bool`, `u32`) with
+  `#[serde(default)]`.
+- **CLI:** `gizza tool` coerces `key=value` by the schema type (`integer`→i64, `number`→f64,
+  `boolean`→true/false). So a typed descriptor "just works" on the CLI — no string handling needed.
+- **Page (pure tools):** `tool.js` passes EVERY field's value as a raw STRING to the web `run`
+  export (no coercion — only the ffmpeg path coerces numbers). So the web `run` signature must
+  take `&str` for the new param and parse it there (e.g. `repeat: &str` → `parse::<u32>()`;
+  `flag: &str` → match `"true"|"1"`). Do NOT make `run` take `bool`/`u32` — wasm-bindgen will get
+  a string and throw. Keep the parse lenient (blank → default) and let the `core` fn own any
+  clamp, so all three surfaces funnel through the same validation.
+- A new page **bool/int field renders as a single-line text input.** If the param needs multi-line
+  input (batch / per-line), set `multiline = true` on that `[[input]]` in `meta.toml` (renders a
+  `<textarea>`); otherwise a pasted newline collapses to a space. `f64`/`u32` are fine as web
+  `&str`-parsed; the wasm BigInt gotcha only applies if you (wrongly) type the export param as i64/u64.
+
 ### drift-guard — REGENERATE the authored schema
 
 The block has a unit test pinning `derived == authored` (e.g. url-encode's
 `schema_json_matches_authored_chat_schema`), with `authored` as a hardcoded JSON literal. An
 `/improve-tool` schema change is INTENTIONAL, so:
 
-1. Run the test once to see the new derived schema in the failure diff, OR print it:
-   `cd blocks/<slug> && cargo test schema_json_matches -- --nocapture` (read the assert diff).
+1. PRINT the new derived schema (more reliable than transcribing the `assert_eq!` Debug diff,
+   which shows `Value` debug, not JSON). Temporarily add `println!("DERIVED{}END", schema_json());`
+   at the top of the drift-guard test, then:
+   `cd blocks/<slug> && cargo test schema_json_matches -- --nocapture 2>&1 | grep -o 'DERIVED.*END' | sed 's/DERIVED//;s/END//' | python3 -m json.tool`.
+   Remove the `println!` after. (Schema key order doesn't matter — `serde_json::Value` equality is
+   order-insensitive; whole-number `min`/`max` render as JSON integers, e.g. `16` not `16.0`.)
 2. **Replace the `authored` JSON literal** in `src/lib.rs`'s test with the new derived schema
    (add the new property/enum/default exactly as `to_schema_json()` emits it —
    `additionalProperties: false`, property order as inserted).
@@ -103,7 +131,15 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
 - `cd blocks/<slug> && wafer build` — wasm32 chat block (from INSIDE the dir; no path arg).
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` (from repo root).
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders `pkg/tools/<slug>/`.
-- `solobase build` — rebuild app + blocks into `pkg/`.
+  GOTCHA: the generator renders ALL tools (slug order) and HARD-ABORTS on the first whose
+  `web/pkg/` is missing (a `wasm-pack`-not-yet-built tool) — so it may never reach `<slug>`. If it
+  aborts on another tool, `wasm-pack build blocks/<that>/web …` for each missing one, then re-run.
+- `solobase build` — rebuild app + blocks into `pkg/`. GOTCHA: it iterates+validates EVERY block
+  and aborts on the first that fails — which may be a PRE-EXISTING, unrelated broken block (e.g. a
+  `wasi_snapshot_preview1::sched_yield` validation error), not your tool. Confirm with
+  `cd blocks/<that-block> && wafer build`; if it's unrelated and pre-existing, do NOT fix it here —
+  validate YOUR tool with `cd blocks/<slug> && wafer build` and note the blocked full-app build in
+  the PR (honesty gate). Do not claim `solobase build` passed if it didn't.
 - **Playwright** `tests/tool-page-<slug>.spec.ts` (import from `./fixtures`) — drive
   `/tools/<slug>/`, AND a `?<param>=<value>` deep-link assertion. Add a case per new capability.
 - **CLI** `cargo install --path cli --force` then `gizza tool <slug> "<args>"` — incl. a new
