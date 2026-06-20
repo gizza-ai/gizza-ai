@@ -1,0 +1,4 @@
+# scraper -> ahash -> getrandom 0.3 needs the wasm_js backend on the page's
+# wasm32-unknown-unknown target. Scoped to this web crate's wasm-pack build.
+[target.wasm32-unknown-unknown]
+rustflags = ['--cfg', 'getrandom_backend="wasm_js"']
