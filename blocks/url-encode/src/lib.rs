@@ -49,10 +49,12 @@ fn descriptor() -> ToolDescriptor {
                 .describe("When true, convert each line of the input independently (rejoined with newlines) — for a batch list of values or URLs. Default false."),
         )
         .param(
+            // Bounds reference the core clamp (MAX_REPEAT) so the LLM-facing
+            // schema can't drift from what `convert` actually enforces.
             Param::integer("repeat")
                 .default(1)
                 .min(1.0)
-                .max(16.0)
+                .max(gizza_ai_url_encode_core::MAX_REPEAT as f64)
                 .describe("Apply the operation this many times, 1-16. Use >1 to un-nest multiply-encoded input when decoding (or to double-encode). Default 1."),
         )
 }
