@@ -1,0 +1,30 @@
+slug          = "csv-change-delimiter"
+title         = "Change CSV Delimiter — CSV/TSV Separator Converter"
+description   = "Re-save CSV or delimited data with a different separator (comma, tab, semicolon, pipe) with correct requoting — in your browser. Free, private, no upload."
+tags          = ["csv delimiter", "change separator", "csv to tsv", "tsv to csv", "semicolon csv", "pipe delimited"]
+h1            = "Change CSV Delimiter"
+hero_subtitle = "Convert delimited data between comma, tab, semicolon, and pipe separators — quoting fixed up automatically. Runs in your browser, no upload."
+wasm          = "gizza_ai_csv_change_delimiter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV / delimited data"
+placeholder = "a,b,c\n1,2,3"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "from"
+label       = "From separator (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To separator (, tab ; |)"
+placeholder = "tab"
+source      = "field"

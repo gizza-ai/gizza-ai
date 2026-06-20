@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/csv-change-delimiter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Change a CSV's field separator.",
+  "role": "skill",
+  "tool": {
+    "description": "Re-save delimited data with a different field separator, fixing quoting for the new delimiter (fields containing it get quoted; fields that no longer need quotes are unquoted). `from`/`to` are a single char or one of 'comma'/'tab'/'semicolon'/'pipe'. Defaults: from ',', to 'tab'.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV/DSV text to re-delimit." },
+        "from": { "type": "string", "default": ",", "description": "Current field separator: a single char, or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." },
+        "to": { "type": "string", "default": "tab", "description": "Target field separator: a single char, or 'comma'/'tab'/'semicolon'/'pipe'. Default 'tab'." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
