@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-generate-rsa-key-pair-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# rsa: pure-Rust RSA (num-bigint-dig). "pem" feature enables PKCS#8/SPKI PEM
+# encoding. wasm32-safe (getrandom backs the RNG via WASI random_get).
+rsa = { version = "0.9", features = ["pem"] }
+rand = "0.8"
