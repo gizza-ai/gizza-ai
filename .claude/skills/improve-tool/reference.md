@@ -27,14 +27,20 @@ section. If the breakage is far bigger than a focused fix → STOP and surface i
 
 ## Phase 2 — competitor research (parallel)
 
-1. `firecrawl-search` the tool's function (e.g. "url encoder online", "image resize online").
-   Pick the **top 5** real competitor *tools* (a usable, reachable tool page — not a listicle
-   or a login wall). If fewer than 5 real ones exist, say so and use what's real.
+**Search/scrape tools:** prefer `firecrawl-search` / `firecrawl-scrape` if they're connected;
+otherwise fall back to the built-in **`WebSearch`** + **`WebFetch`** (verified working) — the
+phase is tool-agnostic, just use whatever web research tools the session has.
+
+1. Search the tool's function (e.g. "url encoder online", "image resize online") with
+   `firecrawl-search` **or** `WebSearch`. Pick the **top 5** real competitor *tools* (a usable,
+   reachable tool page — not a listicle or a login wall). If fewer than 5 real ones exist, say so
+   and use what's real.
 2. Dispatch **5 read-only subagents in parallel** (one per competitor URL). Subagent prompt:
 
    > You are researching ONE competitor tool for a gizza tool-improvement pass. Visit `<url>`
    > and return the competitor-profile JSON below. Use `firecrawl-scrape`/`firecrawl-extract`
-   > for features/params and Playwright for a screenshot only if a picture beats markdown.
+   > (or `WebFetch` if firecrawl isn't available) for features/params, and Playwright for a
+   > screenshot only if a picture beats markdown.
    > **PARAPHRASE everything — never copy their copy, branding, logos, or trademarks.** You are
    > a read-only researcher: do not edit any files.
 
