@@ -1,0 +1,47 @@
+slug          = "csv-pivot"
+title         = "CSV Pivot Table — Group & Aggregate Online"
+description   = "Build a pivot table from a CSV — group by rows, spread a column's values across columns, aggregate (sum/count/avg/min/max). Runs in your browser, free, no upload."
+tags          = ["csv pivot", "pivot table", "crosstab", "aggregate csv", "summarize csv"]
+h1            = "CSV Pivot Table"
+hero_subtitle = "Turn a CSV into a pivot table: rows × columns with an aggregated value in each cell. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_pivot_web"
+export        = "run"
+live          = false
+output_label  = "Pivot table (CSV)"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (with header)"
+placeholder = "region,product,sales\nN,A,10\nN,B,5\nS,A,7"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rows"
+label       = "Row column(s)"
+placeholder = "region"
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Column field (its values become columns)"
+placeholder = "product"
+source      = "field"
+
+[[input]]
+name        = "values"
+label       = "Value column (aggregated)"
+placeholder = "sales"
+source      = "field"
+
+[[input]]
+name        = "agg"
+label       = "Aggregation"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-pivot"
+version = "0.1.0"
+abi = 1
+summary = "Build a pivot table from a CSV."
