@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-typescript"
+version = "0.1.0"
+abi = 1
+summary = "Infer TypeScript interfaces from JSON."
