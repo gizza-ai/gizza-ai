@@ -36,3 +36,4 @@ jpg-to-png             # duplicate of blocks/image-convert (already does format=
 readable-article       # duplicate of blocks/readability-extractor (strip nav/ads/clutter from article HTML)
 subtitle-translator    # core function is translation = needs an ML model (transformers-js); out of gizza pure+ffmpeg model. (A pure srt<->vtt convert/retime tool would be fine.)
 trim-audio             # audio-only ffmpeg; no Input::Audio kind in the descriptor model (AssetKind is Image/Video/Document/Any)
+video-convert          # duplicate of blocks/video-transcode (converts video format/container; mov/mkv targets would be a video-transcode improvement)
