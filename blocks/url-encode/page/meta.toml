@@ -17,26 +17,26 @@ placeholder = "name=John Doe&city=São Paulo"
 source      = "field"
 multiline   = true
 
+# mode/target render as <select> and per_line as a checkbox — control type +
+# options are derived from the descriptor's schema (manifest.json), so labels
+# here stay short and the option lists are NOT duplicated.
 [[input]]
 name        = "mode"
-label       = "Mode (encode | decode, blank = encode)"
-placeholder = "encode"
+label       = "Mode"
 source      = "field"
 
 [[input]]
 name        = "target"
-label       = "Target (component | uri | form, blank = component)"
-placeholder = "component"
+label       = "Target"
 source      = "field"
 
 [[input]]
 name        = "per_line"
-label       = "Per line (true = convert each line separately)"
-placeholder = "false"
+label       = "Convert each line separately"
 source      = "field"
 
 [[input]]
 name        = "repeat"
-label       = "Repeat (1–16; >1 un-nests double-encoded input)"
+label       = "Repeat (1–16 — un-nest double-encoded input)"
 placeholder = "1"
 source      = "field"

@@ -5,6 +5,7 @@
 //! Assumes each tool's wasm-pack output already exists at
 //! `blocks/<tool>/web/pkg/`.
 
+mod control;
 mod index;
 mod markdown;
 mod meta;
@@ -40,7 +41,10 @@ fn run() -> Result<(), String> {
         let content_md = fs::read_to_string(tool_dir.join("page/content.md"))
             .map_err(|e| format!("read content.md for {}: {e}", m.slug))?;
         let content_html = render_markdown(&content_md);
-        let html = template::render_page(m, &content_html);
+        // Resolve each field's control (select/checkbox/number/text) from the
+        // tool's declared schema so the page form mirrors the descriptor.
+        let schema = control::ParamSchema::load(tool_dir);
+        let html = template::render_page(m, &content_html, &schema);
         fs::write(out.join("index.html"), html)
             .map_err(|e| format!("write index.html: {e}"))?;
         fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md))
