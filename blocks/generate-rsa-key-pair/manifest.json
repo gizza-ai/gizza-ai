@@ -1,0 +1,17 @@
+{
+  "name": "gizza-ai/generate-rsa-key-pair",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an RSA key pair (PEM).",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh RSA key pair of the chosen size (2048, 3072, or 4096 bits) and return the private key (PKCS#8 PEM) and public key (SPKI PEM). Keys are generated locally with a cryptographic RNG. Default key size is 2048.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "key_size": { "type": "string", "enum": ["2048", "3072", "4096"], "default": "2048", "description": "RSA key size in bits. Larger is more secure but slower to generate. Default 2048." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
