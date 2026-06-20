@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/video-crop",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Crop a video to a rectangular region.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Crop a video to a width x height rectangle. Optionally give x/y for the top-left offset (in pixels); without them the crop is centered. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "width": { "type": "integer", "minimum": 1, "description": "Crop width in pixels." },
+        "height": { "type": "integer", "minimum": 1, "description": "Crop height in pixels." },
+        "x": { "type": "integer", "minimum": 0, "description": "Left offset of the crop in pixels (default: centered)." },
+        "y": { "type": "integer", "minimum": 0, "description": "Top offset of the crop in pixels (default: centered)." }
+      },
+      "required": ["width", "height"],
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
