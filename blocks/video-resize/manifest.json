@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/video-resize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scale a video to a target resolution.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Scale a video to a target resolution. Give width and/or height in pixels; omit one to preserve the aspect ratio (the omitted side is computed to an even number). Provide the video as either url (HTTP/HTTPS) or ref. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "width": { "type": "integer", "minimum": 1, "description": "Target width in pixels. Omit to scale by height, preserving aspect ratio." },
+        "height": { "type": "integer", "minimum": 1, "description": "Target height in pixels. Omit to scale by width, preserving aspect ratio." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
