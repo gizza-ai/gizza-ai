@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/line-series-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render numeric series as an SVG line chart.",
+  "role": "skill",
+  "tool": {
+    "description": "Render one or more numeric series as an SVG line/time-series chart (axes, y min/mid/max labels, a colored line per series, and a legend for multiple series). Separate series by newlines or ';'; within a series separate values by commas/spaces. Optional title, width, height.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "Numeric series to plot. Separate series by newlines or ';'; within a series separate values by commas/spaces (x is the value's index). E.g. '1,2,3,2,5' or '1,2,3\\n3,2,1'." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." },
+        "width": { "type": "integer", "minimum": 200, "default": 800, "description": "SVG width in pixels (default 800)." },
+        "height": { "type": "integer", "minimum": 150, "default": 400, "description": "SVG height in pixels (default 400)." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
