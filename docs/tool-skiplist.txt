@@ -24,3 +24,9 @@ jpg-compressor         # duplicate of blocks/image-compress (re-encodes jpg at a
 # Input enum + resolve_source/dispatch_ffmpeg model one media input — so a tool
 # that combines two uploads doesn't fit without a multi-input architecture change.
 add-audio-to-video     # needs two media inputs (video + audio); gizza ffmpeg model is single-input
+
+# Two-opposite-IO-shapes: a single descriptor has ONE Input and one result shape.
+# A bidirectional file<->text converter is really two tools (encode: Input::File
+# -> text; decode: text param -> file envelope) — Input::File forces a required
+# url/ref oneOf, which the decode direction has no use for.
+base64-file-converter  # bidirectional file<->base64 = two IO shapes; split into base64-encode-file / base64-decode-file
