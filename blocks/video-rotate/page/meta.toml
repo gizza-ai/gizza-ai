@@ -1,0 +1,28 @@
+slug          = "video-rotate"
+title         = "Rotate a Video Online — Rotate & Flip — gizza.ai"
+description   = "Rotate a video 90/180/270 degrees or flip it horizontally/vertically, right in your browser. Re-encodes locally with ffmpeg, nothing is uploaded, free."
+tags          = ["rotate video", "flip video", "mirror video", "turn video", "ffmpeg"]
+h1            = "Rotate / Flip a Video"
+hero_subtitle = "Pick a video, choose a rotation and/or flip — it's transformed in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_rotate_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Rotated video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "rotate"
+source      = "field"
+label       = "Rotate clockwise (0/90/180/270)"
+placeholder = "90"
+
+[[input]]
+name        = "flip"
+source      = "field"
+label       = "Flip (none/horizontal/vertical)"

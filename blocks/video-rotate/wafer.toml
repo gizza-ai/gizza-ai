@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-rotate"
+version = "0.1.0"
+abi = 1
+summary = "Rotate and/or flip a video."
