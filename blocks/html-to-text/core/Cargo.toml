@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-html-to-text-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# nanohtml2text: tiny pure-Rust HTML -> clean plain text (strips tags, keeps
+# paragraph/list structure). wasm-safe (no html5ever / C deps).
+nanohtml2text = "0.2"
