@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/heatmap-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a numeric grid as an SVG heatmap.",
+  "role": "skill",
+  "tool": {
+    "description": "Render a numeric matrix/grid as a color-coded SVG heatmap with a sequential blue→yellow→red colormap, an optional value in each cell, row/column labels, and a min→max color legend. `data` is rows of comma/space-separated numbers (one row per line, all rows equal width). Set show_values=false to hide cell numbers; col_labels/row_labels optionally name the axes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The grid: rows of comma/space-separated numbers (one row per line). All rows must have the same number of columns." },
+        "show_values": { "type": "boolean", "default": true, "description": "Print each cell's numeric value inside the cell. Default true." },
+        "col_labels": { "type": "string", "default": "", "description": "Optional comma-separated column headings (defaults to c1..cN)." },
+        "row_labels": { "type": "string", "default": "", "description": "Optional comma-separated row headings (defaults to r1..rN)." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
