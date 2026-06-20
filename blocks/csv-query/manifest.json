@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/csv-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run a SQL-ish query over CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Query a CSV with a small SQL-ish language: SELECT <columns or *> [WHERE <col op value>] [ORDER BY <col> [ASC|DESC]] [LIMIT n]. Columns are header names or 1-based indices; WHERE op is one of == != < <= > >= contains (numeric compare when both sides are numbers, else string). Returns the projected/filtered/sorted CSV. For aggregation use csv-group-by or csv-pivot.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text (first row must be a header)." },
+        "query": { "type": "string", "description": "A SQL-ish query: SELECT <cols|*> [WHERE <col op value>] [ORDER BY <col> [ASC|DESC]] [LIMIT n]. Columns are header names or 1-based indices; op is == != < <= > >= contains. (Aggregates/GROUP BY are out of scope — use csv-group-by / csv-pivot.)" },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "query"],
+      "additionalProperties": false
+    }
+  }
+}
