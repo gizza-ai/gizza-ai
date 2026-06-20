@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-group-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a CSV into per-group files (zipped).",
+  "role": "skill",
+  "tool": {
+    "description": "Split one CSV into multiple files, one per distinct value in a key column, and return them bundled as a ZIP. `key` is a header name (header=true) or a 1-based index; each output CSV keeps the header. Useful for breaking a big CSV into per-category files.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text to split." },
+        "key": { "type": "string", "description": "The key column to split on — a header name (header=true) or a 1-based index. One output file per distinct value." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header (kept in each output file, and matchable by name). Default true." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "key"],
+      "additionalProperties": false
+    }
+  }
+}
