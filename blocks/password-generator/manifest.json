@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/password-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a strong random password or passphrase.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a strong random password or passphrase locally with a cryptographic RNG. mode='password' (default) builds a random string of `length` characters from lowercase (always) plus uppercase/digits/symbols (toggle each); mode='passphrase' joins `words` random words with `separator`. Returns the generated value and its entropy in bits.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["password", "passphrase"], "default": "password", "description": "'password' (random characters, default) or 'passphrase' (random words)." },
+        "length": { "type": "integer", "minimum": 1, "maximum": 512, "description": "Password length in characters (password mode, default 16)." },
+        "words": { "type": "integer", "minimum": 1, "maximum": 20, "description": "Number of words (passphrase mode, default 4)." },
+        "uppercase": { "type": "boolean", "default": true, "description": "Include uppercase letters (password mode). Default true. (Lowercase is always included.)" },
+        "digits": { "type": "boolean", "default": true, "description": "Include digits (password mode). Default true." },
+        "symbols": { "type": "boolean", "default": true, "description": "Include symbols (password mode). Default true." },
+        "separator": { "type": "string", "default": "-", "description": "Word separator (passphrase mode). Default '-'." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
