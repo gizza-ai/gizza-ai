@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/pdf-compress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shrink a PDF by recompressing its streams.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Shrink a PDF's file size by dropping unused objects and Flate-compressing its streams (content and images), losslessly — text and vector graphics are preserved exactly and already-compressed image data is kept as-is (it does not re-encode images to a lossier codec). Provide the PDF as either a URL or a `ref` to an uploaded PDF attachment.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
