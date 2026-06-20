@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/change-speed",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Speed up or slow down a video.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Speed up or slow down a video by a factor, keeping the audio in sync (>1 faster, <1 slower; e.g. 2 = double speed, 0.5 = half). Range 0.25-4. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "factor": { "type": "number", "minimum": 0.25, "maximum": 4, "description": "Speed multiplier: >1 speeds up, <1 slows down (e.g. 2 = twice as fast, 0.5 = half speed). Range 0.25-4." }
+      },
+      "required": ["factor"],
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
