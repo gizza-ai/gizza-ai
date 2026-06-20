@@ -1,0 +1,35 @@
+slug          = "censor-text"
+title         = "Censor Text — Redact Words Online — gizza.ai"
+description   = "Redact a list of words (or common profanity) in any text by masking them — case-insensitive, whole-word or substring. Runs in your browser, nothing is uploaded, free."
+tags          = ["censor text", "redact words", "profanity filter", "mask words", "text redaction"]
+h1            = "Censor Text"
+hero_subtitle = "Mask out a list of words (or common profanity) in any text. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_censor_text_web"
+export        = "run"
+live          = false
+output_label  = "Censored text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the text to censor…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "words"
+label       = "Words to redact (comma-separated; blank = built-in list)"
+placeholder = "secret, password"
+source      = "field"
+
+[[input]]
+name        = "mask"
+label       = "Mask character"
+placeholder = "*"
+source      = "field"
+
+[[input]]
+name        = "whole_word"
+label       = "Whole words only"
+source      = "field"
