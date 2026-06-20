@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/pdf-form-fill",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fill AcroForm fields in a PDF.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Fill the interactive AcroForm fields of a fillable PDF and return the filled PDF. `fields` is a JSON object mapping field names to values (text fields take strings; checkbox/radio fields take the on-state name). Sets NeedAppearances so viewers render the values. Provide the PDF as either url (HTTP/HTTPS) or ref. The response lists which fields were filled and which names were not found.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "fields": { "type": "string", "description": "A JSON object mapping form field names to values, e.g. {\"name\":\"Ada\",\"agree\":\"Yes\"}. Text fields take strings; checkbox/radio (button) fields take the on-state name." }
+      },
+      "additionalProperties": false,
+      "required": ["fields"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
