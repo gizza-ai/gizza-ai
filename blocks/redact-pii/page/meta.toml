@@ -1,0 +1,24 @@
+slug          = "redact-pii"
+title         = "Redact PII — Mask emails, phones, IPs, cards, SSNs — gizza.ai"
+description   = "Detect and redact PII (emails, phone numbers, IPs, credit-card and SSN numbers) in text, in your browser. Nothing is uploaded."
+tags          = ["redact pii", "mask pii", "remove personal data", "anonymize text", "scrub", "privacy"]
+h1            = "Redact PII"
+hero_subtitle = "Detect and mask personal data — emails, phone numbers, IP addresses, credit-card and SSN numbers — in any text. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_redact_pii_web"
+export        = "run"
+live          = false
+output_label  = "Redacted text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text containing emails, phone numbers, IPs, card or SSN numbers…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "style"
+label       = "Style (label | mask)"
+placeholder = "label"
+source      = "field"
