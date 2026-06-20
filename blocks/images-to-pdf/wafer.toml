@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "images-to-pdf"
+version = "0.1.0"
+abi = 1
+summary = "Combine images into a single PDF (one image per page)."
