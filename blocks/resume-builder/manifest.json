@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/resume-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build an ATS-friendly Markdown resume from JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn structured resume details (a JSON object) into a clean, ATS-friendly Markdown resume — plain headings and bullets, no tables/columns/graphics that resume parsers choke on. `data` is a JSON object: name (required), title, email, phone, location, links[], summary, experience[{role,company,location,dates,bullets[]}], education[{degree,school,location,dates,details}], skills[], and optional sections[{heading,items[]}].",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "A JSON object of resume fields. Recognized: name (required), title, email, phone, location, links[], summary, experience[{role,company,location,dates,bullets[]}], education[{degree,school,location,dates,details}], skills[], and sections[{heading,items[]}] for extras like Projects/Certifications." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
