@@ -16,33 +16,47 @@ Read the two sibling skills for the actual recipes:
 
 Follow these steps in order:
 
-1. **Pick the next tool.** From the gizza-ai repo root, find the first un-built backlog row
-   (built = tools whose `blocks/<slug>/` is committed in `git HEAD`, so a half-built failure never
-   counts):
+0. **Toolchain.** This skill needs `cargo`, `wafer`, `wasm-pack`, `solobase`, `gizza`, Playwright,
+   and `ffmpeg`. If any is missing, bootstrap once with `scripts/bootstrap-toolchain.sh` (details +
+   gotchas in `docs/TOOLCHAIN-SETUP.md`); the very first run also needs a baseline `solobase build`
+   so every existing block has its `target/block.wasm` + `web/pkg/` (else the generator hard-aborts
+   and `gizza list` is incomplete).
+
+1. **Pick the next tool.** From the gizza-ai repo root:
    ```bash
-   python3 - <<'PY'
-   import csv, re, subprocess
-   out = subprocess.run(["git","ls-tree","-d","--name-only","HEAD","blocks/"],
-                        capture_output=True, text=True).stdout.split()
-   built = {b.split("/",1)[1] for b in out if "/" in b}
-   def slug(s): return re.sub(r'[^a-z0-9]+','-', s.strip().lower()).strip('-')
-   with open("tools-to-build.csv", newline='') as f:
-       for r in csv.DictReader(f):
-           s = slug(r["name"])
-           if s not in built:
-               print(f"{s}\t{r['name']}\t{r['description']}")
-               break
-       else:
-           print("BACKLOG_COMPLETE")
-   PY
+   scripts/pick-next-tool.py
    ```
-   Output is `<slug>\t<name>\t<description>` for the next tool, or `BACKLOG_COMPLETE`. If
-   `BACKLOG_COMPLETE`, report it and stop. Otherwise the `name` + `description` are your build inputs.
+   It prints `<slug>\t<name>\t<description>\t<type_hint>` for the next buildable tool, or a
+   sentinel (`BACKLOG_COMPLETE` / `NO_BUILDABLE_REMAINING`) — report it and stop on a sentinel.
+   The picker improves on a plain first-un-built scan (it logs every skip to stderr):
+   - **built** = `blocks/<slug>/` committed in `git HEAD` (a half-built failure never counts, so a
+     crashed run is retried, not skipped forever);
+   - **curated skips** from `docs/tool-skiplist.txt` — confirmed duplicates of an existing tool
+     (the exact-slug scan can't catch semantic near-dups like `pdf-to-text` ≈ `pdf-extract-text`);
+   - **out-of-model** rows (need an ML model / pyodide — whisper, transformers-js, etc.) are
+     **deferred** by default; gizza is pure-Rust + ffmpeg. Pass `--include-model` only if you
+     intend to build one as a gpu chat-only block.
+   `name` + `description` are your build inputs; `type_hint` (pure|ffmpeg|network|model) is a
+   starting guess — still classify properly in step 2. `scripts/pick-next-tool.py --stats` shows
+   the backlog breakdown.
+   **If during the build you discover the tool is a semantic near-dup of an existing one, STOP, add
+   a `<slug>  # duplicate of blocks/<other>` line to `docs/tool-skiplist.txt`, commit that, and
+   re-run the picker** rather than shipping a redundant tool.
 
 2. **Build** — follow `/new-tool` **steps 3–8** (classify type → `scripts/scaffold-tool.sh <slug> <type>`
    → implement `core`/`descriptor`/`web`/`page` → build → type-aware tests) using the `name` +
    `description` from step 1. **SKIP** `/new-tool` step 2 (branch) and steps 9–10 (push/PR/code-review)
    — git is owned by step 4 here.
+
+   **Throughput note (verified):** the per-tool validation is `cd blocks/<slug> && cargo test
+   --workspace` + `wafer build` (validates the chat block.wasm) + `wasm-pack build blocks/<slug>/web`
+   + `cargo run --manifest-path tools/generator/Cargo.toml -- .` (renders the page) + `gizza tool`
+   (CLI) + Playwright. These are minutes. The full **`solobase build` rebuilds the whole app wasm
+   (`-Oz`+lto, ~25 min on 2 CPUs) and is the loop bottleneck** — a new block changes only its own
+   block.wasm, which `wafer build` already validated, and CI runs `solobase build` on deploy. So for
+   loop throughput, run `solobase build` **once at the start (baseline) and not on every tool**; if you
+   skip it per-tool, say so in the report. The generator step still needs every block's `web/pkg/`
+   (built once in the baseline; only the new tool's is added per run).
 
 3. **Improve** — follow the FULL `/improve-tool` **Phases 1–5** on `<slug>`: verify the 3 surfaces
    (chat/LLM API, CLI, page query-params) + fix any breakage → research the top-5 competitors → diff +
@@ -69,6 +83,8 @@ be headlessly verified (gpu has no page; chat-ffmpeg can't run in a Service Work
 state it explicitly rather than claiming a pass. **One tool per run**; re-invoke (or `/loop`) for the
 next.
 
-**Known limitation:** exact-slug matching — a semantic near-dup of an existing tool (e.g.
-`pdf-to-text` while the built tool is `pdf-extract-text`) can still be picked. If you notice the tool
-duplicates an existing one, flag it in your report rather than silently shipping a redundant tool.
+**Known limitation (mitigated):** the picker matches built tools by exact slug, so a semantic
+near-dup (e.g. `pdf-to-text` vs the built `pdf-extract-text`) isn't auto-detected. `docs/tool-skiplist.txt`
+holds the confirmed dups found so far; when you spot a NEW one mid-build, add it there (step 1) rather
+than shipping a redundant tool. Token-overlap auto-detection was tried and rejected — it false-flags
+distinct tools (`age-calculator` is not a dup of `calculator`), so dups stay hand-curated.

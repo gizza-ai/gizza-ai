@@ -1,0 +1,18 @@
+# tool-skiplist — backlog rows /create-next-tool should NOT build.
+#
+# Format:  <slug>  # reason
+# Blank lines and lines starting with # are ignored. scripts/pick-next-tool.py
+# reads this; the build agent appends a line when it spots a semantic near-dup
+# mid-run (the exact-slug picker can't catch those — see SKILL.md "Known
+# limitation"). Keep reasons short and concrete.
+#
+# Only list CONFIRMED duplicates of an existing blocks/<slug>/ tool, or rows that
+# genuinely cannot be built in gizza's browser-local pure-Rust+ffmpeg model and
+# aren't better handled by the picker's out-of-model defer. Do NOT list tools
+# that merely share a word with an existing one (age-calculator is NOT a dup of
+# calculator; http-request-builder constructs bytes and does NOT send, unlike
+# http-request) — those are real, distinct tools.
+
+pdf-to-text            # duplicate of blocks/pdf-extract-text (same: extract text from a PDF)
+convert-image-format   # duplicate of blocks/image-convert (same: re-encode image to another format)
+image-vectorize        # duplicate of blocks/vectorize (same: trace a raster image into SVG)
