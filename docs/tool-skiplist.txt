@@ -17,3 +17,4 @@ pdf-to-text            # duplicate of blocks/pdf-extract-text (same: extract tex
 convert-image-format   # duplicate of blocks/image-convert (same: re-encode image to another format)
 image-vectorize        # duplicate of blocks/vectorize (same: trace a raster image into SVG)
 image-to-webp          # duplicate of blocks/image-convert (already does format=webp with quality)
+jpg-compressor         # duplicate of blocks/image-compress (re-encodes jpg at a quality, keeps dimensions)
