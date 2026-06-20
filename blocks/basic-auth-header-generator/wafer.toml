@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "basic-auth-header-generator"
+version = "0.1.0"
+abi = 1
+summary = "Build an HTTP Basic Authorization header."
