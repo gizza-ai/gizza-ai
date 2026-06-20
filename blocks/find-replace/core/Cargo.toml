@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-find-replace-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# regex: pure-Rust, wasm32-safe. default-features keeps Unicode support; that's
+# fine for wasm (no platform deps).
+regex = "1"

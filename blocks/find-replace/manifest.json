@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/find-replace",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and replace text (literal or regex).",
+  "role": "skill",
+  "tool": {
+    "description": "Find and replace text. By default `find` is matched literally; set regex=true to use a regular expression (with $1/${name} capture references in `replace`). case_sensitive (default true) and global (default true; false = first match only) control matching. Returns the new text and the number of replacements.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to search within." },
+        "find": { "type": "string", "description": "The text or regular expression to find." },
+        "replace": { "type": "string", "default": "", "description": "Replacement text. In regex mode, $1/${name} insert capture groups; in literal mode it is inserted verbatim. Default empty (deletes matches)." },
+        "regex": { "type": "boolean", "default": false, "description": "Treat `find` as a regular expression. Default false (literal match)." },
+        "case_sensitive": { "type": "boolean", "default": true, "description": "Match case-sensitively. Default true." },
+        "global": { "type": "boolean", "default": true, "description": "Replace every match. When false, only the first match is replaced. Default true." }
+      },
+      "required": ["text", "find"],
+      "additionalProperties": false
+    }
+  }
+}
