@@ -47,3 +47,4 @@ audio-normalize        # audio-only (no Input::Audio kind)
 audio-silence-remove   # audio-only (no Input::Audio kind)
 audio-to-mono          # audio-only (no Input::Audio kind)
 audio-volume-adjust    # audio-only (no Input::Audio kind)
+burn-subtitles         # needs 2 media inputs (video + .srt); single-input ffmpeg dispatch + page take one file
