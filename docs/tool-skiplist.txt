@@ -50,3 +50,4 @@ audio-volume-adjust    # audio-only (no Input::Audio kind)
 burn-subtitles         # needs 2 media inputs (video + .srt); single-input ffmpeg dispatch + page take one file
 csv-to-tsv  # dup of csv-change-delimiter (comma->tab is the default tab target)
 decrypt-file  # dup of encrypt-file (mode=decrypt already implemented)
+file-encryptor  # dup of encrypt-file (password AES-GCM encrypt+decrypt already implemented)

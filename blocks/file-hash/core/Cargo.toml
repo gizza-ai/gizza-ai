@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-file-hash-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# RustCrypto digests — all pure-Rust, wasm32-safe. CRC-32 is hand-rolled (no dep).
+md-5 = "0.10"
+sha1 = "0.10"
+sha2 = "0.10"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "file-hash"
+version = "0.1.0"
+abi = 1
+summary = "Compute MD5/SHA-1/SHA-256/SHA-512/CRC-32 checksums of a file."
