@@ -1,0 +1,35 @@
+slug          = "csv-filter"
+title         = "CSV Filter — Filter Rows by Condition Online"
+description   = "Keep only the CSV rows that match a condition (e.g. age > 30, city == NYC, name contains al) — numeric or string, in your browser. Free, private, no upload."
+tags          = ["csv filter", "filter rows", "csv where", "query csv", "csv condition"]
+h1            = "CSV Filter"
+hero_subtitle = "Keep CSV rows matching a simple condition over a column. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_csv_filter_web"
+export        = "run"
+live          = false
+output_label  = "Filtered CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age\nAlice,30\nBob,25"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "condition"
+label       = "Condition (e.g. age > 28, city == NYC, name contains al)"
+placeholder = "age > 28"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"

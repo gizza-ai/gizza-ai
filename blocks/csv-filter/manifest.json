@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Filter CSV rows by a column condition.",
+  "role": "skill",
+  "tool": {
+    "description": "Keep only the CSV rows where a column matches a condition. `condition` is '<column> <op> <value>' with op one of == != < <= > >= contains; the column is a header name (when header=true) or a 1-based index. Comparison is numeric when both the cell and value are numbers, otherwise string; contains is a case-insensitive substring. The header row is preserved.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text to filter." },
+        "condition": { "type": "string", "description": "Row condition '<column> <op> <value>'. column is a header name (header=true) or 1-based index; op is one of == != < <= > >= contains. Numeric compare when both sides are numbers, else string; contains is a case-insensitive substring." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header (kept, and matchable by name). Default true." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "condition"],
+      "additionalProperties": false
+    }
+  }
+}
