@@ -1,0 +1,31 @@
+{
+  "name": "gizza-ai/images-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine images into a single PDF (one image per page).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Combine a set of images into a single PDF, one image per page, in the given order. Each image is a URL or a `ref` to an uploaded image attachment (PNG/JPEG/WebP/GIF/BMP). Provide at least one image.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Ordered list of image sources (PNG/JPEG/WebP/GIF/BMP). Each item has exactly one of `url` or `ref`. One image per PDF page, in order.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
+              "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["images"],
+      "additionalProperties": false
+    }
+  }
+}

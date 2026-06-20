@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-images-to-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Decode any common raster format -> RGB, embed each as a Flate image XObject in
+# a lopdf-built PDF (one image per page). All pure-Rust / wasm32-safe.
+lopdf = { version = "0.36", default-features = false }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+flate2 = "1"
