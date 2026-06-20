@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "jq-query"
+version = "0.1.0"
+abi = 1
+summary = "Run a jq program against JSON."

@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-jq-query-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+jaq-interpret = "1.5"
+jaq-core = "1.5"
+jaq-std = "1.5"
+jaq-parse = "1.0"
+serde_json = "1"
