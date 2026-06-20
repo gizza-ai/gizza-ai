@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/add-text-to-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Overlay caption/watermark text on an image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Overlay custom text (a caption, watermark, or meme line) onto an image and return a PNG. Set x/y for the top-left text position in pixels, font_size in pixels, and color as #rrggbb. Use \\n in text for multiple lines. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "text": { "type": "string", "description": "The text to overlay (use \\n for multiple lines)." },
+        "x": { "type": "integer", "minimum": 0, "default": 10, "description": "Left position of the text in pixels (default 10)." },
+        "y": { "type": "integer", "minimum": 0, "default": 10, "description": "Top position of the text in pixels (default 10)." },
+        "font_size": { "type": "number", "minimum": 4, "default": 32, "description": "Font size in pixels (default 32)." },
+        "color": { "type": "string", "default": "#ffffff", "description": "Text colour as #rrggbb (default #ffffff)." }
+      },
+      "required": ["text"],
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
