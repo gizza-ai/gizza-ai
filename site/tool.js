@@ -27,12 +27,30 @@ function formatNumber(v) {
   return Number.isFinite(scaled) ? String(scaled) : String(v);
 }
 
+// Read a field element as the string the wasm export expects. A checkbox
+// yields "true"/"false" (the wasm side parses booleans from strings); a
+// <select>/<input>/<textarea> yields its value.
+function readField(el) {
+  if (!el) return "";
+  if (el.type === "checkbox") return el.checked ? "true" : "false";
+  return el.value;
+}
+
+// Apply a deep-link prefill value to a field element (checkbox vs value-bearing).
+function applyField(el, value) {
+  if (!el) return;
+  if (el.type === "checkbox") {
+    el.checked = ["true", "1", "yes", "on"].includes(String(value).toLowerCase());
+  } else {
+    el.value = value;
+  }
+}
+
 // Collect call args in declared order. "field" → input value; "clock" → now (s).
 function gatherArgs() {
   return cfg.inputs.map((inp) => {
     if (inp.source === "clock") return Math.floor(Date.now() / 1000);
-    const el = document.getElementById(inp.elementId);
-    return el ? el.value : "";
+    return readField(document.getElementById(inp.elementId));
   });
 }
 
@@ -93,8 +111,7 @@ async function main() {
     // media into the file input and auto-run. Param names == input names.
     const { fields: qpFields, url: qpUrl } = queryPrefill(cfg.inputs, location.search);
     for (const f of qpFields) {
-      const el = document.getElementById(f.elementId);
-      if (el) el.value = f.value;
+      applyField(document.getElementById(f.elementId), f.value);
     }
     async function loadUrlIntoFile(url) {
       try {
@@ -118,7 +135,10 @@ async function main() {
     if (fileInput) fileInput.addEventListener("change", run);
     for (const i of fieldInputs) {
       const el = document.getElementById(i.elementId);
-      if (el) el.addEventListener("input", run);
+      if (el) {
+        el.addEventListener("input", run);
+        el.addEventListener("change", run); // <select>/checkbox fire change, not input
+      }
     }
     if (qpUrl && fileInput) {
       loadUrlIntoFile(qpUrl).then((ok) => {
@@ -151,15 +171,17 @@ async function main() {
   // Deep-link: prefill fields from the URL query, then the initial compute()
   // below auto-runs with those values. Param names == input names.
   for (const f of queryPrefill(cfg.inputs, location.search).fields) {
-    const el = document.getElementById(f.elementId);
-    if (el) el.value = f.value;
+    applyField(document.getElementById(f.elementId), f.value);
   }
 
   // Wire field inputs to live recompute.
   for (const inp of cfg.inputs) {
     if (inp.source === "field") {
       const el = document.getElementById(inp.elementId);
-      if (el) el.addEventListener("input", compute);
+      if (el) {
+        el.addEventListener("input", compute);
+        el.addEventListener("change", compute); // <select>/checkbox fire change, not input
+      }
     }
   }
 

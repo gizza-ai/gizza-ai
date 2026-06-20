@@ -1,6 +1,7 @@
 //! Renders the option-C tool page: top nav + hero tool + SEO content + footer,
 //! with SEO `<head>` tags and JSON-LD.
 
+use crate::control::{fmt_num, Control, ParamSchema};
 use crate::markdown::example_deeplink;
 use crate::meta::ToolMeta;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
@@ -8,7 +9,7 @@ use maud::{html, PreEscaped, DOCTYPE};
 
 /// Render the full HTML document for a tool page. `content_html` is the
 /// markdown-rendered SEO section.
-pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
+pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) -> String {
     let canonical = format!("https://gizza.ai/tools/{}/", meta.slug);
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
     // literal "</script>" in any value would break out of the element. serde_json
@@ -84,10 +85,39 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                         div class="tool-widget" {
                             @for input in &meta.inputs {
                                 @if input.source == "field" {
-                                    label class="tool-field-label" for=(format!("in-{}", input.name)) { (input.label) }
-                                    input id=(format!("in-{}", input.name)) class="tool-input"
-                                          type="text" placeholder=(input.placeholder)
-                                          autocomplete="off" autocapitalize="off" spellcheck="false";
+                                    @let id = format!("in-{}", input.name);
+                                    label class="tool-field-label" for=(id) { (input.label) }
+                                    @match schema.control_for(&input.name, input.multiline) {
+                                        Control::Select { options, default } => {
+                                            select id=(id) class="tool-input tool-select" {
+                                                @for opt in &options {
+                                                    option value=(opt) selected[Some(opt) == default.as_ref()] { (opt) }
+                                                }
+                                            }
+                                        }
+                                        Control::Checkbox { default } => {
+                                            input id=(id) class="tool-checkbox" type="checkbox" checked[default];
+                                        }
+                                        Control::Number { min, max, default } => {
+                                            @let min_s = min.map(fmt_num);
+                                            @let max_s = max.map(fmt_num);
+                                            @let val_s = default.map(fmt_num);
+                                            input id=(id) class="tool-input" type="number"
+                                                  placeholder=(input.placeholder)
+                                                  min=[min_s.as_deref()] max=[max_s.as_deref()] value=[val_s.as_deref()]
+                                                  autocomplete="off" autocapitalize="off" spellcheck="false";
+                                        }
+                                        Control::Textarea => {
+                                            textarea id=(id) class="tool-input" rows="4"
+                                                  placeholder=(input.placeholder)
+                                                  autocomplete="off" autocapitalize="off" spellcheck="false" {}
+                                        }
+                                        Control::Text => {
+                                            input id=(id) class="tool-input"
+                                                  type="text" placeholder=(input.placeholder)
+                                                  autocomplete="off" autocapitalize="off" spellcheck="false";
+                                        }
+                                    }
                                 } @else if input.source == "file" {
                                     label class="tool-field-label" for=(format!("in-{}", input.name)) { (input.label) }
                                     input id=(format!("in-{}", input.name)) class="tool-file"
@@ -125,7 +155,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str) -> String {
                         section class="tool-cli" {
                             h2 { "Open it by URL" }
                             p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
-                            pre class="tool-cli-code" { code { (example_deeplink(meta)) } }
+                            pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
                         }
                     }
                 }
@@ -328,7 +358,7 @@ source      = "field"
 
     #[test]
     fn includes_seo_head_and_widget() {
-        let html = render_page(&sample(), "<h2>About</h2>");
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty());
         assert!(html.contains("<title>Free Online Calculator — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/calculator/">"#));
         assert!(
@@ -344,7 +374,7 @@ source      = "field"
 
     #[test]
     fn page_documents_query_param_deep_link() {
-        let html = render_page(&sample(), "<h2>About</h2>");
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty());
         assert!(html.contains("Open it by URL"), "deep-link section present");
         assert!(
             html.contains("https://gizza.ai/tools/calculator/?expr="),
@@ -354,7 +384,7 @@ source      = "field"
 
     #[test]
     fn includes_shared_chrome_header_and_footer() {
-        let html = render_page(&sample(), "<h2>About</h2>");
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty());
         // Shared header markers from gizza-chrome
         assert!(
             html.contains(r#"id="explore-search""#),
@@ -427,7 +457,7 @@ placeholder = "640"
 
     #[test]
     fn renders_file_input_and_media_output() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>");
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty());
         assert!(html.contains(r#"type="file""#), "file input present");
         assert!(html.contains(r#"id="in-image""#), "file input id");
         assert!(html.contains(r#"accept="image/*""#), "accept attr");

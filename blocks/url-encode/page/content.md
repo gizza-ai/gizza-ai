@@ -1,47 +1,58 @@
-## About this URL encoder / decoder
+## What this tool does
 
-This free online tool percent-encodes (URL-encodes) and decodes text and URLs
-instantly, right in your browser. Nothing is sent to a server — it runs locally,
-works offline, and needs no sign-up.
+Percent-encode (URL-encode) or decode text and URLs instantly, right in your
+browser. Nothing is sent to a server — it runs locally, works offline, and needs
+no sign-up. Pick a **Mode** and a **Target**, and optionally turn on **Per line**
+or raise **Repeat**.
 
-### Encode vs decode
+## Modes
 
-- **Encode** turns unsafe characters into `%XX` escapes so text can travel
-  safely inside a URL. For example, a space becomes `%20` and `ã` becomes
-  `%C3%A3`.
-- **Decode** reverses that, turning `%XX` escapes back into the original
-  characters.
+| Mode | What it does |
+| --- | --- |
+| **encode** (default) | Turns unsafe characters into `%XX` escapes — a space becomes `%20`, `ã` becomes `%C3%A3`. |
+| **decode** | Reverses it — turns `%XX` escapes back into the original characters. |
 
-Set the **Mode** field to `encode` (the default when blank) or `decode`.
+## Target — the encoding style
 
-### Component vs whole-URL
+| Target | What it escapes | Use it for | JS equivalent |
+| --- | --- | --- | --- |
+| **component** (default) | Everything except letters, digits, and `- _ . ~` | A single query value or path segment | `encodeURIComponent` |
+| **uri** | Only unsafe bytes; keeps URL delimiters (`: / ? # @ & = …`) | Cleaning a whole URL without breaking it | `encodeURI` |
+| **form** | Like component, but a space becomes `+` | HTML form bodies and `+`-style query strings (`application/x-www-form-urlencoded`) | — |
 
-When encoding, the **Target** field controls how aggressive the escaping is:
+When decoding with **form**, a `+` turns back into a space.
 
-- **component** (the default) escapes *everything* that isn't a letter, digit,
-  or one of `- _ . ~`. Use this for a single query-string value or a single path
-  segment, where characters like `&`, `=`, `/`, and `?` must be escaped so they
-  aren't mistaken for delimiters.
-- **uri** preserves the reserved characters that give a URL its structure
-  (`: / ? # [ ] @ ! $ & ' ( ) * + , ; =`) and only escapes genuinely unsafe
-  bytes such as spaces and non-ASCII characters. Use this to clean up an entire
-  URL without breaking it.
+## Batch and repeat
 
-Target is ignored when decoding.
+- **Per line** — convert each line of the input independently, keeping the line
+  breaks between them. Handy for a list of values or URLs: paste one per line and
+  convert them all at once, without the newlines themselves getting encoded.
+- **Repeat (1–16)** — apply the operation that many times. Decode with
+  `repeat = 2` to un-nest a double-encoded string (a value that was encoded twice,
+  e.g. `a b` → `a%20b` → `a%2520b`); or double-encode by repeating the encode.
 
-### Examples
+## Examples
 
-- `São Paulo` → `S%C3%A3o%20Paulo` (encode, component)
-- `name=John Doe&city=x` → `name%3DJohn%20Doe%26city%3Dx` (encode, component)
-- `https://ex.com/a b?x=1&y=2` → `https://ex.com/a%20b?x=1&y=2` (encode, uri)
-- `S%C3%A3o%20Paulo` → `São Paulo` (decode)
+| Input | Settings | Output |
+| --- | --- | --- |
+| `São Paulo` | encode · component | `S%C3%A3o%20Paulo` |
+| `name=John Doe&city=x` | encode · component | `name%3DJohn%20Doe%26city%3Dx` |
+| `https://ex.com/a b?x=1&y=2` | encode · uri | `https://ex.com/a%20b?x=1&y=2` |
+| `a b+c` | encode · form | `a+b%2Bc` |
+| `a%2520b` | decode · repeat 2 | `a b` |
+| `S%C3%A3o%20Paulo` | decode | `São Paulo` |
 
-### FAQ
+## FAQ
 
-**Is it really free and private?** Yes — your input never leaves your device.
+**Is it free and private?** Yes — your input never leaves your device, and it
+keeps working offline once the page has loaded.
 
-**Does it work offline?** Yes, once the page has loaded.
+**When should I use `form` instead of `component`?** Use **form** when the value
+goes into an HTML form submission or a query string that encodes spaces as `+`.
+Use **component** for modern percent-encoded URLs, where a space is `%20`.
 
-**What's the difference between this and `encodeURIComponent`?** The default
-"component" target matches `encodeURIComponent`; the "uri" target matches
-`encodeURI`.
+**How does this map to JavaScript?** `component` matches `encodeURIComponent`,
+`uri` matches `encodeURI`, and `form` additionally turns spaces into `+`.
+
+**My string looks like it's encoded twice — how do I fix it?** Decode with the
+**Repeat** field set to `2` (or higher) to peel off each layer of encoding.
