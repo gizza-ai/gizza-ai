@@ -1,0 +1,47 @@
+slug          = "csv-json-convert"
+title         = "CSV to JSON & JSON to CSV Converter — gizza.ai"
+description   = "Convert CSV to JSON or JSON to CSV instantly in your browser. Auto-detects the input, infers numbers and booleans, handles quoted fields, custom delimiters (tab/semicolon/pipe), and headerless data. Free, private, no upload, no sign-up."
+tags          = ["csv to json", "json to csv", "csv converter", "json converter", "csv parser", "tabular data", "tsv", "data conversion"]
+h1            = "CSV ⇄ JSON Converter"
+hero_subtitle = "Convert between CSV and JSON in either direction — auto-detected, with type inference, quoted fields, and custom delimiters. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_csv_json_convert_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV or JSON"
+placeholder = "name,age\nAlice,30\nBob,25"
+source      = "field"
+multiline   = true
+
+# direction renders as a <select> and headers/pretty as checkboxes — the control
+# type + enum options are derived from the descriptor schema (manifest.json), so
+# labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, ; | or 'tab')"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "headers"
+label       = "First row is headers"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON output"
+source      = "field"
+
+[[input]]
+name        = "flatten"
+label       = "Flatten nested JSON to dot-notation columns"
+source      = "field"
