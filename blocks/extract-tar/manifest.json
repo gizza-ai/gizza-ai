@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/extract-tar",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List and extract files from a tar / tar.gz / tgz archive.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "List and extract the files from a tar, tar.gz, or tgz archive, returning them repacked as a ZIP (gzip is auto-detected). The response lists every member (files and directories). Provide the archive as either url (HTTP/HTTPS) or ref (id from a prior tool call). Paths are sanitized (no absolute paths or '..' traversal).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
