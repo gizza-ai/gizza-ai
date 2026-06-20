@@ -83,6 +83,15 @@ be headlessly verified (gpu has no page; chat-ffmpeg can't run in a Service Work
 state it explicitly rather than claiming a pass. **One tool per run**; re-invoke (or `/loop`) for the
 next.
 
+**Page output formats:** the page driver renders `format = "image" | "video" | "audio"` (media,
+with a download link) or anything else as `text`. Audio output (`format = "audio"` → `<audio
+controls>`) was added with `extract-audio-from-video` — so **video→audio** ffmpeg tools are fully
+supported now (set the page `format = "audio"`, give the block an `audio/*` mime via the core
+`Format::mime()`, and use `build_media_envelope`; CLI-test with a video that actually has an audio
+track — many small test clips are silent and will fail with "nothing to encode"). Still missing:
+audio-**input** tools (audio-convert/normalize/…) need an `AssetKind::Audio` + `accept="audio/*"`
+page input, which is unbuilt — keep those skiplisted.
+
 **Known limitation (mitigated):** the picker matches built tools by exact slug, so a semantic
 near-dup (e.g. `pdf-to-text` vs the built `pdf-extract-text`) isn't auto-detected. `docs/tool-skiplist.txt`
 holds the confirmed dups found so far; when you spot a NEW one mid-build, add it there (step 1) rather

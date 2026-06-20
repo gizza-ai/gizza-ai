@@ -69,10 +69,10 @@ async function main() {
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
     if (!media || !dl) {
-      // ffmpeg runtime requires a media output (format "image"/"video"); a
-      // misconfigured tool (e.g. runtime=ffmpeg + format=text) has no place to
+      // ffmpeg runtime requires a media output (format "image"/"video"/"audio");
+      // a misconfigured tool (e.g. runtime=ffmpeg + format=text) has no place to
       // render the result. Fail loudly instead of throwing on a null element.
-      showError("tool misconfigured: ffmpeg runtime needs an image/video output");
+      showError("tool misconfigured: ffmpeg runtime needs an image/video/audio output");
       return;
     }
     const fileMeta = cfg.inputs.find((i) => i.source === "file");
