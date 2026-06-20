@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-extract-pdf-images-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# lopdf parses the PDF + decodes Flate/LZW/ASCII85 image streams. default-features
+# off drops chrono/jiff/rayon/time (rayon doesn't build on wasm32); the nom parser
+# is always compiled.
+lopdf = { version = "0.36", default-features = false }
+# image: re-encode reconstructed raw samples to PNG (pure-Rust, wasm32-safe).
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+# zip with deflate only — bundle every extracted image into one archive.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+# Build pre-deflated image streams in the unit tests.
+flate2 = "1"
