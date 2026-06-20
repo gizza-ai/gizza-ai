@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/extract-audio-from-video",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the audio track from a video as MP3 or WAV.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Extract the audio track from a video file as MP3 (lossy) or WAV (lossless). Set format='mp3' (default) or 'wav', and optionally bitrate (kbps, 32-320, default 192, mp3 only). Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "format": { "type": "string", "enum": ["mp3", "wav"], "default": "mp3", "description": "Output audio format: mp3 (lossy) or wav (lossless). Default mp3." },
+        "bitrate": { "type": "integer", "minimum": 32, "maximum": 320, "description": "MP3 bitrate in kbps (32-320, default 192). Ignored for lossless wav." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

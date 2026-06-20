@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-audio-from-video"
+version = "0.1.0"
+abi = 1
+summary = "Extract the audio track from a video as MP3 or WAV."

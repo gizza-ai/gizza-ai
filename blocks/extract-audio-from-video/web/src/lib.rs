@@ -1,0 +1,27 @@
+//! Browser-facing wasm-bindgen wrapper for /tools/extract-audio-from-video/
+//! (ffmpeg page). Builds the ffmpeg argv (pure, shared with the chat block via
+//! core); the JS page driver runs it through the browser ffmpeg bridge.
+//!
+//! Page field order (meta.toml) MUST match this param order: `format`, then
+//! `bitrate`, then the file (`in_name`). `tool.js` calls
+//! `build_argv(...fieldArgs, inName)`.
+
+use wasm_bindgen::prelude::*;
+
+use gizza_ai_block_utils::ArgvPlan;
+use gizza_ai_extract_audio_from_video_core::{plan_extract, DEFAULT_BITRATE};
+
+/// `format` is `mp3|wav` (empty defaults to mp3); `bitrate` is the MP3 kbps
+/// (0/empty defaults to 192, ignored for wav). Returns `{ argv, out_name }` or
+/// throws a JS error string.
+#[wasm_bindgen]
+pub fn build_argv(format: &str, bitrate: f64, in_name: &str) -> Result<JsValue, JsValue> {
+    let kbps = if bitrate > 0.0 {
+        bitrate.round().clamp(32.0, 320.0) as u32
+    } else {
+        DEFAULT_BITRATE
+    };
+    let (argv, out_name) = plan_extract(format, kbps, in_name).map_err(|e| JsValue::from_str(&e))?;
+    serde_wasm_bindgen::to_value(&ArgvPlan { argv, out_name })
+        .map_err(|e| JsValue::from_str(&e.to_string()))
+}
