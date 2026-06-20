@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/safelink-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Unwrap SafeLinks / Proofpoint / redirect URLs.",
+  "role": "skill",
+  "tool": {
+    "description": "Reveal the original destination behind a URL-rewrite wrapper: Outlook SafeLinks, Proofpoint URLDefense (v2 and v3), Google redirects, and generic ?url=/?q=/?u= redirectors. Follows nested wrappers. Pure string decoding — it does NOT fetch the URL. Set per_line=true to unwrap a batch list of URLs.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "The wrapped/rewritten URL to unwrap (or a batch list, one per line with per_line=true)." },
+        "per_line": { "type": "boolean", "default": false, "description": "When true, unwrap each line of the input independently (rejoined with newlines). Default false." }
+      },
+      "required": ["url"],
+      "additionalProperties": false
+    }
+  }
+}
