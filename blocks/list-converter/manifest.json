@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/list-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reformat a list (comma/newline/bullets/numbered/quoted).",
+  "role": "skill",
+  "tool": {
+    "description": "Reformat a list between forms: comma-separated, newline (one per line), bulleted, numbered, quoted (\"a\", \"b\" for code arrays), or space-separated. input_separator controls splitting ('auto' detects newlines/commas/semicolons); output_format picks the layout. Optionally sort (case-insensitive) and/or dedupe. Items are trimmed and blanks dropped.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The list text to reformat." },
+        "input_separator": { "type": "string", "enum": ["auto", "comma", "newline", "semicolon", "space"], "default": "auto", "description": "How to split the input. 'auto' (default): newlines if present, else commas, else semicolons." },
+        "output_format": { "type": "string", "enum": ["comma", "newline", "bulleted", "numbered", "quoted", "space"], "default": "newline", "description": "Output layout: comma (a, b), newline (one per line), bulleted (- a), numbered (1. a), quoted (\"a\", \"b\"), or space. Default newline." },
+        "sort": { "type": "boolean", "default": false, "description": "Sort items alphabetically (case-insensitive). Default false." },
+        "dedupe": { "type": "boolean", "default": false, "description": "Remove duplicate items (keeping the first). Default false." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}
