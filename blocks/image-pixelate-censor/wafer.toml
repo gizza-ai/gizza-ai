@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-pixelate-censor"
+version = "0.1.0"
+abi = 1
+summary = "Pixelate or blur a region of an image to censor it."

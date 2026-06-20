@@ -1,0 +1,27 @@
+{
+  "name": "gizza-ai/image-pixelate-censor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pixelate or blur a region of an image to censor it.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Censor a rectangular region of an image (e.g. a face, license plate, or sensitive text) by pixelating it into a mosaic (default) or blurring it. Give the region as x, y, width, height in pixels (0-based from the top-left; clamped to the image). mode is 'pixelate' or 'blur'; strength sets the mosaic tile size (pixelate) or blur radius (blur). Only the region is changed; the rest is untouched. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "x": { "type": "integer", "minimum": 0, "description": "Left edge of the region to censor (pixels from the left)." },
+        "y": { "type": "integer", "minimum": 0, "description": "Top edge of the region to censor (pixels from the top)." },
+        "width": { "type": "integer", "minimum": 1, "description": "Width of the region in pixels (clamped to the image)." },
+        "height": { "type": "integer", "minimum": 1, "description": "Height of the region in pixels (clamped to the image)." },
+        "mode": { "type": "string", "enum": ["pixelate", "blur"], "default": "pixelate", "description": "Censor style: pixelate (mosaic, default) or blur." },
+        "strength": { "type": "number", "minimum": 0, "description": "Pixelate: mosaic tile size in px (default 16). Blur: blur radius/sigma (default 12). 0 = default." }
+      },
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
