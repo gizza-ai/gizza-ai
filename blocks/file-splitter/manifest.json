@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/file-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a text/CSV file into parts or chunks (ZIP of pieces).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Split a large text or CSV file into pieces, returned as a ZIP. Set mode='parts' (count equal parts), 'lines' (count lines each), or 'bytes' (up to count bytes each), with count as the parameter. Splitting is always on line boundaries (no line is cut). Set csv_header=true to repeat the first line as a header atop every piece. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "mode": { "type": "string", "enum": ["parts", "lines", "bytes"], "default": "parts", "description": "How to split: 'parts' = count equal parts, 'lines' = count lines per piece, 'bytes' = up to count bytes per piece. Always splits on line boundaries." },
+        "count": { "type": "integer", "minimum": 1, "description": "The split parameter: number of parts (parts), lines per piece (lines), or max bytes per piece (bytes)." },
+        "csv_header": { "type": "boolean", "default": false, "description": "Treat the first line as a CSV header and repeat it at the top of every piece. Default false." }
+      },
+      "additionalProperties": false,
+      "required": ["count"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
