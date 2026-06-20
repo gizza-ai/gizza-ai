@@ -1,0 +1,18 @@
+slug          = "html-to-text"
+title         = "HTML to Text — Strip HTML Tags Online — gizza.ai"
+description   = "Strip HTML markup to clean, readable plain text in your browser — keeps paragraph and list structure, removes all tags. Free, private, no upload, no sign-up."
+tags          = ["html to text", "strip html", "remove html tags", "plain text", "html stripper", "extract text"]
+h1            = "HTML to Text"
+hero_subtitle = "Paste HTML and get clean plain text — tags removed, paragraphs and lists preserved. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_html_to_text_web"
+export        = "run"
+live          = false
+output_label  = "Plain text"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<h1>Title</h1><p>Some <b>rich</b> text.</p>"
+source      = "field"
+multiline   = true

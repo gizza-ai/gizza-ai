@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/html-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip HTML to clean plain text.",
+  "role": "skill",
+  "tool": {
+    "description": "Strip HTML markup to clean, readable plain text, preserving paragraph and list structure (no Markdown markers). Pass the HTML as `html`.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The HTML fragment or page body to strip to plain text." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}
