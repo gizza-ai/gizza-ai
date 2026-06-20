@@ -34,3 +34,5 @@ csv-to-json            # duplicate of blocks/csv-json-convert (already parses CS
 image-watermark        # text mode duplicates blocks/add-text-to-image (which covers caption/watermark text overlay); opacity+position are add-text-to-image improvements; the logo-overlay mode needs 2 media inputs (out of model)
 jpg-to-png             # duplicate of blocks/image-convert (already does format=png)
 readable-article       # duplicate of blocks/readability-extractor (strip nav/ads/clutter from article HTML)
+subtitle-translator    # core function is translation = needs an ML model (transformers-js); out of gizza pure+ffmpeg model. (A pure srt<->vtt convert/retime tool would be fine.)
+trim-audio             # audio-only ffmpeg; no Input::Audio kind in the descriptor model (AssetKind is Image/Video/Document/Any)
