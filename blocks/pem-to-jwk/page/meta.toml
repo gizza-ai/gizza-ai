@@ -1,0 +1,17 @@
+slug          = "pem-to-jwk"
+title         = "PEM to JWK Converter — gizza.ai"
+description   = "Convert a PEM-encoded RSA or EC key into a JSON Web Key (JWK), in your browser. Nothing is uploaded."
+tags          = ["pem", "jwk", "rsa", "ec", "json web key", "crypto", "developer"]
+h1            = "PEM → JWK converter"
+hero_subtitle = "Paste a PEM key and get its JSON Web Key (JWK). RSA and EC (P-256/384/521), public or private. Runs locally — the key never leaves your browser."
+wasm          = "gizza_ai_pem_to_jwk_web"
+export        = "run"
+live          = false
+output_label  = "JWK"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "PEM key"
+placeholder = "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+source      = "field"

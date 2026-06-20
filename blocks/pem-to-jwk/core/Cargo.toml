@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-pem-to-jwk-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+pem = "3"
+base64 = "0.22"
+rsa = { version = "0.9", default-features = false }
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8"] }
+p521 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8"] }
+spki = { version = "0.7", default-features = false, features = ["alloc"] }
+pkcs8 = { version = "0.10", default-features = false, features = ["alloc"] }
+const-oid = "0.9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
