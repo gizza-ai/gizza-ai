@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-formula-eval"
+version = "0.1.0"
+abi = 1
+summary = "Add/transform CSV columns with formulas."
