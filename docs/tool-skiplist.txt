@@ -38,3 +38,12 @@ subtitle-translator    # core function is translation = needs an ML model (trans
 trim-audio             # audio-only ffmpeg; no Input::Audio kind in the descriptor model (AssetKind is Image/Video/Document/Any)
 video-convert          # duplicate of blocks/video-transcode (converts video format/container; mov/mkv targets would be a video-transcode improvement)
 video-merge            # needs >1 media input (concat several clips); block-utils dispatch_ffmpeg is single-input + page driver takes one file
+
+# audio-only family — no Input::Audio media kind in the descriptor model (a future
+# framework pass could add Input::Audio + AssetKind::Audio + page audio rendering).
+video-to-frames        # duplicate of blocks/video-frame-extract (extract still frames from a video)
+audio-convert          # audio-only (no Input::Audio kind)
+audio-normalize        # audio-only (no Input::Audio kind)
+audio-silence-remove   # audio-only (no Input::Audio kind)
+audio-to-mono          # audio-only (no Input::Audio kind)
+audio-volume-adjust    # audio-only (no Input::Audio kind)
