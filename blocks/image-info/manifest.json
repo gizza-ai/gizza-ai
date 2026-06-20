@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/image-info",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report an image's format, dimensions, and color type.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Report an image's properties without uploading it: format (PNG/JPEG/WebP/GIF/BMP/TIFF/ICO), pixel dimensions, megapixels, aspect ratio, color type (RGB/RGBA/grayscale and bit depth), channel count, bits per pixel, whether it has an alpha channel, and the file size in bytes. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
