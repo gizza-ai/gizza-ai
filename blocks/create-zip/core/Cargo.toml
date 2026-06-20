@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-create-zip-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only (flate2-based) — drop the default time/aes/bzip2/zstd
+# features so it stays pure-Rust and wasm32-safe.
+zip = { version = "8", default-features = false, features = ["deflate"] }
