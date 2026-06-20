@@ -1,0 +1,35 @@
+slug          = "csv-dedupe"
+title         = "CSV Dedupe — Remove Duplicate Rows Online"
+description   = "Remove duplicate rows from a CSV, keeping the first — optionally keyed on chosen columns. Runs in your browser, nothing is uploaded, free."
+tags          = ["csv dedupe", "remove duplicate rows", "deduplicate csv", "unique rows", "csv cleanup"]
+h1            = "CSV Dedupe"
+hero_subtitle = "Drop duplicate rows from a CSV (first kept), optionally keyed on specific columns. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_dedupe_web"
+export        = "run"
+live          = false
+output_label  = "Deduped CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age\nAlice,30\nAlice,30\nBob,25"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Key columns (names or 1-based indices; blank = whole row)"
+placeholder = "name"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
