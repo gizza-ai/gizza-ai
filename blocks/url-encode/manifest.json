@@ -5,14 +5,16 @@
   "summary": "Percent-encode or decode text and URLs.",
   "role": "skill",
   "tool": {
-    "description": "Percent-encode or percent-decode text and URLs. Use mode='encode' (default) to make text URL-safe or mode='decode' to reverse it. When encoding, target='component' (default) escapes everything for a single query value or path segment (e.g. 'São Paulo' -> 'S%C3%A3o%20Paulo'); target='uri' encodes a whole URL while preserving its delimiters (: / ? # & = etc.).",
+    "description": "Percent-encode or percent-decode text and URLs. Use mode='encode' (default) to make text URL-safe or mode='decode' to reverse it. When encoding, target='component' (default) escapes everything for a single query value or path segment (e.g. 'São Paulo' -> 'S%C3%A3o%20Paulo'); target='uri' encodes a whole URL while preserving its delimiters (: / ? # & = etc.); target='form' is application/x-www-form-urlencoded, where a space becomes '+' (and decodes back). Set per_line=true to convert each line of a batch list independently. Set repeat>1 (up to 16) to un-nest multiply-encoded input when decoding, or to double-encode.",
     "parameters": {
       "type": "object",
       "required": ["text"],
       "properties": {
         "text": { "type": "string", "description": "The text or URL to encode or decode." },
         "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) percent-encodes, 'decode' reverses it." },
-        "target": { "type": "string", "enum": ["component", "uri"], "default": "component", "description": "Encode mode only: 'component' (default) escapes reserved chars for a single value; 'uri' preserves URL delimiters. Ignored when decoding." }
+        "target": { "type": "string", "enum": ["component", "uri", "form"], "default": "component", "description": "Encoding style. 'component' (default) escapes reserved chars for a single query value or path segment; 'uri' preserves URL delimiters for a whole URL; 'form' is application/x-www-form-urlencoded (a space becomes '+', and on decode '+' becomes a space)." },
+        "per_line": { "type": "boolean", "default": false, "description": "When true, convert each line of the input independently (rejoined with newlines) — for a batch list of values or URLs. Default false." },
+        "repeat": { "type": "integer", "minimum": 1, "maximum": 16, "default": 1, "description": "Apply the operation this many times, 1-16. Use >1 to un-nest multiply-encoded input when decoding (or to double-encode). Default 1." }
       },
       "additionalProperties": false
     }

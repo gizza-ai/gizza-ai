@@ -2,6 +2,7 @@
 //! `ToolMeta` (meta.toml) + content.md that drive the HTML page, so web-browsing
 //! LLMs can read a tool without parsing HTML.
 
+use crate::control::{fmt_num, Control, ParamSchema};
 use crate::meta::{Input, ToolMeta};
 
 /// Public site origin — matches the literal used in `template.rs`.
@@ -9,7 +10,7 @@ const SITE: &str = "https://gizza.ai";
 
 /// Render a tool's `index.md`: a generated header (description, run-it, inputs,
 /// output) followed by the tool's prose `content.md`, verbatim.
-pub fn tool_markdown(meta: &ToolMeta, content_md: &str) -> String {
+pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) -> String {
     let mut s = String::new();
     s.push_str(&format!("# {}\n\n", meta.h1));
     s.push_str(&format!("{}\n\n", meta.description));
@@ -56,7 +57,7 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str) -> String {
         if has_file {
             s.push_str("- `url` — fetch the input file from a public URL (CORS-permitting)\n");
         }
-        s.push_str(&format!("\nExample: `{}`\n\n", example_deeplink(meta)));
+        s.push_str(&format!("\nExample: `{}`\n\n", example_deeplink(meta, schema)));
     }
 
     s.push_str("---\n\n");
@@ -80,23 +81,39 @@ fn cli_example(meta: &ToolMeta) -> String {
 }
 
 /// Example deep-link URL for the "Query parameters" docs (markdown + page).
-/// Field inputs use their placeholder (or `value`) as a sample; a file input
-/// becomes `?url=…`. `pub(crate)` so `template.rs` renders the same example.
-pub(crate) fn example_deeplink(meta: &ToolMeta) -> String {
+/// Each field uses a real sample value derived from its schema control — a
+/// select's default/first option, `true` for a checkbox, a number's
+/// placeholder/default/min, else the field placeholder — so the example is
+/// copy-pasteable rather than `=value`. A file input becomes `?url=…`.
+/// `pub(crate)` so `template.rs` renders the same example.
+pub(crate) fn example_deeplink(meta: &ToolMeta, schema: &ParamSchema) -> String {
     let mut pairs: Vec<String> = Vec::new();
     for i in &meta.inputs {
         if i.source == "file" {
             pairs.push("url=https://example.com/input".to_string());
         } else if i.source == "field" {
-            let sample = if i.placeholder.is_empty() {
-                "value"
-            } else {
-                i.placeholder.as_str()
-            };
-            pairs.push(format!("{}={}", i.name, urlencode(sample)));
+            let sample = sample_value(&schema.control_for(&i.name, i.multiline), &i.placeholder);
+            pairs.push(format!("{}={}", i.name, urlencode(&sample)));
         }
     }
     format!("{}/tools/{}/?{}", SITE, meta.slug, pairs.join("&"))
+}
+
+/// A realistic sample value for a field in the deep-link example.
+fn sample_value(control: &Control, placeholder: &str) -> String {
+    let ph = (!placeholder.is_empty()).then(|| placeholder.to_string());
+    match control {
+        Control::Select { options, default } => default
+            .clone()
+            .or_else(|| options.first().cloned())
+            .unwrap_or_else(|| "value".to_string()),
+        Control::Checkbox { .. } => "true".to_string(),
+        Control::Number { default, min, .. } => ph
+            .or_else(|| default.map(fmt_num))
+            .or_else(|| min.map(fmt_num))
+            .unwrap_or_else(|| "1".to_string()),
+        Control::Text | Control::Textarea => ph.unwrap_or_else(|| "value".to_string()),
+    }
 }
 
 /// Minimal percent-encoding for example URLs (keeps RFC 3986 unreserved chars).
@@ -191,7 +208,7 @@ source = "clock"
 
     #[test]
     fn field_tool_has_header_runit_inputs_output_prose() {
-        let md = tool_markdown(&field_tool(), "Some **prose** about the calculator.");
+        let md = tool_markdown(&field_tool(), "Some **prose** about the calculator.", &crate::control::ParamSchema::empty());
         assert!(md.contains("# Free Online Calculator"));
         assert!(md.contains("`gizza tool calculator \"2 + 2 * 3\"`"), "CLI example");
         assert!(md.contains("https://gizza.ai/tools/calculator/"), "web URL");
@@ -202,21 +219,21 @@ source = "clock"
 
     #[test]
     fn file_tool_uses_path_example_and_accept() {
-        let md = tool_markdown(&file_tool(), "prose");
+        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty());
         assert!(md.contains("`gizza tool image-grayscale <path>`"), "path CLI example");
         assert!(md.contains("`file` — Image _(file; accept: image/*)_"), "accept shown");
     }
 
     #[test]
     fn live_tool_takes_no_manual_arguments() {
-        let md = tool_markdown(&live_tool(), "prose");
+        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty());
         assert!(md.contains("`gizza tool clock`"), "no-arg CLI example");
         assert!(md.contains("_no manual inputs — runs automatically_"), "no manual inputs note");
     }
 
     #[test]
     fn field_tool_documents_query_parameters_with_example() {
-        let md = tool_markdown(&field_tool(), "prose");
+        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty());
         assert!(md.contains("## Query parameters"), "query-params section present");
         assert!(md.contains("- `expr`"), "field param listed");
         assert!(
@@ -227,7 +244,7 @@ source = "clock"
 
     #[test]
     fn file_tool_documents_url_query_parameter() {
-        let md = tool_markdown(&file_tool(), "prose");
+        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty());
         assert!(md.contains("## Query parameters"));
         assert!(md.contains("- `url`"), "media tools document ?url=");
     }
@@ -235,7 +252,7 @@ source = "clock"
     #[test]
     fn live_tool_has_no_query_parameters_section() {
         // clock has only a "clock" input — nothing to deep-link.
-        let md = tool_markdown(&live_tool(), "prose");
+        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty());
         assert!(!md.contains("## Query parameters"), "no query-params for auto-only tools");
     }
 }
