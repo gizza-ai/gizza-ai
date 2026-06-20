@@ -1,0 +1,23 @@
+slug          = "safelink-decoder"
+title         = "SafeLink Decoder — Unwrap Outlook/Proofpoint/Google Links"
+description   = "Reveal the real destination behind rewritten links — Outlook SafeLinks, Proofpoint URLDefense (v2/v3), Google redirects, and generic ?url= redirectors. Follows nested wrappers. Runs in your browser, no fetch, free."
+tags          = ["safelinks decoder", "unwrap url", "proofpoint urldefense", "outlook safelinks", "google redirect", "url unwrapper"]
+h1            = "SafeLink Decoder"
+hero_subtitle = "Paste a rewritten link and reveal its real destination — SafeLinks, Proofpoint, Google and generic redirectors, unwrapped (and un-nested) in your browser."
+wasm          = "gizza_ai_safelink_decoder_web"
+export        = "run"
+live          = false
+output_label  = "Original URL"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "Wrapped URL (or one per line)"
+placeholder = "https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fexample.com&data=..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "per_line"
+label       = "Unwrap each line separately (batch)"
+source      = "field"
