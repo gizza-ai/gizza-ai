@@ -1,0 +1,29 @@
+slug          = "url-cleaner"
+title         = "URL Cleaner — Remove Tracking Parameters (utm, fbclid, gclid)"
+description   = "Strip tracking and analytics parameters (utm_*, fbclid, gclid, msclkid, igshid and more) from any URL to get a clean, shareable link. Batch mode, custom params, full Unicode. Free, private, runs in your browser, no sign-up."
+tags          = ["url cleaner", "remove utm", "strip tracking", "fbclid", "gclid", "clean link", "utm remover", "tracking parameters", "shareable link"]
+h1            = "URL Cleaner"
+hero_subtitle = "Remove utm_*, fbclid, gclid and other tracking parameters from any link — clean, shareable URLs. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_url_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Clean URL"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "URL (or one per line)"
+placeholder = "https://example.com/page?utm_source=newsletter&id=42&fbclid=abc"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "per_line"
+label       = "Clean each line separately (batch)"
+source      = "field"
+
+[[input]]
+name        = "extra"
+label       = "Extra params to strip (comma-separated)"
+placeholder = "sid,ref"
+source      = "field"

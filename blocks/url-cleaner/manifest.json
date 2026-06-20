@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/url-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip tracking parameters from a URL.",
+  "role": "skill",
+  "tool": {
+    "description": "Remove tracking and analytics query parameters from a URL to produce a clean, shareable link. Strips utm_* and other analytics prefixes (pk_, mtm_, ga_, hsa_, mc_, ...) plus known click ids (fbclid, gclid, msclkid, igshid, yclid, ttclid, ...), while preserving the scheme, host, path, fragment, and all other query params in their original order and encoding. Set per_line=true to clean a batch list of URLs (one per line). Pass extra='name1,name2' to also strip custom parameter names.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "The URL to clean (or a batch list of URLs, one per line with per_line=true)." },
+        "per_line": { "type": "boolean", "default": false, "description": "When true, clean each line of the input independently (rejoined with newlines) — for a batch list of URLs. Default false." },
+        "extra": { "type": "string", "default": "", "description": "Additional query-parameter names to strip, comma-separated (on top of the built-in tracking list). Default none." }
+      },
+      "required": ["url"],
+      "additionalProperties": false
+    }
+  }
+}
