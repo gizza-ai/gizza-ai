@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/gif-to-mp4",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an animated GIF to a smaller MP4/WebM video.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Convert an animated GIF into a much smaller MP4 (H.264) or WebM (VP9) video, preserving the animation. Set format='mp4' (default) or 'webm'. Provide the GIF as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "format": { "type": "string", "enum": ["mp4", "webm"], "default": "mp4", "description": "Output video format: mp4 (H.264, default) or webm (VP9)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
