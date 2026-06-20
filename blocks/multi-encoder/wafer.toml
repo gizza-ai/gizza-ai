@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "multi-encoder"
+version = "0.1.0"
+abi = 1
+summary = "Encode/decode text (base64/hex/binary/url/rot13/morse)."
