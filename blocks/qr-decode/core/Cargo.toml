@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-qr-decode-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["png","jpeg","gif","bmp","webp"] }
+quircs = { version = "0.10", default-features = false }
+
+[dev-dependencies]
+qrcode = { version = "0.14", default-features = false, features = ["image"] }
