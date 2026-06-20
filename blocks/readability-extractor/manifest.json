@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/readability-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the main article from cluttered HTML.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the main article content (title + body) from cluttered HTML, stripping navigation, ads, and boilerplate (a Readability-style extraction). Pass the page HTML as `html`; set format='text' (default) for readable plain text or 'html' for cleaned article HTML.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The cluttered HTML (article page source) to extract the main content from." },
+        "format": { "type": "string", "enum": ["text", "html"], "default": "text", "description": "Output the cleaned article as plain 'text' (default) or cleaned 'html'." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}

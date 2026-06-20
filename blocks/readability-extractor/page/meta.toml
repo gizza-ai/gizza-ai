@@ -1,0 +1,23 @@
+slug          = "readability-extractor"
+title         = "Readability Extractor — Get the Article from Messy HTML"
+description   = "Paste a cluttered web page's HTML and extract just the main article — title and body — with navigation, ads, and boilerplate stripped. Runs in your browser, free, no sign-up."
+tags          = ["readability", "extract article", "strip boilerplate", "reader mode", "clean html", "article extractor"]
+h1            = "Readability Extractor"
+hero_subtitle = "Paste messy page HTML and get just the article — nav, ads, and clutter removed. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_readability_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Article"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "Page HTML"
+placeholder = "<html>…paste the article page source…</html>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output (text or html)"
+source      = "field"
