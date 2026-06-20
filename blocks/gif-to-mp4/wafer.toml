@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gif-to-mp4"
+version = "0.1.0"
+abi = 1
+summary = "Convert an animated GIF to a smaller MP4/WebM video."

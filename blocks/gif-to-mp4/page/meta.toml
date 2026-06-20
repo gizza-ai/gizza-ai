@@ -1,0 +1,23 @@
+slug          = "gif-to-mp4"
+title         = "GIF to MP4 / WebM Converter — gizza.ai"
+description   = "Convert an animated GIF into a much smaller MP4 or WebM video, right in your browser. Re-encodes locally with ffmpeg (H.264 / VP9), nothing is uploaded, free."
+tags          = ["gif to mp4", "gif to webm", "gif converter", "animated gif", "compress gif", "ffmpeg"]
+h1            = "GIF to MP4 / WebM"
+hero_subtitle = "Turn a heavy animated GIF into a small MP4 or WebM — converted in your browser, nothing is uploaded."
+wasm          = "gizza_ai_gif_to_mp4_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Video"
+format        = "video"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Format (mp4 or webm)"
+placeholder = "mp4"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/gif"
+label  = "GIF"
