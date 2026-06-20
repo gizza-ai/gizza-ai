@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/qr-decode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode the data in a QR code image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Read and decode the data contained in a QR code image (PNG/JPEG/GIF/BMP/WebP). Returns the decoded text of every QR code found in the image, in detection order. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Runs locally — the image never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
