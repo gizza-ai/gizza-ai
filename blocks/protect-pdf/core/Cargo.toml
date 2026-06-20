@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-protect-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+lopdf = { version = "0.36", default-features = false }
+rand = "0.9"
