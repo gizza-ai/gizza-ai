@@ -33,6 +33,12 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-content h2 { font-size: 20px; margin-top: 24px; }
 .tool-content h3 { font-size: 16px; margin-top: 18px; }
 .tool-content code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+.tool-content table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 14px; }
+.tool-content th, .tool-content td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left;
+  vertical-align: top; }
+.tool-content th { background: #f8fafc; font-weight: 600; color: #0f172a; }
+.tool-content tr:nth-child(even) td { background: #fafafa; }
+.tool-content table code { background: none; padding: 0; }
 
 .tool-footer { background: var(--tool-ink); color: #94a3b8; margin-top: 36px;
   padding: 22px 20px; }

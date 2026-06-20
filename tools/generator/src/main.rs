@@ -47,7 +47,7 @@ fn run() -> Result<(), String> {
         let html = template::render_page(m, &content_html, &schema);
         fs::write(out.join("index.html"), html)
             .map_err(|e| format!("write index.html: {e}"))?;
-        fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md))
+        fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md, &schema))
             .map_err(|e| format!("write index.md: {e}"))?;
 
         let web_pkg = tool_dir.join("web/pkg");
@@ -124,10 +124,13 @@ fn collect_tool_metas(blocks: &Path) -> Result<Vec<(PathBuf, ToolMeta)>, String>
     Ok(out)
 }
 
-/// Render markdown to an HTML fragment.
+/// Render markdown to an HTML fragment. GFM tables are enabled so tool prose can
+/// lay examples/options out as readable tables.
 fn render_markdown(md: &str) -> String {
-    use pulldown_cmark::{html, Parser};
-    let parser = Parser::new(md);
+    use pulldown_cmark::{html, Options, Parser};
+    let mut opts = Options::empty();
+    opts.insert(Options::ENABLE_TABLES);
+    let parser = Parser::new_ext(md, opts);
     let mut buf = String::new();
     html::push_html(&mut buf, parser);
     buf

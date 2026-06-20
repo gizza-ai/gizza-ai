@@ -9,6 +9,16 @@
 use std::collections::HashMap;
 use std::path::Path;
 
+/// Render a numeric bound/default as an HTML/text value — whole numbers as
+/// integers (`16`, not `16.0`).
+pub fn fmt_num(x: f64) -> String {
+    if x.fract() == 0.0 && x.is_finite() {
+        format!("{}", x as i64)
+    } else {
+        format!("{x}")
+    }
+}
+
 /// How one `source="field"` input renders on the page.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Control {

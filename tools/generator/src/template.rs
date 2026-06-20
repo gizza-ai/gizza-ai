@@ -1,21 +1,11 @@
 //! Renders the option-C tool page: top nav + hero tool + SEO content + footer,
 //! with SEO `<head>` tags and JSON-LD.
 
-use crate::control::{Control, ParamSchema};
+use crate::control::{fmt_num, Control, ParamSchema};
 use crate::markdown::example_deeplink;
 use crate::meta::ToolMeta;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, PreEscaped, DOCTYPE};
-
-/// Render a numeric bound/default as an HTML attribute value — whole numbers as
-/// integers (`16`, not `16.0`).
-fn fmt_num(x: f64) -> String {
-    if x.fract() == 0.0 && x.is_finite() {
-        format!("{}", x as i64)
-    } else {
-        format!("{x}")
-    }
-}
 
 /// Render the full HTML document for a tool page. `content_html` is the
 /// markdown-rendered SEO section.
@@ -165,7 +155,7 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                         section class="tool-cli" {
                             h2 { "Open it by URL" }
                             p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
-                            pre class="tool-cli-code" { code { (example_deeplink(meta)) } }
+                            pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
                         }
                     }
                 }
