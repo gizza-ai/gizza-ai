@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-readability-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# dom_smoothie: pure-Rust Mozilla-Readability port (html5ever-based), wasm-safe.
+dom_smoothie = "0.18"
+# nanohtml2text: turn the cleaned article HTML into properly-separated plain text
+# (dom_smoothie's own text_content runs adjacent blocks together). Pure-Rust.
+nanohtml2text = "0.2"
