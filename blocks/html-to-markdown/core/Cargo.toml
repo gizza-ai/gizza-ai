@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-html-to-markdown-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# htmd: pure-Rust HTML -> Markdown (built on html5ever), wasm32-safe.
+htmd = "0.5"
