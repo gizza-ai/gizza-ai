@@ -1,0 +1,18 @@
+slug          = "jwk-thumbprint"
+title         = "JWK Thumbprint (RFC 7638) — gizza.ai"
+description   = "Compute the RFC 7638 SHA-256 thumbprint of a JSON Web Key — the canonical kid — in your browser. Supports RSA, EC, OKP, and oct keys. Nothing is uploaded."
+tags          = ["jwk thumbprint", "rfc 7638", "jwk kid", "json web key", "key fingerprint", "jose"]
+h1            = "JWK Thumbprint"
+hero_subtitle = "Compute the RFC 7638 SHA-256 thumbprint of a JSON Web Key — the canonical key id (kid). Supports RSA, EC, OKP and oct keys. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_jwk_thumbprint_web"
+export        = "run"
+live          = false
+output_label  = "Thumbprint"
+format        = "text"
+
+[[input]]
+name        = "jwk"
+label       = "JSON Web Key (JWK)"
+placeholder = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"...\",\"y\":\"...\"}"
+source      = "field"
+multiline   = true
