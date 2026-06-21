@@ -261,3 +261,37 @@ rationals → decimal), `serde_json` `preserve_order` feature (keeps object key 
 needs no new crate — build content streams with the already-proven `lopdf` (base-14 Helvetica, BT/Tf/Td/Tj/ET).
 For exact RFC test vectors (e.g. RFC 7638 jwk-thumbprint) WebFetch the RFC rather than trusting memory —
 a mis-remembered constant fails the vector.
+
+## Sub-agent dispatch mode (preferred for long `/loop` runs)
+
+To keep the loop's own context small (so it can run for hours without hitting the context window), the
+loop should act as a **thin dispatcher**: per iteration, spawn ONE fresh general-purpose sub-agent that
+builds the next tool end-to-end and returns only a one-line result. The heavy per-tool transcript
+(scaffold, build logs, test output) stays inside the sub-agent and never enters the dispatcher's context.
+**Sequential only** (one builder at a time) on this 2-CPU / ~4 GB box — parallel builders OOM and race on
+the shared CLI/generator/git (see environment findings above).
+
+Dispatcher per iteration:
+1. `Agent(subagent_type:"general-purpose", description:"build next gizza tool", prompt: <BUILDER PROMPT below>)`.
+2. Read the returned one-liner; if it says a tool was built+pushed or skiplisted, continue. If it says
+   FAILED or hit a usage/rate limit, back off (longer ScheduleWakeup) and report.
+3. `ScheduleWakeup` to re-enter `/loop` (dispatch the next one). Do NOT build inline anymore.
+
+BUILDER PROMPT (self-contained — the sub-agent has a fresh context, so it must be told everything):
+> Build the next gizza backlog tool end-to-end. Working dir /root/gizza-ai/gizza-ai; `source $HOME/.cargo/env`
+> in every bash command; use absolute paths; for `wafer build` cd into blocks/<slug>/ first; cwd resets to
+> /root after /tmp commands. Steps: (1) `python3 scripts/pick-next-tool.py 2>/dev/null | grep -v '^skip' | head -1`.
+> (2) Read `.claude/skills/create-next-tool/SKILL.md` (esp. the Findings log) and follow the new-tool build
+> procedure: classify type, `scripts/scaffold-tool.sh <slug> <type>`, implement core (+unit tests)/descriptor
+> (+drift-guard schema test)/web/page, build (`cargo test`, then `wafer build` in blocks/<slug>/ and
+> `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — run heavy builds in background +
+> poll), `cargo install --path cli`, `cargo run --manifest-path tools/generator/Cargo.toml -- .`, verify all
+> applicable surfaces (CLI `gizza tool <slug>`; page Playwright `cd tests && xvfb-run npx playwright test
+> tool-page-<slug>.spec.ts`). (3) Write `docs/checks/<today>-improve-<slug>-competitor-analysis.md`.
+> (4) If it's a semantic dup of an existing block, instead append `<slug>  # reason` to
+> `docs/tool-skiplist.txt`, commit that, and re-pick. (5) Honesty gate: if it can't be built+verified in
+> ≤3 fix attempts, `git clean -fd blocks/<slug>`, skiplist or report, do NOT commit broken. (6) Clean
+> per-block target dirs (`for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name block.wasm
+> -exec rm -rf {} + ; done`), NEVER delete web/pkg. (7) `git add -A && git commit && git push origin
+> feat/tool-creating`. Return ONE line only: `<slug>: built+pushed <short-sha>` OR `skiplisted <slug>: <reason>`
+> OR `FAILED <slug>: <reason>`.
