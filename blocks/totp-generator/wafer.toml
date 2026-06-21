@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "totp-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a TOTP (2FA) code from a secret"
