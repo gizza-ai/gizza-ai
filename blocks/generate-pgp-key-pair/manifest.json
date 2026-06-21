@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/generate-pgp-key-pair",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an OpenPGP key pair (RSA or ECC)",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a new OpenPGP key pair with the given user ID (e.g. 'Alice <alice@example.com>'). algorithm=curve25519 (default; modern EdDSA signing + Curve25519 ECDH encryption subkey) or rsa2048/rsa3072/rsa4096. Provide an optional passphrase to encrypt the private key. Returns ASCII-armored public and private keys plus the fingerprint. Keys are generated locally with a cryptographic RNG.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string", "description": "The key's user ID, e.g. \"Alice <alice@example.com>\"." },
+        "algorithm": { "type": "string", "enum": ["curve25519", "rsa2048", "rsa3072", "rsa4096"], "default": "curve25519", "description": "Key algorithm: curve25519 (default, fast modern ECC: EdDSA + Curve25519 ECDH) or RSA at 2048/3072/4096 bits." },
+        "passphrase": { "type": "string", "description": "Optional passphrase to encrypt the private key. Omit or leave empty for an unprotected key." }
+      },
+      "required": ["user_id"],
+      "additionalProperties": false
+    }
+  }
+}
