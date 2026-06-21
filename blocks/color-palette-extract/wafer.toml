@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "color-palette-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract the dominant color palette from an image as hex codes."
