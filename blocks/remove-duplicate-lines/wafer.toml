@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "remove-duplicate-lines"
+version = "0.1.0"
+abi = 1
+summary = "Remove duplicate lines from text"
