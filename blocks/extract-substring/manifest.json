@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/extract-substring",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a portion of text by index or between delimiters",
+  "role": "skill",
+  "tool": {
+    "description": "Pull out a portion of text. mode='index' returns the substring from a 0-based start character (inclusive) to an end character (exclusive); both may be negative to count from the end, and end may be omitted for the rest of the string (indices are character-based and clamped). mode='delimiters' returns every non-overlapping substring found between a start_delim and end_delim. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The source text to extract from." },
+        "mode": { "type": "string", "enum": ["index", "delimiters"], "default": "index", "description": "How to extract: 'index' (by character position) or 'delimiters' (everything between two markers)." },
+        "start": { "type": "integer", "default": 0, "description": "index mode: 0-based start character (inclusive). Negative counts from the end. Default 0." },
+        "end": { "type": "integer", "description": "index mode: end character (exclusive). Negative counts from the end. Omit for end-of-string." },
+        "start_delim": { "type": "string", "description": "delimiters mode: the opening delimiter (required in delimiters mode)." },
+        "end_delim": { "type": "string", "description": "delimiters mode: the closing delimiter (required in delimiters mode)." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

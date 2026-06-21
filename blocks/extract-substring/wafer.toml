@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-substring"
+version = "0.1.0"
+abi = 1
+summary = "Extract a portion of text by index or between delimiters"
