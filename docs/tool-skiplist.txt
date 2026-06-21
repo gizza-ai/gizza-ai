@@ -138,3 +138,4 @@ voice-emotion  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* 
 base64-text-converter  # near-duplicate of blocks/multi-encoder (base64 encode/decode); only delta is url-safe base64 variant
 base64-tool  # near-duplicate of blocks/multi-encoder (base64 encode/decode of text); file mode not in scope
 generate-totp  # near-duplicate of blocks/totp-generator (TOTP from base32 secret; digits/period/algorithm/timestamp all already covered)
+html-strip  # near-duplicate of blocks/html-to-text (strips HTML tags → clean plain text with entities decoded; same scope)
