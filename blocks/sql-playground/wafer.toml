@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sql-playground"
+version = "0.1.0"
+abi = 1
+summary = "Run SQL against an in-memory database"
