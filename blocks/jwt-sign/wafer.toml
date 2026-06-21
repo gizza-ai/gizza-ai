@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "jwt-sign"
+version = "0.1.0"
+abi = 1
+summary = "Build and sign a JSON Web Token (JWT)"

@@ -1,0 +1,38 @@
+slug          = "jwt-sign"
+title         = "JWT Sign — Create a signed JSON Web Token (HS/RS/ES) — gizza.ai"
+description   = "Build and sign a JSON Web Token (JWT) from a header and payload using HS256/384/512, RS256/384/512 or ES256/384, in your browser. The secret and key never leave your device."
+tags          = ["jwt sign", "jwt generator", "json web token", "jws", "hs256", "rs256", "es256", "jwt encoder"]
+h1            = "JWT sign"
+hero_subtitle = "Build and sign a JSON Web Token from a payload (and optional header) — HS256/384/512, RS256/384/512 or ES256/384. Runs in your browser; your secret and private key never leave your device."
+wasm          = "gizza_ai_jwt_sign_web"
+export        = "run"
+live          = false
+output_label  = "Signed JWT"
+format        = "text"
+
+[[input]]
+name        = "payload"
+label       = "Payload (JSON claims)"
+placeholder = "{\"sub\":\"1234567890\",\"name\":\"Ada Lovelace\",\"iat\":1893456000}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "secret"
+label       = "Secret or private key"
+placeholder = "your-256-bit-secret   (or paste a PEM private key for RS*/ES*)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+placeholder = "HS256"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "Header (optional JSON)"
+placeholder = "{\"kid\":\"key-1\"}"
+source      = "field"
+multiline   = true
