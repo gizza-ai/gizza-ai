@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-beautify"
+version = "0.1.0"
+abi = 1
+summary = "Pretty-print or minify (and validate) JSON"
