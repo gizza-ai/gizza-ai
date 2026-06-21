@@ -1,0 +1,34 @@
+slug          = "chi-square-test"
+title         = "Chi-Square Test — goodness-of-fit & contingency table — gizza.ai"
+description   = "Run Pearson's chi-square test online: goodness-of-fit or a contingency-table test of independence. Get the chi-square statistic, degrees of freedom, p-value, expected counts and Cramér's V — in your browser, no upload."
+tags          = ["chi-square test", "chi square calculator", "goodness of fit", "contingency table", "test of independence", "p-value", "cramers v"]
+h1            = "Chi-square test"
+hero_subtitle = "Pearson's chi-square goodness-of-fit or contingency-table test of independence. Get the statistic, degrees of freedom and p-value. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_chi_square_test_web"
+export        = "run"
+live          = false
+output_label  = "Test result"
+format        = "text"
+
+[[input]]
+name        = "mode"
+label       = "Test"
+source      = "field"
+
+[[input]]
+name        = "observed"
+label       = "Observed counts"
+placeholder = "Goodness-of-fit: 16 15 19 17 11 13   ·   Contingency: one row per line"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "expected"
+label       = "Expected counts or ratios (goodness-of-fit only; blank = uniform)"
+placeholder = "e.g. 9 3 3 1"
+source      = "field"
+
+[[input]]
+name        = "yates"
+label       = "Yates' continuity correction (2×2 contingency only)"
+source      = "field"
