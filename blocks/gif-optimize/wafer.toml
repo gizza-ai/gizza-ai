@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gif-optimize"
+version = "0.1.0"
+abi = 1
+summary = "Shrink an animated GIF (scale, frames, colors)"

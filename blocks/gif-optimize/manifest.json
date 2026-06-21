@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/gif-optimize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shrink an animated GIF (scale, frames, colors)",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Shrink an animated GIF. scale (0.01-1.0, default 1.0) resizes every frame; frame_step (default 1) keeps every Nth frame (timing preserved by rolling dropped delays forward); color_bits (1-8, default 8) does lossy per-channel color reduction. Returns the optimized GIF. Provide the GIF as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "scale": { "type": "number", "minimum": 0.01, "maximum": 1, "description": "Resize factor for every frame, 0.01-1.0 (default 1.0 = no resize). 0.5 halves width & height." },
+        "frame_step": { "type": "integer", "minimum": 1, "description": "Keep every Nth frame to thin the animation (default 1 = keep all). Dropped frames' delays roll into the kept frame so timing is preserved." },
+        "color_bits": { "type": "integer", "minimum": 1, "maximum": 8, "description": "Bits per color channel for lossy color reduction, 1-8 (default 8 = no reduction). Lower = fewer colors and a smaller file." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
