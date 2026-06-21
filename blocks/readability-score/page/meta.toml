@@ -1,0 +1,18 @@
+slug          = "readability-score"
+title         = "Readability Score — Flesch-Kincaid, Gunning-Fog & SMOG grader — gizza.ai"
+description   = "Score any text for readability with Flesch Reading Ease, Flesch-Kincaid Grade, Gunning-Fog and SMOG, in your browser. Nothing is uploaded."
+tags          = ["readability score", "flesch reading ease", "flesch-kincaid grade", "gunning fog", "smog index", "reading level"]
+h1            = "Readability score"
+hero_subtitle = "Grade your writing with the Flesch Reading Ease, Flesch-Kincaid, Gunning-Fog and SMOG indices. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_readability_score_web"
+export        = "run"
+live          = false
+output_label  = "Readability"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste or type the text you want to score…"
+source      = "field"
+multiline   = true
