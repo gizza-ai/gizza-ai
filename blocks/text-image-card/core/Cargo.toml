@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-text-image-card-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# fontdue: pure-Rust TrueType rasterizer (no freetype / system fonts) — same as
+# add-text-to-image / code-screenshot. image: pure-Rust encode; only png needed
+# for the output card (keeps the wasm small).
+fontdue = "0.9"
+image = { version = "0.25", default-features = false, features = ["png"] }

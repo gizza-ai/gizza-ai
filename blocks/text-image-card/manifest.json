@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/text-image-card",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a quote onto a styled shareable image card (PNG).",
+  "role": "skill",
+  "tool": {
+    "description": "Render a quote or short piece of text onto a styled, shareable image card and return a PNG. Set text (the quote — use \\n for hard line breaks; it word-wraps to fit), an optional author byline, a theme (dark, light, sunset, ocean, forest, grape — a coloured background gradient + matching text colour), the card width/height in pixels (defaults 1080x1080, ideal for social posts), font_size (auto-shrinks if the text would not fit), align (left/center/right), and optional text_color / background_color hex overrides. Returns an image. Runs locally — the text never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The quote or short text to render onto the card (use \\n for hard line breaks; it word-wraps automatically)." },
+        "author": { "type": "string", "description": "Optional attribution shown as a smaller byline under the text (e.g. a person's name)." },
+        "theme": { "type": "string", "enum": ["dark", "light", "sunset", "ocean", "forest", "grape"], "default": "dark", "description": "Colour theme (background gradient + text colour): dark, light, sunset, ocean, forest, or grape." },
+        "width": { "type": "integer", "default": 1080, "minimum": 200, "maximum": 4000, "description": "Card width in pixels (200-4000; default 1080)." },
+        "height": { "type": "integer", "default": 1080, "minimum": 200, "maximum": 4000, "description": "Card height in pixels (200-4000; default 1080)." },
+        "font_size": { "type": "number", "default": 64, "minimum": 8, "description": "Starting body font size in pixels (default 64). Auto-shrinks if the text would not fit." },
+        "align": { "type": "string", "enum": ["left", "center", "right"], "default": "center", "description": "Horizontal text alignment: left, center, or right (default center)." },
+        "text_color": { "type": "string", "description": "Override the theme text colour as #rgb or #rrggbb hex (optional)." },
+        "background_color": { "type": "string", "description": "Override the theme background with a solid colour as #rgb or #rrggbb hex; disables the gradient (optional)." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
