@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/hex-view",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a file as a hex dump",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Render any file as a classic hex dump — an 8-digit hex offset column, the bytes in hex (grouped 8+8), and an ASCII gutter (like `xxd`). bytes_per_line (1-64, default 16) sets the row width; max_bytes (default 4096, hard cap 262144) limits how much is shown. Returns the dump text plus total/shown byte counts. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "bytes_per_line": { "type": "integer", "minimum": 1, "maximum": 64, "default": 16, "description": "Bytes shown per row (1-64, default 16)." },
+        "max_bytes": { "type": "integer", "minimum": 1, "description": "Maximum number of bytes to dump (default 4096, hard cap 262144). Use to view more or less of a large file." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
