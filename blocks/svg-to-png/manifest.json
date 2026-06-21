@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/svg-to-png",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rasterize an SVG into a PNG or JPEG.",
+  "role": "skill",
+  "tool": {
+    "description": "Rasterize an SVG document into a PNG or JPEG raster image at a chosen resolution — no headless browser needed. Pass `svg` as the full <svg>…</svg> markup. `format` is 'png' (lossless, keeps transparency) or 'jpeg' (smaller, no transparency). Size it with `width`/`height` in px (set one to keep the SVG's aspect ratio, or both to force an exact size); if neither is set, `scale` multiplies the SVG's intrinsic size (1.0 = native). `quality` (1–100) controls JPEG compression; `background` ('transparent' or a hex colour like #ffffff) fills behind the SVG — JPEG, which has no alpha, composites onto it (white if transparent). Note: <text> needs a font; convert text to paths in your editor for pixel-perfect labels (shapes/paths render exactly). Returns an image. Runs locally on the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "svg": { "type": "string", "description": "The SVG markup to rasterize (the full <svg>…</svg> document)." },
+        "format": { "type": "string", "enum": ["png", "jpeg"], "default": "png", "description": "Output raster format: 'png' (lossless, keeps transparency) or 'jpeg' (smaller, no transparency)." },
+        "width": { "type": "integer", "minimum": 0, "maximum": 8000, "description": "Output width in px. 0 (default) derives the width from height/scale and the SVG's aspect ratio." },
+        "height": { "type": "integer", "minimum": 0, "maximum": 8000, "description": "Output height in px. 0 (default) derives the height from width/scale and the SVG's aspect ratio." },
+        "scale": { "type": "number", "minimum": 0.01, "maximum": 50, "default": 1.0, "description": "Multiplier applied to the SVG's intrinsic size when neither width nor height is set (1.0 = native size, 2.0 = 2x)." },
+        "quality": { "type": "integer", "minimum": 1, "maximum": 100, "default": 90, "description": "JPEG quality 1–100 (ignored for PNG). Higher = better quality, larger file." },
+        "background": { "type": "string", "default": "transparent", "description": "Background colour as 'transparent' or a hex value (#rgb, #rrggbb, #rrggbbaa). PNG keeps alpha; JPEG composites onto this colour (white if transparent)." }
+      },
+      "required": ["svg"],
+      "additionalProperties": false
+    }
+  }
+}
