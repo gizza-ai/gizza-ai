@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/descriptive-stats",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Descriptive statistics for a list of numbers.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute descriptive statistics for a list of numbers (separated by spaces, commas, semicolons, or newlines): count, sum, mean, median, mode (most frequent value(s)), min, max, range, quartiles Q1/Q3 and IQR (numpy-linear), and both population and sample variance & standard deviation. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "numbers": { "type": "string", "description": "The numbers to summarize, separated by spaces, commas, semicolons, or newlines." }
+      },
+      "required": ["numbers"],
+      "additionalProperties": false
+    }
+  }
+}
