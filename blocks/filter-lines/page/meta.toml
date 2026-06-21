@@ -1,0 +1,40 @@
+slug          = "filter-lines"
+title         = "Filter Lines — keep or drop lines by substring/regex — gizza.ai"
+description   = "Keep or drop lines of text matching a substring or regular expression — a friendly grep in your browser. Nothing is uploaded."
+tags          = ["filter lines", "grep", "keep lines", "drop lines", "regex filter", "search lines"]
+h1            = "Filter Lines"
+hero_subtitle = "Keep or drop the lines that match a substring or regular expression — like grep, but in your browser. Nothing is uploaded."
+wasm          = "gizza_ai_filter_lines_web"
+export        = "run"
+live          = false
+output_label  = "Filtered lines"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste lines to filter…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Pattern (substring or regex)"
+placeholder = "error"
+source      = "field"
+
+# mode renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "regex"
+label       = "Treat pattern as regex"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"

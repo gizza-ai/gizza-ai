@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/filter-lines",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Keep or drop lines matching a substring or regex",
+  "role": "skill",
+  "tool": {
+    "description": "Filter text line by line, like grep. Keep (mode=keep, default) or drop (mode=drop) every line that matches a pattern. The pattern is a literal substring by default, or a regular expression when regex=true; set ignore_case=true to match case-insensitively. Returns the filtered text plus total/matched/kept line counts. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text whose lines should be filtered." },
+        "pattern": { "type": "string", "description": "The substring (or regular expression, if regex=true) to match against each line." },
+        "mode": { "type": "string", "enum": ["keep", "drop"], "default": "keep", "description": "keep = output only matching lines; drop = output only non-matching lines." },
+        "regex": { "type": "boolean", "default": false, "description": "Treat the pattern as a regular expression instead of a literal substring." },
+        "ignore_case": { "type": "boolean", "default": false, "description": "Match case-insensitively." }
+      },
+      "required": ["text", "pattern"],
+      "additionalProperties": false
+    }
+  }
+}
