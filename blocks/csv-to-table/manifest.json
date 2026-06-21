@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-to-table",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert CSV into a Markdown or HTML table.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert CSV data into a Markdown or HTML table. format=markdown (default) produces a GitHub-style pipe table (cells escaped); format=html produces a <table> with thead/tbody (cells HTML-escaped). header=true (default) uses the first row as the header, otherwise 'Column N' headers are generated. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "format": { "type": "string", "enum": ["markdown", "html"], "default": "markdown", "description": "Output table format: markdown (default) or html." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as the header (default true); otherwise 'Column N' headers are generated." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
