@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-to-pdf"
+version = "0.1.0"
+abi = 1
+summary = "Generate a paginated PDF from plain text"

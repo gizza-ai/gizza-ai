@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/text-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a paginated PDF from plain text.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a clean, paginated PDF (US Letter) from plain text. Long lines wrap to the text width and the content flows across as many pages as needed, using the built-in Courier monospace font. font_size (points, default 11) and margin (points, default 72 = 1 inch) are configurable. Returns a PDF. Runs locally — the text never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The plain text to render into a PDF." },
+        "font_size": { "type": "number", "minimum": 4, "maximum": 96, "description": "Font size in points (default 11). Uses the built-in Courier monospace font." },
+        "margin": { "type": "number", "minimum": 0, "maximum": 300, "description": "Page margin in points (default 72 = 1 inch). 72 points = 1 inch." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
