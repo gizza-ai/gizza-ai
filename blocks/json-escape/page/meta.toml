@@ -1,0 +1,29 @@
+slug          = "json-escape"
+title         = "JSON Escape / Unescape — gizza.ai"
+description   = "Escape or unescape special characters in a string for safe use inside JSON — quotes, backslashes, newlines, control chars. Runs in your browser; nothing uploaded."
+tags          = ["json escape", "json unescape", "escape string", "json string", "escape quotes", "unescape json"]
+h1            = "JSON Escape / Unescape"
+hero_subtitle = "Make any text safe to drop inside a JSON string — or turn an escaped JSON string back to raw text. Spec-correct escaping. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_escape_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "He said \"hi\"\nLine two"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "quotes"
+label       = "Wrap in quotes (escape mode)"
+source      = "field"
