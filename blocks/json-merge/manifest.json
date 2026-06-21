@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/json-merge",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Deep-merge two or more JSON documents",
+  "role": "skill",
+  "tool": {
+    "description": "Deep-merge two or more JSON documents (provided concatenated, whitespace/newline separated) left-to-right. Objects merge recursively; on a scalar/type conflict the later document wins. Arrays are replaced by default, or concatenated when concat_arrays=true. Output indentation is configurable (indent=0 minifies). Returns the merged JSON. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "documents": { "type": "string", "description": "Two or more JSON values to merge, concatenated (whitespace/newline separated), e.g. '{\"a\":1}\\n{\"b\":2}'. Merged left-to-right." },
+        "concat_arrays": { "type": "boolean", "default": false, "description": "When arrays collide: false (default) = the later array replaces the earlier; true = concatenate them." },
+        "indent": { "type": "integer", "minimum": 0, "maximum": 8, "default": 2, "description": "Output indentation in spaces (1-8). Use 0 to minify. Default 2." }
+      },
+      "required": ["documents"],
+      "additionalProperties": false
+    }
+  }
+}

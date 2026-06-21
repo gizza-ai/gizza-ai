@@ -1,0 +1,29 @@
+slug          = "json-merge"
+title         = "JSON Merge — deep-merge JSON objects — gizza.ai"
+description   = "Deep-merge two or more JSON objects, with configurable array handling and last-wins conflict resolution — in your browser. Nothing is uploaded."
+tags          = ["json merge", "deep merge json", "combine json", "merge objects", "json patch"]
+h1            = "JSON Merge"
+hero_subtitle = "Deep-merge two or more JSON documents into one — objects merged recursively, later values win, arrays replaced or concatenated. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged JSON"
+format        = "text"
+
+[[input]]
+name        = "documents"
+label       = "JSON documents (two or more, one per block)"
+placeholder = "{\"a\": 1, \"nested\": {\"x\": 1}}\n{\"b\": 2, \"nested\": {\"y\": 2}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "concat_arrays"
+label       = "Concatenate arrays (instead of replace)"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"
