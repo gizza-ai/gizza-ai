@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/regex-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Return every match of a regular expression in text",
+  "role": "skill",
+  "tool": {
+    "description": "Search text with a regular expression (Rust regex syntax) and return every match. Toggle ignore_case for case-insensitive matching, multiline so ^/$ anchor per line, and dotall so . spans newlines. Set capture_group to extract a specific captured sub-group instead of the whole match (0 = whole match), and unique to deduplicate the results in first-seen order. Returns the match count and the list of matches. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["text", "pattern"],
+      "properties": {
+        "text": { "type": "string", "description": "The text to search for matches." },
+        "pattern": { "type": "string", "description": "The regular expression (Rust regex syntax) to match against the text." },
+        "ignore_case": { "type": "boolean", "default": false, "description": "Match case-insensitively." },
+        "multiline": { "type": "boolean", "default": false, "description": "Let ^ and $ match at line boundaries, not only the start/end of the text." },
+        "dotall": { "type": "boolean", "default": false, "description": "Let . also match newline characters." },
+        "capture_group": { "type": "integer", "minimum": 0, "default": 0, "description": "Which capture group to return per match (0 = the whole match)." },
+        "unique": { "type": "boolean", "default": false, "description": "Deduplicate the returned matches, keeping first-seen order." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
