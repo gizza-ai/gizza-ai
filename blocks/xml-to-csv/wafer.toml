@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xml-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Flatten repeated XML elements into a CSV table."
