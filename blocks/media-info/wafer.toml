@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "media-info"
+version = "0.1.0"
+abi = 1
+summary = "Report an audio or video file's container, codecs, duration, and stream metadata."
