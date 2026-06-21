@@ -194,3 +194,25 @@ parse the OPF with quick-xml for `<manifest><item id href media-type>` + `<spine
 **reading order** (don't use ZIP/alphabetical order), resolve hrefs relative to the OPF dir, convert each
 XHTML. quick-xml: match elements by local name (strip `ns:` prefix), handle both `Event::Start` and
 `Event::Empty` for self-closing `<item/>`. Binary-file-in/text-out → **no page** (file-input pattern).
+
+**An "ffmpeg"-tagged image→GIF/animation tool often needs NO ffmpeg** (gif-from-images): the `image` crate
+(features incl. `gif`) encodes animated GIFs purely — `use image::codecs::gif::{GifEncoder, Repeat};
+enc.set_repeat(Repeat::Infinite); enc.encode_frame(Frame::from_parts(rgba, 0, 0,
+Delay::from_numer_denom_ms(ms, 1)))`. Building it pure-Rust makes it run on ALL backends (incl. chat SW),
+strictly better than ffmpeg-only. Multi-image-in + image-bytes-out → chat+CLI, **no page** (use
+`Param::source_list("images", 1)` + `Vec<SourceFields>`, resolve each via `resolve_source`, like
+image-collage/images-to-pdf). Don't reflexively skiplist a media tool as "ffmpeg" — check if `image`/a
+pure crate covers it first.
+
+**OpenPGP key generation (generate-pgp-key-pair):** rPGP `pgp = "0.14"` (default-features=false) + rand 0.8
++ chrono(`clock`) + smallvec. `SecretKeyParamsBuilder::default().key_type(KeyType::EdDSALegacy /
+Rsa(bits)).can_certify(true).can_sign(true).primary_user_id(uid).subkey(SubkeyParamsBuilder…
+.key_type(KeyType::ECDH(ECCCurve::Curve25519) / Rsa(bits)).can_encrypt(true).build()?)` →
+`.build()?.generate(&mut OsRng)?` → `.sign(&mut rng, || passphrase)?` = `SignedSecretKey`. Armor:
+`sk.to_armored_string(None.into())?`; public = `let pk: SignedPublicKey = sk.into(); pk.to_armored_string(
+None.into())?`. Fingerprint: `sk.fingerprint().as_bytes()`. Tests need `use pgp::types::SecretKeyTrait` for
+`.unlock()`. Curve25519 = fast (good for tests); RSA-4096 slow. Non-deterministic generator → **no page**.
+Cross-verify a generated public key by feeding it to the existing `pgp-encrypt` tool.
+
+**Dup-skiplist:** generate-totp (= existing totp-generator), generate-pgp-key… no — built. Always grep
+`ls blocks/ | grep -i <topic>` before building; a near-dup of an existing block → skiplist + re-pick.
