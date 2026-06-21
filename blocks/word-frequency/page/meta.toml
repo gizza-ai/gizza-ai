@@ -1,0 +1,40 @@
+slug          = "word-frequency"
+title         = "Word Frequency Counter — Rank the most-used words — gizza.ai"
+description   = "Count how often each word appears in your text and rank them most to least frequent, in your browser. Skip short words, drop stop words, keep the top N. Nothing is uploaded."
+tags          = ["word frequency", "word counter", "most common words", "term frequency", "keyword density", "word tally"]
+h1            = "Word frequency counter"
+hero_subtitle = "Count how often each word appears and rank them from most to least frequent. Skip short words or common stop words, and keep just the top N. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_word_frequency_web"
+export        = "run"
+live          = false
+output_label  = "Words (count, share, word — most frequent first)"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste your text here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "case_sensitive"
+label       = "Case sensitive"
+source      = "field"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum word length"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "ignore_stopwords"
+label       = "Ignore common stop words"
+source      = "field"
+
+[[input]]
+name        = "top"
+label       = "Top N (0 = all)"
+placeholder = "0"
+source      = "field"
