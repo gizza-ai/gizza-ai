@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "link-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract hyperlinks and anchors from HTML or Markdown"
