@@ -1,0 +1,65 @@
+slug          = "pbkdf2-derive"
+title         = "PBKDF2 Key Derivation — derive a key from a password — gizza.ai"
+description   = "Derive a key from a password with PBKDF2-HMAC (SHA-1/256/512). Pick iterations, salt, length and hex/base64 output — all in your browser. Nothing is uploaded."
+tags          = ["pbkdf2", "key derivation", "kdf", "pbkdf2-hmac-sha256", "derive key from password", "rfc 2898", "rfc 8018", "password based key derivation"]
+h1            = "PBKDF2 key derivation"
+hero_subtitle = "Derive a cryptographic key from a password using PBKDF2-HMAC. Choose the hash, iterations, salt and output length — it runs in your browser, so the password never leaves your device."
+wasm          = "gizza_ai_pbkdf2_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived key"
+format        = "text"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "The password / passphrase"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode (derive | verify)"
+placeholder = "derive"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt"
+placeholder = "Unique random salt (recommended)"
+source      = "field"
+
+[[input]]
+name        = "salt_encoding"
+label       = "Salt encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "iterations"
+label       = "Iterations"
+placeholder = "100000"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Hash (HMAC)"
+placeholder = "sha256"
+source      = "field"
+
+[[input]]
+name        = "length"
+label       = "Key length (bytes)"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name        = "encoding"
+label       = "Output encoding"
+placeholder = "hex"
+source      = "field"
+
+[[input]]
+name        = "expected"
+label       = "Expected key (for verify)"
+placeholder = "hex or base64 key to check against"
+source      = "field"
