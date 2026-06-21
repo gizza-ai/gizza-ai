@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/rake-keywords",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract keywords/keyphrases from a document with the RAKE algorithm.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the most relevant keywords and keyphrases from a document using the RAKE (Rapid Automatic Keyword Extraction) algorithm. Set top_n to limit results (0 = all) and max_words to cap phrase length (0 = no cap). Returns ranked keyphrases with RAKE scores.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The document text to extract keywords from." },
+        "top_n": { "type": "integer", "default": 10, "minimum": 0, "description": "Maximum number of keyphrases to return; 0 returns all." },
+        "max_words": { "type": "integer", "default": 0, "minimum": 0, "description": "Maximum words per keyphrase; 0 means no limit." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
