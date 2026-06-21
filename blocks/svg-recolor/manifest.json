@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/svg-recolor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Recolor an SVG by remapping its fill/stroke colors",
+  "role": "skill",
+  "tool": {
+    "description": "Recolor an SVG icon by remapping its colors. Provide a 'mapping' of 'from=>to' color pairs (comma- or newline-separated, e.g. '#000=>#ffffff, red=>#00ff00') to swap specific colors — matching is format-insensitive, so a source '#ffffff' also matches '#fff' and 'rgb(255,255,255)'. Or set 'to' to a single color to recolor EVERY color in the SVG to that one tint (monochrome icon). Colors are rewritten in fill/stroke/stop-color/color/flood-color/lighting-color/solid-color attributes, inline style= declarations, and inside <style> blocks. Path data, geometry and structure are never changed; 'none', 'transparent' and 'currentColor' are preserved. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "svg": { "type": "string", "description": "The SVG markup to recolor." },
+        "mapping": { "type": "string", "description": "Color remap as 'from=>to' pairs, separated by commas or newlines (e.g. '#000=>#ffffff, red=>#00ff00'). Source colors match in any syntax (#fff, #ffffff, rgb(), named). Ignored when 'to' is set." },
+        "to": { "type": "string", "description": "Monochrome mode: recolor EVERY color in the SVG to this single color (e.g. '#3366ff'). Takes precedence over 'mapping'. 'none'/'transparent'/'currentColor' are preserved." }
+      },
+      "required": ["svg"],
+      "additionalProperties": false
+    }
+  }
+}

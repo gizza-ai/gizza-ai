@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "svg-recolor"
+version = "0.1.0"
+abi = 1
+summary = "Recolor an SVG by remapping its fill/stroke colors"
