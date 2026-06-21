@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "filter-lines"
+version = "0.1.0"
+abi = 1
+summary = "Keep or drop lines matching a substring or regex"
