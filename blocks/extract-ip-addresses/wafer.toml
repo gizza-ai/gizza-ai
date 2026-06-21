@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-ip-addresses"
+version = "0.1.0"
+abi = 1
+summary = "Find IPv4 and IPv6 addresses in text"
