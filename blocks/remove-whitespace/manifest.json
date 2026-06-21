@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/remove-whitespace",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "TODO: one-line summary.",
+  "role": "skill",
+  "tool": {
+    "description": "TODO: describe what this tool does and its inputs.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": { "input": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}
