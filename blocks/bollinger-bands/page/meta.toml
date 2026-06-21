@@ -1,0 +1,30 @@
+slug          = "bollinger-bands"
+title         = "Bollinger Bands Calculator — moving average ± standard deviations — gizza.ai"
+description   = "Compute Bollinger Bands (SMA plus/minus standard deviations) for a price series, plus %B and bandwidth, in your browser. Free, private, no upload."
+tags          = ["bollinger bands", "technical analysis", "moving average", "standard deviation", "percent b", "bandwidth", "trading indicator"]
+h1            = "Bollinger Bands calculator"
+hero_subtitle = "Rolling middle band (SMA) with upper and lower bands at ±N standard deviations, plus %B and bandwidth. Runs in your browser, no upload."
+wasm          = "gizza_ai_bollinger_bands_web"
+export        = "run"
+live          = false
+output_label  = "Bollinger Bands"
+format        = "text"
+
+[[input]]
+name        = "prices"
+label       = "Prices"
+placeholder = "10, 11, 12, 13, 12, 14, 15, 16, 15, 17"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "period"
+label       = "Period (SMA window)"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "num_std"
+label       = "Standard deviations"
+placeholder = "2"
+source      = "field"
