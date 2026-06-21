@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rsa-sign"
+version = "0.1.0"
+abi = 1
+summary = "Sign a message with an RSA private key"
