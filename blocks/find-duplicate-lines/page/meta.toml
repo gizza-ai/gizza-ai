@@ -1,0 +1,28 @@
+slug          = "find-duplicate-lines"
+title         = "Find Duplicate Lines — with counts — gizza.ai"
+description   = "List the lines that appear more than once in pasted text, with their counts — in your browser. Optional case-insensitive and trim matching. Nothing is uploaded."
+tags          = ["find duplicate lines", "duplicate finder", "count duplicates", "repeated lines", "dedupe check"]
+h1            = "Find Duplicate Lines"
+hero_subtitle = "Paste text and see which lines repeat, and how many times — most frequent first. Optional case-insensitive and whitespace-trim matching. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_find_duplicate_lines_web"
+export        = "run"
+live          = false
+output_label  = "Duplicates"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste lines to check for duplicates…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace"
+source      = "field"
