@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-ecdsa-sign-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "ecdsa", "pem"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "ecdsa", "pem"] }
+ecdsa = { version = "0.16", default-features = false, features = ["der"] }
+base64 = "0.22"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }

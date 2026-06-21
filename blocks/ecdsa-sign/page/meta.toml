@@ -1,0 +1,36 @@
+slug          = "ecdsa-sign"
+title         = "ECDSA Sign — sign a message with a P-256/P-384 key — gizza.ai"
+description   = "Sign a message with an ECDSA private key (NIST P-256 or P-384) and get a DER or raw r||s signature in base64 and hex, in your browser. Nothing is uploaded."
+tags          = ["ecdsa sign", "ecdsa signature", "p256", "p384", "secp256r1", "digital signature", "rfc6979", "crypto"]
+h1            = "ECDSA sign"
+hero_subtitle = "Sign a message with your ECDSA private key — NIST P-256 or P-384, DER or raw r||s — and get a base64/hex signature. Deterministic (RFC-6979). Runs in your browser; the key never leaves your device."
+wasm          = "gizza_ai_ecdsa_sign_web"
+export        = "run"
+live          = false
+output_label  = "Signature"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The message to sign"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "private_key"
+label       = "EC private key (PEM, PKCS#8)"
+placeholder = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+source      = "field"
+multiline   = true
+
+# curve and format render as <select>; option lists derive from the descriptor schema.
+[[input]]
+name        = "curve"
+label       = "Curve"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Signature format"
+source      = "field"

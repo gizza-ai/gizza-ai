@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/ecdsa-sign",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sign a message with an ECDSA private key (P-256/P-384)",
+  "role": "skill",
+  "tool": {
+    "description": "Sign a message with an ECDSA private key on NIST curve P-256 or P-384. The curve fixes the digest (P-256→SHA-256, P-384→SHA-384) and signing uses deterministic RFC-6979 nonces, so the signature is reproducible. The private key is PEM-encoded PKCS#8. Output is base64 (and hex), in DER (ASN.1, OpenSSL-style) or raw fixed-length r||s (IEEE-P1363/JOSE) form. Runs locally — the private key and message never leave the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "description": "The message to sign." },
+        "private_key": { "type": "string", "description": "Your EC private key, PEM-encoded PKCS#8 ('-----BEGIN PRIVATE KEY-----'). Must match the chosen curve." },
+        "curve": { "type": "string", "enum": ["p256", "p384"], "default": "p256", "description": "Elliptic curve of the key: p256 (NIST P-256/secp256r1, SHA-256) or p384 (NIST P-384/secp384r1, SHA-384)." },
+        "format": { "type": "string", "enum": ["der", "raw"], "default": "der", "description": "Signature encoding: der (ASN.1 DER, as OpenSSL emits) or raw (fixed-length r||s, IEEE-P1363/JOSE)." }
+      },
+      "required": ["message", "private_key"],
+      "additionalProperties": false
+    }
+  }
+}
