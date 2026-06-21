@@ -62,6 +62,7 @@ tsv-to-json  # duplicate of blocks/csv-json-convert (delimiter=tab, direction=cs
 unzip-archive  # duplicate of blocks/unzip (lists + extracts individual files from a ZIP, with inline content)
 video-concat  # multi-input ffmpeg: page file-input is single-upload only and ffmpeg cannot run in the chat SW -> CLI-only; multi-source ffmpeg wiring unproven + arbitrary-clip concat needs resolution/audio normalization. Deferred.
 video-speed  # duplicate of blocks/change-speed (speed up/slow down a video by a factor, audio kept in sync)
+video-frame-grab  # duplicate of blocks/video-frame-extract (grab a single still frame at a chosen timestamp; PNG-vs-JPEG format is a minor improvement to that tool, not a distinct one)
 audio-compress  # audio-INPUT ffmpeg tool; no AssetKind::Audio + accept=audio/* page input exists yet (deferred, like audio-convert/normalize)
 audio-crossfade  # audio-INPUT + multi-input ffmpeg; no audio page-input + no multi-source ffmpeg surface (deferred)
 audio-eq  # audio-INPUT ffmpeg; no audio page-input support (deferred)
