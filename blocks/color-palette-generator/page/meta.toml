@@ -1,0 +1,28 @@
+slug          = "color-palette-generator"
+title         = "Color Palette Generator — Harmonious Schemes from a Base Color — gizza.ai"
+description   = "Generate a harmonious color palette from any base color: complementary, analogous, triadic, split-complementary, tetradic, square, monochromatic, shades and tints. Runs in your browser."
+tags          = ["color palette generator", "color scheme", "complementary colors", "analogous", "triadic", "monochromatic", "color theory"]
+h1            = "Color palette generator"
+hero_subtitle = "Pick a base color and a harmony scheme to generate a matching palette in HEX, RGB and HSL. Complementary, analogous, triadic, monochromatic and more. Runs in your browser."
+wasm          = "gizza_ai_color_palette_generator_web"
+export        = "run"
+live          = false
+output_label  = "Palette"
+format        = "text"
+
+[[input]]
+name        = "color"
+label       = "Base color (#hex, rgb(), hsl())"
+placeholder = "#3498db"
+source      = "field"
+
+[[input]]
+name        = "scheme"
+label       = "Scheme"
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "Colors (series schemes only, 2–12)"
+placeholder = "5"
+source      = "field"
