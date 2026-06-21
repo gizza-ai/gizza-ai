@@ -1,0 +1,31 @@
+slug          = "svg-recolor"
+title         = "SVG Recolor — remap fill & stroke colors in an SVG — gizza.ai"
+description   = "Recolor an SVG icon in your browser: swap specific colors with from→to pairs, or recolor every color to one tint (monochrome). Matching works across #fff, #ffffff, rgb() and named colors. Path data is never changed. Nothing is uploaded."
+tags          = ["svg recolor", "recolor svg", "change svg color", "svg color replace", "monochrome svg", "tint svg icon"]
+h1            = "SVG Recolor"
+hero_subtitle = "Remap the colors of an SVG icon — swap specific colors with from→to pairs, or recolor everything to a single tint. Matching is format-insensitive (#fff, #ffffff, rgb(), named). Path data is never rewritten. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_svg_recolor_web"
+export        = "run"
+live          = false
+output_label  = "Recolored SVG"
+format        = "text"
+
+[[input]]
+name        = "svg"
+label       = "SVG"
+placeholder = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\">\n  <path fill=\"#000000\" d=\"M12 2L2 22h20L12 2z\"/>\n</svg>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mapping"
+label       = "Color map (from=>to per line or comma-separated)"
+placeholder = "#000000 => #ffffff\nred => #00ff00"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "to"
+label       = "Monochrome — recolor everything to this color (overrides the map)"
+placeholder = "#3366ff"
+source      = "field"
