@@ -1,0 +1,24 @@
+slug          = "html-formatter"
+title         = "HTML Formatter — pretty-print / beautify HTML — gizza.ai"
+description   = "Pretty-print and beautify HTML with consistent indentation, in your browser. Handles void elements, comments, and preserves pre/script/style. Nothing is uploaded."
+tags          = ["html formatter", "html beautifier", "pretty print html", "format html", "indent html", "beautify html"]
+h1            = "HTML Formatter"
+hero_subtitle = "Pretty-print messy or minified HTML with clean, consistent indentation. Void elements, comments, and pre/script/style are handled correctly. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_html_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted HTML"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<div><p>Paste your HTML here</p></div>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces per level)"
+placeholder = "2"
+source      = "field"
