@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/bollinger-bands",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bollinger Bands (moving average plus/minus standard deviations)",
+  "role": "skill",
+  "tool": {
+    "description": "Compute Bollinger Bands for a price/value series (separated by spaces, commas, semicolons, or newlines, oldest first). For each rolling window of `period` values (default 20) the middle band is the simple moving average and the upper/lower bands are the SMA plus/minus `num_std` (default 2) population standard deviations. Also returns %B and bandwidth for the latest point. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["prices"],
+      "properties": {
+        "prices": { "type": "string", "description": "The price/value series, separated by spaces, commas, semicolons, or newlines (oldest first)." },
+        "period": { "type": "integer", "minimum": 1, "default": 20.0, "description": "Moving-average window length (the SMA period). Defaults to 20." },
+        "num_std": { "type": "number", "minimum": 0, "default": 2.0, "description": "Standard-deviation multiplier for the upper/lower bands. Defaults to 2." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
