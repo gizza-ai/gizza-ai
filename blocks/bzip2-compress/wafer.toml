@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bzip2-compress"
+version = "0.1.0"
+abi = 1
+summary = "Compress a file into bzip2 (.bz2)"
