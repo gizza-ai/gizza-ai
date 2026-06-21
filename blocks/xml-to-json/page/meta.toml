@@ -1,0 +1,40 @@
+slug          = "xml-to-json"
+title         = "XML to JSON — Convert XML to JSON online — gizza.ai"
+description   = "Convert an XML document into an equivalent JSON structure, preserving attributes and nesting, in your browser. Free, private, no upload."
+tags          = ["xml to json", "xml json converter", "convert xml to json", "xml parser", "xml to json online"]
+h1            = "XML to JSON"
+hero_subtitle = "Convert an XML document into an equivalent JSON structure — attributes, nesting, and repeated elements preserved. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_xml_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "xml"
+label       = "XML"
+placeholder = "<catalog>\n  <book id=\"1\"><title>Dune</title><author>Herbert</author></book>\n  <book id=\"2\"><title>Hyperion</title><author>Simmons</author></book>\n</catalog>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "attribute_prefix"
+label       = "Attribute key prefix"
+placeholder = "@"
+source      = "field"
+
+[[input]]
+name        = "text_key"
+label       = "Mixed-content text key"
+placeholder = "#text"
+source      = "field"
+
+[[input]]
+name        = "attributes"
+label       = "Include attributes"
+source      = "field"
+
+[[input]]
+name        = "coerce_types"
+label       = "Coerce numbers, booleans, and null"
+source      = "field"
