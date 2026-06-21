@@ -57,3 +57,4 @@ json-to-csv  # dup of csv-json-convert direction=json-to-csv (incl. flatten for 
 mix-audio  # needs 2 DISTINCT media inputs (two audio tracks) + audio INPUT; single-input ffmpeg dispatch + no AssetKind::Audio/accept=audio page input
 profanity-filter  # duplicate of blocks/censor-text (built-in common-profanity wordlist, mask + flag, case-insensitive whole-word)
 text-encryptor  # duplicate of blocks/text-encrypt (password-encrypt text to a shareable blob + decrypt, AES-256-GCM)
+totp-tool  # near-duplicate of blocks/totp-generator (TOTP generation; overlapping scope)
