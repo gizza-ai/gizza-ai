@@ -135,3 +135,4 @@ vocal-remove  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* p
 vocal-remover  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 voice-activity-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 voice-emotion  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+base64-text-converter  # near-duplicate of blocks/multi-encoder (base64 encode/decode); only delta is url-safe base64 variant
