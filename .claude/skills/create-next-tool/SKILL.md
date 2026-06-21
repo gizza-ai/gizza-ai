@@ -231,3 +231,33 @@ parse it.
 treats `1` as an integer and `1.0` as a float, so they compare unequal and the drift test fails. (Integer
 params with `.default(1)` correctly render `1`.) `color_quant = "1"` (NeuQuant) is wasm-safe — image color
 quantization to N colors. HSL image edits: hand-roll RGB↔HSL (no extra dep) for hue-shift / sat / lightness.
+
+## Orchestration / environment findings (2026-06-21)
+
+**Hardware reality on this box: 2 CPUs, ~3.9 GB total RAM (~2.9 GB free), 78 GB disk.** A single Rust
+release build (rustc + `wasm-opt` in wasm-pack + `cargo install cli`) peaks around 1–2 GB and saturates
+both cores. **Parallel tool builds are NOT viable here** — two concurrent heavy builds risk OOM on ~3 GB
+free, and the 2-core CPU means wall-clock barely improves. RAM-adaptive concurrency
+(`free -m` → floor(available_GB / ~3)) computes ≈1 on this machine. So the loop is effectively
+**sequential, one tool at a time**. (Also: `cargo install --path cli`, the page generator, and `git push`
+all touch global/shared state — parallel builders would need separate worktrees AND serialized
+CLI-install/generate/push, negating the gain.)
+
+**The real win from sub-agents here is CONTEXT, not speed:** a thin dispatcher that spawns a FRESH
+general-purpose sub-agent per tool (pick→build→test→commit→push, return a one-line result) keeps the
+loop's own context tiny and effectively "clears context" every tool, letting the loop run indefinitely.
+No races because only one builder runs at a time.
+
+**5-hour usage limit:** there is NO local JSON recording the rolling 5-hour usage window / reset time.
+`~/.claude/.credentials.json` holds only OAuth (`accessToken`/`refreshToken`/`expiresAt` = token expiry,
+not the usage window) plus `subscriptionType=max`, `rateLimitTier=default_claude_max_20x`. The 5-hour
+quota + reset are enforced server-side and only surfaced on a rate-limit error response — so the loop
+can't pre-read remaining budget from disk; it must react to a limit error (back off / stop) when it hits one.
+
+**More proven wasm-safe crates (this loop):** `toml = "0.8"` (config; TOML needs a table root + has no
+null), `color_quant = "1"` (NeuQuant palette quantization), `kamadak-exif = "0.6"` (EXIF/TIFF read —
+`Reader::new().read_from_container(Cursor)`, `field.tag`/`field.display_value().with_unit(&exif)`, GPS
+rationals → decimal), `serde_json` `preserve_order` feature (keeps object key order). PDF *generation*
+needs no new crate — build content streams with the already-proven `lopdf` (base-14 Helvetica, BT/Tf/Td/Tj/ET).
+For exact RFC test vectors (e.g. RFC 7638 jwk-thumbprint) WebFetch the RFC rather than trusting memory —
+a mis-remembered constant fails the vector.
