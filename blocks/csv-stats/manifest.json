@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/csv-stats",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Per-column summary statistics for a CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute per-column summary statistics for a CSV: each column's value count, empty-cell count, number of distinct values, and (for columns whose values are all numeric) min, max, mean, and sum. Returns the stats per column plus the row count. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header for column names (default true)." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
