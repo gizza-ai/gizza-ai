@@ -147,3 +147,4 @@ json-stringify  # near-duplicate of blocks/json-escape (escape mode + quotes=tru
 parse-qr-code  # duplicate of blocks/qr-decode
 statistics-calculator  # duplicate of blocks/descriptive-stats (mean/median/mode/std-dev/quartiles from a list of numbers; regression on a 1-D list is undefined)
 toml-to-json  # duplicate of blocks/json-yaml-convert (already converts TOML->JSON, plus YAML, any direction)
+word-frequency-counter  # duplicate of blocks/word-frequency (count + rank word occurrences, with stop-word filtering)
