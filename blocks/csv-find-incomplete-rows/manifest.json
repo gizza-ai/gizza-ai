@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-find-incomplete-rows",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag CSV rows with the wrong field count or blank required cells",
+  "role": "skill",
+  "tool": {
+    "description": "Scan a CSV and flag incomplete or malformed rows: rows with too few or too many fields (relative to the header/first-row width), and rows with a blank cell in a column you mark as required. Returns the expected field count, the column names, and every flagged row with its line number, field count, issue types, and blank required columns. delimiter is a single char or comma/tab/semicolon/pipe; required is a comma-separated list of column names or 1-based indices. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text to scan." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header naming the columns (default true)." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." },
+        "required": { "type": "string", "description": "Optional comma-separated list of column names or 1-based indices that must be non-blank on every row (e.g. \"email,phone\" or \"1,3\"). Blank cells in these columns are flagged." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-find-incomplete-rows"
+version = "0.1.0"
+abi = 1
+summary = "Flag CSV rows with the wrong field count or blank required cells"

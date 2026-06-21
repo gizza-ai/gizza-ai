@@ -1,0 +1,35 @@
+slug          = "csv-find-incomplete-rows"
+title         = "Find Incomplete CSV Rows — Flag rows with wrong field count or blank cells — gizza.ai"
+description   = "Scan a CSV for malformed rows: too few or too many fields, or blank cells in required columns. Runs in your browser. Free, private, no upload."
+tags          = ["csv validation", "incomplete csv rows", "malformed csv", "csv field count", "csv missing values"]
+h1            = "Find incomplete CSV rows"
+hero_subtitle = "Flag CSV rows that have too few or too many fields, or a blank cell in a column you mark as required. Runs in your browser, no upload."
+wasm          = "gizza_ai_csv_find_incomplete_rows_web"
+export        = "run"
+live          = false
+output_label  = "Incomplete rows"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,email,phone\nAda,ada@x.com,123\nBo,,\nCy,cy@x.com,456"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "required"
+label       = "Required columns (names or 1-based indices, comma-separated)"
+placeholder = "email,phone"
+source      = "field"
