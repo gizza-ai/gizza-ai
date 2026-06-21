@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/lsb-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a hidden message from an image (LSB steganography).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Recover a hidden payload from an image's least-significant bits (LSB steganography) — the inverse of lsb-embed. mode=auto (default) finds a gizza-ai/lsb-embed payload (LSB1 header, RGB channels, bit depth auto-detected 1-4) and returns the hidden text. mode=raw reads the low bits-per-channel bits of the chosen channels (channels: any of r,g,b,a; bits_per_channel 1-8; bit_order msb or lsb; optional invert to XOR 0xFF) in pixel order with no header — use it for payloads embedded by other LSB tools. Returns the recovered text (if valid UTF-8), a hex preview, byte length, a best-effort file-type sniff of binary payloads, and the depth + channels used. The carrier MUST be lossless (PNG/BMP/etc.); a JPEG re-encode destroys the hidden bits. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call). Runs locally — the image never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "mode": { "type": "string", "enum": ["auto", "raw"], "default": "auto", "description": "auto (default): find a gizza-ai/lsb-embed payload (LSB1 header, RGB, depth auto-detected 1-4). raw: read the low bits of the chosen channels in pixel order with no header." },
+        "channels": { "type": "string", "default": "rgb", "description": "Raw mode only: which colour channels to read, any of r,g,b,a (e.g. \"rgb\", \"r\", \"rgba\"). Default \"rgb\". Ignored in auto mode." },
+        "bits_per_channel": { "type": "integer", "minimum": 1, "maximum": 8, "default": 1, "description": "Raw mode only: low bits to read per channel, 1-8 (default 1). Must match how the payload was embedded. Ignored in auto mode." },
+        "bit_order": { "type": "string", "enum": ["msb", "lsb"], "default": "msb", "description": "Raw mode only: bit order within each channel field — msb (default, like lsb-embed) or lsb (common in other encoders). Ignored in auto mode." },
+        "invert": { "type": "boolean", "default": false, "description": "Raw mode only: bitwise-invert (XOR 0xFF) the recovered bytes, to undo a common obfuscation. Ignored in auto mode." }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
