@@ -226,3 +226,8 @@ leaving it). HTML-tokenizer tools (html-formatter pretty / html-minifier) are a 
 quote-aware tag scanner (`scan_tag` skipping quoted `>`), VOID elements don't indent, and pre/textarea/
 script/style are emitted verbatim — HTML is NOT well-formed XML so quick-xml (used by xml-formatter) can't
 parse it.
+**DRIFT GOTCHA — number-param defaults serialize as `N.0`:** `Param::number("x").default(1.0)` renders
+`"default": 1.0` in the schema. In the authored drift JSON write `"default": 1.0` (NOT `1`) — serde_json
+treats `1` as an integer and `1.0` as a float, so they compare unequal and the drift test fails. (Integer
+params with `.default(1)` correctly render `1`.) `color_quant = "1"` (NeuQuant) is wasm-safe — image color
+quantization to N colors. HSL image edits: hand-roll RGB↔HSL (no extra dep) for hue-shift / sat / lightness.
