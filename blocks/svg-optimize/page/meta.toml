@@ -1,0 +1,38 @@
+slug          = "svg-optimize"
+title         = "SVG Optimizer — minify & clean up SVG markup — gizza.ai"
+description   = "Optimize and minify SVG in your browser: collapse whitespace, strip comments, the XML declaration and editor metadata (Inkscape/Sodipodi). Path data is never changed, so the image stays identical. Nothing is uploaded."
+tags          = ["svg optimizer", "minify svg", "svg minifier", "clean svg", "svgo", "compress svg"]
+h1            = "SVG Optimizer"
+hero_subtitle = "Minify and clean up SVG markup — collapse whitespace, strip comments and editor metadata, normalize tags. Path data is never rewritten, so the rendered image is unchanged. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_svg_optimize_web"
+export        = "run"
+live          = false
+output_label  = "Optimized SVG"
+format        = "text"
+
+[[input]]
+name        = "svg"
+label       = "SVG"
+placeholder = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\">\n  <!-- icon -->\n  <path d=\"M12 2L2 22h20L12 2z\"/>\n</svg>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "remove_comments"
+label       = "Remove comments"
+source      = "field"
+
+[[input]]
+name        = "remove_metadata"
+label       = "Remove editor metadata (Inkscape/Sodipodi)"
+source      = "field"
+
+[[input]]
+name        = "remove_ids"
+label       = "Remove id & class attributes"
+source      = "field"
+
+[[input]]
+name        = "remove_dimensions"
+label       = "Remove root width/height (when a viewBox is present)"
+source      = "field"
