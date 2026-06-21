@@ -1,0 +1,29 @@
+slug          = "totp-generator"
+title         = "TOTP Generator — 2FA codes from a secret — gizza.ai"
+description   = "Generate time-based one-time (2FA) codes from a TOTP secret, in your browser. The secret never leaves your device."
+tags          = ["totp", "2fa", "authenticator", "one-time password", "otp", "two-factor"]
+h1            = "TOTP generator"
+hero_subtitle = "Generate the current time-based one-time (2FA) code from a TOTP secret. Runs in your browser — the secret never leaves your device."
+wasm          = "gizza_ai_totp_generator_web"
+export        = "run"
+live          = false
+output_label  = "Code"
+format        = "text"
+
+[[input]]
+name        = "secret"
+label       = "TOTP secret (base32)"
+placeholder = "JBSWY3DPEHPK3PXP"
+source      = "field"
+
+[[input]]
+name        = "digits"
+label       = "Digits"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm (sha1 | sha256 | sha512)"
+placeholder = "sha1"
+source      = "field"
