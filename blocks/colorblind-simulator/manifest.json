@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/colorblind-simulator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Simulate colour-blindness on an image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Simulate how an image looks to someone with a colour-vision deficiency, to check a design's accessibility. type = protanopia (red-deficient), deuteranopia (green-deficient, default), or tritanopia (blue-deficient); the standard CVD simulation matrix is applied to every pixel (alpha preserved). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "type": { "type": "string", "enum": ["protanopia", "deuteranopia", "tritanopia"], "default": "deuteranopia", "description": "Colour-vision deficiency to simulate: protanopia (red), deuteranopia (green, default), or tritanopia (blue)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
