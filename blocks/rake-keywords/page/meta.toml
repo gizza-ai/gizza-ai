@@ -1,0 +1,30 @@
+slug          = "rake-keywords"
+title         = "RAKE Keyword Extractor — gizza.ai"
+description   = "Extract the top keywords and keyphrases from any document using the RAKE algorithm — ranked by relevance, right in your browser. Nothing is uploaded."
+tags          = ["rake", "keyword extraction", "keyphrase extraction", "keywords", "text analysis", "nlp", "extract keywords"]
+h1            = "RAKE Keyword Extractor"
+hero_subtitle = "Paste any document and pull out its most relevant keywords and keyphrases using the RAKE (Rapid Automatic Keyword Extraction) algorithm — ranked by score, no training data needed. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_rake_keywords_web"
+export        = "run"
+live          = false
+output_label  = "Keywords"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste a document to extract keywords from…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "top_n"
+label       = "Max keyphrases (0 = all)"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "max_words"
+label       = "Max words per phrase (0 = no limit)"
+placeholder = "0"
+source      = "field"
