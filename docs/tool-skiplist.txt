@@ -61,3 +61,4 @@ totp-tool  # near-duplicate of blocks/totp-generator (TOTP generation; overlappi
 tsv-to-json  # duplicate of blocks/csv-json-convert (delimiter=tab, direction=csv-to-json yields array of objects keyed by header)
 unzip-archive  # duplicate of blocks/unzip (lists + extracts individual files from a ZIP, with inline content)
 video-concat  # multi-input ffmpeg: page file-input is single-upload only and ffmpeg cannot run in the chat SW -> CLI-only; multi-source ffmpeg wiring unproven + arbitrary-clip concat needs resolution/audio normalization. Deferred.
+video-speed  # duplicate of blocks/change-speed (speed up/slow down a video by a factor, audio kept in sync)
