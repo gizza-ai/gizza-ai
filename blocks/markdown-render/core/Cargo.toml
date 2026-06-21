@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-markdown-render-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# pulldown-cmark: pure-Rust CommonMark -> HTML (tables, task lists, strikethrough,
+# footnotes), wasm32-safe.
+pulldown-cmark = { version = "0.12", default-features = false, features = ["html"] }
+# ammonia: HTML sanitizer (html5ever-based, same engine as htmd), wasm32-safe.
+ammonia = "4"
