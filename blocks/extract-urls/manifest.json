@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/extract-urls",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract http(s) URLs from text",
+  "role": "skill",
+  "tool": {
+    "description": "Scan text and extract all http/https URLs, validated and deduplicated in first-seen order (trailing prose punctuation is trimmed). Set split_components=true to also break each URL into scheme, host, port, path, query, and fragment. Returns the count, the URL list, and (optionally) the component breakdown. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to scan for URLs." },
+        "split_components": { "type": "boolean", "default": false, "description": "When true, also split each URL into scheme/host/port/path/query/fragment." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-urls"
+version = "0.1.0"
+abi = 1
+summary = "Extract http(s) URLs from text"
