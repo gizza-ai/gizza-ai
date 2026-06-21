@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/pem-der-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert keys/certs/CSRs between PEM and DER",
+  "role": "skill",
+  "tool": {
+    "description": "Convert cryptographic objects (keys, certificates, CSRs, CRLs) between PEM and DER encodings in either direction. PEM is the base64 text format wrapped in -----BEGIN <label>----- armor; DER is the raw binary ASN.1 form, shown/accepted here as hex or base64. Direction defaults to auto (detects PEM vs DER from the input); set pem-to-der to parse a PEM block (or a multi-block chain) and output each block's DER bytes + detected label, or der-to-pem to wrap DER bytes — supplied via der_format as hex or base64 — into a PEM block with the given label. This is a generic re-encoder: it does not parse the inner ASN.1, so it works for any object type.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The object to convert: a PEM block (-----BEGIN ...-----) for pem-to-der, or DER bytes as hex/base64 for der-to-pem." },
+        "direction": { "type": "string", "enum": ["auto", "pem-to-der", "der-to-pem"], "default": "auto", "description": "Which way to convert: auto (default) detects PEM vs DER from the input; pem-to-der parses PEM and outputs DER; der-to-pem wraps DER bytes back into a PEM block." },
+        "der_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "How DER binary is represented as text — both for the DER output (pem-to-der) and the DER input (der-to-pem). hex (default) or base64." },
+        "label": { "type": "string", "default": "", "description": "PEM label to use when direction is der-to-pem (e.g. CERTIFICATE, PRIVATE KEY, EC PRIVATE KEY, CERTIFICATE REQUEST). Ignored for pem-to-der (the label is read from the input). Defaults to CERTIFICATE if blank." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
