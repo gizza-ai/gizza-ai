@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/image-brightness-contrast",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Adjust image brightness and contrast",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Adjust the brightness and contrast of an image by signed amounts. brightness is -255..255 (negative darkens, positive brightens); contrast is -100..100 (negative flattens, positive increases); 0/0 leaves the image unchanged. Contrast is applied around mid-gray, then brightness. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "brightness": { "type": "integer", "minimum": -255, "maximum": 255, "description": "Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)." },
+        "contrast": { "type": "number", "minimum": -100, "maximum": 100, "description": "Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
