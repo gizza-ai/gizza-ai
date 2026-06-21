@@ -1,0 +1,30 @@
+slug          = "remove-whitespace"
+title         = "Remove Whitespace — Trim, collapse, or strip whitespace — gizza.ai"
+description   = "Trim leading/trailing whitespace, collapse extra spaces, or strip all whitespace from text, in your browser. Nothing is uploaded."
+tags          = ["remove whitespace", "trim text", "collapse spaces", "strip spaces", "remove extra spaces"]
+h1            = "Remove whitespace"
+hero_subtitle = "Trim line edges, collapse runs of extra spaces, or strip every whitespace character from your text. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_remove_whitespace_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text with extra whitespace here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+placeholder = "trim"
+source      = "field"
+
+[[input]]
+name        = "collapse_blank_lines"
+label       = "Collapse blank lines"
+placeholder = "false"
+source      = "field"
