@@ -1,0 +1,18 @@
+slug          = "markdown-render"
+title         = "Markdown to HTML Renderer — gizza.ai"
+description   = "Render Markdown into sanitized HTML instantly in your browser — tables, fenced code blocks, task lists, strikethrough, and footnotes supported. Free, private, no upload, no sign-up."
+tags          = ["markdown to html", "render markdown", "md to html", "markdown renderer", "github flavored markdown", "sanitized html"]
+h1            = "Markdown to HTML"
+hero_subtitle = "Paste Markdown and get clean, sanitized HTML — tables, code blocks, task lists, and footnotes included. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_markdown_render_web"
+export        = "run"
+live          = false
+output_label  = "HTML"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "# Title\n\n- [x] done\n- [ ] todo\n\n| a | b |\n|---|---|\n| 1 | 2 |"
+source      = "field"
+multiline   = true

@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/markdown-render",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render Markdown into sanitized HTML",
+  "role": "skill",
+  "tool": {
+    "description": "Render Markdown (CommonMark plus GitHub-flavored extensions: tables, fenced code blocks, task lists, strikethrough, and footnotes) into HTML. The output is sanitized so it is safe to embed (scripts, event handlers, and dangerous URL schemes are stripped). Pass the Markdown as `markdown`.",
+    "parameters": {
+      "type": "object",
+      "required": ["markdown"],
+      "properties": { "markdown": { "type": "string", "description": "The Markdown text to render into sanitized HTML." } },
+      "additionalProperties": false
+    }
+  }
+}
