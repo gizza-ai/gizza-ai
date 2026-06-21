@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/document-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a Markdown/HTML document into per-section files",
+  "role": "skill",
+  "tool": {
+    "description": "Split a long Markdown or HTML document into separate files, one per top-level section. Markdown splits at the smallest heading level present (e.g. every `#`); HTML splits at the smallest <hN> tag present. Content before the first heading becomes an 'intro' section. Returns each section's suggested filename, title, and content. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "document": { "type": "string", "description": "The Markdown or HTML document to split into per-section files." },
+        "format": { "type": "string", "enum": ["markdown", "html"], "default": "markdown", "description": "Document syntax: markdown (split on # headings) or html (split on <hN> tags)." }
+      },
+      "required": ["document"],
+      "additionalProperties": false
+    }
+  }
+}
