@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/lzma-compress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress a file into LZMA (.xz)",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Compress a file (or any bytes) into an LZMA .xz file, returned for download. .xz (LZMA2) usually achieves a smaller size than gzip or zip at the cost of speed — use it when maximum compression ratio matters. level sets the LZMA preset 0-9 (default 6; higher = smaller but slower and more memory). The output is a standard .xz stream named <input>.xz that any xz / 7-Zip tool can decompress. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "level": { "type": "integer", "minimum": 0, "maximum": 9, "default": 6, "description": "LZMA preset 0-9 (0 = fastest, 9 = smallest; default 6). Higher uses more time and memory." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
