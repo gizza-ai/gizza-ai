@@ -1,0 +1,35 @@
+slug          = "csv-reorder-columns"
+title         = "CSV Reorder Columns — Reorder, swap & drop columns — gizza.ai"
+description   = "Reorder, swap, or drop CSV columns by name or index to a target order, in your browser. Free, private, no upload."
+tags          = ["csv reorder columns", "rearrange csv", "drop csv columns", "swap columns", "select columns"]
+h1            = "CSV reorder columns"
+hero_subtitle = "Reorder, swap, or drop CSV columns to a target order — by name or index. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_reorder_columns_web"
+export        = "run"
+live          = false
+output_label  = "Reordered CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age,city\nAda,36,London"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Target order (names or 1-based indices, comma-separated)"
+placeholder = "city,name"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
