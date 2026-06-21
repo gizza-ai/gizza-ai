@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/date-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Duration between two dates.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the duration between two dates or datetimes. Returns a calendar breakdown (years, months, days, hours, minutes, seconds), flat totals (weeks, days, hours, minutes, seconds), and a human-readable summary.",
+    "parameters": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "string", "description": "The start date or datetime. Accepts YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS, RFC-3339 (with Z/offset), and common variants like YYYY/MM/DD, MM/DD/YYYY, DD.MM.YYYY." },
+        "end": { "type": "string", "description": "The end date or datetime, in the same accepted formats as `start`." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
