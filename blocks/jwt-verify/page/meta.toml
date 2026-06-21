@@ -1,0 +1,49 @@
+slug          = "jwt-verify"
+title         = "JWT Verify — Validate a JSON Web Token signature & claims — gizza.ai"
+description   = "Verify a JSON Web Token (JWT) in your browser: check its HS256/384/512, RS256/384/512 or ES256/384 signature and validate the exp, nbf, iss and aud claims. The token and key never leave your device."
+tags          = ["jwt verify", "jwt validator", "json web token", "jws", "verify jwt signature", "hs256", "rs256", "es256", "jwt decoder"]
+h1            = "JWT verify"
+hero_subtitle = "Verify a JSON Web Token's signature (HS256/384/512, RS256/384/512 or ES256/384) and validate its exp / nbf / iss / aud claims. Runs in your browser; your token and key never leave your device."
+wasm          = "gizza_ai_jwt_verify_web"
+export        = "run"
+live          = false
+output_label  = "Verification result"
+format        = "text"
+
+[[input]]
+name        = "token"
+label       = "JWT (compact token)"
+placeholder = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0...."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Secret or public key"
+placeholder = "your-256-bit-secret   (or paste a PEM PUBLIC key for RS*/ES*)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "algorithm"
+label       = "Required algorithm (optional)"
+placeholder = "HS256"
+source      = "field"
+
+[[input]]
+name        = "issuer"
+label       = "Expected issuer / iss (optional)"
+placeholder = "https://issuer.example.com"
+source      = "field"
+
+[[input]]
+name        = "audience"
+label       = "Expected audience / aud (optional)"
+placeholder = "my-api"
+source      = "field"
+
+[[input]]
+name        = "leeway"
+label       = "Clock-skew leeway (seconds)"
+placeholder = "0"
+source      = "field"
