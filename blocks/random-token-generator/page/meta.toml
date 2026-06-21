@@ -1,0 +1,35 @@
+slug          = "random-token-generator"
+title         = "Random Token Generator — gizza.ai"
+description   = "Generate cryptographically secure random tokens, API keys, and secrets with a configurable length and character set — entirely in your browser, nothing uploaded, free."
+tags          = ["random token generator", "api key generator", "secret generator", "random string generator", "secure token"]
+h1            = "Random Token Generator"
+hero_subtitle = "Generate cryptographically random tokens, API keys, and secrets with a configurable length and character set. Runs entirely in your browser — nothing leaves your device."
+wasm          = "gizza_ai_random_token_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated tokens"
+format        = "text"
+
+[[input]]
+name        = "length"
+label       = "Token length"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "How many tokens"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "charset"
+label       = "Character set (hex|hex-upper|base64url|alphanumeric|alphabetic|numeric|safe)"
+placeholder = "hex"
+source      = "field"
+
+[[input]]
+name        = "custom_chars"
+label       = "Custom alphabet (optional — overrides the preset)"
+placeholder = ""
+source      = "field"
