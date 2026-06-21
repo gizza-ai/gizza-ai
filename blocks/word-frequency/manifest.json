@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/word-frequency",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Count and rank the most frequent words in text.",
+  "role": "skill",
+  "tool": {
+    "description": "Count how often each word occurs in a block of text and rank them from most to least frequent. Returns each distinct word with its count and its percentage of all counted words (keyword density), plus the number of distinct words and total words counted. Words are runs of letters/digits with interior apostrophes kept (don't stays one word); punctuation separates. Options: case_sensitive (default false groups 'The'/'the'), min_length to skip short words, ignore_stopwords to drop common words like 'the'/'and', and top to keep only the N most frequent. Fully local and deterministic — no AI model.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text whose words to count." },
+        "case_sensitive": { "type": "boolean", "default": false, "description": "When false (default), 'The' and 'the' are grouped; true counts casings separately." },
+        "min_length": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Ignore words shorter than this many characters (default 1 = keep all)." },
+        "ignore_stopwords": { "type": "boolean", "default": false, "description": "When true, drop common English stop words (the, and, of, to, …)." },
+        "top": { "type": "integer", "minimum": 0, "description": "Keep only the N most frequent words (0 = all, the default)." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
