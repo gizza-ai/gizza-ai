@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-email-addresses"
+version = "0.1.0"
+abi = 1
+summary = "Pull email addresses out of text"

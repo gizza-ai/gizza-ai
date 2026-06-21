@@ -1,0 +1,23 @@
+slug          = "extract-email-addresses"
+title         = "Extract Email Addresses from Text — gizza.ai"
+description   = "Pull all email addresses out of any text, deduplicated and optionally grouped by domain — in your browser. Nothing is uploaded."
+tags          = ["extract emails", "email extractor", "find email addresses", "scrape emails", "dedupe emails", "group by domain"]
+h1            = "Extract Email Addresses"
+hero_subtitle = "Paste any text and pull out every email address — deduplicated, and optionally grouped by domain. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_email_addresses_web"
+export        = "run"
+live          = false
+output_label  = "Email addresses"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text containing email addresses…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "group_by_domain"
+label       = "Group by domain"
+source      = "field"
