@@ -1,0 +1,17 @@
+slug          = "color-format-convert"
+title         = "Color Converter — HEX, RGB, HSL, HSV, CMYK — gizza.ai"
+description   = "Convert a color between HEX, RGB(A), HSL, HSV and CMYK, in your browser. Paste any notation and get them all. Nothing is uploaded."
+tags          = ["color converter", "hex to rgb", "rgb to hex", "hsl", "cmyk", "color format"]
+h1            = "Color converter"
+hero_subtitle = "Convert a color between HEX, RGB(A), HSL, HSV and CMYK. Paste any notation and get all the others. Runs in your browser."
+wasm          = "gizza_ai_color_format_convert_web"
+export        = "run"
+live          = false
+output_label  = "All formats"
+format        = "text"
+
+[[input]]
+name        = "color"
+label       = "Color (#hex, rgb(), rgba(), hsl(), hsla())"
+placeholder = "#3498db"
+source      = "field"
