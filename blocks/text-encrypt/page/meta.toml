@@ -1,0 +1,30 @@
+slug          = "text-encrypt"
+title         = "Text Encrypt — AES-256 encrypt/decrypt text with a passphrase — gizza.ai"
+description   = "Encrypt or decrypt text with a passphrase using AES-256-GCM, in your browser. Get a copy-pasteable token. Nothing is uploaded."
+tags          = ["text encryption", "aes", "encrypt text", "decrypt text", "passphrase", "privacy"]
+h1            = "Text encrypt"
+hero_subtitle = "Encrypt or decrypt text with a passphrase (AES-256-GCM) and get a copy-pasteable token. Runs in your browser; the text and passphrase never leave your device."
+wasm          = "gizza_ai_text_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text or token"
+placeholder = "Text to encrypt, or a token to decrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "passphrase"
+label       = "Passphrase"
+placeholder = "A strong passphrase"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"

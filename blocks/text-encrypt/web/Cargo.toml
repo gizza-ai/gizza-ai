@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-text-encrypt-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-text-encrypt-core = { path = "../core" }
+# AES-GCM key derivation uses getrandom 0.2 (salt+nonce); the page targets
+# wasm32-unknown-unknown which needs the js backend.
+getrandom = { version = "0.2", features = ["js"] }

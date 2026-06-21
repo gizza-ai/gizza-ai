@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-text-encrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+gizza-ai-encrypt-file-core = { path = "../../encrypt-file/core" }
+base64 = "0.22"
