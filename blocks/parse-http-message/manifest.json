@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/parse-http-message",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a raw HTTP/1.x request or response into structured fields",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a raw HTTP/1.x request or response message into structured JSON: the message kind, method/target/path/query (requests) or status code/reason/class (responses), HTTP version, all headers in order with duplicates preserved, Content-Type / Content-Length / chunked flags, and the body.",
+    "parameters": {
+      "type": "object",
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "The raw HTTP/1.x request or response to parse, including the start line, headers, a blank line, and any body. Request and response messages are detected automatically. Bare-LF line endings are tolerated."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
