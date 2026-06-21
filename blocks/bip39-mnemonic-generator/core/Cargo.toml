@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-bip39-mnemonic-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust SHA-256 (checksum) + SHA-512 (PBKDF2 seed). wasm32-safe.
+sha2 = "0.10"
+hmac = "0.12"
+pbkdf2 = { version = "0.12", default-features = false }
+# CSPRNG: WASI random_get on wasm32-wasip1, JS crypto on the page.
+getrandom = { version = "0.2", features = ["js"] }
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }

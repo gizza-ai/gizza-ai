@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/bip39-mnemonic-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a BIP39 mnemonic seed phrase",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a BIP39 mnemonic seed phrase (12–24 words) from cryptographically secure entropy, with the BIP39 checksum word, and derive the 512-bit BIP39 seed. Optional explicit entropy_hex for deterministic recovery and an optional passphrase mixed into the seed.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "strength": { "type": "string", "enum": ["128", "160", "192", "224", "256"], "default": "128" },
+        "entropy_hex": { "type": "string" },
+        "passphrase": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

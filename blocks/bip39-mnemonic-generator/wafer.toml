@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bip39-mnemonic-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a BIP39 mnemonic seed phrase"
