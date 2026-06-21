@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "descriptive-stats"
+version = "0.1.0"
+abi = 1
+summary = "Descriptive statistics for a list of numbers"

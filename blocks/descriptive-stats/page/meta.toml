@@ -1,0 +1,18 @@
+slug          = "descriptive-stats"
+title         = "Descriptive Statistics — Mean, median, std dev, quartiles — gizza.ai"
+description   = "Compute mean, median, mode, variance, standard deviation, quartiles, min and max for a list of numbers, in your browser. Free, private, no upload."
+tags          = ["descriptive statistics", "mean median mode", "standard deviation", "variance", "quartiles", "stats calculator"]
+h1            = "Descriptive statistics"
+hero_subtitle = "Mean, median, mode, variance, standard deviation, quartiles, min and max for a list of numbers. Runs in your browser, no upload."
+wasm          = "gizza_ai_descriptive_stats_web"
+export        = "run"
+live          = false
+output_label  = "Statistics"
+format        = "text"
+
+[[input]]
+name        = "numbers"
+label       = "Numbers"
+placeholder = "2, 4, 4, 4, 5, 5, 7, 9"
+source      = "field"
+multiline   = true
