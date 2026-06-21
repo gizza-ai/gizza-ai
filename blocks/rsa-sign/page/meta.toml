@@ -1,0 +1,37 @@
+slug          = "rsa-sign"
+title         = "RSA Sign — Sign a message with an RSA key (PKCS#1 / PSS) — gizza.ai"
+description   = "Sign a message with an RSA private key (PKCS#1 v1.5 or PSS, SHA-256/384/512) and get a base64 signature, in your browser. Nothing is uploaded."
+tags          = ["rsa sign", "rsa signature", "pkcs1", "rsa pss", "digital signature", "crypto"]
+h1            = "RSA sign"
+hero_subtitle = "Sign a message with your RSA private key — PKCS#1 v1.5 or PSS, SHA-256/384/512 — and get a base64 signature. Runs in your browser; the key never leaves your device."
+wasm          = "gizza_ai_rsa_sign_web"
+export        = "run"
+live          = false
+output_label  = "Signature (base64)"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The message to sign"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "private_key"
+label       = "RSA private key (PEM)"
+placeholder = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "scheme"
+label       = "Scheme (pkcs1v15 | pss)"
+placeholder = "pkcs1v15"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Hash (sha256 | sha384 | sha512)"
+placeholder = "sha256"
+source      = "field"
