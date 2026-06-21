@@ -97,3 +97,60 @@ near-dup (e.g. `pdf-to-text` vs the built `pdf-extract-text`) isn't auto-detecte
 holds the confirmed dups found so far; when you spot a NEW one mid-build, add it there (step 1) rather
 than shipping a redundant tool. Token-overlap auto-detection was tried and rejected — it false-flags
 distinct tools (`age-calculator` is not a dup of `calculator`), so dups stay hand-curated.
+
+## Findings log (2026-06, opus loop)
+
+Reusable facts discovered while building ~20 tools. Trust these to skip dead ends.
+
+**Page input field types (meta.toml `[[input]]`):** the generator renders each field by the
+descriptor's Param type, NOT the meta — so Playwright must match: `Param::enumv` → `<select>`
+(`page.selectOption('#in-<name>', value)`); `Param::boolean` → `<input type=checkbox>` (use
+`page.check`/`uncheck`, default reflects `.default(true)`); `Param::integer`/`number` → a field
+(`page.fill`); `Param::string` → `<input>` UNLESS the meta `[[input]]` sets `multiline = true`,
+which renders a `<textarea>`. **Use `multiline = true` for any text/code/key field** so pasted
+newlines are preserved (a plain `<input>` strips them — this is why multi-line keys can't go in a
+plain field). Pages still need `format = "text"` or output is gated off.
+
+**Crypto / encoding crates that instantiate in wafer (wasm32-wasip1):** `rsa` 0.9 (sign: pkcs1v15 +
+pss, `features=["sha2"]`), `p256/p384/p521` (+`spki`+`pkcs8`, EC needs `features=["arithmetic",
+"pkcs8"]`), `pgp` 0.14 (rPGP, `default-features=false`; encrypt/sign; for multi-recipient encryption
+wrap primary/subkey in a small enum impl'ing `PublicKeyTrait` since the slice must be homogeneous),
+`lopdf` 0.36 encryption (`Document::encrypt` + `EncryptionVersion::V5` AES-256, not feature-gated),
+`hmac`+`sha1`+`sha2`+`base32` (TOTP), `pem`, `quick-xml` 0.36, `qrcode` 0.14 (`features=["svg"]` → SVG
+string, no image dep), `zip` 8 (`default-features=false, features=["deflate"]`, read + write).
+
+**QR decode: use `quircs`, NOT `rqrr`.** `rqrr` compiles to wasm but pulls filesystem WASI imports
+(`path_open`/`fd_close`) the wafer runtime doesn't provide → fails to instantiate. `quircs` decodes
+from a raw grayscale buffer (`image::load_from_memory(..).to_luma8()` → `Quirc::identify`) and
+instantiates fine. (General rule: an engine crate must INSTANTIATE, not just compile — `wafer build`
+is the gate; watch for `cannot find import wasi_snapshot_preview1::{poll_oneoff,path_open,fd_close}`.)
+
+**Time:** `std::time::SystemTime::now()` and `chrono::Utc::now()` DO instantiate in the chat block
+(wafer provides the clock import) and work natively in the CLI. But the PAGE target
+(wasm32-unknown-unknown) has NO std clock — get time in the web crate via `js_sys::Date::now()/1000`
+(add `js-sys` to web/Cargo.toml). Make the core take an explicit timestamp so it's deterministic and
+each surface supplies its own clock.
+
+**CLI verification fetch is SSRF-guarded:** `gizza tool … url=…` only fetches PUBLIC http(s); `data:`
+URLs and localhost are rejected ("request to private/internal address is not allowed"), and GitHub
+`/archive/` URLs redirect (the fetcher doesn't follow) — use a direct host. Handy public test inputs:
+zip → `https://codeload.github.com/octocat/Hello-World/zip/refs/heads/master`; live QR PNG →
+`https://api.qrserver.com/v1/create-qr-code/?data=...&size=300x300`.
+
+**Tool shapes that recur:** SVG/PDF/image-bytes output → `build_media_envelope` (mime
+`image/svg+xml` / `application/pdf` / `image/png`), chat+CLI, NO page (image-bytes have no page render
+mode); hand-build SVG with `format!`/`r##"..."##` (colours like `#fff` need the `##` raw delimiter).
+File-input→JSON (strings/unzip/detect-file-type) use `AssetKind::Any` (there is no `AssetKind::File`)
++ flat `Resp` via `GuestResult::respond`. Text+passphrase/key tools can reuse another block's core via
+`path = "../../<other>/core"` (text-encrypt reuses encrypt-file's AES-GCM core).
+
+**Disk:** per-block `target/` dirs are ~0.3–2.5 GB each and fill the disk after ~12 tools. Reclaim
+with: `for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name block.wasm -exec rm -rf
+{} +; done` (keeps the committed `block.wasm` the CLI build embeds).
+
+**Ops gotcha:** `wafer build` must run from inside `blocks/<slug>/`; `cargo install --path cli` and
+`wasm-pack build blocks/<slug>/web …` must run from the repo ROOT — after any `/tmp` poll the shell
+cwd resets to `/root`, so always cd to the absolute repo path before those.
+
+**Multi-input ffmpeg (e.g. video-concat) is effectively un-buildable here:** the page file-input is a
+single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.
