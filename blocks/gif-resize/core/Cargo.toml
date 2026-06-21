@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-gif-resize-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["gif"] }
+serde = { version = "1", features = ["derive"] }
