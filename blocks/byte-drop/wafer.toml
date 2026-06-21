@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "byte-drop"
+version = "0.1.0"
+abi = 1
+summary = "Remove a byte range (start offset + length) from text, hex, or Base64 and return the remainder."
