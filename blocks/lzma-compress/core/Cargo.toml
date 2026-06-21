@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-lzma-compress-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# lzma-rust2: real, optimized pure-Rust LZMA/LZMA2/XZ encoder (port of
+# tukaani xz-for-java). Unlike lzma-rs (decoder-focused, trivial encoder),
+# this produces canonical .xz streams that `xz -t` validates and achieves
+# proper compression ratios. no_std-capable → wasm32-safe.
+lzma-rust2 = "0.16"
