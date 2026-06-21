@@ -1,0 +1,18 @@
+slug          = "extract-dates"
+title         = "Extract Dates — find & normalize dates in text — gizza.ai"
+description   = "Scan any text for dates and times and list them normalized to ISO 8601 — in your browser. Handles ISO, numeric, month-name, and clock formats. No upload."
+tags          = ["extract dates", "find dates", "date parser", "iso 8601", "normalize dates", "date extraction", "datetime"]
+h1            = "Extract Dates"
+hero_subtitle = "Paste any text and get every date and time it mentions, normalized to ISO 8601 and listed in order. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_dates_web"
+export        = "run"
+live          = false
+output_label  = "Dates found"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "We met on January 5, 2024 at 3pm, then again 2024-02-10 and 25/12/2024."
+source      = "field"
+multiline   = true

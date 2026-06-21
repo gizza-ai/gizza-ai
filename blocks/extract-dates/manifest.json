@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/extract-dates",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find dates and times in text, normalized to ISO 8601",
+  "role": "skill",
+  "tool": {
+    "description": "Scan a block of text and list every date and time mention, each normalized to ISO 8601. Recognizes ISO dates/datetimes (2024-01-05, 2024-01-05T14:30), numeric dates (01/05/2024 — read month-first/US unless the first field is >12), year-first dates (2024/01/05), month-name dates ('January 5, 2024', '5 Jan 2024'), and clock times (14:30, 3pm, 9:05 AM). Returns each match's original text, its ISO value, and its kind (date/datetime/time), in order of appearance. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to scan for dates and times." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
