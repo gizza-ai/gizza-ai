@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/markdown-lint",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint and auto-fix Markdown style and consistency issues",
+  "role": "skill",
+  "tool": {
+    "description": "Lint Markdown for common style and consistency issues and optionally auto-fix them. Checks: heading levels increment by one / no skipped levels (MD001), inconsistent unordered list markers (MD004), trailing whitespace (MD009), hard tabs (MD010), multiple consecutive blank lines (MD012), missing space after ATX heading hashes (MD018), multiple spaces after heading hashes (MD019), heading not preceded by a blank line (MD022), multiple top-level H1 headings (MD025), trailing punctuation in headings (MD026), fenced code block missing a language (MD040), and missing final newline (MD047). Fenced code blocks are respected so prose rules don't fire on code. mode='check' returns a report of every issue (line:col rule message); mode='fix' returns the corrected Markdown. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["markdown"],
+      "properties": {
+        "markdown": { "type": "string", "description": "The Markdown text to lint." },
+        "mode": {
+          "type": "string",
+          "enum": ["check", "fix"],
+          "default": "check",
+          "description": "check = report every style/consistency issue (line:col rule message); fix = return the auto-fixed Markdown."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
