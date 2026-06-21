@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xml-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Convert XML into an equivalent JSON structure, preserving attributes and nesting."
