@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/html-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pretty-print HTML with consistent indentation",
+  "role": "skill",
+  "tool": {
+    "description": "Pretty-print (beautify) HTML with consistent indentation — one element per line, nested children indented. Handles void elements (br/img/etc.), self-closing tags, comments and doctype, and quoted attributes, and preserves the verbatim contents of pre/textarea/script/style. indent sets spaces per level (0-8, default 2). Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The HTML to pretty-print." },
+        "indent": { "type": "integer", "minimum": 0, "maximum": 8, "default": 2, "description": "Spaces of indentation per nesting level (0-8, default 2)." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}
