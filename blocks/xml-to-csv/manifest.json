@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/xml-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten repeated XML elements into a CSV table.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert XML into a CSV table: pick the repeated `record` element (e.g. <book> inside <catalog>) — auto-detected as the most frequent child of the root when omitted — and turn each one into a CSV row. Columns are inferred, in first-seen order, from the record's child element tags; nested elements flatten to dot-notation columns (<address><city> → 'address.city'). With attributes=true (default) each attribute also becomes a column ('@attr' on the record, 'path@attr' on a nested element). Repeated tags get .2/.3 suffixes, missing fields become empty cells, XML entities and CDATA are decoded, and values are CSV-quoted as needed. delimiter is a single char or comma/tab/semicolon/pipe. Fully local and deterministic — no AI model.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "xml": { "type": "string", "description": "The XML text to flatten." },
+        "record": { "type": "string", "description": "The repeated element tag to treat as a row (e.g. 'book'). Leave empty to auto-detect the most frequent child of the root." },
+        "attributes": { "type": "boolean", "default": true, "description": "Include attributes as columns: '@attr' on the record element, 'child@attr' on a child. Default true." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["xml"],
+      "additionalProperties": false
+    }
+  }
+}
