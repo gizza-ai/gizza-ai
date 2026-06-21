@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/unit-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between units of measure",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a numeric value between two units of the same category: length, mass, temperature, volume, area, speed, data size, or time. Unit names, plurals, and symbols/aliases are accepted.",
+    "parameters": {
+      "type": "object",
+      "required": ["value", "from", "to"],
+      "properties": {
+        "value": { "type": "number", "description": "The numeric quantity to convert." },
+        "from": { "type": "string", "description": "Source unit." },
+        "to": { "type": "string", "description": "Target unit (same category as 'from')." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
