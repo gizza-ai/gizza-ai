@@ -1,0 +1,24 @@
+slug          = "unwrap-text"
+title         = "Unwrap Text — Rejoin hard-wrapped lines — gizza.ai"
+description   = "Remove hard line breaks inside paragraphs to rejoin wrapped text into continuous lines, in your browser. Nothing is uploaded."
+tags          = ["unwrap text", "remove line breaks", "rejoin lines", "reflow text", "unwrap paragraphs"]
+h1            = "Unwrap text"
+hero_subtitle = "Remove hard line breaks inside paragraphs to rejoin wrapped text — great for text copied from emails or PDFs. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_unwrap_text_web"
+export        = "run"
+live          = false
+output_label  = "Unwrapped text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste hard-wrapped text here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "keep_list_breaks"
+label       = "Keep list/quote line breaks"
+placeholder = "true"
+source      = "field"
