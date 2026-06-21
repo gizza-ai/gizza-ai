@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/parse-ethernet-frame",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode an Ethernet II / 802.3 frame from hex",
+  "role": "skill",
+  "tool": {
+    "description": "Decode an Ethernet II or IEEE 802.3 frame given as a hex string into structured fields: destination and source MAC addresses (with broadcast/multicast and locally-administered flags), any 802.1Q / 802.1ad VLAN tags (TPID, PCP, DEI, VID — including Q-in-Q), the EtherType (named when known, e.g. IPv4/ARP/IPv6/LLDP) or the 802.3 length, and the payload length plus payload hex. Input may contain spaces, colons, dashes, or a 0x prefix. Returns JSON. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["frame"],
+      "properties": {
+        "frame": {
+          "type": "string",
+          "description": "The Ethernet frame as a hex string (without preamble/SFD/FCS). Spaces, colons, dashes, and a 0x prefix are ignored, e.g. 'ffffffffffff 001122334455 0806 ...'."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

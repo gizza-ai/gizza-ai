@@ -1,0 +1,18 @@
+slug          = "parse-ethernet-frame"
+title         = "Ethernet Frame Parser — decode an Ethernet II / 802.3 frame from hex — gizza.ai"
+description   = "Paste an Ethernet frame in hex and decode the destination/source MAC, EtherType or 802.3 length, 802.1Q / Q-in-Q VLAN tags, and payload — in your browser. Nothing is uploaded."
+tags          = ["ethernet frame parser", "decode ethernet frame", "ethernet ii", "802.3 frame", "mac address", "ethertype", "802.1q vlan", "qinq", "frame hex decoder"]
+h1            = "Ethernet Frame Parser"
+hero_subtitle = "Paste an Ethernet frame as hex and decode the destination and source MAC, EtherType or 802.3 length, any 802.1Q / Q-in-Q VLAN tags, and the payload. Spaces, colons, dashes, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_parse_ethernet_frame_web"
+export        = "run"
+live          = false
+output_label  = "Decoded frame"
+format        = "text"
+
+[[input]]
+name        = "frame"
+label       = "Ethernet frame (hex)"
+placeholder = "ffffffffffff 001122334455 0806 0001 0800 0604 0001 ..."
+source      = "field"
+multiline   = true
