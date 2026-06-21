@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-table-format"
+version = "0.1.0"
+abi = 1
+summary = "Align and pretty-print GitHub-flavored Markdown tables"
