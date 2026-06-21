@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/image-border-frame",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add a colored border/frame to an image",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Add a solid border/frame of a chosen color and thickness around an image. thickness is the border width in pixels on every side (default 20); color is #rgb/#rrggbb/#rrggbbaa (default black). The output is larger than the input by 2×thickness in each dimension. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "thickness": { "type": "integer", "minimum": 0, "maximum": 2000, "default": 20, "description": "Border thickness in pixels on every side (default 20)." },
+        "color": { "type": "string", "default": "#000000", "description": "Border color as #rgb, #rrggbb, or #rrggbbaa (default black)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
