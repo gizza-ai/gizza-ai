@@ -64,3 +64,4 @@ video-concat  # multi-input ffmpeg: page file-input is single-upload only and ff
 video-speed  # duplicate of blocks/change-speed (speed up/slow down a video by a factor, audio kept in sync)
 audio-compress  # audio-INPUT ffmpeg tool; no AssetKind::Audio + accept=audio/* page input exists yet (deferred, like audio-convert/normalize)
 audio-crossfade  # audio-INPUT + multi-input ffmpeg; no audio page-input + no multi-source ffmpeg surface (deferred)
+audio-eq  # audio-INPUT ffmpeg; no audio page-input support (deferred)
