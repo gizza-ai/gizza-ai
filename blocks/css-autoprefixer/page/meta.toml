@@ -1,0 +1,24 @@
+slug          = "css-autoprefixer"
+title         = "CSS Autoprefixer — Add Vendor Prefixes Online — gizza.ai"
+description   = "Paste CSS and instantly add the vendor prefixes (-webkit-, -moz-, -ms-, -o-) that modern browsers still need — user-select, appearance, backdrop-filter, clip-path, mask, display:flex, position:sticky, tab-size and more. Idempotent, comment- and string-safe, runs entirely in your browser. Free, private, no sign-up."
+tags          = ["css autoprefixer", "vendor prefixes", "-webkit-", "-moz-", "-ms-", "browser compatibility", "user-select", "flexbox prefixes", "position sticky", "css tool"]
+h1            = "CSS Autoprefixer"
+hero_subtitle = "Paste your CSS and add the vendor prefixes (-webkit-, -moz-, -ms-, -o-) that current browsers still need. Comment- and string-safe, idempotent, and runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_css_autoprefixer_web"
+export        = "run"
+live          = false
+output_label  = "Prefixed CSS"
+format        = "text"
+
+[[input]]
+name        = "css"
+label       = "CSS"
+placeholder = ".btn {\n  user-select: none;\n  display: flex;\n  position: sticky;\n}"
+source      = "field"
+multiline   = true
+
+# dedup renders as a checkbox; default-checked because the descriptor sets default(true).
+[[input]]
+name        = "dedup"
+label       = "Skip prefixes already present (idempotent)"
+source      = "field"
