@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ecdsa-sign"
+version = "0.1.0"
+abi = 1
+summary = "Sign a message with an ECDSA private key (P-256/P-384)"

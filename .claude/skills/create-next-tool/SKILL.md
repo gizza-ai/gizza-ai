@@ -154,3 +154,19 @@ cwd resets to `/root`, so always cd to the absolute repo path before those.
 
 **Multi-input ffmpeg (e.g. video-concat) is effectively un-buildable here:** the page file-input is a
 single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.
+
+**NEVER delete `blocks/<slug>/web/pkg`** during cleanup — the page generator copies each tool's
+`web/pkg/*` into `pkg/tools/<slug>/`, so deleting one tool's pkg makes the *next* generator run fail
+(`No such file or directory` copying that slug). The disk-cleanup loop above only touches `target/`,
+which is correct; do not additionally `rm -rf` any `web/pkg`. If a pkg does go missing, rebuild it with
+`wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` before re-running the generator.
+
+**ECDSA signing (ecdsa-sign):** use `p256`/`p384 = { default-features=false, features=["arithmetic",
+"pkcs8","ecdsa","pem"] }` (the `pem` feature is what enables `SigningKey::from_pkcs8_pem`; there is no
+`sec1` feature flag) + `ecdsa = { features=["der"] }`. Sign with `use pXXX::ecdsa::{signature::Signer,
+Signature, SigningKey}; use pXXX::pkcs8::DecodePrivateKey;` then `let sig: Signature = sk.sign(msg)`
+(deterministic RFC-6979 — no RNG, instantiates clean in wafer, no getrandom needed). DER bytes =
+`sig.to_der().as_bytes().to_vec()` (NOT `.to_bytes()`); raw r||s = `sig.to_bytes().to_vec()` (64 B P-256,
+96 B P-384). **Skip P-521**: `p521`'s ECDSA `Signer` impl is randomized-only (gated on `getrandom`, uses
+`OsRng`, no RFC-6979 path), so it breaks determinism and pulls getrandom — support P-256/P-384 only.
+Verify DER output cross-tool with `openssl dgst -sha256 -verify pub.pem -signature sig.der msg`.
