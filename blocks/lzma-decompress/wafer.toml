@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lzma-decompress"
+version = "0.1.0"
+abi = 1
+summary = "Decompress an LZMA / .xz file back to its original bytes"
