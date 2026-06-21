@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-jwt-sign-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+hmac = "0.12"
+sha2 = "0.10"
+rsa = { version = "0.9", features = ["sha2"] }
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "ecdsa", "pem"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "ecdsa", "pem"] }
+ecdsa = { version = "0.16", features = ["der"] }
