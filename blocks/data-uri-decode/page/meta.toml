@@ -1,0 +1,18 @@
+slug          = "data-uri-decode"
+title         = "Data URI Decoder — decode a data: URI into its MIME type & payload — gizza.ai"
+description   = "Paste a data: URI and decode it into its MIME type, charset, encoding and payload — text is shown decoded, binaries get a detected file type and hex preview. Runs in your browser; nothing is uploaded."
+tags          = ["data uri decoder", "data url decoder", "decode data uri", "data uri parser", "base64 data uri", "rfc 2397", "mime type", "data uri to text", "decode base64 data url"]
+h1            = "Data URI Decoder"
+hero_subtitle = "Paste a data: URI (RFC 2397) and decode it into its parts: the MIME type, media-type parameters such as charset, whether the payload is Base64 or percent-encoded, the decoded byte size, and the payload itself. Printable payloads are shown as decoded text; binary payloads get a detected file type and a hex preview. Whitespace inside Base64 is tolerated. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_data_uri_decode_web"
+export        = "run"
+live          = false
+output_label  = "Decoded data URI"
+format        = "text"
+
+[[input]]
+name        = "uri"
+label       = "Data URI"
+placeholder = "data:text/plain;charset=utf-8;base64,SGVsbG8sIFdvcmxkIQ=="
+source      = "field"
+multiline   = true

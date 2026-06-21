@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "data-uri-decode"
+version = "0.1.0"
+abi = 1
+summary = "Decode a data: URI into its MIME type and payload"
