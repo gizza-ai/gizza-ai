@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/latex-math-to-svg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render LaTeX math to SVG.",
+  "role": "skill",
+  "tool": {
+    "description": "Render a LaTeX math expression into a crisp, scalable SVG — no TeX install needed. Pass `latex` as math-mode source (no surrounding $), e.g. \\frac{a}{b}, x^2, \\sqrt{x+1}, \\sum_{i=1}^{n} i, \\alpha+\\beta, \\left(\\frac{a}{b}\\right). Supports fractions, super/subscripts, roots, Greek letters, big operators with limits, relations/arrows, and scalable delimiters. Optional `color` sets the text colour (default dark grey). Returns an image/svg+xml image. Runs locally on the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "latex": { "type": "string", "description": "The LaTeX math expression to render, e.g. 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}'. Math-mode syntax (no surrounding $). Supports fractions, sub/superscripts, roots, Greek letters, sums/integrals, and \\left...\\right delimiters." },
+        "color": { "type": "string", "description": "Text colour as a CSS value (e.g. '#1a1a1a', 'black', 'rgb(0,0,0)'). Defaults to dark grey." }
+      },
+      "required": ["latex"],
+      "additionalProperties": false
+    }
+  }
+}
