@@ -1,0 +1,8 @@
+[package]
+name = "gizza-ai-dot-to-svg-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+layout-rs = "0.1.3"

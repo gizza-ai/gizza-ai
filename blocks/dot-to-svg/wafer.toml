@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dot-to-svg"
+version = "0.1.0"
+abi = 1
+summary = "Render Graphviz DOT to SVG"

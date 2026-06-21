@@ -1,0 +1,23 @@
+slug          = "dot-to-svg"
+title         = "DOT to SVG — render Graphviz diagrams online — gizza.ai"
+description   = "Render Graphviz DOT diagram source into a clean, scalable SVG in your browser — no Graphviz install. Supports directed and undirected graphs, labels and chained edges, with an optional dark-mode theme. Nothing is uploaded."
+tags          = ["dot to svg", "graphviz online", "dot renderer", "render graphviz", "dot diagram", "graphviz svg"]
+h1            = "DOT to SVG"
+hero_subtitle = "Render Graphviz DOT source into a clean, scalable SVG — directed and undirected graphs, labels and chained edges, with an optional dark theme. Pure-Rust layout, no Graphviz install. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_dot_to_svg_web"
+export        = "run"
+live          = false
+output_label  = "SVG"
+format        = "text"
+
+[[input]]
+name        = "dot"
+label       = "DOT source"
+placeholder = "digraph {\n  a -> b;\n  b -> c;\n  a -> c;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "dark_mode"
+label       = "Dark mode (light text/edges for a dark background)"
+source      = "field"
