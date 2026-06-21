@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "scatter-chart"
+version = "0.1.0"
+abi = 1
+summary = "Render a scatter plot as an SVG chart"
