@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/count-line-frequency",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Count and rank how often each line occurs.",
+  "role": "skill",
+  "tool": {
+    "description": "Count how often each line/value occurs in text and rank them from most to least frequent (like `sort | uniq -c | sort -rn`). Returns each distinct value with its count, plus the number of distinct values and total lines. case_sensitive (default true) and trim (default true) control grouping; blank lines are skipped. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text whose lines/values to count (one per line)." },
+        "case_sensitive": { "type": "boolean", "default": true, "description": "When true (default), 'Apple' and 'apple' count separately; false groups them." },
+        "trim": { "type": "boolean", "default": true, "description": "When true (default), strip surrounding whitespace before counting. Blank lines are always skipped." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
