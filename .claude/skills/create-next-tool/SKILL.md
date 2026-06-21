@@ -170,3 +170,27 @@ Signature, SigningKey}; use pXXX::pkcs8::DecodePrivateKey;` then `let sig: Signa
 96 B P-384). **Skip P-521**: `p521`'s ECDSA `Signer` impl is randomized-only (gated on `getrandom`, uses
 `OsRng`, no RFC-6979 path), so it breaks determinism and pulls getrandom — support P-256/P-384 only.
 Verify DER output cross-tool with `openssl dgst -sha256 -verify pub.pem -signature sig.der msg`.
+
+**Ed25519 (ed25519-key-pair-generator):** `ed25519-dalek = { default-features=false, features=["pkcs8",
+"pem","rand_core"] }` + `rand="0.8"`. `SigningKey::generate(&mut rand::rngs::OsRng)`, then
+`sk.to_pkcs8_pem(LineEnding::LF)` (import `ed25519_dalek::pkcs8::spki::der::pem::LineEnding` +
+`EncodePrivateKey`/`EncodePublicKey`), `vk.to_public_key_pem(...)`, raw via `sk.to_bytes()`/`vk.to_bytes()`
+(32 B each). Re-parse with `SigningKey::from_pkcs8_pem` (needs `DecodePrivateKey`). Like key-gen generally
+(see generate-rsa-key-pair): **no page** — a zero-input non-deterministic generator doesn't fit the page's
+recompute-on-input model. No-input chat tool: empty `#[derive(Deserialize,Default)] #[serde(default)] struct
+Args {}`, descriptor `ToolDescriptor::new(Input::None)` (no params) → authored schema is just
+`{"type":"object","properties":{},"additionalProperties":false}`.
+
+**More proven wasm-safe crates (this loop):** `mail-parser = "0.11"` (default-features=false) — RFC 5322/MIME
+email parsing; `MessageParser::default().parse(bytes)`, `msg.from()/to()/cc()` return `Option<&Address>`
+(use `.iter()` → `Addr::name()/address()`), `msg.body_text(0)/body_html(0)`, `msg.attachments()` →
+`MessagePart` (`use mail_parser::MimeHeaders` for `.attachment_name()/.content_type()`; ContentType has
+`.ctype()/.subtype()`), `msg.date().to_rfc3339()`. `htmd = "0.5"` (HTML→Markdown) + `nanohtml2text = "0.1"`
+(`html2text(&s)`, HTML→plain) + `quick-xml = "0.40"` (default-features=false) all instantiate in wafer.
+
+**EPUB / ZIP-container parsing (epub-to-markdown):** an EPUB is a ZIP — read with
+`zip::ZipArchive::new(Cursor::new(bytes))`, find OPF via `META-INF/container.xml` (`<rootfile full-path>`),
+parse the OPF with quick-xml for `<manifest><item id href media-type>` + `<spine><itemref idref>` to get
+**reading order** (don't use ZIP/alphabetical order), resolve hrefs relative to the OPF dir, convert each
+XHTML. quick-xml: match elements by local name (strip `ns:` prefix), handle both `Event::Start` and
+`Event::Empty` for self-closing `<item/>`. Binary-file-in/text-out → **no page** (file-input pattern).
