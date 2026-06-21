@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/html-preview-bundler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bundle HTML + CSS + JS into one self-contained file",
+  "role": "skill",
+  "tool": {
+    "description": "Combine separate HTML, CSS, and JavaScript into one self-contained, runnable HTML document you can save, open, or share. If the HTML is a full document the CSS is injected before </head> and the JS before </body>; if it's a fragment it's wrapped in a minimal HTML5 page with the given title. Returns the complete HTML. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The HTML — a full document or just a body fragment." },
+        "css": { "type": "string", "description": "CSS to inline in a <style> tag (optional)." },
+        "js": { "type": "string", "description": "JavaScript to inline in a <script> tag (optional)." },
+        "title": { "type": "string", "description": "Page <title> used when wrapping a fragment (default \"Preview\")." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}

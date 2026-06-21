@@ -1,0 +1,38 @@
+slug          = "html-preview-bundler"
+title         = "HTML Preview Bundler — inline CSS & JS into one file — gizza.ai"
+description   = "Combine separate HTML, CSS, and JS into one self-contained, runnable HTML file you can open or share — in your browser. Nothing is uploaded."
+tags          = ["html bundler", "inline css js", "single file html", "self-contained html", "html preview", "combine html css js"]
+h1            = "HTML Preview Bundler"
+hero_subtitle = "Paste your HTML, CSS, and JS and get one self-contained HTML file with everything inlined — ready to open or share. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_html_preview_bundler_web"
+export        = "run"
+live          = false
+output_label  = "Bundled HTML"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML (full document or fragment)"
+placeholder = "<h1>Hello</h1>\n<button id=\"b\">Click</button>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "css"
+label       = "CSS"
+placeholder = "body { font-family: sans-serif; }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "js"
+label       = "JavaScript"
+placeholder = "document.getElementById('b').onclick = () => alert('hi');"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "title"
+label       = "Page title (for fragments)"
+placeholder = "Preview"
+source      = "field"
