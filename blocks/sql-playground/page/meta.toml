@@ -1,0 +1,24 @@
+slug          = "sql-playground"
+title         = "SQL Playground — Run SQL in your browser, no setup"
+description   = "Run SQL against a fresh in-memory database right in your browser. CREATE TABLE, INSERT, SELECT, JOIN, GROUP BY — output as a table, CSV, or JSON. Free, private, no upload, no signup."
+tags          = ["sql playground", "online sql", "run sql", "sql sandbox", "in-memory sql", "sql tester"]
+h1            = "SQL Playground"
+hero_subtitle = "Write SQL and run it against a fresh in-memory database — CREATE, INSERT, SELECT, JOIN, GROUP BY. Results as a table, CSV, or JSON. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_sql_playground_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "sql"
+label       = "SQL (semicolon-separated statements)"
+placeholder = "CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);\nINSERT INTO users VALUES (1, 'Ann', 30), (2, 'Bob', 25);\nSELECT name, age FROM users WHERE age >= 28 ORDER BY age DESC;"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "table"
+source      = "field"

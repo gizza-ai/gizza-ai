@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-sql-playground-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-sql-playground-core = { path = "../core" }
+# gluesql pulls getrandom 0.2 (via uuid/rand); the wasm32-unknown-unknown page
+# target needs its "js" feature to provide an RNG backend.
+getrandom = { version = "0.2", features = ["js"] }
