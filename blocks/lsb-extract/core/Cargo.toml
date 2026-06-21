@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-lsb-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust decode only. default-features off to drop codecs we don't need; the
+# common lossless + web input formats are enabled so any uploaded carrier
+# decodes. (JPEG is accepted for completeness, but a lossy re-encode destroys
+# LSBs — the extractor will simply find no payload there.)
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp", "tiff"] }
