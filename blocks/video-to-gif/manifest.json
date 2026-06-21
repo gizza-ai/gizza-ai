@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/video-to-gif",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a section of a video into an optimized animated GIF",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a section of a video into an optimized animated GIF. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional start, duration, fps, and width. Output is a looping GIF made with a per-clip palette for high quality at a small size.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "start": { "type": "number", "minimum": 0, "description": "Start time in seconds (default 0, from the beginning)." },
+        "duration": { "type": "number", "minimum": 0, "description": "Clip length in seconds (default 0 = to the end of the video)." },
+        "fps": { "type": "number", "minimum": 0, "maximum": 60, "description": "Frames per second of the GIF (default 12). Lower fps = smaller file." },
+        "width": { "type": "number", "minimum": 0, "maximum": 4096, "description": "Output width in pixels; height scales to keep aspect ratio (default 0 = keep source size)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
