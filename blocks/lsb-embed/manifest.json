@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/lsb-embed",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hide a secret message inside an image (LSB steganography).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Hide a secret text message inside an image using LSB (least-significant-bit) steganography and return a stego PNG that looks identical to the original. Set bits_per_channel 1-4 (default 1; higher hides more text but is slightly more visible). The output is always a lossless PNG so the hidden data survives. Provide the carrier image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "message": { "type": "string", "description": "The secret text to hide inside the image." },
+        "bits_per_channel": { "type": "integer", "minimum": 1, "maximum": 4, "default": 1, "description": "Low bits to use per colour channel, 1-4 (default 1). Higher hides more text but is more visible." }
+      },
+      "required": ["message"],
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
