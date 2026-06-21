@@ -59,3 +59,4 @@ profanity-filter  # duplicate of blocks/censor-text (built-in common-profanity w
 text-encryptor  # duplicate of blocks/text-encrypt (password-encrypt text to a shareable blob + decrypt, AES-256-GCM)
 totp-tool  # near-duplicate of blocks/totp-generator (TOTP generation; overlapping scope)
 tsv-to-json  # duplicate of blocks/csv-json-convert (delimiter=tab, direction=csv-to-json yields array of objects keyed by header)
+unzip-archive  # duplicate of blocks/unzip (lists + extracts individual files from a ZIP, with inline content)
