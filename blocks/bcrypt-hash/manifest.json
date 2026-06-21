@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/bcrypt-hash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hash or verify a password with bcrypt.",
+  "role": "skill",
+  "tool": {
+    "description": "Hash a password with bcrypt (the long-standing adaptive password hash) returning a standard $2b$ modular-crypt string, or verify a password against an existing bcrypt hash. mode=hash (default) uses a configurable cost / work factor (default 12; each +1 doubles the work) and a fresh random salt; mode=verify checks the password against the provided `hash` string (accepts $2a$/$2b$/$2x$/$2y$ variants). Note: bcrypt only hashes the first 72 bytes of a password. Runs locally — the password never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "password": { "type": "string", "description": "The password to hash, or to verify." },
+        "mode": { "type": "string", "enum": ["hash", "verify"], "default": "hash", "description": "hash (default) produces a bcrypt hash string; verify checks the password against the `hash` string." },
+        "hash": { "type": "string", "description": "The bcrypt hash string to verify against (verify mode only)." },
+        "cost": { "type": "integer", "minimum": 4, "maximum": 31, "description": "Cost / work factor (hash mode; default 12). Each +1 doubles the work." }
+      },
+      "required": ["password"],
+      "additionalProperties": false
+    }
+  }
+}

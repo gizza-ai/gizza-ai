@@ -1,0 +1,35 @@
+slug          = "bcrypt-hash"
+title         = "Bcrypt Hash — bcrypt password hashing & verify — gizza.ai"
+description   = "Hash a password with bcrypt at a chosen cost and get a $2b$ hash string, or verify a password against an existing bcrypt hash — in your browser. Nothing is uploaded."
+tags          = ["bcrypt", "password hash", "bcrypt generator", "bcrypt verify", "password hashing", "$2b$"]
+h1            = "Bcrypt hash"
+hero_subtitle = "Hash a password with bcrypt at a chosen cost and get a standard $2b$ hash, or verify a password against an existing bcrypt hash. Runs in your browser — the password never leaves your device."
+wasm          = "gizza_ai_bcrypt_hash_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "The password to hash or verify"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode (hash | verify)"
+placeholder = "hash"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Bcrypt hash (for verify)"
+placeholder = "$2b$12$…"
+source      = "field"
+
+[[input]]
+name        = "cost"
+label       = "Cost (4–31)"
+placeholder = "12"
+source      = "field"
