@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/animated-heatmap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a sequence of matrices as an animated heatmap GIF",
+  "role": "skill",
+  "tool": {
+    "description": "Render a time-ordered sequence of numeric matrices as an animated heatmap GIF showing how the values evolve over time. Each matrix is one frame (rows of comma/space-separated numbers, one row per line); separate frames with a BLANK line. All frames must share the same dimensions. A single global color scale (blue=low -> yellow -> red=high) is applied across every frame so equal values keep the same color; set scale_min/scale_max to fix the bounds instead. delay_ms sets the per-frame delay and cell_px the size of each cell. Loops forever.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data":      { "type": "string", "description": "The time-ordered matrices: each frame is one matrix (rows of comma/space-separated numbers, one row per line); separate consecutive frames with a BLANK line. Every frame must have the same dimensions." },
+        "delay_ms":  { "type": "integer", "minimum": 10, "maximum": 60000, "default": 400, "description": "Delay per frame in milliseconds (10-60000, default 400)." },
+        "cell_px":   { "type": "integer", "minimum": 4, "maximum": 200, "default": 24, "description": "Pixel size of each matrix cell (4-200, default 24)." },
+        "scale_min": { "type": "number", "description": "Optional fixed color-scale minimum. When omitted, the global minimum over all frames is used (so colors are comparable across frames)." },
+        "scale_max": { "type": "number", "description": "Optional fixed color-scale maximum. When omitted, the global maximum over all frames is used. Must be greater than scale_min when both are set." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
