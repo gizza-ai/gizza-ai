@@ -1,0 +1,48 @@
+slug          = "aes-cipher"
+title         = "AES Cipher — Encrypt/decrypt with AES (CBC/CTR/GCM/ECB) — gizza.ai"
+description   = "Encrypt or decrypt text with AES in CBC, CTR, GCM or ECB mode and 128/192/256-bit keys, with hex/base64 I/O — in your browser. Nothing is uploaded."
+tags          = ["aes", "aes encrypt", "aes decrypt", "cbc", "ctr", "gcm", "cipher"]
+h1            = "AES cipher"
+hero_subtitle = "Encrypt or decrypt text with AES — CBC, CTR, GCM or ECB, 128/192/256-bit keys, hex or base64. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_aes_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "cipher"
+label       = "Mode (cbc | ctr | gcm | ecb)"
+placeholder = "gcm"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (16/24/32 bytes, encoded)"
+placeholder = "base64 or hex key"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV / nonce (16 bytes for cbc/ctr, 12 for gcm)"
+placeholder = "base64 or hex iv"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (base64 | hex)"
+placeholder = "base64"
+source      = "field"

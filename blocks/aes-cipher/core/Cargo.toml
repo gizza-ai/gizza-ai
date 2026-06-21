@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-aes-cipher-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+aes = "0.8"
+cbc = { version = "0.1", features = ["alloc"] }
+ctr = "0.9"
+ecb = { version = "0.1", features = ["alloc"] }
+aes-gcm = "0.10"
+cipher = { version = "0.4", features = ["block-padding", "alloc"] }
+hex = "0.4"
+base64 = "0.22"
