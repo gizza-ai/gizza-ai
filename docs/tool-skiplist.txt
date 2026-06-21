@@ -149,3 +149,4 @@ statistics-calculator  # duplicate of blocks/descriptive-stats (mean/median/mode
 toml-to-json  # duplicate of blocks/json-yaml-convert (already converts TOML->JSON, plus YAML, any direction)
 word-frequency-counter  # duplicate of blocks/word-frequency (count + rank word occurrences, with stop-word filtering)
 xml-validator  # XSD validation needs a wasm-INSTANTIABLE XSD validator; xsd-schema (only viable crate) compiles but its sync schema resolver links std::fs (path_open/fd_close) which the wafer runtime does not provide -> fails wafer instantiation (same class as rqrr). Without XSD it is just well-formedness, already covered by blocks/xml-formatter (well-formedness check + byte-position errors). No in-model surface.
+yaml-to-json  # duplicate of blocks/json-yaml-convert (from=yaml to=json, preserves types + nested structures; also json-yaml-converter direction=yaml-to-json)
