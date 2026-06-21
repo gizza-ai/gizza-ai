@@ -1,0 +1,25 @@
+[package]
+name = "gizza-ai-media-info-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust media container demuxers + codec descriptors. We only read
+# metadata (container, codecs, duration, sample rate, channels, bitrate) — no decoding —
+# so enable the format demuxers + codec *registration* features. No std clock / no I/O.
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }
