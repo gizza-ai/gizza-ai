@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-decode-base64"
+version = "0.1.0"
+abi = 1
+summary = "Find and decode Base64 blobs embedded in text"

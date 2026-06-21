@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-extract-decode-base64-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+regex = "1"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+# reuse the magic-byte sniffer to label decoded binary blobs.
+gizza-ai-detect-file-type-core = { path = "../../detect-file-type/core" }
