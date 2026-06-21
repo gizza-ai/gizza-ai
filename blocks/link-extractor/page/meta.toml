@@ -1,0 +1,41 @@
+slug          = "link-extractor"
+title         = "Link Extractor — Pull Hyperlinks & Anchors from HTML or Markdown — gizza.ai"
+description   = "Paste HTML or Markdown and extract every hyperlink (URL + link text) and in-page anchor (jump target). Auto-detects the format, flags relative links, outputs text or JSON. Runs in your browser, nothing uploaded, free."
+tags          = ["link extractor", "extract links from html", "extract links from markdown", "list all hyperlinks", "anchor extractor"]
+h1            = "Link Extractor"
+hero_subtitle = "Paste HTML or Markdown and pull out every hyperlink and in-page anchor — with link text and a relative-link flag. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_link_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted links"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "HTML or Markdown"
+placeholder = "Paste HTML or Markdown containing links…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "source"
+label       = "Parse as (auto|html|markdown)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "base_url"
+label       = "Base URL (optional — resolves relative links)"
+placeholder = "https://example.com/docs/"
+source      = "field"
+
+[[input]]
+name        = "dedup"
+label       = "Remove duplicate links"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output (text|json)"
+placeholder = "text"
+source      = "field"
