@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-color-palette-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode. default-features off; common web formats.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+color_quant = "1"
