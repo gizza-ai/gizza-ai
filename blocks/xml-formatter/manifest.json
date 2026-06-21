@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/xml-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pretty-print or minify XML.",
+  "role": "skill",
+  "tool": {
+    "description": "Pretty-print or minify XML, checking it is well-formed. mode=pretty (default) re-indents the XML with `indent` spaces per level (default 2); mode=minify strips insignificant whitespace into one line. Returns a clear error with the byte position if the XML is malformed. Runs locally — the XML never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "xml": { "type": "string", "description": "The XML to format." },
+        "mode": { "type": "string", "enum": ["pretty", "minify"], "default": "pretty", "description": "pretty (default) indents the XML; minify strips insignificant whitespace." },
+        "indent": { "type": "integer", "minimum": 0, "maximum": 16, "description": "Spaces per indent level in pretty mode (default 2)." }
+      },
+      "required": ["xml"],
+      "additionalProperties": false
+    }
+  }
+}
