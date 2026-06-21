@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rotate-image"
+version = "0.1.0"
+abi = 1
+summary = "Rotate an image by 90/180/270 or an arbitrary angle"

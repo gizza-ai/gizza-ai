@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/rotate-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rotate an image by 90/180/270 or an arbitrary angle",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Rotate an image clockwise by 90, 180, or 270 degrees (lossless) or by any arbitrary angle (e.g. 45, -30; the canvas is enlarged to fit and exposed corners are filled with the background color). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "angle": { "type": "number", "default": 90.0, "minimum": -360, "maximum": 360, "description": "Rotation angle in degrees, clockwise. 90/180/270 are lossless; any other value (e.g. 45, -30) resamples and enlarges the canvas to fit, filling exposed corners with the background." },
+        "background": { "type": "string", "default": "transparent", "description": "Fill color for corners exposed by an arbitrary-angle rotation: transparent (default), white, black, or a hex color like #rrggbb / #rrggbbaa. Ignored for 90/180/270." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
