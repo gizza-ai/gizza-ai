@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "textrank-summarize"
+version = "0.1.0"
+abi = 1
+summary = "Extractive text summary via TextRank"

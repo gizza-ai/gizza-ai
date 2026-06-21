@@ -1,0 +1,24 @@
+slug          = "textrank-summarize"
+title         = "TextRank Summarizer — Extractive text summary — gizza.ai"
+description   = "Summarize text by extracting its most important sentences with TextRank, in your browser. No AI model, nothing uploaded."
+tags          = ["text summarizer", "textrank", "extractive summary", "summarize text", "tldr"]
+h1            = "TextRank summarizer"
+hero_subtitle = "Summarize an article or report by extracting its key sentences with the TextRank algorithm. Runs in your browser — no AI model, nothing uploaded."
+wasm          = "gizza_ai_textrank_summarize_web"
+export        = "run"
+live          = false
+output_label  = "Summary"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste an article, report, or transcript…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "sentences"
+label       = "Number of sentences"
+placeholder = "3"
+source      = "field"
