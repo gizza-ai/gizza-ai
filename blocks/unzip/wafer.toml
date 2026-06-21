@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "unzip"
+version = "0.1.0"
+abi = 1
+summary = "Extract the files from a .zip archive"
