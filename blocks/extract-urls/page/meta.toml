@@ -1,0 +1,23 @@
+slug          = "extract-urls"
+title         = "Extract URLs from Text — gizza.ai"
+description   = "Pull all http/https URLs out of any text, deduplicated, with an optional scheme/host/path component split — in your browser. Nothing is uploaded."
+tags          = ["extract urls", "url extractor", "find links", "parse urls", "dedupe urls", "url components"]
+h1            = "Extract URLs"
+hero_subtitle = "Paste any text and pull out every http/https URL — validated, deduplicated, optionally split into scheme, host, path, query and fragment. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_urls_web"
+export        = "run"
+live          = false
+output_label  = "URLs"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text containing URLs…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "split_components"
+label       = "Split into components"
+source      = "field"
