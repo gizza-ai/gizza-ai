@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/sort-lines",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort the lines of text alphabetically, numerically, or by length",
+  "role": "skill",
+  "tool": {
+    "description": "Sort the lines of a block of text. method=alpha (default) sorts lexicographically; numeric sorts by the leading number on each line; natural compares digit runs as numbers (so file2 comes before file10); length sorts by line length. order=asc (default) or desc. Set ignore_case to compare case-insensitively, trim to ignore surrounding whitespace, unique to drop duplicate lines, and remove_blank to discard blank lines. Returns the sorted text plus line counts. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text whose lines should be sorted." },
+        "method": { "type": "string", "enum": ["alpha", "numeric", "natural", "length"], "default": "alpha", "description": "alpha = lexicographic; numeric = by the leading number on each line; natural = digit runs compared as numbers (file2 before file10); length = by line length." },
+        "order": { "type": "string", "enum": ["asc", "desc"], "default": "asc", "description": "asc = ascending (A→Z, smallest first); desc = descending." },
+        "ignore_case": { "type": "boolean", "default": false, "description": "Compare case-insensitively." },
+        "trim": { "type": "boolean", "default": false, "description": "Ignore leading/trailing whitespace when comparing lines." },
+        "unique": { "type": "boolean", "default": false, "description": "Remove duplicate lines after sorting (respects ignore_case/trim)." },
+        "remove_blank": { "type": "boolean", "default": false, "description": "Drop blank/whitespace-only lines before sorting." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
