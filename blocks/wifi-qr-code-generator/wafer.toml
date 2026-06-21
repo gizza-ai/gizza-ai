@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wifi-qr-code-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a Wi-Fi join QR code"
