@@ -1,0 +1,29 @@
+slug          = "csv-stats"
+title         = "CSV Stats — Per-column summary statistics — gizza.ai"
+description   = "Compute per-column count, distinct, min, max, mean and sum for a CSV, in your browser. Free, private, no upload."
+tags          = ["csv stats", "csv summary", "column statistics", "csv describe", "csv mean min max"]
+h1            = "CSV stats"
+hero_subtitle = "Per-column summary statistics for a CSV — count, distinct, and min/max/mean/sum for numeric columns. Runs in your browser, no upload."
+wasm          = "gizza_ai_csv_stats_web"
+export        = "run"
+live          = false
+output_label  = "Column statistics"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age\nAda,36\nBo,40"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
