@@ -1,0 +1,18 @@
+slug          = "eml-parse"
+title         = "EML Parser — read a raw .eml email message — gizza.ai"
+description   = "Parse a raw .eml / RFC 822 email into headers, decoded text and HTML bodies, and an attachment list — in your browser. Nothing is uploaded."
+tags          = ["eml parser", "parse email", "rfc822", "rfc5322", "mime parser", "read eml", "email headers", "attachments"]
+h1            = "EML Parser"
+hero_subtitle = "Paste a raw .eml message and read its headers, decoded text/HTML body, and attachment list. MIME and encoded headers decoded automatically. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_eml_parse_web"
+export        = "run"
+live          = false
+output_label  = "Parsed message"
+format        = "text"
+
+[[input]]
+name        = "eml"
+label       = "Raw .eml message"
+placeholder = "From: alice@example.com\nTo: bob@example.org\nSubject: Hello\n\nMessage body…"
+source      = "field"
+multiline   = true
