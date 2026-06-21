@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/dot-to-svg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render Graphviz DOT to SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Render Graphviz DOT diagram source into a standalone, scalable SVG — no Graphviz install needed. Pass `dot` as DOT source for a directed (digraph) or undirected (graph) graph; optional `dark_mode` recolors for a dark background. Returns the SVG markup as text. Runs locally on the device.",
+    "parameters": {
+      "type": "object",
+      "required": ["dot"],
+      "properties": {
+        "dot": { "type": "string" },
+        "dark_mode": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}
