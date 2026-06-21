@@ -1,0 +1,50 @@
+slug          = "regex-extract"
+title         = "Regex Extract — Pull Every Match from Text — gizza.ai"
+description   = "Run a regular expression over any text and extract every match — with case-insensitive, multiline, dot-all, capture-group and dedupe options. Runs in your browser; nothing is uploaded."
+tags          = ["regex extract", "regex tester", "regex match", "extract matches", "regular expression", "capture group", "find all matches"]
+h1            = "Regex Extract"
+hero_subtitle = "Paste your text, type a regular expression, and pull out every match. Toggle case-insensitive, multiline and dot-all modes, extract a specific capture group, or deduplicate the results. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_regex_extract_web"
+export        = "run"
+live          = false
+output_label  = "Matches"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the text to search…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Regular expression"
+placeholder = "e.g. \\b\\w+@\\w+\\.\\w+\\b"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "multiline"
+label       = "Multiline (^ and $ per line)"
+source      = "field"
+
+[[input]]
+name        = "dotall"
+label       = "Dot matches newline"
+source      = "field"
+
+[[input]]
+name        = "capture_group"
+label       = "Capture group (0 = whole match)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "unique"
+label       = "Unique matches only"
+source      = "field"
