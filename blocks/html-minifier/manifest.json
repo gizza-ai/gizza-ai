@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/html-minifier",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Minify HTML (collapse whitespace, strip comments)",
+  "role": "skill",
+  "tool": {
+    "description": "Minify HTML: collapse indentation/whitespace between tags, normalize whitespace inside tags, and (by default) remove comments. Significant inline spacing is preserved, and the verbatim contents of pre/textarea/script/style are kept intact. Set remove_comments=false to keep comments. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The HTML to minify." },
+        "remove_comments": { "type": "boolean", "default": true, "description": "Remove <!-- … --> comments (default true)." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}

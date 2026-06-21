@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-minifier"
+version = "0.1.0"
+abi = 1
+summary = "Minify HTML (collapse whitespace, strip comments)"

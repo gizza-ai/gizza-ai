@@ -216,3 +216,13 @@ Cross-verify a generated public key by feeding it to the existing `pgp-encrypt` 
 
 **Dup-skiplist:** generate-totp (= existing totp-generator), generate-pgp-key… no — built. Always grep
 `ls blocks/ | grep -i <topic>` before building; a near-dup of an existing block → skiplist + re-pick.
+
+**PAGE BOOLEAN CHECKBOX DEFAULT:** the page generator renders a boolean param as `<input type=checkbox
+checked[default]>` — i.e. the box is **checked iff the descriptor `Param::boolean(...).default(true)`**. So a
+`default(true)` boolean shows CHECKED on load, and the web `run()` receives `"true"`; unchecked sends
+`"false"`. In the web wrapper use **positive truthy** (`matches!(v, "true"|"1"|"on"|"yes")`). In Playwright,
+a default-true checkbox is already checked — to test the off-path call `page.uncheck('#in-<name>')` (not just
+leaving it). HTML-tokenizer tools (html-formatter pretty / html-minifier) are a clean pair: a forgiving
+quote-aware tag scanner (`scan_tag` skipping quoted `>`), VOID elements don't indent, and pre/textarea/
+script/style are emitted verbatim — HTML is NOT well-formed XML so quick-xml (used by xml-formatter) can't
+parse it.
