@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/flip-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flip an image horizontally or vertically",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Flip an image horizontally (left-right mirror, direction=horizontal, default) or vertically (top-bottom, direction=vertical). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "direction": { "type": "string", "enum": ["horizontal", "vertical"], "default": "horizontal", "description": "Flip axis: horizontal (left-right mirror) or vertical (top-bottom)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
