@@ -58,3 +58,4 @@ mix-audio  # needs 2 DISTINCT media inputs (two audio tracks) + audio INPUT; sin
 profanity-filter  # duplicate of blocks/censor-text (built-in common-profanity wordlist, mask + flag, case-insensitive whole-word)
 text-encryptor  # duplicate of blocks/text-encrypt (password-encrypt text to a shareable blob + decrypt, AES-256-GCM)
 totp-tool  # near-duplicate of blocks/totp-generator (TOTP generation; overlapping scope)
+tsv-to-json  # duplicate of blocks/csv-json-convert (delimiter=tab, direction=csv-to-json yields array of objects keyed by header)
