@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "todo-organizer"
+version = "0.1.0"
+abi = 1
+summary = "Organize a brain-dump into a prioritized Markdown checklist."
