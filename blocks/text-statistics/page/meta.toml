@@ -1,0 +1,18 @@
+slug          = "text-statistics"
+title         = "Text Statistics — Word, character & reading-time counter — gizza.ai"
+description   = "Count words, characters, sentences, paragraphs and lines, and estimate reading time, in your browser. Nothing is uploaded."
+tags          = ["word counter", "character count", "reading time", "text statistics", "sentence count", "paragraph count"]
+h1            = "Text statistics"
+hero_subtitle = "Count words, characters, sentences, paragraphs and lines, with reading- and speaking-time estimates. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_text_statistics_web"
+export        = "run"
+live          = false
+output_label  = "Statistics"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste or type your text here…"
+source      = "field"
+multiline   = true
