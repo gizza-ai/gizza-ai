@@ -1,0 +1,46 @@
+slug          = "base32-codec"
+title         = "Base32 Encoder & Decoder (RFC 4648) — gizza.ai"
+description   = "Encode text or bytes to Base32 and decode Base32 back, instantly in your browser. RFC 4648 standard and base32hex, Crockford, and z-base-32 variants, hex byte I/O, optional padding and lowercase. Free, private, no sign-up."
+tags          = ["base32", "base32 encode", "base32 decode", "rfc 4648", "base32hex", "crockford base32", "z-base-32", "encoder", "decoder", "hex"]
+h1            = "Base32 Encoder / Decoder"
+hero_subtitle = "Encode text or bytes to Base32, or decode Base32 back — RFC 4648, base32hex, Crockford, and z-base-32, with hex byte I/O and optional padding. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_base32_codec_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input"
+placeholder = "foobar"
+source      = "field"
+multiline   = true
+
+# mode/variant/format render as <select> and lowercase/padding as checkboxes —
+# control type + options are derived from the descriptor's schema
+# (manifest.json), so labels here stay short and option lists aren't duplicated.
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "variant"
+label       = "Variant"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Data format (text or hex bytes)"
+source      = "field"
+
+[[input]]
+name        = "lowercase"
+label       = "Lowercase output"
+source      = "field"
+
+[[input]]
+name        = "padding"
+label       = "Add '=' padding"
+source      = "field"
