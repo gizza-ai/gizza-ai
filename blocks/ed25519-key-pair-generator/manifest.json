@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai/ed25519-key-pair-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an Ed25519 key pair (PEM + raw)",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh Ed25519 key pair and return the private key (PKCS#8 PEM), the public key (SPKI PEM), and both raw 32-byte keys in base64 and hex. Keys are generated locally with a cryptographic RNG (getrandom). Ed25519 is a fast, modern EdDSA signature scheme used by SSH, OpenPGP, JWT (EdDSA), and TLS.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  }
+}
