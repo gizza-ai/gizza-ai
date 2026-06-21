@@ -1,0 +1,47 @@
+slug          = "argon2-hash"
+title         = "Argon2 Hash — Argon2id password hashing & verify — gizza.ai"
+description   = "Hash a password with Argon2id (configurable memory, iterations, parallelism) and get a PHC string, or verify a password — in your browser. Nothing is uploaded."
+tags          = ["argon2", "argon2id", "password hash", "phc", "password hashing", "verify password"]
+h1            = "Argon2 hash"
+hero_subtitle = "Hash a password with Argon2id and get a standard PHC string, or verify a password against one. Runs in your browser — the password never leaves your device."
+wasm          = "gizza_ai_argon2_hash_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "The password to hash or verify"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode (hash | verify)"
+placeholder = "hash"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "PHC hash (for verify)"
+placeholder = "$argon2id$v=19$m=19456,t=2,p=1$…"
+source      = "field"
+
+[[input]]
+name        = "memory_kib"
+label       = "Memory (KiB)"
+placeholder = "19456"
+source      = "field"
+
+[[input]]
+name        = "iterations"
+label       = "Iterations"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "parallelism"
+label       = "Parallelism"
+placeholder = "1"
+source      = "field"

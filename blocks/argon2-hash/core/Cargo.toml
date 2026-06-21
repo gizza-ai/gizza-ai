@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-argon2-hash-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+argon2 = "0.5"
+getrandom = "0.2"

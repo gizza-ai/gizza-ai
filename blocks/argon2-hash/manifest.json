@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/argon2-hash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hash or verify a password with Argon2id.",
+  "role": "skill",
+  "tool": {
+    "description": "Hash a password with Argon2id (the modern, memory-hard password hash) returning a standard PHC string, or verify a password against one. mode=hash (default) uses configurable memory_kib (default 19456 = 19 MiB), iterations (default 2) and parallelism (default 1) and a fresh random salt; mode=verify checks the password against the provided `hash` PHC string. Runs locally — the password never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "password": { "type": "string", "description": "The password to hash, or to verify." },
+        "mode": { "type": "string", "enum": ["hash", "verify"], "default": "hash", "description": "hash (default) produces a PHC hash string; verify checks the password against the `hash` PHC string." },
+        "hash": { "type": "string", "description": "The PHC hash string to verify against (verify mode only)." },
+        "memory_kib": { "type": "integer", "minimum": 8, "maximum": 1048576, "description": "Memory cost in KiB (hash mode; default 19456 = 19 MiB, per OWASP)." },
+        "iterations": { "type": "integer", "minimum": 1, "maximum": 50, "description": "Iteration (time) cost (hash mode; default 2)." },
+        "parallelism": { "type": "integer", "minimum": 1, "maximum": 16, "description": "Parallelism / lanes (hash mode; default 1)." }
+      },
+      "required": ["password"],
+      "additionalProperties": false
+    }
+  }
+}
