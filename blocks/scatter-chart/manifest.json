@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/scatter-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a scatter plot as an SVG chart.",
+  "role": "skill",
+  "tool": {
+    "description": "Render a scatter plot from x/y data as an SVG chart (axes with min/mid/max tick labels and gridlines, one circle per point). Points are a JSON array of [x, y] pairs or {x, y, category, size} objects: category colours points and adds a legend; size scales the marker radius. Optional title, width, height. Returns an SVG image.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "Points as a JSON array. Each point is either [x, y] or an object {\"x\":..,\"y\":..,\"category\":\"..\",\"size\":..}. category colours the point (with a legend); size scales the marker. E.g. [[1,2],[3,4]] or [{\"x\":1,\"y\":2,\"category\":\"A\"}]." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." },
+        "width": { "type": "integer", "minimum": 200, "default": 700, "description": "SVG width in pixels (default 700)." },
+        "height": { "type": "integer", "minimum": 150, "default": 500, "description": "SVG height in pixels (default 500)." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
