@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-carve-files-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+# Pure-Rust file carving: only base64 (recovered bytes) + serde (output). No
+# I/O, no wasm-unsafe deps — instantiates in wafer / runs in the chat SW.
+[dependencies]
+base64 = "0.22"
+serde = { version = "1", features = ["derive"] }
