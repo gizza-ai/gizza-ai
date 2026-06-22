@@ -1,0 +1,52 @@
+slug          = "bibtex-format"
+title         = "BibTeX Formatter & Validator — gizza.ai"
+description   = "Clean up, validate, and sort BibTeX bibliography entries in your browser. Pretty-print with consistent indentation, sort entries by key or type, alphabetize fields, and align the '=' signs. Free, private, no sign-up."
+tags          = ["bibtex", "bibtex formatter", "bibtex validator", "bib file", "bibliography", "latex", "citation", "sort bibtex", "pretty print"]
+h1            = "BibTeX Formatter & Validator"
+hero_subtitle = "Pretty-print, validate, and sort your .bib bibliography — consistent indentation, sorted entries, aligned fields. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_bibtex_format_web"
+export        = "run"
+live          = false
+output_label  = "Formatted BibTeX"
+format        = "text"
+
+[[input]]
+name        = "bibtex"
+label       = "BibTeX source"
+placeholder = "@article{einstein1905, title={Zur Elektrodynamik bewegter Körper}, author={Einstein, Albert}, year=1905}"
+source      = "field"
+multiline   = true
+
+# sort renders as a <select>; the boolean fields render as checkboxes; control
+# type + options are derived from the descriptor's schema (manifest.json), so
+# labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "sort"
+label       = "Sort entries"
+source      = "field"
+
+[[input]]
+name        = "sort_fields"
+label       = "Sort fields within each entry"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Field indent (0–16 spaces)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "align_values"
+label       = "Align the = signs"
+source      = "field"
+
+[[input]]
+name        = "lowercase_type"
+label       = "Lowercase the @entry type"
+source      = "field"
+
+[[input]]
+name        = "check_duplicates"
+label       = "Error on duplicate cite keys"
+source      = "field"
