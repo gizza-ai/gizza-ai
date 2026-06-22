@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/hash-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hash text with a selectable algorithm (MD5/SHA-1/SHA-2/SHA-3/BLAKE)",
+  "role": "skill",
+  "tool": {
+    "description": "Compute a cryptographic hash of text with a selectable algorithm. Supports MD5, SHA-1, SHA-224, SHA-256 (default), SHA-384, SHA-512, SHA3-256, SHA3-512, BLAKE2b-512, BLAKE2s-256, and BLAKE3. By default the input is hashed as UTF-8 text and the digest is returned as lowercase hex; set input_encoding='hex' or 'base64' to decode the input first, output_format='base64' for a base64 digest, or uppercase=true for uppercase hex. To hash a whole FILE, use the file-hash tool.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The text to hash." },
+        "algorithm": { "type": "string", "enum": ["md5", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3-256", "sha3-512", "blake2b-512", "blake2s-256", "blake3"], "default": "sha256", "description": "Hash algorithm." },
+        "input_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to interpret `text` before hashing." },
+        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "Digest representation: hex (default) or base64." },
+        "uppercase": { "type": "boolean", "default": false, "description": "Emit uppercase hex (no effect on base64). Default false." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
