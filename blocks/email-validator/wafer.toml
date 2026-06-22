@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "email-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate an email address against RFC 5321/5322 syntax and flag common typos."
