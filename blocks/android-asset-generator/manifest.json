@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/android-asset-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a full set of Android launcher icons from one image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Resize a source image into a full set of Android launcher icons at every density bucket (mdpi 48px, hdpi 72px, xhdpi 96px, xxhdpi 144px, xxxhdpi 192px) plus the 512px Google Play store icon. Returns a ZIP laid out as an Android res/mipmap-* resource tree (res/mipmap-<density>/<name>.png + play-store-icon.png). For best results give a square image at least 512px. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional name sets the icon resource name (default ic_launcher); set round=true to also emit a circular-masked <name>_round.png per density.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":  { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref":  { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "name": { "type": "string", "default": "ic_launcher", "description": "Base icon resource name used inside the mipmap folders, e.g. ic_launcher (default). Sanitized to lowercase a-z, 0-9 and underscore; invalid names fall back to ic_launcher." },
+        "round": { "type": "boolean", "default": false, "description": "Also emit a circular-masked <name>_round.png in every density bucket (the ic_launcher_round variant used by round launcher masks). Default false." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
