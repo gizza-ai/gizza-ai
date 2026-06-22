@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/parse-datetime",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a date/time string in many formats into structured components.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a single date and/or time string in many common formats (ISO 8601 / RFC 3339, RFC 2822 email, US slash, European dotted, year-first, month-name, and bare clock times) and return its structured components as JSON: kind, year, month (+ name), day, weekday, day_of_year, iso_week, hour/minute/second, utc_offset_seconds, and a canonical iso8601 rendering.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "description": "The date and/or time string to parse."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

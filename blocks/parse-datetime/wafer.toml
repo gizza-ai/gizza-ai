@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "parse-datetime"
+version = "0.1.0"
+abi = 1
+summary = "Parse a date/time string in many formats into structured components."

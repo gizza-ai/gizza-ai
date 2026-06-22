@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-parse-datetime-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# chrono for parsing + validation + ISO formatting; alloc-only, no clock needed.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
