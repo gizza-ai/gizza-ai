@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/gpx-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze a GPX track: distance, elevation, duration, pace",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a GPX file (GPS track from a watch, phone, or route planner) and report total distance (km and miles), elevation gain/loss and min/max altitude, duration, average speed (km/h and mph), and average pace (min/km and min/mi). Reads <trkpt>, <rtept>, and <wpt> points; distance is summed great-circle (haversine) between consecutive points. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["gpx"],
+      "properties": { "gpx": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

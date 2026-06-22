@@ -1,0 +1,18 @@
+slug          = "gpx-analyzer"
+title         = "GPX Analyzer — distance, elevation, pace & speed from a GPX track — gizza.ai"
+description   = "Paste a GPX file to get total distance (km and miles), elevation gain/loss, duration, average speed and pace — in your browser. Nothing is uploaded."
+tags          = ["gpx analyzer", "gpx stats", "gps track", "distance calculator", "elevation gain", "running pace", "gpx viewer", "haversine"]
+h1            = "GPX Analyzer"
+hero_subtitle = "Paste a GPX track and see distance, elevation gain/loss, duration, average speed and pace. Works for runs, rides, hikes and routes. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_gpx_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Track statistics"
+format        = "text"
+
+[[input]]
+name        = "gpx"
+label       = "GPX file contents"
+placeholder = "<?xml version=\"1.0\"?>\n<gpx version=\"1.1\">\n  <trk><trkseg>\n    <trkpt lat=\"40.0\" lon=\"-105.0\"><ele>1600</ele><time>2024-03-09T08:00:00Z</time></trkpt>\n  </trkseg></trk>\n</gpx>"
+source      = "field"
+multiline   = true
