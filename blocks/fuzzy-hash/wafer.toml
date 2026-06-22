@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fuzzy-hash"
+version = "0.1.0"
+abi = 1
+summary = "Compute an SSDEEP fuzzy hash (CTPH) of a file"
