@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/otpauth-uri",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build an otpauth:// provisioning URI for an authenticator app",
+  "role": "skill",
+  "tool": {
+    "description": "Build a standard otpauth:// provisioning URI (the Key Uri Format used by authenticator apps) from an issuer, account name, and base32 secret. Supports totp (default) and hotp, with configurable digits, period, algorithm, and HOTP counter. Returns the otpauth:// URI string. Runs locally — the secret never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "required": ["account", "secret"],
+      "properties": {
+        "type": { "type": "string", "enum": ["totp", "hotp"], "default": "totp" },
+        "issuer": { "type": "string" },
+        "account": { "type": "string" },
+        "secret": { "type": "string" },
+        "digits": { "type": "integer", "minimum": 6, "maximum": 8 },
+        "period": { "type": "integer", "minimum": 1, "maximum": 600 },
+        "algorithm": { "type": "string", "enum": ["sha1", "sha256", "sha512"], "default": "sha1" },
+        "counter": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
