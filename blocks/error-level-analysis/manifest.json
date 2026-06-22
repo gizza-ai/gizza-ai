@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/error-level-analysis",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reveal edited regions of an image with Error Level Analysis (ELA).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Run Error Level Analysis (ELA) on an image to reveal edited, spliced, or pasted-in regions. The image is recompressed as JPEG at quality (1-100, default 90) and the difference from the original is amplified — areas with a different compression history (edits, splices, added text) appear brighter than the uniformly-compressed background. Use scale (1-100, default 15) to set the brightness multiplier, normalize=true for auto-contrast, and grayscale=true for a luminance-only map. Returns a lossless PNG visualisation. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "quality": { "type": "integer", "minimum": 1, "maximum": 100, "default": 90, "description": "JPEG recompression quality, 1-100 (default 90). The standard ELA range is 90-95: high enough that genuinely-unedited regions barely change." },
+        "scale": { "type": "integer", "minimum": 1, "maximum": 100, "default": 15, "description": "Brightness multiplier applied to the raw difference, 1-100 (default 15). Raw ELA differences are tiny, so scaling makes them visible. Ignored when normalize is true." },
+        "normalize": { "type": "boolean", "default": false, "description": "Auto-contrast: stretch the brightest difference pixel to 255 instead of using a fixed scale. Useful when the right scale is unknown." },
+        "grayscale": { "type": "boolean", "default": false, "description": "Collapse the difference map to luminance (often easier to read than the per-channel colour map)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
