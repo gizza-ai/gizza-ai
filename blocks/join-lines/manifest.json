@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/join-lines",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Join multiple lines of text into a single line with a chosen separator",
+  "role": "skill",
+  "tool": {
+    "description": "Join the lines of a block of text into one line. separator (default \", \") is placed between lines; backslash escapes \\t, \\n, \\r and \\\\ are decoded, and an empty separator concatenates with nothing between. Set trim to strip surrounding whitespace from each line, remove_blank to drop blank lines, and prefix/suffix to wrap each line (e.g. quotes for a CSV list or parentheses for a SQL IN clause). Returns the joined line plus line counts. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The multi-line text whose lines should be joined into one." },
+        "separator": { "type": "string", "default": ", ", "description": "String placed between lines. Escapes \\t, \\n, \\r and \\\\ are decoded, so use \\t for a tab or an empty string to concatenate with no separator." },
+        "trim": { "type": "boolean", "default": false, "description": "Strip leading/trailing whitespace from each line before joining." },
+        "remove_blank": { "type": "boolean", "default": false, "description": "Drop blank/whitespace-only lines instead of joining them." },
+        "prefix": { "type": "string", "default": "", "description": "Text added to the start of every line before joining (e.g. a quote for a CSV list)." },
+        "suffix": { "type": "string", "default": "", "description": "Text added to the end of every line before joining." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
