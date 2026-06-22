@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/image-to-sketch",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a photo into a pencil or line-art sketch.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Turn a photo into a hand-drawn-style sketch. mode 'pencil' gives a soft graphite pencil-shading look (the classic color-dodge sketch effect); mode 'lineart' gives a clean black-on-white outline drawing (good for a coloring-page / contour look). strength sets the pencil softness (blur radius) or the line-art edge sensitivity; 0 = sensible default. Returns a grayscale PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "mode": { "type": "string", "enum": ["pencil", "lineart"], "default": "pencil", "description": "Sketch style: pencil (soft graphite shading, default) or lineart (clean black outlines)." },
+        "strength": { "type": "number", "minimum": 0, "description": "pencil: blur radius/softness (default 8). lineart: edge sensitivity, higher = darker/thicker lines (default 1). 0 = default." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

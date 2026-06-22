@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-to-sketch"
+version = "0.1.0"
+abi = 1
+summary = "Turn a photo into a pencil or line-art sketch."
