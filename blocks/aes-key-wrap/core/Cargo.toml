@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-aes-key-wrap-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+aes-kw = "0.3"
+hex = "0.4"
+base64 = "0.22"
