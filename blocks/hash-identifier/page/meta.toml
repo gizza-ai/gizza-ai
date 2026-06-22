@@ -1,0 +1,18 @@
+slug          = "hash-identifier"
+title         = "Hash Identifier — Detect Hash Type Online | gizza.ai"
+description   = "Paste a hash and instantly identify its likely algorithm — bcrypt, Argon2, MD5, SHA-1/256/512, NTLM, sha512crypt, PHPass and more. Runs entirely in your browser."
+tags          = ["hash", "security", "identifier", "bcrypt", "argon2", "md5", "sha256", "ntlm", "password"]
+h1            = "Hash Identifier"
+hero_subtitle = "Paste a hash or digest and find out which algorithm likely produced it."
+wasm          = "gizza_ai_hash_identifier_web"
+export        = "run"
+live          = false
+output_label  = "Likely hash schemes"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Hash"
+placeholder = "$2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW"
+source      = "field"
+multiline   = true
