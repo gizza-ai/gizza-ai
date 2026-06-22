@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pem-public-key-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract the public key from a private key (PEM SPKI)"
