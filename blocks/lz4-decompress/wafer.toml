@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lz4-decompress"
+version = "0.1.0"
+abi = 1
+summary = "Decompress an LZ4 (.lz4) file"
