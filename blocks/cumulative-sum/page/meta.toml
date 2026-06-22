@@ -1,0 +1,33 @@
+slug          = "cumulative-sum"
+title         = "Cumulative Sum Calculator — Running Total of a List of Numbers | gizza.ai"
+description   = "Get the running total (prefix sum) of a list of numbers in your browser. Optionally show the running average, minimum, and maximum at each step. Paste comma, space, or newline-separated values. Free, private, no sign-up."
+tags          = ["cumulative sum", "running total", "prefix sum", "running average", "running minimum", "running maximum", "number list calculator", "accumulate", "partial sums", "running balance"]
+h1            = "Cumulative Sum Calculator"
+hero_subtitle = "Get the running total of a list of numbers, row by row — with optional running average, minimum, and maximum. Paste comma, space, or newline-separated values. Runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_cumulative_sum_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "numbers"
+label       = "Numbers"
+placeholder = "1\n2\n3\n4"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "average"
+label       = "Running average"
+source      = "field"
+
+[[input]]
+name        = "min"
+label       = "Running minimum"
+source      = "field"
+
+[[input]]
+name        = "max"
+label       = "Running maximum"
+source      = "field"
