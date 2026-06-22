@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/bencode-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between bencode (torrent format) and JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert between bencode — the BitTorrent serialization format used by .torrent files and the tracker/DHT protocols — and JSON, in both directions. mode=decode (default) parses bencode text (integers i…e, byte strings <len>:…, lists l…e, dictionaries d…e) into readable JSON; mode=encode serializes JSON back into canonical bencode (dictionary keys are sorted by byte value). pretty indents the decode-mode JSON (default true). Non-UTF-8 byte strings (e.g. a torrent's binary `pieces` field) are carried losslessly as {\"_bencode_bytes_hex\":\"…\"} so decode then encode reproduces the exact bytes. Note: bencode has no boolean or null type. Runs locally — the data never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The data to convert: bencode text in decode mode, or JSON text in encode mode." },
+        "mode": { "type": "string", "enum": ["decode", "encode"], "default": "decode", "description": "decode (default) parses bencode into JSON; encode serializes JSON into bencode." },
+        "pretty": { "type": "boolean", "default": true, "description": "Indent the JSON output in decode mode. Default true." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}
