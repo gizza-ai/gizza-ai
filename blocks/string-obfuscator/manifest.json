@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/string-obfuscator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Mask or obfuscate a string for screenshots and demos",
+  "role": "skill",
+  "tool": {
+    "description": "Mask or visually obfuscate a string for screenshots, demos, and docs. mode='mask' (default) redacts the middle of a value while keeping keep_start leading and keep_end trailing characters visible, replacing the rest with mask_char (default '*'). mode='rot' applies a Caesar/ROT-N rotation (rot_n, default 13). mode='leetspeak' swaps letters for look-alike digits/symbols. mode='homoglyph' swaps ASCII letters for identical-looking Unicode (mostly Cyrillic). Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "mode": { "type": "string", "enum": ["mask", "rot", "leetspeak", "homoglyph"], "default": "mask" },
+        "mask_char": { "type": "string", "default": "*" },
+        "keep_start": { "type": "integer", "minimum": 0, "default": 0 },
+        "keep_end": { "type": "integer", "minimum": 0, "default": 0 },
+        "rot_n": { "type": "integer", "minimum": 0, "maximum": 25, "default": 13 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
