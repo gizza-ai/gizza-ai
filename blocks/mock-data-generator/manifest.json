@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/mock-data-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate mock JSON from a shorthand field schema",
+  "role": "skill",
+  "tool": {
+    "description": "Generate realistic mock JSON from a compact shorthand schema you define: comma- or newline-separated `field:type` pairs, where you choose the field names and a type for each. Supported types: string, int, float, bool, uuid, name, first_name, last_name, username, email, phone, date, datetime, url, domain, word, words, sentence, paragraph, city, state, country, zip, street, color, ipv4, mac, lat, lng; parametric enum(a|b|c), int(lo..hi), float(lo..hi), words(n). Append [n] to a field for an array of n values (tags:string[3]) and nest objects with braces (user:{name:name, email:email}). Set count for the number of records (1-1000; >1 returns a JSON array). All data is synthetic placeholder data for testing/mocking, never real people. Pass a non-zero seed to reproduce the exact same data; pretty toggles indentation.",
+    "parameters": {
+      "type": "object",
+      "required": ["schema"],
+      "properties": {
+        "schema": { "type": "string" },
+        "count": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 1 },
+        "seed": { "type": "integer", "minimum": 0, "default": 0 },
+        "pretty": { "type": "boolean", "default": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}
