@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "zip-inspect"
+version = "0.1.0"
+abi = 1
+summary = "List the contents of a .zip archive without extracting"
