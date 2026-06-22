@@ -1,0 +1,31 @@
+slug          = "json-diff"
+title         = "JSON Diff — compare two JSON documents — gizza.ai"
+description   = "Compare two JSON documents and see exactly what was added, removed or changed, with full JSON paths — in your browser. Nothing is uploaded."
+tags          = ["json diff", "compare json", "json compare", "json difference", "diff json online"]
+h1            = "JSON Diff"
+hero_subtitle = "Compare two JSON documents and see exactly what changed — added, removed and changed values reported by JSON path. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_diff_web"
+export        = "run"
+live          = false
+output_label  = "Diff report (JSON)"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "First JSON (left / old)"
+placeholder = "{\"name\": \"alice\", \"age\": 30}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Second JSON (right / new)"
+placeholder = "{\"name\": \"alice\", \"age\": 31, \"city\": \"NYC\"}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"

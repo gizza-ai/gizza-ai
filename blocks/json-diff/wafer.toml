@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-diff"
+version = "0.1.0"
+abi = 1
+summary = "Structural diff of two JSON documents"
