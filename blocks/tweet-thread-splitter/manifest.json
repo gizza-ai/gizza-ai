@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/tweet-thread-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split long text into numbered, character-limit-safe tweet chunks.",
+  "role": "skill",
+  "tool": {
+    "description": "Split a long piece of text into a numbered Twitter/X thread of character-limit-safe tweets that never break a word in half. Set limit to the per-tweet character cap (default 280; the counter counts toward it). numbering chooses the thread-counter style: 'parens' (default) ' (i/N)', 'slash' ' i/N', 'dotted' 'i. ' prefix, or 'none'. count='chars' (default) measures length in Unicode characters; count='utf16' measures UTF-16 code units (matching how X and most JS clients weigh emoji). prefer_sentences=true (default) starts a new tweet on sentence boundaries so tweets rarely end mid-thought. Words longer than a whole tweet (e.g. a long URL) are hard-split so nothing is lost. Returns the tweets separated by blank lines.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The long text to split into a tweet thread." },
+        "limit": { "type": "integer", "minimum": 10, "maximum": 25000, "default": 280, "description": "Maximum characters per tweet, 10-25000. Default 280 (X/Twitter's standard limit). The numbering counter counts toward this, so each tweet stays at or under the limit." },
+        "numbering": { "type": "string", "enum": ["parens", "slash", "dotted", "none"], "default": "parens", "description": "Thread-counter style. 'parens' (default) appends ' (i/N)'; 'slash' appends ' i/N'; 'dotted' prepends 'i. ' (numbered-list style); 'none' adds no counter." },
+        "count": { "type": "string", "enum": ["chars", "utf16"], "default": "chars", "description": "How tweet length is measured. 'chars' (default) counts Unicode characters; 'utf16' counts UTF-16 code units, matching how X and most JavaScript clients weigh emoji and astral characters (each as 2)." },
+        "prefer_sentences": { "type": "boolean", "default": true, "description": "When true (default), start a new tweet on a sentence boundary ('. ! ?') where possible so a tweet rarely ends mid-thought; a sentence longer than the limit still falls back to word-packing. A word is never broken." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
