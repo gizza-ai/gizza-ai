@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/svg-sprite-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine multiple SVGs into one <symbol> sprite sheet",
+  "role": "skill",
+  "tool": {
+    "description": "Combine several standalone <svg> icons into a single SVG <symbol> sprite sheet. Paste one or more complete <svg>…</svg> documents in `svgs` (concatenated); each top-level <svg> becomes a <symbol id=… viewBox=…> you reference with <use href=\"#id\">. `prefix` seeds auto ids; `id_source` is 'auto', 'id', or 'title'; `hidden` (default true) wraps the sprite in a visually-hidden <svg>. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "svgs": { "type": "string", "description": "One or more complete <svg>…</svg> documents, concatenated." },
+        "prefix": { "type": "string", "default": "icon", "description": "Prefix for auto-generated symbol ids." },
+        "id_source": { "type": "string", "enum": ["auto", "id", "title"], "default": "auto", "description": "How each symbol id is chosen." },
+        "hidden": { "type": "boolean", "default": true, "description": "Wrap the sprite in a visually-hidden, aria-hidden <svg>." }
+      },
+      "required": ["svgs"],
+      "additionalProperties": false
+    }
+  }
+}
