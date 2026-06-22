@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/fuzzy-hash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute an SSDEEP fuzzy hash (CTPH) of a file.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Compute an SSDEEP context-triggered piecewise hash (CTPH, a 'fuzzy hash') of a file, as blocksize:sig1:sig2. Unlike MD5/SHA, a fuzzy hash changes only slightly when the input changes slightly, so two fingerprints can be compared for similarity — useful for malware triage, near-duplicate detection, and spam clustering. Optionally pass compare (an existing ssdeep hash) to also get a 0-100 similarity score against the file's hash. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "compare": { "type": "string", "description": "Optional: an existing ssdeep fuzzy hash (blocksize:sig1:sig2). When set, the response includes a 0-100 similarity score between this hash and the file's hash." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
