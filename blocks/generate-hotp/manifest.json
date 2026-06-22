@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/generate-hotp",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an HOTP (counter-based 2FA) code from a secret",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a counter-based one-time code (HOTP, RFC 4226) from a base32 secret and a counter value. HOTP is event-based: each code is tied to a counter you increment per use (unlike TOTP, which uses the current time). digits (6-8, default 6) and algorithm (sha1 default / sha256 / sha512) are configurable. Returns the code for that counter. Runs locally — the secret never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "secret": { "type": "string", "description": "The HOTP shared secret, base32-encoded (spaces and case are ignored)." },
+        "counter": { "type": "integer", "minimum": 0, "description": "The counter value (a non-negative integer); incremented for each new code." },
+        "digits": { "type": "integer", "minimum": 6, "maximum": 8, "description": "Number of digits in the code (6, 7, or 8; default 6)." },
+        "algorithm": { "type": "string", "enum": ["sha1", "sha256", "sha512"], "default": "sha1", "description": "HMAC hash algorithm (default sha1, the standard for authenticator apps)." }
+      },
+      "required": ["secret", "counter"],
+      "additionalProperties": false
+    }
+  }
+}
