@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-fernet-token-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-fernet-token-core = { path = "../core" }
+js-sys = "0.3"
+# getrandom 0.2 needs the `js` backend on the wasm32-unknown-unknown page target
+# (key generation + per-token IV).
+getrandom = { version = "0.2", features = ["js"] }
