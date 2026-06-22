@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-pdf-to-epub-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust PDF parser (no native libs, no threads). default-features = false
+# drops rayon + the date crates so the tree stays wasm32-wasip1-clean — same as
+# pdf-extract-text. Only the read/extract path is exercised.
+lopdf = { version = "=0.36.0", default-features = false }
+# ZIP writer for the EPUB container (an EPUB is a ZIP). deflate only.
+zip = { version = "8", default-features = false, features = ["deflate"] }
