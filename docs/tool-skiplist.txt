@@ -171,3 +171,4 @@ xml-escape-unescape  # duplicate of blocks/string-escaper (target=html/xml escap
 xml-prettify  # duplicate of blocks/xml-formatter (mode=pretty indents compact XML into nested markup with configurable indent + well-formedness check; same scope)
 argon2-verify  # duplicate of blocks/argon2-hash (mode=verify already checks a password against an Argon2 PHC hash string)
 bcrypt-verify  # duplicate of blocks/bcrypt-hash (mode=verify already checks a plaintext password against a $2a/$2b/$2x/$2y bcrypt hash, across chat/CLI/page)
+bibtex-formatter  # duplicate of blocks/bibtex-format
