@@ -1,0 +1,20 @@
+[package]
+name = "gizza-ai-generate-ecdsa-key-pair-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# p256/p384/p521: pure-Rust NIST prime curves. Features:
+#   arithmetic — scalar/point ops needed to derive the public key;
+#   pkcs8      — PKCS#8 (private) + SPKI (public) DER/PEM encoding;
+#   pem        — *_pem encode/decode helpers;
+#   jwk        — RFC 7517/7518 JSON Web Key (de)serialization.
+# Key generation uses getrandom (WASI random_get on wasm32-wasip1), so it runs
+# on every backend. NOTE: we use only random key *generation* here, not the
+# RFC-6979 signing path, so P-521 is fine (its issue was signing-only).
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem", "jwk"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem", "jwk"] }
+p521 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem", "jwk"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+serde = { version = "1", features = ["derive"] }
