@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/color-contrast-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Color Contrast Checker skill",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the WCAG 2.x contrast ratio between a foreground (text) colour and a background colour and report whether it passes WCAG AA and AAA for normal text (>= 4.5 / >= 7), large text (>= 3 / >= 4.5), and UI components/graphics (>= 3). Each colour is a hex code (#1a2b3c, #fff, bare 1a2b3c), an rgb triple (rgb(26,43,60)), an hsl triple (hsl(210,40%,17%)), or a CSS colour name (navy, tomato). Set format='json' for a machine-readable result; set format='suggest' (with target='aa'|'aaa'|'large') to also get the nearest accessible foreground that passes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "foreground": { "type": "string", "description": "Foreground / text colour. Accepts a hex code (#1a2b3c, #fff, 1a2b3c), an rgb triple (rgb(26,43,60) or 26,43,60), an hsl triple (hsl(210,40%,17%)), or a CSS colour name (navy, tomato, rebeccapurple)." },
+        "background": { "type": "string", "description": "Background colour. Accepts a hex code (#ffffff, #fff), an rgb triple (rgb(255,255,255)), an hsl triple (hsl(0,0%,100%)), or a CSS colour name (white, gainsboro)." },
+        "format": { "type": "string", "enum": ["text", "json", "suggest"], "default": "text", "description": "Output format: 'text' (default) is a human-readable WCAG report; 'json' is a machine-readable object with the ratio and each AA/AAA pass flag; 'suggest' adds the nearest accessible foreground (same hue, lightness nudged) that meets the chosen target." },
+        "target": { "type": "string", "enum": ["aa", "aaa", "large"], "default": "aa", "description": "Used only by format='suggest': which threshold to reach — 'aa' (4.5:1 normal text, default), 'aaa' (7:1), or 'large' (3:1, large text / UI components)." }
+      },
+      "required": ["foreground", "background"],
+      "additionalProperties": false
+    }
+  }
+}
