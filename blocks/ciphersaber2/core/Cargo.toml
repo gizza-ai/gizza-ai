@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-ciphersaber2-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+hex = "0.4"
+base64 = "0.22"
+# getrandom supplies the CSPRNG for the 10-byte IV: wasi random_get on
+# wasm32-wasip1 (chat block), the OS RNG natively (CLI). The page target
+# (wasm32-unknown-unknown) needs the "js" feature to use the browser crypto RNG.
+getrandom = "0.2"
+
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }

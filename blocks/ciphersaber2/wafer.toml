@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ciphersaber2"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt data with CipherSaber-2 (RC4 + random IV, repeated key setup)"
