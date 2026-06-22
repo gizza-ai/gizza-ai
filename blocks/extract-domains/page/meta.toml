@@ -1,0 +1,28 @@
+slug          = "extract-domains"
+title         = "Extract Domains from Text — gizza.ai"
+description   = "Pull every hostname and registrable domain (eTLD+1) out of any text, URLs, or email addresses — validated against the Public Suffix List and deduplicated, in your browser. Nothing is uploaded."
+tags          = ["extract domains", "domain extractor", "find domains", "registrable domain", "etld+1", "public suffix list", "parse hostnames"]
+h1            = "Extract Domains"
+hero_subtitle = "Paste any text, URLs, or emails and pull out every domain — full hostnames and registrable domains (eTLD+1), validated against the Public Suffix List and deduplicated. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_domains_web"
+export        = "run"
+live          = false
+output_label  = "Domains"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text, URLs, or email addresses containing domains…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Which domains"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort alphabetically"
+source      = "field"
