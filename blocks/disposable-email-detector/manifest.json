@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/disposable-email-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag whether an email uses a known disposable / throwaway-inbox domain.",
+  "role": "skill",
+  "tool": {
+    "description": "Flag whether an email address (or a bare domain) uses a known disposable, temporary, or throwaway-inbox provider (Mailinator, Guerrilla Mail, 10 Minute Mail, YOPmail, Temp-Mail, and more). Lookup-only against a built-in domain list plus a conservative throwaway-keyword heuristic; no DNS/MX/SMTP. Reports the parsed domain, whether it is disposable, the matched provider, and a reason.",
+    "parameters": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address to check — or a bare domain (domain.tld). A 'Name <addr>', 'mailto:addr', or angle-bracketed form is accepted and unwrapped before checking."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
