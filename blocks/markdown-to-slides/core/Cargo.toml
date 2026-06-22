@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-markdown-to-slides-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# pulldown-cmark: pure-Rust CommonMark -> HTML (tables, task lists, strikethrough,
+# footnotes), wasm32-safe. Shared engine with markdown-render.
+pulldown-cmark = { version = "0.12", default-features = false, features = ["html"] }
+# ammonia: HTML sanitizer (html5ever-based), wasm32-safe — strips scripts/handlers
+# from the user's slide Markdown before it is embedded in the deck.
+ammonia = "4"
