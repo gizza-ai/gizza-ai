@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-meme-caption-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# fontdue: pure-Rust TrueType rasterizer (no freetype / system fonts) — same as
+# add-text-to-image / code-screenshot. image: pure-Rust decode/encode; default
+# features off, only the common web codecs (keeps the wasm smaller).
+fontdue = "0.9"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }

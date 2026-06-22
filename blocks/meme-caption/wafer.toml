@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "meme-caption"
+version = "0.1.0"
+abi = 1
+summary = "Add a classic top/bottom impact-style caption to an image."
