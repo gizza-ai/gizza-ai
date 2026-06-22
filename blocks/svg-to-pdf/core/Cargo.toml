@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-svg-to-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Rasterize the SVG (resvg + tiny-skia, pure-Rust / wasm32-safe), then embed the
+# resulting RGB raster as a Flate image XObject in a single-page lopdf-built PDF.
+resvg = { version = "0.44", default-features = false }
+usvg = { version = "0.44", default-features = false }
+tiny-skia = { version = "0.11", default-features = false, features = ["std", "png"] }
+lopdf = { version = "0.36", default-features = false }
+flate2 = "1"
