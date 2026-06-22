@@ -29,6 +29,12 @@ fn parse_color(s: &str, default: [u8; 3]) -> Result<[u8; 3], String> {
         return Ok(default);
     }
     let h = t.trim_start_matches('#');
+    // Reject any non-ASCII-hex byte (including multibyte chars) up front so that
+    // `h.len()` equals the char count and the byte slices / char indexing below
+    // can never land mid-codepoint or out of bounds (would panic otherwise).
+    if !h.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(format!("invalid color '{s}' (use #rrggbb)"));
+    }
     let hx = |c: &str| u8::from_str_radix(c, 16).map_err(|_| format!("invalid color '{s}' (use #rrggbb)"));
     match h.len() {
         6 => Ok([hx(&h[0..2])?, hx(&h[2..4])?, hx(&h[4..6])?]),
@@ -407,5 +413,14 @@ mod tests {
         assert_eq!(parse_color("#abc", BLACK).unwrap(), [170, 187, 204]);
         assert_eq!(parse_color("", WHITE).unwrap(), WHITE);
         assert!(parse_color("xyz", BLACK).is_err());
+    }
+
+    #[test]
+    fn parse_color_multibyte_does_not_panic() {
+        // Multibyte input previously panicked: byte length picked a hex arm that
+        // then sliced/indexed mid-codepoint. Must return Err, never panic.
+        assert!(parse_color("#€", BLACK).is_err()); // 3 bytes -> old 3-digit arm
+        assert!(parse_color("#€€", BLACK).is_err()); // 6 bytes -> old 6-digit arm
+        assert!(parse_color("#axé", BLACK).is_err());
     }
 }

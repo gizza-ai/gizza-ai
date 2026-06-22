@@ -231,6 +231,14 @@ fn is_ipv6(s: &str) -> bool {
     if s.matches("::").count() > 1 {
         return false;
     }
+    // Reject runs of 3+ colons (e.g. "2001:db8:::1") and a lone leading/trailing
+    // colon — only a single `::` is a valid edge/compression marker.
+    if s.contains(":::")
+        || (s.starts_with(':') && !s.starts_with("::"))
+        || (s.ends_with(':') && !s.ends_with("::"))
+    {
+        return false;
+    }
     let has_compress = s.contains("::");
     // Split off an optional embedded IPv4 tail (e.g. ::ffff:1.2.3.4).
     let groups: Vec<&str> = s.split(':').collect();
@@ -238,7 +246,6 @@ fn is_ipv6(s: &str) -> bool {
         return false;
     }
     let mut hextet_count = 0usize;
-    let mut last_is_v4 = false;
     for (i, g) in groups.iter().enumerate() {
         if g.is_empty() {
             // empty group is only allowed as part of a `::`
@@ -249,7 +256,6 @@ fn is_ipv6(s: &str) -> bool {
                 return false;
             }
             hextet_count += 2;
-            last_is_v4 = true;
             continue;
         }
         if g.len() > 4 || !g.bytes().all(|b| b.is_ascii_hexdigit()) {
@@ -257,7 +263,6 @@ fn is_ipv6(s: &str) -> bool {
         }
         hextet_count += 1;
     }
-    let _ = last_is_v4;
     if has_compress {
         hextet_count <= 7 && hextet_count >= 1
     } else {
@@ -324,13 +329,35 @@ fn is_domain(s: &str) -> bool {
     })
 }
 
+/// Extract the lowercased host from a URL like `http://host:port/path?q`.
+fn url_host(url: &str) -> Option<String> {
+    let after_scheme = &url[url.find("://").map(|i| i + 3)?..];
+    let host = after_scheme
+        .split(|c: char| matches!(c, '/' | '?' | '#'))
+        .next()
+        .unwrap_or(after_scheme);
+    // drop an optional :port and userinfo@ prefix
+    let host = host.rsplit('@').next().unwrap_or(host);
+    let host = host.split(':').next().unwrap_or(host);
+    if host.is_empty() {
+        None
+    } else {
+        Some(host.to_ascii_lowercase())
+    }
+}
+
 fn scan_domain(text: &str) -> BTreeSet<String> {
     // Domains embedded in URLs / emails are excluded so the categories don't
-    // overlap; only bare hostnames are reported here.
-    let urls = scan_url(text);
-    let emails = scan_email(text);
+    // overlap; only bare hostnames are reported here. Exclusion is by EXACT host
+    // match (not substring/suffix) so a distinct domain that merely appears in a
+    // URL path or is a suffix of an email's host is still reported.
+    let url_hosts: BTreeSet<String> = scan_url(text).iter().filter_map(|u| url_host(u)).collect();
+    let email_hosts: BTreeSet<String> = scan_email(text)
+        .iter()
+        .filter_map(|e| e.rsplit('@').next().map(|h| h.to_ascii_lowercase()))
+        .collect();
     let mut set = BTreeSet::new();
-    'outer: for tok in tokens(text) {
+    for tok in tokens(text) {
         let t = trim_edges(tok);
         // skip if it's part of a URL or email token
         if t.contains("://") || t.contains('@') {
@@ -341,18 +368,12 @@ fn scan_domain(text: &str) -> BTreeSet<String> {
         if !is_domain(host) {
             continue;
         }
-        // ensure it's not already captured inside a URL/email's host
-        for u in &urls {
-            if u.to_ascii_lowercase().contains(&host.to_ascii_lowercase()) {
-                continue 'outer;
-            }
+        let host = host.to_ascii_lowercase();
+        // ensure it's not exactly a URL/email's own host
+        if url_hosts.contains(&host) || email_hosts.contains(&host) {
+            continue;
         }
-        for e in &emails {
-            if e.to_ascii_lowercase().ends_with(&host.to_ascii_lowercase()) {
-                continue 'outer;
-            }
-        }
-        set.insert(host.to_ascii_lowercase());
+        set.insert(host);
     }
     set
 }
@@ -501,5 +522,28 @@ md5 d41d8cd98f00b204e9800998ecf8427e";
     fn type_aliases_and_case() {
         let out = extract("1.2.3.4", "IPs", false).unwrap();
         assert!(out.contains("1.2.3.4"), "{out}");
+    }
+
+    #[test]
+    fn rejects_malformed_triple_colon_ipv6() {
+        assert!(!is_ipv6("2001:db8:::1"));
+        assert!(!is_ipv6(":1:2:3:4:5:6:7"));
+        assert!(!is_ipv6("1:2:3:4:5:6:7:"));
+        // genuine forms still accepted
+        assert!(is_ipv6("fe80::1"));
+        assert!(is_ipv6("::1"));
+        assert!(is_ipv6("2001:0db8:0000:0000:0000:ff00:0042:8329"));
+    }
+
+    #[test]
+    fn domain_kept_when_only_path_or_suffix_matches_url_or_email() {
+        // evil.co is a distinct domain even though it appears in a URL's PATH;
+        // previously the substring `contains` check dropped it.
+        let out = extract("evil.co and http://notevil.com/evil.co/path", "domain", false).unwrap();
+        assert!(out.contains("evil.co"), "{out}");
+        // mail.com is distinct from the email host webmail.com (it is only a
+        // suffix, not the actual host); previously `ends_with` dropped it.
+        let out2 = extract("mail.com and user@webmail.com", "domain", false).unwrap();
+        assert!(out2.contains("mail.com"), "{out2}");
     }
 }

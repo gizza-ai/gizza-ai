@@ -125,34 +125,6 @@ pub fn detect(bytes: &[u8]) -> Option<Detection> {
             "compressor", "snzip -d / python-snappy",
         ));
     }
-    // Raw LZMA (.lzma / lzma_alone): properties byte (commonly 0x5D) then a
-    // 4-byte little-endian dictionary size, then an 8-byte uncompressed size
-    // (often 0xFF..FF when unknown). Heuristic: props <= 0xE0 (valid lc/lp/pb)
-    // and a plausible power-of-two dictionary size, to avoid false positives.
-    if b.len() >= 13 && b[0] <= 0xE0 {
-        let dict = u32::from_le_bytes([b[1], b[2], b[3], b[4]]);
-        if (0x1000..=0x4000_0000).contains(&dict) && (dict & dict.wrapping_sub(1)) == 0 {
-            return Some(det(
-                "lzma", "LZMA (alone) compressed stream", "application/x-lzma", "lzma",
-                "compressor", "unlzma / xz --format=lzma -d",
-            ));
-        }
-    }
-    // zlib stream: low nibble of CMF is 8 (deflate), CINFO <= 7, and the
-    // 16-bit (CMF<<8 | FLG) is a multiple of 31. Common headers: 78 01/9C/DA.
-    if b.len() >= 2 {
-        let cmf = b[0];
-        let flg = b[1];
-        let cm = cmf & 0x0F;
-        let check_ok = ((cmf as u16) << 8 | flg as u16) % 31 == 0;
-        if cm == 8 && (cmf >> 4) <= 7 && check_ok {
-            return Some(det(
-                "zlib", "zlib (deflate) compressed stream", "application/zlib", "zz",
-                "compressor", "openssl zlib / python zlib.decompress / pigz -dz",
-            ));
-        }
-    }
-
     // ---- Archives (multi-file containers) ------------------------------
     if starts(b, &[0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C]) {
         return Some(det(
@@ -203,6 +175,40 @@ pub fn detect(bytes: &[u8]) -> Option<Detection> {
             "zip", "ZIP archive", "application/zip", "zip",
             "archive", "unzip / 7z x",
         ));
+    }
+
+    // ---- Heuristic compressors (no fixed magic) ------------------------
+    // These match on structural properties rather than an exact magic string,
+    // so they run LAST — after every exact-magic format above — to avoid
+    // shadowing a real archive/compressor whose leading bytes happen to fit the
+    // heuristic (e.g. a TAR whose filename bytes look like a zlib header).
+    //
+    // Raw LZMA (.lzma / lzma_alone): properties byte (commonly 0x5D) then a
+    // 4-byte little-endian dictionary size, then an 8-byte uncompressed size
+    // (often 0xFF..FF when unknown). Heuristic: props <= 0xE0 (valid lc/lp/pb)
+    // and a plausible power-of-two dictionary size, to avoid false positives.
+    if b.len() >= 13 && b[0] <= 0xE0 {
+        let dict = u32::from_le_bytes([b[1], b[2], b[3], b[4]]);
+        if (0x1000..=0x4000_0000).contains(&dict) && (dict & dict.wrapping_sub(1)) == 0 {
+            return Some(det(
+                "lzma", "LZMA (alone) compressed stream", "application/x-lzma", "lzma",
+                "compressor", "unlzma / xz --format=lzma -d",
+            ));
+        }
+    }
+    // zlib stream: low nibble of CMF is 8 (deflate), CINFO <= 7, and the
+    // 16-bit (CMF<<8 | FLG) is a multiple of 31. Common headers: 78 01/9C/DA.
+    if b.len() >= 2 {
+        let cmf = b[0];
+        let flg = b[1];
+        let cm = cmf & 0x0F;
+        let check_ok = ((cmf as u16) << 8 | flg as u16) % 31 == 0;
+        if cm == 8 && (cmf >> 4) <= 7 && check_ok {
+            return Some(det(
+                "zlib", "zlib (deflate) compressed stream", "application/zlib", "zz",
+                "compressor", "openssl zlib / python zlib.decompress / pigz -dz",
+            ));
+        }
     }
 
     None
@@ -273,6 +279,21 @@ mod tests {
         tar[0] = b'f'; // a filename byte so it doesn't read as zlib
         tar[257..262].copy_from_slice(b"ustar");
         assert_eq!(fmt_of(&tar), "tar");
+    }
+
+    #[test]
+    fn tar_with_zlib_like_header_is_tar_not_zlib() {
+        // A tar whose first two filename bytes happen to form a valid zlib header
+        // (0x78 0x9C) must still be detected as tar: exact archive magics now run
+        // before the heuristic zlib detector, which can match arbitrary 2-byte
+        // prefixes. This is the bug the `tar[0] = b'f'` workaround above hid.
+        let mut tar = vec![0u8; 265];
+        tar[0] = 0x78;
+        tar[1] = 0x9C;
+        tar[257..262].copy_from_slice(b"ustar");
+        assert_eq!(fmt_of(&tar), "tar");
+        // A genuine zlib stream (no archive magic) is still detected as zlib.
+        assert_eq!(fmt_of(&[0x78, 0x9C, 0x01, 0x02, 0x03]), "zlib");
     }
 
     #[test]

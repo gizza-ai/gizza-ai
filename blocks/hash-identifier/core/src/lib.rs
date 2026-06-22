@@ -245,8 +245,14 @@ fn identify_prefixed(s: &str) -> Option<Vec<Candidate>> {
             }
         }
     }
-    // NetNTLMv2 / NetNTLMv1: user::domain:...:... (colon-delimited capture)
-    if s.contains("::") && s.matches(':').count() >= 4 {
+    // NetNTLMv2 / NetNTLMv1: user::domain:...:... (colon-delimited capture).
+    // Require at least one long hex field (NTProofStr is 32 hex chars, the blob
+    // longer) so a plain IPv6 address (hextets are <=4 hex digits, e.g.
+    // `fe80::1:2:3:4`) is not misidentified as a captured NTLM response.
+    if s.contains("::")
+        && s.matches(':').count() >= 4
+        && s.split(':').any(|seg| seg.len() >= 16 && is_hex(seg))
+    {
         return Some(vec![cand(
             "NetNTLMv2 / NetNTLMv1",
             Confidence::Medium,
@@ -485,5 +491,19 @@ mod tests {
     fn argon2_has_no_hashcat_mode() {
         let id = identify("$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQ$RdescudvJCsgt3ub+b+dWRWJTmaaJObG");
         assert_eq!(id.candidates[0].hashcat_mode, None);
+    }
+
+    #[test]
+    fn netntlm_detected_but_ipv6_is_not() {
+        // A genuine NetNTLMv2 capture (long hex NTProofStr + blob) is still detected.
+        let nt = identify("admin::CORP:1122334455667788:00112233445566778899aabbccddeeff:0101000000000000000000000000000000000000");
+        assert_eq!(nt.candidates[0].name, "NetNTLMv2 / NetNTLMv1");
+        // A plain IPv6 address (only short hextets) must NOT be misidentified.
+        let ip = identify("fe80::1:2:3:4");
+        assert!(
+            !ip.candidates.iter().any(|c| c.name.starts_with("NetNTLM")),
+            "IPv6 misidentified as NetNTLM: {:?}",
+            ip.candidates.iter().map(|c| c.name).collect::<Vec<_>>()
+        );
     }
 }
