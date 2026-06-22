@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/color-channel-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a single colour channel (R/G/B/A) from an image as a PNG.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Split an image into a single colour channel for steganography and colour analysis. channel = red (default), green, blue, alpha, or a CMYK separation cyan, magenta, yellow, key (black, derived from RGB). mode = grayscale (default) renders the channel value as a gray level (R=G=B=value) — the classic per-channel stego / forensics view; mode = color keeps the value in its own colour slot with the others zeroed (red→red-only image, alpha→opacity over black, CMYK→its ink colour). Output is a PNG the same size as the input. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "channel": { "type": "string", "enum": ["red", "green", "blue", "alpha", "cyan", "magenta", "yellow", "key"], "default": "red", "description": "Which channel to extract: the RGBA channels red (default), green, blue, alpha; or a CMYK separation cyan, magenta, yellow, key (black). CMYK is derived from RGB." },
+        "mode": { "type": "string", "enum": ["grayscale", "color"], "default": "grayscale", "description": "How to render the channel: grayscale (default) shows the channel value as a gray level (R=G=B=value), the classic stego / forensics view; color keeps the value in its own colour slot with the others zeroed (red→red-only, etc.; alpha→opacity over black)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
