@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-false-color"
+version = "0.1.0"
+abi = 1
+summary = "Map an image's luminance through a scientific colormap (false colour)"
