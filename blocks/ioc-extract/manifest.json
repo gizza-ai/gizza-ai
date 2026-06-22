@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/ioc-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract IOCs (IPs, URLs, domains, emails, hashes) from text.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract indicators of compromise (IOCs) from an arbitrary block of text — IPv4/IPv6 addresses, URLs, domains, emails, and MD5/SHA-1/SHA-256/SHA-512 hashes — de-duplicated, sorted and grouped by type. Recognizes and refangs defanged input; can optionally re-defang the output.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "types": { "type": "string", "default": "all" },
+        "defang": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

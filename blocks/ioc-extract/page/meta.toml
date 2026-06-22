@@ -1,0 +1,30 @@
+slug          = "ioc-extract"
+title         = "IOC Extractor — Pull IPs, URLs, Domains, Emails & Hashes from Text — gizza.ai"
+description   = "Extract indicators of compromise (IOCs) from any text instantly in your browser. Pull out IPv4/IPv6 addresses, URLs, domains, emails and MD5/SHA-1/SHA-256/SHA-512 hashes — de-duplicated, sorted and grouped by type. Handles defanged input and can re-defang the output. Free, private, no sign-up."
+tags          = ["ioc", "ioc extractor", "indicators of compromise", "extract ip", "extract url", "extract domain", "extract hash", "threat intelligence", "cti", "soc", "malware analysis", "defang", "ioc parser"]
+h1            = "IOC Extractor"
+hero_subtitle = "Paste a log line, email, alert or threat report and pull out every indicator of compromise — IPv4/IPv6 addresses, URLs, domains, emails and MD5/SHA-1/SHA-256/SHA-512 hashes — de-duplicated, sorted and grouped by type. Defanged input is recognized automatically, and you can re-defang the output. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_ioc_extract_web"
+export        = "run"
+live          = false
+output_label  = "Extracted indicators"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste a log line, email or threat report — e.g. C2 at hxxp[://]evil[.]com from 203.0.113.5, hash d41d8cd98f00b204e9800998ecf8427e"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "types"
+label       = "Indicator types (comma-separated, or 'all')"
+placeholder = "all"
+source      = "field"
+
+# `defang` renders as a checkbox (Param::boolean, default false → unchecked).
+[[input]]
+name        = "defang"
+label       = "Re-defang the extracted indicators in the output"
+source      = "field"
