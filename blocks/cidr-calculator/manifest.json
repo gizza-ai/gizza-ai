@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/cidr-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute network address, broadcast, netmask, wildcard, host range and counts for a CIDR.",
+  "role": "skill",
+  "tool": {
+    "description": "Calculate the subnet properties of an IPv4 or IPv6 CIDR block (network address, broadcast, netmask, wildcard, usable host range, address/host counts, private-vs-public).",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string" },
+        "format": { "type": "string", "enum": ["text", "json"], "default": "text" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
