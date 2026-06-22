@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/iban-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate an IBAN with the mod-97 checksum.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate an IBAN (International Bank Account Number, ISO 13616): checks the two-letter country code, the country-specific length, and the ISO 7064 mod-97 checksum. Spaces are ignored. Returns whether it's valid, the normalized and 4-block-formatted IBAN, the country and code, the check digits, the BBAN, the total length, and — for common countries — the bank code and account number parsed out of the BBAN.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "iban": { "type": "string", "description": "The IBAN to validate, e.g. \"GB82 WEST 1234 5698 7654 32\". Spaces are ignored and letters are upper-cased." }
+      },
+      "required": ["iban"],
+      "additionalProperties": false
+    }
+  }
+}
