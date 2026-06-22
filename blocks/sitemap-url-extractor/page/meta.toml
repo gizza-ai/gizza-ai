@@ -1,0 +1,18 @@
+slug          = "sitemap-url-extractor"
+title         = "Sitemap URL Extractor — gizza.ai"
+description   = "Paste an XML sitemap or sitemap index and pull out every URL (and lastmod date) as a clean list — in your browser. Nothing is uploaded."
+tags          = ["sitemap url extractor", "extract urls from sitemap", "parse sitemap xml", "sitemap index", "sitemap loc list", "sitemap lastmod"]
+h1            = "Sitemap URL Extractor"
+hero_subtitle = "Paste an XML sitemap (<urlset>) or sitemap index (<sitemapindex>) and pull out every URL from its <loc> elements, with the lastmod date when present. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_sitemap_url_extractor_web"
+export        = "run"
+live          = false
+output_label  = "URLs"
+format        = "text"
+
+[[input]]
+name        = "xml"
+label       = "Sitemap XML"
+placeholder = "Paste your sitemap.xml contents here…"
+source      = "field"
+multiline   = true

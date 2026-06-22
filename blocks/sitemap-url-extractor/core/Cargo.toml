@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-sitemap-url-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+quick-xml = "0.36"
+serde = { version = "1", features = ["derive"] }
