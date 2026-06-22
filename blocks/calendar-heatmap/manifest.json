@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/calendar-heatmap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render date/value pairs as a GitHub-style calendar heatmap SVG.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a list of date→value pairs into a GitHub-style year contribution calendar (an SVG): weeks are columns, the seven weekdays are rows, and each day-cell is shaded by its value bucketed into a 5-step intensity scale with a Less→More legend and month/weekday labels. `data` is one date per line as `YYYY-MM-DD` or `YYYY-MM-DD,VALUE` (the value defaults to 1; repeated dates are summed). scheme picks the color ramp (green|blue|purple|orange); start/end optionally fix the date window (defaults to the data's range); title adds a heading. Returns the SVG. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The data: one date per line, optionally with a value, as `YYYY-MM-DD` or `YYYY-MM-DD,VALUE` (comma/space/tab separator; value defaults to 1). Repeated dates are summed." },
+        "scheme": { "type": "string", "enum": ["green", "blue", "purple", "orange"], "default": "green", "description": "Color ramp for the intensity scale. Default green (GitHub-style)." },
+        "start": { "type": "string", "default": "", "description": "Optional window start date (YYYY-MM-DD). Defaults to the earliest date in the data." },
+        "end": { "type": "string", "default": "", "description": "Optional window end date (YYYY-MM-DD). Defaults to the latest date in the data." },
+        "title": { "type": "string", "default": "", "description": "Optional heading drawn above the calendar." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

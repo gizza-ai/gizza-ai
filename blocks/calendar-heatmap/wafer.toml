@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "calendar-heatmap"
+version = "0.1.0"
+abi = 1
+summary = "Render date/value pairs as a GitHub-style calendar heatmap SVG."
