@@ -169,3 +169,4 @@ url-parser  # duplicate of blocks/parse-uri (splits a URL/URI into scheme/host/p
 view-exif  # duplicate of blocks/image-metadata-viewer (reads + displays all EXIF/TIFF metadata fields from an image: camera settings, timestamps, decoded GPS; same scope as extract-exif skip)
 xml-escape-unescape  # duplicate of blocks/string-escaper (target=html/xml escapes & < > " ' and unescapes named + numeric (&#NN;) entities, mode=escape|unescape; same scope)
 xml-prettify  # duplicate of blocks/xml-formatter (mode=pretty indents compact XML into nested markup with configurable indent + well-formedness check; same scope)
+argon2-verify  # duplicate of blocks/argon2-hash (mode=verify already checks a password against an Argon2 PHC hash string)
