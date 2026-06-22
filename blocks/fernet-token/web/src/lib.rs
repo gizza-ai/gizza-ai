@@ -2,7 +2,7 @@
 //! Field order MUST match meta.toml: text, key, mode, ttl.
 //! The page target (wasm32-unknown-unknown) has no std clock, so the timestamp
 //! comes from js_sys::Date; randomness comes from getrandom's js backend.
-use gizza_ai_fernet_token_core::{decrypt, encrypt, key_from_bytes};
+use gizza_ai_fernet_token_core::{decrypt, encrypt, inspect, key_from_bytes};
 use wasm_bindgen::prelude::*;
 
 fn now_secs() -> u64 {
@@ -55,7 +55,25 @@ fn run_inner(text: &str, key: &str, mode: &str, ttl: &str) -> Result<String, Str
                 .map_err(|_| "decrypted bytes are not valid UTF-8 text".to_string())?;
             Ok(format!("{plaintext}\n\nCreated: {}", iso8601_utc(d.timestamp)))
         }
-        other => Err(format!("unknown mode '{other}' (use 'encrypt' or 'decrypt')")),
+        "inspect" => {
+            let k = if key.trim().is_empty() { None } else { Some(key.trim()) };
+            let i = inspect(text.trim(), k)?;
+            let hmac = match i.hmac_valid {
+                Some(true) => "\nHMAC: valid (key matches)".to_string(),
+                Some(false) => "\nHMAC: INVALID (wrong key or tampered)".to_string(),
+                None => String::new(),
+            };
+            Ok(format!(
+                "Version: 0x{:02x}\nCreated: {}\nIV: {}\nCiphertext: {} bytes\nHMAC: {}{}",
+                i.version,
+                iso8601_utc(i.timestamp),
+                i.iv_hex,
+                i.ciphertext_len,
+                i.hmac_hex,
+                hmac
+            ))
+        }
+        other => Err(format!("unknown mode '{other}' (use 'encrypt', 'decrypt', or 'inspect')")),
     }
 }
 

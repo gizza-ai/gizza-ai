@@ -43,6 +43,23 @@ test('fernet-token page fails clearly on a wrong key', async ({ page }) => {
   await expect(out).toContainText('HMAC verification failed', { timeout: 15000 });
 });
 
+test('fernet-token page inspects a token structure without the key', async ({ page }) => {
+  const token =
+    'gAAAAAAdwJ6wAAECAwQFBgcICQoLDA0ODy021cpGVWKZ_eEwCGM4BLLF_5CV9dOPmrhuVUPgJobwOz7JcbmrR64jVmpU4IwqDA==';
+  await page.goto('/tools/fernet-token/');
+  await page.fill('#in-text', token);
+  await page.selectOption('#in-mode', 'inspect');
+  const out = page.locator('#tool-output');
+  await expect(out).toContainText('Version: 0x80', { timeout: 15000 });
+  await expect(out).toContainText('1985-10-26', { timeout: 15000 });
+  await expect(out).toContainText('IV: 000102030405060708090a0b0c0d0e0f', { timeout: 15000 });
+
+  // With the matching key, the HMAC is reported valid.
+  await page.fill('#in-key', 'cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4=');
+  await page.selectOption('#in-mode', 'inspect');
+  await expect(out).toContainText('valid (key matches)', { timeout: 15000 });
+});
+
 test('fernet-token page decrypts a known token via query-param deep link', async ({ page }) => {
   // Spec test vector: key cw_0x..., token decrypts to "hello", created 1985-10-26.
   const key = 'cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4=';

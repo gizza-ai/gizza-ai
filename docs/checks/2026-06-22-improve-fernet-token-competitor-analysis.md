@@ -57,6 +57,11 @@ In-model gaps we **closed** in this build:
   tampered vs expired vs bad base64) rather than a generic failure. — done.
 - **Reference interoperability** explicitly verified against Python `cryptography` — a
   trust signal competitors rarely demonstrate. — done + documented in page copy/FAQ.
+- **Token inspector / structure breakdown** (8gwifi and asecuritysite offer this, often
+  on a separate page): an `inspect` mode that decodes a token's version byte, creation
+  time, IV (hex), ciphertext size, and HMAC **without the key** — and validates the HMAC
+  if a key is given — consolidated into the same tool. — done (`mode=inspect`, all three
+  surfaces, unit + CLI + Playwright tested).
 - **Privacy posture:** fully browser-local, no upload, works offline — closes the main
   gap vs server-side crypto-utility sites. — inherent to gizza's model.
 - **Deep-linkable page** via query params (`?text=…&key=…&mode=decrypt`) for shareable
@@ -67,23 +72,28 @@ Considered, **not built** (out-of-model or out-of-scope for a focused tool):
 - **Key rotation / MultiFernet** (try a list of keys on decrypt). Real Fernet feature;
   deferred to keep the single-key UX simple — noted as a future enhancement, not a server
   dependency, so it could be added later.
+- **PBKDF2/Scrypt password-derived keys.** In-model (the `encrypt-file` tool already
+  derives keys via PBKDF2), and several competitors offer it; deferred to a follow-up to
+  keep this tool's key model unambiguous (a Fernet key is exactly 32 base64 bytes).
+- **Batch encrypt/decrypt of multiple lines/tokens** — in-model; deferred (single
+  token/text per run keeps the I/O simple). A clean future enhancement.
 - **Server-side batch / API endpoints** — out of model (no backend, no accounts).
 - **Non-text payloads / file encryption** — the existing `encrypt-file` tool covers file
   encryption; keeping this tool text/token-focused avoids overlap.
 
 ## Tests run (all green)
 
-- Core unit tests: 12 (spec vector encrypt + decrypt, roundtrip, empty plaintext, TTL
+- Core unit tests: 15 (spec vector encrypt + decrypt, roundtrip, empty plaintext, TTL
   within/expired/future, wrong key, tampered token, bad key length, invalid base64, wrong
-  version).
-- Block tests: 4 (chat-schema drift guard, encrypt→decrypt roundtrip, decrypt-without-key
-  error, ISO-8601 formatting incl. epoch + spec timestamp).
+  version, inspect spec vector, inspect HMAC valid/invalid with key).
+- Block tests: 5 (chat-schema drift guard, encrypt→decrypt roundtrip, decrypt-without-key
+  error, inspect mode with/without key, ISO-8601 formatting incl. epoch + spec timestamp).
 - `wafer build` OK (chat block instantiates — getrandom + SystemTime + AES/HMAC all run in
   wafer). `wasm-pack` web build OK. Generator renders the page.
 - CLI: encrypt (auto-key + reused key + empty text), decrypt, wrong-key error, TTL
-  expiry; bidirectional Python `cryptography.Fernet` interop.
-- Playwright (3): encrypt→decrypt roundtrip, wrong-key error, query-param deep-link
-  decrypt of the spec vector.
+  expiry, inspect (with/without key); bidirectional Python `cryptography.Fernet` interop.
+- Playwright (4): encrypt→decrypt roundtrip, wrong-key error, inspect structure
+  (with/without key), query-param deep-link decrypt of the spec vector.
 
 ## Limitations / honesty notes
 
