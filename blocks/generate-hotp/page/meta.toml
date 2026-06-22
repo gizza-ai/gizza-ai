@@ -1,0 +1,35 @@
+slug          = "generate-hotp"
+title         = "HOTP Generator — counter-based one-time codes — gizza.ai"
+description   = "Generate counter-based one-time (HOTP, RFC 4226) codes from a base32 secret and a counter, in your browser. The secret never leaves your device."
+tags          = ["hotp", "rfc4226", "one-time password", "otp", "2fa", "counter", "authenticator"]
+h1            = "HOTP generator"
+hero_subtitle = "Generate a counter-based one-time (HOTP) code from a base32 secret and counter value. Runs in your browser — the secret never leaves your device."
+wasm          = "gizza_ai_generate_hotp_web"
+export        = "run"
+live          = false
+output_label  = "Code"
+format        = "text"
+
+[[input]]
+name        = "secret"
+label       = "HOTP secret (base32)"
+placeholder = "JBSWY3DPEHPK3PXP"
+source      = "field"
+
+[[input]]
+name        = "counter"
+label       = "Counter"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "digits"
+label       = "Digits"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm (sha1 | sha256 | sha512)"
+placeholder = "sha1"
+source      = "field"
