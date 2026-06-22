@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "email-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Canonicalize an email address to its deliverable form."
