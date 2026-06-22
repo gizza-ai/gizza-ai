@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/image-cover-fit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scale and centre-crop an image to completely fill target dimensions while preserving aspect ratio (cover)",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Scale and centre-crop ('cover') an image so it completely fills a target width x height while preserving its aspect ratio. The image is scaled to the smallest size that covers the box, then the overflow is cropped away around the chosen anchor (gravity). anchor is one of center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right (default center); set allow_upscale=false to keep images smaller than the target at original size. The result is exactly the requested size with no padding (use image-contain-fit for letterboxing instead). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "width": { "type": "integer", "minimum": 1, "description": "Target width in pixels (the output is exactly this wide)." },
+        "height": { "type": "integer", "minimum": 1, "description": "Target height in pixels (the output is exactly this tall)." },
+        "anchor": { "type": "string", "enum": ["center","top","bottom","left","right","top-left","top-right","bottom-left","bottom-right"], "default": "center", "description": "Which part of the image to keep when cropping the overflow (gravity)." },
+        "allow_upscale": { "type": "boolean", "default": true, "description": "If true (default), upscale images smaller than the target so they fully cover it; if false, keep small images at original size (the output may be smaller than the target rather than padded)." }
+      },
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
