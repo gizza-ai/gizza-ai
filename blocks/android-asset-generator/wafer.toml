@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "android-asset-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a full set of Android launcher icons from one image."
