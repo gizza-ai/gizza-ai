@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/candlestick-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render OHLC price data as an SVG candlestick chart.",
+  "role": "skill",
+  "tool": {
+    "description": "Render OHLC (open/high/low/close) price data as an SVG candlestick chart: a price axis with min/mid/max labels, one candle per row (a high–low wick plus an open–close body, green when close >= open and red when it falls), an optional title, and an optional dashed closing-price trendline. Input is CSV with 4 columns (open,high,low,close) or 5 columns (label/date,open,high,low,close); a header row is skipped automatically.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "OHLC price data as CSV, one bar per line. Each row is 4 columns 'open,high,low,close' or 5 columns 'label,open,high,low,close' (the label/date is shown on the first and last candle). A leading non-numeric header row (e.g. 'date,open,high,low,close') is skipped. E.g. '2024-01-01,10,15,8,12\\n2024-01-02,12,16,11,15'." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." },
+        "width": { "type": "integer", "minimum": 200, "default": 800, "description": "SVG width in pixels (default 800)." },
+        "height": { "type": "integer", "minimum": 150, "default": 400, "description": "SVG height in pixels (default 400)." },
+        "trendline": { "type": "boolean", "default": false, "description": "Overlay a dashed line connecting each bar's closing price (default false)." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
