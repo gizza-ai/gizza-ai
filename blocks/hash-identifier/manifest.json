@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/hash-identifier",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Identify the likely hash/MAC scheme of a digest string.",
+  "role": "skill",
+  "tool": {
+    "description": "Identify the likely hash or MAC scheme that produced a given digest string (bcrypt, Argon2, sha512crypt, MD5, SHA-family, NTLM, CRC, and more). Structural recognition only — it classifies the format, it does not crack the hash.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": { "input": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}
