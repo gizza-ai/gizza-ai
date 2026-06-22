@@ -173,3 +173,4 @@ argon2-verify  # duplicate of blocks/argon2-hash (mode=verify already checks a p
 bcrypt-verify  # duplicate of blocks/bcrypt-hash (mode=verify already checks a plaintext password against a $2a/$2b/$2x/$2y bcrypt hash, across chat/CLI/page)
 bibtex-formatter  # duplicate of blocks/bibtex-format
 color-converter  # duplicate of blocks/color-format-convert (parse hex/rgb/hsl -> all formats)
+current-time  # near-duplicate of blocks/clock (reports the current time; clock already shows current UTC time live, and a chosen-timezone + unix-timestamp readout is an improvement to clock, not a distinct tool — timezone-convert already covers IANA-zone conversion + unix output)
