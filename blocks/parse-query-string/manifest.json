@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/parse-query-string",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a URL query string into structured key/value data",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a URL query string into JSON: ordered key/value pairs (duplicates preserved) plus a structured object where repeated keys become arrays and bracket notation (a[]=, a[0]=, user[name]=) is expanded into nested arrays/objects. Percent-decodes keys/values; optionally decodes + to a space.",
+    "parameters": {
+      "type": "object",
+      "required": ["query"],
+      "properties": {
+        "query": { "type": "string" },
+        "plus_as_space": { "type": "boolean", "default": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}
