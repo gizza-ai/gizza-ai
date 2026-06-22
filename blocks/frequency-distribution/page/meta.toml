@@ -1,0 +1,42 @@
+slug          = "frequency-distribution"
+title         = "Frequency Distribution — Character, byte & n-gram frequency table — gizza.ai"
+description   = "Build a character, byte, or n-gram frequency table from text or hex, with counts and percentages, ranked most to least frequent — in your browser. Nothing is uploaded."
+tags          = ["frequency distribution", "character frequency", "letter frequency", "byte frequency", "n-gram frequency", "frequency analysis", "frequency table", "bigram counter"]
+h1            = "Frequency distribution"
+hero_subtitle = "Build a character, byte, or n-gram frequency table from text or hex — counts and percentages, ranked most to least frequent. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_frequency_distribution_web"
+export        = "run"
+live          = false
+output_label  = "Frequency table (most frequent first)"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input (text, or a hex string)"
+placeholder = "Paste text to analyze…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_kind"
+label       = "Read input as"
+placeholder = "text"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Tally"
+placeholder = "char"
+source      = "field"
+
+[[input]]
+name        = "n"
+label       = "N-gram size (for mode = ngram)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "case_sensitive"
+label       = "Case sensitive (char/n-gram only)"
+placeholder = "true"
+source      = "field"
