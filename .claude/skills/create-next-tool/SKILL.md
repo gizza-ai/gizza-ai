@@ -277,6 +277,15 @@ Dispatcher per iteration:
    FAILED or hit a usage/rate limit, back off (longer ScheduleWakeup) and report.
 3. `ScheduleWakeup` to re-enter `/loop` (dispatch the next one). Do NOT build inline anymore.
 
+**The full long-running loop now lives in the sibling `create-tool-loop` skill** (dispatcher +
+pacing + failure/limit back-off + task-leak cleanup + operational findings). Prefer invoking that
+to run the loop. The BUILDER PROMPT below is kept here for reference and must stay in sync with it.
+
+**FOREGROUND builds only (2026-06-22):** the builder MUST run every build in the foreground (Bash
+timeout up to 600000 ms covers any single step) and must NOT use `run_in_background` or `sleep`/poll
+loops — those leak as orphan "running" tasks that pile up by the hundreds. Kill any background job
+before returning.
+
 BUILDER PROMPT (self-contained — the sub-agent has a fresh context, so it must be told everything):
 > Build the next gizza backlog tool end-to-end. Working dir /root/gizza-ai/gizza-ai; `source $HOME/.cargo/env`
 > in every bash command; use absolute paths; for `wafer build` cd into blocks/<slug>/ first; cwd resets to
