@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "error-level-analysis"
+version = "0.1.0"
+abi = 1
+summary = "Reveal edited regions of an image with Error Level Analysis (ELA)."
