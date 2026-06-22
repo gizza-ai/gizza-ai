@@ -1,0 +1,30 @@
+slug          = "pem-public-key-extract"
+title         = "Extract Public Key from Private Key (PEM) — gizza.ai"
+description   = "Derive the public key from an RSA, EC (P-256/P-384) or Ed25519 private key and get it as a PEM (-----BEGIN PUBLIC KEY-----) block. Runs in your browser, nothing uploaded, free."
+tags          = ["extract public key", "private key to public key", "pem public key", "openssl pkey pubout", "rsa public key", "ec public key", "ed25519 public key"]
+h1            = "Extract Public Key from a Private Key"
+hero_subtitle = "Compute the public key from an RSA, EC (P-256/P-384) or Ed25519 private key and get it as a PEM SubjectPublicKeyInfo (-----BEGIN PUBLIC KEY-----) block. Runs entirely in your browser — your private key is never uploaded."
+wasm          = "gizza_ai_pem_public_key_extract_web"
+export        = "extract_public_key"
+live          = false
+output_label  = "Public key (PEM)"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Private key (PEM, or DER as hex/base64)"
+placeholder = "-----BEGIN PRIVATE KEY-----..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key_type"
+label       = "Key type (auto | rsa | ec | ed25519)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "der_format"
+label       = "DER text format for raw input (hex | base64)"
+placeholder = "hex"
+source      = "field"
