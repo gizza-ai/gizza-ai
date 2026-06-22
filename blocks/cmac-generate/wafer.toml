@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cmac-generate"
+version = "0.1.0"
+abi = 1
+summary = "Compute an AES-CMAC (block-cipher MAC) over a message with a 128/192/256-bit key"
