@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-opacity"
+version = "0.1.0"
+abi = 1
+summary = "Set or scale an image's opacity (alpha)"
