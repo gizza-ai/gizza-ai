@@ -156,3 +156,4 @@ css-selector-extract  # duplicate of blocks/css-select-extract (fetch a page and
 extract-exif           # duplicate of blocks/image-metadata-viewer (reads EXIF/TIFF metadata from a photo: camera/lens/exposure/timestamps + decoded GPS; same scope)
 html-beautify  # duplicate of blocks/html-formatter (indents/pretty-prints HTML, normalizes nesting + attribute spacing; same scope)
 math-expression-evaluator  # duplicate of blocks/calculator (meval-based: evaluates arithmetic expressions with functions e.g. sqrt, parentheses and constants pi/e; same scope)
+md5-hash  # duplicate: text MD5 covered by blocks/hash-text (algorithm="md5", with input/output encodings) and file MD5 covered by blocks/file-hash (returns md5 digest of any file). No distinct surface.
