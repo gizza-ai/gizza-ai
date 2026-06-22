@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-raw-deflate-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# flate2: raw (headerless) DEFLATE, pure-Rust (miniz_oxide), wasm32-safe.
+flate2 = "1"
