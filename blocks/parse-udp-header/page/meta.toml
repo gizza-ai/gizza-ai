@@ -1,0 +1,18 @@
+slug          = "parse-udp-header"
+title         = "UDP Header Parser — decode a raw UDP datagram header from hex — gizza.ai"
+description   = "Paste a UDP datagram header in hex and decode the source/destination ports (with well-known service names), total length, payload length, and checksum — in your browser. Nothing is uploaded."
+tags          = ["udp header parser", "decode udp header", "udp datagram header", "udp port", "udp length", "udp checksum", "rfc 768", "dns port 53", "ntp port 123", "quic port 443"]
+h1            = "UDP Header Parser"
+hero_subtitle = "Paste a raw UDP datagram header as hex and decode every field: source and destination ports (annotated with the well-known service when recognised), the total datagram length, the implied payload length, and the checksum (with a note when it is disabled). Only the first 8 bytes are read, so trailing payload bytes are ignored. Spaces, colons, dashes, dots, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_parse_udp_header_web"
+export        = "run"
+live          = false
+output_label  = "Decoded header"
+format        = "text"
+
+[[input]]
+name        = "header"
+label       = "UDP header (hex)"
+placeholder = "c3d2 0035 0028 1b6e"
+source      = "field"
+multiline   = true
