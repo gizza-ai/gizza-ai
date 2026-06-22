@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/animated-webp-to-gif",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an animated WebP into an animated GIF",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Convert an animated (or still) WebP into an animated GIF for maximum compatibility. Preserves every frame and its timing, with infinite looping by default. Provide the WebP as either url (HTTP/HTTPS) or ref from a prior tool call. Options: loop (infinite, default, or once), speed (1-30 encoder quality/speed, default 10; lower = better palette), delay (override every frame's delay in ms, default 0 = keep original timing), and width (resize output width in px, height scales to keep aspect ratio, default 0 = keep source size). Returns a GIF.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "loop": { "type": "string", "enum": ["infinite", "once"], "default": "infinite", "description": "GIF loop behaviour: infinite (loop forever, default) or once (play a single time)." },
+        "speed": { "type": "integer", "minimum": 1, "maximum": 30, "description": "Encoder quality/speed (1-30, default 10). Lower = better palette/quality but slower; higher = faster." },
+        "delay": { "type": "integer", "minimum": 0, "maximum": 60000, "description": "Override every frame's delay in milliseconds (default 0 = keep the WebP's original per-frame timing)." },
+        "width": { "type": "integer", "minimum": 0, "maximum": 4096, "description": "Output width in pixels; height scales to keep aspect ratio (default 0 = keep the source size)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

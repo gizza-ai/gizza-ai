@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "strip-ipv4-header"
+version = "0.1.0"
+abi = 1
+summary = "Remove the IPv4 header from a raw packet and return the payload"

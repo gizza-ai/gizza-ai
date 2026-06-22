@@ -1,0 +1,35 @@
+{
+  "name": "gizza-ai/image-collage",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine images into a collage (grid/strip/stack).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Combine several images into a single collage PNG. layout is grid (default), horizontal (one row), or vertical (one column); columns sets the grid width; gap adds pixel spacing; background sets the fill color (#rrggbb). Each image is scaled to fit a uniform cell with its aspect ratio preserved. Provide images as a list, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Ordered list of image sources (PNG/JPEG/WebP/GIF/BMP). Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
+              "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+            },
+            "additionalProperties": false
+          }
+        },
+        "layout": { "type": "string", "enum": ["grid", "horizontal", "vertical"], "default": "grid", "description": "Arrangement: grid (default), horizontal (one row), or vertical (one column)." },
+        "columns": { "type": "integer", "minimum": 1, "description": "Number of columns for grid layout (default: roughly square). Ignored for horizontal/vertical." },
+        "gap": { "type": "integer", "minimum": 0, "description": "Gap/padding in pixels between and around cells (default 0)." },
+        "background": { "type": "string", "default": "#ffffff", "description": "Background color as #rgb, #rrggbb, or #rrggbbaa (default white). Shows in gaps and letterbox areas." }
+      },
+      "required": ["images"],
+      "additionalProperties": false
+    }
+  }
+}

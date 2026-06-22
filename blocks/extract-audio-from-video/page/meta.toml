@@ -1,0 +1,29 @@
+slug          = "extract-audio-from-video"
+title         = "Extract Audio from Video Online — gizza.ai"
+description   = "Pull the audio track out of any video as MP3 or WAV, right in your browser — pick a format and bitrate. Runs locally with ffmpeg, nothing is uploaded, free."
+tags          = ["audio", "video", "extract", "mp3", "wav", "convert", "rip", "soundtrack"]
+h1            = "Extract Audio from a Video"
+hero_subtitle = "Pick a video, choose MP3 or WAV — the audio track is extracted in your browser, nothing is uploaded."
+wasm          = "gizza_ai_extract_audio_from_video_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Extracted audio"
+format        = "audio"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Format (mp3|wav)"
+placeholder = "mp3"
+
+[[input]]
+name        = "bitrate"
+source      = "field"
+label       = "MP3 bitrate (kbps, 32-320)"
+placeholder = "192"

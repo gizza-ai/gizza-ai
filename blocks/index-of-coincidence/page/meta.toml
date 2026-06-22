@@ -1,0 +1,29 @@
+slug          = "index-of-coincidence"
+title         = "Index of Coincidence Calculator — gizza.ai"
+description   = "Calculate the Index of Coincidence (IC) of any text to tell monoalphabetic ciphers from polyalphabetic ones and estimate a Vigenère key length. Normalized and raw IC, letter frequencies, and period analysis. Free, private, runs in your browser."
+tags          = ["index of coincidence", "ic calculator", "cryptanalysis", "vigenere", "key length", "kasiski", "frequency analysis", "monoalphabetic", "polyalphabetic", "cipher"]
+h1            = "Index of Coincidence Calculator"
+hero_subtitle = "Measure how uneven a text's letter distribution is — tell a monoalphabetic cipher from a polyalphabetic one and estimate a Vigenère key length. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_index_of_coincidence_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to analyze"
+placeholder = "Paste ciphertext or plaintext here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "max_period"
+label       = "Estimate key length up to (0 = off, max 40)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "show_counts"
+label       = "Show per-letter frequency table"
+source      = "field"

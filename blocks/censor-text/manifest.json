@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/censor-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Redact words in text by masking.",
+  "role": "skill",
+  "tool": {
+    "description": "Redact words in text by masking them with a character. Provide a comma-separated `words` list (or leave it empty to use a built-in common-profanity list). Matching is case-insensitive; by default only whole words are masked (set whole_word=false to also catch matches inside larger words). `mask` sets the masking character (default '*').",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to censor." },
+        "words": { "type": "string", "default": "", "description": "Comma-separated words to redact. Leave empty to use a built-in common-profanity list." },
+        "mask": { "type": "string", "default": "*", "description": "Masking character (its first char is used). Default '*'." },
+        "whole_word": { "type": "boolean", "default": true, "description": "When true (default), only whole-word matches are masked; false also masks matches inside larger words." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

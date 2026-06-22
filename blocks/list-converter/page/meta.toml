@@ -1,0 +1,40 @@
+slug          = "list-converter"
+title         = "List Converter — Reformat Lists Online — gizza.ai"
+description   = "Reformat a list between comma-separated, newline, bulleted, numbered, and quoted forms — with optional sort and dedupe. Runs in your browser, nothing uploaded, free."
+tags          = ["list converter", "comma to newline", "column to comma", "list to csv", "dedupe list", "sort list"]
+h1            = "List Converter"
+hero_subtitle = "Paste a list and reformat it — comma, newline, bullets, numbered, or quoted — with optional sort and dedupe. Runs entirely in your browser."
+wasm          = "gizza_ai_list_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "List"
+placeholder = "apple, banana, cherry"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_separator"
+label       = "Input separator (auto|comma|newline|semicolon|space)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format (comma|newline|bulleted|numbered|quoted|space)"
+placeholder = "newline"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort alphabetically"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Remove duplicates"
+source      = "field"

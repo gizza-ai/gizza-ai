@@ -1,0 +1,30 @@
+{
+  "name": "gizza-ai/markdown-table-format",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Align and pretty-print GitHub-flavored Markdown tables",
+  "role": "skill",
+  "tool": {
+    "description": "Align and pretty-print GitHub-flavored Markdown (GFM) pipe tables. Finds every table in the input (skipping tables inside fenced code blocks), recomputes each column's width from its widest cell, and re-renders all rows with evenly padded cells and a normalized delimiter row. Column alignment markers are honored; align='keep' preserves them, left/center/right force every column. style='pretty' aligns the grid; style='compact' uses minimal padding. Text outside tables is passed through unchanged.",
+    "parameters": {
+      "type": "object",
+      "required": ["markdown"],
+      "properties": {
+        "markdown": { "type": "string", "description": "The Markdown text containing one or more pipe tables to reformat." },
+        "align": {
+          "type": "string",
+          "enum": ["keep", "left", "center", "right"],
+          "default": "keep",
+          "description": "Column alignment for the output: keep = preserve each column's alignment from the source delimiter row; left/center/right = force every column to that alignment."
+        },
+        "style": {
+          "type": "string",
+          "enum": ["pretty", "compact"],
+          "default": "pretty",
+          "description": "Output layout: pretty = pad every column to its widest cell so the grid lines up in a monospace font; compact = single-space padding (no width alignment) for the smallest, diff-friendly output."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

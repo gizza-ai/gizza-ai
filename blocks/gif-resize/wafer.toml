@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gif-resize"
+version = "0.1.0"
+abi = 1
+summary = "Resize an animated GIF to new dimensions"

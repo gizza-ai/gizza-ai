@@ -1,0 +1,37 @@
+slug          = "http-request-builder"
+title         = "HTTP Request Builder — raw HTTP/1.1 message — gizza.ai"
+description   = "Build a well-formed raw HTTP/1.1 request from a method, URL, headers, and body — in your browser. Nothing is sent. Great for netcat, teaching, and debugging."
+tags          = ["http request builder", "raw http", "http/1.1", "request message", "netcat", "build http request"]
+h1            = "HTTP Request Builder"
+hero_subtitle = "Compose a well-formed raw HTTP/1.1 request from a method, URL, headers, and body. Nothing is sent — copy the wire text for netcat, openssl s_client, or learning. Runs in your browser."
+wasm          = "gizza_ai_http_request_builder_web"
+export        = "run"
+live          = false
+output_label  = "Raw HTTP request"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "URL"
+placeholder = "https://api.example.com/v1/items?limit=10"
+source      = "field"
+
+# method renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "method"
+label       = "Method"
+source      = "field"
+
+[[input]]
+name        = "headers"
+label       = "Headers (one per line: Name: Value)"
+placeholder = "Accept: application/json\nAuthorization: Bearer TOKEN"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "body"
+label       = "Body"
+placeholder = "{\"name\": \"widget\"}"
+source      = "field"
+multiline   = true

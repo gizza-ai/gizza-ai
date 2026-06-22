@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/data-uri-decode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a data: URI into its MIME type and payload",
+  "role": "skill",
+  "tool": {
+    "description": "Parse and decode a data: URI (RFC 2397) into its MIME type, parameters (charset), encoding, byte size, and decoded payload (text or binary file-type + hex preview).",
+    "parameters": {
+      "type": "object",
+      "required": ["uri"],
+      "properties": { "uri": { "type": "string", "description": "The data: URI to decode." } },
+      "additionalProperties": false
+    }
+  }
+}

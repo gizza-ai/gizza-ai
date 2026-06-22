@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lsb-embed"
+version = "0.1.0"
+abi = 1
+summary = "Hide a secret message inside an image (LSB steganography)."

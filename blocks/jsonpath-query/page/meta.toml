@@ -1,0 +1,34 @@
+slug          = "jsonpath-query"
+title         = "JSONPath Query Online (RFC 9535) — gizza.ai"
+description   = "Evaluate a JSONPath expression against any JSON document in your browser — child access, wildcards, slices, recursive descent, filters. RFC 9535, pure-Rust, nothing uploaded, free."
+tags          = ["jsonpath", "json query", "jsonpath online", "jsonpath evaluator", "rfc 9535", "json filter"]
+h1            = "JSONPath Query"
+hero_subtitle = "Type a JSONPath expression and a JSON document — see the matched nodes instantly. RFC 9535, runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_jsonpath_query_web"
+export        = "run"
+live          = false
+output_label  = "Matches"
+format        = "text"
+
+[[input]]
+name        = "path"
+label       = "JSONPath expression"
+placeholder = "$.store.book[*].author"
+source      = "field"
+
+[[input]]
+name        = "json"
+label       = "JSON input"
+placeholder = "{ \"store\": { \"book\": [ { \"author\": \"Nigel Rees\" } ] } }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print output"
+source      = "field"
+
+[[input]]
+name        = "wrap"
+label       = "Wrap matches in a JSON array"
+source      = "field"

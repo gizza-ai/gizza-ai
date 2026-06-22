@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rc4-cipher"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt data with the RC4 stream cipher (optional drop-N)"

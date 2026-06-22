@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/redact-pii",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect and mask PII in text.",
+  "role": "skill",
+  "tool": {
+    "description": "Detect and redact personally-identifiable information (PII) in a block of text: email addresses, phone numbers, IPv4/IPv6 addresses, credit-card numbers (Luhn-validated to avoid false positives) and US SSN-like numbers. style=label (default) replaces each value with a typed token like [EMAIL]; style=mask replaces every character with '*'. Returns the redacted text plus per-category counts. Runs locally — the text never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to scan and redact." },
+        "style": { "type": "string", "enum": ["label", "mask"], "default": "label", "description": "How to replace detected values: label (default) inserts a typed token like [EMAIL]; mask replaces each character with '*'." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

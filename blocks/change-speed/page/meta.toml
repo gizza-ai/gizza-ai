@@ -1,0 +1,23 @@
+slug          = "change-speed"
+title         = "Change Video Speed Online — gizza.ai"
+description   = "Speed up or slow down a video right in your browser, keeping audio in sync — pick a speed factor (0.25x–4x). Re-encodes locally with ffmpeg, nothing is uploaded, free."
+tags          = ["video speed", "slow motion", "fast forward", "speed up video", "slow down video", "ffmpeg"]
+h1            = "Change Video Speed"
+hero_subtitle = "Pick a video and a speed factor — it's sped up or slowed down in your browser (audio stays in sync), nothing is uploaded."
+wasm          = "gizza_ai_change_speed_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Adjusted video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "factor"
+source      = "field"
+label       = "Speed factor (0.25–4, e.g. 2 = 2x faster)"
+placeholder = "2"

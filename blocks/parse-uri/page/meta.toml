@@ -1,0 +1,18 @@
+slug          = "parse-uri"
+title         = "URI Parser — split a URL into scheme, host, path, query & fragment — gizza.ai"
+description   = "Paste a URI or URL and break it into its parts: scheme, username/password, host, port, path, query parameters (percent-decoded), and fragment — in your browser. Nothing is uploaded."
+tags          = ["uri parser", "url parser", "parse url", "url components", "query string parser", "rfc 3986", "url breakdown", "host port path", "url decoder"]
+h1            = "URI / URL Parser"
+hero_subtitle = "Paste a URI or URL and split it into its RFC 3986 components: scheme, userinfo (username / password), host, port, path, query string (parsed into percent-decoded key/value pairs), and fragment. Relative references, mailto:, file:// and IPv6 hosts all work. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_parse_uri_web"
+export        = "run"
+live          = false
+output_label  = "Parsed URI"
+format        = "text"
+
+[[input]]
+name        = "uri"
+label       = "URI / URL"
+placeholder = "https://user:pass@www.example.com:8443/path/to/page?q=hello+world&lang=en#section-2"
+source      = "field"
+multiline   = true

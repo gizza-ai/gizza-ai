@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/totp-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a TOTP (2FA) code from a secret.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a time-based one-time code (TOTP, RFC 6238 — the 2FA codes authenticator apps show) from a base32 secret. Uses the current time by default (pass timestamp to compute a code for a specific Unix time). digits (6-8, default 6), period (seconds, default 30), and algorithm (sha1 default / sha256 / sha512) are configurable. Returns the code and how many seconds it stays valid. Runs locally — the secret never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "secret": { "type": "string", "description": "The TOTP shared secret, base32-encoded (spaces and case are ignored)." },
+        "digits": { "type": "integer", "minimum": 6, "maximum": 8, "description": "Number of digits in the code (6, 7, or 8; default 6)." },
+        "period": { "type": "integer", "minimum": 1, "maximum": 600, "description": "Time step in seconds (default 30)." },
+        "algorithm": { "type": "string", "enum": ["sha1", "sha256", "sha512"], "default": "sha1", "description": "HMAC hash algorithm (default sha1, the standard for authenticator apps)." },
+        "timestamp": { "type": "integer", "minimum": 0, "description": "Unix time in seconds to compute the code at; omit or 0 for the current time." }
+      },
+      "required": ["secret"],
+      "additionalProperties": false
+    }
+  }
+}

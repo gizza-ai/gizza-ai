@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lsb-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract a hidden message from an image (LSB steganography)."

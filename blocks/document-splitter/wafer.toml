@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "document-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split a Markdown/HTML document into per-section files"

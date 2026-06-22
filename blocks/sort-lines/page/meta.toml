@@ -1,0 +1,50 @@
+slug          = "sort-lines"
+title         = "Sort Lines — alphabetical, numeric & natural line sorting — gizza.ai"
+description   = "Sort lines of text alphabetically, numerically, by length or in natural order, ascending or descending. Remove duplicates and blank lines. Runs in your browser — nothing is uploaded."
+tags          = ["sort lines", "alphabetical sort", "line sorter", "numeric sort", "natural sort", "sort text", "remove duplicate lines"]
+h1            = "Sort Lines"
+hero_subtitle = "Put lines of text in order — alphabetical, numeric, natural or by length, ascending or descending. Optionally drop duplicates and blank lines. Everything runs in your browser."
+wasm          = "gizza_ai_sort_lines_web"
+export        = "run"
+live          = false
+output_label  = "Sorted lines"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste lines to sort…"
+source      = "field"
+multiline   = true
+
+# method renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "method"
+label       = "Sort by"
+source      = "field"
+
+# order renders as a <select>.
+[[input]]
+name        = "order"
+label       = "Order"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Ignore surrounding whitespace"
+source      = "field"
+
+[[input]]
+name        = "unique"
+label       = "Remove duplicate lines"
+source      = "field"
+
+[[input]]
+name        = "remove_blank"
+label       = "Remove blank lines"
+source      = "field"

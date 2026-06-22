@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "find-duplicate-lines"
+version = "0.1.0"
+abi = 1
+summary = "List lines that appear more than once, with counts"

@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/csv-json-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert tabular data between CSV and JSON in either direction.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert tabular data between CSV and JSON in either direction. direction='auto' (default) detects the input format (text starting with '[' or '{' is JSON -> CSV, otherwise CSV -> JSON); set 'csv-to-json' or 'json-to-csv' to force it. csv->json yields an array of objects keyed by the header row (headers=true, default) or an array of arrays (headers=false), inferring numbers/booleans/null from cell text. json->csv accepts an array of objects (header row from the union of keys) or an array of arrays. delimiter is a single char or 'tab'/'comma'/'semicolon'/'pipe'. pretty=true indents JSON output. flatten=true (json->csv) expands nested objects/arrays into dot-notation columns.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV or JSON text to convert." },
+        "direction": { "type": "string", "enum": ["auto", "csv-to-json", "json-to-csv"], "default": "auto", "description": "Conversion direction. 'auto' (default) detects the input: text starting with '[' or '{' is treated as JSON (-> CSV), otherwise CSV (-> JSON)." },
+        "delimiter": { "type": "string", "default": ",", "description": "CSV field delimiter -- a single character, or the word 'tab', 'comma', 'semicolon', or 'pipe'. Default ','." },
+        "headers": { "type": "boolean", "default": true, "description": "Treat the CSV's first row as field names. csv->json: true gives an array of objects, false an array of arrays. json->csv: true emits a header row from the object keys. Default true." },
+        "pretty": { "type": "boolean", "default": false, "description": "Pretty-print (indent) JSON output. Only affects csv->json. Default false." },
+        "flatten": { "type": "boolean", "default": false, "description": "json->csv only: expand nested objects/arrays into dot-notation columns (e.g. {\"addr\":{\"city\":\"NYC\"}} becomes column 'addr.city'). When false, nested values are written as compact JSON strings. Default false." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

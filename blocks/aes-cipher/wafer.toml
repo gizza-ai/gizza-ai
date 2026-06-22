@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "aes-cipher"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt text with AES (CBC/CTR/GCM/ECB)"

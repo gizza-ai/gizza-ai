@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-domains"
+version = "0.1.0"
+abi = 1
+summary = "Extract hostnames and registrable domains from text"

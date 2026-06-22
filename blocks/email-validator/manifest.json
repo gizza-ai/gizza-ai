@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/email-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate an email address against RFC 5321/5322 syntax and flag common typos.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate an email address against RFC 5321/5322 syntax rules and flag common typos and formatting issues. Syntax-only (no DNS/SMTP). Reports validity, hard errors, soft warnings, and a suggested fix for likely typos.",
+    "parameters": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email address to validate. A 'Name <addr>', 'mailto:addr', or angle-bracketed form is accepted and unwrapped before validation."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

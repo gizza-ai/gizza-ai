@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-to-yaml",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert CSV into a YAML list of objects.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a CSV table into a YAML list (sequence) of objects keyed by the header row (or col1… when header=false). Column order is preserved. infer_types=true (default) turns cell text into numbers/booleans/null (leading-zero and signed strings stay text); false keeps strings. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "header": { "type": "boolean", "default": true, "description": "Use the first row as the object keys (default true); otherwise 'col1'… are used." },
+        "infer_types": { "type": "boolean", "default": true, "description": "Infer numbers, booleans and null from cell text (default true); false keeps everything as strings." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-hsl-adjust"
+version = "0.1.0"
+abi = 1
+summary = "Adjust image hue/saturation/lightness (HSL)"

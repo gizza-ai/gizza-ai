@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/svg-optimize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Minify and clean up SVG markup (SVGO-style)",
+  "role": "skill",
+  "tool": {
+    "description": "Optimize SVG markup: collapse whitespace and indentation, remove comments, the <?xml?> declaration and <!DOCTYPE>, strip editor metadata (<metadata>, inkscape:/sodipodi: elements + attributes, unused editor xmlns), and normalize tag whitespace. Conservative by default — path data and numbers are never rewritten, so the rendered image is unchanged. Set remove_comments=false to keep comments; remove_ids=true to also drop id/class; remove_dimensions=true to drop root width/height when a viewBox exists. The verbatim contents of <script>, <style> and <text> are preserved. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "svg": { "type": "string", "description": "The SVG markup to optimize." },
+        "remove_comments": { "type": "boolean", "default": true, "description": "Remove <!-- … --> comments (default true)." },
+        "remove_metadata": { "type": "boolean", "default": true, "description": "Strip editor metadata: <metadata>, inkscape:/sodipodi: elements and attributes, and unused editor xmlns declarations (default true)." },
+        "remove_ids": { "type": "boolean", "default": false, "description": "Remove id and class attributes from every element (default false — they may be referenced by CSS, JS or <use>)." },
+        "remove_dimensions": { "type": "boolean", "default": false, "description": "Remove width/height from the root <svg> when a viewBox is present so it scales responsively (default false)." }
+      },
+      "required": ["svg"],
+      "additionalProperties": false
+    }
+  }
+}

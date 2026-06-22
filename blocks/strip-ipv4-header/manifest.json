@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/strip-ipv4-header",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove the IPv4 header from a raw packet and return the payload",
+  "role": "skill",
+  "tool": {
+    "description": "Remove the IPv4 header from a raw packet given as a hex string and return the encapsulated payload (the transport segment, e.g. the TCP/UDP datagram). The header length is read from the IHL field, so any IP options are stripped too; the packet's Total Length field is honored to drop trailing link-layer padding. Returns JSON with the IP version, IHL, the number of header bytes removed, the payload's protocol number (named when known, e.g. TCP/UDP/ICMP), the payload length, and the payload as a lowercase hex string. Input may contain spaces, colons, dashes, dots, or a 0x prefix. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["packet"],
+      "properties": { "packet": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

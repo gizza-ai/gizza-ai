@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/csv-to-xml",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert CSV into XML records.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a CSV table into XML: a `root` element (default 'rows') wraps one `row` element per record, and each field is <tag>value</tag> using the header name as the tag (sanitized to a valid XML name) — or col1… when header=false. Values are XML-escaped. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "root": { "type": "string", "default": "rows", "description": "Root element tag wrapping all records (default 'rows')." },
+        "row": { "type": "string", "default": "row", "description": "Element tag for each record (default 'row')." },
+        "header": { "type": "boolean", "default": true, "description": "Use the first row as the field tag names (default true); otherwise 'col1'… are used." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

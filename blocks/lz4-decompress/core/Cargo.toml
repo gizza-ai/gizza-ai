@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-lz4-decompress-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# lz4_flex: pure-Rust LZ4 implementation (no C lz4 dep), wasm32-safe. The
+# `frame` feature provides the standard LZ4 frame format (.lz4, magic 0x184D2204)
+# that interoperates with the reference `lz4` CLI. We decode the frame stream
+# here — the inverse of the lz4-compress block.
+lz4_flex = { version = "0.11", default-features = false, features = ["frame", "std"] }

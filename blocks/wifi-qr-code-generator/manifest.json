@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/wifi-qr-code-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a Wi-Fi join QR code.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a Wi-Fi join QR code from an SSID, password and security type, as an SVG. Scanning it with a phone camera offers to connect to the network — no typing the password. security is WPA (default; covers WPA/WPA2/WPA3), WEP, or nopass (open); set hidden=true for a non-broadcast SSID. Returns an SVG image. Runs locally — the credentials never leave the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ssid": { "type": "string", "description": "The Wi-Fi network name (SSID)." },
+        "password": { "type": "string", "description": "The Wi-Fi password (required for WPA/WEP; omit for an open network)." },
+        "security": { "type": "string", "enum": ["WPA", "WEP", "nopass"], "default": "WPA", "description": "Security type: WPA (default, covers WPA/WPA2/WPA3), WEP, or nopass (open network)." },
+        "hidden": { "type": "boolean", "default": false, "description": "Set true if the network's SSID is hidden (not broadcast)." }
+      },
+      "required": ["ssid"],
+      "additionalProperties": false
+    }
+  }
+}

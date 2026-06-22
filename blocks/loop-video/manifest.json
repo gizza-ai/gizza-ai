@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/loop-video",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Loop a video/GIF a number of times or to a duration.",
+  "role": "skill",
+  "requires": ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+  "tool": {
+    "description": "Repeat a video or GIF into one continuous file — either a set number of times (count, 1-100, default 2) or until a target duration in seconds (duration, takes precedence when > 0). Stream-copied (no re-encode), keeps the input format. Provide the video as either url (HTTP/HTTPS) or ref. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "count": { "type": "integer", "minimum": 1, "maximum": 100, "description": "How many times to play the clip in total (1-100, default 2). Ignored if duration is set." },
+        "duration": { "type": "number", "minimum": 0, "maximum": 3600, "description": "Target total duration in seconds (loops the clip to fill it). Takes precedence over count when > 0." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

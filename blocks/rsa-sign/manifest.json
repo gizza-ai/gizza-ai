@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/rsa-sign",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sign a message with an RSA private key.",
+  "role": "skill",
+  "tool": {
+    "description": "Sign a message with an RSA private key and return a base64-encoded signature. scheme=pkcs1v15 (default, deterministic RSASSA-PKCS1-v1_5) or pss (randomized RSASSA-PSS); hash=sha256 (default), sha384, or sha512. The private key is PEM-encoded (PKCS#8 or PKCS#1). The signature verifies with the matching public key. Runs locally — the private key and message never leave the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "description": "The message to sign." },
+        "private_key": { "type": "string", "description": "Your RSA private key, PEM-encoded (PKCS#8 '-----BEGIN PRIVATE KEY-----' or PKCS#1 '-----BEGIN RSA PRIVATE KEY-----')." },
+        "scheme": { "type": "string", "enum": ["pkcs1v15", "pss"], "default": "pkcs1v15", "description": "Signature scheme: pkcs1v15 (default, deterministic) or pss (randomized)." },
+        "hash": { "type": "string", "enum": ["sha256", "sha384", "sha512"], "default": "sha256", "description": "Digest algorithm to hash the message with before signing (default sha256)." }
+      },
+      "required": ["message", "private_key"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,48 @@
+slug          = "des-cipher"
+title         = "DES Cipher — Encrypt/decrypt with DES (ECB/CBC) — gizza.ai"
+description   = "Encrypt or decrypt data with single DES in ECB or CBC mode, with hex/base64 I/O — in your browser. For legacy interop. Nothing is uploaded."
+tags          = ["des", "des encrypt", "des decrypt", "legacy cipher", "ecb", "cbc"]
+h1            = "DES cipher"
+hero_subtitle = "Encrypt or decrypt data with single DES (ECB/CBC), hex or base64. For legacy interop — DES is not secure. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_des_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "cipher"
+label       = "Mode (cbc | ecb)"
+placeholder = "cbc"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (8 bytes, encoded)"
+placeholder = "base64 or hex key"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV (8 bytes, for cbc)"
+placeholder = "base64 or hex iv"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (base64 | hex)"
+placeholder = "base64"
+source      = "field"

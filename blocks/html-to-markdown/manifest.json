@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/html-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert HTML to clean Markdown.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an HTML fragment or page body into clean Markdown, preserving headings, links, lists, code blocks, tables, blockquotes, and emphasis. Pass the HTML as `html`.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The HTML fragment or page body to convert to Markdown." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}

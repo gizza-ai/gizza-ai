@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/extract-domains",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract hostnames and registrable domains from text",
+  "role": "skill",
+  "tool": {
+    "description": "Scan text and extract every domain it references — from plain text, http(s)/ftp URLs, and email addresses. Each candidate is validated against the Public Suffix List, so IP addresses, version numbers, and bogus TLDs are dropped. Results are deduplicated in first-seen order. mode=hostname returns full hostnames, mode=registrable returns the registrable domain / eTLD+1, mode=both (default) returns both lists with counts. Set sort=true to order results alphabetically. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "mode": { "type": "string", "enum": ["hostname", "registrable", "both"], "default": "both" },
+        "sort": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

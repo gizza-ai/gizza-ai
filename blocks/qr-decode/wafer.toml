@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "qr-decode"
+version = "0.1.0"
+abi = 1
+summary = "Decode the data in a QR code image"

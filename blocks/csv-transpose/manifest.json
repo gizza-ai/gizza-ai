@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/csv-transpose",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Transpose a CSV (swap rows and columns).",
+  "role": "skill",
+  "tool": {
+    "description": "Transpose a CSV: swap its rows and columns so the header row becomes the first column and vice versa. The output has one row per input column and one column per input row; ragged rows are padded with empty cells. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

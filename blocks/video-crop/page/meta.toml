@@ -1,0 +1,41 @@
+slug          = "video-crop"
+title         = "Crop a Video Online — gizza.ai"
+description   = "Crop a video to any rectangle right in your browser — set width, height, and an optional x/y offset (centered by default). Re-encodes locally with ffmpeg, nothing is uploaded, free."
+tags          = ["video", "crop", "trim edges", "aspect ratio", "ffmpeg", "resize video"]
+h1            = "Crop a Video"
+hero_subtitle = "Pick a video, set a crop size (and optional offset) — it's cropped in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_crop_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Cropped video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Crop width (px)"
+placeholder = "640"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Crop height (px)"
+placeholder = "360"
+
+[[input]]
+name        = "x"
+source      = "field"
+label       = "X offset (px, optional)"
+placeholder = "(centered)"
+
+[[input]]
+name        = "y"
+source      = "field"
+label       = "Y offset (px, optional)"
+placeholder = "(centered)"

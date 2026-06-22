@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/todo-organizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Organize a brain-dump into a prioritized Markdown checklist.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a freeform brain-dump (one task per line) into a prioritized Markdown checklist. Each task's priority is inferred from urgency keywords (urgent/asap/today → High, soon/this week → Medium, later/someday → Low; default Medium), and lightweight due-date hints (today, tomorrow, Friday, this week, …) are surfaced inline. By default tasks are grouped under High/Medium/Low headings (group_by=none keeps original order). Set numbered=true for a numbered list instead of checkboxes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The freeform brain-dump, one task per line. Existing bullets/numbering are stripped." },
+        "group_by": { "type": "string", "enum": ["priority", "none"], "default": "priority", "description": "priority (default) groups tasks under High/Medium/Low headings inferred from urgency keywords; none keeps the original order in one flat list." },
+        "numbered": { "type": "boolean", "default": false, "description": "When true, emit a numbered list (1. 2. 3.) instead of checkbox bullets (- [ ])." },
+        "show_due": { "type": "boolean", "default": true, "description": "When true (default), append any detected due-date hint (today, tomorrow, Friday, this week, …) as _(due: …)_." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,34 @@
+slug          = "json-yaml-convert"
+title         = "JSON ⇄ YAML ⇄ TOML Converter — gizza.ai"
+description   = "Convert config data between JSON, YAML, and TOML in any direction — in your browser. Round-trips through a common model. Nothing is uploaded."
+tags          = ["json to toml", "yaml to toml", "toml to json", "json yaml toml", "config converter", "toml converter"]
+h1            = "JSON ⇄ YAML ⇄ TOML"
+hero_subtitle = "Convert config data between JSON, YAML, and TOML in any direction. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_yaml_convert_web"
+export        = "run"
+live          = false
+output_label  = "Converted output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input"
+placeholder = "{ \"title\": \"demo\", \"server\": { \"port\": 8080 } }"
+source      = "field"
+multiline   = true
+
+# from/to render as <select>; option lists derive from the descriptor schema.
+[[input]]
+name        = "from"
+label       = "From"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print output"
+source      = "field"

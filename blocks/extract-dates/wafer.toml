@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-dates"
+version = "0.1.0"
+abi = 1
+summary = "Find dates and times in text, normalized to ISO 8601"

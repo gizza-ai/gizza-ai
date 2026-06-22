@@ -1,0 +1,36 @@
+{
+  "name": "gizza-ai/qr-code-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a QR code (SVG or PNG).",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a QR code as an SVG or PNG image from text, a URL, Wi-Fi credentials, a contact card, an email, an SMS, a phone number, or a location. Set content to text (encode the data string), url (encode data as a link; https:// is prepended if no scheme), wifi (build a WIFI: join code from ssid/password/security/hidden — scanning offers to connect), contact (build a vCard from name/phone/email/organization/url), email (build a mailto: from email/subject/body), sms (build an SMSTO: from phone/body), phone (build a tel: from phone), or geo (build a geo: from latitude/longitude). Choose format svg (default, scalable) or png (raster; size sets the pixel edge, 64-2048). error_correction is L/M/Q/H (default M). dark_color/light_color recolour the code (#rgb or #rrggbb). Returns an image. Runs locally — the data never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": { "type": "string", "enum": ["text", "url", "wifi", "contact", "email", "sms", "phone", "geo"], "default": "text", "description": "What to encode: text (any string), url (a link; a scheme is added if missing), wifi (join code from ssid/password/security), contact (a vCard from name/phone/email), email (a mailto: from email/subject/body), sms (an SMSTO: from phone/body), phone (a tel: from phone), or geo (a geo: from latitude/longitude)." },
+        "data": { "type": "string", "description": "The text or URL to encode (used when content is text or url)." },
+        "ssid": { "type": "string", "description": "Wi-Fi network name (content=wifi)." },
+        "password": { "type": "string", "description": "Wi-Fi password (content=wifi; required for WPA/WEP, omit for nopass)." },
+        "security": { "type": "string", "enum": ["WPA", "WEP", "nopass"], "default": "WPA", "description": "Wi-Fi security type (content=wifi): WPA (default, covers WPA/WPA2/WPA3), WEP, or nopass (open)." },
+        "hidden": { "type": "boolean", "default": false, "description": "Set true if the Wi-Fi SSID is hidden (content=wifi)." },
+        "name": { "type": "string", "description": "Contact full name (content=contact)." },
+        "phone": { "type": "string", "description": "Phone number — contact (content=contact), recipient (content=sms), or number to dial (content=phone)." },
+        "email": { "type": "string", "description": "Email address — contact (content=contact) or recipient (content=email)." },
+        "organization": { "type": "string", "description": "Contact organization (content=contact)." },
+        "url": { "type": "string", "description": "Contact website URL (content=contact)." },
+        "subject": { "type": "string", "description": "Email subject line (content=email)." },
+        "body": { "type": "string", "description": "Message body (content=email) or SMS text (content=sms)." },
+        "latitude": { "type": "string", "description": "Location latitude in decimal degrees (content=geo)." },
+        "longitude": { "type": "string", "description": "Location longitude in decimal degrees (content=geo)." },
+        "format": { "type": "string", "enum": ["svg", "png"], "default": "svg", "description": "Output image format: svg (scalable, default) or png (raster, sized by the size param)." },
+        "error_correction": { "type": "string", "enum": ["L", "M", "Q", "H"], "default": "M", "description": "Error-correction level: L (~7%), M (~15%, default), Q (~25%), or H (~30%). Higher survives more damage but makes a denser code." },
+        "size": { "type": "integer", "default": 512, "minimum": 64, "maximum": 2048, "description": "PNG image edge in pixels (64-2048; ignored for svg)." },
+        "dark_color": { "type": "string", "default": "#000000", "description": "Foreground (module) colour as #rgb or #rrggbb hex." },
+        "light_color": { "type": "string", "default": "#ffffff", "description": "Background colour as #rgb or #rrggbb hex." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

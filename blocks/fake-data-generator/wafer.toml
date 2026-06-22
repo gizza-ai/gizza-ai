@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fake-data-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate fake test records (names, emails, phones, addresses) as CSV or JSON"

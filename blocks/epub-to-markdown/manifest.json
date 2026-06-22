@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/epub-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract an EPUB's chapters into Markdown or plain text",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Extract an EPUB e-book's chapters into clean Markdown (default) or plain text, in reading (spine) order. Reads the EPUB's OPF manifest so chapters come out in the right order. Returns the book title, the number of chapters extracted, and the combined content (chapters separated by a Markdown horizontal rule). Provide the EPUB as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "format": { "type": "string", "enum": ["markdown", "text"], "default": "markdown", "description": "Output format: markdown (default, keeps headings/lists/links) or text (plain text)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

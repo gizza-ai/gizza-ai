@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/csv-insert-column",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Insert a constant column into a CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Insert a new column into a CSV at a chosen 1-based position (or 'end' to append), filling every data row with a constant `value`. The header row gets the column `name`. Useful for adding an id/source/constant flag column. `position` is clamped to the row width.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "name": { "type": "string", "description": "Header name for the new column (used when header=true)." },
+        "value": { "type": "string", "default": "", "description": "Constant value to fill the new column in every data row. Default empty." },
+        "position": { "type": "string", "default": "end", "description": "1-based position to insert at, or 'end' to append (default). Clamped to the row width." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header (gets `name`; data rows get `value`). Default true." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "name"],
+      "additionalProperties": false
+    }
+  }
+}

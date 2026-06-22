@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/aes-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt text with AES (CBC/CTR/GCM/ECB).",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt text with AES using a raw key you provide. cipher = gcm (default, authenticated), cbc, ctr, or ecb; the key length selects AES-128/192/256 (16/24/32 bytes). key, iv and ciphertext are hex or base64 (set format; default base64); the plaintext is UTF-8. For gcm the 16-byte tag is appended to the ciphertext. cbc/ctr need a 16-byte iv, gcm a 12-byte nonce, ecb none. This is a low-level tool — for passphrase encryption with a safe random salt+nonce use text-encrypt instead.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "For encrypt: the plaintext. For decrypt: the ciphertext, encoded with `format`." },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt", "description": "encrypt (default) or decrypt." },
+        "cipher": { "type": "string", "enum": ["cbc", "ctr", "gcm", "ecb"], "default": "gcm", "description": "AES mode of operation: gcm (default, authenticated), cbc, ctr, or ecb (insecure — avoid)." },
+        "key": { "type": "string", "description": "The AES key, encoded with `format`. Its length sets the strength: 16 bytes = AES-128, 24 = AES-192, 32 = AES-256." },
+        "iv": { "type": "string", "description": "The IV/nonce, encoded with `format`. Required for cbc/ctr (16 bytes) and gcm (12 bytes); omit for ecb." },
+        "format": { "type": "string", "enum": ["base64", "hex"], "default": "base64", "description": "Encoding for the key, iv, and ciphertext (base64 default, or hex). The plaintext is always UTF-8 text." }
+      },
+      "required": ["data", "key"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "redact-pii"
+version = "0.1.0"
+abi = 1
+summary = "Detect and mask PII in text"

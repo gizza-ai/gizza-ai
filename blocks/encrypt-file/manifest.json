@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/encrypt-file",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt a file with a passphrase (AES-256-GCM).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Encrypt a file with a passphrase using AES-256-GCM (key derived via PBKDF2-HMAC-SHA256), producing a portable encrypted blob; or decrypt a blob this tool produced. Set mode='encrypt' (default) or 'decrypt' and provide the passphrase. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "mode": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt", "description": "Whether to encrypt the file (default) or decrypt a blob produced by this tool." },
+        "passphrase": { "type": "string", "description": "The passphrase. The same passphrase is required to decrypt." }
+      },
+      "required": ["passphrase"],
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

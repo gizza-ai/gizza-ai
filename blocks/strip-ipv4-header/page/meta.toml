@@ -1,0 +1,18 @@
+slug          = "strip-ipv4-header"
+title         = "IPv4 Header Stripper — remove the IPv4 header and get the payload — gizza.ai"
+description   = "Paste a raw IPv4 packet in hex and strip the IPv4 header (honoring IHL and any options) to get the encapsulated payload — the TCP/UDP/ICMP segment — as hex, in your browser. Nothing is uploaded."
+tags          = ["strip ipv4 header", "remove ip header", "ipv4 payload", "ip packet payload", "decapsulate ipv4", "ip header length", "ihl", "extract tcp payload", "extract udp payload", "ip protocol number"]
+h1            = "IPv4 Header Stripper"
+hero_subtitle = "Paste a raw IPv4 packet as hex and strip the IPv4 header — read from the IHL field, so any IP options are removed too — to get the encapsulated payload (the transport segment) as hex, plus its protocol and length. Spaces, colons, dashes, dots, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_strip_ipv4_header_web"
+export        = "run"
+live          = false
+output_label  = "Payload"
+format        = "text"
+
+[[input]]
+name        = "packet"
+label       = "IPv4 packet (hex)"
+placeholder = "4500 001c 1c46 4000 4011 0000 c0a8 0068 c0a8 0001 0035 0035 0008 0000"
+source      = "field"
+multiline   = true

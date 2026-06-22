@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/multi-encoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode/decode text (base64/hex/binary/url/rot13/morse).",
+  "role": "skill",
+  "tool": {
+    "description": "Encode or decode text across multiple schemes in one tool: base64, hex, binary, url (percent-encoding), rot13, and morse code. Set encoding to the scheme and direction to encode (default) or decode (rot13 is symmetric). Binary/hex output is per-byte (space-separated for binary); morse uses space between letters and ' / ' between words.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to encode or decode." },
+        "encoding": { "type": "string", "enum": ["base64", "hex", "binary", "url", "rot13", "morse"], "description": "Which scheme: base64, hex, binary, url (percent-encoding), rot13, or morse." },
+        "direction": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "encode (default) or decode. (rot13 is symmetric.)" }
+      },
+      "required": ["text", "encoding"],
+      "additionalProperties": false
+    }
+  }
+}

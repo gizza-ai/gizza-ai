@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-info"
+version = "0.1.0"
+abi = 1
+summary = "Report an image's format, dimensions, and color type."

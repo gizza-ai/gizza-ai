@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/invoice-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a printable PDF invoice from line items",
+  "role": "skill",
+  "tool": {
+    "description": "Turn line items into a formatted, printable PDF invoice (returned for download). items is one per line: 'description | quantity | unit_price'. Optionally set seller (From), client (Bill To), invoice_number, date, tax_rate (percent), currency, and notes. The subtotal, tax, and total are computed automatically. Returns a one-page PDF. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "items": { "type": "string", "description": "Line items, one per line as 'description | quantity | unit_price' (e.g. 'Design work | 10 | 75')." },
+        "seller": { "type": "string", "description": "Your name/company and address (the 'From' block); newlines allowed." },
+        "client": { "type": "string", "description": "The customer's name and address (the 'Bill To' block); newlines allowed." },
+        "invoice_number": { "type": "string", "description": "Invoice number/reference." },
+        "date": { "type": "string", "description": "Invoice date (any text, e.g. 2024-01-15)." },
+        "tax_rate": { "type": "number", "minimum": 0, "maximum": 100, "description": "Tax rate as a percentage applied to the subtotal (default 0)." },
+        "currency": { "type": "string", "default": "$", "description": "Currency symbol/prefix for amounts (default '$')." },
+        "notes": { "type": "string", "description": "Optional notes/footer text." }
+      },
+      "required": ["items"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,159 @@
+# tool-skiplist — backlog rows /create-next-tool should NOT build.
+#
+# Format:  <slug>  # reason
+# Blank lines and lines starting with # are ignored. scripts/pick-next-tool.py
+# reads this; the build agent appends a line when it spots a semantic near-dup
+# mid-run (the exact-slug picker can't catch those — see SKILL.md "Known
+# limitation"). Keep reasons short and concrete.
+#
+# Only list CONFIRMED duplicates of an existing blocks/<slug>/ tool, or rows that
+# genuinely cannot be built in gizza's browser-local pure-Rust+ffmpeg model and
+# aren't better handled by the picker's out-of-model defer. Do NOT list tools
+# that merely share a word with an existing one (age-calculator is NOT a dup of
+# calculator; http-request-builder constructs bytes and does NOT send, unlike
+# http-request) — those are real, distinct tools.
+
+pdf-to-text            # duplicate of blocks/pdf-extract-text (same: extract text from a PDF)
+convert-image-format   # duplicate of blocks/image-convert (same: re-encode image to another format)
+image-vectorize        # duplicate of blocks/vectorize (same: trace a raster image into SVG)
+image-to-webp          # duplicate of blocks/image-convert (already does format=webp with quality)
+jpg-compressor         # duplicate of blocks/image-compress (re-encodes jpg at a quality, keeps dimensions)
+
+# Architecture-fit skips: need MORE THAN ONE media input. The page driver
+# (site/tool.js) handles a single source="file" upload, and the descriptor
+# Input enum + resolve_source/dispatch_ffmpeg model one media input — so a tool
+# that combines two uploads doesn't fit without a multi-input architecture change.
+add-audio-to-video     # needs two media inputs (video + audio); gizza ffmpeg model is single-input
+
+# Two-opposite-IO-shapes: a single descriptor has ONE Input and one result shape.
+# A bidirectional file<->text converter is really two tools (encode: Input::File
+# -> text; decode: text param -> file envelope) — Input::File forces a required
+# url/ref oneOf, which the decode direction has no use for.
+base64-file-converter  # bidirectional file<->base64 = two IO shapes; split into base64-encode-file / base64-decode-file
+csv-to-json            # duplicate of blocks/csv-json-convert (already parses CSV->JSON with header/delimiter options + type inference)
+image-watermark        # text mode duplicates blocks/add-text-to-image (which covers caption/watermark text overlay); opacity+position are add-text-to-image improvements; the logo-overlay mode needs 2 media inputs (out of model)
+jpg-to-png             # duplicate of blocks/image-convert (already does format=png)
+readable-article       # duplicate of blocks/readability-extractor (strip nav/ads/clutter from article HTML)
+subtitle-translator    # core function is translation = needs an ML model (transformers-js); out of gizza pure+ffmpeg model. (A pure srt<->vtt convert/retime tool would be fine.)
+trim-audio             # audio-only ffmpeg; no Input::Audio kind in the descriptor model (AssetKind is Image/Video/Document/Any)
+video-convert          # duplicate of blocks/video-transcode (converts video format/container; mov/mkv targets would be a video-transcode improvement)
+video-merge            # needs >1 media input (concat several clips); block-utils dispatch_ffmpeg is single-input + page driver takes one file
+
+# audio-only family — no Input::Audio media kind in the descriptor model (a future
+# framework pass could add Input::Audio + AssetKind::Audio + page audio rendering).
+video-to-frames        # duplicate of blocks/video-frame-extract (extract still frames from a video)
+audio-convert          # audio-only (no Input::Audio kind)
+audio-normalize        # audio-only (no Input::Audio kind)
+audio-silence-remove   # audio-only (no Input::Audio kind)
+audio-to-mono          # audio-only (no Input::Audio kind)
+audio-volume-adjust    # audio-only (no Input::Audio kind)
+burn-subtitles         # needs 2 media inputs (video + .srt); single-input ffmpeg dispatch + page take one file
+csv-to-tsv  # dup of csv-change-delimiter (comma->tab is the default tab target)
+decrypt-file  # dup of encrypt-file (mode=decrypt already implemented)
+file-encryptor  # dup of encrypt-file (password AES-GCM encrypt+decrypt already implemented)
+javascript-runner  # needs a real JS engine (boa); boa compiles to wasm32-wasip1 but imports wasi poll_oneoff which the gizza wafer runtime does not provide -> fails to instantiate. No pure-Rust JS engine fits the minimal WASI host.
+json-csv-converter  # full dup of csv-json-convert (already bidirectional: direction=auto|csv-to-json|json-to-csv, headers/delimiter/pretty/flatten)
+json-to-csv  # dup of csv-json-convert direction=json-to-csv (incl. flatten for nested keys)
+mix-audio  # needs 2 DISTINCT media inputs (two audio tracks) + audio INPUT; single-input ffmpeg dispatch + no AssetKind::Audio/accept=audio page input
+profanity-filter  # duplicate of blocks/censor-text (built-in common-profanity wordlist, mask + flag, case-insensitive whole-word)
+text-encryptor  # duplicate of blocks/text-encrypt (password-encrypt text to a shareable blob + decrypt, AES-256-GCM)
+totp-tool  # near-duplicate of blocks/totp-generator (TOTP generation; overlapping scope)
+tsv-to-json  # duplicate of blocks/csv-json-convert (delimiter=tab, direction=csv-to-json yields array of objects keyed by header)
+unzip-archive  # duplicate of blocks/unzip (lists + extracts individual files from a ZIP, with inline content)
+video-concat  # multi-input ffmpeg: page file-input is single-upload only and ffmpeg cannot run in the chat SW -> CLI-only; multi-source ffmpeg wiring unproven + arbitrary-clip concat needs resolution/audio normalization. Deferred.
+video-speed  # duplicate of blocks/change-speed (speed up/slow down a video by a factor, audio kept in sync)
+video-frame-grab  # duplicate of blocks/video-frame-extract (grab a single still frame at a chosen timestamp; PNG-vs-JPEG format is a minor improvement to that tool, not a distinct one)
+audio-compress  # audio-INPUT ffmpeg tool; no AssetKind::Audio + accept=audio/* page input exists yet (deferred, like audio-convert/normalize)
+audio-crossfade  # audio-INPUT + multi-input ffmpeg; no audio page-input + no multi-source ffmpeg surface (deferred)
+audio-eq  # audio-INPUT ffmpeg; no audio page-input support (deferred)
+abc-to-midi  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+ambient-mixer  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-8d  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-autotune  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-bleep-profanity  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-channel  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-concat  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-denoise  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-dynamics-compress  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-echo  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-extract  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-fade  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-gain  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-lofi  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-loop  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-loudness-meter  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-metadata-editor  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-nightcore  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-pitch  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-pitch-shift  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-resample  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-reverb  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-reverse  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-ringtone  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-spectrogram  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-speed  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-speed-change  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-split  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-stem-split  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-tags  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-to-midi  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-translate  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-voice-changer  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-waveform  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+audio-waveform-image  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+binaural-beats-generate  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+bpm-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+chord-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+chord-progression-generate  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+edit-id3-tags  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+extract-audio-metadata  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+extract-id3  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+guitar-chord-diagram  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+key-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+lrc-timing-shifter  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+metronome-track  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+midi-file-inspector  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+midi-note-namer  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+midi-to-audio  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+morse-audio  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+music-genre-classify  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+noise-generate  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+pitch-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+playlist-converter  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+scale-finder  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+sfx-generator  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+sound-classify  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+speaker-diarize  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+speech-to-text-transcriber  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+spoken-language-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+stem-separator  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+text-to-speech  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+tone-generate  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+transcribe-audio  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+transpose-chords  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+trim-silence  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+vocal-remove  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+vocal-remover  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+voice-activity-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+voice-emotion  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+base64-text-converter  # near-duplicate of blocks/multi-encoder (base64 encode/decode); only delta is url-safe base64 variant
+base64-tool  # near-duplicate of blocks/multi-encoder (base64 encode/decode of text); file mode not in scope
+generate-totp  # near-duplicate of blocks/totp-generator (TOTP from base32 secret; digits/period/algorithm/timestamp all already covered)
+html-strip  # near-duplicate of blocks/html-to-text (strips HTML tags → clean plain text with entities decoded; same scope)
+image-to-base64  # near-duplicate of blocks/file-to-data-uri (encode file→data: URI, covers images) + extract-decode-base64 (decode); no distinct surface
+json-formatter  # near-duplicate of blocks/json-beautify (validate + pretty-print + minify(indent=0) JSON with error reporting; same scope)
+json-minify  # near-duplicate of blocks/json-beautify (indent=0 minifies JSON to smallest single line; same scope)
+json-stringify  # near-duplicate of blocks/json-escape (escape mode + quotes=true wraps text into a JSON string literal; same scope)
+parse-qr-code  # duplicate of blocks/qr-decode
+statistics-calculator  # duplicate of blocks/descriptive-stats (mean/median/mode/std-dev/quartiles from a list of numbers; regression on a 1-D list is undefined)
+toml-to-json  # duplicate of blocks/json-yaml-convert (already converts TOML->JSON, plus YAML, any direction)
+word-frequency-counter  # duplicate of blocks/word-frequency (count + rank word occurrences, with stop-word filtering)
+xml-validator  # XSD validation needs a wasm-INSTANTIABLE XSD validator; xsd-schema (only viable crate) compiles but its sync schema resolver links std::fs (path_open/fd_close) which the wafer runtime does not provide -> fails wafer instantiation (same class as rqrr). Without XSD it is just well-formedness, already covered by blocks/xml-formatter (well-formedness check + byte-position errors). No in-model surface.
+yaml-to-json  # duplicate of blocks/json-yaml-convert (from=yaml to=json, preserves types + nested structures; also json-yaml-converter direction=yaml-to-json)
+yara-scan  # no wasm-INSTANTIABLE pure-Rust YARA engine. boreal (only candidate) compiles for wasm32-wasip1 but its compiler unconditionally links std::fs (YARA `include` directive resolver: add_rules_str -> read_to_string/canonicalize, a live runtime branch DCE/LTO cannot remove, no feature flag to gate it) -> imports WASI path_open/fd_close/fd_read the wafer runtime does not provide -> fails wafer instantiation (same class as rqrr). yara-x needs wasmtime+cranelift (cannot JIT-in-wasm); yara/yara-sys need the libyara C lib (no wasm). No in-model engine -> no chat surface.
+code-to-image  # duplicate of blocks/code-screenshot (syntax-highlighted code snippet -> shareable PNG; same code/language/theme params)
+css-selector-extract  # duplicate of blocks/css-select-extract (fetch a page and extract text/inner-HTML/named-attribute from every element matching a CSS selector; same scope)
+extract-exif           # duplicate of blocks/image-metadata-viewer (reads EXIF/TIFF metadata from a photo: camera/lens/exposure/timestamps + decoded GPS; same scope)
+html-beautify  # duplicate of blocks/html-formatter (indents/pretty-prints HTML, normalizes nesting + attribute spacing; same scope)
+math-expression-evaluator  # duplicate of blocks/calculator (meval-based: evaluates arithmetic expressions with functions e.g. sqrt, parentheses and constants pi/e; same scope)
+md5-hash  # duplicate: text MD5 covered by blocks/hash-text (algorithm="md5", with input/output encodings) and file MD5 covered by blocks/file-hash (returns md5 digest of any file). No distinct surface.

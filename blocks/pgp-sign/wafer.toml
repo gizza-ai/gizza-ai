@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pgp-sign"
+version = "0.1.0"
+abi = 1
+summary = "Sign a message with an OpenPGP private key"

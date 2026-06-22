@@ -1,0 +1,29 @@
+slug          = "video-resize"
+title         = "Resize a Video Online — Scale Resolution — gizza.ai"
+description   = "Scale a video to a target resolution right in your browser — set width and/or height, aspect ratio preserved. Re-encodes locally with ffmpeg, nothing is uploaded, free."
+tags          = ["resize video", "scale video", "video resolution", "downscale video", "ffmpeg"]
+h1            = "Resize a Video"
+hero_subtitle = "Pick a video and a target size — it's scaled in your browser (aspect ratio preserved), nothing is uploaded."
+wasm          = "gizza_ai_video_resize_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Resized video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Width (px)"
+placeholder = "1280"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height (px, optional)"
+placeholder = "(auto)"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-cover-fit"
+version = "0.1.0"
+abi = 1
+summary = "Scale and centre-crop an image to completely fill target dimensions while preserving aspect ratio (cover)"

@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-epub-to-markdown-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only (flate2-based) — read EPUB (a ZIP container).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# htmd: pure-Rust HTML -> Markdown (html5ever), wasm32-safe.
+htmd = "0.5"
+# nanohtml2text: lightweight HTML -> plain text for the "text" output mode.
+nanohtml2text = "0.1"
+# quick-xml: parse the EPUB OPF manifest/spine for reading order.
+quick-xml = { version = "0.40", default-features = false }
+serde = { version = "1", features = ["derive"] }

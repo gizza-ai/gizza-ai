@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/strings",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract printable strings from a binary file.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Extract printable string sequences from a binary file, like the Unix `strings` command. Finds runs of printable characters at least min_len long (default 4). encoding=ascii (default), utf16 (UTF-16 LE+BE), or all. Returns the list of strings and a count. Provide the file as either url (HTTP/HTTPS) or ref. Runs locally — the file never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "min_len": { "type": "integer", "minimum": 1, "maximum": 1024, "description": "Minimum run length to report (default 4), matching `strings -n`." },
+        "encoding": { "type": "string", "enum": ["ascii", "utf16", "all"], "default": "ascii", "description": "Which strings to find: ascii (default), utf16 (UTF-16 LE+BE), or all." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

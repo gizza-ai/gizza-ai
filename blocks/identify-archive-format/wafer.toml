@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "identify-archive-format"
+version = "0.1.0"
+abi = 1
+summary = "Detect the compression or archive format of a blob from its magic bytes."

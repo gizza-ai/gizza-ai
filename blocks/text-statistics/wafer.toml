@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-statistics"
+version = "0.1.0"
+abi = 1
+summary = "Word/character/sentence stats + reading time for text"

@@ -1,0 +1,31 @@
+slug          = "csv-formula-eval"
+title         = "CSV Formula Eval — Add Computed Columns Online"
+description   = "Add or transform CSV columns with spreadsheet-style formulas (e.g. total = price * qty) — runs in your browser. Free, private, no upload."
+tags          = ["csv formula", "computed column", "csv calculate", "spreadsheet formula", "transform csv"]
+h1            = "CSV Formula Eval"
+hero_subtitle = "Add computed columns to a CSV with arithmetic formulas over your existing columns. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_formula_eval_web"
+export        = "run"
+live          = false
+output_label  = "CSV with computed columns"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (with header)"
+placeholder = "price,qty\n10,3\n5,4"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "formulas"
+label       = "Formulas (column = expression; ; or newline separated)"
+placeholder = "total = price * qty"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"

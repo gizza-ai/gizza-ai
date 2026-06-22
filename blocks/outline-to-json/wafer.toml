@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "outline-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Convert an indented text outline into nested JSON."

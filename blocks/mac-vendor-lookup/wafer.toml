@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mac-vendor-lookup"
+version = "0.1.0"
+abi = 1
+summary = "Resolve the manufacturer of a MAC address from its OUI prefix."

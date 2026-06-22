@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/pgp-sign",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sign a message with an OpenPGP private key",
+  "role": "skill",
+  "tool": {
+    "description": "Create an OpenPGP (PGP/GPG) signature over a message using your ASCII-armored private key. mode=detached (default) produces a standalone '-----BEGIN PGP SIGNATURE-----' block that verifies the original, unmodified message; mode=clearsign produces an inline '-----BEGIN PGP SIGNED MESSAGE-----' block that keeps the text readable with the signature appended. Supply a passphrase if the key is protected. Signs with the key's primary key; uses the key's preferred hash. Runs locally — the private key and message never leave the device.",
+    "parameters": {
+      "type": "object",
+      "required": ["message", "private_key"],
+      "properties": {
+        "message": { "type": "string", "description": "The message to sign." },
+        "private_key": { "type": "string", "description": "Your OpenPGP private key, ASCII-armored (-----BEGIN PGP PRIVATE KEY BLOCK----- ... block)." },
+        "mode": { "type": "string", "enum": ["detached", "clearsign"], "default": "detached", "description": "detached (default) -> a standalone PGP SIGNATURE block that verifies the original message; clearsign -> an inline PGP SIGNED MESSAGE keeping the readable text." },
+        "passphrase": { "type": "string", "description": "Passphrase to unlock the private key, if it is protected. Omit for an unprotected key." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

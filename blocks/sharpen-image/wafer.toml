@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sharpen-image"
+version = "0.1.0"
+abi = 1
+summary = "Sharpen an image with an unsharp mask"

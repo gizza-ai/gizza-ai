@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/html-table-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract HTML tables as CSV or JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract a <table> from pasted HTML and output it as CSV or JSON. Set format='csv' (default) or 'json', table_index to pick which table (0-based, default 0), and header (default true: for JSON, emits an array of objects keyed by the header row; false emits an array of arrays). Cell whitespace is collapsed and CSV is properly escaped.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "html": { "type": "string", "description": "The HTML containing one or more <table> elements." },
+        "format": { "type": "string", "enum": ["csv", "json"], "default": "csv", "description": "Output format: csv (default) or json." },
+        "table_index": { "type": "integer", "minimum": 0, "description": "Which table to extract, 0-based (default 0 = the first table)." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header. For JSON, true emits an array of objects keyed by header; false emits an array of arrays. Default true." }
+      },
+      "required": ["html"],
+      "additionalProperties": false
+    }
+  }
+}

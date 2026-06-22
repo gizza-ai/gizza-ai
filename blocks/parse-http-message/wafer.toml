@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "parse-http-message"
+version = "0.1.0"
+abi = 1
+summary = "Parse a raw HTTP/1.x request or response into structured fields"

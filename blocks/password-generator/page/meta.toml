@@ -1,0 +1,50 @@
+slug          = "password-generator"
+title         = "Password & Passphrase Generator — gizza.ai"
+description   = "Generate strong random passwords or passphrases with configurable length, character sets, and word count — entirely in your browser, nothing uploaded, free."
+tags          = ["password generator", "passphrase generator", "random password", "strong password", "secure password"]
+h1            = "Password Generator"
+hero_subtitle = "Generate strong random passwords or word passphrases with a cryptographic RNG. Runs entirely in your browser — nothing leaves your device."
+wasm          = "gizza_ai_password_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated"
+format        = "text"
+
+[[input]]
+name        = "mode"
+label       = "Mode (password|passphrase)"
+placeholder = "password"
+source      = "field"
+
+[[input]]
+name        = "length"
+label       = "Password length"
+placeholder = "16"
+source      = "field"
+
+[[input]]
+name        = "words"
+label       = "Passphrase word count"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Include uppercase"
+source      = "field"
+
+[[input]]
+name        = "digits"
+label       = "Include digits"
+source      = "field"
+
+[[input]]
+name        = "symbols"
+label       = "Include symbols"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Passphrase separator"
+placeholder = "-"
+source      = "field"

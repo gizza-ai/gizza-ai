@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "strip-udp-header"
+version = "0.1.0"
+abi = 1
+summary = "Remove the 8-byte UDP header from a raw datagram and return the payload"

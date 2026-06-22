@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/meme-caption",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add a classic top/bottom impact-style caption to an image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Add a classic top and/or bottom meme caption to an image and return a PNG. The text is rendered impact-style: bold letters with an outline, centered horizontally, auto-sized to the image width (long captions wrap), placed near the top and bottom edges, and uppercased by default. Set top and/or bottom (at least one is required); set uppercase=false to keep the text exactly as written, and text_color/outline_color as #rrggbb to recolour the fill and stroke (default white text with a black outline). Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "top": { "type": "string", "description": "Top caption text (optional). Rendered in uppercase, centered." },
+        "bottom": { "type": "string", "description": "Bottom caption text (optional). Rendered in uppercase, centered." },
+        "uppercase": { "type": "boolean", "default": true, "description": "Uppercase the caption text for the classic meme look (default true). Set false to keep the text exactly as written." },
+        "text_color": { "type": "string", "default": "#ffffff", "description": "Caption fill colour as #rrggbb (default #ffffff white)." },
+        "outline_color": { "type": "string", "default": "#000000", "description": "Caption outline/stroke colour as #rrggbb (default #000000 black)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/link-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract hyperlinks and anchors from HTML or Markdown",
+  "role": "skill",
+  "tool": {
+    "description": "Extract every hyperlink and in-page anchor (jump target) from HTML or Markdown. Set source='auto' (default; sniffed from the content), 'html', or 'markdown'. Pass base_url to resolve relative links to absolute, and dedup=true to collapse repeated links. Returns the parser used plus a list of links (each with its url, visible text, a relative flag, and any HTML rel attribute) and a list of anchors (id/name attributes or heading slugs that a same-document '#name' link would jump to). Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The HTML or Markdown to scan for links and anchors." },
+        "source": { "type": "string", "enum": ["auto", "html", "markdown"], "default": "auto", "description": "How to parse the input: \"auto\" (default, sniffed from the content), \"html\", or \"markdown\"." },
+        "base_url": { "type": "string", "description": "Optional absolute base URL (e.g. \"https://example.com/docs/\"). When set, relative links are resolved to absolute URLs." },
+        "dedup": { "type": "boolean", "default": false, "description": "When true, collapse repeated links that share the same final URL (first-seen kept)." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}

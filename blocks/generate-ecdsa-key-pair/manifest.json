@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/generate-ecdsa-key-pair",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an ECDSA key pair (PEM/JWK).",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh ECDSA key pair on a NIST prime curve (p256, p384, or p521) and return the private key (PKCS#8 PEM) and public key (SPKI PEM). Optionally also output JSON Web Keys (RFC 7517) by setting jwk=true. Keys are generated locally with a cryptographic RNG. Default curve is p256.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "curve": { "type": "string", "enum": ["p256", "p384", "p521"], "default": "p256", "description": "NIST prime curve: p256 (secp256r1), p384 (secp384r1), or p521 (secp521r1). Default p256." },
+        "jwk": { "type": "boolean", "default": false, "description": "Also output the keys as JSON Web Keys (RFC 7517), in addition to PEM. Default false." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

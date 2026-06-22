@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-extract-dates-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+regex = "1"
+# chrono for date validation + ISO formatting; no clock needed (alloc only).
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
+serde = { version = "1", features = ["derive"] }

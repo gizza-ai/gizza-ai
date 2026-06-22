@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/unzip",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the files from a .zip archive.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Extract the files from a .zip archive and return them individually. Each regular file is listed with its path and size, and its content inline — as text when it is UTF-8, otherwise as base64. (Large files past an internal budget are listed without content.) Provide the zip as either url (HTTP/HTTPS) or ref. Runs locally — the archive never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

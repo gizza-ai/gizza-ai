@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/extract-decode-base64",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and decode Base64 blobs embedded in text",
+  "role": "skill",
+  "tool": {
+    "description": "Scan a block of text for embedded Base64 blobs (standard or URL-safe), decode each, and report it. Decoded UTF-8 text is returned as text; recognized binaries are reported with their detected file type (e.g. image/png) and a hex preview. Random alphanumeric noise that doesn't decode to printable text or a known file type is ignored. Returns each blob's source, kind (text/binary), byte length, and decoded content. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to scan for embedded Base64 blobs." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

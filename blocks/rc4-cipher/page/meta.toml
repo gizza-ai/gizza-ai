@@ -1,0 +1,48 @@
+slug          = "rc4-cipher"
+title         = "RC4 Cipher — Encrypt/decrypt with RC4 (with drop-N) — gizza.ai"
+description   = "Encrypt or decrypt text with the RC4 stream cipher, with an optional drop-N (RC4-drop) to skip the weak initial keystream bytes, and hex/base64 I/O — in your browser. Nothing is uploaded."
+tags          = ["rc4", "rc4 encrypt", "rc4 decrypt", "rc4-drop", "stream cipher", "arcfour", "cipher"]
+h1            = "RC4 cipher"
+hero_subtitle = "Encrypt or decrypt text with RC4 — optional drop-N (RC4-drop), text or encoded keys, hex or base64. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_rc4_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (1–256 bytes)"
+placeholder = "passphrase, or encoded key"
+source      = "field"
+
+[[input]]
+name        = "key_format"
+label       = "Key format (text | encoded)"
+placeholder = "text"
+source      = "field"
+
+[[input]]
+name        = "drop"
+label       = "Drop-N (keystream bytes to skip, e.g. 768)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (hex | base64)"
+placeholder = "hex"
+source      = "field"

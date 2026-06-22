@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-html-table-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# scraper: html5ever-based HTML parsing + CSS selectors. html5ever is wasm32-safe
+# (same engine dom_smoothie uses). default-features keeps it lean enough.
+scraper = "0.20"
+csv = "1"
+serde_json = "1"

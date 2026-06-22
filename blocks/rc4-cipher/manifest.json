@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/rc4-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with the RC4 stream cipher (optional drop-N)",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with the RC4 stream cipher, with an optional drop-N (RC4-drop[n]) to skip the weak initial keystream bytes. operation = encrypt (default) or decrypt — RC4 is symmetric. key is 1–256 bytes, read as a UTF-8 passphrase (key_format=text, default) or decoded from hex/base64 (key_format=encoded). drop discards the first n keystream bytes; it must match on both sides. The ciphertext (and an encoded key) use format = hex (default) or base64; the plaintext is UTF-8. WARNING: RC4 is cryptographically broken — use for interop, CTFs, and legacy systems only.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key"],
+      "properties": {
+        "data": { "type": "string" },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
+        "key": { "type": "string" },
+        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
+        "drop": { "type": "integer", "default": 0, "minimum": 0 },
+        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

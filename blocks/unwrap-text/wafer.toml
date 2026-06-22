@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "unwrap-text"
+version = "0.1.0"
+abi = 1
+summary = "Rejoin hard-wrapped lines into continuous text"

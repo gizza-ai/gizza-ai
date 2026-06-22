@@ -1,0 +1,24 @@
+slug          = "markdown-lint"
+title         = "Markdown Linter — check & auto-fix Markdown style — gizza.ai"
+description   = "Lint Markdown for trailing whitespace, hard tabs, blank lines, heading spacing, list-marker consistency and more — then auto-fix it. Runs in your browser; nothing is uploaded."
+tags          = ["markdown lint", "markdownlint", "markdown linter", "fix markdown", "markdown style check", "format markdown"]
+h1            = "Markdown Linter"
+hero_subtitle = "Find common Markdown style and consistency issues — trailing whitespace, hard tabs, extra blank lines, heading spacing, inconsistent list markers — and auto-fix them. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_markdown_lint_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "# My doc\n\nPaste your Markdown here."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+placeholder = "check"
+source      = "field"

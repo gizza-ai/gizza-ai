@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-detect-file-type-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+# Pure, dependency-free magic-byte sniffing — compiles to wasm32 with no extra
+# crates. (No `infer`/`tree_magic` etc.: the curated table here is smaller and
+# avoids pulling in non-wasm transitive deps.)
+[dependencies]

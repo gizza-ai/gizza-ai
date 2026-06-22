@@ -1,0 +1,30 @@
+slug          = "count-line-frequency"
+title         = "Count Line Frequency — Rank lines by occurrence — gizza.ai"
+description   = "Count how often each line or value occurs and rank them most to least frequent, in your browser. Like sort | uniq -c | sort -rn. Nothing is uploaded."
+tags          = ["count lines", "uniq -c", "frequency count", "tally", "duplicate counter", "rank lines"]
+h1            = "Count line frequency"
+hero_subtitle = "Count how often each line/value occurs and rank them from most to least frequent. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_count_line_frequency_web"
+export        = "run"
+live          = false
+output_label  = "Counts (most frequent first)"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Lines"
+placeholder = "Paste lines/values, one per line…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "case_sensitive"
+label       = "Case sensitive"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace"
+placeholder = "true"
+source      = "field"

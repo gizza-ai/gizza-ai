@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-pem-der-convert-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+pem = "3"
+base64 = "0.22"

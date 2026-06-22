@@ -1,0 +1,18 @@
+slug          = "parse-http-message"
+title         = "HTTP Message Parser — decode a raw HTTP request or response — gizza.ai"
+description   = "Paste a raw HTTP/1.x request or response and decode the method, target, status, HTTP version, all headers (duplicates kept), Content-Type / Content-Length, and the body — in your browser. Nothing is uploaded."
+tags          = ["http message parser", "parse http request", "parse http response", "http header parser", "raw http", "http/1.1", "request line", "status line", "header decoder"]
+h1            = "HTTP Message Parser"
+hero_subtitle = "Paste a raw HTTP/1.x request or response and decode the start line (method/target or status/reason), the HTTP version, every header in order (duplicates preserved), Content-Type / Content-Length, and the body. Request vs response is detected automatically. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_parse_http_message_web"
+export        = "run"
+live          = false
+output_label  = "Parsed message"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Raw HTTP message"
+placeholder = "GET /index.html?q=1 HTTP/1.1\nHost: example.com\nAccept: */*\n\n"
+source      = "field"
+multiline   = true

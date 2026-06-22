@@ -1,0 +1,18 @@
+slug          = "parse-ipv4-header"
+title         = "IPv4 Header Parser — decode a raw IPv4 packet header from hex — gizza.ai"
+description   = "Paste an IPv4 packet header in hex and decode the version, IHL, DSCP/ECN, total length, identification, flags, fragment offset, TTL, protocol, checksum, and source/destination addresses — in your browser. Nothing is uploaded."
+tags          = ["ipv4 header parser", "decode ipv4 header", "ip packet header", "ip header decoder", "dscp", "ecn", "ttl", "ip protocol number", "header checksum", "fragment offset"]
+h1            = "IPv4 Header Parser"
+hero_subtitle = "Paste a raw IPv4 packet header as hex and decode every field: version, IHL, DSCP/ECN, total length, identification, flags (DF/MF), fragment offset, TTL, protocol, header checksum (validated), and the source and destination addresses. Spaces, colons, dashes, dots, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_parse_ipv4_header_web"
+export        = "run"
+live          = false
+output_label  = "Decoded header"
+format        = "text"
+
+[[input]]
+name        = "header"
+label       = "IPv4 header (hex)"
+placeholder = "4500 003c 1c46 4000 4006 b1e6 c0a8 0068 c0a8 0001"
+source      = "field"
+multiline   = true

@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/parse-uri",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a URI/URL into its RFC 3986 components",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a URI or URL into its RFC 3986 components and return JSON: scheme, authority (username/password, host, port), path, raw query plus parsed percent-decoded key/value pairs, and fragment.",
+    "parameters": {
+      "type": "object",
+      "required": ["uri"],
+      "properties": { "uri": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

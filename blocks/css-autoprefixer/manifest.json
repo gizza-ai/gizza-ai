@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/css-autoprefixer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS.",
+  "role": "skill",
+  "tool": {
+    "description": "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS for the properties and values that still need them in modern browsers. Inserts prefixed clones before each original declaration (standard last). Covers property prefixes, renames (tab-size), and value prefixes (display:flex, position:sticky). Comments, strings and custom properties are untouched.",
+    "parameters": {
+      "type": "object",
+      "required": ["css"],
+      "properties": {
+        "css": { "type": "string" },
+        "dedup": { "type": "boolean", "default": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

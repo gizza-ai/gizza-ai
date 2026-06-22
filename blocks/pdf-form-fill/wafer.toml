@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-form-fill"
+version = "0.1.0"
+abi = 1
+summary = "Fill AcroForm fields in a PDF."

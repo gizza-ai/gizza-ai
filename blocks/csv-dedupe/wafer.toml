@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-dedupe"
+version = "0.1.0"
+abi = 1
+summary = "Remove duplicate rows from a CSV."

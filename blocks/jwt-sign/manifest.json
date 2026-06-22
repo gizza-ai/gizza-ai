@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/jwt-sign",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build and sign a JSON Web Token (JWT).",
+  "role": "skill",
+  "tool": {
+    "description": "Build and sign a JSON Web Token (JWT, JWS compact serialization) from a header and payload. algorithm=HS256 (default), HS384, HS512 (HMAC with a shared secret), RS256/384/512 (RSASSA-PKCS1-v1_5 with a PEM RSA private key), or ES256/384 (ECDSA with a PEM P-256/P-384 private key). 'payload' is the JSON claims object; 'secret' is the HMAC secret (HS*) or PEM private key (RS*/ES*); optional 'header' adds JOSE header fields (alg is set automatically, typ defaults to JWT). Returns the compact JWT string. Runs locally — the secret/key and claims never leave the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "payload": { "type": "string", "description": "The JWT claims set as a JSON object, e.g. {\"sub\":\"123\",\"name\":\"Ada\",\"exp\":1893456000}." },
+        "secret": { "type": "string", "description": "The signing key: for HS* the shared HMAC secret string; for RS*/ES* a PEM-encoded private key (PKCS#8 '-----BEGIN PRIVATE KEY-----', or PKCS#1 for RSA)." },
+        "algorithm": { "type": "string", "enum": ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "ES256", "ES384"], "default": "HS256", "description": "Signing algorithm: HS256/384/512 (HMAC), RS256/384/512 (RSA PKCS#1 v1.5), or ES256/384 (ECDSA). Default HS256." },
+        "header": { "type": "string", "description": "Optional extra JOSE header fields as a JSON object, e.g. {\"kid\":\"key-1\"}. 'alg' is always set from the chosen algorithm and 'typ' defaults to 'JWT'." }
+      },
+      "required": ["payload", "secret"],
+      "additionalProperties": false
+    }
+  }
+}

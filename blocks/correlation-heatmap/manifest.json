@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/correlation-heatmap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Correlation matrix as an SVG heatmap.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute a Pearson or Spearman correlation matrix across numeric columns and render it as a labeled SVG heatmap (diverging blue→white→red color scale with the correlation value in each cell). `data` is rows of numbers (each column a variable, each row an observation); method is pearson (default) or spearman; labels optionally names the columns.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "Rows of numbers (CSV-like): each column is a variable, each row an observation. At least 2 columns and 2 rows." },
+        "method": { "type": "string", "enum": ["pearson", "spearman"], "default": "pearson", "description": "Correlation method: pearson (linear, default) or spearman (rank/monotonic)." },
+        "labels": { "type": "string", "default": "", "description": "Optional comma-separated column names (defaults to v1..vN)." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/json-yaml-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between JSON, YAML, and TOML",
+  "role": "skill",
+  "tool": {
+    "description": "Convert config data between JSON, YAML, and TOML in any direction. Specify from and to (json/yaml/toml); pretty indents JSON/TOML output (default true). Note: TOML output requires a top-level object and has no null. Round-trips data through a common model. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The config data to convert." },
+        "from": { "type": "string", "enum": ["json", "yaml", "toml"], "description": "Source format of the input." },
+        "to": { "type": "string", "enum": ["json", "yaml", "toml"], "description": "Target format to convert to." },
+        "pretty": { "type": "boolean", "default": true, "description": "Indent the output (JSON/TOML). Default true." }
+      },
+      "required": ["input", "from", "to"],
+      "additionalProperties": false
+    }
+  }
+}

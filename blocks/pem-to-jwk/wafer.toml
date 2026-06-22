@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pem-to-jwk"
+version = "0.1.0"
+abi = 1
+summary = "Convert a PEM key to a JSON Web Key (JWK)"

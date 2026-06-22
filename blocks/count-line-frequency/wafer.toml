@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "count-line-frequency"
+version = "0.1.0"
+abi = 1
+summary = "Count and rank how often each line occurs"

@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-xml-to-csv-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+quick-xml = "0.36"
+csv = "1"

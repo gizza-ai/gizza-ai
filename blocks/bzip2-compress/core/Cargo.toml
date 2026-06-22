@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-bzip2-compress-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# banzai: pure-Rust bzip2 encoder (Burrows–Wheeler), wasm32-safe — no libbz2 C dep.
+banzai = "0.3"
+
+[dev-dependencies]
+# bzip2-rs: pure-Rust bzip2 decoder, used only to round-trip-verify in tests.
+bzip2-rs = "0.1"

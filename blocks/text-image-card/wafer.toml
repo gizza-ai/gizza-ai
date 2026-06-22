@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-image-card"
+version = "0.1.0"
+abi = 1
+summary = "Render a quote onto a styled shareable image card (PNG)"

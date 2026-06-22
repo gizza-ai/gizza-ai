@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/gif-reverse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reverse an animated GIF's frame order",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Reverse the playback order of an animated GIF (last frame first). Each frame keeps its own delay so the speed is unchanged, and the result loops forever. Set boomerang=true to instead play forward then backward (ping-pong) for a seamless loop. Returns the new GIF. Provide the GIF as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "boomerang": { "type": "boolean", "description": "Play forward then backward (ping-pong) for a seamless loop instead of a plain reverse (default false). Output has 2N-1 frames." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

@@ -1,0 +1,24 @@
+slug          = "moving-average"
+title         = "Moving Average Calculator (SMA, EMA & WMA) — gizza.ai"
+description   = "Calculate simple (SMA), exponential (EMA), and weighted (WMA) moving averages over any number series — stock prices, sensor readings, metrics. Pick the look-back window, get the smoothed value at every point. Free, private, runs entirely in your browser."
+tags          = ["moving average", "sma", "ema", "wma", "simple moving average", "exponential moving average", "weighted moving average", "smoothing", "time series", "stock prices", "technical analysis"]
+h1            = "Moving Average Calculator"
+hero_subtitle = "Compute simple (SMA), exponential (EMA), and weighted (WMA) moving averages over any number series. Choose the window size and get the smoothed value at each point — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_moving_average_web"
+export        = "run"
+live          = false
+output_label  = "Moving averages (JSON)"
+format        = "text"
+
+[[input]]
+name        = "series"
+label       = "Number series"
+placeholder = "10, 12, 13, 12, 15, 16, 14, 18, 20, 19"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "period"
+label       = "Period (look-back window)"
+placeholder = "3"
+source      = "field"

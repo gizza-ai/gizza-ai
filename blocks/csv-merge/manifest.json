@@ -1,0 +1,33 @@
+{
+  "name": "gizza-ai/csv-merge",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Concatenate multiple CSVs into one.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Concatenate (stack) two or more CSV files into one. With header=true (default) the output uses the UNION of all input headers and aligns each file's rows by column name (missing columns blank); with header=false rows are stacked positionally. Each file is a URL or a `ref` to an uploaded attachment. (Key-join is not yet supported — this concatenates.)",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "minItems": 2,
+          "description": "Two or more CSV sources to concatenate. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
+              "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+            },
+            "additionalProperties": false
+          }
+        },
+        "header": { "type": "boolean", "default": true, "description": "Each file has a header row; the output uses the union of all headers and aligns rows by column name. false = stack rows positionally. Default true." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["files"],
+      "additionalProperties": false
+    }
+  }
+}

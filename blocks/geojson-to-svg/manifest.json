@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/geojson-to-svg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render GeoJSON to an SVG map",
+  "role": "skill",
+  "tool": {
+    "description": "Render GeoJSON features into a standalone SVG map — no tile servers, no network. Pass `geojson` as a FeatureCollection, a single Feature, or a bare geometry; coordinates are [longitude, latitude]. Polygons are filled, lines stroked, points drawn as circles. Optional width/fill/stroke/stroke_width/point_radius/background and projection (mercator|none) control the look. Returns the SVG markup as text.",
+    "parameters": {
+      "type": "object",
+      "required": ["geojson"],
+      "properties": {
+        "geojson": { "type": "string" },
+        "width": { "type": "number", "default": 800.0, "minimum": 16, "maximum": 4096 },
+        "fill": { "type": "string", "default": "#cfe8ff" },
+        "stroke": { "type": "string", "default": "#1f6feb" },
+        "stroke_width": { "type": "number", "default": 1.0, "minimum": 0, "maximum": 50 },
+        "point_radius": { "type": "number", "default": 4.0, "minimum": 0.1, "maximum": 100 },
+        "background": { "type": "string", "default": "#ffffff" },
+        "projection": { "type": "string", "enum": ["mercator", "none"], "default": "mercator" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

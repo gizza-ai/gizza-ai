@@ -1,0 +1,18 @@
+slug          = "extract-decode-base64"
+title         = "Find & Decode Base64 in Text — gizza.ai"
+description   = "Scan any text for embedded Base64 blobs and decode them — showing decoded text, or a file-type + hex preview for binaries. Runs in your browser, nothing uploaded."
+tags          = ["decode base64", "find base64", "base64 extractor", "base64 in text", "url-safe base64", "decode blob"]
+h1            = "Find & Decode Base64"
+hero_subtitle = "Paste text with embedded Base64 blobs (logs, JSON, headers, data URIs) and decode them all at once — text, or a file-type + hex preview for binaries. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_decode_base64_web"
+export        = "run"
+live          = false
+output_label  = "Decoded blobs"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text containing Base64, e.g. token=SGVsbG8sIHdvcmxkIQ=="
+source      = "field"
+multiline   = true

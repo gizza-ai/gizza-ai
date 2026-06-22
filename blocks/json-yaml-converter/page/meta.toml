@@ -1,0 +1,29 @@
+slug          = "json-yaml-converter"
+title         = "JSON ⇄ YAML Converter Online — gizza.ai"
+description   = "Convert between JSON and YAML in either direction, right in your browser. Auto-detects the input format. Nothing is uploaded, free."
+tags          = ["json to yaml", "yaml to json", "json yaml converter", "yaml convert", "config converter"]
+h1            = "JSON ⇄ YAML Converter"
+hero_subtitle = "Paste JSON or YAML — get the other one back. Auto-detects direction. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_json_yaml_converter_web"
+export        = "run"
+live          = false
+output_label  = "Output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "JSON or YAML"
+placeholder = "{ \"name\": \"Ada\" }   or   name: Ada"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "direction"
+label       = "Direction (auto|json-to-yaml|yaml-to-json)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON output"
+source      = "field"

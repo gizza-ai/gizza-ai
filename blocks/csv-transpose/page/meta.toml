@@ -1,0 +1,24 @@
+slug          = "csv-transpose"
+title         = "CSV Transpose — Swap rows and columns — gizza.ai"
+description   = "Transpose a CSV — swap rows and columns so the header becomes the first column — in your browser. Free, private, no upload."
+tags          = ["csv transpose", "swap rows columns", "pivot csv", "rotate csv", "transpose table"]
+h1            = "CSV transpose"
+hero_subtitle = "Transpose a CSV — swap its rows and columns. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_transpose_web"
+export        = "run"
+live          = false
+output_label  = "Transposed CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age\nAda,36\nBo,40"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"

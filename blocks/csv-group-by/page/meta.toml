@@ -1,0 +1,36 @@
+slug          = "csv-group-by"
+title         = "CSV Group By — Aggregate Rows Online"
+description   = "Group CSV rows by a column and aggregate others (count, sum, average, min, max) — in your browser. Free, private, no upload."
+tags          = ["csv group by", "aggregate csv", "csv sum", "csv pivot", "group rows", "csv summary"]
+h1            = "CSV Group By"
+hero_subtitle = "Group rows by one or more columns and aggregate the rest — count, sum, avg, min, max. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_group_by_web"
+export        = "run"
+live          = false
+output_label  = "Grouped CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (with header)"
+placeholder = "dept,amount\nA,10\nB,5\nA,20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "group_by_cols"
+label       = "Group by (column names/indices, comma-separated)"
+placeholder = "dept"
+source      = "field"
+
+[[input]]
+name        = "aggregations"
+label       = "Aggregations (col:func, ...; or count)"
+placeholder = "amount:sum, count"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"

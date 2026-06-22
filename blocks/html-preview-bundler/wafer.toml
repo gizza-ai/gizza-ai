@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-preview-bundler"
+version = "0.1.0"
+abi = 1
+summary = "Bundle HTML + CSS + JS into one self-contained file"

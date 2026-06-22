@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "frequency-distribution"
+version = "0.1.0"
+abi = 1
+summary = "Build a character, byte, or n-gram frequency table"

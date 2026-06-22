@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-table-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract HTML tables as CSV or JSON."

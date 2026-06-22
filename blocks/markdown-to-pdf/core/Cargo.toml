@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-markdown-to-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+lopdf = { version = "0.36", default-features = false }
+pulldown-cmark = { version = "0.12", default-features = false }

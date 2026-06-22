@@ -125,11 +125,13 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                                 }
                             }
                             div class="tool-output-label" { (meta.output_label) }
-                            @if meta.format == "image" || meta.format == "video" {
+                            @if meta.format == "image" || meta.format == "video" || meta.format == "audio" {
                                 @if meta.format == "image" {
                                     img id="tool-output-media" class="tool-output-media" alt="" hidden;
-                                } @else {
+                                } @else if meta.format == "video" {
                                     video id="tool-output-media" class="tool-output-media" controls hidden {}
+                                } @else {
+                                    audio id="tool-output-media" class="tool-output-media" controls hidden {}
                                 }
                                 a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
                                 output id="tool-output" class="tool-output" { "" }

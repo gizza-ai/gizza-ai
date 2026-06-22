@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/json-yaml-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between JSON and YAML.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert between JSON and YAML in either direction. direction='auto' (default) detects the input (text starting with '{' or '[' is JSON -> YAML, otherwise YAML -> JSON); set 'json-to-yaml' or 'yaml-to-json' to force it. pretty=true indents JSON output (yaml-to-json only). Data is preserved round-trip.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The JSON or YAML text to convert." },
+        "direction": { "type": "string", "enum": ["auto", "json-to-yaml", "yaml-to-json"], "default": "auto", "description": "Conversion direction. 'auto' (default): input starting with '{' or '[' is treated as JSON (-> YAML), otherwise YAML (-> JSON)." },
+        "pretty": { "type": "boolean", "default": false, "description": "Pretty-print (indent) JSON output. Only affects yaml-to-json. Default false." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}

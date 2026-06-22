@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "base32-codec"
+version = "0.1.0"
+abi = 1
+summary = "Encode text or bytes to Base32 (RFC 4648) and decode Base32 back."

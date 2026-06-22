@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/render-template",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a Handlebars/Mustache template against JSON data",
+  "role": "skill",
+  "tool": {
+    "description": "Render a Handlebars/Mustache template against supplied JSON data and return the output text. Supports {{variable}} substitution, nested paths ({{user.email}}), loops ({{#each}}), and conditionals ({{#if}}). Useful for generating emails, config files, code, or any text from a template + data.",
+    "parameters": {
+      "type": "object",
+      "required": ["template"],
+      "properties": {
+        "template": { "type": "string" },
+        "data": { "type": "string" },
+        "engine": { "type": "string", "enum": ["handlebars", "mustache"], "default": "handlebars" },
+        "strict": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

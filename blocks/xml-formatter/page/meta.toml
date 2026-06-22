@@ -1,0 +1,30 @@
+slug          = "xml-formatter"
+title         = "XML Formatter — Pretty-print & minify XML — gizza.ai"
+description   = "Pretty-print or minify XML with indentation control and a well-formedness check, in your browser. Nothing is uploaded."
+tags          = ["xml formatter", "xml beautifier", "pretty print xml", "minify xml", "xml validator"]
+h1            = "XML formatter"
+hero_subtitle = "Pretty-print or minify XML, with indentation control and a well-formedness check. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_xml_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted XML"
+format        = "text"
+
+[[input]]
+name        = "xml"
+label       = "XML"
+placeholder = "<root><item>value</item></root>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode (pretty | minify)"
+placeholder = "pretty"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"

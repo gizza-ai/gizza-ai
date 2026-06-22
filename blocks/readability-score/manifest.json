@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/readability-score",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Readability grades (Flesch-Kincaid, Gunning-Fog, SMOG) for text",
+  "role": "skill",
+  "tool": {
+    "description": "Score English text for readability and return the classic indices — Flesch Reading Ease (0–100, higher is easier), Flesch-Kincaid Grade Level, Gunning-Fog Index, SMOG Index, Coleman-Liau Index and the Automated Readability Index — along with the counts they derive from (words, sentences, syllables, complex words) and a plain-language reading level. Runs locally; the text never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The text to score for readability." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

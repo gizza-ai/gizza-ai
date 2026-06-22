@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/csv-reorder-columns",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reorder, swap, or drop CSV columns.",
+  "role": "skill",
+  "tool": {
+    "description": "Reorder, swap, or drop the columns of a CSV to match a target order. `columns` is a comma-separated list of column names (when header=true) or 1-based indices; columns are output in that order, omitted columns are dropped, and a repeated column is duplicated. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The CSV text." },
+        "columns": { "type": "string", "description": "Target column order, comma-separated: column names (when header=true) or 1-based indices. Columns you omit are dropped; repeat a column to duplicate it. e.g. 'name,city' or '3,1'." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as a header so columns can be named (default true). With false, use 1-based indices." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','." }
+      },
+      "required": ["data", "columns"],
+      "additionalProperties": false
+    }
+  }
+}

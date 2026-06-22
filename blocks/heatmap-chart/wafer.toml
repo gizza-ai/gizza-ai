@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "heatmap-chart"
+version = "0.1.0"
+abi = 1
+summary = "Render a numeric grid as an SVG heatmap."

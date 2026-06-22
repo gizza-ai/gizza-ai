@@ -1,0 +1,18 @@
+slug          = "extract-ip-addresses"
+title         = "Extract IP Addresses from Text or Logs — gizza.ai"
+description   = "Find, validate and deduplicate all IPv4 and IPv6 addresses in pasted text or a log — in your browser. Nothing is uploaded."
+tags          = ["extract ip", "ip address finder", "ipv4", "ipv6", "parse logs", "find ip addresses", "dedupe ips"]
+h1            = "Extract IP Addresses"
+hero_subtitle = "Paste text or a log and pull out every valid IPv4 and IPv6 address — deduplicated and grouped by version. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_ip_addresses_web"
+export        = "run"
+live          = false
+output_label  = "IP addresses"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text or log"
+placeholder = "Paste log lines or text containing IP addresses…"
+source      = "field"
+multiline   = true

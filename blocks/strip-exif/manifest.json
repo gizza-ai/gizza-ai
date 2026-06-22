@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/strip-exif",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove EXIF/GPS/XMP metadata from a JPEG or PNG",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Remove all metadata (EXIF, GPS location, XMP, IPTC, comments) from a JPEG or PNG image and return a clean copy. The pixels are NOT re-encoded — no quality loss. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). JPEG and PNG only.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}

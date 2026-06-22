@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "protect-pdf"
+version = "0.1.0"
+abi = 1
+summary = "Password-protect a PDF"

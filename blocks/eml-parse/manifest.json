@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/eml-parse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a raw .eml / RFC 822 email message",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a raw .eml / RFC 5322 email message into structured fields: subject, date, message-id, from/to/cc (name + address), the decoded plain-text and HTML bodies, and a list of attachments (filename, MIME content-type, size in bytes). MIME multipart messages and encoded headers/bodies are decoded automatically. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "eml": { "type": "string", "description": "The raw .eml / RFC 822 message text (headers plus body, including MIME parts)." }
+      },
+      "required": ["eml"],
+      "additionalProperties": false
+    }
+  }
+}

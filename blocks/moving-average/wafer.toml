@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "moving-average"
+version = "0.1.0"
+abi = 1
+summary = "Simple, exponential, and weighted moving averages over a numeric series"

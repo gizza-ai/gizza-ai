@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "resume-builder"
+version = "0.1.0"
+abi = 1
+summary = "Build an ATS-friendly Markdown resume from JSON."

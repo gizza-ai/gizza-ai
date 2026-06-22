@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/markdown-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Markdown document into a formatted PDF.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Markdown document into a clean, formatted, paginated PDF (US Letter). Renders headings, bold/italic, ordered and unordered (nested) lists, fenced and inline code (monospace), block quotes, tables, horizontal rules, and task lists. Content flows across as many pages as needed using the built-in Helvetica and Courier fonts. font_size (base body size in points, default 11), margin (points, default 72 = 1 inch), page_size (letter or a4), and optional page_numbers are configurable. Returns a PDF. Runs locally — the document never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "markdown": { "type": "string", "description": "The Markdown document to convert into a PDF." },
+        "font_size": { "type": "number", "minimum": 6, "maximum": 48, "description": "Base body font size in points (default 11). Headings are scaled up from this." },
+        "margin": { "type": "number", "minimum": 0, "maximum": 300, "description": "Page margin in points (default 72 = 1 inch). 72 points = 1 inch." },
+        "page_size": { "type": "string", "enum": ["letter", "a4"], "default": "letter", "description": "Page size: 'letter' (US Letter, 8.5x11in, default) or 'a4' (210x297mm)." },
+        "page_numbers": { "type": "boolean", "default": false, "description": "When true, draw a centered 'n / total' page number in the bottom margin of each page. Default false." }
+      },
+      "required": ["markdown"],
+      "additionalProperties": false
+    }
+  }
+}

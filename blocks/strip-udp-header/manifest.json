@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/strip-udp-header",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove the 8-byte UDP header from a raw datagram and return the payload",
+  "role": "skill",
+  "tool": {
+    "description": "Remove the fixed 8-byte UDP header from a raw UDP datagram given as a hex string and return the encapsulated application payload (the bytes the UDP layer carries). Returns JSON with the source and destination ports, the UDP Length and Checksum fields, the number of header bytes removed (always 8), the payload length, and the payload as a lowercase hex string. The UDP Length field is honored to drop any trailing link-layer padding when it is consistent. Input may contain spaces, colons, dashes, dots, or a 0x prefix. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["datagram"],
+      "properties": {
+        "datagram": {
+          "type": "string",
+          "description": "The raw UDP datagram as a hex string (the 8-byte UDP header followed by its payload). Spaces, colons, dashes, dots, and a 0x prefix are ignored, e.g. '0035 a1b2 000c 1234 deadbeef'."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

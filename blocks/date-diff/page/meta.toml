@@ -1,0 +1,23 @@
+slug          = "date-diff"
+title         = "Date Difference Calculator — Days, Weeks, Months & Years Between Dates — gizza.ai"
+description   = "Calculate the exact duration between two dates or datetimes: years, months, days, hours, minutes and seconds, plus total weeks, days, hours, minutes and seconds. Handles leap years and month lengths. Free, private, runs entirely in your browser."
+tags          = ["date difference", "days between dates", "date calculator", "duration calculator", "date diff", "time between dates", "weeks between dates", "months between dates", "age in days"]
+h1            = "Date Difference Calculator"
+hero_subtitle = "Find the exact time between two dates — years, months, days, hours, minutes and seconds, plus total counts in each unit. Leap years and month lengths handled correctly, all in your browser."
+wasm          = "gizza_ai_date_diff_web"
+export        = "run"
+live          = false
+output_label  = "Difference (JSON)"
+format        = "text"
+
+[[input]]
+name        = "start"
+label       = "Start date"
+placeholder = "2024-01-15"
+source      = "field"
+
+[[input]]
+name        = "end"
+label       = "End date"
+placeholder = "2026-06-22T18:30:00"
+source      = "field"

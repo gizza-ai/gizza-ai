@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/http-request-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a raw HTTP/1.1 request message",
+  "role": "skill",
+  "tool": {
+    "description": "Build a well-formed raw HTTP/1.1 request message from a method, URL, headers, and body. NOTHING is sent — it just produces the text you'd put on the wire (e.g. for netcat/openssl s_client, teaching, or debugging). The request-target and Host come from the URL; headers are one 'Name: Value' per line; a Content-Length is added for a body. Lines are CRLF-terminated. To actually send a request, use the http-request tool.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "The request URL (used for the request-target and Host header)." },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"], "default": "GET", "description": "HTTP method (default GET)." },
+        "headers": { "type": "string", "description": "Optional request headers, one 'Name: Value' per line. Host is added from the URL if omitted." },
+        "body": { "type": "string", "description": "Optional request body. A Content-Length header is added automatically when a body is given." }
+      },
+      "required": ["url"],
+      "additionalProperties": false
+    }
+  }
+}

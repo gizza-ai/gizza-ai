@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-to-yaml"
+version = "0.1.0"
+abi = 1
+summary = "Convert CSV into a YAML list of objects"

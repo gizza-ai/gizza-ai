@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/jwk-thumbprint",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the RFC 7638 thumbprint of a JWK",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the RFC 7638 SHA-256 thumbprint of a JSON Web Key — the canonical key identifier commonly used as a JWK 'kid'. Hashes only the required members for the key type (RSA: e,kty,n; EC: crv,kty,x,y; OKP: crv,kty,x; oct: k,kty) in lexicographic order with no whitespace, then base64url-encodes the SHA-256 digest. Returns the thumbprint, the key type, and the exact canonical JSON that was hashed. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "jwk": { "type": "string", "description": "The JSON Web Key (JWK) as JSON, e.g. {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"…\",\"y\":\"…\"}." }
+      },
+      "required": ["jwk"],
+      "additionalProperties": false
+    }
+  }
+}

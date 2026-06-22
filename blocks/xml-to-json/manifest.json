@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/xml-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert XML into an equivalent JSON structure",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an XML document into an equivalent JSON structure, preserving attributes and nesting.",
+    "parameters": {
+      "type": "object",
+      "required": ["xml"],
+      "properties": {
+        "xml": { "type": "string" },
+        "attribute_prefix": { "type": "string", "default": "@" },
+        "text_key": { "type": "string", "default": "#text" },
+        "attributes": { "type": "boolean", "default": true },
+        "coerce_types": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

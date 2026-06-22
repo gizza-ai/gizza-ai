@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "detect-file-type"
+version = "0.1.0"
+abi = 1
+summary = "Identify a file's true format from its magic bytes."

@@ -1,0 +1,36 @@
+slug          = "outline-to-json"
+title         = "Outline to JSON Converter — gizza.ai"
+description   = "Turn an indented text outline into nested JSON instantly in your browser. Spaces or tabs set the nesting; choose a children-array or nested-object shape, set the tab width, and pretty-print or minify. Free, private, no sign-up."
+tags          = ["outline to json", "indented text to json", "tree to json", "nested json", "text outline", "json converter", "tab to json", "bullet list to json"]
+h1            = "Outline to JSON"
+hero_subtitle = "Convert an indented text outline into nested JSON — spaces or tabs set the nesting. Pick a children-array or nested-object shape. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_outline_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "outline"
+label       = "Outline"
+placeholder = "Project\n  Frontend\n    UI\n  Backend\n    API"
+source      = "field"
+multiline   = true
+
+# format renders as a <select>, pretty as a checkbox, tab_size as a number —
+# control types + options are derived from the descriptor schema (manifest.json).
+[[input]]
+name        = "format"
+label       = "Output shape"
+source      = "field"
+
+[[input]]
+name        = "tab_size"
+label       = "Tab width (columns)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print"
+source      = "field"

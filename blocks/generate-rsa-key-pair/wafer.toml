@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "generate-rsa-key-pair"
+version = "0.1.0"
+abi = 1
+summary = "Generate an RSA key pair (PEM)."

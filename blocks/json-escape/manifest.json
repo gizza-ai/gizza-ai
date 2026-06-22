@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/json-escape",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Escape or unescape a string for JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Escape or unescape special characters in a string for safe use inside JSON. mode=escape (default) turns raw text into a JSON-safe string body (escaping quotes, backslashes, newlines, tabs, and control chars as \\uXXXX); set quotes=true to also wrap it in double quotes. mode=unescape reverses it, accepting input with or without surrounding quotes. Uses a spec-correct JSON codec. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The string to escape or unescape." },
+        "mode": { "type": "string", "enum": ["escape", "unescape"], "default": "escape", "description": "escape = make the text safe inside a JSON string; unescape = turn a JSON-escaped string back to raw text." },
+        "quotes": { "type": "boolean", "default": false, "description": "Escape mode only: also wrap the result in surrounding double quotes." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
