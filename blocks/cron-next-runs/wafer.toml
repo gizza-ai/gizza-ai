@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cron-next-runs"
+version = "0.1.0"
+abi = 1
+summary = "Compute the next N scheduled run times for a cron expression."

@@ -1,0 +1,37 @@
+{
+  "name": "gizza-ai/cron-next-runs",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the next N scheduled run times for a cron expression.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the next upcoming run times for a cron schedule. Set 'expression' to a standard 5-field crontab string ('minute hour day-of-month month day-of-week', e.g. '*/15 * * * *', '0 9 * * MON-FRI', '0 0 1 * *'), a 6-field form with a leading seconds field ('*/30 * * * * *'), or a shortcut (@hourly, @daily, @weekly, @monthly, @yearly). Fields support ranges (A-B), steps (*/S, A-B/S), lists (A,B,C), and three-letter month/weekday names; day-of-week accepts 0 and 7 for Sunday, and a restricted day-of-month plus day-of-week match by union (Vixie behavior). It returns the next 'count' run times (default 5) strictly AFTER 'after' (an ISO-8601/RFC-3339 UTC timestamp, a Unix epoch second, or — when omitted — now). All times are UTC. Choose 'format' = 'text' (aligned report) or 'json' (machine-readable). Use this to preview when a cron job will fire or to validate a crontab line.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "description": "The cron expression to evaluate. Standard 5-field Vixie/crontab syntax 'minute hour day-of-month month day-of-week' (e.g. '*/15 * * * *', '0 9 * * MON-FRI', '0 0 1 * *'), or 6 fields with a leading seconds field (e.g. '*/30 * * * * *'). Each field supports '*', single values, 'A-B' ranges, 'A-B/S' and '*/S' steps, comma lists 'A,B,C', three-letter month names (JAN-DEC) and weekday names (SUN-SAT); day-of-week accepts both 0 and 7 for Sunday. Shortcuts @yearly, @annually, @monthly, @weekly, @daily, @midnight and @hourly are also accepted. All times are UTC."
+        },
+        "after": {
+          "type": "string",
+          "description": "Optional base time; the next runs are computed strictly AFTER this instant. Accepts an ISO-8601 / RFC-3339 UTC timestamp (e.g. '2025-01-01T09:00:00Z', '2025-01-01 09:00', or a bare date '2025-01-01'), or a Unix epoch second. Defaults to the current time (UTC) when omitted."
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "How many upcoming run times to return (1-100, default 5)."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["text", "json"],
+          "default": "text",
+          "description": "Output format. 'text' (default) is an aligned human-readable list of the next run times (UTC, with weekday) plus a plain-English description of the schedule. 'json' is a machine-readable object with the expression, a plain-English description, the base time, and an array of { iso, epoch, weekday } entries."
+        }
+      },
+      "required": ["expression"],
+      "additionalProperties": false
+    }
+  }
+}
