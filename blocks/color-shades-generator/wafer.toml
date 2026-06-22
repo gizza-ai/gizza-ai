@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "color-shades-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a ramp of tints, shades and tones for a base color"
