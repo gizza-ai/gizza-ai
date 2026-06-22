@@ -165,3 +165,4 @@ string-unescaper        # duplicate of blocks/string-escaper (already has mode=u
 subtitle-timing-shifter  # duplicate of blocks/srt-shift (already shifts SRT timestamps by a fixed offset); the "stretch/rescale" half is a linear-scale improvement to srt-shift, not a distinct tool
 unique-lines  # duplicate of blocks/remove-duplicate-lines (removes duplicate lines preserving order, keep first/last, adjacent_only/uniq, ignore_case, trim); the "count each" half is blocks/count-line-frequency. No distinct capability.
 untar  # duplicate of blocks/extract-tar (lists + extracts files from a tar/tar.gz/tgz archive, gzip auto-detected, repacked as ZIP). Same scope.
+url-parser  # duplicate of blocks/parse-uri (splits a URL/URI into scheme/host/port/path/query-params/fragment per RFC 3986). Same scope.
