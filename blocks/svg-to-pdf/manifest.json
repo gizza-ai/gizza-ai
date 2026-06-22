@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/svg-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an SVG drawing into a PDF document.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an SVG drawing into a single-page PDF document — no headless browser needed. Pass `svg` as the full <svg>…</svg> markup. The PDF page is sized to the SVG's intrinsic dimensions (so it prints at real-world size), and the artwork is embedded at the chosen `dpi` (150 default; raise to 300 for print, lower for a smaller file). `background` ('white' or a hex colour like #ffffff) fills the opaque PDF page behind the SVG. Note: <text> needs a font; convert text to paths in your editor for pixel-perfect labels (shapes/paths render exactly). Returns a PDF. Runs locally on the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "svg": { "type": "string", "description": "The SVG markup to convert (the full <svg>…</svg> document)." },
+        "dpi": { "type": "number", "minimum": 24, "maximum": 1200, "default": 150.0, "description": "Rasterization resolution in DPI. Higher = crisper print output and larger file (150 is good for screen, 300 for print)." },
+        "background": { "type": "string", "default": "white", "description": "Page background colour as 'white' (default) or a hex value (#rgb, #rrggbb). PDF pages are opaque, so transparent SVG areas show as this colour." }
+      },
+      "required": ["svg"],
+      "additionalProperties": false
+    }
+  }
+}
