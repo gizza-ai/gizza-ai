@@ -1,0 +1,37 @@
+slug          = "charset-transcode"
+title         = "Mojibake Fixer & Charset Transcoder — gizza.ai"
+description   = "Fix garbled mojibake text and re-decode it from a legacy charset (Windows-1252, ISO-8859-1/Latin-1, Shift_JIS, EUC-JP/KR, GBK, Big5, Windows-1251, KOI8-R) into clean UTF-8. Runs entirely in your browser — free, private, no sign-up."
+tags          = ["mojibake", "charset", "encoding", "utf-8", "windows-1252", "iso-8859-1", "latin1", "shift_jis", "transcode", "fix garbled text"]
+h1            = "Mojibake Fixer / Charset Transcoder"
+hero_subtitle = "Re-decode garbled text from a legacy charset into clean UTF-8 — fix 'cafÃ©' back to 'café'. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_charset_transcode_web"
+export        = "run"
+live          = false
+output_label  = "Clean UTF-8"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Garbled text"
+placeholder = "cafÃ©  naÃ¯ve rÃ©sumÃ©"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "from"
+label       = "Source charset (auto, or e.g. windows-1252, latin1, shift_jis)"
+placeholder = "auto"
+source      = "field"
+
+# errors renders as a <select> (control type + options derive from the
+# descriptor's schema), so the option list is not duplicated here.
+[[input]]
+name        = "errors"
+label       = "On undecodable bytes"
+source      = "field"
+
+[[input]]
+name        = "passes"
+label       = "Repair passes (1–8 — un-nest double mojibake)"
+placeholder = "1"
+source      = "field"

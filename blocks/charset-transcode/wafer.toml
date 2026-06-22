@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "charset-transcode"
+version = "0.1.0"
+abi = 1
+summary = "Re-decode garbled text from a legacy charset into clean UTF-8 (fix mojibake)."
