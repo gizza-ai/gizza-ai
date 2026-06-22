@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/jsonpath-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Evaluate a JSONPath expression against JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Evaluate a JSONPath expression (RFC 9535) against a JSON document and return the selected nodes, using a pure-Rust RFC 9535 engine (serde_json_path). Supports child access, wildcards, array index/slice, recursive descent, and filter selectors. A query selects zero, one, or many nodes — each is returned as a serialized JSON string in `outputs`. Set wrap=true to return them as one JSON array; pretty=true to indent.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "path":   { "type": "string", "description": "The JSONPath expression (RFC 9535), e.g. '$.store.book[*].author' or '$..price'." },
+        "json":   { "type": "string", "description": "The JSON document to query." },
+        "pretty": { "type": "boolean", "default": false, "description": "Pretty-print (indent) each emitted JSON value. Default false (compact)." },
+        "wrap":   { "type": "boolean", "default": false, "description": "Return a single JSON array of all matched values (the result list) instead of one value per match. Default false." }
+      },
+      "required": ["path", "json"],
+      "additionalProperties": false
+    }
+  }
+}
