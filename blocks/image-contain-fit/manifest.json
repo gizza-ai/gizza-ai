@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/image-contain-fit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fit an image inside target dimensions preserving aspect ratio, padding with a chosen colour (letterbox)",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Fit (letterbox) an image inside a target width x height preserving its aspect ratio, padding the leftover space with a chosen background colour so the result is exactly the requested size. background accepts a hex value like #ffffff or a name (white, black, transparent); set allow_upscale=false to keep images smaller than the target at original size. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "width": { "type": "integer", "minimum": 1, "description": "Target canvas width in pixels." },
+        "height": { "type": "integer", "minimum": 1, "description": "Target canvas height in pixels." },
+        "background": { "type": "string", "default": "#ffffff", "description": "Pad colour for the letterbox bars: a hex value like #ffffff or a name (white, black, transparent)." },
+        "allow_upscale": { "type": "boolean", "default": true, "description": "If true (default), upscale images smaller than the target to fill the box; if false, keep small images at original size centred within the padding." }
+      },
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
