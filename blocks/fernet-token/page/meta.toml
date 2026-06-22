@@ -1,0 +1,37 @@
+slug          = "fernet-token"
+title         = "Fernet Token Generator — create & decrypt Fernet tokens online — gizza.ai"
+description   = "Create and read Fernet tokens (AES-128-CBC + HMAC-SHA256) in your browser. Generate a key, encrypt text into a url-safe token, decrypt with optional TTL. Nothing is uploaded."
+tags          = ["fernet", "fernet token", "symmetric encryption", "aes-128-cbc", "hmac-sha256", "token", "ttl", "privacy"]
+h1            = "Fernet token tool"
+hero_subtitle = "Create or read Fernet tokens (AES-128-CBC + HMAC-SHA256) with an embedded timestamp. Leave the key blank to generate one. Everything runs in your browser; text and keys never leave your device."
+wasm          = "gizza_ai_fernet_token_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text or token"
+placeholder = "Text to encrypt, or a Fernet token to decrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Fernet key (base64, 32 bytes)"
+placeholder = "Leave blank when encrypting to generate a fresh key"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "ttl"
+label       = "TTL seconds (decrypt only; 0 = no limit)"
+placeholder = "0"
+source      = "field"

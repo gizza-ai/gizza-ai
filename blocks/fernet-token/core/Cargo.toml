@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-fernet-token-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+aes = "0.8"
+cbc = { version = "0.1", features = ["block-padding"] }
+cipher = { version = "0.4", features = ["block-padding", "alloc"] }
+hmac = "0.12"
+sha2 = "0.10"
+subtle = "2"
