@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-gzip-size-estimator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# flate2: gzip deflate, pure-Rust (miniz_oxide), wasm32-safe.
+flate2 = "1"
+# brotli: pure-Rust brotli encoder for the `Content-Encoding: br` comparison.
+brotli = { version = "7", default-features = false, features = ["std"] }

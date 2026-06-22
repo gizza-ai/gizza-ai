@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gzip-size-estimator"
+version = "0.1.0"
+abi = 1
+summary = "Estimate the raw and gzipped byte size of code or text."

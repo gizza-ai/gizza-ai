@@ -1,0 +1,26 @@
+slug          = "gzip-size-estimator"
+title         = "Gzip & Brotli Size Estimator — Measure Compressed Transfer Size | gizza.ai"
+description   = "Paste code or text to see its raw, gzipped, and brotli byte size, bytes saved, percent reduction, and compression ratio. Estimate the over-the-wire weight of a bundle served with gzip or brotli. Free, private, runs in your browser, no sign-up."
+tags          = ["gzip size", "brotli size", "compressed size", "transfer size", "bundle size", "gzip estimator", "compression ratio", "minify", "page weight", "content-encoding"]
+h1            = "Gzip & Brotli Size Estimator"
+hero_subtitle = "Paste code or text to see its raw, gzipped, and brotli byte size, bytes saved, and compression ratio — the size it would weigh over the wire. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_gzip_size_estimator_web"
+export        = "run"
+live          = false
+output_label  = "Size report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Code or text"
+placeholder = "Paste your JS, CSS, JSON, or any text here…"
+source      = "field"
+multiline   = true
+
+# level renders as a field; the option range is derived from the descriptor
+# schema (manifest.json), so the label here stays short.
+[[input]]
+name        = "level"
+label       = "gzip level (0–9, default 6)"
+placeholder = "6"
+source      = "field"
