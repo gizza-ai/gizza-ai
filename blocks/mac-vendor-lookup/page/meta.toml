@@ -1,0 +1,18 @@
+slug          = "mac-vendor-lookup"
+title         = "MAC Address Vendor Lookup — gizza.ai"
+description   = "Look up the manufacturer of any MAC address from its OUI prefix using the bundled IEEE registry. Accepts colon, hyphen, dot or bare hex, full address or OUI only. Decodes unicast/multicast and local/global bits. Runs entirely in your browser — offline, free, private, no sign-up."
+tags          = ["mac address lookup", "oui lookup", "mac vendor", "ieee oui", "network", "ethernet", "vendor lookup", "device manufacturer", "mac address"]
+h1            = "MAC Address Vendor Lookup"
+hero_subtitle = "Find the manufacturer behind any MAC address from its OUI prefix, using the IEEE registry bundled right into the page. Offline, private, no sign-up."
+wasm          = "gizza_ai_mac_vendor_lookup_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "mac"
+label       = "MAC address or OUI (one per line for a batch lookup)"
+placeholder = "28:6F:B9:01:23:45"
+source      = "field"
+multiline   = true

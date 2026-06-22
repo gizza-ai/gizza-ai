@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/mac-vendor-lookup",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Resolve the manufacturer of a MAC address from its OUI prefix.",
+  "role": "skill",
+  "tool": {
+    "description": "Resolve the manufacturer (vendor) of a network MAC / EUI address from its OUI (Organizationally Unique Identifier) — the first 3 octets — using a bundled IEEE registry. Fully offline: no DNS, no network, no sign-up. Accepts colon, hyphen, dot (Cisco 286f.b900.1a2b), or separator-less hex, case-insensitive, and either a full address or just the 3-octet OUI. For a single address it returns the normalized MAC, the OUI prefix, the registered organization name (or a note that the OUI is unassigned), and whether the address is globally unique vs locally administered and unicast vs multicast (decoded from the first octet's U/L and I/G bits). Pass several addresses one per line to batch-resolve them (one 'MAC — Vendor' line each).",
+    "parameters": {
+      "type": "object",
+      "required": ["mac"],
+      "properties": {
+        "mac": { "type": "string", "description": "The MAC / EUI address (or just its first 3 octets, the OUI) to look up. Colon, hyphen, dot (Cisco), or separator-less hex are all accepted, case-insensitive — e.g. '28:6F:B9:01:23:45', '286F-B901-2345', '286fb9012345', or just '28:6F:B9'. Pass several addresses one per line for a batch lookup (one result line each)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
