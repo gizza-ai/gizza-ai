@@ -1,0 +1,44 @@
+slug          = "rsa-verify"
+title         = "RSA Verify — Verify an RSA signature (PKCS#1 / PSS) — gizza.ai"
+description   = "Verify an RSA signature (PKCS#1 v1.5 or PSS, SHA-256/384/512) over a message against an RSA public key, in your browser. Nothing is uploaded."
+tags          = ["rsa verify", "verify rsa signature", "pkcs1", "rsa pss", "signature verification", "crypto"]
+h1            = "RSA verify"
+hero_subtitle = "Check whether an RSA signature is authentic — PKCS#1 v1.5 or PSS, SHA-256/384/512 — against a public key. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_rsa_verify_web"
+export        = "run"
+live          = false
+output_label  = "Verification result"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The original message that was signed"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "signature"
+label       = "Signature (base64)"
+placeholder = "The base64-encoded signature to verify"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "public_key"
+label       = "RSA public key (PEM)"
+placeholder = "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "scheme"
+label       = "Scheme (pkcs1v15 | pss)"
+placeholder = "pkcs1v15"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Hash (sha256 | sha384 | sha512)"
+placeholder = "sha256"
+source      = "field"
