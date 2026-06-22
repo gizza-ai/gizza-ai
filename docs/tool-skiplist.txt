@@ -91,6 +91,7 @@ audio-reverb  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* p
 audio-reverse  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-ringtone  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-spectrogram  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+spectrogram  # same as audio-spectrogram: audio-INPUT tool (frequency spectrogram FROM audio); no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable input surface (deferred)
 audio-speed  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-speed-change  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-split  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
