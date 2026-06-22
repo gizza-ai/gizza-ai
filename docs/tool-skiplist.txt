@@ -155,3 +155,4 @@ code-to-image  # duplicate of blocks/code-screenshot (syntax-highlighted code sn
 css-selector-extract  # duplicate of blocks/css-select-extract (fetch a page and extract text/inner-HTML/named-attribute from every element matching a CSS selector; same scope)
 extract-exif           # duplicate of blocks/image-metadata-viewer (reads EXIF/TIFF metadata from a photo: camera/lens/exposure/timestamps + decoded GPS; same scope)
 html-beautify  # duplicate of blocks/html-formatter (indents/pretty-prints HTML, normalizes nesting + attribute spacing; same scope)
+math-expression-evaluator  # duplicate of blocks/calculator (meval-based: evaluates arithmetic expressions with functions e.g. sqrt, parentheses and constants pi/e; same scope)
