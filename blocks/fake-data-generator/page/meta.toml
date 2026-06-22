@@ -1,0 +1,47 @@
+slug          = "fake-data-generator"
+title         = "Fake Data Generator — CSV & JSON Test Records — gizza.ai"
+description   = "Generate realistic-looking fake test data — names, emails, phone numbers, postal addresses, usernames, companies, job titles and more — as CSV or JSON. Pick your columns and row count, use a seed to reproduce the exact dataset. Runs entirely in your browser, free, private, no sign-up."
+tags          = ["fake data", "test data", "mock data", "sample data", "csv generator", "json generator", "dummy data", "seed data", "placeholder data"]
+h1            = "Fake Data Generator"
+hero_subtitle = "Generate rows of realistic but synthetic test records — names, emails, phones, addresses and more — as CSV or JSON. Choose columns, row count, and a seed to reproduce results. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_fake_data_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated data"
+format        = "text"
+
+[[input]]
+name        = "count"
+label       = "Rows (1–1000)"
+placeholder = "10"
+source      = "field"
+
+# format renders as a <select>; option list comes from the descriptor schema.
+[[input]]
+name        = "format"
+label       = "Format"
+source      = "field"
+
+[[input]]
+name        = "fields"
+label       = "Columns (comma-separated, or 'all'; blank = defaults)"
+placeholder = "full_name, email, phone, city"
+source      = "field"
+
+[[input]]
+name        = "seed"
+label       = "Seed (0 = random each time; any number reproduces the dataset)"
+placeholder = "0"
+source      = "field"
+
+# header renders as a checkbox (descriptor boolean, default true → checked).
+[[input]]
+name        = "header"
+label       = "Include CSV header row"
+source      = "field"
+
+[[input]]
+name        = "table"
+label       = "SQL table name (SQL format only; blank = people)"
+placeholder = "people"
+source      = "field"

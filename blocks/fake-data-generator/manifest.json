@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/fake-data-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate fake test records (names, emails, phones, addresses, IDs) as CSV, JSON, SQL, or XML",
+  "role": "skill",
+  "tool": {
+    "description": "Generate rows of realistic-looking but entirely fake test/sample data — names, emails, phone numbers, postal addresses, usernames, companies, job titles, birthdates, UUIDs, IP/MAC addresses, colors, booleans, credit-card-style numbers, lorem sentences, and more — as CSV, JSON, SQL INSERT statements, or XML. Set count (1-1000), format='csv'|'json'|'sql'|'xml', and fields to a comma-separated subset of columns or 'all'. header toggles the CSV header row; table sets the SQL table name. Pass a non-zero seed to reproduce the exact same dataset.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 10, "description": "Number of fake records to generate, 1-1000. Default 10." },
+        "format": { "type": "string", "enum": ["csv", "json", "sql", "xml"], "default": "csv", "description": "Output format: 'csv' (default) emits an optional header row plus data rows; 'json' a pretty-printed array of objects; 'sql' INSERT statements; 'xml' a <records> document." },
+        "fields": { "type": "string", "description": "Comma-separated columns to include, in any order. Valid: id, uuid, first_name, last_name, full_name, username, email, phone, street, city, state, zip, country, latitude, longitude, company, job_title, birthdate, domain, ipv4, ipv6, mac, color, boolean, credit_card, sentence. Use 'all' for every field. Blank → full_name, email, phone, street, city, state, zip." },
+        "seed": { "type": "integer", "minimum": 0, "default": 0, "description": "Reproducibility seed. A non-zero value always reproduces the same dataset; 0 (default) uses a fixed fallback seed." },
+        "header": { "type": "boolean", "default": true, "description": "CSV only: include the column-name header row. Default true." },
+        "table": { "type": "string", "description": "SQL only: table name for the INSERT statements. Blank → 'people'." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
