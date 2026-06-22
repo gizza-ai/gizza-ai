@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "elf-info"
+version = "0.1.0"
+abi = 1
+summary = "Parse an ELF binary and report its header, architecture, sections, segments, and symbol table."
