@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "string-obfuscator"
+version = "0.1.0"
+abi = 1
+summary = "Mask or obfuscate a string for screenshots and demos"
