@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "syntax-highlighter"
+version = "0.1.0"
+abi = 1
+summary = "Syntax-highlight a code snippet to styled HTML or ANSI"
