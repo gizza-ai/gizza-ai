@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sha1-hash"
+version = "0.1.0"
+abi = 1
+summary = "Compute the SHA-1 digest of text"
