@@ -1,0 +1,59 @@
+slug          = "geojson-to-svg"
+title         = "GeoJSON to SVG — render a GeoJSON map online — gizza.ai"
+description   = "Render GeoJSON features into a clean, scalable SVG map in your browser — no tile servers, no API key. Polygons, lines and points with Web-Mercator projection and custom colours. Nothing is uploaded."
+tags          = ["geojson to svg", "geojson map", "render geojson", "geojson viewer", "geojson svg", "geojson visualizer"]
+h1            = "GeoJSON to SVG"
+hero_subtitle = "Render GeoJSON features into a clean, scalable SVG map — polygons, lines and points, with a Web-Mercator projection and custom colours. No tile servers, no API key. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_geojson_to_svg_web"
+export        = "run"
+live          = false
+output_label  = "SVG"
+format        = "text"
+
+[[input]]
+name        = "geojson"
+label       = "GeoJSON"
+placeholder = "{\n  \"type\": \"FeatureCollection\",\n  \"features\": [\n    { \"type\": \"Feature\", \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [[[0,0],[10,0],[10,10],[0,10],[0,0]]] }, \"properties\": {} }\n  ]\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "width"
+label       = "Width (px)"
+placeholder = "800"
+source      = "field"
+
+[[input]]
+name        = "fill"
+label       = "Polygon fill colour"
+placeholder = "#cfe8ff"
+source      = "field"
+
+[[input]]
+name        = "stroke"
+label       = "Stroke colour"
+placeholder = "#1f6feb"
+source      = "field"
+
+[[input]]
+name        = "stroke_width"
+label       = "Stroke width (px)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "point_radius"
+label       = "Point radius (px)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "background"
+label       = "Background colour (or 'none')"
+placeholder = "#ffffff"
+source      = "field"
+
+[[input]]
+name        = "projection"
+label       = "Projection"
+source      = "field"
