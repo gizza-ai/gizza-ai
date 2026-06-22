@@ -65,3 +65,10 @@ plaintext is produced — you get a clean error, never garbage output.
 **Can I rotate keys?** Generate a new key for new tokens and keep old keys around long
 enough to read tokens that are still within their TTL. This tool reads one key at a
 time.
+
+**What does inspect mode do?** Choose *inspect* and paste a token to see its internal
+structure without decrypting it: the version byte, the embedded creation time, the
+initialization vector (IV), the ciphertext size, and the HMAC tag. No key is needed to
+read the structure. If you also paste the key, inspect reports whether the HMAC is
+valid — a quick way to check that a token belongs to a given key, without revealing the
+plaintext.

@@ -6,7 +6,7 @@
 //! deterministic and testable.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 use gizza_ai_block_utils::{run_skill, Input, Param, SkillError, ToolDescriptor};
-use gizza_ai_fernet_token_core::{decrypt, encrypt, key_from_bytes};
+use gizza_ai_fernet_token_core::{decrypt, encrypt, inspect, key_from_bytes};
 use serde::{Deserialize, Serialize};
 use wafer_sdk::*;
 
@@ -30,9 +30,23 @@ struct Resp {
     mode: String,
     /// The Fernet key used (echoed so a freshly generated key can be saved).
     key: String,
-    /// Token creation time (ISO-8601 UTC), present on decrypt.
+    /// Token creation time (ISO-8601 UTC), present on decrypt and inspect.
     #[serde(skip_serializing_if = "Option::is_none")]
     created_at: Option<String>,
+    /// Structural breakdown, present on inspect.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    inspection: Option<TokenInfo>,
+}
+
+#[derive(Serialize, Debug)]
+struct TokenInfo {
+    version: String,
+    timestamp: u64,
+    iv_hex: String,
+    ciphertext_bytes: usize,
+    hmac_hex: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    hmac_valid: Option<bool>,
 }
 
 fn now_secs() -> u64 {
@@ -81,7 +95,7 @@ fn run(a: Args) -> Result<Resp, String> {
             };
             let iv = random_bytes::<16>()?;
             let token = encrypt(&key, a.text.as_bytes(), now_secs(), &iv)?;
-            Ok(Resp { result: token, mode: "encrypt".into(), key, created_at: None })
+            Ok(Resp { result: token, mode: "encrypt".into(), key, created_at: None, inspection: None })
         }
         "decrypt" => {
             if a.key.trim().is_empty() {
@@ -96,9 +110,39 @@ fn run(a: Args) -> Result<Resp, String> {
                 mode: "decrypt".into(),
                 key: a.key.trim().to_string(),
                 created_at: Some(iso8601_utc(d.timestamp)),
+                inspection: None,
             })
         }
-        other => Err(format!("unknown mode '{other}' (use 'encrypt' or 'decrypt')")),
+        "inspect" => {
+            let key = if a.key.trim().is_empty() { None } else { Some(a.key.trim()) };
+            let i = inspect(a.text.trim(), key)?;
+            Ok(Resp {
+                result: format!(
+                    "version=0x{:02x} created={} iv={} ciphertext_bytes={}{}",
+                    i.version,
+                    iso8601_utc(i.timestamp),
+                    i.iv_hex,
+                    i.ciphertext_len,
+                    match i.hmac_valid {
+                        Some(true) => " hmac=valid",
+                        Some(false) => " hmac=INVALID",
+                        None => "",
+                    }
+                ),
+                mode: "inspect".into(),
+                key: a.key.trim().to_string(),
+                created_at: Some(iso8601_utc(i.timestamp)),
+                inspection: Some(TokenInfo {
+                    version: format!("0x{:02x}", i.version),
+                    timestamp: i.timestamp,
+                    iv_hex: i.iv_hex,
+                    ciphertext_bytes: i.ciphertext_len,
+                    hmac_hex: i.hmac_hex,
+                    hmac_valid: i.hmac_valid,
+                }),
+            })
+        }
+        other => Err(format!("unknown mode '{other}' (use 'encrypt', 'decrypt', or 'inspect')")),
     }
 }
 
@@ -113,8 +157,8 @@ fn descriptor() -> ToolDescriptor {
             "The Fernet key: url-safe base64 of 32 bytes. Required for decrypt. On encrypt, leave blank to generate a fresh key (returned in the response).",
         ))
         .param(
-            Param::enumv("mode", ["encrypt", "decrypt"]).default("encrypt").describe(
-                "encrypt (default) turns text into a Fernet token; decrypt reads a token back into text.",
+            Param::enumv("mode", ["encrypt", "decrypt", "inspect"]).default("encrypt").describe(
+                "encrypt (default) turns text into a Fernet token; decrypt reads a token back into text; inspect shows a token's structure (version, timestamp, IV, sizes) without the key, and validates the HMAC if a key is given.",
             ),
         )
         .param(
@@ -137,7 +181,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Create or read Fernet tokens (AES-128-CBC + HMAC-SHA256)",
     skill(
-        description = "Create or read Fernet symmetric tokens (the Fernet spec: AES-128-CBC for confidentiality + HMAC-SHA256 for authentication, with an embedded creation timestamp). mode=encrypt (default) turns text into a url-safe-base64 Fernet token; leave 'key' blank to generate a fresh 32-byte key (returned so you can save it). mode=decrypt verifies the HMAC and decrypts a token back to text; pass the same 'key', and optionally 'ttl' (max age in seconds) to reject expired tokens. Tokens carry their creation time, returned as created_at on decrypt. A wrong key or tampered token fails cleanly. Runs locally — text and keys never leave the device.",
+        description = "Create, read, or inspect Fernet symmetric tokens (the Fernet spec: AES-128-CBC for confidentiality + HMAC-SHA256 for authentication, with an embedded creation timestamp). mode=encrypt (default) turns text into a url-safe-base64 Fernet token; leave 'key' blank to generate a fresh 32-byte key (returned so you can save it). mode=decrypt verifies the HMAC and decrypts a token back to text; pass the same 'key', and optionally 'ttl' (max age in seconds) to reject expired tokens. mode=inspect shows a token's structure (version, timestamp, IV, ciphertext size, HMAC) without the key, and reports HMAC validity if a key is supplied. Tokens carry their creation time, returned as created_at. A wrong key or tampered token fails cleanly. Runs locally — text and keys never leave the device.",
         parameters = schema_json()
     ),
 )]
@@ -164,7 +208,7 @@ mod tests {
                 "properties": {
                     "text": { "type": "string", "description": "On encrypt: the text to protect. On decrypt: the Fernet token to read." },
                     "key": { "type": "string", "description": "The Fernet key: url-safe base64 of 32 bytes. Required for decrypt. On encrypt, leave blank to generate a fresh key (returned in the response)." },
-                    "mode": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt", "description": "encrypt (default) turns text into a Fernet token; decrypt reads a token back into text." },
+                    "mode": { "type": "string", "enum": ["encrypt", "decrypt", "inspect"], "default": "encrypt", "description": "encrypt (default) turns text into a Fernet token; decrypt reads a token back into text; inspect shows a token's structure (version, timestamp, IV, sizes) without the key, and validates the HMAC if a key is given." },
                     "ttl": { "type": "integer", "minimum": 0, "default": 0, "description": "Decrypt only: max token age in seconds. 0 (default) disables the age check; a positive value rejects tokens older than this (or with a future timestamp)." }
                 },
                 "required": ["text"],
@@ -207,6 +251,23 @@ mod tests {
         })
         .unwrap_err();
         assert!(err.contains("requires the Fernet key"), "got: {err}");
+    }
+
+    #[test]
+    fn inspect_mode_breaks_down_token() {
+        let token = "gAAAAAAdwJ6wAAECAwQFBgcICQoLDA0ODy021cpGVWKZ_eEwCGM4BLLF_5CV9dOPmrhuVUPgJobwOz7JcbmrR64jVmpU4IwqDA==";
+        let key = "cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4=";
+        // No key: structure only, no HMAC verdict.
+        let r = run(Args { text: token.into(), key: String::new(), mode: "inspect".into(), ttl: 0 }).unwrap();
+        assert_eq!(r.mode, "inspect");
+        let info = r.inspection.as_ref().unwrap();
+        assert_eq!(info.version, "0x80");
+        assert_eq!(info.timestamp, 499_162_800);
+        assert!(info.hmac_valid.is_none());
+        assert_eq!(r.created_at.as_deref(), Some("1985-10-26T08:20:00Z"));
+        // With the correct key: HMAC validated.
+        let r2 = run(Args { text: token.into(), key: key.into(), mode: "inspect".into(), ttl: 0 }).unwrap();
+        assert_eq!(r2.inspection.unwrap().hmac_valid, Some(true));
     }
 
     #[test]

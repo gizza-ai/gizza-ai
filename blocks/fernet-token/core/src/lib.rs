@@ -163,6 +163,72 @@ pub fn decrypt(key: &str, token: &str, now: u64, ttl: Option<u64>) -> Result<Dec
     Ok(Decoded { plaintext, timestamp })
 }
 
+/// Structural breakdown of a Fernet token, produced without needing the key.
+#[derive(Debug)]
+pub struct Inspection {
+    /// The version byte (0x80 for valid Fernet tokens).
+    pub version: u8,
+    /// Creation timestamp, seconds since the Unix epoch.
+    pub timestamp: u64,
+    /// 16-byte IV, lowercase hex.
+    pub iv_hex: String,
+    /// Ciphertext length in bytes (a multiple of the 16-byte AES block).
+    pub ciphertext_len: usize,
+    /// HMAC tag (32 bytes), lowercase hex.
+    pub hmac_hex: String,
+    /// `Some(true/false)` if a key was supplied and the HMAC was checked; `None` if no key.
+    pub hmac_valid: Option<bool>,
+}
+
+/// Decode a token's structure without decrypting it. If `key` is non-empty, the
+/// HMAC is also verified and reported. Never reveals plaintext.
+pub fn inspect(token: &str, key: Option<&str>) -> Result<Inspection, String> {
+    let raw = decode_b64(token).map_err(|_| "token is not valid base64".to_string())?;
+    if raw.len() < 57 {
+        return Err("token too short to be a valid Fernet token".into());
+    }
+    let version = raw[0];
+
+    let hmac_start = raw.len() - 32;
+    let (signed, tag) = raw.split_at(hmac_start);
+
+    let mut ts_bytes = [0u8; 8];
+    ts_bytes.copy_from_slice(&signed[1..9]);
+    let timestamp = u64::from_be_bytes(ts_bytes);
+
+    let iv_hex = to_hex(&signed[9..25]);
+    let ciphertext_len = signed.len() - 25;
+    let hmac_hex = to_hex(tag);
+
+    let hmac_valid = match key {
+        Some(k) if !k.trim().is_empty() => {
+            let parsed = parse_key(k)?;
+            let mut mac = HmacSha256::new_from_slice(&parsed.signing).expect("hmac key");
+            mac.update(signed);
+            let expected = mac.finalize().into_bytes();
+            Some(expected.ct_eq(tag).unwrap_u8() == 1)
+        }
+        _ => None,
+    };
+
+    Ok(Inspection {
+        version,
+        timestamp,
+        iv_hex,
+        ciphertext_len,
+        hmac_hex,
+        hmac_valid,
+    })
+}
+
+fn to_hex(bytes: &[u8]) -> String {
+    let mut s = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        s.push_str(&format!("{b:02x}"));
+    }
+    s
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -261,6 +327,30 @@ mod tests {
     fn invalid_base64_token_rejected() {
         let err = decrypt(SPEC_KEY, "!!!not base64!!!", 0, None).unwrap_err();
         assert!(err.contains("base64"), "got: {err}");
+    }
+
+    #[test]
+    fn inspect_spec_vector() {
+        let i = inspect(SPEC_TOKEN, None).unwrap();
+        assert_eq!(i.version, 0x80);
+        assert_eq!(i.timestamp, SPEC_TS);
+        assert_eq!(i.iv_hex, "000102030405060708090a0b0c0d0e0f");
+        assert_eq!(i.ciphertext_len, 16); // "hello" → one 16-byte AES block
+        assert_eq!(i.hmac_hex.len(), 64);
+        assert!(i.hmac_valid.is_none());
+    }
+
+    #[test]
+    fn inspect_with_correct_key_validates_hmac() {
+        let i = inspect(SPEC_TOKEN, Some(SPEC_KEY)).unwrap();
+        assert_eq!(i.hmac_valid, Some(true));
+    }
+
+    #[test]
+    fn inspect_with_wrong_key_flags_invalid() {
+        let other = key_from_bytes(&[3u8; 32]);
+        let i = inspect(SPEC_TOKEN, Some(&other)).unwrap();
+        assert_eq!(i.hmac_valid, Some(false));
     }
 
     #[test]
