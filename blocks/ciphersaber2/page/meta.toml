@@ -1,0 +1,54 @@
+slug          = "ciphersaber2"
+title         = "CipherSaber-2 — Encrypt/decrypt with CipherSaber (RC4 + random IV) — gizza.ai"
+description   = "Encrypt or decrypt text with CipherSaber-2: RC4 with a random 10-byte IV and a repeated key-setup loop (rounds). Text or encoded keys, hex/base64 I/O — in your browser. Nothing is uploaded."
+tags          = ["ciphersaber", "ciphersaber-2", "ciphersaber2", "rc4", "arcfour", "stream cipher", "cipher", "encrypt", "decrypt"]
+h1            = "CipherSaber-2 cipher"
+hero_subtitle = "Encrypt or decrypt text with CipherSaber-2 — RC4 with a random 10-byte IV and repeated key setup (rounds). Text or encoded keys, hex or base64. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_ciphersaber2_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (passphrase or encoded bytes)"
+placeholder = "passphrase, or encoded key"
+source      = "field"
+
+[[input]]
+name        = "key_format"
+label       = "Key format (text | encoded)"
+placeholder = "text"
+source      = "field"
+
+[[input]]
+name        = "rounds"
+label       = "Rounds (key-setup iterations, spec recommends 20)"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV (optional, 10 bytes encoded; blank = random)"
+placeholder = "blank = random IV"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (hex | base64)"
+placeholder = "hex"
+source      = "field"

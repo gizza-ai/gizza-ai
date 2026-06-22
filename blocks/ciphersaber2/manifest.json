@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/ciphersaber2",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with CipherSaber-2 (RC4 + random IV, repeated key setup)",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with CipherSaber-2, a minimalist symmetric cipher built on RC4. Each message uses a session key = your key + a fresh random 10-byte IV (prepended to the ciphertext), and CipherSaber-2 repeats RC4's key-scheduling loop `rounds` times (spec recommends 20). operation = encrypt (default) or decrypt. key is a passphrase (key_format=text, default) or decoded bytes (key_format=encoded). On encrypt a random IV is generated unless an explicit 10-byte iv is given. rounds must match on both sides. format = hex (default) or base64. WARNING: RC4 is cryptographically broken — interop/CTF/learning use only.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key"],
+      "properties": {
+        "data": { "type": "string" },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
+        "key": { "type": "string" },
+        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
+        "rounds": { "type": "integer", "default": 20, "minimum": 1 },
+        "iv": { "type": "string" },
+        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
