@@ -105,8 +105,14 @@ fn decode_input(text: &str, encoding: InputEncoding) -> Result<Vec<u8>, String> 
     match encoding {
         InputEncoding::Text => Ok(text.as_bytes().to_vec()),
         InputEncoding::Hex => {
+            // Tolerate an optional 0x prefix and internal whitespace (matches
+            // keccak-hash / hmac-generate so the hash family accepts the same input).
             let cleaned: String = text.split_whitespace().collect();
-            hex::decode(&cleaned).map_err(|e| format!("input is not valid hex: {e}"))
+            let cleaned = cleaned
+                .strip_prefix("0x")
+                .or_else(|| cleaned.strip_prefix("0X"))
+                .unwrap_or(&cleaned);
+            hex::decode(cleaned).map_err(|e| format!("input is not valid hex: {e}"))
         }
         InputEncoding::Base64 => {
             let cleaned: String = text.split_whitespace().collect();
@@ -334,5 +340,13 @@ mod tests {
     fn bad_hex_input_errors() {
         let e = hash("zz", "sha256", "hex", "", false).unwrap_err();
         assert!(e.contains("not valid hex"), "{e}");
+    }
+
+    #[test]
+    fn hex_input_accepts_0x_prefix() {
+        // A leading 0x/0X is tolerated, matching keccak-hash / hmac-generate.
+        let plain = hash("616263", "sha256", "hex", "", false).unwrap();
+        assert_eq!(hash("0x616263", "sha256", "hex", "", false).unwrap(), plain);
+        assert_eq!(hash("0X616263", "sha256", "hex", "", false).unwrap(), plain);
     }
 }
