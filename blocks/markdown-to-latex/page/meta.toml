@@ -1,0 +1,32 @@
+slug          = "markdown-to-latex"
+title         = "Markdown to LaTeX Converter — gizza.ai"
+description   = "Convert Markdown to LaTeX source instantly in your browser. Headings, lists, tables, code blocks, blockquotes, links, images, and math passthrough — emit a body fragment or a full compilable document. Free, private, no upload, no sign-up."
+tags          = ["markdown to latex", "md to tex", "markdown to tex", "latex converter", "markdown latex", "tex generator", "booktabs table", "listings code"]
+h1            = "Markdown to LaTeX"
+hero_subtitle = "Paste Markdown and get clean LaTeX source — headings, lists, tables, code blocks, links, images, and math all converted. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_markdown_to_latex_web"
+export        = "run"
+live          = false
+output_label  = "LaTeX"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "# Title\n\nSome **bold** and *italic* text with `code`.\n\n- one\n- two\n\n| a | b |\n|---|---|\n| 1 | 2 |"
+source      = "field"
+multiline   = true
+
+# full_document renders as a checkbox and heading_offset as a number field —
+# the control type is derived from the descriptor's schema (manifest.json), so
+# labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "full_document"
+label       = "Wrap in a full \\documentclass document"
+source      = "field"
+
+[[input]]
+name        = "heading_offset"
+label       = "Heading offset (0–5 — demote headings)"
+placeholder = "0"
+source      = "field"
