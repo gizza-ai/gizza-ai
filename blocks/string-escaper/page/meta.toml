@@ -1,0 +1,35 @@
+slug          = "string-escaper"
+title         = "String Escaper — Escape for JSON, JS, HTML, URL, Shell, SQL, Regex — gizza.ai"
+description   = "Escape (or unescape) any string for JSON, JavaScript, HTML, URL, shell, SQL, or regex. Spec-aware escaping that runs in your browser; nothing is uploaded."
+tags          = ["string escaper", "escape string", "json escape", "html escape", "url encode", "sql escape", "regex escape", "shell escape", "javascript escape"]
+h1            = "String Escaper"
+hero_subtitle = "Escape — or unescape — any string for a target syntax: JSON, JavaScript, HTML, URL, shell, SQL, or regex. Spec-aware. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_string_escaper_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "He said \"hi\"\nLine two"
+source      = "field"
+multiline   = true
+
+# target renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "target"
+label       = "Target syntax"
+source      = "field"
+
+# mode renders as a <select>.
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "quotes"
+label       = "Wrap in quotes (JSON / JS / SQL, escape mode)"
+source      = "field"

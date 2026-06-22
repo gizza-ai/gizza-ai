@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "string-escaper"
+version = "0.1.0"
+abi = 1
+summary = "Escape or unescape a string for a chosen target syntax"
