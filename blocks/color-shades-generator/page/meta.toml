@@ -1,0 +1,28 @@
+slug          = "color-shades-generator"
+title         = "Color Shades Generator — Tints, Shades, Tones & Tailwind 50-950 Scale — gizza.ai"
+description   = "Generate a ramp of tints, shades and tones from any base color, including a Tailwind-style 50-900 scale, in HEX, RGB and HSL. Runs in your browser, nothing is uploaded."
+tags          = ["color shades generator", "tints and shades", "tailwind color scale", "color ramp", "color tints", "color tones", "50 to 900 colors"]
+h1            = "Color shades generator"
+hero_subtitle = "Turn one base color into a full ramp of tints, shades and tones — including a Tailwind-style 50-900 scale — in HEX, RGB and HSL. Runs in your browser."
+wasm          = "gizza_ai_color_shades_generator_web"
+export        = "run"
+live          = false
+output_label  = "Color ramp"
+format        = "text"
+
+[[input]]
+name        = "color"
+label       = "Base color (#hex, rgb(), hsl())"
+placeholder = "#3498db"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "Steps (tints/shades/tones only, 2–12)"
+placeholder = "9"
+source      = "field"
