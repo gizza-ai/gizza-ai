@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/srt-shift",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shift all SubRip (.srt) subtitle timings by an offset.",
+  "role": "skill",
+  "tool": {
+    "description": "Shift every timestamp in a SubRip (.srt) subtitle file forward or backward by a fixed offset, to re-sync subtitles that run early or late against their video. Pass the full subtitle text as `srt` and the amount as `offset` (positive delays the subtitles, negative advances them). `unit` is 'seconds' (default, fractions allowed e.g. offset=2.5) or 'milliseconds'. Cue numbers and dialogue text are kept verbatim; only the timing lines change. Any timestamp that would go below zero is clamped to 00:00:00,000.",
+    "parameters": {
+      "type": "object",
+      "required": ["srt", "offset"],
+      "properties": {
+        "srt": { "type": "string", "description": "The SubRip (.srt) subtitle text to retime, including the cue numbers, the 'HH:MM:SS,mmm --> HH:MM:SS,mmm' timing lines, and the dialogue." },
+        "offset": { "type": "number", "description": "How far to shift every timestamp. Positive = later (delay subtitles), negative = earlier (advance them). Interpreted in `unit`." },
+        "unit": { "type": "string", "enum": ["seconds", "milliseconds"], "default": "seconds", "description": "The unit of `offset`: 'seconds' (default, fractions allowed e.g. 2.5) or 'milliseconds'." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

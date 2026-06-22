@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "srt-shift"
+version = "0.1.0"
+abi = 1
+summary = "Shift all SubRip (.srt) subtitle timings by an offset."
