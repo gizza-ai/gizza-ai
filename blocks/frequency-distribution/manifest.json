@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/frequency-distribution",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a character, byte, or n-gram frequency table.",
+  "role": "skill",
+  "tool": {
+    "description": "Build a frequency table over the symbols of an input, ranked most to least frequent with counts and percentages. mode='char' tallies Unicode characters (default), 'byte' tallies raw bytes (shown as 0xNN), 'ngram' tallies overlapping n-character windows (set n, default 2). input_kind='text' reads input literally (default); 'hex' decodes a hex string into bytes first. case_sensitive (default true) controls whether 'A'/'a' are grouped (char/ngram only). Returns each distinct symbol with its count and percent of the total, plus the number of distinct symbols and the grand total. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The text (or hex string, if input_kind=hex) to analyze." },
+        "input_kind": { "type": "string", "enum": ["text", "hex"], "default": "text", "description": "How to read 'input': 'text' (default) literally, or 'hex' to decode a hex string into bytes first." },
+        "mode": { "type": "string", "enum": ["char", "byte", "ngram"], "default": "char", "description": "What to tally: 'char' (Unicode characters, default), 'byte' (raw bytes), or 'ngram' (overlapping n-character windows)." },
+        "n": { "type": "integer", "minimum": 1, "default": 2, "description": "Window size for mode=ngram (e.g. 2 = bigrams). Ignored for char/byte modes." },
+        "case_sensitive": { "type": "boolean", "default": true, "description": "When true (default), 'A' and 'a' count separately; false groups them (char/ngram modes only — byte mode is always raw)." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}
