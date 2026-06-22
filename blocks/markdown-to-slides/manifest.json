@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/markdown-to-slides",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Markdown into a self-contained HTML slide deck",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Markdown document into a single self-contained, navigable HTML slide deck. Each slide is separated by a thematic break (`---`, `***`, or `___`) on its own line. Markdown is rendered with CommonMark plus GitHub-flavored extensions (tables, task lists, strikethrough, footnotes) and sanitized, then wrapped in one HTML file with embedded CSS and keyboard/click/swipe navigation, a slide counter, and a progress bar — no external dependencies, no build step. Pass the document as `markdown`; optionally set `theme` (\"light\"|\"dark\") and a document `title`.",
+    "parameters": {
+      "type": "object",
+      "required": ["markdown"],
+      "properties": {
+        "markdown": { "type": "string", "description": "The Markdown document to turn into slides. Slides are separated by a thematic break (`---`, `***`, or `___`) on its own line." },
+        "theme": { "type": "string", "enum": ["light", "dark"], "default": "light", "description": "Color theme for the generated deck." },
+        "title": { "type": "string", "description": "Title for the generated HTML document (the browser tab). Defaults to \"Slides\"." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
