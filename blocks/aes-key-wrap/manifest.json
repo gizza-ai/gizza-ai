@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/aes-key-wrap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Wrap or unwrap cryptographic keys with AES Key Wrap (RFC 3394 / RFC 5649)",
+  "role": "skill",
+  "tool": {
+    "description": "Wrap or unwrap cryptographic key material with the AES Key Wrap algorithm. operation = wrap (default) or unwrap. algorithm = kw (RFC 3394 / NIST SP 800-38F) or kwp (RFC 5649, with padding). The key (KEK) length selects AES-128/192/256 (16/24/32 bytes). data, key and wrapped output are hex or base64 (set format; default base64).",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key"],
+      "properties": {
+        "data": { "type": "string" },
+        "operation": { "type": "string", "enum": ["wrap", "unwrap"], "default": "wrap" },
+        "key": { "type": "string" },
+        "algorithm": { "type": "string", "enum": ["kw", "kwp"], "default": "kw" },
+        "format": { "type": "string", "enum": ["base64", "hex"], "default": "base64" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
