@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "age-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Exact age in years, months, and days."
