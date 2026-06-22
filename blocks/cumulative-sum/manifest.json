@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/cumulative-sum",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Running total (prefix sum) of a list of numbers, with optional running average, min, and max.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the running total (prefix sum) of a list of numbers. Pass the values in 'numbers' (separated by commas, spaces, or newlines). The result is a table with one row per input value: the value and the cumulative sum up to that point. Optionally set average=true to add a running-average column (the mean of values seen so far), min=true for a running-minimum column, and max=true for a running-maximum column. Use it for prefix sums, running balances, cumulative totals, and step-by-step accumulation.",
+    "parameters": {
+      "type": "object",
+      "required": ["numbers"],
+      "properties": {
+        "numbers": { "type": "string", "description": "The list of numbers, separated by commas, spaces, or newlines (one per line). Decimals and negatives are allowed." },
+        "average": { "type": "boolean", "description": "Also include a 'running_avg' column — the average (mean) of the values seen up to and including each row." },
+        "min": { "type": "boolean", "description": "Also include a 'running_min' column — the smallest value seen up to and including each row." },
+        "max": { "type": "boolean", "description": "Also include a 'running_max' column — the largest value seen up to and including each row." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
