@@ -1,0 +1,54 @@
+slug          = "hmac-generate"
+title         = "HMAC Generator — HMAC-SHA256, SHA-1, SHA-512, SHA-3, MD5 | gizza.ai"
+description   = "Generate an HMAC (keyed hash) of any message and secret key instantly in your browser. Pick HMAC-SHA256, SHA-1, SHA-224/384/512, SHA3-256/512 or MD5, with hex or base64 output. Free, private, no sign-up — nothing is uploaded."
+tags          = ["hmac", "hmac-sha256", "sha256", "sha1", "sha512", "sha3", "md5", "mac", "keyed-hash", "signature", "webhook", "hex", "base64", "cryptography"]
+h1            = "HMAC Generator"
+hero_subtitle = "Compute a keyed-hash message authentication code (HMAC) from a message and a secret key, with a selectable hash — HMAC-SHA256, SHA-1, the SHA-2 family, SHA-3 and MD5 — in hex or base64. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_hmac_generate_web"
+export        = "run"
+live          = false
+output_label  = "HMAC tag"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The data to authenticate"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Secret key"
+placeholder = "Your secret key"
+source      = "field"
+multiline   = true
+
+# algorithm/message_encoding/key_encoding/output_format render as <select> and
+# uppercase as a checkbox — control type + options are derived from the
+# descriptor's schema (manifest.json), so labels here stay short and option
+# lists are NOT duplicated.
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+source      = "field"
+
+[[input]]
+name        = "message_encoding"
+label       = "Interpret message as"
+source      = "field"
+
+[[input]]
+name        = "key_encoding"
+label       = "Interpret key as"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex"
+source      = "field"
