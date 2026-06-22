@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "candlestick-chart"
+version = "0.1.0"
+abi = 1
+summary = "Render OHLC price data as an SVG candlestick chart."
