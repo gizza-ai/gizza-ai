@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "byte-entropy"
+version = "0.1.0"
+abi = 1
+summary = "Measure a file's Shannon entropy, overall and per block."
