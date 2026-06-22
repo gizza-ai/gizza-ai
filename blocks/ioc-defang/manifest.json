@@ -1,0 +1,30 @@
+{
+  "name": "gizza-ai/ioc-defang",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Defang or refang IOCs (URLs, IPs, domains, emails).",
+  "role": "skill",
+  "tool": {
+    "description": "Defang or refang indicators of compromise (IOCs) in a block of text. Set mode to 'defang' (default) to neutralize URLs, IP addresses, domains and email addresses so they are safe to share in a report, ticket or email and won't auto-link or auto-execute — it rewrites 'http'/'https'/'ftp' to 'hxxp'/'hxxps'/'fxp', every '.' to '[.]', '@' to '[at]', and '://' to '[://]'. Set mode to 'refang' to do the inverse and restore a defanged blob back to the real, clickable indicator (it recognizes square [], round (), curly {} brackets plus the [dot]/[at] and meow:// conventions). The 'style' parameter picks the bracket style for defanging: 'square' (default, [.]), 'round' ((.)), 'curly' ({.}), or 'dot' (spelled out, [dot]). Surrounding prose is preserved; only the indicator characters are rewritten.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The text containing IOCs (URLs, IPs, domains, emails) to transform." },
+        "mode": {
+          "type": "string",
+          "enum": ["defang", "refang"],
+          "default": "defang",
+          "description": "What to do. 'defang' (default) neutralizes IOCs so they are not clickable or auto-linked: 'http'/'https'/'ftp' -> 'hxxp'/'hxxps'/'fxp', every '.' -> '[.]', '@' -> '[at]', and '://' -> '[://]'. 'refang' is the inverse — restore a defanged blob to the real, clickable indicator (recognizes [], (), {} and [dot]/[at]/meow:// variants)."
+        },
+        "style": {
+          "type": "string",
+          "enum": ["square", "round", "curly", "dot"],
+          "default": "square",
+          "description": "Bracket style used when defanging: 'square' (default) -> '[.]' '[at]' '[://]'; 'round' -> '(.)'; 'curly' -> '{.}'; 'dot' spells the separator -> '[dot]' '[at]'. Ignored when mode is 'refang' (all styles are recognized on the way back)."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

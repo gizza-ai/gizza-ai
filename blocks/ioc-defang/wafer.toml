@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ioc-defang"
+version = "0.1.0"
+abi = 1
+summary = "Defang or refang IOCs (URLs, IPs, domains, emails)."
