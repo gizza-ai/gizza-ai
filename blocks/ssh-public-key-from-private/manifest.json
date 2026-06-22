@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/ssh-public-key-from-private",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive the OpenSSH public key (.pub line) from a private key",
+  "role": "skill",
+  "tool": {
+    "description": "Derive the OpenSSH PUBLIC key (the single-line id_*.pub / authorized_keys format, e.g. 'ssh-rsa AAAA... user@host') from a PRIVATE key. The offline equivalent of 'ssh-keygen -y'. Supports RSA, EC (NIST P-256/P-384) and Ed25519 private keys as PEM or raw DER (hex/base64); optional trailing comment.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string" },
+        "key_type": { "type": "string", "enum": ["auto", "rsa", "ec", "ed25519"], "default": "auto" },
+        "der_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" },
+        "comment": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

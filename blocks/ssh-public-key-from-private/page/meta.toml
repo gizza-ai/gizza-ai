@@ -1,0 +1,36 @@
+slug          = "ssh-public-key-from-private"
+title         = "Get SSH Public Key from a Private Key — gizza.ai"
+description   = "Derive the OpenSSH public key (id_*.pub line) from an RSA, ECDSA (P-256/P-384) or Ed25519 private key. Runs in your browser, nothing uploaded, free."
+tags          = ["ssh public key from private", "ssh-keygen -y", "id_rsa.pub", "openssh public key", "ssh-ed25519", "ecdsa-sha2-nistp256", "ssh-rsa", "authorized_keys"]
+h1            = "Get the SSH Public Key from a Private Key"
+hero_subtitle = "Derive the OpenSSH public key — the single-line id_*.pub / authorized_keys format — from an RSA, ECDSA (P-256/P-384) or Ed25519 private key. The offline equivalent of ssh-keygen -y. Runs entirely in your browser; your private key is never uploaded."
+wasm          = "gizza_ai_ssh_public_key_from_private_web"
+export        = "ssh_public_key"
+live          = false
+output_label  = "OpenSSH public key"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Private key (PEM, or DER as hex/base64)"
+placeholder = "-----BEGIN PRIVATE KEY-----..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key_type"
+label       = "Key type"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "der_format"
+label       = "DER text format for raw input"
+placeholder = "hex"
+source      = "field"
+
+[[input]]
+name        = "comment"
+label       = "Comment (optional, e.g. user@host)"
+placeholder = "user@host"
+source      = "field"
