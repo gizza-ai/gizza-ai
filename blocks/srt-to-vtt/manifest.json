@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/srt-to-vtt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert subtitles between SubRip (.srt) and WebVTT (.vtt).",
+  "role": "skill",
+  "tool": {
+    "description": "Convert subtitles between SubRip (.srt) and WebVTT (.vtt) formats. Pass the full subtitle text as `subtitles`. With `direction` = 'auto' (default) the input format is detected and converted to the other; 'srt-to-vtt' forces SubRip → WebVTT and 'vtt-to-srt' forces WebVTT → SubRip. The conversion rewrites the timing-line decimal separator (SRT comma `00:00:01,000` ↔ WebVTT period `00:00:01.000`), adds or strips the leading WEBVTT signature/header, and expands WebVTT's short MM:SS.mmm timestamps to HH:MM:SS,mmm. Cue numbers and dialogue text are kept verbatim; WebVTT cue settings (e.g. line:90%) are dropped when producing SRT.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "subtitles": { "type": "string", "description": "The subtitle text to convert: a full SubRip (.srt) or WebVTT (.vtt) file, including the cue numbers, the timing lines, and the dialogue." },
+        "direction": { "type": "string", "enum": ["auto", "srt-to-vtt", "vtt-to-srt"], "default": "auto", "description": "Which way to convert. 'auto' (default) detects the input format and converts to the other; 'srt-to-vtt' forces SubRip → WebVTT; 'vtt-to-srt' forces WebVTT → SubRip." }
+      },
+      "required": ["subtitles"],
+      "additionalProperties": false
+    }
+  }
+}
