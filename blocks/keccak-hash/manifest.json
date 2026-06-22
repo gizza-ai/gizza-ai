@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/keccak-hash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hash text with original Keccak (Keccak-256/512, the Ethereum hash)",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the original Keccak digest of text — Keccak-256 (default) or Keccak-512. This is the legacy-padding Keccak used throughout Ethereum (addresses, the EVM KECCAK256 opcode, ABI selectors), which differs from FIPS-202 SHA-3 (use the hash-text tool for SHA3-256/SHA3-512). By default hashes UTF-8 text to lowercase hex; set input_encoding='hex'/'base64' to decode the input first, output_format='base64' for a base64 digest, or uppercase=true for uppercase hex.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The text to hash with Keccak." },
+        "algorithm": { "type": "string", "enum": ["keccak-256", "keccak-512"], "default": "keccak-256", "description": "Keccak variant (keccak-256 default)." },
+        "input_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to interpret `text` before hashing." },
+        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "Digest representation: hex (default) or base64." },
+        "uppercase": { "type": "boolean", "default": false, "description": "Emit uppercase hex (no effect on base64). Default false." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
