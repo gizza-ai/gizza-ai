@@ -1,0 +1,29 @@
+slug          = "timezone-convert"
+title         = "Timezone Converter — Convert Time Between Time Zones | gizza.ai"
+description   = "Convert any date and time from one timezone to another, with correct daylight saving (DST) handling. Uses the full IANA timezone database — America/New_York, Europe/London, Asia/Tokyo, and more. Free, private, no sign-up, runs in your browser."
+tags          = ["timezone converter", "time zone convert", "utc converter", "dst", "iana timezone", "world clock", "meeting planner", "convert time"]
+h1            = "Timezone Converter"
+hero_subtitle = "Convert a date and time from one timezone to another, with correct daylight-saving handling. Runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_timezone_convert_web"
+export        = "run"
+live          = false
+output_label  = "Converted time"
+format        = "text"
+
+[[input]]
+name        = "datetime"
+label       = "Date & time (in the source zone)"
+placeholder = "2024-03-10 14:30"
+source      = "field"
+
+[[input]]
+name        = "from"
+label       = "From timezone (IANA name)"
+placeholder = "America/New_York"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To timezone (IANA name)"
+placeholder = "Asia/Tokyo"
+source      = "field"
