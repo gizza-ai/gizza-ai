@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-to-epub"
+version = "0.1.0"
+abi = 1
+summary = "Convert a text-based PDF into a reflowable EPUB ebook."

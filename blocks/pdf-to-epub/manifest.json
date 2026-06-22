@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/pdf-to-epub",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a text-based PDF into a reflowable EPUB ebook.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Convert a text-based PDF into a reflowable EPUB ebook (one chapter per page, with a table of contents). Wrapped lines are unwrapped into flowing text so the result reflows on any reader; set preserve_line_breaks to keep the original line layout (e.g. for poetry or code). Provide the PDF as url (HTTP/HTTPS) or ref from a prior tool call, and optionally a title and author for the ebook metadata. Returns the EPUB file as a download. Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs (those produce empty chapters).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "title": { "type": "string", "description": "Book title for the EPUB metadata (dc:title). Defaults to \"Untitled\" if omitted." },
+        "author": { "type": "string", "description": "Optional author for the EPUB metadata (dc:creator)." },
+        "preserve_line_breaks": { "type": "boolean", "default": false, "description": "When true, keep the PDF's hard line breaks as line breaks. When false (default), wrapped lines are merged into flowing text for clean reflow. Default false." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
