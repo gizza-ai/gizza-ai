@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ioc-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract IOCs (IPs, URLs, domains, emails, hashes) from text."
