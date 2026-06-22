@@ -1,0 +1,28 @@
+slug          = "find-unique-lines"
+title         = "Find Unique Lines — keep only one-off lines — gizza.ai"
+description   = "Return only the lines that appear exactly once in pasted text (like uniq -u) — in your browser. Optional case-insensitive and trim matching. Nothing is uploaded."
+tags          = ["find unique lines", "uniq -u", "lines appearing once", "non-repeated lines", "unique line filter"]
+h1            = "Find Unique Lines"
+hero_subtitle = "Paste text and keep only the lines that appear exactly once — repeated lines are dropped entirely (like uniq -u). Optional case-insensitive and whitespace-trim matching. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_find_unique_lines_web"
+export        = "run"
+live          = false
+output_label  = "Unique lines"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste lines to find the ones that appear only once…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace"
+source      = "field"
