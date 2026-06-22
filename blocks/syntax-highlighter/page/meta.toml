@@ -1,0 +1,36 @@
+slug          = "syntax-highlighter"
+title         = "Syntax Highlighter — code to styled HTML or ANSI — gizza.ai"
+description   = "Syntax-highlight a code snippet to self-contained inline-styled HTML (or ANSI terminal colors) for 100+ languages and many themes, in your browser. Nothing is uploaded."
+tags          = ["syntax highlighter", "code highlighter", "highlight code", "code to html", "syntax highlighting", "ansi colors"]
+h1            = "Syntax Highlighter"
+hero_subtitle = "Paste code and get back self-contained, inline-styled HTML (no external CSS) — or ANSI terminal colors. 100+ languages and many themes, powered by syntect. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_syntax_highlighter_web"
+export        = "run"
+live          = false
+output_label  = "Highlighted output"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Code"
+placeholder = "fn main() {\n    println!(\"Hello, world!\");\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "language"
+label       = "Language (e.g. rust, python, javascript, bash, json)"
+placeholder = "rust"
+source      = "field"
+
+[[input]]
+name        = "theme"
+label       = "Theme (e.g. base16-ocean.dark, Solarized (dark), InspiredGitHub)"
+placeholder = "base16-ocean.dark"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "html"
+source      = "field"
