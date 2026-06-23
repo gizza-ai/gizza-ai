@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/generate-uuid",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate UUIDs (v4/v7/v1/v5/v3), singly or in bulk",
+  "role": "skill",
+  "tool": {
+    "description": "Generate RFC 4122 / RFC 9562 UUIDs locally. version: '4' (random, default), '7' (unix-time-ordered and lexicographically sortable), '1' (gregorian-time + random node), '5' (namespace, SHA-1), '3' (namespace, MD5), 'nil', or 'max'. count returns a batch (1..1000). For v5/v3, set namespace ('dns', 'url', 'oid', 'x500', or a UUID) and name (comma/newline-separated names each yield one deterministic UUID). Format flags: uppercase, hyphens (default on), braces, urn. Returns the uuids array, the version, and the count.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string", "enum": ["4", "7", "1", "5", "3", "nil", "max"], "default": "4", "description": "UUID version: '4' (random, default), '7' (unix-time-ordered, sortable), '1' (gregorian-time + random node), '5' (namespace, SHA-1), '3' (namespace, MD5), 'nil' (all-zero), or 'max' (all-one)." },
+        "count": { "type": "integer", "minimum": 1, "maximum": 1000, "description": "How many UUIDs to generate (default 1). Ignored for nil/max (always 1) and for namespace versions when multiple names are given." },
+        "namespace": { "type": "string", "default": "", "description": "For v5/v3 only: the namespace — 'dns', 'url', 'oid', 'x500', or a UUID string." },
+        "name": { "type": "string", "default": "", "description": "For v5/v3 only: the name to hash within the namespace. Multiple names (comma- or newline-separated) yield one deterministic UUID each." },
+        "uppercase": { "type": "boolean", "default": false, "description": "Output hex in uppercase (default lowercase)." },
+        "hyphens": { "type": "boolean", "default": true, "description": "Include the 8-4-4-4-12 hyphens (default true). When false, output is 32 hex chars." },
+        "braces": { "type": "boolean", "default": false, "description": "Wrap each UUID in {curly braces} (Microsoft GUID registry form)." },
+        "urn": { "type": "boolean", "default": false, "description": "Prefix each UUID with 'urn:uuid:' (RFC 4122 URN form)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

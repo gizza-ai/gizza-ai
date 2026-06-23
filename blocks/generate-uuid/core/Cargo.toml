@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-generate-uuid-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+getrandom = "0.2"
+md-5 = { version = "0.10", default-features = false }
+sha1 = { version = "0.10", default-features = false }

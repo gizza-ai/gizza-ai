@@ -1,0 +1,54 @@
+slug          = "generate-uuid"
+title         = "UUID Generator — gizza.ai"
+description   = "Generate UUIDs / GUIDs online: v4 (random), v7 (time-ordered), v1, and v5/v3 (namespace), one or in bulk. Runs entirely in your browser — nothing uploaded, free."
+tags          = ["uuid generator", "guid generator", "uuid v4", "uuid v7", "bulk uuid generator"]
+h1            = "UUID Generator"
+hero_subtitle = "Generate RFC 4122 / RFC 9562 UUIDs — v4 (random), v7 (time-ordered), v1, and v5/v3 (namespace) — one at a time or in bulk. Runs entirely in your browser; nothing leaves your device."
+wasm          = "gizza_ai_generate_uuid_web"
+export        = "run"
+live          = false
+output_label  = "Generated UUIDs"
+format        = "text"
+
+[[input]]
+name        = "version"
+label       = "Version"
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "How many"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "namespace"
+label       = "Namespace (v5/v3 only — dns|url|oid|x500 or a UUID)"
+placeholder = "dns"
+source      = "field"
+
+[[input]]
+name        = "name"
+label       = "Name (v5/v3 only — comma/newline-separated for multiple)"
+placeholder = "www.example.com"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase"
+source      = "field"
+
+[[input]]
+name        = "hyphens"
+label       = "Hyphens (8-4-4-4-12)"
+source      = "field"
+
+[[input]]
+name        = "braces"
+label       = "Wrap in {braces}"
+source      = "field"
+
+[[input]]
+name        = "urn"
+label       = "urn:uuid: prefix"
+source      = "field"
