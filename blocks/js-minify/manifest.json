@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/js-minify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Minify JavaScript by stripping whitespace and comments",
+  "role": "skill",
+  "tool": {
+    "description": "Minify JavaScript: remove unnecessary whitespace, line breaks and comments to shrink the source, while preserving behavior. Token-aware: strings, template literals and regular expressions are kept verbatim, identifiers are never renamed, and code is never reordered or dropped. Newlines that matter for ASI (e.g. after return) are preserved. remove_comments (default true) strips comments; keep_license (default true) preserves /*! … */ / @license / @preserve banners.",
+    "parameters": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": { "type": "string", "description": "The JavaScript source to minify." },
+        "remove_comments": { "type": "boolean", "default": true, "description": "Strip line and block comments. Default true." },
+        "keep_license": { "type": "boolean", "default": true, "description": "When removing comments, still preserve license/banner comments (/*! … */, @license, @preserve). Default true." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
