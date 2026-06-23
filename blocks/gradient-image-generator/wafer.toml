@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gradient-image-generator"
+version = "0.1.0"
+abi = 1
+summary = "Create a solid, linear- or radial-gradient image (PNG or SVG)."
