@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/hexbin-density-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a hexagonal-bin density heatmap from x/y points.",
+  "role": "skill",
+  "tool": {
+    "description": "Render a hexagonal-bin density heatmap from x/y point data as an SVG or PNG chart. Points are a JSON array of [x, y] pairs or {x, y} objects; they are aggregated into a flat-top hexagonal grid and each occupied hexagon is filled by its point count using a perceptual (Viridis-like) sequential colour scale, with axes (min/mid/max ticks) and a count legend. Useful for visualising the density of large/overlapping scatter data where individual points would overplot. Optional title, width, height, hexagon radius (bin size), and format (svg or png). Returns an image.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "Points as a JSON array. Each point is either [x, y] or an object {\"x\":..,\"y\":..}. The points are dropped into a hexagonal grid and each hexagon is coloured by how many points fall in it. E.g. [[1,2],[3,4],[2,2]] or [{\"x\":1,\"y\":2}]." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." },
+        "width": { "type": "integer", "minimum": 200, "default": 700, "description": "Image width in pixels (default 700)." },
+        "height": { "type": "integer", "minimum": 150, "default": 500, "description": "Image height in pixels (default 500)." },
+        "radius": { "type": "number", "minimum": 4, "maximum": 120, "default": 18.0, "description": "Hexagon radius in pixels (default 18). Larger = coarser bins (fewer, bigger hexagons); smaller = finer bins." },
+        "format": { "type": "string", "enum": ["svg", "png"], "default": "svg", "description": "Output image format: svg (default, scalable vector) or png (raster)." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
