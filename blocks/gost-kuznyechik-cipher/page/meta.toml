@@ -1,0 +1,48 @@
+slug          = "gost-kuznyechik-cipher"
+title         = "GOST Kuznyechik Cipher — Encrypt/decrypt (GOST R 34.12-2015) — gizza.ai"
+description   = "Encrypt or decrypt text with the GOST R 34.12-2015 Kuznyechik 128-bit block cipher in CBC, CTR, CFB, OFB or ECB mode, with a 256-bit key and hex/base64 I/O — in your browser. Nothing is uploaded."
+tags          = ["kuznyechik", "gost", "gost r 34.12-2015", "gost encrypt", "gost decrypt", "cbc", "ctr", "cfb", "ofb", "cipher"]
+h1            = "GOST Kuznyechik cipher"
+hero_subtitle = "Encrypt or decrypt text with the GOST R 34.12-2015 Kuznyechik 128-bit block cipher — CBC, CTR, CFB, OFB or ECB, 256-bit key, hex or base64. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_gost_kuznyechik_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "cipher"
+label       = "Mode (cbc | ctr | cfb | ofb | ecb)"
+placeholder = "cbc"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (32 bytes / 256-bit, encoded)"
+placeholder = "base64 or hex key"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV / nonce (16 bytes for cbc/ctr)"
+placeholder = "base64 or hex iv"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (base64 | hex)"
+placeholder = "base64"
+source      = "field"
