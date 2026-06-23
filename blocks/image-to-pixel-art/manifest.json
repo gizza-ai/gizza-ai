@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/image-to-pixel-art",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn an image into limited-palette pixel art",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Turn a photo into retro pixel art: downscale to a coarse grid of chunky blocks and reduce to a limited palette derived from the image (NeuQuant). pixel_size is the block size 2-64 (default 8; larger = chunkier); colors is the palette size 2-256 (default 16). Returns a PNG at roughly the original dimensions. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "pixel_size": { "type": "integer", "minimum": 2, "maximum": 64, "default": 8, "description": "Size of each pixel-art block in source pixels, 2-64 (default 8). Larger = chunkier, more retro." },
+        "colors": { "type": "integer", "minimum": 2, "maximum": 256, "default": 16, "description": "Number of colors in the palette, 2-256 (default 16). The palette is derived from the image." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
