@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/extract-mac-addresses",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find MAC addresses in text and normalize them",
+  "role": "skill",
+  "tool": {
+    "description": "Scan text or a log for MAC addresses (EUI-48 and EUI-64) written in any common notation — colon (00:1A:2B:3C:4D:5E), hyphen (00-1A-2B-3C-4D-5E), Cisco dotted-quad (001a.2b3c.4d5e), or bare hex (001A2B3C4D5E). Every address is normalized to the chosen output format (set format='colon' default, 'hyphen', 'cisco', or 'bare'), deduplicated by its underlying bytes (so the same address written two ways counts once), and returned in first-seen order as a macs list plus a count. A 32-char hash or other long hex run is ignored. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text or log to scan for MAC addresses." },
+        "format": { "type": "string", "enum": ["colon", "hyphen", "cisco", "bare"], "default": "colon", "description": "Output notation each found address is normalized to: 'colon' (default) e.g. 00:1a:2b:3c:4d:5e; 'hyphen' 00-1a-2b-3c-4d-5e; 'cisco' dotted-quad 001a.2b3c.4d5e; 'bare' 001a2b3c4d5e." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
