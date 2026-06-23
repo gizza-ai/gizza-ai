@@ -176,3 +176,4 @@ color-converter  # duplicate of blocks/color-format-convert (parse hex/rgb/hsl -
 current-time  # near-duplicate of blocks/clock (reports the current time; clock already shows current UTC time live, and a chosen-timezone + unix-timestamp readout is an improvement to clock, not a distinct tool — timezone-convert already covers IANA-zone conversion + unix output)
 drop-bytes  # duplicate of blocks/byte-drop (removes a byte/char range from text by start offset + length; first N = start=0/length=N, last N = start=-N; text/hex/base64). Same scope.
 extract-video-metadata  # duplicate of blocks/media-info (reports container/codecs/duration/bitrate + per-track stream list for a video, ffprobe-style; resolution+fps are a minor media-info improvement, not a distinct tool)
+fuzzy-hash-compare  # duplicate of blocks/fuzzy-hash (its compare param already returns a 0-100 similarity score between two SSDEEP/CTPH hashes; core exposes public compare(h1,h2)->u32)
