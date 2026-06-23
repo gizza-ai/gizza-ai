@@ -1,0 +1,18 @@
+slug          = "flask-session-decode"
+title         = "Flask Session Cookie Decoder — Decode itsdangerous Sessions — gizza.ai"
+description   = "Decode a Flask session cookie (itsdangerous) into readable JSON without the secret key. Handles base64url, zlib-compressed payloads, and the signature timestamp. Runs entirely in your browser — free, private, no sign-up."
+tags          = ["flask session decoder", "itsdangerous", "session cookie", "decode flask cookie", "flask cookie decoder", "base64url", "session debugging", "python flask"]
+h1            = "Flask Session Cookie Decoder"
+hero_subtitle = "Decode a Flask / itsdangerous session cookie into readable JSON — no secret key needed. Handles base64url, zlib-compressed payloads, and the signed timestamp. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_flask_session_decode_web"
+export        = "run"
+live          = false
+output_label  = "Decoded session (JSON)"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Flask session cookie"
+placeholder = "eyJ1c2VyIjoiYWxpY2UifQ.aQ7n_A.signature  (or paste a full session=... cookie)"
+source      = "field"
+multiline   = true
