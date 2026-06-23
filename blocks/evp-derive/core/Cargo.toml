@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-evp-derive-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+md-5 = "0.10"
+sha1 = "0.10"
+sha2 = "0.10"
