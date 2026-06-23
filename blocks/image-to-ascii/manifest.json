@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/image-to-ascii",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an image into ASCII or ANSI character art.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Convert an image into ASCII or ANSI character art. The image is scaled to `width` characters wide (1-400, default 80; height is derived from the aspect ratio and corrected for tall text cells) and each cell's brightness is mapped through a character ramp from dark to light. Choose a built-in ramp (standard, detailed, or blocks) or supply a custom `charset` ordered dark→light. Use `brightness` (-1.0 to 1.0) to lighten/darken, color=true to wrap each character in a 24-bit ANSI truecolor escape for terminals, or invert=true for light-on-dark terminals. Returns the art plus the output character dimensions and source pixel dimensions. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "width": { "type": "integer", "minimum": 1, "maximum": 400, "default": 80, "description": "Output width in characters (1-400). Default 80." },
+        "ramp": { "type": "string", "enum": ["standard", "detailed", "blocks"], "default": "standard", "description": "Character ramp: standard (10-level), detailed (70-level), or blocks (Unicode shading)." },
+        "charset": { "type": "string", "description": "Custom character ramp ordered dark→light (e.g. \" .:-=+*#%@\"). Overrides `ramp` when set; needs at least 2 characters." },
+        "brightness": { "type": "number", "minimum": -1, "maximum": 1, "default": 0.0, "description": "Brightness adjustment from -1.0 (darker) to 1.0 (lighter). Default 0." },
+        "color": { "type": "boolean", "default": false, "description": "Wrap each character in a 24-bit ANSI truecolor escape (for terminals)." },
+        "invert": { "type": "boolean", "default": false, "description": "Invert brightness (for light-on-dark terminals)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
