@@ -1,0 +1,18 @@
+slug          = "ja3-fingerprint"
+title         = "JA3 Fingerprint Calculator — compute the JA3 TLS hash from a ClientHello — gizza.ai"
+description   = "Paste a TLS ClientHello in hex and compute its JA3 and JA3N fingerprint strings and MD5 hashes — the SSLVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats value, with GREASE removed — in your browser. Nothing is uploaded."
+tags          = ["ja3 fingerprint", "ja3 hash calculator", "ja3n normalized", "tls fingerprint", "clienthello fingerprint", "ja3 md5", "tls client fingerprint", "grease rfc 8701", "suricata ja3", "threat intelligence"]
+h1            = "JA3 Fingerprint Calculator"
+hero_subtitle = "Paste a TLS ClientHello as hex and compute its JA3 fingerprint — the SSLVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats string and its MD5 hash, with GREASE values removed per RFC 8701. You also get JA3N, the normalized variant that sorts extensions so the fingerprint survives modern browser extension-order randomization, plus the legacy TLS version, the decimal cipher suites, extensions, elliptic curves and point formats, and any SNI server names. Input may start at the TLS record header (16 03 ...), the handshake header, or the ClientHello body; spaces, colons, dashes, dots, commas, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_ja3_fingerprint_web"
+export        = "run"
+live          = false
+output_label  = "JA3 fingerprint"
+format        = "text"
+
+[[input]]
+name        = "client_hello"
+label       = "ClientHello (hex)"
+placeholder = "16 03 01 ... (a TLS record begins with 16 03; a ClientHello handshake with 01)"
+source      = "field"
+multiline   = true
