@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "file-tree-generator"
+version = "0.1.0"
+abi = 1
+summary = "Turn file paths or an indented outline into an ASCII tree diagram."
