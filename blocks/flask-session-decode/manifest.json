@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/flask-session-decode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a Flask session cookie into readable JSON (no secret key)",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a Flask / itsdangerous session cookie into readable JSON WITHOUT the SECRET_KEY. Base64url-decodes the payload (inflating a '.'-prefixed zlib payload), parses it as JSON, and converts the itsdangerous timestamp to a Unix time + ISO-8601 UTC string. The signature is reported but not verified. Returns {payload, compressed, timestamp, timestamp_iso, signature, signature_verified}.",
+    "parameters": {
+      "type": "object",
+      "required": ["cookie"],
+      "properties": { "cookie": { "type": "string", "description": "The Flask session cookie value (bare or full 'session=...' fragment)." } },
+      "additionalProperties": false
+    }
+  }
+}

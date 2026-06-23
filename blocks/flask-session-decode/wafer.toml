@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "flask-session-decode"
+version = "0.1.0"
+abi = 1
+summary = "Decode a Flask session cookie into readable JSON (no secret key)"
