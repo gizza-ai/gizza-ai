@@ -1,0 +1,35 @@
+{
+  "name": "gizza-ai/geometry-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Area, perimeter, surface area, and volume of common shapes.",
+  "role": "skill",
+  "tool": {
+    "description": "Calculate area and perimeter for 2D shapes or surface area and volume for 3D shapes from their dimensions.",
+    "parameters": {
+      "type": "object",
+      "required": ["shape"],
+      "properties": {
+        "shape": {
+          "type": "string",
+          "enum": ["square","rectangle","triangle","circle","ellipse","trapezoid","parallelogram","regular_polygon","cube","rectangular_prism","sphere","cylinder","cone","pyramid"],
+          "description": "The shape to measure."
+        },
+        "side": { "type": "number", "description": "Edge length (square, cube, regular_polygon)." },
+        "width": { "type": "number", "description": "Width (rectangle, rectangular_prism)." },
+        "height": { "type": "number", "description": "Height (rectangle, triangle, trapezoid, parallelogram, rectangular_prism, cylinder, cone, pyramid)." },
+        "length": { "type": "number", "description": "Length / depth (rectangular_prism)." },
+        "radius": { "type": "number", "description": "Radius (circle, sphere, cylinder, cone)." },
+        "radius_a": { "type": "number", "description": "Semi-major axis (ellipse)." },
+        "radius_b": { "type": "number", "description": "Semi-minor axis (ellipse)." },
+        "base": { "type": "number", "description": "Base length (triangle, trapezoid, parallelogram, pyramid)." },
+        "top": { "type": "number", "description": "Top / shorter parallel side (trapezoid)." },
+        "sides": { "type": "number", "description": "Number of sides, >= 3 (regular_polygon)." },
+        "side_a": { "type": "number", "description": "Side A length (parallelogram slant; optional triangle/trapezoid edge)." },
+        "side_b": { "type": "number", "description": "Side B length (optional triangle/trapezoid edge)." },
+        "side_c": { "type": "number", "description": "Side C length (optional triangle edge)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
