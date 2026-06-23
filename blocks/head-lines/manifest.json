@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/head-lines",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Output the first N lines of text (head -n).",
+  "role": "skill",
+  "tool": {
+    "description": "Output the first N lines of text — the `head -n` / 'show the top rows' operation. Set count to how many leading lines to keep (default 10). Use skip to drop that many lines from the start before taking count. Set number=true to prefix each kept line with its 1-based original line number and a tab.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to take the first lines from (split on newlines)." },
+        "count": { "type": "integer", "minimum": 1, "maximum": 1000000, "default": 10, "description": "How many leading lines to keep (like `head -n`). Default 10." },
+        "skip": { "type": "integer", "minimum": 0, "default": 0, "description": "Drop this many lines from the start before taking `count` (like `tail -n +K`). Default 0." },
+        "number": { "type": "boolean", "default": false, "description": "When true, prefix each kept line with its 1-based original line number and a tab (like `cat -n`). Default false." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
