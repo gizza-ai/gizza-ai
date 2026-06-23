@@ -1,0 +1,23 @@
+slug          = "extract-hashes"
+title         = "Extract Hashes from Text — gizza.ai"
+description   = "Pull every MD5, SHA-1, SHA-256 and SHA-512 hash out of any text, grouped by algorithm and deduplicated — in your browser. Nothing is uploaded."
+tags          = ["extract hashes", "hash extractor", "find md5", "find sha256", "ioc hashes", "checksum extractor"]
+h1            = "Extract Hashes"
+hero_subtitle = "Paste any text — a malware report, log file, or manifest — and pull out every hexadecimal hash, grouped as MD5, SHA-1, SHA-256 and SHA-512 and deduplicated. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_hashes_web"
+export        = "run"
+live          = false
+output_label  = "Hashes"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text containing hashes…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "lowercase"
+label       = "Normalize to lowercase"
+source      = "field"
