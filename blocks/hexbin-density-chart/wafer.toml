@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hexbin-density-chart"
+version = "0.1.0"
+abi = 1
+summary = "Render a hexagonal-bin density heatmap from x/y points"
