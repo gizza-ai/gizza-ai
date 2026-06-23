@@ -1,0 +1,37 @@
+slug          = "head-lines"
+title         = "Head — Get the First N Lines of Text | gizza.ai"
+description   = "Output the first N lines of any text, right in your browser — the `head -n` operation. Pick how many lines, skip a header row, and optionally number each line. Free, private, no sign-up."
+tags          = ["head", "first lines", "first n lines", "head -n", "top lines", "truncate lines", "line numbers", "text tool"]
+h1            = "Head — First N Lines"
+hero_subtitle = "Keep just the first N lines of your text — like `head -n`. Choose the count, skip leading lines, and optionally number each line. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_head_lines_web"
+export        = "run"
+live          = false
+output_label  = "First lines"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "line 1\nline 2\nline 3\n..."
+source      = "field"
+multiline   = true
+
+# count/skip render as number fields and `number` as a checkbox — control type +
+# bounds are derived from the descriptor's schema, so labels here stay short.
+[[input]]
+name        = "count"
+label       = "Number of lines to keep"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "skip"
+label       = "Skip leading lines"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "number"
+label       = "Number each line"
+source      = "field"
