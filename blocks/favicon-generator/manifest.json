@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/favicon-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a complete favicon bundle (ICO + PNGs + web manifest) from one image.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn one source image into a complete favicon bundle, returned as a ZIP. The bundle contains a multi-resolution favicon.ico (16/32/48 px), square PNG icons at each requested size, an apple-touch-icon.png (180 px) for iOS, and a site.webmanifest referencing the PNGs. sizes is a comma-separated list of square PNG sizes in pixels (default 16,32,48,64,96,128,192,256,512). fit controls how a non-square source is squared: contain (pad with the background color) or cover (scale-to-fill then center-crop). background sets the pad color (#rrggbbaa, default transparent). name sets the app name in the manifest. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call); PNG/JPEG/WebP/GIF/BMP input.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "sizes": { "type": "string", "default": "16,32,48,64,96,128,192,256,512", "description": "Comma-separated square PNG sizes in pixels (1..=1024)." },
+        "fit": { "type": "string", "enum": ["contain", "cover"], "default": "contain", "description": "How to fit a non-square source: contain (pad) or cover (crop)." },
+        "background": { "type": "string", "default": "#00000000", "description": "Background fill for padded areas when fit=contain (#rrggbbaa, default transparent)." },
+        "name": { "type": "string", "default": "My App", "description": "App name written into site.webmanifest." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
