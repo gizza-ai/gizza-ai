@@ -1,0 +1,74 @@
+slug          = "hkdf-derive"
+title         = "HKDF Key Derivation — extract-and-expand (RFC 5869) — gizza.ai"
+description   = "Derive keys with HKDF (HMAC-based extract-and-expand, RFC 5869). Pick the hash, salt, info/context label, length and hex/base64 output — all in your browser. Nothing is uploaded."
+tags          = ["hkdf", "key derivation", "kdf", "rfc 5869", "extract and expand", "hmac", "hkdf-sha256", "derive key", "hkdf-expand", "info context"]
+h1            = "HKDF key derivation"
+hero_subtitle = "Derive one or more keys from input key material using HKDF — the HMAC-based extract-and-expand KDF from RFC 5869. Choose the hash, salt, info label and output length. It runs in your browser, so your secret never leaves your device."
+wasm          = "gizza_ai_hkdf_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived key"
+format        = "text"
+
+[[input]]
+name        = "ikm"
+label       = "Input key material (IKM)"
+placeholder = "The secret / source key"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode (derive | extract)"
+placeholder = "derive"
+source      = "field"
+
+[[input]]
+name        = "ikm_encoding"
+label       = "IKM encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt (optional)"
+placeholder = "Non-secret random salt (recommended)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "salt_encoding"
+label       = "Salt encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "info"
+label       = "Info / context (optional)"
+placeholder = "e.g. app:tls key"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "info_encoding"
+label       = "Info encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Hash (HMAC)"
+placeholder = "sha256"
+source      = "field"
+
+[[input]]
+name        = "length"
+label       = "Key length (bytes)"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name        = "encoding"
+label       = "Output encoding"
+placeholder = "hex"
+source      = "field"

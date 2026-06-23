@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hkdf-derive"
+version = "0.1.0"
+abi = 1
+summary = "Derive a key with HKDF (extract-and-expand, RFC 5869)"
