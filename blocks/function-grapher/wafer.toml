@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "function-grapher"
+version = "0.1.0"
+abi = 1
+summary = "Plot y=f(x) functions over a range as an SVG graph."

@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-function-grapher-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# meval: pure-Rust math-expression evaluator (nom-based), wasm-safe. Used to
+# parse + evaluate each y = f(x) expression with `x` bound per sample.
+meval = "0.2"
