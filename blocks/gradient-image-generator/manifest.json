@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/gradient-image-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Create a solid, linear- or radial-gradient image (PNG or SVG).",
+  "role": "skill",
+  "tool": {
+    "description": "Create a solid, linear-gradient, or radial-gradient image at a chosen size, for backgrounds, hero banners, wallpapers, and placeholders. Set gradient_type to solid (a flat colour from the first stop), linear (a straight gradient along the angle direction), or radial (a gradient radiating from the centre). colors is a comma/space/newline-separated list of hex stops (#rgb, #rgba, #rrggbb, or #rrggbbaa — alpha supported) spread evenly across the gradient. width and height set the size in pixels (1-4096). angle sets the linear direction in degrees, clockwise (0 = left→right, 90 = top→bottom; ignored for solid/radial). Choose format png (raster) or svg (scalable). Returns an image. Runs locally — nothing leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "gradient_type": { "type": "string", "enum": ["solid", "linear", "radial"], "default": "linear", "description": "The fill to render: solid (a flat colour — uses the first stop), linear (a straight gradient along the angle direction, default), or radial (a gradient from the centre outward)." },
+        "colors": { "type": "string", "default": "#2196f3,#9c27b0", "description": "The colour stops, separated by commas, spaces, or newlines. Each is a hex colour (#rgb, #rgba, #rrggbb, or #rrggbbaa — alpha supported). The stops are spread evenly across the gradient. Solid mode uses only the first stop. At least one colour is required." },
+        "width": { "type": "integer", "default": 1024, "minimum": 1, "maximum": 4096, "description": "Image width in pixels (1-4096)." },
+        "height": { "type": "integer", "default": 1024, "minimum": 1, "maximum": 4096, "description": "Image height in pixels (1-4096)." },
+        "angle": { "type": "number", "default": 90.0, "minimum": 0, "maximum": 360, "description": "For linear gradients: the direction in degrees, measured clockwise (0 = left→right, 90 = top→bottom — the default, 180 = right→left). Ignored for solid and radial." },
+        "format": { "type": "string", "enum": ["png", "svg"], "default": "png", "description": "Output image format: png (raster, sized by width/height, default) or svg (scalable vector; the width/height set the document size)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
