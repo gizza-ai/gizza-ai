@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-to-pixel-art"
+version = "0.1.0"
+abi = 1
+summary = "Turn an image into limited-palette pixel art"
