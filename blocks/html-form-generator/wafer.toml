@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-form-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate accessible HTML form markup from a plain list of fields."
