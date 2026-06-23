@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-image-to-ico-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode/encode + resize + ICO encode. default-features off to
+# drop rayon etc.; enable the common raster input formats + ico output.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp", "ico"] }
