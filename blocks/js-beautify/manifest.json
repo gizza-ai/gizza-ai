@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/js-beautify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-indent and format minified or obfuscated JavaScript",
+  "role": "skill",
+  "tool": {
+    "description": "Re-indent and pretty-print minified or obfuscated JavaScript into clean, readable source. One statement per line; nested blocks, objects and arrays are indented. indent is spaces per level (1-8, default 2). Strings, regex and comments are preserved verbatim.",
+    "parameters": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": { "type": "string", "description": "The JavaScript source to re-indent and format." },
+        "indent": { "type": "integer", "minimum": 1, "maximum": 8, "default": 2, "description": "Spaces of indentation per nesting level (1-8). Ignored when indent_char is 'tab'. Default 2." },
+        "indent_char": { "type": "string", "enum": ["space", "tab"], "default": "space", "description": "Indent with spaces or a tab character per level. Default space." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
