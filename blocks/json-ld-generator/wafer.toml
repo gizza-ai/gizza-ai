@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-ld-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate schema.org JSON-LD structured data from simple field inputs."
