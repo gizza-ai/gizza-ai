@@ -1,0 +1,28 @@
+slug          = "js-minify"
+title         = "JavaScript Minifier — shrink & compress JS online — gizza.ai"
+description   = "Minify JavaScript: strip whitespace, line breaks and comments to shrink your code while preserving behavior. Strings and regex are kept verbatim. Runs in your browser; nothing is uploaded."
+tags          = ["javascript minifier", "js minifier", "minify javascript", "compress javascript", "js compressor", "shrink javascript"]
+h1            = "JavaScript Minifier"
+hero_subtitle = "Shrink JavaScript by removing unnecessary whitespace, line breaks and comments — without changing what it does. Strings, template literals and regular expressions are preserved verbatim. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_js_minify_web"
+export        = "run"
+live          = false
+output_label  = "Minified JavaScript"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "JavaScript"
+placeholder = "function f() {\n  return a ? 1 : 2;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "remove_comments"
+label       = "Remove comments"
+source      = "field"
+
+[[input]]
+name        = "keep_license"
+label       = "Keep license/banner comments"
+source      = "field"
