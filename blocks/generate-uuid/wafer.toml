@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "generate-uuid"
+version = "0.1.0"
+abi = 1
+summary = "Generate UUIDs (v4/v7/v1/v5/v3), singly or in bulk"
