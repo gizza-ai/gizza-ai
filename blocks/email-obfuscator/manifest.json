@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/email-obfuscator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode an email address into scraper-resistant HTML",
+  "role": "skill",
+  "tool": {
+    "description": "Encode an email address into scraper-resistant HTML (numeric entities, a JavaScript char-code writer, a CSS bidi reversal, or a ROT13 mailto) to defeat address-harvesting bots while keeping it readable and clickable in a browser.",
+    "parameters": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": { "type": "string" },
+        "mode": { "type": "string", "enum": ["entities", "js", "css", "rot13"], "default": "entities" },
+        "entity_style": { "type": "string", "enum": ["decimal", "hex"], "default": "decimal" },
+        "link": { "type": "boolean", "default": true },
+        "link_text": { "type": "string", "default": "" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
