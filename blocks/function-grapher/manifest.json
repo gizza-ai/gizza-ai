@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/function-grapher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Plot y=f(x) functions over a range as an SVG graph.",
+  "role": "skill",
+  "tool": {
+    "description": "Plot one or more mathematical functions y=f(x) over an x-range and return an SVG graph with axes, gridlines, value labels, a colored curve per function, and a legend. Separate multiple functions by newlines or ';' and optionally name each with a 'name:' prefix. The y-axis autoscales to the data by default, or set both ymin and ymax to fix the y-window (the curve is cropped to it); x=0 and y=0 axes are emphasized when in range; discontinuities (e.g. 1/x) break the curve. Supports + - * / ^, parentheses, the usual functions (sin, cos, sqrt, abs, ln, exp, …) and constants (pi, e). Optional title, xmin/xmax, samples, ymin/ymax, width, height.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "functions": { "type": "string", "description": "One or more y=f(x) expressions to plot. Separate multiple functions by newlines or ';'. Each may carry an optional 'name: ' or 'name=' prefix for the legend (a 'y=' prefix is treated as unlabeled). Supports + - * / ^, parentheses, functions (sin, cos, tan, sqrt, abs, ln, log10, exp, …) and constants (pi, e). E.g. 'sin(x); parabola: x^2'." },
+        "xmin": { "type": "number", "default": -10.0, "description": "Left edge of the x domain (default -10)." },
+        "xmax": { "type": "number", "default": 10.0, "description": "Right edge of the x domain (default 10). Must be greater than xmin." },
+        "samples": { "type": "integer", "minimum": 2, "maximum": 4000, "default": 400, "description": "Number of points sampled per curve (default 400; clamped to 2..4000)." },
+        "ymin": { "type": "number", "description": "Optional fixed lower edge of the y-axis. Omit (with ymax) to autoscale the y-axis to the data." },
+        "ymax": { "type": "number", "description": "Optional fixed upper edge of the y-axis. Must be greater than ymin. Set both ymin and ymax to crop the view; omit both to autoscale." },
+        "title": { "type": "string", "default": "", "description": "Optional graph title." },
+        "width": { "type": "integer", "minimum": 200, "default": 800, "description": "SVG width in pixels (default 800)." },
+        "height": { "type": "integer", "minimum": 150, "default": 500, "description": "SVG height in pixels (default 500)." }
+      },
+      "required": ["functions"],
+      "additionalProperties": false
+    }
+  }
+}
