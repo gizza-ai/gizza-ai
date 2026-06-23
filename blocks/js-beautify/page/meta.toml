@@ -1,0 +1,29 @@
+slug          = "js-beautify"
+title         = "JavaScript Beautifier — format & re-indent minified JS — gizza.ai"
+description   = "Re-indent and pretty-print minified or obfuscated JavaScript into clean, readable source. Strings, regex and comments are preserved. Runs in your browser; nothing is uploaded."
+tags          = ["javascript beautifier", "js beautifier", "format javascript", "unminify javascript", "pretty print javascript", "js formatter"]
+h1            = "JavaScript Beautifier"
+hero_subtitle = "Turn minified or obfuscated JavaScript back into clean, readable code — one statement per line, with the indentation you choose. Strings, regex and comments are preserved. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_js_beautify_web"
+export        = "run"
+live          = false
+output_label  = "Formatted JavaScript"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "JavaScript"
+placeholder = "function f(){return a?1:2}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces per level, 1-8)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "indent_char"
+label       = "Indent character"
+source      = "field"

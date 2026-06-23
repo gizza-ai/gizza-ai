@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "js-beautify"
+version = "0.1.0"
+abi = 1
+summary = "Re-indent and format minified or obfuscated JavaScript"
