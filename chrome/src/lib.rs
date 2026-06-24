@@ -256,6 +256,10 @@ pub fn footer() -> Markup {
                 p.site-footer__blurb {
                     "A free, private AI assistant and tool platform. "
                     "Everything runs in your browser — your data never leaves your device."
+                    br;
+                    span.site-footer__disclaimer {
+                        "Note: This tool is experimental and there may be mistakes, please double check."
+                    }
                 }
             }
 

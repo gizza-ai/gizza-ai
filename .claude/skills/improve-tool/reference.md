@@ -84,7 +84,16 @@ design** (page styling).
 - **Copy/SEO** — `page/content.md` (body, examples, FAQ) + `page/meta.toml`
   (title/description/tags/h1/hero). **Original copy only.**
 - **UX/layout** — page input/output presentation; keep `[[input]]` field names + order in sync
-  with the web export params.
+  with the web export params. **MANDATORY Usability Guidelines**:
+  - *Smart Defaults*: Pre-fill dates, times, and other fields with sensible defaults (e.g., current local date/time) rather than leaving them empty.
+  - *Context Detection*: Automatically detect the user's local timezone (via `Intl.DateTimeFormat().resolvedOptions().timeZone`), language, or locale to initialize fields correctly.
+  - *Searchable Autocompletes*: Avoid raw text fields for timezones, country codes, currencies, formats, or other predefined values. Dynamically inject an HTML5 `<datalist>` or custom searchable select list to let the user search and autocomplete.
+  - *Native Date/Time Selectors*: Avoid text fields for dates/times. Set `input.type` to picker types (e.g., `datetime-local`, `date`, `time`). Normalize default and URL pre-fill formats to use a `T` separator for ISO format support.
+  - *Tag-Pill List UI*: If inputs are list-based (e.g. multi-timezone comma-separated targets), build a tag-pill container (`.tz-tags-list`) where added timezones render as badges with delete buttons (`&times;`), hiding the raw comma-separated text input.
+  - *Layout Stability*: Keep the `.tool-widget` width stable (e.g. a fixed `760px` for multi-column widgets). Avoid toggling sizes on keystrokes, empty states, or validation errors to prevent layouts from shifting under the user's cursor.
+  - *Actionable Reset Button*: Place an explicit, styled Reset button next to the input fields to clear filters, reset list targets to default (e.g., `["UTC"]`), and re-fill inputs with current local defaults.
+  - *FAQ Accordions*: Wrap FAQ copy in HTML `<details>` and `<summary>` tags inside `content.md`. Wrap the details content in `<p>...</p>` or `<div>...</div>` blocks to properly scope styling (padding, borders, transitions). Style details/summary blocks in CSS with transition indicators (like plus/minus content arrows on toggle).
+  - *Developer Access Layout & Header Spacing*: Group terminal execution and deep-link instruction card grids under a `.tool-dev-group` wrapper using `tools/generator/src/template.rs`. Ensure code blocks (`.tool-cli-code`) configure custom styled scrollbars to match track/thumb colors (`scrollbar-width: thin; scrollbar-color: #334155 #0f172a` plus matching webkit styles) to avoid clipping bottom rounded corners. Set explicit bottom margins (e.g., `8px`) on `h2` headings for correct visual spacing.
 - **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
 
 ### param types across surfaces (GOTCHA — bit me on url-encode)
