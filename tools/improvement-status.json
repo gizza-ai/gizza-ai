@@ -2,7 +2,7 @@
   "tools": [
     { "slug": "adjacency-matrix-converter", "status": "completed" },
     { "slug": "aes-key-wrap", "status": "pending" },
-    { "slug": "age-calculator", "status": "pending" },
+    { "slug": "age-calculator", "status": "completed" },
     { "slug": "android-asset-generator", "status": "pending" },
     { "slug": "avro-to-json", "status": "pending" },
     { "slug": "base58-codec", "status": "pending" },
