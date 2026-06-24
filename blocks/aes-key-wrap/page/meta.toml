@@ -1,0 +1,43 @@
+slug          = "aes-key-wrap"
+title         = "AES Key Wrap — Wrap & unwrap keys (RFC 3394 / RFC 5649) — gizza.ai"
+description   = "Wrap and unwrap cryptographic keys with the AES Key Wrap algorithm (KW / RFC 3394 and KWP / RFC 5649) using a 128/192/256-bit key-encryption key — hex or base64, in your browser. Nothing is uploaded."
+tags          = ["aes key wrap", "key wrap", "rfc 3394", "rfc 5649", "kwp", "kek", "wrap key"]
+h1            = "AES Key Wrap"
+hero_subtitle = "Wrap or unwrap key material with AES Key Wrap — KW (RFC 3394) or KWP (RFC 5649), 128/192/256-bit KEKs, hex or base64. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_aes_key_wrap_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (key material to wrap, or wrapped blob to unwrap)"
+placeholder = "base64 or hex key material…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (wrap | unwrap)"
+placeholder = "wrap"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key-encryption key / KEK (16/24/32 bytes, encoded)"
+placeholder = "base64 or hex KEK"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm (kw = RFC 3394 | kwp = RFC 5649)"
+placeholder = "kw"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (base64 | hex)"
+placeholder = "base64"
+source      = "field"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pe-info"
+version = "0.1.0"
+abi = 1
+summary = "Parse a Windows PE/EXE/DLL and report its headers, sections, imports, and exports."

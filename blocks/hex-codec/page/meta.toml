@@ -1,0 +1,46 @@
+slug          = "hex-codec"
+title         = "Hex Encoder & Decoder — Text to Hex & Hex to Text — gizza.ai"
+description   = "Encode text to a hexadecimal string and decode hex back to text, instantly in your browser. Choose byte delimiters (space, colon, dash), uppercase, and 0x / \\x prefixes; tolerant decoding round-trips any format. Free, private, no sign-up."
+tags          = ["hex", "hex encode", "hex decode", "text to hex", "hex to text", "hexadecimal", "encoder", "decoder", "hex converter", "bytes"]
+h1            = "Hex Encoder / Decoder"
+hero_subtitle = "Convert text to a hexadecimal string, or decode hex back to text — with byte delimiters, uppercase, and 0x / \\x prefixes. Decoding ignores spacing and prefixes, so any format round-trips. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_hex_codec_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input"
+placeholder = "Hello, world!"
+source      = "field"
+multiline   = true
+
+# mode/format/delimiter/prefix render as <select> and uppercase as a checkbox —
+# the control type + option lists are derived from the descriptor's schema
+# (manifest.json), so labels here stay short and options aren't duplicated.
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Decode output (text or raw bytes)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Byte delimiter"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex"
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Per-byte prefix"
+source      = "field"

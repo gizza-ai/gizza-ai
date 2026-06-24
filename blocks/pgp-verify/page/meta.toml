@@ -1,0 +1,32 @@
+slug          = "pgp-verify"
+title         = "PGP Verify — Check an OpenPGP signature in your browser — gizza.ai"
+description   = "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Supports detached and clearsigned signatures, reports validity and the signer key ID. Your message and keys never leave your device."
+tags          = ["pgp verify", "gpg verify", "openpgp signature", "verify pgp signature", "detached signature", "clearsign", "check signature", "pgp signature validator"]
+h1            = "PGP verify"
+hero_subtitle = "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Detached or clearsigned, validity plus the signer's key ID and fingerprint — runs entirely in your browser."
+wasm          = "gizza_ai_pgp_verify_web"
+export        = "run"
+live          = false
+output_label  = "Verification result"
+format        = "text"
+
+[[input]]
+name        = "signature"
+label       = "Signature (detached or clearsigned)"
+placeholder = "-----BEGIN PGP SIGNATURE-----   (or -----BEGIN PGP SIGNED MESSAGE-----)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "public_key"
+label       = "Signer's public key"
+placeholder = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "message"
+label       = "Original message (detached only)"
+placeholder = "The exact message that was signed. Leave blank for a clearsigned block."
+source      = "field"
+multiline   = true

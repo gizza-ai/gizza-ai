@@ -1,0 +1,94 @@
+slug          = "geometry-calculator"
+title         = "Geometry Calculator — Area, Perimeter, Surface Area & Volume — gizza.ai"
+description   = "Calculate area and perimeter for 2D shapes (square, rectangle, triangle, circle, ellipse, trapezoid, parallelogram, regular polygon) or surface area and volume for 3D shapes (cube, box, sphere, cylinder, cone, pyramid) from their dimensions. Free, private, runs in your browser."
+tags          = ["geometry calculator", "area calculator", "perimeter calculator", "volume calculator", "surface area calculator", "circle area", "cylinder volume", "sphere volume", "triangle area"]
+h1            = "Geometry Calculator"
+hero_subtitle = "Pick a shape, enter its dimensions, and get the area and perimeter (2D) or surface area and volume (3D) instantly. Runs entirely in your browser."
+wasm          = "gizza_ai_geometry_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Measures (JSON)"
+format        = "text"
+
+[[input]]
+name        = "shape"
+label       = "Shape"
+source      = "field"
+
+[[input]]
+name        = "side"
+label       = "Side (square, cube, regular polygon)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "Width (rectangle, box)"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "height"
+label       = "Height (rectangle, triangle, trapezoid, parallelogram, box, cylinder, cone, pyramid)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "length"
+label       = "Length / depth (box)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "radius"
+label       = "Radius (circle, sphere, cylinder, cone)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "radius_a"
+label       = "Semi-major axis (ellipse)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "radius_b"
+label       = "Semi-minor axis (ellipse)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "base"
+label       = "Base (triangle, trapezoid, parallelogram, pyramid)"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "top"
+label       = "Top / shorter parallel side (trapezoid)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "sides"
+label       = "Number of sides (regular polygon, ≥ 3)"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "side_a"
+label       = "Side A (parallelogram slant; optional triangle/trapezoid edge)"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "side_b"
+label       = "Side B (optional triangle/trapezoid edge)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "side_c"
+label       = "Side C (optional triangle edge)"
+placeholder = "5"
+source      = "field"

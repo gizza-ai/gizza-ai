@@ -1,0 +1,20 @@
+[package]
+name = "gizza-ai-ssh-public-key-from-private-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# rsa: PKCS#8/PKCS#1 private-key decode; we read e + n to build the ssh-rsa blob.
+rsa = { version = "0.9", features = ["pem"] }
+# EC: P-256 / P-384 PKCS#8 + SEC1 decode; encoded point → ecdsa-sha2-nistp* blob.
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem"] }
+# Ed25519: PKCS#8 decode; 32-byte public key → ssh-ed25519 blob.
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
+base64 = "0.22"
+
+[dev-dependencies]
+# Test-only: generate fixture private keys.
+rand = "0.8"
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8", "pem", "rand_core"] }

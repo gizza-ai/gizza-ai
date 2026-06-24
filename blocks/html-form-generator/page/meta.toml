@@ -1,0 +1,42 @@
+slug          = "html-form-generator"
+title         = "HTML Form Generator — Build Accessible Form Markup — gizza.ai"
+description   = "Generate clean, accessible HTML form markup from a plain list of fields. Labeled inputs, required + type validation (email, number, url, tel, date), selects, radios, checkboxes, textareas, and optional styling. Free, private, runs in your browser, no sign-up."
+tags          = ["html form generator", "form builder", "html form code", "accessible form", "contact form generator", "form markup", "input validation", "label for", "select radio checkbox"]
+h1            = "HTML Form Generator"
+hero_subtitle = "Describe your fields, one per line, and get clean, accessible HTML form markup — labeled inputs, validation attributes, selects, radios and checkboxes. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_html_form_generator_web"
+export        = "run"
+live          = false
+output_label  = "HTML"
+format        = "text"
+
+[[input]]
+name        = "fields"
+label       = "Fields (one per line: Label | type | options)"
+placeholder = "Full Name*\nEmail* | email\nMessage | textarea | How can we help?\nTopic | select | Sales, Support, Other"
+source      = "field"
+multiline   = true
+
+# method/styled render as <select>/checkbox from the descriptor schema; option
+# lists + control types are NOT duplicated here.
+[[input]]
+name        = "method"
+label       = "Method"
+source      = "field"
+
+[[input]]
+name        = "action"
+label       = "Action URL (optional)"
+placeholder = "/submit"
+source      = "field"
+
+[[input]]
+name        = "submit_label"
+label       = "Submit button text"
+placeholder = "Submit"
+source      = "field"
+
+[[input]]
+name        = "styled"
+label       = "Include a <style> block"
+source      = "field"

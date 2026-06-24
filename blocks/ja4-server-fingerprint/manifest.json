@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/ja4-server-fingerprint",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the JA4S TLS server fingerprint from a ServerHello",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the JA4S TLS server fingerprint from a raw ServerHello given as a hex string. Returns the JA4S string (transport + version + extension count + ALPN, the chosen cipher, and a truncated SHA256 of the extension list), the raw JA4S_r variant, the negotiated TLS version, the cipher, the extension list, and the selected ALPN protocol.",
+    "parameters": {
+      "type": "object",
+      "required": ["server_hello"],
+      "properties": {
+        "server_hello": { "type": "string" },
+        "quic": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

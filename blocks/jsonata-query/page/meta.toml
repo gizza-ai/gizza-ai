@@ -1,0 +1,29 @@
+slug          = "jsonata-query"
+title         = "JSONata Online — Query & Transform JSON | gizza.ai"
+description   = "Run a JSONata expression against any JSON document right in your browser — query, filter, aggregate, and reshape JSON. Pure-Rust engine, nothing is uploaded, free."
+tags          = ["jsonata", "json query", "jsonata online", "json transform", "jsonata playground", "json query language"]
+h1            = "Query & transform JSON with JSONata"
+hero_subtitle = "Type a JSONata expression and a JSON document — see the queried, filtered, or reshaped result instantly. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_jsonata_query_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "query"
+label       = "JSONata expression"
+placeholder = "$sum(items.price)"
+source      = "field"
+
+[[input]]
+name        = "json"
+label       = "JSON input"
+placeholder = "{ \"items\": [ { \"price\": 2 }, { \"price\": 3 } ] }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print output"
+source      = "field"

@@ -1,0 +1,36 @@
+slug          = "svg-sprite-builder"
+title         = "SVG Sprite Sheet Builder — gizza.ai"
+description   = "Combine multiple SVG icons into a single SVG symbol sprite sheet you reference with <use href=\"#id\">. Auto, id-attribute, or title-based ids, automatic viewBox, and a hidden wrapper. Runs entirely in your browser, free, private, no sign-up."
+tags          = ["svg sprite", "svg symbol", "sprite sheet", "svg use", "icon sprite", "combine svg", "svg icons", "symbol id", "viewbox"]
+h1            = "SVG Sprite Sheet Builder"
+hero_subtitle = "Paste several SVG icons and get one <symbol> sprite sheet to drop in your page and reference with <use href=\"#id\">. Runs entirely in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_svg_sprite_builder_web"
+export        = "run"
+live          = false
+output_label  = "Sprite sheet"
+format        = "text"
+
+[[input]]
+name        = "svgs"
+label       = "SVG documents"
+placeholder = "<svg viewBox=\"0 0 24 24\">…</svg>\n<svg viewBox=\"0 0 16 16\">…</svg>"
+source      = "field"
+multiline   = true
+
+# prefix renders as a text field; id_source as a <select>; hidden as a checkbox
+# — control types + option lists are derived from the descriptor schema.
+[[input]]
+name        = "prefix"
+label       = "Symbol id prefix"
+placeholder = "icon"
+source      = "field"
+
+[[input]]
+name        = "id_source"
+label       = "Id source"
+source      = "field"
+
+[[input]]
+name        = "hidden"
+label       = "Hidden wrapper (recommended)"
+source      = "field"

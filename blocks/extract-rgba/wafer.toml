@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-rgba"
+version = "0.1.0"
+abi = 1
+summary = "Export an image's raw per-pixel RGBA values as text, CSV, or JSON."

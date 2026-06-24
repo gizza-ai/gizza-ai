@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-hashes"
+version = "0.1.0"
+abi = 1
+summary = "Extract hex hash strings from text, grouped by algorithm."

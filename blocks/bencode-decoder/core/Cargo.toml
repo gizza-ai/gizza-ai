@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-bencode-decoder-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps JSON object key order stable for deterministic output.
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -1,0 +1,32 @@
+{
+  "name": "gizza-ai/tar-archive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bundle multiple files into a single .tar (or .tar.gz) archive.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Bundle multiple files into a single downloadable .tar archive, optionally compressed to .tar.gz (gzip), .tar.bz2 (bzip2) or .tar.xz (xz). Provide at least one file; each is a URL or a `ref` to an uploaded attachment. Entry names come from each file's name; duplicate names are made unique. Set `compression` to choose the format (default none = plain .tar).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Ordered list of files to bundle. Each item has exactly one of `url` or `ref`. Entry names come from each file's name; duplicates are made unique.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
+              "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+            },
+            "additionalProperties": false
+          }
+        },
+        "compression": { "type": "string", "enum": ["none", "gzip", "bzip2", "xz"], "default": "none", "description": "How to compress the whole archive. 'none' (default) is a plain `.tar`; 'gzip' makes `.tar.gz`; 'bzip2' makes `.tar.bz2` (smaller on text, slower); 'xz' makes `.tar.xz` (smallest, slowest)." }
+      },
+      "required": ["files"],
+      "additionalProperties": false
+    }
+  }
+}

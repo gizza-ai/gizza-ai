@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-cidr-calculator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+
+[dev-dependencies]
+serde_json = "1"

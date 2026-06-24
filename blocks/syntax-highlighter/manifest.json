@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/syntax-highlighter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Syntax-highlight a code snippet to styled HTML or ANSI",
+  "role": "skill",
+  "tool": {
+    "description": "Highlight a code snippet for a given language and return styled output (inline-styled HTML or ANSI terminal escape codes).",
+    "parameters": {
+      "type": "object",
+      "required": ["code"],
+      "properties": {
+        "code": { "type": "string", "description": "The source code to highlight. Required." },
+        "language": { "type": "string", "description": "Language hint for highlighting (e.g. rust, python, javascript, bash, json). Optional — unknown or omitted falls back to plain text." },
+        "theme": { "type": "string", "description": "Color theme name (e.g. base16-ocean.dark, Solarized (dark), InspiredGitHub). Optional — defaults to a dark theme." },
+        "format": { "type": "string", "enum": ["html", "ansi"], "default": "html", "description": "Output format: html (default) returns inline-styled HTML; ansi returns ANSI 24-bit terminal escape codes." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

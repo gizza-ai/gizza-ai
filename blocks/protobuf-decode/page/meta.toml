@@ -1,0 +1,30 @@
+slug          = "protobuf-decode"
+title         = "Protobuf Decoder — Decode Protobuf Wire Bytes Without a .proto | gizza.ai"
+description   = "Decode raw Protocol Buffers wire bytes (base64 or hex) into a readable field-number / wire-type tree — no .proto schema needed. Recurses into nested messages, shows every interpretation. Free, private, runs entirely in your browser."
+tags          = ["protobuf", "protocol buffers", "decode protobuf", "protobuf wire format", "grpc", "protobuf inspector", "no schema", "reverse engineering"]
+h1            = "Protobuf Wire Decoder"
+hero_subtitle = "Paste raw Protocol Buffers bytes as base64 or hex and see the decoded field tree — no .proto schema required. Nested messages are recursed automatically. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_protobuf_decode_web"
+export        = "run"
+live          = false
+output_label  = "Decoded fields"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Protobuf bytes (base64 or hex)"
+placeholder = "08 96 01"
+source      = "field"
+multiline   = true
+
+# encoding/format render as <select> — the option lists are derived from the
+# descriptor schema (manifest.json), so they are not duplicated here.
+[[input]]
+name        = "encoding"
+label       = "Encoding"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"

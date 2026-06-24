@@ -1,0 +1,27 @@
+{
+  "name": "gizza-ai/scrypt-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive or verify a key from a password with scrypt",
+  "role": "skill",
+  "tool": {
+    "description": "Derive a cryptographic key from a password using the scrypt memory-hard key-derivation function (RFC 7914), or verify a password reproduces a key. mode=derive (default) produces a key; mode=verify checks the password+params against the `expected` key. Configure the cost parameters N (power of two, default 16384), r (block size, default 8) and p (parallelization, default 1), the salt (with salt_encoding utf8/hex/base64), the output length in bytes (default 32), and the output encoding (hex default or base64). scrypt is memory-hard, resisting GPU/ASIC brute-force better than PBKDF2. Deterministic — the same inputs always produce the same key. Runs locally; the password never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "required": ["password"],
+      "properties": {
+        "password": { "type": "string" },
+        "mode": { "type": "string", "enum": ["derive", "verify"], "default": "derive" },
+        "salt": { "type": "string" },
+        "salt_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8" },
+        "n": { "type": "integer", "minimum": 2, "maximum": 1073741824 },
+        "r": { "type": "integer", "minimum": 1, "maximum": 1024 },
+        "p": { "type": "integer", "minimum": 1, "maximum": 1024 },
+        "length": { "type": "integer", "minimum": 1, "maximum": 1024 },
+        "encoding": { "type": "string", "enum": ["hex", "base64"], "default": "hex" },
+        "expected": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

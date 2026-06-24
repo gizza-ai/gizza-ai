@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "table-heatmap"
+version = "0.1.0"
+abi = 1
+summary = "Color-scale conditional formatting for a CSV/table as styled HTML"

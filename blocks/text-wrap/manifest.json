@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/text-wrap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hard-wrap text to a column width",
+  "role": "skill",
+  "tool": {
+    "description": "Hard-wrap (reflow) text to a fixed column width so no line exceeds the given number of characters. Existing line breaks and blank lines are preserved; each line is reflowed independently with greedy word wrap. preserve_indent re-applies leading indentation to continuation lines; break_long_words hard-splits an over-long word.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "width": { "type": "integer", "minimum": 1, "maximum": 10000, "default": 80 },
+        "preserve_indent": { "type": "boolean", "default": true },
+        "break_long_words": { "type": "boolean", "default": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

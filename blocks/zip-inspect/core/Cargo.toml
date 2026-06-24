@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-zip-inspect-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only — drop default time/aes/bzip2/zstd features so it stays
+# pure-Rust and wasm32-safe (matches unzip/create-zip). Inspection reads only the
+# central directory (names/sizes/CRC/method), never decompresses data, so it can
+# still report the method label of entries compressed with methods we don't decode.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+serde = { version = "1", features = ["derive"] }

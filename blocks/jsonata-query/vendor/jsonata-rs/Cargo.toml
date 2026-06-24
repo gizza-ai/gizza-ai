@@ -1,0 +1,32 @@
+# Vendored, trimmed copy of jsonata-rs 0.3.4 (Apache-2.0, by Stedi) used via a
+# `[patch.crates-io]` in ../../Cargo.toml. The only source change vs. upstream is
+# in src/evaluator.rs: `std::time::Instant::now()` is cfg-guarded off on
+# wasm32-unknown-unknown, where it panics ("time not implemented on this
+# platform") and traps as `unreachable`, breaking the in-browser page build.
+# The CLI binary, its `clap` dependency, the test target, and the test-data
+# build script are dropped here because the gizza block only needs the library.
+[package]
+name = "jsonata-rs"
+version = "0.3.4"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Stedi"]
+description = "An (incomplete) implementation of JSONata in Rust (vendored, trimmed for gizza)"
+repository = "https://github.com/Stedi/jsonata-rs/"
+
+[lib]
+name = "jsonata_rs"
+path = "src/lib.rs"
+
+[dependencies]
+chrono = "0.4.38"
+bitflags = "2.5.0"
+bumpalo = { version = "3.16.0", features = ["collections", "boxed", "allocator-api2"] }
+hashbrown = "0.15.0"
+dtoa = "1.0.9"
+base64 = "0.22.1"
+serde_json = "1.0.117"
+rand = "0.8.5"
+regress = "0.10.1"
+num-format = "0.4.4"
+uuid = { version = "1.8.0", features = ["fast-rng", "v4", "v7"] }

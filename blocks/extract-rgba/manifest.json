@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/extract-rgba",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Export an image's raw per-pixel RGBA values as text, CSV, or JSON.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Decode an image and export its raw per-pixel RGBA values (0-255 red, green, blue, alpha) as text, CSV, or JSON for inspection or scripting. Pixels are emitted in row-major order (left to right, top to bottom). Use `format` to choose text/csv/json and `max_pixels` to cap the output for large images. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "format": { "type": "string", "enum": ["json", "text", "csv"], "default": "json", "description": "Output format for the per-pixel RGBA values: json (default; {width,height,pixels:[[r,g,b,a],...]}), text (one `r,g,b,a` line per pixel), or csv (`x,y,r,g,b,a` rows with a header). Pixels are row-major (left to right, top to bottom)." },
+        "max_pixels": { "type": "integer", "minimum": 0, "default": 0, "description": "Maximum number of pixels to emit, capping huge images (0 = no cap, emit every pixel)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

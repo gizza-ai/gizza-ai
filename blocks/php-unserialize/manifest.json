@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/php-unserialize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a PHP serialize() string into JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a PHP serialize() string (as produced by PHP's serialize(), or read from a PHP session, cache, or WordPress wp_options row) into readable JSON. Mapping: 'N;' -> null, 'b:1;'/'b:0;' -> true/false, 'i:N;' -> integer, 'd:N;' -> number, 's:<byte-len>:\"...\";' -> string (length is in bytes), 'a:<count>:{...}' -> a JSON array when keyed by the sequential integers 0..n, otherwise a JSON object, and 'O:<len>:\"Class\":<count>:{...}' (a serialized object) -> a JSON object with the class name under a '__class' field. Output is pretty-printed JSON. Use this to inspect PHP-serialized data from a non-PHP system; the inverse of php-serialize.",
+    "parameters": {
+      "type": "object",
+      "required": ["serialized"],
+      "properties": {
+        "serialized": {
+          "type": "string",
+          "description": "The PHP serialize() string to decode, e.g. 'a:1:{s:4:\"name\";s:2:\"Al\";}'. Supports all PHP serialize types: N (null), b (bool), i (int), d (double), s (string, byte-length), a (array) and O (object). The result is rendered as pretty-printed JSON."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

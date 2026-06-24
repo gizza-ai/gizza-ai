@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/rsa-verify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Verify an RSA signature against a public key",
+  "role": "skill",
+  "tool": {
+    "description": "Verify an RSA signature over a message against an RSA public key, returning whether it is valid (true/false). scheme=pkcs1v15 (default, RSASSA-PKCS1-v1_5) or pss (RSASSA-PSS); hash=sha256 (default), sha384, or sha512 — these must match how the signature was produced. The signature is base64-encoded; the public key is PEM-encoded (SPKI or PKCS#1). Runs locally — the inputs never leave the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "description": "The original message that was signed." },
+        "signature": { "type": "string", "description": "The signature to verify, base64-encoded." },
+        "public_key": { "type": "string", "description": "The signer's RSA public key, PEM-encoded (SPKI '-----BEGIN PUBLIC KEY-----' or PKCS#1 '-----BEGIN RSA PUBLIC KEY-----')." },
+        "scheme": { "type": "string", "enum": ["pkcs1v15", "pss"], "default": "pkcs1v15", "description": "Signature scheme the signature was produced with: pkcs1v15 (default) or pss." },
+        "hash": { "type": "string", "enum": ["sha256", "sha384", "sha512"], "default": "sha256", "description": "Digest algorithm the message was hashed with before signing (default sha256)." }
+      },
+      "required": ["message", "signature", "public_key"],
+      "additionalProperties": false
+    }
+  }
+}

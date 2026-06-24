@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/utm-link-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Append UTM campaign parameters to a URL",
+  "role": "skill",
+  "tool": {
+    "description": "Build a campaign-tracking URL by appending UTM query parameters (utm_source, utm_medium, utm_campaign required; optional utm_term, utm_content, and the GA4 fields utm_id, utm_source_platform, utm_creative_format, utm_marketing_tactic). Values are URL-encoded; existing query params and fragment are preserved and old utm_* tags replaced. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["url", "source", "medium", "campaign"],
+      "properties": {
+        "url": { "type": "string" },
+        "source": { "type": "string" },
+        "medium": { "type": "string" },
+        "campaign": { "type": "string" },
+        "term": { "type": "string" },
+        "content": { "type": "string" },
+        "id": { "type": "string" },
+        "source_platform": { "type": "string" },
+        "creative_format": { "type": "string" },
+        "marketing_tactic": { "type": "string" },
+        "lowercase": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

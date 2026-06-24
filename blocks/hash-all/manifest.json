@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/hash-all",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute every common digest (MD5/SHA/SHA3/RIPEMD/BLAKE/Whirlpool/CRC-32) of one input at once",
+  "role": "skill",
+  "tool": {
+    "description": "Compute EVERY common digest of the same text at once and return them in a labeled table: CRC-32, MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-512, RIPEMD-160, BLAKE2b-512, BLAKE2s-256, BLAKE3, and Whirlpool. By default the input is hashed as UTF-8 text and each digest is lowercase hex; set input_encoding='hex' or 'base64' to decode the input to raw bytes before hashing, output_format='base64' for base64 digests, or uppercase=true for uppercase hex.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to hash with every algorithm at once." },
+        "input_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to interpret `text` before hashing. 'text' (default) hashes the UTF-8 bytes as-is; 'hex' decodes it from hexadecimal first; 'base64' decodes it from standard base64 first." },
+        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "How each digest is rendered. 'hex' (default) is lowercase hex; 'base64' is standard base64." },
+        "uppercase": { "type": "boolean", "default": false, "description": "When output_format is hex, emit uppercase hex. No effect on base64. Default false." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

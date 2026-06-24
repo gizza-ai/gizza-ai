@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-pgp-verify-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-pgp-verify-core = { path = "../core" }
+serde_json = "1"
+# pgp (rPGP) pulls getrandom 0.2 transitively; the page targets
+# wasm32-unknown-unknown, which needs the `js` backend enabled even though
+# verification itself uses no RNG.
+getrandom = { version = "0.2", features = ["js"] }

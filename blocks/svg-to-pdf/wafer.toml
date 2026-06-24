@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "svg-to-pdf"
+version = "0.1.0"
+abi = 1
+summary = "Convert an SVG drawing into a PDF document."

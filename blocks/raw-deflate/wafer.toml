@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "raw-deflate"
+version = "0.1.0"
+abi = 1
+summary = "Compress a file with headerless raw DEFLATE"

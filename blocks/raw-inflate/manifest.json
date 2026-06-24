@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/raw-inflate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decompress a headerless raw DEFLATE file",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Decompress a file containing headerless raw DEFLATE (RFC 1951) back to its original bytes — no gzip and no zlib wrapper is expected, just the bare deflate bit stream. This is the inverse of raw-deflate / any DeflateEncoder output. The result is returned for download with any trailing .deflate/.raw/.zz extension stripped. A gzip- or zlib-wrapped stream (or corrupt/truncated data) is rejected with an error. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

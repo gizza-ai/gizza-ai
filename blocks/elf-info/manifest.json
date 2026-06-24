@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/elf-info",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an ELF binary and report its header, architecture, sections, segments, and symbol table.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Parse an ELF (Executable and Linkable Format) binary — a Linux/Unix executable, shared object (.so), relocatable object (.o), or core dump — and report a structured summary of its internals. Returns the ELF class (32- vs 64-bit), byte order (little- or big-endian), OS/ABI, file type (Executable/Shared object/Relocatable/Core), target machine architecture (x86-64, AArch64/ARM64, RISC-V, MIPS, …), entry-point address, the requested program interpreter / dynamic linker (PT_INTERP), whether it is dynamically linked and position-independent (PIE), architecture-specific header flags, the section header table (name, type, flags, address, offset, size), the program header / segment table (LOAD/DYNAMIC/INTERP/GNU_STACK with read/write/execute permissions), and the symbol table from .symtab and .dynsym (name, type FUNC/OBJECT/…, binding LOCAL/GLOBAL/WEAK, address, size). Useful for reverse engineering, malware triage, dependency inspection, and verifying build settings. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

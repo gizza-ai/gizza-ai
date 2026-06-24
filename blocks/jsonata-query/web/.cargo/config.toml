@@ -1,0 +1,5 @@
+# jsonata-rs pulls getrandom (0.2 via rand 0.8 / uuid v4, and 0.4 transitively).
+# On the page's wasm32-unknown-unknown target getrandom 0.2 needs the `js` feature
+# (set in web/Cargo.toml) and getrandom 0.4 needs the wasm_js backend cfg below.
+[target.wasm32-unknown-unknown]
+rustflags = ['--cfg', 'getrandom_backend="wasm_js"']

@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/pgp-verify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Verify an OpenPGP (PGP/GPG) signature",
+  "role": "skill",
+  "tool": {
+    "description": "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Accepts a detached signature or a clearsigned block (auto-detected); returns {valid, mode, signer_key_id, signer_fingerprint, signer_user_id, signed_at, hash_algorithm, signed_text, error}. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["signature", "public_key"],
+      "properties": {
+        "signature": { "type": "string" },
+        "public_key": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

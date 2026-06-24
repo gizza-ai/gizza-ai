@@ -1,0 +1,71 @@
+slug          = "scrypt-derive"
+title         = "scrypt Key Derivation — derive a key from a password — gizza.ai"
+description   = "Derive a key from a password with the scrypt memory-hard KDF (RFC 7914). Pick the N, r, p cost parameters, salt, length and hex/base64 output — all in your browser. Nothing is uploaded."
+tags          = ["scrypt", "key derivation", "kdf", "memory-hard", "derive key from password", "rfc 7914", "password based key derivation", "scrypt online"]
+h1            = "scrypt key derivation"
+hero_subtitle = "Derive a cryptographic key from a password using scrypt, the memory-hard KDF. Choose the N, r and p cost parameters, salt and output length — it runs in your browser, so the password never leaves your device."
+wasm          = "gizza_ai_scrypt_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived key"
+format        = "text"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "The password / passphrase"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode (derive | verify)"
+placeholder = "derive"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt"
+placeholder = "Unique random salt (recommended)"
+source      = "field"
+
+[[input]]
+name        = "salt_encoding"
+label       = "Salt encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "n"
+label       = "N (cost — power of two)"
+placeholder = "16384"
+source      = "field"
+
+[[input]]
+name        = "r"
+label       = "r (block size)"
+placeholder = "8"
+source      = "field"
+
+[[input]]
+name        = "p"
+label       = "p (parallelization)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "length"
+label       = "Key length (bytes)"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name        = "encoding"
+label       = "Output encoding"
+placeholder = "hex"
+source      = "field"
+
+[[input]]
+name        = "expected"
+label       = "Expected key (for verify)"
+placeholder = "hex or base64 key to check against"
+source      = "field"

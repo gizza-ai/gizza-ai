@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-pdf-signature-inspector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# PDF parsing — pure-Rust, no native libs. default-features=false drops rayon
+# (threads) + the chrono/jiff/time date crates, keeping the tree thread-free so
+# it links to wasm32-wasip1 (the `wafer build` target). We only read the
+# AcroForm + signature dictionaries here.
+lopdf = { version = "=0.36.0", default-features = false }
+# PKCS#7 / CMS SignedData parsing (the blob in a signature's /Contents). All
+# pure-Rust RustCrypto crates; default-features=false to avoid std-only paths.
+cms = { version = "0.2", default-features = false, features = ["alloc"] }
+x509-cert = { version = "0.2", default-features = false }
+der = { version = "0.7", default-features = false, features = ["alloc", "oid"] }
+const-oid = { version = "0.9", default-features = false, features = ["db"] }

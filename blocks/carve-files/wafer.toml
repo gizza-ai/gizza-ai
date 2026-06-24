@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "carve-files"
+version = "0.1.0"
+abi = 1
+summary = "Recover embedded files from a binary blob by magic-byte signatures"

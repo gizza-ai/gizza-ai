@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/render-jinja2",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a Jinja2 template against JSON or YAML data",
+  "role": "skill",
+  "tool": {
+    "description": "Render a Jinja2 (Jinja) template against supplied JSON or YAML data and return the output text. Supports {{ variable }} substitution, nested paths ({{ user.email }}), {% for %} loops, {% if %}/{% elif %}/{% else %} conditionals, and filters ({{ name | upper }}, {{ list | join(', ') }}). Set data_format to 'json', 'yaml', or 'auto' (default), and strict to error on a missing variable instead of rendering it empty. Useful for generating emails, config files, code, or any text from a template + data. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "template": { "type": "string", "description": "The Jinja2 template, e.g. \"Hello {{ name }}!\" or \"{% for i in items %}- {{ i }}\\n{% endfor %}\"." },
+        "data": { "type": "string", "description": "JSON or YAML supplying the template variables, e.g. {\"name\":\"Ada\"}. Defaults to an empty object." },
+        "data_format": { "type": "string", "enum": ["auto", "json", "yaml"], "default": "auto", "description": "Format of the data: 'auto' detects JSON or YAML, or force 'json'/'yaml'." },
+        "strict": { "type": "boolean", "default": false, "description": "When true, referencing a missing variable is an error; when false (default) it renders as empty." }
+      },
+      "required": ["template"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,35 @@
+slug          = "render-jinja2"
+title         = "Jinja2 Template Renderer — gizza.ai"
+description   = "Render a Jinja2 template against JSON or YAML data instantly in your browser. Supports {{ variables }}, {% for %} loops, {% if %} conditionals, and filters. Free, private, no upload, no sign-up."
+tags          = ["jinja2 renderer", "jinja template online", "jinja2 playground", "render jinja template", "template engine", "json to text", "yaml to text"]
+h1            = "Jinja2 Template Renderer"
+hero_subtitle = "Paste a Jinja2 template and JSON or YAML data, get the rendered output. Variables, loops, conditionals, and filters supported. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_render_jinja2_web"
+export        = "run"
+live          = false
+output_label  = "Output"
+format        = "text"
+
+[[input]]
+name        = "template"
+label       = "Template"
+placeholder = "Hello {{ name }}!\n{% for i in items %}- {{ i }}\n{% endfor %}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "data"
+label       = "Data (JSON or YAML)"
+placeholder = "{\"name\":\"Ada\",\"items\":[\"a\",\"b\",\"c\"]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "data_format"
+label       = "Data format"
+source      = "field"
+
+[[input]]
+name        = "strict"
+label       = "Strict (error on missing variable)"
+source      = "field"

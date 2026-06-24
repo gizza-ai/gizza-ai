@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geometry-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Area, perimeter, surface area, and volume of common shapes."

@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/task-list-summarizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize a Markdown task list into done/pending counts and filtered views.",
+  "role": "skill",
+  "tool": {
+    "description": "Summarize a Markdown task list (GFM checklist) into done/pending counts and filtered views. Pass the list as 'text'; tasks are checklist items like '- [ ] todo', '- [x] done', '* [X] done', or numbered '1. [ ] todo' (other lines are ignored). mode='summary' (default) returns a one-line count of total/done/pending and percent complete; mode='done' lists only the completed task texts (one per line); mode='pending' lists only the remaining task texts; mode='json' returns a JSON object {total, done, pending, percent, done_items, pending_items}.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The Markdown task list to summarize. Tasks are GFM checklist items like '- [ ] todo', '- [x] done', '* [X] done', or '1. [ ] todo'; non-checklist lines are ignored." },
+        "mode": { "type": "string", "enum": ["summary", "done", "pending", "json"], "default": "summary", "description": "What to return. 'summary' (default) is a one-line count of total/done/pending and percent complete; 'done' lists the completed task texts; 'pending' lists the remaining task texts; 'json' returns a JSON object with the counts, percent, and both item lists." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

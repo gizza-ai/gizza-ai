@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "adjacency-matrix-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert a graph between an edge list, an adjacency matrix, and an incidence matrix."

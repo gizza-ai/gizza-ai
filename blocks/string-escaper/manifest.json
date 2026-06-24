@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/string-escaper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Escape or unescape a string for a chosen target syntax",
+  "role": "skill",
+  "tool": {
+    "description": "Escape (or unescape) a string for a chosen target syntax: JSON, JavaScript, HTML, URL, shell, SQL, or regex. mode=escape (default) or mode=unescape; unescape works for json/javascript/html/url only. Set quotes=true to wrap json/javascript/sql output in surrounding quotes.",
+    "parameters": {
+      "type": "object",
+      "required": ["text", "target"],
+      "properties": {
+        "text": { "type": "string" },
+        "target": { "type": "string", "enum": ["json", "javascript", "html", "url", "shell", "sql", "regex"] },
+        "mode": { "type": "string", "enum": ["escape", "unescape"], "default": "escape" },
+        "quotes": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

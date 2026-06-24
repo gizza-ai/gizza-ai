@@ -1,0 +1,76 @@
+slug          = "utm-link-builder"
+title         = "UTM Link Builder — Campaign URL Tagger | gizza.ai"
+description   = "Build campaign-tracking URLs by adding UTM parameters (source, medium, campaign, term, content). Auto-encodes values, preserves existing query params, replaces old utm_* tags. Free, private, runs in your browser, no sign-up."
+tags          = ["utm builder", "utm link", "campaign url builder", "utm parameters", "url tagging", "google analytics", "utm_source", "utm_medium", "utm_campaign", "marketing"]
+h1            = "UTM Link Builder"
+hero_subtitle = "Add UTM campaign parameters to any URL for analytics tracking. Source, medium, campaign, term and content — encoded correctly and ready to share. Runs entirely in your browser."
+wasm          = "gizza_ai_utm_link_builder_web"
+export        = "run"
+live          = false
+output_label  = "Tagged URL"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "Website URL"
+placeholder = "https://example.com/landing-page"
+source      = "field"
+
+[[input]]
+name        = "source"
+label       = "Campaign Source (utm_source)"
+placeholder = "google"
+source      = "field"
+
+[[input]]
+name        = "medium"
+label       = "Campaign Medium (utm_medium)"
+placeholder = "cpc"
+source      = "field"
+
+[[input]]
+name        = "campaign"
+label       = "Campaign Name (utm_campaign)"
+placeholder = "spring_sale"
+source      = "field"
+
+[[input]]
+name        = "term"
+label       = "Campaign Term (utm_term, optional)"
+placeholder = "running shoes"
+source      = "field"
+
+[[input]]
+name        = "content"
+label       = "Campaign Content (utm_content, optional)"
+placeholder = "logolink"
+source      = "field"
+
+[[input]]
+name        = "id"
+label       = "Campaign ID (utm_id, optional — GA4)"
+placeholder = "abc.123"
+source      = "field"
+
+[[input]]
+name        = "source_platform"
+label       = "Source Platform (utm_source_platform, optional — GA4)"
+placeholder = "Google Ads"
+source      = "field"
+
+[[input]]
+name        = "creative_format"
+label       = "Creative Format (utm_creative_format, optional — GA4)"
+placeholder = "display"
+source      = "field"
+
+[[input]]
+name        = "marketing_tactic"
+label       = "Marketing Tactic (utm_marketing_tactic, optional — GA4)"
+placeholder = "remarketing"
+source      = "field"
+
+[[input]]
+name        = "lowercase"
+label       = "Lowercase parameter values"
+source      = "field"

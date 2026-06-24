@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-syntax-highlighter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# syntect: syntax highlighting. default-features=false drops the onig (C) regex
+# engine; we enable the pure-Rust `fancy-regex` engine plus the bundled
+# (binary-dump) default syntaxes and themes (so nothing is loaded from the host
+# filesystem — wasm has none) and the `html` module for inline-styled HTML
+# output. This keeps the whole stack pure-Rust → wasm32-safe (proven by the
+# code-screenshot block, which uses the same `default-fancy` set).
+syntect = { version = "5", default-features = false, features = [
+    "default-fancy",
+    "html",
+] }

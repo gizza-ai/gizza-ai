@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-signature-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Inspect embedded digital signatures in a PDF."

@@ -1,0 +1,29 @@
+{
+  "name": "gizza-ai/verify-checksum",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Verify that data matches an expected checksum (auto-detects the algorithm)",
+  "role": "skill",
+  "tool": {
+    "description": "Verify that a piece of data matches an expected checksum. Provide the input `text` and the `expected` checksum (hex or base64); the tool hashes the input and reports MATCH or MISMATCH along with the algorithm used. By default `algorithm`='auto' infers the hash from the expected digest's byte length; set it explicitly to check one algorithm. Set input_encoding='hex' or 'base64' to decode the input before hashing.",
+    "parameters": {
+      "type": "object",
+      "required": ["text", "expected"],
+      "properties": {
+        "text": { "type": "string" },
+        "expected": { "type": "string" },
+        "algorithm": {
+          "type": "string",
+          "enum": ["auto", "md5", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3-256", "sha3-512", "blake2b-512", "blake2s-256", "blake3"],
+          "default": "auto"
+        },
+        "input_encoding": {
+          "type": "string",
+          "enum": ["text", "hex", "base64"],
+          "default": "text"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

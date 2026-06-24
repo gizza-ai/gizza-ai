@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/charset-transcode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-decode garbled text from a legacy charset into clean UTF-8 (fix mojibake).",
+  "role": "skill",
+  "tool": {
+    "description": "Re-decode garbled text ('mojibake') from a legacy charset into clean UTF-8. Leave 'from' as 'auto' (default) to detect the charset, or set it to the charset the text was wrongly decoded as (WHATWG label, e.g. 'windows-1252', 'iso-8859-1'/'latin1', 'shift_jis'/'sjis', 'euc-jp', 'euc-kr', 'gbk', 'big5', 'windows-1251', 'koi8-r'). Use this to fix text where 'é' shows as 'Ã©' or '“' shows as 'â€œ'. Set 'passes'>1 to un-nest double-encoded mojibake. The 'errors' option is 'replace' (default) or 'strict'.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The garbled / mis-decoded text to re-decode into clean UTF-8." },
+        "from": { "type": "string", "default": "auto", "description": "Source charset the text was wrongly decoded as, a WHATWG label, or 'auto'." },
+        "errors": { "type": "string", "enum": ["replace", "strict"], "default": "replace", "description": "How to handle bytes that aren't valid in 'from'." },
+        "passes": { "type": "integer", "minimum": 1, "maximum": 8, "default": 1, "description": "Apply the repair this many times to un-nest double mojibake." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

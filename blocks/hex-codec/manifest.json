@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/hex-codec",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode text or bytes to a hexadecimal string and decode hex back to text.",
+  "role": "skill",
+  "tool": {
+    "description": "Encode text or bytes to a hexadecimal string, or decode a hex string back to text. Use mode='encode' (default, e.g. 'Hi' -> '4869') or mode='decode' (e.g. '4869' -> 'Hi'). delimiter inserts a separator between bytes when encoding ('none' default, 'space', 'colon', 'dash', 'comma', 'newline'); uppercase emits A-F caps; prefix adds '0x' or '\\x' before each byte. On decode, format='text' (default) renders UTF-8 (errors on non-UTF-8 bytes) and format='bytes' shows the raw bytes as a plain hex string. Decoding is case-insensitive and ignores whitespace, the common delimiters (: - ,), and 0x / \\x prefixes, so any encoded form round-trips back.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The text to encode (read as UTF-8), or the hexadecimal string to decode." },
+        "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) turns text into hex, 'decode' turns hex back into text." },
+        "format": { "type": "string", "enum": ["text", "bytes"], "default": "text", "description": "On decode, how to render the recovered bytes: 'text' (default) is UTF-8 and errors if the bytes aren't valid UTF-8; 'bytes' shows them as a plain lowercase hex byte string (use for binary data). Ignored on encode." },
+        "delimiter": { "type": "string", "enum": ["none", "space", "colon", "dash", "comma", "newline"], "default": "none", "description": "Separator placed between bytes when encoding: 'none' (default), 'space', 'colon' (:), 'dash' (-), 'comma', or 'newline'. Decoding ignores any of these." },
+        "uppercase": { "type": "boolean", "default": false, "description": "When true, emit uppercase A-F hex digits while encoding (default false, lowercase). Decoding is case-insensitive." },
+        "prefix": { "type": "string", "enum": ["none", "0x", "\\x"], "default": "none", "description": "Marker placed before each byte when encoding: 'none' (default), '0x' (e.g. 0x48), or '\\x' (e.g. \\x48). Decoding strips 0x and \\x automatically." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

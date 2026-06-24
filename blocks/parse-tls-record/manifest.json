@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/parse-tls-record",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode TLS record-layer bytes from hex",
+  "role": "skill",
+  "tool": {
+    "description": "Decode one or more concatenated TLS record-layer bytes given as a hex string into the record header (content type, version, length) and, for handshake records, the handshake messages — fully decoding ClientHello and ServerHello (version, random, session id, cipher suites by IANA name, compression, and extensions: SNI, ALPN, supported_versions, supported_groups, signature_algorithms, key_share).",
+    "parameters": {
+      "type": "object",
+      "required": ["record"],
+      "properties": { "record": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

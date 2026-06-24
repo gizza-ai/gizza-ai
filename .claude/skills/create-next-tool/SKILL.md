@@ -302,5 +302,5 @@ BUILDER PROMPT (self-contained — the sub-agent has a fresh context, so it must
 > ≤3 fix attempts, `git clean -fd blocks/<slug>`, skiplist or report, do NOT commit broken. (6) Clean
 > per-block target dirs (`for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name block.wasm
 > -exec rm -rf {} + ; done`), NEVER delete web/pkg. (7) `git add -A && git commit && git push origin
-> feat/tool-creating`. Return ONE line only: `<slug>: built+pushed <short-sha>` OR `skiplisted <slug>: <reason>`
+> feat/tool-creating-2`. Return ONE line only: `<slug>: built+pushed <short-sha>` OR `skiplisted <slug>: <reason>`
 > OR `FAILED <slug>: <reason>`.

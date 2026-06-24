@@ -1,0 +1,49 @@
+slug          = "string-obfuscator"
+title         = "String Obfuscator — Mask, ROT13, Leetspeak & Homoglyph — gizza.ai"
+description   = "Mask secrets and PII, or transform text with ROT13, leetspeak, and Unicode homoglyphs — instantly in your browser. Keep the first/last characters visible, pick a mask character, and obfuscate for screenshots and demos. Free, private, no sign-up."
+tags          = ["string obfuscator", "mask string", "redact text", "rot13", "caesar cipher", "leetspeak", "homoglyph", "unicode confusable", "hide api key", "screenshot redaction"]
+h1            = "String Obfuscator"
+hero_subtitle = "Mask secrets and PII, or transform text with ROT13, leetspeak, and Unicode homoglyphs. Runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_string_obfuscator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "sk-1234567890abcdef"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select> and the integer/string fields as inputs — the
+# control type + option list come from the descriptor (manifest.json).
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "mask_char"
+label       = "Mask character (mask mode)"
+placeholder = "*"
+source      = "field"
+
+[[input]]
+name        = "keep_start"
+label       = "Keep first N characters (mask mode)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "keep_end"
+label       = "Keep last N characters (mask mode)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "rot_n"
+label       = "ROT shift 0–25 (rot mode)"
+placeholder = "13"
+source      = "field"

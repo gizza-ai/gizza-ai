@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ip-range-to-cidr"
+version = "0.1.0"
+abi = 1
+summary = "Convert a start-end IP range into the minimal set of CIDR blocks covering it."

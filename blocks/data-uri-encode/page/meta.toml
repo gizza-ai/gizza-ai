@@ -1,0 +1,29 @@
+slug          = "data-uri-encode"
+title         = "Data URI Encoder — Text to data: URI — gizza.ai"
+description   = "Turn text into a self-contained data: URI with a chosen MIME type and Base64 or percent encoding. No sign-up, runs offline in your browser."
+tags          = ["data-uri", "base64", "encode", "mime", "css", "svg"]
+h1            = "Data URI Encoder"
+hero_subtitle = "Build a data: URI from text with your chosen MIME type and Base64 or URL encoding — right in your browser."
+wasm          = "gizza_ai_data_uri_encode_web"
+export        = "run"
+live          = false
+output_label  = "data: URI"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Hello, World!"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mime"
+label       = "MIME type"
+placeholder = "text/plain"
+source      = "field"
+
+[[input]]
+name        = "encoding"
+label       = "Encoding"
+source      = "field"

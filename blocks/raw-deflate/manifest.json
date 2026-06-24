@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/raw-deflate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress a file with headerless raw DEFLATE",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Compress a file (or any bytes) with headerless raw DEFLATE (RFC 1951) — no gzip and no zlib wrapper, just the bare deflate bit stream, returned for download as <input>.deflate. Raw deflate has no magic bytes, no checksum and no filename header, so it is smaller than gzip/zlib and is what other formats embed. level sets the deflate level 1-9 (default 6). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "level": { "type": "integer", "minimum": 1, "maximum": 9, "default": 6, "description": "Compression level 1-9 (1 = fastest, 9 = smallest; default 6)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

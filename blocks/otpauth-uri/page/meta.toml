@@ -1,0 +1,59 @@
+slug          = "otpauth-uri"
+title         = "otpauth:// URI Generator — authenticator setup QR — gizza.ai"
+description   = "Build a standard otpauth:// provisioning URI from an issuer, account, and base32 secret to set up an authenticator app. Runs in your browser — the secret never leaves your device."
+tags          = ["otpauth", "totp", "hotp", "2fa", "authenticator", "qr code", "otp", "two-factor", "provisioning uri"]
+h1            = "otpauth:// URI generator"
+hero_subtitle = "Build a standard otpauth:// provisioning URI from an issuer, account, and base32 secret — encode it as a QR code to set up any authenticator app. Runs in your browser; the secret never leaves your device."
+wasm          = "gizza_ai_otpauth_uri_web"
+export        = "run"
+live          = false
+output_label  = "otpauth:// URI"
+format        = "text"
+
+[[input]]
+name        = "type"
+label       = "Type"
+placeholder = "totp"
+source      = "field"
+
+[[input]]
+name        = "issuer"
+label       = "Issuer (provider name)"
+placeholder = "GitHub"
+source      = "field"
+
+[[input]]
+name        = "account"
+label       = "Account name"
+placeholder = "alice@example.com"
+source      = "field"
+
+[[input]]
+name        = "secret"
+label       = "Secret (base32)"
+placeholder = "JBSWY3DPEHPK3PXP"
+source      = "field"
+
+[[input]]
+name        = "digits"
+label       = "Digits"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "period"
+label       = "Period (seconds, TOTP)"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+placeholder = "sha1"
+source      = "field"
+
+[[input]]
+name        = "counter"
+label       = "Counter (HOTP)"
+placeholder = "0"
+source      = "field"

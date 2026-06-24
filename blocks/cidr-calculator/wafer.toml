@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cidr-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compute network address, broadcast, netmask, wildcard, host range and counts for a CIDR."

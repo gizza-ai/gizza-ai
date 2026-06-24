@@ -1,0 +1,34 @@
+slug          = "color-contrast-checker"
+title         = "Color Contrast Checker (WCAG AA / AAA) — gizza.ai"
+description   = "Check the WCAG contrast ratio between a text and a background colour and see AA / AAA pass-fail for normal text, large text, and UI components. Accepts hex, rgb, hsl, or colour names, and suggests an accessible colour. Free, private, runs entirely in your browser."
+tags          = ["color contrast checker", "wcag contrast", "contrast ratio", "accessibility", "aa", "aaa", "a11y", "hex", "rgb", "hsl", "accessible color"]
+h1            = "Color Contrast Checker"
+hero_subtitle = "Check the WCAG contrast ratio between any two colours and see whether they pass AA and AAA for text and UI — and get a nearby accessible colour when they don't. Hex, rgb, hsl, or colour names, all in your browser."
+wasm          = "gizza_ai_color_contrast_checker_web"
+export        = "run"
+live          = false
+output_label  = "WCAG result"
+format        = "text"
+
+[[input]]
+name        = "foreground"
+label       = "Foreground (text) colour"
+placeholder = "#1a2b3c"
+source      = "field"
+
+[[input]]
+name        = "background"
+label       = "Background colour"
+placeholder = "#ffffff"
+source      = "field"
+
+# format and target render as <select> — options come from the descriptor schema.
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "target"
+label       = "Suggest target (used by the 'suggest' format)"
+source      = "field"

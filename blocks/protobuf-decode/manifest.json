@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/protobuf-decode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode raw protobuf wire bytes into a field/wire-type tree without a .proto schema.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode raw Protocol Buffers (protobuf) wire bytes into a field-number / wire-type tree WITHOUT a .proto schema. Give the wire bytes as base64 or hex in 'input' (set encoding='auto' (default), 'base64', or 'hex'). Each field is reported by its field number, raw wire type (varint / fixed32 / fixed64 / length_delimited) and every plausible interpretation; length-delimited fields are recursively parsed as nested messages when they parse cleanly. Use format='json' (default) for a structured tree or 'text' for a compact outline.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The raw protobuf wire bytes, as a base64 or hex string." },
+        "encoding": { "type": "string", "enum": ["auto", "base64", "hex"], "default": "auto", "description": "How the input bytes are encoded." },
+        "format": { "type": "string", "enum": ["json", "text"], "default": "json", "description": "Output shape: 'json' tree or 'text' outline." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

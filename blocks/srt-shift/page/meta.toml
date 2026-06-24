@@ -1,0 +1,30 @@
+slug          = "srt-shift"
+title         = "SRT Subtitle Shifter — Resync .srt Timings | gizza.ai"
+description   = "Shift every timestamp in a SubRip (.srt) subtitle file forward or backward by a fixed offset to resync subtitles that run early or late. Seconds or milliseconds, negative offsets, full Unicode. Free, private, runs in your browser — no upload, no sign-up."
+tags          = ["srt", "subtitle", "subtitle sync", "srt shift", "resync subtitles", "subtitle delay", "subrip", "subtitle timing", "subtitle offset"]
+h1            = "SRT Subtitle Shifter"
+hero_subtitle = "Resync subtitles that run early or late: shift every timestamp in a .srt file forward or backward by a fixed offset. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_srt_shift_web"
+export        = "run"
+live          = false
+output_label  = "Shifted .srt"
+format        = "text"
+
+[[input]]
+name        = "srt"
+label       = "SubRip (.srt) subtitle text"
+placeholder = "1\n00:00:01,000 --> 00:00:04,000\nFirst line of dialogue."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "offset"
+label       = "Offset (+ delays, − advances)"
+placeholder = "2.5"
+source      = "field"
+
+# unit renders as a <select> — its options come from the descriptor schema.
+[[input]]
+name        = "unit"
+label       = "Unit"
+source      = "field"

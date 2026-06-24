@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/salsa20-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with the Salsa20 stream cipher (key + 8-byte nonce)",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with the Salsa20 stream cipher (Salsa20/20). operation = encrypt (default) or decrypt — Salsa20 is symmetric. key must be 16 or 32 bytes and nonce exactly 8 bytes, read as UTF-8 (key_format=text, default) or decoded from hex/base64 (key_format=encoded). counter is the initial 64-bit block counter (default 0). The ciphertext (and an encoded key/nonce) use format = hex (default) or base64; the plaintext is UTF-8.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key", "nonce"],
+      "properties": {
+        "data": { "type": "string" },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
+        "key": { "type": "string" },
+        "nonce": { "type": "string" },
+        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
+        "counter": { "type": "integer", "default": 0, "minimum": 0 },
+        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
