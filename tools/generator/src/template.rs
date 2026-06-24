@@ -178,12 +178,16 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
 /// Inline styles for the per-tool "Run it from the terminal" CLI block.
 const TOOL_CLI_CSS: &str = r#"
 .tool-dev-group { max-width: 720px; margin: 48px auto 64px; }
-.tool-dev-group h2 { font-size: 1.3rem; margin: 0 0 16px; color: var(--tool-ink, #0f172a); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+.tool-dev-group h2 { font-size: 1.3rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
 .tool-dev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
 .tool-cli-card { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; }
 .tool-cli-card h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
 .tool-cli-card > p { color: var(--tool-muted, #6b7280); font-size: 0.9rem; margin: 0 0 12px; }
-.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; }
+.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; scrollbar-width: thin; scrollbar-color: #334155 #0f172a; }
+.tool-cli-code::-webkit-scrollbar { height: 8px; }
+.tool-cli-code::-webkit-scrollbar-track { background: #0f172a; border-radius: 0 0 10px 10px; }
+.tool-cli-code::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+.tool-cli-code::-webkit-scrollbar-thumb:hover { background: #475569; }
 .tool-cli-code code { color: inherit; background: none; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .tool-cli-note { font-size: .85rem; margin: 12px 0 0; color: var(--tool-muted, #6b7280); margin-top: auto; padding-top: 10px; }
 "#;
