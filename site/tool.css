@@ -322,4 +322,69 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
   }
 }
 
+/* Premium Accordion Styling (FAQ details/summary) */
+.tool-content details {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.tool-content details[open] {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.tool-content summary {
+  padding: 14px 16px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  list-style: none; /* Hide default triangle */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.tool-content summary:hover {
+  background-color: #f1f5f9;
+}
+
+/* Custom indicator icon */
+.tool-content summary::after {
+  content: "+";
+  font-size: 18px;
+  font-weight: 500;
+  color: #64748b;
+  transition: transform 0.2s;
+}
+
+.tool-content details[open] summary::after {
+  content: "\u2212"; /* minus sign */
+}
+
+/* Hide standard details marker in Safari */
+.tool-content summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Slide padding for open details content */
+.tool-content details > p, 
+.tool-content details > div {
+  padding: 14px 16px;
+  margin: 0;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
 

@@ -28,11 +28,17 @@ Select canonical IANA timezone names (e.g. `Area/Location`). The autocomplete fi
 
 ## FAQ
 
-**How does it handle Daylight Saving Time (DST)?**
+<details>
+<summary>How does it handle Daylight Saving Time (DST)?</summary>
 The tool bundles the complete IANA database, meaning historical, current, and future DST transitions are resolved accurately based on the date specified.
+</details>
 
-**What happens on spring-forward gap times?**
+<details>
+<summary>What happens on spring-forward gap times?</summary>
 If a selected wall-clock time does not exist in the source zone due to a DST forward transition, the tool warns you that the time is non-existent instead of silently guessing a wrong value.
+</details>
 
-**Is my data private?**
+<details>
+<summary>Is my data private?</summary>
 Absolutely. All date, time, and timezone conversions run locally in your browser. No queries are transmitted to external servers.
+</details>
