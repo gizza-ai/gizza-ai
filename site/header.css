@@ -351,6 +351,13 @@
   color: #94a3b8;
 }
 
+.site-footer__disclaimer {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
 .site-footer__cols {
   max-width: 720px;
   margin: 0 auto;
