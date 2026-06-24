@@ -7,12 +7,9 @@ test('age-calculator page computes calendar breakdown', async ({ page }) => {
   await page.fill('#in-as_of', '2026-06-22');
 
   const out = page.locator('#tool-output');
-  await expect(out).toContainText('"years": 36', { timeout: 15000 });
-  await expect(out).toContainText('"months": 5');
-  await expect(out).toContainText('"days": 7');
-  await expect(out).toContainText('36 years 5 months 7 days old');
-  await expect(out).toContainText('"zodiac_sign": "Capricorn"');
-  await expect(out).toContainText('"day_of_week_born": "Monday"');
+  await expect(out.locator('.age-result-hero-text')).toContainText('36 years, 5 months, and 7 days old', { timeout: 15000 });
+  await expect(out.locator('.age-info-card-value').nth(1)).toContainText('Monday');
+  await expect(out.locator('.age-info-card-value').nth(2)).toContainText('Capricorn');
 });
 
 test('age-calculator page reports totals and next birthday', async ({ page }) => {
@@ -22,10 +19,10 @@ test('age-calculator page reports totals and next birthday', async ({ page }) =>
   await page.fill('#in-as_of', '2026-06-21');
 
   const out = page.locator('#tool-output');
-  await expect(out).toContainText('"years": 25', { timeout: 15000 });
-  await expect(out).toContainText('"days_until_next_birthday": 1');
-  await expect(out).toContainText('"next_birthday": "2026-06-22"');
-  await expect(out).toContainText('"zodiac_sign": "Cancer"');
+  await expect(out.locator('.age-result-hero-text')).toContainText('25 years, 11 months, and 30 days old', { timeout: 15000 });
+  await expect(out.locator('.age-info-card-value').nth(0)).toContainText('1 Day');
+  await expect(out.locator('.age-info-card-sub').nth(0)).toContainText('Date: 2026-06-22');
+  await expect(out.locator('.age-info-card-value').nth(2)).toContainText('Cancer');
 });
 
 test('age-calculator page defaults as-of to today when blank', async ({ page }) => {
@@ -35,8 +32,8 @@ test('age-calculator page defaults as-of to today when blank', async ({ page }) 
   await page.fill('#in-birthdate', '2000-06-22');
 
   const out = page.locator('#tool-output');
-  // Whatever today is, the result must be valid JSON with a Cancer sign and a
-  // plausible age (>= 24), proving the blank-as_of clock path works.
-  await expect(out).toContainText('"zodiac_sign": "Cancer"', { timeout: 15000 });
-  await expect(out).toContainText('"birthdate": "2000-06-22"');
+  // Whatever today is, the result must be valid dashboard output with a Cancer sign,
+  // proving the blank-as_of clock path works.
+  await expect(out.locator('.age-info-card-value').nth(2)).toContainText('Cancer', { timeout: 15000 });
+  await expect(out.locator('.age-info-card-sub').nth(1)).toContainText('Birthdate: 2000-06-22');
 });

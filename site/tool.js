@@ -17,13 +17,21 @@ function showResult(value) {
     } catch (e) {
       // If parsing fails, fall through to text display
     }
+  } else if (cfg.slug === "age-calculator") {
+    try {
+      const data = JSON.parse(value);
+      renderAgeCalculator(data);
+      return;
+    } catch (e) {
+      // If parsing fails, fall through to text display
+    }
   }
   out.textContent = cfg.format === "number" ? formatNumber(value) : String(value);
 }
 
 function showError(message) {
   const widget = document.querySelector(".tool-widget");
-  if (widget && cfg.slug !== "timezone-convert") {
+  if (widget && cfg.slug !== "timezone-convert" && cfg.slug !== "age-calculator") {
     widget.style.maxWidth = "380px";
   }
   out.classList.add("error");
@@ -307,6 +315,8 @@ async function main() {
 
   if (cfg.slug === "timezone-convert") {
     setupTimezoneConvertDefaults();
+  } else if (cfg.slug === "age-calculator") {
+    setupAgeCalculatorDefaults();
   }
 
   const fn = mod[cfg.export];
@@ -616,6 +626,211 @@ function setupTimezoneConvertDefaults() {
       toInput.dispatchEvent(new Event("change"));
     });
   }
+}
+
+function setupAgeCalculatorDefaults() {
+  const widget = document.querySelector(".tool-widget");
+  if (widget) {
+    widget.style.maxWidth = "760px";
+  }
+
+  const birthInput = document.getElementById("in-birthdate");
+  const asOfInput = document.getElementById("in-as_of");
+
+  const birthLabel = document.querySelector('label[for="in-birthdate"]');
+  const asOfLabel = document.querySelector('label[for="in-as_of"]');
+
+  if (birthInput) {
+    birthInput.type = "date";
+  }
+  if (asOfInput) {
+    asOfInput.type = "date";
+  }
+
+  // Format current local date: YYYY-MM-DD
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const localDateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+  const params = new URLSearchParams(location.search);
+  if (asOfInput && !asOfInput.value && !params.has("as_of")) {
+    asOfInput.value = localDateStr;
+  }
+
+  if (widget && birthInput && asOfInput) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "age-inputs-wrapper";
+
+    const col1 = document.createElement("div");
+    col1.className = "age-inputs-col";
+    if (birthLabel) col1.appendChild(birthLabel);
+    col1.appendChild(birthInput);
+
+    const col2 = document.createElement("div");
+    col2.className = "age-inputs-col";
+    if (asOfLabel) col2.appendChild(asOfLabel);
+    col2.appendChild(asOfInput);
+
+    const col3 = document.createElement("div");
+    col3.className = "age-inputs-col";
+    
+    const resetBtn = document.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.className = "age-reset-btn";
+    resetBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Reset`;
+    col3.appendChild(resetBtn);
+
+    wrapper.appendChild(col1);
+    wrapper.appendChild(col2);
+    wrapper.appendChild(col3);
+
+    widget.insertBefore(wrapper, widget.firstChild);
+
+    resetBtn.addEventListener("click", () => {
+      birthInput.value = "";
+      asOfInput.value = localDateStr;
+      
+      // Clear URL params on reset
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+
+      birthInput.dispatchEvent(new Event("input"));
+      asOfInput.dispatchEvent(new Event("input"));
+    });
+  }
+}
+
+function renderAgeCalculator(data) {
+  out.innerHTML = "";
+  out.className = "age-active-container";
+
+  // 1. Hero Summary
+  const hero = document.createElement("div");
+  hero.className = "age-result-hero";
+
+  const heroTitle = document.createElement("div");
+  heroTitle.className = "age-result-hero-title";
+  heroTitle.textContent = "Exact Age";
+  hero.appendChild(heroTitle);
+
+  const heroText = document.createElement("div");
+  heroText.className = "age-result-hero-text";
+
+  const yearsSpan = `<span>${data.years}</span> year${data.years === 1 ? '' : 's'}`;
+  const monthsSpan = `<span>${data.months}</span> month${data.months === 1 ? '' : 's'}`;
+  const daysSpan = `<span>${data.days}</span> day${data.days === 1 ? '' : 's'}`;
+
+  heroText.innerHTML = `${yearsSpan}, ${monthsSpan}, and ${daysSpan} old`;
+  hero.appendChild(heroText);
+  out.appendChild(hero);
+
+  // 2. Info Cards Grid (Next Birthday, Astrology, Birth Details)
+  const infoGrid = document.createElement("div");
+  infoGrid.className = "age-info-grid";
+
+  // Card 1: Next Birthday
+  const bdayCard = document.createElement("div");
+  bdayCard.className = "age-info-card";
+
+  const bdayTitle = document.createElement("div");
+  bdayTitle.className = "age-info-card-title";
+  bdayTitle.textContent = "Next Birthday";
+  bdayCard.appendChild(bdayTitle);
+
+  const bdayValue = document.createElement("div");
+  bdayValue.className = "age-info-card-value";
+  if (data.days_until_next_birthday === 0) {
+    bdayValue.textContent = "Today! 🎉";
+  } else {
+    bdayValue.textContent = `${data.days_until_next_birthday} Day${data.days_until_next_birthday === 1 ? '' : 's'}`;
+  }
+  bdayCard.appendChild(bdayValue);
+
+  const bdaySub = document.createElement("div");
+  bdaySub.className = "age-info-card-sub";
+  bdaySub.textContent = `Date: ${data.next_birthday}`;
+  bdayCard.appendChild(bdaySub);
+
+  infoGrid.appendChild(bdayCard);
+
+  // Card 2: Birth Details
+  const detailsCard = document.createElement("div");
+  detailsCard.className = "age-info-card";
+
+  const detailsTitle = document.createElement("div");
+  detailsTitle.className = "age-info-card-title";
+  detailsTitle.textContent = "Born On";
+  detailsCard.appendChild(detailsTitle);
+
+  const detailsValue = document.createElement("div");
+  detailsValue.className = "age-info-card-value";
+  detailsValue.textContent = data.day_of_week_born;
+  detailsCard.appendChild(detailsValue);
+
+  const detailsSub = document.createElement("div");
+  detailsSub.className = "age-info-card-sub";
+  detailsSub.textContent = `Birthdate: ${data.birthdate}`;
+  detailsCard.appendChild(detailsSub);
+
+  infoGrid.appendChild(detailsCard);
+
+  // Card 3: Zodiac & Astrology
+  const zodiacCard = document.createElement("div");
+  zodiacCard.className = "age-info-card";
+
+  const zodiacTitle = document.createElement("div");
+  zodiacTitle.className = "age-info-card-title";
+  zodiacTitle.textContent = "Zodiac & Generation";
+  zodiacCard.appendChild(zodiacTitle);
+
+  const zodiacValue = document.createElement("div");
+  zodiacValue.className = "age-info-card-value";
+  zodiacValue.textContent = `${data.zodiac_sign} / ${data.chinese_zodiac}`;
+  zodiacCard.appendChild(zodiacValue);
+
+  const zodiacSub = document.createElement("div");
+  zodiacSub.className = "age-info-card-sub";
+  zodiacSub.textContent = data.generation;
+  zodiacCard.appendChild(zodiacSub);
+
+  infoGrid.appendChild(zodiacCard);
+  out.appendChild(infoGrid);
+
+  // 3. Lived Metrics Card
+  const livedCard = document.createElement("div");
+  livedCard.className = "age-lived-card";
+
+  const livedTitle = document.createElement("div");
+  livedTitle.className = "age-lived-card-title";
+  livedTitle.textContent = "Lifetime Metrics";
+  livedCard.appendChild(livedTitle);
+
+  const livedGrid = document.createElement("div");
+  livedGrid.className = "age-lived-grid";
+
+  const addMetric = (val, label) => {
+    const item = document.createElement("div");
+    item.className = "age-lived-item";
+    const valueEl = document.createElement("div");
+    valueEl.className = "age-lived-item-value";
+    valueEl.textContent = val.toLocaleString();
+    const labelEl = document.createElement("div");
+    labelEl.className = "age-lived-item-label";
+    labelEl.textContent = label;
+    item.appendChild(valueEl);
+    item.appendChild(labelEl);
+    livedGrid.appendChild(item);
+  };
+
+  addMetric(data.total_months, "Total Months");
+  addMetric(data.total_weeks, "Total Weeks");
+  addMetric(data.total_days, "Total Days");
+  addMetric(data.total_hours, "Total Hours");
+  addMetric(data.total_minutes, "Total Minutes");
+  addMetric(data.total_seconds, "Total Seconds");
+
+  livedCard.appendChild(livedGrid);
+  out.appendChild(livedCard);
 }
 
 main();

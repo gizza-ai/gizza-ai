@@ -35,16 +35,22 @@ handled correctly.
 
 ### FAQ
 
-**How is age in months and days calculated?** First whole years are counted (you
-only gain a year once your birthday has passed), then whole months past that, then
-the leftover days — so the breakdown always sums back to your birthdate.
+<details>
+<summary>How is age in months and days calculated?</summary>
+<p>First whole years are counted (you only gain a year once your birthday has passed), then whole months past that, then the leftover days — so the breakdown always sums back to your birthdate.</p>
+</details>
 
-**What happens with a Feb 29 birthday?** In years that are not leap years your
-birthday is treated as Feb 28 for counting purposes, and the next-birthday date
-falls back to Feb 28 too.
+<details>
+<summary>What happens with a Feb 29 birthday?</summary>
+<p>In years that are not leap years your birthday is treated as Feb 28 for counting purposes, and the next-birthday date falls back to Feb 28 too.</p>
+</details>
 
-**Does it handle time zones?** Dates are compared as wall-clock values. If you
-paste a timestamp with an offset (`Z` or `+02:00`), only the date part is used.
+<details>
+<summary>Does it handle time zones?</summary>
+<p>Dates are compared as wall-clock values. If you paste a timestamp with an offset (`Z` or `+02:00`), only the date part is used.</p>
+</details>
 
-**Is my date of birth sent anywhere?** No. The calculation happens entirely in
-your browser; nothing is uploaded.
+<details>
+<summary>Is my date of birth sent anywhere?</summary>
+<p>No. The calculation happens entirely in your browser; nothing is uploaded.</p>
+</details>
