@@ -11,7 +11,7 @@ export default defineConfig({
     // WebLLM requires WebGPU, which isn't available in headless Chromium on
     // Linux. Run headed so the LLM can load. CI will need a real GPU or an
     // env-var override to flip back to headless + skip the LLM steps.
-    headless: false,
+    headless: process.env.HEADED ? false : true,
     // Service workers work most reliably in Chromium.
     // The pkg/ bundle is browser-WASM + SW-based.
   },

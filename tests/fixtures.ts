@@ -19,8 +19,7 @@ export const test = base.extend<object, { persistentContext: BrowserContext }>({
   persistentContext: [
     async ({}, use) => {
       const ctx = await chromium.launchPersistentContext(USER_DATA_DIR, {
-        // WebGPU isn't available in headless Chromium on Linux.
-        headless: false,
+        headless: process.env.HEADED ? false : true,
       });
       await use(ctx);
       await ctx.close();
