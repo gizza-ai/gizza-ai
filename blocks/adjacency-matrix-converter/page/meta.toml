@@ -38,3 +38,9 @@ source      = "field"
 name        = "weighted"
 label       = "Weighted"
 source      = "field"
+
+[[input]]
+name        = "power"
+label       = "Matrix Power (k)"
+placeholder = "2"
+source      = "field"

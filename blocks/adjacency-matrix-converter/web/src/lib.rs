@@ -5,9 +5,10 @@ use wasm_bindgen::prelude::*;
 
 /// Convert a graph between an edge list / adjacency matrix / incidence matrix.
 ///
-/// - `from`: `"edges"` (default) | `"adjacency"`.
-/// - `to`: `"adjacency"` (default) | `"incidence"` | `"edges"`.
+/// - `from`: `"auto"` (default) | `"edges"` | `"adjacency"` | `"list"` | `"incidence"`.
+/// - `to`: `"adjacency"` (default) | `"incidence"` | `"edges"` | `"list"` | `"degree"` | `"laplacian"` | `"stats"` | `"power"`.
 /// - `directed` / `weighted`: `"true"`/`"1"`/`"yes"`/`"on"` → on; else off.
+/// - `power`: Matrix exponent k (default 2).
 #[wasm_bindgen]
 pub fn run(
     input: &str,
@@ -15,15 +16,18 @@ pub fn run(
     to: &str,
     directed: &str,
     weighted: &str,
+    power: &str,
 ) -> Result<String, JsValue> {
     let truthy =
         |s: &str| matches!(s.trim().to_ascii_lowercase().as_str(), "true" | "1" | "yes" | "on");
+    let p = power.trim().parse::<i64>().unwrap_or(2);
     gizza_ai_adjacency_matrix_converter_core::convert(
         input,
         from,
         to,
         truthy(directed),
         truthy(weighted),
+        p,
     )
     .map_err(|e| JsValue::from_str(&e))
 }

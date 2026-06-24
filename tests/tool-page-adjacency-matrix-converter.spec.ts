@@ -59,3 +59,35 @@ test('adjacency-matrix-converter query-param deep-link prefills + computes', asy
     { timeout: 15000 },
   );
 });
+
+test('adjacency-matrix-converter auto-detect edges -> adjacency', async ({ page }) => {
+  await page.goto('/tools/adjacency-matrix-converter/');
+  await page.fill('#in-input', 'A -> B\nB -> C');
+  await page.selectOption('#in-from', 'auto');
+  await page.check('#in-directed');
+  await expect(page.locator('#tool-output')).toHaveText(
+    'A B C A 0 1 0 B 0 0 1 C 0 0 0',
+    { timeout: 15000 },
+  );
+});
+
+test('adjacency-matrix-converter list -> stats', async ({ page }) => {
+  await page.goto('/tools/adjacency-matrix-converter/');
+  await page.fill('#in-input', 'A: B C\nB: A C\nC: A B');
+  await page.selectOption('#in-from', 'list');
+  await page.selectOption('#in-to', 'stats');
+  await expect(page.locator('#tool-output')).toContainText('Vertices: 3', { timeout: 15000 });
+  await expect(page.locator('#tool-output')).toContainText('Edges: 3', { timeout: 15000 });
+  await expect(page.locator('#tool-output')).toContainText('Connected: Yes', { timeout: 15000 });
+});
+
+test('adjacency-matrix-converter edges -> power 3', async ({ page }) => {
+  await page.goto('/tools/adjacency-matrix-converter/');
+  await page.fill('#in-input', 'A B\nB C\nA C');
+  await page.selectOption('#in-to', 'power');
+  await page.fill('#in-power', '3');
+  await expect(page.locator('#tool-output')).toHaveText(
+    'A B C A 2 3 3 B 3 2 3 C 3 3 2',
+    { timeout: 15000 },
+  );
+});

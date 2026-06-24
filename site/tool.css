@@ -30,7 +30,7 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-output.error { background: #fef2f2; color: #b91c1c; font-size: 14px; font-weight: 600; }
 
 .tool-content { max-width: 720px; margin: 28px auto 0; line-height: 1.6; color: #374151; }
-.tool-content h2 { font-size: 20px; margin-top: 24px; }
+.tool-content h2 { font-size: 20px; margin-top: 24px; margin-bottom: 8px; }
 .tool-content h3 { font-size: 16px; margin-top: 18px; }
 .tool-content code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: .9em; }
 .tool-content table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 14px; }
@@ -54,3 +54,495 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-output-download { display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 600;
   color: var(--tool-accent); text-decoration: underline; }
 .tool-output-download[hidden] { display: none; }
+
+/* Timezone Converter custom UI styles */
+.tz-active-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.tz-target-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.tz-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tz-card-zone {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4f46e5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+}
+.tz-card-time {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+.tz-card-date {
+  font-size: 13px;
+  color: #64748b;
+}
+.tz-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.tz-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.tz-badge-offset {
+  background: #f1f5f9;
+  color: #475569;
+}
+.tz-badge-dst {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.tz-badge-diff {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.tz-planner-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+  margin-top: 10px;
+}
+.tz-planner-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.tz-planner-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.tz-planner-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+.tz-planner-table th, .tz-planner-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.tz-planner-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+.tz-planner-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.tz-planner-row:hover {
+  background-color: #f8fafc;
+}
+.tz-planner-row.selected {
+  background-color: #eef2ff !important;
+}
+.tz-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-align: center;
+}
+.tz-status-business {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+.tz-status-leisure {
+  background-color: #fffbeb;
+  color: #b45309;
+}
+.tz-status-rest {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+/* Layout wrapper for 2-column inputs */
+.tz-inputs-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+}
+
+.tz-left-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tz-right-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Hidden raw to input */
+#in-to {
+  display: none !important;
+}
+
+/* Tags UI */
+.tz-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  align-items: center;
+}
+
+.tz-tags-placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.tz-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  color: #4f46e5;
+  border: 1px solid #c7d2fe;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tz-tag-del {
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 16px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.tz-tag-del:hover {
+  color: #ef4444;
+}
+
+/* Autocomplete search input & add button row */
+.tz-input-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tz-search-input {
+  margin: 0 !important;
+  flex: 1;
+}
+
+.tz-add-btn {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tz-add-btn:hover {
+  background: #4338ca;
+}
+
+/* Reset button styling */
+.tz-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+  margin-top: 4px;
+}
+
+.tz-reset-btn:hover {
+  color: #4f46e5;
+}
+
+.tz-reset-btn svg {
+  transition: transform 0.3s;
+}
+
+.tz-reset-btn:hover svg {
+  transform: rotate(-180deg);
+}
+
+/* Responsive collapse on mobile */
+@media (max-width: 640px) {
+  .tz-inputs-wrapper {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Premium Accordion Styling (FAQ details/summary) */
+.tool-content details {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.tool-content details[open] {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.tool-content summary {
+  padding: 14px 16px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  list-style: none; /* Hide default triangle */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.tool-content summary:hover {
+  background-color: #f1f5f9;
+}
+
+/* Custom indicator icon */
+.tool-content summary::after {
+  content: "+";
+  font-size: 18px;
+  font-weight: 500;
+  color: #64748b;
+  transition: transform 0.2s;
+}
+
+.tool-content details[open] summary::after {
+  content: "\u2212"; /* minus sign */
+}
+
+/* Hide standard details marker in Safari */
+.tool-content summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Slide padding for open details content */
+.tool-content details > p, 
+.tool-content details > div {
+  padding: 14px 16px;
+  margin: 0;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Age Calculator Styles */
+.age-inputs-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.age-inputs-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.age-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  height: 42px;
+  margin-top: 6px;
+}
+
+.age-reset-btn:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.age-active-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.age-result-hero {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  border: 1px solid #a5b4fc;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.age-result-hero-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4f46e5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.age-result-hero-text {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e1b4b;
+  line-height: 1.25;
+}
+
+.age-result-hero-text span {
+  color: #4f46e5;
+}
+
+.age-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.age-info-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.age-info-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 6px;
+}
+
+.age-info-card-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.age-info-card-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Lived Metrics Grid */
+.age-lived-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.age-lived-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
+}
+
+.age-lived-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .age-lived-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.age-lived-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.age-lived-item-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.age-lived-item-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+
+
+

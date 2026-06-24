@@ -59,7 +59,17 @@ Follow these phases in order:
    - **Copy/SEO:** `page/content.md` + `page/meta.toml` — original copy, examples, FAQ, tags,
      title/description.
    - **UX/layout:** the page's input/output presentation (grouping, presets, preview), in sync
-     with the web export params.
+     with the web export params. **MANDATORY Usability Standards**:
+     1. **Smart Defaults**: Any date, time, or datetime input MUST default to the user's current local date/time (e.g. via JavaScript formatting) if empty.
+     2. **Context Detection**: Always detect user context (e.g. local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`) to pre-fill inputs like source timezone.
+     3. **Searchable Autocomplete/Dropdowns**: Fields with standard sets of values (e.g. timezones, country codes, formats, currencies) MUST NOT be raw text inputs. Use a searchable dropdown (e.g. HTML5 `<datalist>` or `<select>`) to prevent manual text entry.
+     4. **Native Date/Time Selectors**: Avoid raw text fields for dates, times, or datetimes. Swap them dynamically to native picker types (like `<input type="datetime-local">`, `date`, or `time`) to give users native calendars/time picker popovers.
+     5. **Tag-Pill UI for Comma-Separated Lists**: If a field accepts a list of items (e.g. comma-separated target zones), do not make the user type it. Build a tag-pill list UI displaying selected values as badges with "x" close buttons, paired with a search input to select and add new tags.
+     6. **Layout Stability (No Resizing Bounces)**: Do not dynamically shrink or bounce the container's width on errors, empty inputs, or keypress transitions. Ensure input boxes do not jump or resize under the user's typing cursor.
+     7. **Clear Reset Button**: Provide a visible, styled "Reset to Defaults" button or link to let users clear input fields or restore initial values with one click.
+     8. **FAQ Accordion Elements**: Convert FAQ sections into interactive, collapsible `<details>` and `<summary>` accordions featuring premium styling (hover effects, smooth transitions, custom plus/minus indicator icons). The content inside `<details>` MUST be wrapped in a `<p>` or `<div>` tag to ensure proper background, border-top, and padding styles apply.
+     9. **Sleek Custom Scrollbars**: Any container with scrollable overflow (especially dark code blocks like terminal CLI instructions) MUST be styled with custom scrollbar properties (`scrollbar-width: thin; scrollbar-color: ...` and corresponding webkit-scrollbar elements) that match the background theme, preventing default browser scrollbars from clipping bottom rounded corners.
+     10. **Grouped Developer/CLI Blocks**: Group developer-facing CLI terminal instructions and URL deep-links under a single `.tool-dev-group` card section styled as a multi-column grid on desktop screens. Set explicit bottom margins (e.g. `8px`) on `h2` headers for consistent typography layout hierarchy.
    - **Visual design:** page styling, consistent with the shared `gizza-chrome`. Original only.
    - **Drift-guard:** REGENERATE the `authored` schema literal in the block's drift-guard test
      to the new descriptor (do NOT keep the old). Record the before→after schema diff for the

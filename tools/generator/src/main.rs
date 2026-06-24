@@ -51,11 +51,14 @@ fn run() -> Result<(), String> {
             .map_err(|e| format!("write index.md: {e}"))?;
 
         let web_pkg = tool_dir.join("web/pkg");
-        copy_file(&web_pkg.join(format!("{}.js", m.wasm)), &out.join(format!("{}.js", m.wasm)))?;
-        copy_file(
-            &web_pkg.join(format!("{}_bg.wasm", m.wasm)),
-            &out.join(format!("{}_bg.wasm", m.wasm)),
-        )?;
+        let js_path = web_pkg.join(format!("{}.js", m.wasm));
+        let wasm_path = web_pkg.join(format!("{}_bg.wasm", m.wasm));
+        if js_path.is_file() && wasm_path.is_file() {
+            copy_file(&js_path, &out.join(format!("{}.js", m.wasm)))?;
+            copy_file(&wasm_path, &out.join(format!("{}_bg.wasm", m.wasm)))?;
+        } else {
+            eprintln!("warning: web/pkg not found for {} (skipping WASM copy)", m.slug);
+        }
 
         copy_file(&root.join("site/tool.js"), &out.join("tool.js"))?;
         copy_file(&root.join("js/query-prefill.js"), &out.join("query-prefill.js"))?;

@@ -143,21 +143,26 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                     section class="tool-content" {
                         (PreEscaped(content_html))
                     }
-                    section class="tool-cli" {
-                        h2 { "Run it from the terminal" }
-                        p { "Same engine as this page, headless — via the gizza CLI:" }
-                        pre class="tool-cli-code" { code { (cli_example) } }
-                        p class="tool-cli-note" {
-                            "New to the CLI? "
-                            a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
-                                target="_blank" rel="noopener noreferrer" { "Get gizza →" }
-                        }
-                    }
-                    @if meta.inputs.iter().any(|i| i.source == "field" || i.source == "file") {
-                        section class="tool-cli" {
-                            h2 { "Open it by URL" }
-                            p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
-                            pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
+                    section class="tool-dev-group" {
+                        h2 { "Developer & Automation Access" }
+                        div class="tool-dev-grid" {
+                            div class="tool-cli-card" {
+                                h3 { "Run it from the terminal" }
+                                p { "Same engine as this page, headless — via the gizza CLI:" }
+                                pre class="tool-cli-code" { code { (cli_example) } }
+                                p class="tool-cli-note" {
+                                    "New to the CLI? "
+                                    a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
+                                        target="_blank" rel="noopener noreferrer" { "Get gizza →" }
+                                }
+                            }
+                            @if meta.inputs.iter().any(|i| i.source == "field" || i.source == "file") {
+                                div class="tool-cli-card" {
+                                    h3 { "Open it by URL" }
+                                    p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
+                                    pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
+                                }
+                            }
                         }
                     }
                 }
@@ -172,12 +177,19 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
 
 /// Inline styles for the per-tool "Run it from the terminal" CLI block.
 const TOOL_CLI_CSS: &str = r#"
-.tool-cli { max-width: 720px; margin: 40px auto 64px; }
-.tool-cli h2 { font-size: 1.15rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
-.tool-cli > p { color: var(--tool-muted, #6b7280); margin: 0 0 12px; }
-.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; }
+.tool-dev-group { max-width: 720px; margin: 48px auto 64px; }
+.tool-dev-group h2 { font-size: 1.3rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+.tool-dev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.tool-cli-card { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; }
+.tool-cli-card h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
+.tool-cli-card > p { color: var(--tool-muted, #6b7280); font-size: 0.9rem; margin: 0 0 12px; }
+.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; scrollbar-width: thin; scrollbar-color: #334155 #0f172a; }
+.tool-cli-code::-webkit-scrollbar { height: 8px; }
+.tool-cli-code::-webkit-scrollbar-track { background: #0f172a; border-radius: 0 0 10px 10px; }
+.tool-cli-code::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+.tool-cli-code::-webkit-scrollbar-thumb:hover { background: #475569; }
 .tool-cli-code code { color: inherit; background: none; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-.tool-cli-note { font-size: .85rem; margin: 18px 0 0; color: var(--tool-muted, #6b7280); }
+.tool-cli-note { font-size: .85rem; margin: 12px 0 0; color: var(--tool-muted, #6b7280); margin-top: auto; padding-top: 10px; }
 "#;
 
 /// Inline styles for the `/tools/` landing grid (uses the `--tool-*` tokens
