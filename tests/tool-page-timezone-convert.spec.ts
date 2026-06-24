@@ -3,9 +3,14 @@ import { test, expect } from './fixtures';
 // /tools/timezone-convert/ converts a wall-clock time between IANA zones (pure wasm).
 test('timezone-convert converts New York to Tokyo', async ({ page }) => {
   await page.goto('/tools/timezone-convert/');
-  await page.fill('#in-datetime', '2024-01-10 14:30');
+  await page.fill('#in-datetime', '2024-01-10T14:30');
   await page.fill('#in-from', 'America/New_York');
-  await page.fill('#in-to', 'Asia/Tokyo');
+  
+  // Remove default UTC target tag
+  await page.locator('.tz-tag-del').first().click();
+  
+  // Add Asia/Tokyo target tag
+  await page.fill('#tz-search-input', 'Asia/Tokyo');
   
   const out = page.locator('#tool-output');
   // Check that the beautiful target card is rendered
@@ -24,9 +29,14 @@ test('timezone-convert converts New York to Tokyo', async ({ page }) => {
 
 test('timezone-convert handles a half-hour zone (India)', async ({ page }) => {
   await page.goto('/tools/timezone-convert/');
-  await page.fill('#in-datetime', '2024-06-01 00:00');
+  await page.fill('#in-datetime', '2024-06-01T00:00');
   await page.fill('#in-from', 'UTC');
-  await page.fill('#in-to', 'Asia/Kolkata');
+  
+  // Remove default UTC target tag
+  await page.locator('.tz-tag-del').first().click();
+  
+  // Add Asia/Kolkata
+  await page.fill('#tz-search-input', 'Asia/Kolkata');
   
   const out = page.locator('#tool-output');
   await expect(out.locator('.tz-card-zone')).toContainText('Asia/Kolkata', { timeout: 15000 });
@@ -36,9 +46,8 @@ test('timezone-convert handles a half-hour zone (India)', async ({ page }) => {
 
 test('timezone-convert rejects an unknown zone', async ({ page }) => {
   await page.goto('/tools/timezone-convert/');
-  await page.fill('#in-datetime', '2024-01-10 14:30');
+  await page.fill('#in-datetime', '2024-01-10T14:30');
   await page.fill('#in-from', 'Mars/Olympus');
-  await page.fill('#in-to', 'UTC');
   
   const out = page.locator('#tool-output');
   await expect(out).toContainText('unknown source timezone', { timeout: 15000 });
@@ -51,23 +60,28 @@ test('timezone-convert query-param deep-link prefills + computes', async ({ page
       '&from=' + encodeURIComponent('America/New_York') +
       '&to=' + encodeURIComponent('Asia/Tokyo'),
   );
-  await expect(page.locator('#in-datetime')).toHaveValue('2024-01-10 14:30', {
+  // Timezone input normalizes space to T for datetime-local
+  await expect(page.locator('#in-datetime')).toHaveValue('2024-01-10T14:30', {
     timeout: 15000,
   });
-  await expect(page.locator('#in-to')).toHaveValue('Asia/Tokyo');
   
   const out = page.locator('#tool-output');
   await expect(out.locator('.tz-card-zone')).toContainText('Asia/Tokyo', { timeout: 15000 });
   await expect(out.locator('.tz-card-time')).toContainText('04:30:00');
 });
 
-test('timezone-convert supports lenient parsing and multi-target planner', async ({ page }) => {
+test('timezone-convert supports multi-target planner', async ({ page }) => {
   await page.goto('/tools/timezone-convert/');
   
-  // Test slash and AM/PM parsing
-  await page.fill('#in-datetime', '2024/03/10 2:30 PM');
+  await page.fill('#in-datetime', '2024-03-10T14:30');
   await page.fill('#in-from', 'America/New_York');
-  await page.fill('#in-to', 'Asia/Tokyo, Europe/London');
+  
+  // Remove default UTC target tag
+  await page.locator('.tz-tag-del').first().click();
+  
+  // Add multiple target timezones
+  await page.fill('#tz-search-input', 'Asia/Tokyo');
+  await page.fill('#tz-search-input', 'Europe/London');
   
   const out = page.locator('#tool-output');
   
@@ -86,23 +100,22 @@ test('timezone-convert supports lenient parsing and multi-target planner', async
   
   // The row corresponding to source 14:30 (hour 14) should be highlighted
   const selectedRow = table.locator('.tz-planner-row.selected');
-  await expect(selectedRow.locator('td').nth(0)).toContainText('14:00'); // Midnight base to hourly index
+  await expect(selectedRow.locator('td').nth(0)).toContainText('14:00');
 });
 
 test('timezone-convert page has smart defaults on load', async ({ page }) => {
   await page.goto('/tools/timezone-convert/');
   
-  // Datetime input should be pre-filled and match the format YYYY-MM-DD HH:MM
+  // Datetime input should be pre-filled and match the format YYYY-MM-DDTHH:MM
   const dtVal = await page.inputValue('#in-datetime');
-  expect(dtVal).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+  expect(dtVal).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
   
   // From input should default to browser timezone or fallback
   const fromVal = await page.inputValue('#in-from');
   expect(fromVal.length).toBeGreaterThan(0);
   
-  // To input should default to UTC
-  const toVal = await page.inputValue('#in-to');
-  expect(toVal).toBe('UTC');
+  // The tag container should display UTC initially
+  await expect(page.locator('.tz-tag-pill')).toContainText('UTC');
   
   // The targets grid/card and planner table should render automatically without clicking run
   const out = page.locator('#tool-output');
@@ -110,4 +123,3 @@ test('timezone-convert page has smart defaults on load', async ({ page }) => {
   await expect(out.locator('.tz-card-time')).toBeVisible();
   await expect(out.locator('.tz-planner-table')).toBeVisible();
 });
-

@@ -23,7 +23,7 @@ function showResult(value) {
 
 function showError(message) {
   const widget = document.querySelector(".tool-widget");
-  if (widget) {
+  if (widget && cfg.slug !== "timezone-convert") {
     widget.style.maxWidth = "380px";
   }
   out.classList.add("error");
@@ -322,7 +322,7 @@ async function main() {
       const empty = hasField && gatherArgs().every((a) => a === "" || a == null);
       if (empty) {
         const widget = document.querySelector(".tool-widget");
-        if (widget) {
+        if (widget && cfg.slug !== "timezone-convert") {
           widget.style.maxWidth = "380px";
         }
         out.classList.remove("error");
@@ -359,36 +359,44 @@ async function main() {
 }
 
 function setupTimezoneConvertDefaults() {
+  const widget = document.querySelector(".tool-widget");
+  if (widget) {
+    widget.style.maxWidth = "760px";
+  }
+
   const dtInput = document.getElementById("in-datetime");
   const fromInput = document.getElementById("in-from");
   const toInput = document.getElementById("in-to");
+  
+  const dtLabel = document.querySelector('label[for="in-datetime"]');
+  const fromLabel = document.querySelector('label[for="in-from"]');
+  const toLabel = document.querySelector('label[for="in-to"]');
+
+  const timezones = [
+    "UTC", "GMT",
+    "Africa/Cairo", "Africa/Johannesburg", "Africa/Lagos", "Africa/Nairobi",
+    "America/Anchorage", "America/Argentina/Buenos_Aires", "America/Bogota",
+    "America/Chicago", "America/Denver", "America/Halifax", "America/Los_Angeles",
+    "America/Mexico_City", "America/New_York", "America/Phoenix", "America/Santiago",
+    "America/Sao_Paulo", "America/St_Johns", "America/Toronto", "America/Vancouver",
+    "Asia/Bangkok", "Asia/Dubai", "Asia/Hong_Kong", "Asia/Jakarta", "Asia/Jerusalem",
+    "Asia/Kabul", "Asia/Kolkata", "Asia/Kathmandu", "Asia/Manila", "Asia/Riyadh",
+    "Asia/Seoul", "Asia/Shanghai", "Asia/Singapore", "Asia/Taipei", "Asia/Tashkent",
+    "Asia/Tehran", "Asia/Tokyo", "Atlantic/Azores",
+    "Australia/Adelaide", "Australia/Brisbane", "Australia/Darwin", "Australia/Hobart",
+    "Australia/Melbourne", "Australia/Perth", "Australia/Sydney",
+    "Europe/Amsterdam", "Europe/Athens", "Europe/Belgrade", "Europe/Berlin",
+    "Europe/Brussels", "Europe/Budapest", "Europe/Copenhagen", "Europe/Dublin",
+    "Europe/Helsinki", "Europe/Istanbul", "Europe/Lisbon", "Europe/London",
+    "Europe/Madrid", "Europe/Moscow", "Europe/Oslo", "Europe/Paris", "Europe/Prague",
+    "Europe/Rome", "Europe/Stockholm", "Europe/Vienna", "Europe/Warsaw", "Europe/Zurich",
+    "Pacific/Auckland", "Pacific/Chatham", "Pacific/Fiji", "Pacific/Honolulu"
+  ];
 
   // Create datalist if it doesn't exist
   if (!document.getElementById("tz-list")) {
     const dl = document.createElement("datalist");
     dl.id = "tz-list";
-    
-    const timezones = [
-      "UTC", "GMT",
-      "Africa/Cairo", "Africa/Johannesburg", "Africa/Lagos", "Africa/Nairobi",
-      "America/Anchorage", "America/Argentina/Buenos_Aires", "America/Bogota",
-      "America/Chicago", "America/Denver", "America/Halifax", "America/Los_Angeles",
-      "America/Mexico_City", "America/New_York", "America/Phoenix", "America/Santiago",
-      "America/Sao_Paulo", "America/St_Johns", "America/Toronto", "America/Vancouver",
-      "Asia/Bangkok", "Asia/Dubai", "Asia/Hong_Kong", "Asia/Jakarta", "Asia/Jerusalem",
-      "Asia/Kabul", "Asia/Kolkata", "Asia/Kathmandu", "Asia/Manila", "Asia/Riyadh",
-      "Asia/Seoul", "Asia/Shanghai", "Asia/Singapore", "Asia/Taipei", "Asia/Tashkent",
-      "Asia/Tehran", "Asia/Tokyo", "Atlantic/Azores",
-      "Australia/Adelaide", "Australia/Brisbane", "Australia/Darwin", "Australia/Hobart",
-      "Australia/Melbourne", "Australia/Perth", "Australia/Sydney",
-      "Europe/Amsterdam", "Europe/Athens", "Europe/Belgrade", "Europe/Berlin",
-      "Europe/Brussels", "Europe/Budapest", "Europe/Copenhagen", "Europe/Dublin",
-      "Europe/Helsinki", "Europe/Istanbul", "Europe/Lisbon", "Europe/London",
-      "Europe/Madrid", "Europe/Moscow", "Europe/Oslo", "Europe/Paris", "Europe/Prague",
-      "Europe/Rome", "Europe/Stockholm", "Europe/Vienna", "Europe/Warsaw", "Europe/Zurich",
-      "Pacific/Auckland", "Pacific/Chatham", "Pacific/Fiji", "Pacific/Honolulu"
-    ];
-
     timezones.forEach((tz) => {
       const opt = document.createElement("option");
       opt.value = tz;
@@ -399,18 +407,23 @@ function setupTimezoneConvertDefaults() {
 
   // Attach datalist to inputs
   if (fromInput) fromInput.setAttribute("list", "tz-list");
-  if (toInput) toInput.setAttribute("list", "tz-list");
 
-  // Format current local time: YYYY-MM-DD HH:MM
+  if (dtInput) {
+    dtInput.type = "datetime-local";
+  }
+
+  // Format current local time: YYYY-MM-DDTHH:MM
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
-  const localDateTimeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const localDateTimeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
   // Apply default values if empty and not prefilled by URL query params
   const params = new URLSearchParams(location.search);
   
   if (dtInput && !dtInput.value && !params.has("datetime")) {
     dtInput.value = localDateTimeStr;
+  } else if (dtInput && dtInput.value && dtInput.value.includes(" ")) {
+    dtInput.value = dtInput.value.replace(" ", "T");
   }
   
   if (fromInput && !fromInput.value && !params.has("from")) {
@@ -428,6 +441,180 @@ function setupTimezoneConvertDefaults() {
 
   if (toInput && !toInput.value && !params.has("to")) {
     toInput.value = "UTC";
+  }
+
+  // Rearrange DOM into two-column layout
+  if (widget && dtInput && fromInput && toInput) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "tz-inputs-wrapper";
+
+    const leftCol = document.createElement("div");
+    leftCol.className = "tz-left-inputs";
+    
+    if (dtLabel && dtInput) {
+      const group = document.createElement("div");
+      group.appendChild(dtLabel);
+      group.appendChild(dtInput);
+      leftCol.appendChild(group);
+    }
+    if (fromLabel && fromInput) {
+      const group = document.createElement("div");
+      group.appendChild(fromLabel);
+      group.appendChild(fromInput);
+      leftCol.appendChild(group);
+    }
+
+    const resetBtn = document.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.id = "tz-reset-btn";
+    resetBtn.className = "tz-reset-btn";
+    resetBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Reset to Defaults`;
+    leftCol.appendChild(resetBtn);
+
+    const rightCol = document.createElement("div");
+    rightCol.className = "tz-right-inputs";
+
+    if (toLabel) {
+      rightCol.appendChild(toLabel);
+    }
+    rightCol.appendChild(toInput); // Hidden via CSS
+
+    const tagsContainer = document.createElement("div");
+    tagsContainer.className = "tz-tags-list";
+    rightCol.appendChild(tagsContainer);
+
+    const addRow = document.createElement("div");
+    addRow.className = "tz-input-add-row";
+
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.id = "tz-search-input";
+    searchInput.className = "tool-input tz-search-input";
+    searchInput.placeholder = "Type & select timezone...";
+    searchInput.setAttribute("list", "tz-list");
+    searchInput.autocomplete = "off";
+    addRow.appendChild(searchInput);
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.id = "tz-add-btn";
+    addBtn.className = "tz-add-btn";
+    addBtn.textContent = "Add";
+    addRow.appendChild(addBtn);
+
+    rightCol.appendChild(addRow);
+    
+    wrapper.appendChild(leftCol);
+    wrapper.appendChild(rightCol);
+
+    // Insert wrapper at the top of the widget
+    widget.insertBefore(wrapper, widget.firstChild);
+
+    // Tags rendering
+    function renderTags(targets) {
+      tagsContainer.innerHTML = "";
+      if (targets.length === 0) {
+        const placeholder = document.createElement("div");
+        placeholder.className = "tz-tags-placeholder";
+        placeholder.textContent = "No target zones added yet.";
+        tagsContainer.appendChild(placeholder);
+        return;
+      }
+
+      targets.forEach((tz) => {
+        const pill = document.createElement("span");
+        pill.className = "tz-tag-pill";
+        pill.textContent = tz + " ";
+
+        const delBtn = document.createElement("span");
+        delBtn.className = "tz-tag-del";
+        delBtn.innerHTML = "&times;";
+        delBtn.addEventListener("click", () => {
+          let current = toInput.value.split(",")
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+          current = current.filter(t => t !== tz);
+          toInput.value = current.join(", ");
+          renderTags(current);
+          toInput.dispatchEvent(new Event("change"));
+        });
+
+        pill.appendChild(delBtn);
+        tagsContainer.appendChild(pill);
+      });
+    }
+
+    // Add timezone handler
+    function addTargetTimezone(tzName) {
+      tzName = tzName.trim();
+      if (!tzName) return;
+
+      const matchedTz = timezones.find(t => t.toLowerCase() === tzName.toLowerCase());
+      if (!matchedTz) return;
+
+      let targets = toInput.value.split(",")
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      if (!targets.includes(matchedTz)) {
+        targets.push(matchedTz);
+        toInput.value = targets.join(", ");
+        renderTags(targets);
+        toInput.dispatchEvent(new Event("change"));
+      }
+    }
+
+    // Initialize tags
+    const initialTargets = toInput.value.split(",")
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+    renderTags(initialTargets);
+
+    // Wire add button
+    addBtn.addEventListener("click", () => {
+      addTargetTimezone(searchInput.value);
+      searchInput.value = "";
+    });
+
+    // Wire enter key on search input
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addTargetTimezone(searchInput.value);
+        searchInput.value = "";
+      }
+    });
+
+    // Automatically add if a matching option is entered (e.g. clicked from datalist)
+    searchInput.addEventListener("input", () => {
+      const val = searchInput.value.trim();
+      const matchedTz = timezones.find(t => t.toLowerCase() === val.toLowerCase());
+      if (matchedTz && val.length === matchedTz.length) {
+        addTargetTimezone(val);
+        searchInput.value = "";
+      }
+    });
+
+    // Wire reset button
+    resetBtn.addEventListener("click", () => {
+      dtInput.value = localDateTimeStr;
+      try {
+        const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        fromInput.value = userTz || "America/New_York";
+      } catch (e) {
+        fromInput.value = "America/New_York";
+      }
+      toInput.value = "UTC";
+      renderTags(["UTC"]);
+      
+      // Clear search input
+      searchInput.value = "";
+
+      // Trigger change to recalculate
+      dtInput.dispatchEvent(new Event("input"));
+      fromInput.dispatchEvent(new Event("input"));
+      toInput.dispatchEvent(new Event("change"));
+    });
   }
 }
 
