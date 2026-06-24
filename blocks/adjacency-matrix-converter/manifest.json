@@ -11,10 +11,11 @@
       "required": ["input"],
       "properties": {
         "input": { "type": "string" },
-        "from": { "type": "string", "enum": ["edges", "adjacency"], "default": "edges" },
-        "to": { "type": "string", "enum": ["adjacency", "incidence", "edges", "list", "degree", "laplacian"], "default": "adjacency" },
+        "from": { "type": "string", "enum": ["auto", "edges", "adjacency", "list", "incidence"], "default": "auto" },
+        "to": { "type": "string", "enum": ["adjacency", "incidence", "edges", "list", "degree", "laplacian", "stats", "power"], "default": "adjacency" },
         "directed": { "type": "boolean", "default": false },
-        "weighted": { "type": "boolean", "default": false }
+        "weighted": { "type": "boolean", "default": false },
+        "power": { "type": "integer", "default": 2 }
       },
       "additionalProperties": false
     }

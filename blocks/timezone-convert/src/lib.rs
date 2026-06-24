@@ -23,7 +23,7 @@ fn descriptor() -> ToolDescriptor {
         .param(
             Param::string("datetime")
                 .required()
-                .describe("The wall-clock date/time to convert, in the 'from' zone. ISO form, e.g. '2024-03-10 14:30' or '2024-03-10T14:30:00' (date-only assumes midnight). Do NOT include a 'Z' or offset — the zone is given by 'from'."),
+                .describe("The wall-clock date/time to convert, in the 'from' zone. Supports ISO formats (e.g. '2024-03-10 14:30'), slash separators (e.g. '2024/03/10'), and AM/PM time (e.g. '2:30 PM' or '2:30PM'). Date-only assumes midnight. Do NOT include a 'Z' or offset."),
         )
         .param(
             Param::string("from")
@@ -33,7 +33,7 @@ fn descriptor() -> ToolDescriptor {
         .param(
             Param::string("to")
                 .required()
-                .describe("Target IANA timezone name, e.g. 'Asia/Kolkata', 'Australia/Sydney', or 'UTC'."),
+                .describe("Target IANA timezone name (or comma-separated list, e.g. 'Asia/Kolkata, Europe/London, UTC')."),
         )
 }
 
@@ -79,9 +79,9 @@ mod tests {
             r#"{
                 "type": "object",
                 "properties": {
-                    "datetime": { "type": "string", "description": "The wall-clock date/time to convert, in the 'from' zone. ISO form, e.g. '2024-03-10 14:30' or '2024-03-10T14:30:00' (date-only assumes midnight). Do NOT include a 'Z' or offset — the zone is given by 'from'." },
+                    "datetime": { "type": "string", "description": "The wall-clock date/time to convert, in the 'from' zone. Supports ISO formats (e.g. '2024-03-10 14:30'), slash separators (e.g. '2024/03/10'), and AM/PM time (e.g. '2:30 PM' or '2:30PM'). Date-only assumes midnight. Do NOT include a 'Z' or offset." },
                     "from": { "type": "string", "description": "Source IANA timezone name, e.g. 'America/New_York', 'Europe/London', 'Asia/Tokyo', or 'UTC'." },
-                    "to": { "type": "string", "description": "Target IANA timezone name, e.g. 'Asia/Kolkata', 'Australia/Sydney', or 'UTC'." }
+                    "to": { "type": "string", "description": "Target IANA timezone name (or comma-separated list, e.g. 'Asia/Kolkata, Europe/London, UTC')." }
                 },
                 "required": ["datetime", "from", "to"],
                 "additionalProperties": false

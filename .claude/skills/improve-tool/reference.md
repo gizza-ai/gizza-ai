@@ -84,7 +84,10 @@ design** (page styling).
 - **Copy/SEO** — `page/content.md` (body, examples, FAQ) + `page/meta.toml`
   (title/description/tags/h1/hero). **Original copy only.**
 - **UX/layout** — page input/output presentation; keep `[[input]]` field names + order in sync
-  with the web export params.
+  with the web export params. **MANDATORY Usability Guidelines**:
+  - *Smart Defaults*: Pre-fill dates, times, and other fields with sensible defaults (e.g., current local date/time) rather than leaving them empty.
+  - *Context Detection*: Automatically detect the user's local timezone (via `Intl.DateTimeFormat().resolvedOptions().timeZone`), language, or locale to initialize fields correctly.
+  - *Searchable Autocompletes*: Avoid raw text fields for timezones, country codes, currencies, formats, or other predefined values. Dynamically inject an HTML5 `<datalist>` or custom searchable select list to let the user search and autocomplete.
 - **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
 
 ### param types across surfaces (GOTCHA — bit me on url-encode)

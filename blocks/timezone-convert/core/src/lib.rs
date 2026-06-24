@@ -8,9 +8,51 @@
 //! across spring-forward / fall-back boundaries (e.g. the day the US "springs
 //! forward" the offset to UTC changes by an hour, which this accounts for).
 
-use chrono::{Datelike, LocalResult, NaiveDateTime, TimeZone, Weekday};
+use chrono::{Datelike, LocalResult, NaiveDateTime, TimeZone, Timelike, Weekday};
 use chrono_tz::Tz;
 use serde::Serialize;
+
+/// Individual target conversion detail.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TargetConversion {
+    /// The same instant rendered in this target zone, ISO 8601 with offset.
+    pub to: String,
+    /// Canonical IANA name of this target zone.
+    pub to_zone: String,
+    /// UTC offset of this target instant, e.g. `+09:00`.
+    pub to_offset: String,
+    /// Human-friendly target rendering, e.g. `Mon, 11 Mar 2024 04:30:00`.
+    pub to_pretty: String,
+    /// English weekday of the target instant (e.g. `Monday`).
+    pub to_weekday: String,
+    /// Whether the target instant falls in DST (summer time) for its zone.
+    pub to_is_dst: bool,
+    /// Difference target − source in whole hours. Positive = target is ahead.
+    pub offset_diff_hours: f64,
+    /// Same difference expressed in minutes (handles 30/45-minute zones).
+    pub offset_diff_minutes: i64,
+    /// The instant as a Unix timestamp (seconds since the epoch, UTC).
+    pub unix: i64,
+}
+
+/// Meeting planner hourly target detail.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct PlannerTargetSlot {
+    pub to_zone: String,
+    pub to_time: String,
+    pub to_hour: u32,
+    pub to_status: String, // "Business", "Leisure", "Rest"
+}
+
+/// Meeting planner hour slot.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct PlannerSlot {
+    pub hour_index: u32,
+    pub from_time: String,
+    pub from_hour: u32,
+    pub from_status: String, // "Business", "Leisure", "Rest"
+    pub targets: Vec<PlannerTargetSlot>,
+}
 
 /// The structured result of a timezone conversion.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -19,28 +61,58 @@ pub struct Converted {
     /// (e.g. `2024-03-10T14:30:00-05:00`).
     pub from: String,
     /// The same instant rendered in the `to` zone, ISO 8601 with offset.
+    /// In case of multiple targets, matches the first target.
     pub to: String,
     /// Canonical IANA name of the source zone (e.g. `America/New_York`).
     pub from_zone: String,
     /// Canonical IANA name of the target zone.
+    /// In case of multiple targets, matches the first target.
     pub to_zone: String,
     /// UTC offset of the source instant, e.g. `-05:00`.
     pub from_offset: String,
     /// UTC offset of the target instant, e.g. `+09:00`.
+    /// In case of multiple targets, matches the first target.
     pub to_offset: String,
     /// Human-friendly target rendering, e.g. `Mon, 11 Mar 2024 04:30:00`.
+    /// In case of multiple targets, matches the first target.
     pub to_pretty: String,
     /// English weekday of the target instant (e.g. `Monday`).
+    /// In case of multiple targets, matches the first target.
     pub to_weekday: String,
     /// Whether the target instant falls in DST (summer time) for its zone.
+    /// In case of multiple targets, matches the first target.
     pub to_is_dst: bool,
-    /// Difference target − source in whole hours (may be fractional zones; see
-    /// `offset_diff_minutes` for exactness). Positive = target is ahead.
+    /// Difference target − source in whole hours. Positive = target is ahead.
+    /// In case of multiple targets, matches the first target.
     pub offset_diff_hours: f64,
     /// Same difference expressed in minutes (handles 30/45-minute zones).
+    /// In case of multiple targets, matches the first target.
     pub offset_diff_minutes: i64,
     /// The instant as a Unix timestamp (seconds since the epoch, UTC).
     pub unix: i64,
+    /// Details for all targets.
+    pub targets: Vec<TargetConversion>,
+    /// Hour-by-hour planner comparison.
+    pub meeting_planner: Vec<PlannerSlot>,
+}
+
+fn normalize_datetime_str(s: &str) -> String {
+    let mut t = s.trim().to_string();
+    t = t.replace('/', "-");
+    t = t.replacen('T', " ", 1);
+    
+    // Handle AM/PM spacing
+    let mut upper = t.to_uppercase();
+    if let Some(idx) = upper.find("AM") {
+        if idx > 0 && upper.as_bytes()[idx - 1].is_ascii_digit() {
+            upper.insert(idx, ' ');
+        }
+    } else if let Some(idx) = upper.find("PM") {
+        if idx > 0 && upper.as_bytes()[idx - 1].is_ascii_digit() {
+            upper.insert(idx, ' ');
+        }
+    }
+    upper
 }
 
 /// Parse a wall-clock date/time string into a `NaiveDateTime`.
@@ -49,6 +121,8 @@ pub struct Converted {
 ///   * `2024-03-10T14:30:00`, `2024-03-10 14:30:00`
 ///   * `2024-03-10T14:30`, `2024-03-10 14:30`
 ///   * `2024-03-10` (midnight assumed)
+///   * Slashes: `2024/03/10 14:30`
+///   * AM/PM forms: `2024-03-10 2:30 PM`, `2024-03-10 2:30PM`
 ///
 /// A trailing `Z` or numeric offset is rejected — the zone is given by the
 /// `from` argument, not the string, to keep the meaning unambiguous.
@@ -70,8 +144,13 @@ fn parse_naive(s: &str) -> Result<NaiveDateTime, String> {
         ));
     }
 
-    let normalized = t.replacen('T', " ", 1);
-    for fmt in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"] {
+    let normalized = normalize_datetime_str(t);
+    for fmt in [
+        "%Y-%m-%d %I:%M:%S %p",
+        "%Y-%m-%d %I:%M %p",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M",
+    ] {
         if let Ok(dt) = NaiveDateTime::parse_from_str(&normalized, fmt) {
             return Ok(dt);
         }
@@ -120,7 +199,17 @@ fn weekday_name(w: Weekday) -> &'static str {
     }
 }
 
-/// Convert `datetime` (a wall-clock time in `from`) into the `to` timezone.
+fn hour_status(hour: u32) -> &'static str {
+    if hour >= 22 || hour < 6 {
+        "Rest"
+    } else if hour >= 9 && hour < 17 {
+        "Business"
+    } else {
+        "Leisure"
+    }
+}
+
+/// Convert `datetime` (a wall-clock time in `from`) into target timezones `to` (comma-separated list).
 ///
 /// DST is handled by `chrono-tz`. When a local time is *ambiguous* (the fall-back
 /// hour that occurs twice) the earlier occurrence is used; when it is *skipped*
@@ -129,7 +218,6 @@ fn weekday_name(w: Weekday) -> &'static str {
 pub fn convert(datetime: &str, from: &str, to: &str) -> Result<Converted, String> {
     let naive = parse_naive(datetime)?;
     let from_tz = parse_zone(from, "source")?;
-    let to_tz = parse_zone(to, "target")?;
 
     let from_dt = match from_tz.from_local_datetime(&naive) {
         LocalResult::Single(dt) => dt,
@@ -144,32 +232,103 @@ pub fn convert(datetime: &str, from: &str, to: &str) -> Result<Converted, String
         }
     };
 
-    let to_dt = from_dt.with_timezone(&to_tz);
+    let target_zones_raw: Vec<&str> = to.split(',')
+        .map(|s| s.trim())
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    if target_zones_raw.is_empty() {
+        return Err("target timezone is empty".into());
+    }
+
+    let mut targets = Vec::new();
+    let mut resolved_targets = Vec::new();
 
     use chrono::Offset;
     let from_off = from_dt.offset().fix().local_minus_utc();
-    let to_off = to_dt.offset().fix().local_minus_utc();
-    let diff_secs = (to_off - from_off) as i64;
 
-    // DST detection: a zone is in DST when its current offset differs from its
-    // standard (January-or-July, whichever is smaller) offset. chrono-tz exposes
-    // the DST flag via the offset's `Display`, but the robust check is comparing
-    // the instant's offset to the zone's standard offset.
-    let to_is_dst = is_dst(&to_tz, &to_dt);
+    for tz_name in &target_zones_raw {
+        let to_tz = parse_zone(tz_name, "target")?;
+        let to_dt = from_dt.with_timezone(&to_tz);
+        let to_off = to_dt.offset().fix().local_minus_utc();
+        let diff_secs = (to_off - from_off) as i64;
+        let to_is_dst = is_dst(&to_tz, &to_dt);
+
+        targets.push(TargetConversion {
+            to: to_dt.format("%Y-%m-%dT%H:%M:%S%:z").to_string(),
+            to_zone: to_tz.name().to_string(),
+            to_offset: offset_string(to_off),
+            to_pretty: to_dt.format("%a, %d %b %Y %H:%M:%S").to_string(),
+            to_weekday: weekday_name(to_dt.weekday()).to_string(),
+            to_is_dst,
+            offset_diff_hours: diff_secs as f64 / 3600.0,
+            offset_diff_minutes: diff_secs / 60,
+            unix: to_dt.timestamp(),
+        });
+        resolved_targets.push(to_tz);
+    }
+
+    // Meeting planner generation
+    let date = from_dt.date_naive();
+    let base_naive = date.and_hms_opt(0, 0, 0).unwrap();
+    let start_of_day = match from_tz.from_local_datetime(&base_naive) {
+        LocalResult::Single(dt) => dt,
+        LocalResult::Ambiguous(earlier, _) => earlier,
+        LocalResult::None => {
+            let alt_naive = date.and_hms_opt(1, 0, 0).unwrap();
+            match from_tz.from_local_datetime(&alt_naive) {
+                LocalResult::Single(dt) => dt,
+                LocalResult::Ambiguous(earlier, _) => earlier,
+                LocalResult::None => from_dt.clone(),
+            }
+        }
+    };
+
+    let mut meeting_planner = Vec::new();
+    for h in 0..24 {
+        let slot_dt = start_of_day + chrono::Duration::hours(h as i64);
+        let from_hour = slot_dt.hour();
+        let from_status = hour_status(from_hour).to_string();
+
+        let mut planner_targets = Vec::new();
+        for to_tz in &resolved_targets {
+            let target_slot_dt = slot_dt.with_timezone(to_tz);
+            let to_hour = target_slot_dt.hour();
+            let to_status = hour_status(to_hour).to_string();
+            planner_targets.push(PlannerTargetSlot {
+                to_zone: to_tz.name().to_string(),
+                to_time: target_slot_dt.format("%H:%M").to_string(),
+                to_hour,
+                to_status,
+            });
+        }
+
+        meeting_planner.push(PlannerSlot {
+            hour_index: h,
+            from_time: slot_dt.format("%H:%M").to_string(),
+            from_hour,
+            from_status,
+            targets: planner_targets,
+        });
+    }
+
+    let first = &targets[0];
 
     Ok(Converted {
         from: from_dt.format("%Y-%m-%dT%H:%M:%S%:z").to_string(),
-        to: to_dt.format("%Y-%m-%dT%H:%M:%S%:z").to_string(),
+        to: first.to.clone(),
         from_zone: from_tz.name().to_string(),
-        to_zone: to_tz.name().to_string(),
+        to_zone: first.to_zone.clone(),
         from_offset: offset_string(from_off),
-        to_offset: offset_string(to_off),
-        to_pretty: to_dt.format("%a, %d %b %Y %H:%M:%S").to_string(),
-        to_weekday: weekday_name(to_dt.weekday()).to_string(),
-        to_is_dst,
-        offset_diff_hours: diff_secs as f64 / 3600.0,
-        offset_diff_minutes: diff_secs / 60,
-        unix: to_dt.timestamp(),
+        to_offset: first.to_offset.clone(),
+        to_pretty: first.to_pretty.clone(),
+        to_weekday: first.to_weekday.clone(),
+        to_is_dst: first.to_is_dst,
+        offset_diff_hours: first.offset_diff_hours,
+        offset_diff_minutes: first.offset_diff_minutes,
+        unix: first.unix,
+        targets,
+        meeting_planner,
     })
 }
 
@@ -300,5 +459,34 @@ mod tests {
         let j = render("2024-01-10 14:30", "America/New_York", "Asia/Tokyo").unwrap();
         assert!(j.contains("\"to\""));
         assert!(j.contains("2024-01-11T04:30:00+09:00"));
+    }
+
+    #[test]
+    fn lenient_parsing_am_pm_and_slashes() {
+        let c1 = convert("2024/03/10 2:30 PM", "America/New_York", "UTC").unwrap();
+        assert_eq!(c1.from, "2024-03-10T14:30:00-04:00");
+
+        let c2 = convert("2024/03/10 2:30PM", "America/New_York", "UTC").unwrap();
+        assert_eq!(c2.from, "2024-03-10T14:30:00-04:00");
+
+        let c3 = convert("2024-03-10 02:30:00 pm", "America/New_York", "UTC").unwrap();
+        assert_eq!(c3.from, "2024-03-10T14:30:00-04:00");
+    }
+
+    #[test]
+    fn multi_target_conversion() {
+        let c = convert("2024-01-10 14:30", "America/New_York", "Asia/Tokyo, Europe/London").unwrap();
+        assert_eq!(c.targets.len(), 2);
+        assert_eq!(c.targets[0].to_zone, "Asia/Tokyo");
+        assert_eq!(c.targets[1].to_zone, "Europe/London");
+
+        // Top level corresponds to first target (Tokyo)
+        assert_eq!(c.to_zone, "Asia/Tokyo");
+        assert_eq!(c.to_offset, "+09:00");
+
+        // Check meeting planner
+        assert_eq!(c.meeting_planner.len(), 24);
+        assert_eq!(c.meeting_planner[0].hour_index, 0);
+        assert_eq!(c.meeting_planner[0].targets.len(), 2);
     }
 }

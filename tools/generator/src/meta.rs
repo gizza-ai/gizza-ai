@@ -76,6 +76,7 @@ impl ToolMeta {
             })
             .collect();
         serde_json::json!({
+            "slug": self.slug,
             "module": format!("./{}.js", self.wasm),
             "export": self.export,
             "live": self.live,
@@ -167,6 +168,7 @@ source      = "field"
 "#;
         let m = ToolMeta::from_toml(text).unwrap();
         let cfg = m.client_config();
+        assert_eq!(cfg["slug"], "calculator");
         assert_eq!(cfg["module"], "./gizza_ai_calculator_web.js");
         assert_eq!(cfg["export"], "evaluate");
         assert_eq!(cfg["live"], false);
