@@ -59,7 +59,10 @@ Follow these phases in order:
    - **Copy/SEO:** `page/content.md` + `page/meta.toml` — original copy, examples, FAQ, tags,
      title/description.
    - **UX/layout:** the page's input/output presentation (grouping, presets, preview), in sync
-     with the web export params.
+     with the web export params. **MANDATORY Usability Standards**:
+     1. **Smart Defaults**: Any date, time, or datetime input MUST default to the user's current local date/time (e.g. via JavaScript formatting) if empty.
+     2. **Context Detection**: Always detect user context (e.g. local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`) to pre-fill inputs like source timezone.
+     3. **Searchable Autocomplete/Dropdowns**: Fields with standard sets of values (e.g. timezones, country codes, formats, currencies) MUST NOT be raw text inputs. Use a searchable dropdown (e.g. HTML5 `<datalist>` or `<select>`) to prevent manual text entry.
    - **Visual design:** page styling, consistent with the shared `gizza-chrome`. Original only.
    - **Drift-guard:** REGENERATE the `authored` schema literal in the block's drift-guard test
      to the new descriptor (do NOT keep the old). Record the before→after schema diff for the

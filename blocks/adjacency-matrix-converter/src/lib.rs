@@ -18,6 +18,8 @@ struct Args {
     directed: bool,
     #[serde(default)]
     weighted: bool,
+    #[serde(default)]
+    power: i64,
 }
 
 /// Single source for the chat schema (and CLI).
@@ -26,17 +28,17 @@ fn descriptor() -> ToolDescriptor {
         .param(
             Param::string("input")
                 .required()
-                .describe("The graph to convert. For from='edges': one edge per line as 'A B' (or 'A B 3' when weighted); endpoints are whitespace- or comma-separated; a single token declares an isolated vertex; '#' starts a comment. For from='adjacency': a square numeric matrix, one row per line, cells whitespace- or comma-separated; an optional header row/column of labels is auto-detected."),
+                .describe("The graph to convert. For from='edges': one edge per line as 'A B' (or 'A B 3' when weighted); endpoints are whitespace- or comma-separated; a single token declares an isolated vertex; '#' starts a comment. For from='adjacency': a square numeric matrix, one row per line, cells whitespace- or comma-separated; an optional header row/column of labels is auto-detected. For from='list': an adjacency list of neighbors. For from='incidence': a vertices×edges incidence matrix."),
         )
         .param(
-            Param::enumv("from", ["edges", "adjacency"])
-                .default("edges")
-                .describe("Input format: 'edges' (default) an edge list, or 'adjacency' a square adjacency matrix."),
+            Param::enumv("from", ["auto", "edges", "adjacency", "list", "incidence"])
+                .default("auto")
+                .describe("Input format: 'auto' (default) auto-detects structure; 'edges' an edge list; 'adjacency' a square adjacency matrix; 'list' an adjacency list; 'incidence' an incidence matrix."),
         )
         .param(
-            Param::enumv("to", ["adjacency", "incidence", "edges", "list", "degree", "laplacian"])
+            Param::enumv("to", ["adjacency", "incidence", "edges", "list", "degree", "laplacian", "stats", "power"])
                 .default("adjacency")
-                .describe("Output format: 'adjacency' (default) a labelled adjacency matrix; 'incidence' a vertices×edges incidence matrix (directed uses -1 tail / +1 head); 'edges' a normalized edge list; 'list' an adjacency list ('A: B C'); 'degree' the diagonal degree matrix; 'laplacian' the graph Laplacian L=D-A (undirected only)."),
+                .describe("Output format: 'adjacency' (default) a labelled adjacency matrix; 'incidence' a vertices×edges incidence matrix (directed uses -1 tail / +1 head); 'edges' a normalized edge list; 'list' an adjacency list ('A: B C'); 'degree' the diagonal degree matrix; 'laplacian' the graph Laplacian L=D-A (undirected only); 'stats' analytical graph metrics; 'power' walk-count matrix raised to power k."),
         )
         .param(
             Param::boolean("directed")
@@ -47,6 +49,11 @@ fn descriptor() -> ToolDescriptor {
             Param::boolean("weighted")
                 .default(false)
                 .describe("Read/emit edge weights: the 3rd token of an edge line, or the matrix cell value. Default false (every present edge is 1)."),
+        )
+        .param(
+            Param::integer("power")
+                .default(2)
+                .describe("The power k to raise the adjacency matrix to when to='power' (calculates walk counts of length k). Range 1 to 10."),
         )
 }
 fn schema_json() -> String {
@@ -70,8 +77,9 @@ struct Tool;
 impl Tool {
     fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
         match run_skill(&body, "adjacency-matrix-converter", |a: Args| {
+            let p = if a.power == 0 { 2 } else { a.power };
             gizza_ai_adjacency_matrix_converter_core::convert(
-                &a.input, &a.from, &a.to, a.directed, a.weighted,
+                &a.input, &a.from, &a.to, a.directed, a.weighted, p,
             )
             .map_err(SkillError::InvalidArgs)
         }) {
@@ -93,11 +101,12 @@ mod tests {
             r#"{
                 "type": "object",
                 "properties": {
-                    "input": { "type": "string", "description": "The graph to convert. For from='edges': one edge per line as 'A B' (or 'A B 3' when weighted); endpoints are whitespace- or comma-separated; a single token declares an isolated vertex; '#' starts a comment. For from='adjacency': a square numeric matrix, one row per line, cells whitespace- or comma-separated; an optional header row/column of labels is auto-detected." },
-                    "from": { "type": "string", "enum": ["edges", "adjacency"], "default": "edges", "description": "Input format: 'edges' (default) an edge list, or 'adjacency' a square adjacency matrix." },
-                    "to": { "type": "string", "enum": ["adjacency", "incidence", "edges", "list", "degree", "laplacian"], "default": "adjacency", "description": "Output format: 'adjacency' (default) a labelled adjacency matrix; 'incidence' a vertices×edges incidence matrix (directed uses -1 tail / +1 head); 'edges' a normalized edge list; 'list' an adjacency list ('A: B C'); 'degree' the diagonal degree matrix; 'laplacian' the graph Laplacian L=D-A (undirected only)." },
+                    "input": { "type": "string", "description": "The graph to convert. For from='edges': one edge per line as 'A B' (or 'A B 3' when weighted); endpoints are whitespace- or comma-separated; a single token declares an isolated vertex; '#' starts a comment. For from='adjacency': a square numeric matrix, one row per line, cells whitespace- or comma-separated; an optional header row/column of labels is auto-detected. For from='list': an adjacency list of neighbors. For from='incidence': a vertices×edges incidence matrix." },
+                    "from": { "type": "string", "enum": ["auto", "edges", "adjacency", "list", "incidence"], "default": "auto", "description": "Input format: 'auto' (default) auto-detects structure; 'edges' an edge list; 'adjacency' a square adjacency matrix; 'list' an adjacency list; 'incidence' an incidence matrix." },
+                    "to": { "type": "string", "enum": ["adjacency", "incidence", "edges", "list", "degree", "laplacian", "stats", "power"], "default": "adjacency", "description": "Output format: 'adjacency' (default) a labelled adjacency matrix; 'incidence' a vertices×edges incidence matrix (directed uses -1 tail / +1 head); 'edges' a normalized edge list; 'list' an adjacency list ('A: B C'); 'degree' the diagonal degree matrix; 'laplacian' the graph Laplacian L=D-A (undirected only); 'stats' analytical graph metrics; 'power' walk-count matrix raised to power k." },
                     "directed": { "type": "boolean", "default": false, "description": "Treat the graph as directed: 'A B' does NOT imply 'B A'. Default false (undirected)." },
-                    "weighted": { "type": "boolean", "default": false, "description": "Read/emit edge weights: the 3rd token of an edge line, or the matrix cell value. Default false (every present edge is 1)." }
+                    "weighted": { "type": "boolean", "default": false, "description": "Read/emit edge weights: the 3rd token of an edge line, or the matrix cell value. Default false (every present edge is 1)." },
+                    "power": { "type": "integer", "default": 2, "description": "The power k to raise the adjacency matrix to when to='power' (calculates walk counts of length k). Range 1 to 10." }
                 },
                 "required": ["input"],
                 "additionalProperties": false

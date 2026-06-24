@@ -5,14 +5,14 @@
   "summary": "Convert a date/time between timezones, with DST handling.",
   "role": "skill",
   "tool": {
-    "description": "Convert a wall-clock date/time from one IANA timezone to another, correctly handling daylight saving time (DST). Give 'datetime' as a plain ISO time like '2024-03-10 14:30' (interpreted in the 'from' zone, no trailing Z/offset), and 'from'/'to' as IANA zone names like 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Kolkata', or 'UTC'. Returns the converted time (ISO 8601 with offset) plus the offsets, the difference in hours/minutes, the target weekday, whether the target is in DST, and the Unix timestamp. A time that falls in a spring-forward DST gap (which never occurs) is rejected.",
+    "description": "Convert a wall-clock date/time from one IANA timezone to another (or multiple), correctly handling daylight saving time (DST). Give 'datetime' as a wall-clock time like '2024-03-10 14:30', '2024/03/10', or '2:30 PM' (no trailing Z/offset), and 'from'/'to' as IANA zone names like 'America/New_York', 'Europe/London', 'Asia/Tokyo', or 'UTC'. 'to' can be a comma-separated list of zones. Returns details for all targets and a 24-hour meeting planner grid.",
     "parameters": {
       "type": "object",
       "required": ["datetime", "from", "to"],
       "properties": {
-        "datetime": { "type": "string", "description": "The wall-clock date/time to convert, in the 'from' zone. ISO form, e.g. '2024-03-10 14:30' or '2024-03-10T14:30:00' (date-only assumes midnight). Do NOT include a 'Z' or offset — the zone is given by 'from'." },
+        "datetime": { "type": "string", "description": "The wall-clock date/time to convert, in the 'from' zone. Supports ISO formats (e.g. '2024-03-10 14:30'), slash separators (e.g. '2024/03/10'), and AM/PM time (e.g. '2:30 PM' or '2:30PM'). Date-only assumes midnight. Do NOT include a 'Z' or offset." },
         "from": { "type": "string", "description": "Source IANA timezone name, e.g. 'America/New_York', 'Europe/London', 'Asia/Tokyo', or 'UTC'." },
-        "to": { "type": "string", "description": "Target IANA timezone name, e.g. 'Asia/Kolkata', 'Australia/Sydney', or 'UTC'." }
+        "to": { "type": "string", "description": "Target IANA timezone name (or comma-separated list, e.g. 'Asia/Kolkata, Europe/London, UTC')." }
       },
       "additionalProperties": false
     }
