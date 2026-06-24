@@ -63,6 +63,10 @@ Follow these phases in order:
      1. **Smart Defaults**: Any date, time, or datetime input MUST default to the user's current local date/time (e.g. via JavaScript formatting) if empty.
      2. **Context Detection**: Always detect user context (e.g. local timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`) to pre-fill inputs like source timezone.
      3. **Searchable Autocomplete/Dropdowns**: Fields with standard sets of values (e.g. timezones, country codes, formats, currencies) MUST NOT be raw text inputs. Use a searchable dropdown (e.g. HTML5 `<datalist>` or `<select>`) to prevent manual text entry.
+     4. **Native Date/Time Selectors**: Avoid raw text fields for dates, times, or datetimes. Swap them dynamically to native picker types (like `<input type="datetime-local">`, `date`, or `time`) to give users native calendars/time picker popovers.
+     5. **Tag-Pill UI for Comma-Separated Lists**: If a field accepts a list of items (e.g. comma-separated target zones), do not make the user type it. Build a tag-pill list UI displaying selected values as badges with "x" close buttons, paired with a search input to select and add new tags.
+     6. **Layout Stability (No Resizing Bounces)**: Do not dynamically shrink or bounce the container's width on errors, empty inputs, or keypress transitions. Ensure input boxes do not jump or resize under the user's typing cursor.
+     7. **Clear Reset Button**: Provide a visible, styled "Reset to Defaults" button or link to let users clear input fields or restore initial values with one click.
    - **Visual design:** page styling, consistent with the shared `gizza-chrome`. Original only.
    - **Drift-guard:** REGENERATE the `authored` schema literal in the block's drift-guard test
      to the new descriptor (do NOT keep the old). Record the before→after schema diff for the

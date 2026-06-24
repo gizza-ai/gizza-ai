@@ -88,6 +88,10 @@ design** (page styling).
   - *Smart Defaults*: Pre-fill dates, times, and other fields with sensible defaults (e.g., current local date/time) rather than leaving them empty.
   - *Context Detection*: Automatically detect the user's local timezone (via `Intl.DateTimeFormat().resolvedOptions().timeZone`), language, or locale to initialize fields correctly.
   - *Searchable Autocompletes*: Avoid raw text fields for timezones, country codes, currencies, formats, or other predefined values. Dynamically inject an HTML5 `<datalist>` or custom searchable select list to let the user search and autocomplete.
+  - *Native Date/Time Selectors*: Avoid text fields for dates/times. Set `input.type` to picker types (e.g., `datetime-local`, `date`, `time`). Normalize default and URL pre-fill formats to use a `T` separator for ISO format support.
+  - *Tag-Pill List UI*: If inputs are list-based (e.g. multi-timezone comma-separated targets), build a tag-pill container (`.tz-tags-list`) where added timezones render as badges with delete buttons (`&times;`), hiding the raw comma-separated text input.
+  - *Layout Stability*: Keep the `.tool-widget` width stable (e.g. a fixed `760px` for multi-column widgets). Avoid toggling sizes on keystrokes, empty states, or validation errors to prevent layouts from shifting under the user's cursor.
+  - *Actionable Reset Button*: Place an explicit, styled Reset button next to the input fields to clear filters, reset list targets to default (e.g., `["UTC"]`), and re-fill inputs with current local defaults.
 - **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
 
 ### param types across surfaces (GOTCHA — bit me on url-encode)
