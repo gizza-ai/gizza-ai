@@ -1,0 +1,87 @@
+slug          = "citation-generator"
+title         = "Citation Generator — APA, MLA, Chicago & Harvard — gizza.ai"
+description   = "Generate a perfectly formatted APA 7th, MLA 9th, Chicago, or Harvard citation from author, title, year, journal, and URL fields. Runs entirely in your browser — free, private, no sign-up."
+tags          = ["citation generator", "apa citation", "mla citation", "chicago citation", "harvard citation", "reference generator", "bibliography", "works cited", "cite a source"]
+h1            = "Citation Generator"
+hero_subtitle = "Fill in the fields you have and get a ready-to-paste APA, MLA, or Chicago reference. Runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_citation_generator_web"
+export        = "run"
+live          = false
+output_label  = "Citation"
+format        = "text"
+
+# Input ORDER must equal the web run() param order:
+# style, title, authors, year, container, publisher, volume, issue, pages, url, doi, accessed.
+# style renders as a <select> (derived from the descriptor enum).
+[[input]]
+name        = "style"
+label       = "Style"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "Title"
+placeholder = "On the Nature of Things"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "authors"
+label       = "Author(s) — separate with ; or 'and'"
+placeholder = "Doe, Jane; Smith, John"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "year"
+label       = "Year"
+placeholder = "2021"
+source      = "field"
+
+[[input]]
+name        = "container"
+label       = "Journal / Website / Book it appears in"
+placeholder = "Journal of Studies"
+source      = "field"
+
+[[input]]
+name        = "publisher"
+label       = "Publisher (for books)"
+placeholder = "Penguin"
+source      = "field"
+
+[[input]]
+name        = "volume"
+label       = "Volume"
+placeholder = "12"
+source      = "field"
+
+[[input]]
+name        = "issue"
+label       = "Issue"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "pages"
+label       = "Pages"
+placeholder = "45-67"
+source      = "field"
+
+[[input]]
+name        = "url"
+label       = "URL"
+placeholder = "https://example.com/article"
+source      = "field"
+
+[[input]]
+name        = "doi"
+label       = "DOI"
+placeholder = "10.1000/xyz123"
+source      = "field"
+
+[[input]]
+name        = "accessed"
+label       = "Date accessed (MLA web pages)"
+placeholder = "12 Mar. 2024"
+source      = "field"

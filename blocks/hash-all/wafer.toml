@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hash-all"
+version = "0.1.0"
+abi = 1
+summary = "Compute every common digest (MD5/SHA/SHA3/RIPEMD/BLAKE/Whirlpool/CRC-32) of one input at once"

@@ -1,0 +1,31 @@
+{
+  "name": "gizza-ai/color-shades-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a ramp of tints, shades and tones for a base color",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a ramp of tints, shades and tones for a base color. Accepts a base color (#hex, rgb(), or hsl()) and a mode: scale = Tailwind-style 50-950 named scale, tints = lighten toward white, shades = darken toward black, tones = desaturate toward gray. Returns each step as hex, rgb and hsl. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["color"],
+      "properties": {
+        "color": { "type": "string", "description": "The base color in any common notation: #hex (3/6 digits), rgb(), or hsl()." },
+        "mode": {
+          "type": "string",
+          "enum": ["scale", "tints", "shades", "tones"],
+          "default": "scale",
+          "description": "scale = Tailwind-style 50-900 ramp; tints = lighten toward white; shades = darken toward black; tones = desaturate toward gray."
+        },
+        "count": {
+          "type": "integer",
+          "default": 9,
+          "minimum": 2,
+          "maximum": 12,
+          "description": "How many steps for the tints/shades/tones series modes. Ignored by 'scale' (always 11 weights)."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

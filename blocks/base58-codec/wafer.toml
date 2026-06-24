@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "base58-codec"
+version = "0.1.0"
+abi = 1
+summary = "Encode text or bytes to Base58 (Bitcoin/IPFS) and decode Base58 back."

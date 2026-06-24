@@ -1,0 +1,59 @@
+slug          = "evp-derive"
+title         = "EVP_BytesToKey — OpenSSL key/IV derivation from a password — gizza.ai"
+description   = "Reproduce OpenSSL's legacy EVP_BytesToKey key and IV derivation from a password, salt and hash (MD5/SHA-1/SHA-256/SHA-512). hex or base64 output, all in your browser. Nothing is uploaded."
+tags          = ["evp_bytestokey", "openssl key derivation", "openssl iv", "derive key from password", "openssl enc", "md5 key derivation", "legacy kdf", "openssl decrypt"]
+h1            = "EVP_BytesToKey — OpenSSL key & IV derivation"
+hero_subtitle = "Reproduce the legacy EVP_BytesToKey derivation that `openssl enc` uses to turn a password into a key and IV. Pick the hash, salt, key/IV length and iteration count — it runs in your browser, so the password never leaves your device."
+wasm          = "gizza_ai_evp_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived key & IV"
+format        = "text"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "The password / passphrase"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt"
+placeholder = "8-byte salt (often hex); leave empty for -nosalt"
+source      = "field"
+
+[[input]]
+name        = "salt_encoding"
+label       = "Salt encoding (utf8 | hex | base64)"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Hash (md5 | sha1 | sha256 | sha512)"
+placeholder = "md5"
+source      = "field"
+
+[[input]]
+name        = "key_length"
+label       = "Key length (bytes)"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name        = "iv_length"
+label       = "IV length (bytes)"
+placeholder = "16"
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "Iteration count"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "encoding"
+label       = "Output encoding (hex | base64)"
+placeholder = "hex"
+source      = "field"

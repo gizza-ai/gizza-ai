@@ -1,0 +1,48 @@
+slug          = "cmac-generate"
+title         = "AES-CMAC Generator — AES-128/192/256 CMAC (RFC 4493) | gizza.ai"
+description   = "Generate an AES-CMAC (block-cipher MAC, NIST SP 800-38B / RFC 4493) of any message and AES key instantly in your browser. AES-128/192/256 by key length, hex or base64 input and output. Free, private, no sign-up — nothing is uploaded."
+tags          = ["cmac", "aes-cmac", "aes", "aes-128", "aes-256", "mac", "block-cipher-mac", "message-authentication", "rfc-4493", "nist-sp-800-38b", "hex", "base64", "cryptography"]
+h1            = "AES-CMAC Generator"
+hero_subtitle = "Compute an AES-CMAC (block-cipher message authentication code, NIST SP 800-38B / RFC 4493) from a message and a secret AES key. The key length picks the variant — AES-128, AES-192 or AES-256 — and the tag comes back in hex or base64. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_cmac_generate_web"
+export        = "run"
+live          = false
+output_label  = "CMAC tag"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The data to authenticate"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "AES key"
+placeholder = "16, 24, or 32 bytes (AES-128/192/256)"
+source      = "field"
+multiline   = true
+
+# message_encoding/key_encoding/output_format render as <select> and uppercase as
+# a checkbox — control type + options are derived from the descriptor's schema
+# (manifest.json), so labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "message_encoding"
+label       = "Interpret message as"
+source      = "field"
+
+[[input]]
+name        = "key_encoding"
+label       = "Interpret key as"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex"
+source      = "field"

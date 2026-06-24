@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-avro-to-json-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+apache-avro = { version = "0.21", default-features = false }
+serde_json = { version = "1", features = ["preserve_order"] }

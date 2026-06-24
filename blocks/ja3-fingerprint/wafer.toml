@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ja3-fingerprint"
+version = "0.1.0"
+abi = 1
+summary = "Compute the JA3 TLS client fingerprint from a ClientHello"

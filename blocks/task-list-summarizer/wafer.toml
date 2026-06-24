@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "task-list-summarizer"
+version = "0.1.0"
+abi = 1
+summary = "Summarize a Markdown task list into done/pending counts and filtered views."

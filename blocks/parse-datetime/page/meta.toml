@@ -1,0 +1,18 @@
+slug          = "parse-datetime"
+title         = "Date/Time Parser — parse any date string into structured parts — gizza.ai"
+description   = "Paste a date or time in almost any format (ISO 8601, RFC 2822 email, US/European slash & dotted dates, month names, or a bare clock time) and break it into year, month, day, weekday, hour, minute, second, day-of-year, ISO week and a canonical ISO 8601 value — in your browser. Nothing is uploaded."
+tags          = ["date parser", "datetime parser", "parse date", "iso 8601", "rfc 3339", "rfc 2822", "date components", "weekday from date", "day of year", "iso week number", "timestamp parser"]
+h1            = "Date / Time Parser"
+hero_subtitle = "Paste a date and/or time in almost any common format — ISO 8601 / RFC 3339, RFC 2822 email dates, US slash dates (month-first), European dotted dates (day-first), year-first, month-name dates, or a bare clock time — and split it into its structured parts: year, month (number + name), day, weekday, hour/minute/second, UTC offset, day-of-year, ISO week, and a canonical ISO 8601 rendering. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_parse_datetime_web"
+export        = "run"
+live          = false
+output_label  = "Parsed date/time"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Date / time string"
+placeholder = "2024-01-05T14:30:00+02:00"
+source      = "field"
+multiline   = true

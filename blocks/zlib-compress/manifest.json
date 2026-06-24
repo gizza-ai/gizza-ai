@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/zlib-compress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress a file into a zlib stream",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Compress a file (or any bytes) into a zlib stream (RFC 1950) — a 2-byte zlib header, the raw DEFLATE body (RFC 1951) and a trailing 4-byte Adler-32 checksum — returned for download as <input>.zz. zlib sits between gzip (CRC-32 + filename header) and raw DEFLATE (no header/checksum); it is the framing PNG IDAT chunks and Content-Encoding: deflate HTTP bodies embed. level sets the deflate level 1-9 (default 6). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "level": { "type": "integer", "minimum": 1, "maximum": 9, "default": 6, "description": "Compression level 1-9 (1 = fastest, 9 = smallest; default 6)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

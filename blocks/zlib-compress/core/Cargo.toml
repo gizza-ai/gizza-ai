@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-zlib-compress-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# flate2: zlib (RFC 1950) framing, pure-Rust (miniz_oxide), wasm32-safe.
+flate2 = "1"

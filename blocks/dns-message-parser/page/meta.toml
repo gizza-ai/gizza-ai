@@ -1,0 +1,18 @@
+slug          = "dns-message-parser"
+title         = "DNS Message Parser — decode a DNS query/response from hex or base64url — gizza.ai"
+description   = "Paste a DNS wire-format message in hex or base64url and decode the 12-byte header (id, QR, opcode, flags, RCODE) and the question, answer, authority, and additional records — with domain-name decompression and A/AAAA/MX/TXT/SOA/SRV/CAA/OPT decoding — in your browser. Nothing is uploaded."
+tags          = ["dns message parser", "decode dns packet", "dns wire format", "dns over https", "dns header flags", "rcode", "dns resource records", "name compression", "edns0", "dns hex decoder"]
+h1            = "DNS Message Parser"
+hero_subtitle = "Paste a DNS protocol message as a hex string or base64url and decode the 12-byte header — transaction id, query/response, opcode, the AA/TC/RD/RA/AD/CD flags, the RCODE, and the section counts — plus the question and the answer, authority, and additional resource records. Domain names are decompressed (0xC0 pointers followed), and A, AAAA, NS, CNAME, PTR, MX, TXT, SOA, SRV, CAA, and OPT/EDNS0 records are decoded to readable values. Accepts the base64url form used by DNS-over-HTTPS. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_dns_message_parser_web"
+export        = "run"
+live          = false
+output_label  = "Decoded message"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "DNS message (hex or base64url)"
+placeholder = "1234 8180 0001 0001 0000 0000 ...  or a base64url ?dns= value"
+source      = "field"
+multiline   = true

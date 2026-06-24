@@ -1,0 +1,38 @@
+slug          = "verify-checksum"
+title         = "Checksum Verifier — Check MD5, SHA-256, SHA-3, BLAKE Hashes | gizza.ai"
+description   = "Verify that text or data matches an expected checksum, instantly in your browser. Auto-detects MD5, SHA-1, SHA-224/256/384/512, SHA3, BLAKE2 or BLAKE3 from the digest length, or pick one. Free, private, no sign-up — nothing is uploaded."
+tags          = ["checksum", "verify", "hash", "md5", "sha1", "sha256", "sha512", "sha3", "blake2", "blake3", "integrity", "digest", "compare"]
+h1            = "Checksum Verifier"
+hero_subtitle = "Paste your data and an expected checksum to confirm they match. The algorithm is auto-detected from the digest length (MD5, SHA-1, the SHA-2 family, SHA-3, BLAKE2 and BLAKE3), or pick one. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_verify_checksum_web"
+export        = "run"
+live          = false
+output_label  = "Verification result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Data to check"
+placeholder = "Hello, world!"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "expected"
+label       = "Expected checksum"
+placeholder = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+source      = "field"
+multiline   = true
+
+# algorithm and input_encoding render as <select> — control type + options are
+# derived from the descriptor's schema (manifest.json), so labels here stay
+# short and option lists are NOT duplicated.
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+source      = "field"
+
+[[input]]
+name        = "input_encoding"
+label       = "Interpret input as"
+source      = "field"

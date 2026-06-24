@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/sitemap-url-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract every URL from an XML sitemap or sitemap index",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an XML sitemap (<urlset>) or sitemap index (<sitemapindex>) and extract every URL from its <loc> elements, each paired with the <lastmod> date when present. Detects which document kind it was given and returns the kind, the URL count, and the entries (loc + optional lastmod). Namespace prefixes are handled. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["xml"],
+      "properties": {
+        "xml": {
+          "type": "string",
+          "description": "The XML content of a sitemap (<urlset>) or sitemap index (<sitemapindex>)."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "http-header-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Analyze pasted HTTP response headers and explain caching, compression, server hints, and missing security headers"

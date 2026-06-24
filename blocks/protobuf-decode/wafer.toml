@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "protobuf-decode"
+version = "0.1.0"
+abi = 1
+summary = "Decode raw protobuf wire bytes into a field/wire-type tree without a .proto schema."

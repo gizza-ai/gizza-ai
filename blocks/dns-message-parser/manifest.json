@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/dns-message-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a DNS wire-format message from hex or base64url",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a DNS protocol message (RFC 1035 wire format) given as hex or base64url into the 12-byte header (id, QR, opcode, AA/TC/RD/RA/AD/CD flags, RCODE, counts), the question section, and the answer/authority/additional resource records — decompressing domain names and decoding A/AAAA/NS/CNAME/PTR/MX/TXT/SOA/SRV/CAA/OPT records. Returns JSON. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "The DNS message bytes as a hex string OR base64url (the format DNS-over-HTTPS uses in the GET ?dns= parameter), starting at the 12-byte header. For hex, spaces, colons, dashes, dots, commas, and a 0x prefix are ignored, e.g. a response begins '1234 8180 0001 0001 ...'."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

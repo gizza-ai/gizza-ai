@@ -1,0 +1,35 @@
+slug          = "classical-cipher-tool"
+title         = "Classical Cipher Tool — Caesar, Vigenère, Atbash & Rail-Fence — gizza.ai"
+description   = "Encrypt and decrypt with the classic Caesar, Vigenère, Atbash, and rail-fence ciphers, right in your browser. Includes a Caesar brute-force that lists all 26 shifts. Free, private, no sign-up."
+tags          = ["caesar cipher", "vigenere cipher", "atbash", "rail fence cipher", "classical cipher", "cipher encrypt decrypt", "caesar brute force", "rot", "cryptogram"]
+h1            = "Classical Cipher Tool"
+hero_subtitle = "Encrypt or decrypt text with the Caesar, Vigenère, Atbash, and rail-fence ciphers — plus a Caesar brute-force that shows all 26 shifts. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_classical_cipher_tool_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# Field ORDER must match the web run() param order: cipher, operation, key, text.
+[[input]]
+name        = "cipher"
+label       = "Cipher"
+source      = "field"
+
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (Caesar shift / Vigenère keyword / rail count)"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Attack at dawn"
+source      = "field"
+multiline   = true

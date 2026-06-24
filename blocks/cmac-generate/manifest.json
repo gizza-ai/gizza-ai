@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/cmac-generate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute an AES-CMAC (block-cipher MAC) over a message with a 128/192/256-bit key",
+  "role": "skill",
+  "tool": {
+    "description": "Compute an AES-CMAC (Cipher-based Message Authentication Code, NIST SP 800-38B / RFC 4493) of a message with a secret AES key. CMAC is a block-cipher MAC built on AES; the AES variant is selected by the key length — 16 bytes for AES-128, 24 for AES-192, 32 for AES-256 — and the tag is always 16 bytes. By default the message and key are read as UTF-8 text and the tag is returned as lowercase hex; set message_encoding/key_encoding to 'hex' or 'base64' to decode binary inputs first (a 16-byte key is 32 hex chars), output_format='base64' for a base64 tag, or uppercase=true for uppercase hex. Use this to authenticate messages with a symmetric key when a block cipher (rather than a hash) is the available primitive — e.g. AES-CMAC in IoT/smart-card and IEEE 802.1X / RFC 4493 contexts. For a HASH-based keyed MAC use the hmac-generate tool instead.",
+    "parameters": {
+      "type": "object",
+      "required": ["message", "key"],
+      "properties": {
+        "message": { "type": "string" },
+        "key": { "type": "string" },
+        "message_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text" },
+        "key_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text" },
+        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" },
+        "uppercase": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

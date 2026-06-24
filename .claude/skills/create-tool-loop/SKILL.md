@@ -18,7 +18,7 @@ it whenever you learn something new (see "Self-update").
 
 Working context (defaults; override if the user says otherwise):
 - Working dir: `/root/gizza-ai/gizza-ai`
-- Branch: `feat/tool-creating` (no new branch, no PR — just commit + push)
+- Branch: `feat/tool-creating-2` (no new branch, no PR — just commit + push)
 - Box: **2 CPU / ~3.9 GB RAM**. **Sequential only — one builder at a time** (parallel Rust release
   builds OOM and contend on the shared `cargo install`/generator/git state; 2 cores mean
   parallelism barely helps wall-clock anyway).
@@ -76,7 +76,7 @@ Working context (defaults; override if the user says otherwise):
 > `git clean -fd blocks/<slug>`, skiplist or report, do NOT commit broken. (6) Clean per-block target
 > dirs (`for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name block.wasm -exec rm
 > -rf {} + ; done`), NEVER delete web/pkg. (7) `git add -A && git commit && git push origin
-> feat/tool-creating`. Return ONE line only: `<slug>: built+pushed <short-sha>` OR `skiplisted
+> feat/tool-creating-2`. Return ONE line only: `<slug>: built+pushed <short-sha>` OR `skiplisted
 > <slug>: <reason>` OR `FAILED <slug>: <reason>`.
 
 Replace `<TODAY>` with the current date each iteration (the loop runs across midnight).

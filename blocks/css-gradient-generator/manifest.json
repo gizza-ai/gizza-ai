@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/css-gradient-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "CSS Gradient Generator skill",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a CSS gradient declaration from color stops. Returns a ready-to-paste `background-image: linear-gradient(...);` (or radial/conic) line. Provide the `colors` as a comma- or newline-separated list of CSS colors, optionally with positions; with no positions, evenly-spaced percentages are added. Set gradient_type='linear' (default), 'radial', or 'conic'. For linear, `angle` is the direction in degrees; for radial, `shape` is 'ellipse'/'circle'. Set repeating=true for a repeating gradient.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "colors": { "type": "string", "description": "The color stops, separated by commas or newlines. Each is a CSS color optionally followed by a position. At least 2 stops are required." },
+        "gradient_type": { "type": "string", "enum": ["linear", "radial", "conic"], "default": "linear", "description": "The gradient function." },
+        "angle": { "type": "number", "minimum": -360.0, "maximum": 360.0, "default": 180.0, "description": "Linear direction / conic start angle in degrees." },
+        "shape": { "type": "string", "enum": ["ellipse", "circle"], "default": "ellipse", "description": "Radial shape." },
+        "repeating": { "type": "boolean", "default": false, "description": "Emit a repeating-*-gradient()." },
+        "interpolation": { "type": "string", "description": "Optional 'in <space>' color-interpolation clause (e.g. oklch, hsl longer)." }
+      },
+      "required": ["colors"],
+      "additionalProperties": false
+    }
+  }
+}

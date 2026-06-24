@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/column-math",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Element-wise add/subtract/multiply/divide between two numeric columns.",
+  "role": "skill",
+  "tool": {
+    "description": "Perform element-wise arithmetic between two equal-length numeric columns. Pass column A in 'a' and column B in 'b' (numbers separated by commas, spaces, or newlines), and choose operation='add' (default, A+B), 'subtract' (A-B), 'multiply' (A*B), or 'divide' (A/B). The columns must have the same number of values; a zero divisor on divide is an error. Returns the per-row results as a newline-separated list. Use it for spreadsheet-style column math — summing two columns, computing differences, scaling, or ratios.",
+    "parameters": {
+      "type": "object",
+      "required": ["a", "b"],
+      "properties": {
+        "a": { "type": "string", "description": "Column A — the numbers, separated by commas, spaces, or newlines (one per line)." },
+        "b": { "type": "string", "description": "Column B — the second set of numbers, same length as A, separated by commas, spaces, or newlines." },
+        "operation": { "type": "string", "enum": ["add", "subtract", "multiply", "divide"], "default": "add", "description": "Element-wise operation to apply between A and B, row by row: 'add' (default) computes A+B, 'subtract' A-B, 'multiply' A*B, 'divide' A/B (a zero divisor is an error)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

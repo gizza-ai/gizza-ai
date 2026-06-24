@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-gost-magma-cipher-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+magma = "0.9"
+cbc = { version = "0.1", features = ["alloc"] }
+ecb = { version = "0.1", features = ["alloc"] }
+cipher = { version = "0.4", features = ["block-padding", "alloc"] }
+hex = "0.4"
+base64 = "0.22"

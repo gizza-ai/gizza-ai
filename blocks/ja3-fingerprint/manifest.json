@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/ja3-fingerprint",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the JA3 TLS client fingerprint from a ClientHello",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the JA3 (and normalized JA3N) TLS client fingerprint string and MD5 hash from a raw ClientHello given as a hex string (SSLVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats with GREASE removed).",
+    "parameters": {
+      "type": "object",
+      "required": ["client_hello"],
+      "properties": { "client_hello": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

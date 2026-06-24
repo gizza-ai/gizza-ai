@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/http-header-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze pasted HTTP response headers and explain caching, compression, server hints, and missing security headers",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a block of pasted HTTP response headers and explain each one (caching, compression, content, security, cookie, cors, server, redirect) plus list which recommended security headers are missing.",
+    "parameters": {
+      "type": "object",
+      "required": ["headers"],
+      "properties": { "headers": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

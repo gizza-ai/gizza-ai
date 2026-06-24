@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/avro-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode an Avro OCF into JSON records",
+  "role": "skill",
+  "tool": {
+    "description": "Decode an Apache Avro Object Container File (.avro / OCF) into readable JSON records. The OCF embeds its own writer schema, so NO external .avsc is needed. Give the file bytes as base64 or hex in 'input' (set encoding='auto' (default), 'base64', or 'hex'). Use format='records' (default) for a pretty JSON array, 'ndjson' for one JSON record per line, or 'full' for { schema, count, records } including the embedded writer schema. Logical types are decoded (dates/timestamps as integers, uuid as a string, decimals/bytes/fixed as base64). Runs locally — the data never leaves the device. Note: this reads OCF container files, not bare/single-object-encoded Avro (which carry no schema).",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The Avro Object Container File (.avro) bytes, as a base64 or hex string." },
+        "encoding": { "type": "string", "enum": ["auto", "base64", "hex"], "default": "auto", "description": "How the input bytes are encoded. 'auto' (default) detects hex (only hex digits, even length) else base64. base64 accepts standard or URL-safe, padding optional; hex ignores spaces, ':' and '-'." },
+        "format": { "type": "string", "enum": ["records", "ndjson", "full"], "default": "records", "description": "Output shape. 'records' (default) is a pretty JSON array of the records; 'ndjson' is one compact JSON record per line; 'full' is { schema, count, records } including the embedded writer schema." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

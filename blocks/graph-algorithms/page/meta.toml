@@ -1,0 +1,47 @@
+slug          = "graph-algorithms"
+title         = "Graph Algorithms — BFS, DFS, Shortest Path, Topological Sort & Cycle Detection — gizza.ai"
+description   = "Run BFS, DFS, Dijkstra shortest path, topological sort, and cycle detection on your own graph. Paste an edge list, pick an algorithm, and get the result instantly in your browser. Directed or undirected, weighted or unweighted. Free, private, no sign-up."
+tags          = ["graph algorithms", "bfs", "dfs", "shortest path", "dijkstra", "topological sort", "cycle detection", "edge list", "directed graph", "weighted graph"]
+h1            = "Graph Algorithms"
+hero_subtitle = "Run BFS, DFS, shortest path, topological sort, or cycle detection on a graph you paste in. Directed or undirected, weighted or unweighted. Runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_graph_algorithms_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "edges"
+label       = "Edge list (one edge per line)"
+placeholder = "a -> b\na -> c\nb -> d"
+source      = "field"
+multiline   = true
+
+# algorithm renders as a <select>; directed/weighted as checkboxes — the control
+# type + option list are derived from the descriptor schema (manifest.json).
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+source      = "field"
+
+[[input]]
+name        = "directed"
+label       = "Directed graph"
+source      = "field"
+
+[[input]]
+name        = "weighted"
+label       = "Weighted (trailing number per edge)"
+source      = "field"
+
+[[input]]
+name        = "start"
+label       = "Start node (bfs / dfs / shortest-path)"
+placeholder = "a"
+source      = "field"
+
+[[input]]
+name        = "end"
+label       = "End node (shortest-path)"
+placeholder = "d"
+source      = "field"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rabbit-cipher"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt data with the Rabbit stream cipher (128-bit key, optional 64-bit IV)"

@@ -1,0 +1,18 @@
+slug          = "php-serialize"
+title         = "JSON to PHP serialize() Converter — gizza.ai"
+description   = "Convert JSON to PHP serialize() format instantly in your browser. Turn JSON data into a string PHP's unserialize() can read — for sessions, caches, and WordPress options. Full Unicode, byte-accurate string lengths, free, private, no sign-up."
+tags          = ["php serialize", "json to php", "unserialize", "php session", "wordpress options", "serialized array", "php array", "interop"]
+h1            = "JSON → PHP serialize()"
+hero_subtitle = "Convert JSON into PHP's serialize() format so unserialize() can read it. Byte-accurate string lengths and preserved key order. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_php_serialize_web"
+export        = "run"
+live          = false
+output_label  = "PHP serialized string"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "{\"name\": \"Al\", \"age\": 30}"
+source      = "field"
+multiline   = true

@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/age-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Exact age in years, months, and days.",
+  "role": "skill",
+  "tool": {
+    "description": "Calculate a person's exact age from their birthdate as of a target date (or today if omitted). Returns a calendar breakdown (years, months, days), flat totals (total months, weeks, days, hours), the weekday they were born on, the date and countdown to their next birthday, the Western zodiac sign, and a human-readable summary.",
+    "parameters": {
+      "type": "object",
+      "required": ["birthdate"],
+      "properties": {
+        "birthdate": { "type": "string", "description": "The date of birth. Accepts YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS, RFC-3339 (with Z/offset), and common variants like YYYY/MM/DD, MM/DD/YYYY, DD.MM.YYYY." },
+        "as_of": { "type": "string", "description": "Optional 'as of' date to compute the age at, in the same accepted formats as `birthdate`. Defaults to today (UTC) when omitted." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

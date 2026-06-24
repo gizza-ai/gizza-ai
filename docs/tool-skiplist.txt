@@ -91,6 +91,7 @@ audio-reverb  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* p
 audio-reverse  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-ringtone  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-spectrogram  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+spectrogram  # same as audio-spectrogram: audio-INPUT tool (frequency spectrogram FROM audio); no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable input surface (deferred)
 audio-speed  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-speed-change  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 audio-split  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
@@ -157,3 +158,23 @@ extract-exif           # duplicate of blocks/image-metadata-viewer (reads EXIF/T
 html-beautify  # duplicate of blocks/html-formatter (indents/pretty-prints HTML, normalizes nesting + attribute spacing; same scope)
 math-expression-evaluator  # duplicate of blocks/calculator (meval-based: evaluates arithmetic expressions with functions e.g. sqrt, parentheses and constants pi/e; same scope)
 md5-hash  # duplicate: text MD5 covered by blocks/hash-text (algorithm="md5", with input/output encodings) and file MD5 covered by blocks/file-hash (returns md5 digest of any file). No distinct surface.
+percent-encode-decode  # duplicate of blocks/url-encode (percent-encode/decode text per RFC 3986 with selectable reserved-char sets: component/uri/form covers query/path/component; plus per_line + repeat). Same scope.
+readability-scorer  # duplicate of blocks/readability-score (computes Flesch Reading Ease + Flesch-Kincaid Grade + Gunning-Fog + SMOG + Coleman-Liau + ARI with the underlying word/sentence/syllable/complex-word counts; same scope). "Flag long/complex sentences" is a minor improvement to readability-score, not a distinct tool.
+regex-extractor  # duplicate of blocks/regex-extract (applies a regex (Rust syntax) to text and returns all matches, with ignore_case/multiline/dotall flags, capture_group selection, and dedup; same scope). Returning all capture groups per match is a minor improvement to regex-extract, not a distinct tool.
+string-unescaper        # duplicate of blocks/string-escaper (already has mode=unescape for json/javascript/html/url; backslash escapes overlap js-unescape)
+subtitle-timing-shifter  # duplicate of blocks/srt-shift (already shifts SRT timestamps by a fixed offset); the "stretch/rescale" half is a linear-scale improvement to srt-shift, not a distinct tool
+unique-lines  # duplicate of blocks/remove-duplicate-lines (removes duplicate lines preserving order, keep first/last, adjacent_only/uniq, ignore_case, trim); the "count each" half is blocks/count-line-frequency. No distinct capability.
+untar  # duplicate of blocks/extract-tar (lists + extracts files from a tar/tar.gz/tgz archive, gzip auto-detected, repacked as ZIP). Same scope.
+url-parser  # duplicate of blocks/parse-uri (splits a URL/URI into scheme/host/port/path/query-params/fragment per RFC 3986). Same scope.
+view-exif  # duplicate of blocks/image-metadata-viewer (reads + displays all EXIF/TIFF metadata fields from an image: camera settings, timestamps, decoded GPS; same scope as extract-exif skip)
+xml-escape-unescape  # duplicate of blocks/string-escaper (target=html/xml escapes & < > " ' and unescapes named + numeric (&#NN;) entities, mode=escape|unescape; same scope)
+xml-prettify  # duplicate of blocks/xml-formatter (mode=pretty indents compact XML into nested markup with configurable indent + well-formedness check; same scope)
+argon2-verify  # duplicate of blocks/argon2-hash (mode=verify already checks a password against an Argon2 PHC hash string)
+bcrypt-verify  # duplicate of blocks/bcrypt-hash (mode=verify already checks a plaintext password against a $2a/$2b/$2x/$2y bcrypt hash, across chat/CLI/page)
+bibtex-formatter  # duplicate of blocks/bibtex-format
+color-converter  # duplicate of blocks/color-format-convert (parse hex/rgb/hsl -> all formats)
+current-time  # near-duplicate of blocks/clock (reports the current time; clock already shows current UTC time live, and a chosen-timezone + unix-timestamp readout is an improvement to clock, not a distinct tool — timezone-convert already covers IANA-zone conversion + unix output)
+drop-bytes  # duplicate of blocks/byte-drop (removes a byte/char range from text by start offset + length; first N = start=0/length=N, last N = start=-N; text/hex/base64). Same scope.
+extract-video-metadata  # duplicate of blocks/media-info (reports container/codecs/duration/bitrate + per-track stream list for a video, ffprobe-style; resolution+fps are a minor media-info improvement, not a distinct tool)
+fuzzy-hash-compare  # duplicate of blocks/fuzzy-hash (its compare param already returns a 0-100 similarity score between two SSDEEP/CTPH hashes; core exposes public compare(h1,h2)->u32)
+hex-to-pem  # duplicate of blocks/pem-der-convert (direction=der-to-pem der_format=hex: wraps DER hex bytes into a PEM block with a chosen label + 64-char line folding)

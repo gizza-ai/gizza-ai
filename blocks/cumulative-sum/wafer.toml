@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cumulative-sum"
+version = "0.1.0"
+abi = 1
+summary = "Running total (prefix sum) of a list of numbers, with optional running average, min, and max."

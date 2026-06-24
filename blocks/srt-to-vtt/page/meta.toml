@@ -1,0 +1,24 @@
+slug          = "srt-to-vtt"
+title         = "SRT to VTT Converter — Convert Subtitles Both Ways | gizza.ai"
+description   = "Convert subtitles between SubRip (.srt) and WebVTT (.vtt) in your browser. Auto-detects the format, rewrites the timestamps, adds or strips the WEBVTT header. Free, private, no upload, no sign-up."
+tags          = ["srt to vtt", "vtt to srt", "subtitle converter", "subrip", "webvtt", "convert subtitles", "srt", "vtt", "caption converter"]
+h1            = "SRT to VTT Subtitle Converter"
+hero_subtitle = "Convert subtitles between SubRip (.srt) and WebVTT (.vtt) — both directions, auto-detected. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_srt_to_vtt_web"
+export        = "run"
+live          = false
+output_label  = "Converted subtitles"
+format        = "text"
+
+[[input]]
+name        = "subtitles"
+label       = "Subtitle text (.srt or .vtt)"
+placeholder = "1\n00:00:01,000 --> 00:00:04,000\nFirst line of dialogue."
+source      = "field"
+multiline   = true
+
+# direction renders as a <select> — its options come from the descriptor schema.
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"

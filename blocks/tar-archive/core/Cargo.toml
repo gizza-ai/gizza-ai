@@ -1,0 +1,21 @@
+[package]
+name = "gizza-ai-tar-archive-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# tar: pure-Rust tar writer. default-features off drops the unix-only `xattr`
+# extra so it compiles to wasm32-wasip1; we only build a USTAR archive in memory.
+tar = { version = "0.4", default-features = false }
+# flate2: gzip the tar into .tar.gz — proven wasm32-safe (miniz_oxide backend).
+flate2 = "1"
+# Reuse the existing wasm-safe compressors so .tar.bz2 / .tar.xz behave exactly
+# like the standalone bzip2-compress / lzma-compress tools (same encoders).
+gizza-ai-bzip2-compress-core = { path = "../../bzip2-compress/core" }
+gizza-ai-lzma-compress-core = { path = "../../lzma-compress/core" }
+
+[dev-dependencies]
+# Pure-Rust decoders to round-trip-verify bzip2 / xz output in tests only.
+bzip2-rs = "0.1"
+lzma-rust2 = "0.16"

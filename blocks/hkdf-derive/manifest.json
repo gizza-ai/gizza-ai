@@ -1,0 +1,27 @@
+{
+  "name": "gizza-ai/hkdf-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive a key with HKDF (extract-and-expand, RFC 5869)",
+  "role": "skill",
+  "tool": {
+    "description": "Derive a cryptographic key from input key material (IKM) using HKDF, the HMAC-based extract-and-expand key derivation function (RFC 5869). mode=derive (default) runs the full extract-then-expand and outputs `length` bytes; mode=extract returns only the intermediate pseudorandom key (PRK). Choose the hash (sha1, sha256 default, sha384, sha512), an optional salt, an optional info/context string (each with its own utf8/hex/base64 encoding), the output length in bytes (default 32, max 255*HashLen), and the output encoding (hex default or base64). HKDF is the standard for splitting one strong secret into multiple keys (used in TLS 1.3, Signal, Noise); it is NOT a password hash. Deterministic and runs locally; the secret never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "ikm": { "type": "string", "description": "Input key material (IKM): the secret/source key to derive from. Interpreted per `ikm_encoding`." },
+        "mode": { "type": "string", "enum": ["derive", "extract"], "default": "derive", "description": "derive (default) runs full HKDF extract-then-expand to produce `length` bytes; extract returns only the intermediate pseudorandom key (PRK)." },
+        "ikm_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8", "description": "How to interpret the IKM string: utf8 text (default), hex, or base64." },
+        "salt": { "type": "string", "description": "Optional salt. If empty, HKDF uses HashLen zero bytes (per RFC 5869). A non-secret random salt is recommended." },
+        "salt_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8", "description": "How to interpret the salt string: utf8 text (default), hex, or base64." },
+        "info": { "type": "string", "description": "Optional context/application info string that binds the output to a use (e.g. \"app:tls key\"). Empty by default." },
+        "info_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8", "description": "How to interpret the info string: utf8 text (default), hex, or base64." },
+        "hash": { "type": "string", "enum": ["sha1", "sha256", "sha384", "sha512"], "default": "sha256", "description": "HMAC hash function (default sha256). sha1 is for legacy/interop only." },
+        "length": { "type": "integer", "minimum": 1, "maximum": 8160, "description": "Derived key length in bytes (derive mode, default 32). Max is 255 * HashLen for the chosen hash." },
+        "encoding": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "Output encoding of the derived key / PRK: hex (default) or base64." }
+      },
+      "required": ["ikm"],
+      "additionalProperties": false
+    }
+  }
+}

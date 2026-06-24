@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-android-asset-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: decode the source image and re-encode each resized icon as PNG
+# (pure-Rust, wasm32-safe). Lanczos3 downscaling for clean launcher icons.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+# zip with deflate only — bundle every density bucket into one archive.
+zip = { version = "8", default-features = false, features = ["deflate"] }

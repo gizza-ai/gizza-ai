@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/file-tree-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn file paths or an indented outline into an ASCII tree diagram.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a list of file paths or an indented outline into an ASCII tree diagram for READMEs and docs. In mode='paths' (default) each line is a slash-separated path like 'src/main.rs' and lines sharing a prefix merge into one tree (a trailing '/' marks a directory). In mode='outline' each line's leading whitespace sets the nesting. Output uses Unicode box-drawing connectors by default, or plain ASCII when ascii=true. 'root' labels the top line (default '.'). trailing_slash adds '/' to directories (default true). sort orders entries directories-first then alphabetically (default false keeps input order).",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string" },
+        "mode": { "type": "string", "enum": ["paths", "outline"], "default": "paths" },
+        "root": { "type": "string", "default": "." },
+        "ascii": { "type": "boolean", "default": false },
+        "trailing_slash": { "type": "boolean", "default": true },
+        "sort": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

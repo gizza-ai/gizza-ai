@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/evp-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reproduce OpenSSL's legacy EVP_BytesToKey key/IV derivation",
+  "role": "skill",
+  "tool": {
+    "description": "Reproduce OpenSSL's legacy EVP_BytesToKey key/IV derivation from a password, salt, and hash — the KDF behind `openssl enc -pass pass:… [-S salt]` without -pbkdf2. Returns the derived key (and IV) as hex (default) or base64.",
+    "parameters": {
+      "type": "object",
+      "required": ["password"],
+      "properties": {
+        "password": { "type": "string" },
+        "salt": { "type": "string" },
+        "salt_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8" },
+        "hash": { "type": "string", "enum": ["md5", "sha1", "sha256", "sha512"], "default": "md5" },
+        "key_length": { "type": "integer", "minimum": 0, "maximum": 1024 },
+        "iv_length": { "type": "integer", "minimum": 0, "maximum": 1024 },
+        "count": { "type": "integer", "minimum": 1, "maximum": 10000000 },
+        "encoding": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
