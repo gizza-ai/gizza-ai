@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/jsonata-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Evaluate a JSONata expression against JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Evaluate a JSONata query/transformation expression against a JSON document and return the result, using a pure-Rust JSONata engine. JSONata is a lightweight language for querying, filtering, aggregating, and reshaping JSON — e.g. navigate paths ('Account.Order.Product.Price'), filter ('items[price > 10].name'), aggregate ('$sum(items.price)', '$count(orders)'), and construct output ('{ \"total\": $sum(lines.amount) }'). The result is returned as a serialized JSON string in `output`; set pretty=true to indent. A query that matches nothing returns JSON null.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string", "description": "The JSONata expression, e.g. '$sum(items.price)' or 'Account.Order.Product.{ \"name\": ProductName, \"total\": Price * Quantity }'." },
+        "json": { "type": "string", "description": "The JSON document to evaluate the expression against." },
+        "pretty": { "type": "boolean", "default": false, "description": "Pretty-print (indent) the JSON output. Default false (compact)." }
+      },
+      "required": ["query", "json"],
+      "additionalProperties": false
+    }
+  }
+}

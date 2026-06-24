@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-jsonata-query-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-jsonata-query-core = { path = "../core" }
+# jsonata-rs's tree pulls getrandom transitively (rand 0.8 / uuid v4 → getrandom 0.2;
+# plus getrandom 0.4). The page (wasm32-unknown-unknown) target needs the js/wasm_js
+# backends — 0.2 via the `js` feature here, 0.4 via the cfg in .cargo/config.toml.
+getrandom = { version = "0.2", features = ["js"] }
+# uuid (pulled by jsonata-rs for $uuid()) needs an explicit randomness source on wasm.
+uuid = { version = "1", features = ["js", "v4"] }

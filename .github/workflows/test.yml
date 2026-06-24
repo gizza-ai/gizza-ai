@@ -20,6 +20,39 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: gizza-ai
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Detect changed blocks
+        id: changed
+        working-directory: gizza-ai
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Keep PR feedback fast: validate blocks touched by the PR head commit
+            # (checkout uses github.event.pull_request.head.sha). The full
+            # all-block build still runs on pushes to main.
+            if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+              diff_base="HEAD^"
+            else
+              base_ref="${{ github.base_ref }}"
+              git fetch origin "$base_ref" --depth=1
+              diff_base="origin/$base_ref"
+            fi
+            mapfile -t blocks < <(git diff --name-only "$diff_base...HEAD" \
+              | sed -n 's#^blocks/\([^/]*\)/.*#\1#p' \
+              | sort -u)
+          else
+            blocks=()
+          fi
+
+          printf 'Changed blocks: %s\n' "${blocks[*]:-(none)}"
+          {
+            echo 'blocks<<EOF'
+            printf '%s\n' "${blocks[@]}"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Read solobase pin
         id: pin
@@ -72,15 +105,59 @@ jobs:
           cargo install --path solobase/crates/solobase --locked
           cargo install --path wafer-run/crates/wafer-cli --locked
 
-      - name: Build skill wasms
+      - name: Build skill wasms (full)
+        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: solobase build
 
+      - name: Build changed skill wasms
+        if: github.event_name == 'pull_request'
+        working-directory: gizza-ai
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r block; do
+            [ -n "$block" ] || continue
+            echo "Building changed block: $block"
+            (
+              cd "blocks/$block"
+              cargo build --target wasm32-wasip1 --release
+              wasm="$(find target/wasm32-wasip1/release -maxdepth 1 -type f -name '*.wasm' | head -n 1)"
+              if [ -z "$wasm" ]; then
+                echo "No wasm artifact produced for blocks/$block" >&2
+                exit 1
+              fi
+              mkdir -p target
+              cp "$wasm" target/block.wasm
+            )
+          done <<< "${{ steps.changed.outputs.blocks }}"
+
       - name: Cargo tests
+        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: cargo test
 
+      - name: Changed block Cargo tests
+        if: github.event_name == 'pull_request'
+        working-directory: gizza-ai
+        shell: bash
+        run: |
+          set -euo pipefail
+          ran=0
+          while IFS= read -r block; do
+            [ -n "$block" ] || continue
+            ran=1
+            if [ -f "blocks/$block/core/Cargo.toml" ]; then
+              cargo test --manifest-path "blocks/$block/core/Cargo.toml"
+            fi
+            cargo test --manifest-path "blocks/$block/Cargo.toml"
+          done <<< "${{ steps.changed.outputs.blocks }}"
+          if [ "$ran" -eq 0 ]; then
+            echo "No block changes detected; skipping block-specific Cargo tests."
+          fi
+
       - name: CLI tests
+        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: cargo test --manifest-path cli/Cargo.toml
 
@@ -93,6 +170,7 @@ jobs:
         run: bash scripts/gen-seo.test.sh
 
       - name: Chrome crate tests
+        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: cargo test --manifest-path chrome/Cargo.toml
 
@@ -106,6 +184,7 @@ jobs:
           node-version: '20'
 
       - name: JS tests
+        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: |
           npm install --no-audit --no-fund
