@@ -498,15 +498,15 @@ mod tests {
         );
     }
 
-    /// The cold, crawler-facing apex is the static `site/index.html` overlay
-    /// (`solobase.toml` copies it to the deployed `index.html`) — NOT
+    /// The cold, crawler-facing chat shell is the static `site/chat.html` overlay
+    /// (`solobase.toml` copies it to the deployed `chat.html`) — NOT
     /// [`render_chat`], which is the Service-Worker/SSR path a no-JS crawler or
     /// social-card scraper (Twitter/Slack/LinkedIn) never executes. So the SEO
     /// `<head>` must be present statically here too, kept in sync with
     /// `render_chat` via the shared `SEO_*` constants (this test is the guard).
     #[test]
     fn static_shell_carries_seo_head() {
-        let shell = include_str!("../../site/index.html");
+        let shell = include_str!("../../site/chat.html");
         assert!(
             shell.contains(SEO_TITLE),
             "static shell <title>/og:title uses the SEO title"

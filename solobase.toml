@@ -1,7 +1,7 @@
 [app]
 name = "gizza-ai"
 title = "Gizza AI"
-boot_redirect = "/"
+boot_redirect = "/chat"
 
 [solobase]
 manifest_path = "../solobase"
@@ -13,6 +13,10 @@ extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js", "/pending.js
 [[assets.overlay]]
 from = "site/index.html"
 to = "index.html"
+
+[[assets.overlay]]
+from = "site/chat.html"
+to = "chat.html"
 
 [[assets.overlay]]
 from = "site/gizza-app.js"
