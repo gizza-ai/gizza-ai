@@ -11,6 +11,7 @@ import {
 } from './pending.js';
 import { loadEngine, unloadEngine } from '/webllm-engine.js';
 import { openPicker } from '/model-picker.js';
+import { initMascot } from '/mascot.js';
 
 const history = []; // OpenAI-format messages.
 
@@ -855,144 +856,17 @@ function setupUploads() {
 
 setupUploads();
 
-// --- Brand mascot state machine ---
+// --- Brand mascot ---
 //
-// The mascot is a 3-layer composite: a still PNG (eyes-less), a video that
-// overlays it during animation, and pupil sprites that track the user's
-// cursor while a still is showing.
-//
-// Modes / poses:
-//   resting       — gis_no_eyes.png + pupils (boot state)
-//   video-idle    — gis_video_idle.mp4 (the "gis a job" reveal), no pupils
-//   sign          — gis_a_job_no_eyes.png + pupils (after idle animation)
-//   typing        — gis_video_typing_loop.mp4 looping, no pupils
-//   typing-finish — gis_video_typing_finish.mp4 (tail) once, no pupils
-//
-// Flow: resting → 10s no activity → video-idle → ended → sign (stays).
-// On composer submit: → typing. On finally: → typing-finish → ended → sign.
-const brandMascot = document.querySelector('.brand-mascot');
-if (brandMascot) {
-    const brandStill = brandMascot.querySelector('.brand-still');
-    const brandVideo = brandMascot.querySelector('.brand-video');
-    const eyes = brandMascot.querySelectorAll('.brand-eye');
-
-    const RESTING_SRC = '/gis_no_eyes.png';
-    const SIGN_SRC = '/gis_a_job_no_eyes.png';
-    const IDLE_VIDEO = '/gis_video_idle.mp4';
-    const TYPING_LOOP_SRC = '/gis_video_typing_loop.mp4';
-    const TYPING_FINISH_SRC = '/gis_video_typing_finish.mp4';
-    const IDLE_DELAY_MS = 10_000;
-
-    let brandMode = 'resting';
-    let idleTimer = null;
-
-    const absUrl = (rel) => new URL(rel, location.href).href;
-    const videoSrcIs = (rel) => brandVideo.currentSrc === absUrl(rel);
-
-    function clearIdleTimer() {
-        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-    }
-
-    function showStill(src, pose) {
-        brandStill.src = src;
-        brandStill.hidden = false;
-        brandVideo.hidden = true;
-        try { brandVideo.pause(); } catch (_) {}
-        brandMascot.dataset.pose = pose;
-    }
-
-    function showVideo(src, { loop }) {
-        brandStill.hidden = true;
-        brandVideo.hidden = false;
-        brandVideo.loop = loop;
-        brandMascot.dataset.pose = 'video';
-        const start = () => {
-            try { brandVideo.currentTime = 0; } catch (_) {}
-            brandVideo.play().catch(() => {});
-        };
-        if (!videoSrcIs(src)) {
-            brandVideo.src = src;
-            brandVideo.addEventListener('loadedmetadata', start, { once: true });
-        } else {
-            start();
-        }
-    }
-
-    function enterResting() {
-        brandMode = 'resting';
-        showStill(RESTING_SRC, 'resting');
-        // After 10s of no activity, play the "gis a job" reveal video.
-        clearIdleTimer();
-        idleTimer = setTimeout(() => enterVideoIdle(), IDLE_DELAY_MS);
-    }
-
-    function enterVideoIdle() {
-        if (brandMode === 'typing' || brandMode === 'typing-finish') return;
-        brandMode = 'video-idle';
-        clearIdleTimer();
-        showVideo(IDLE_VIDEO, { loop: false });
-    }
-
-    function enterSign() {
-        brandMode = 'sign';
-        clearIdleTimer();
-        showStill(SIGN_SRC, 'sign');
-    }
-
-    function startTyping() {
-        clearIdleTimer();
-        brandMode = 'typing';
-        showVideo(TYPING_LOOP_SRC, { loop: true });
-    }
-
-    function stopTyping() {
-        if (brandMode !== 'typing') return;
-        brandMode = 'typing-finish';
-        showVideo(TYPING_FINISH_SRC, { loop: false });
-    }
-
-    brandVideo.addEventListener('ended', () => {
-        if (brandMode === 'video-idle' || brandMode === 'typing-finish') {
-            enterSign();
-        }
-    });
-
-    // ─── Pupil mouse-tracking ──────────────────────────────────────────────
-    // Each eye socket has overflow:hidden — the pupil image translates
-    // within its socket based on cursor angle/distance, mirroring the
-    // solobase-site Hero approach.
-    function onMouseMove(e) {
-        if (brandMascot.dataset.pose === 'video') return;
-        requestAnimationFrame(() => {
-            for (const eye of eyes) {
-                const socket = eye.parentElement;
-                const sr = socket.getBoundingClientRect();
-                const er = eye.getBoundingClientRect();
-                const cx = sr.left + sr.width / 2;
-                const cy = sr.top + sr.height / 2;
-                const dx = e.clientX - cx;
-                const dy = e.clientY - cy;
-                const angle = Math.atan2(dy, dx);
-                const distance = Math.hypot(dx, dy);
-                const maxX = (sr.width - er.width) / 2;
-                const maxY = (sr.height - er.height) / 2;
-                const scale = Math.min(distance / 200, 1);
-                const mx = Math.cos(angle) * maxX * scale;
-                const my = Math.sin(angle) * maxY * scale;
-                eye.style.transform = `translate(${mx}px, ${my}px)`;
-            }
-        });
-    }
-    function onMouseLeave() {
-        for (const eye of eyes) eye.style.transform = 'translate(0, 0)';
-    }
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseleave', onMouseLeave);
-
-    window.__brandStartTyping = startTyping;
-    window.__brandStopTyping = stopTyping;
-
-    enterResting();
+// The mascot's full behavior (3-layer still/video/eyes composite + state
+// machine + cursor-tracking pupils) lives in the shared module mascot.js, which
+// the static apex chooser reuses. Here we init it in CHAT mode (typing states
+// live) and expose the typing transitions as the globals the composer-submit
+// path drives (`__brandStartTyping` on send, `__brandStopTyping` on finish).
+const brandMascotCtl = initMascot(document.querySelector('.brand-mascot'));
+if (brandMascotCtl) {
+    window.__brandStartTyping = brandMascotCtl.startTyping;
+    window.__brandStopTyping = brandMascotCtl.stopTyping;
 }
 
 // Progress card \u2014 created lazily inside the Settings dialog while the model

@@ -146,6 +146,9 @@ fn render_chat() -> maud::Markup {
                 link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css";
                 script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js" {}
                 link rel="stylesheet" href="/gizza.css";
+                // Shared animated-mascot styles (still + video + eyes). Factored
+                // out of gizza.css so the static apex chooser can reuse them.
+                link rel="stylesheet" href="/mascot.css";
                 link rel="stylesheet" href="/model-picker.css";
                 link rel="stylesheet" href="/tools-modal.css";
             }

@@ -26,36 +26,73 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css">
   <style>
-    .chooser { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 32px 20px; text-align: center; }
-    .chooser__mascot { width: 96px; height: 96px; }
-    .chooser h1 { font-size: clamp(1.5rem, 5vw, 2.2rem); margin: 0; }
-    .chooser p.tag { margin: 0; max-width: 30rem; opacity: 0.8; line-height: 1.5; }
-    .chooser__buttons { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
-    .chooser__btn { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 160px; padding: 22px 28px; border-radius: 14px; border: 1px solid rgba(0,0,0,.12); text-decoration: none; color: inherit; font-weight: 600; font-size: 1.1rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-    .chooser__btn:hover { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
-    .chooser__btn .emoji { font-size: 1.8rem; }
-    .chooser__btn .hint { font-size: .75rem; font-weight: 400; opacity: .6; min-height: 1em; }
-    @media (prefers-color-scheme: dark) { .chooser__btn { background: #1b1f24; border-color: rgba(255,255,255,.14); } }
+    /* Colours mirror the chat (gizza.css): canvas #EEEDED, ink #0a0a0a,
+       muted #737373, hairline #e5e5e5, brand accent #f54e00. Hardcoded so the
+       chooser stays self-contained (it does not load gizza.css). No
+       prefers-color-scheme flip — the chat is always #EEEDED, so the chooser is
+       too, for a consistent first impression. */
+    html, body { margin: 0; background: #EEEDED; color: #0a0a0a; }
+    .chooser { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 32px 20px; text-align: center; }
+    /* The living mascot reuses the shared .brand-mascot markup + mascot.css
+       compositing rules; we only size its container here (the chat sizes via
+       .brand-logo, which we don't load). */
+    .chooser__mascot { width: 120px; height: 120px; }
+    .chooser h1 { font-size: clamp(1.6rem, 5vw, 2.3rem); margin: 0; color: #0a0a0a; }
+    .chooser p.tag { margin: 0; max-width: 30rem; color: #525252; line-height: 1.55; }
+    .chooser__buttons { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; }
+    .chooser__btn { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 170px; padding: 26px 30px; border-radius: 16px; border: 1px solid #e5e5e5; text-decoration: none; color: #0a0a0a; font-weight: 700; font-size: 1.15rem; background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,.05); transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease, color .15s ease; }
+    .chooser__btn:hover, .chooser__btn:focus-visible { border-color: #f54e00; color: #f54e00; box-shadow: 0 8px 22px rgba(245,78,0,.18); transform: translateY(-2px); outline: none; }
+    /* Inline Lucide icons inherit the button's ink color (currentColor) and
+       turn orange on hover via the .chooser__btn color transition above. */
+    .chooser__btn .icon { display: block; width: 30px; height: 30px; }
+    .chooser__btn .hint { font-size: .75rem; font-weight: 500; color: #737373; min-height: 1em; }
   </style>
+  <!-- Shared animated-mascot compositing rules (still + video + eyes), the same
+       file the chat links. Static + SW-bypassed (solobase.toml). -->
+  <link rel="stylesheet" href="/mascot.css">
 </head>
 <body>
   <main class="chooser">
-    <img class="chooser__mascot" src="/gis.png" alt="gizza mascot" width="96" height="96">
+    <!-- Same living mascot the chat uses: a still PNG (empty eye sockets), a
+         video that overlays during animation, and two pupils that track the
+         cursor. mascot.js (idle/landing mode) drives it: eyes follow the mouse
+         and the idle video plays. Markup mirrors render_chat()'s brand block;
+         the .chooser__mascot class sizes the box (chat sizes via .brand-logo). -->
+    <div class="chooser__mascot brand-mascot" data-pose="resting">
+      <img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="gizza mascot">
+      <video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden></video>
+      <div class="brand-eyes" aria-hidden="true">
+        <div class="brand-eye-socket brand-eye-left"><img class="brand-eye" src="/eye.png" alt=""></div>
+        <div class="brand-eye-socket brand-eye-right"><img class="brand-eye" src="/eye.png" alt=""></div>
+      </div>
+    </div>
     <h1>gizza.ai</h1>
     <p class="tag">Free, private AI — chat and tools that run in your browser. Nothing leaves your device.</p>
     <div class="chooser__buttons">
       <a class="chooser__btn" href="/chat">
-        <span class="emoji">💬</span>
+        <!-- Lucide `message-circle` -->
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>
         <span>Chat</span>
         <span class="hint" id="chat-hint"></span>
       </a>
       <a class="chooser__btn" href="/tools/">
-        <span class="emoji">🛠️</span>
+        <!-- Lucide `wrench` -->
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
         <span>Tools</span>
         <span class="hint">Works on any device</span>
       </a>
     </div>
   </main>
+  <!-- Living mascot — the SAME shared module the chat uses, in landing/idle
+       mode (eyes follow the cursor + the idle video plays; NO chat-typing
+       states). This is a plain ES-module <script type="module">: it imports
+       /mascot.js only. It registers NO Service Worker and loads NO runtime, so
+       the page stays inert and renders on any device even when the in-browser
+       runtime can't boot. /mascot.js is SW-bypassed (solobase.toml). -->
+  <script type="module">
+    import { initMascot } from '/mascot.js';
+    initMascot(document.querySelector('.brand-mascot'), { landing: true });
+  </script>
   <script>
     // Inert WebGPU probe — no SW, no runtime. Sets a soft hint under Chat when
     // WebGPU is unavailable (most mobile browsers). Chat stays clickable.

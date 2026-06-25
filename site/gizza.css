@@ -132,71 +132,13 @@ sa-chat::part(composer) {
   flex: 1 1 auto;
   width: 100%;
 }
-.brand-logo {
-  width: 168px;
-  height: 168px;
-  flex-shrink: 0;
-  object-fit: contain;
-  background: transparent;
-}
 
 /* ─── Brand mascot (still + video + eyes) ──────────────────────────────── */
-/* Container layers a still PNG (with empty eye sockets), a video that
- * overlays it during animation, and two pupil overlays that track the
- * mouse. The .brand-still and .brand-video both fill the box; the JS state
- * machine toggles which is visible. Eye sockets are absolutely positioned
- * over the white eyeball areas of the still images.
- *
- * `.brand-still`/`.brand-eye` are class selectors so they outrank
- * header.css's `.site-header__brand img { width: 30px }` element rule and
- * the mascot is not collapsed to the tool-page logo size. */
-.brand-mascot {
-  position: relative;
-}
-.brand-still,
-.brand-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.brand-video[hidden] { display: none; }
-.brand-still[hidden] { display: none; }
-
-.brand-eyes {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.brand-eye-socket {
-  position: absolute;
-  width: 8.5%;  /* slightly smaller than the white eyeball so the pupil
-                 * stays inside the iris with room to roam */
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translate(-50%, -50%);
-}
-.brand-eye {
-  width: 55%;
-  height: 55%;
-  object-fit: contain;
-  transition: transform 60ms linear;
-}
-
-/* Per-pose pupil placement — coordinates measured visually from each
- * source PNG's white eyeball centers (1254×1254 canvas). */
-.brand-mascot[data-pose="resting"] .brand-eye-left  { left: 45.0%; top: 60.5%; }
-.brand-mascot[data-pose="resting"] .brand-eye-right { left: 58.0%; top: 60.5%; }
-.brand-mascot[data-pose="sign"]    .brand-eye-left  { left: 45.5%; top: 58.2%; }
-.brand-mascot[data-pose="sign"]    .brand-eye-right { left: 56.5%; top: 58.2%; }
-
-/* Hide eyes while a video is playing (the video has its own baked-in eyes). */
-.brand-mascot[data-pose="video"] .brand-eyes { display: none; }
+/* The mascot's compositing rules (.brand-logo sizing, .brand-mascot,
+ * .brand-still/.brand-video, .brand-eyes, per-pose pupil placement) live in
+ * the shared mascot.css — single source of truth, reused by the apex chooser.
+ * render_chat() links /mascot.css alongside this file. Only chat-specific
+ * brand text styling (.brand h1) stays here. */
 .brand h1 {
   margin: 0;
   font-family: var(--font-display);
@@ -1031,7 +973,7 @@ dialog button[value="close"] {
 
 @media (max-width: 640px) {
   .brand h1 { font-size: 30px; }
-  .brand-logo { width: 110px; height: 110px; }
+  /* .brand-logo mobile sizing lives in mascot.css (shared). */
   #composer { width: calc(100% - var(--space-lg)); padding: var(--space-sm) var(--space-sm) var(--space-xs); }
   .bubble { max-width: 92%; }
   dialog { padding: var(--space-lg); }

@@ -13,7 +13,7 @@ opfs_wipe_on_recovery = true
 # (not prefix) because "/" can't be a startsWith prefix. Requires solobase
 # >= c67ba6f (extra_bypass_exact support).
 extra_bypass_exact = ["/", "/index.html"]
-extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/render.js", "/pending.js", "/gis.png", "/gis_no_eyes.png", "/gis_a_job_no_eyes.png", "/eye.png", "/gis_video_idle.mp4", "/gis_video_typing_loop.mp4", "/gis_video_typing_finish.mp4", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/logo.webp", "/model-picker.js", "/model-picker.css", "/tool.js", "/tool.css", "/tools/", "/tools-modal.js", "/tools-modal.css", "/ffmpeg-engine.js", "/ffmpeg.js", "/header.js", "/header.css", "/tools-index.js", "/sitemap.xml", "/robots.txt", "/llms.txt"]
+extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/mascot.js", "/mascot.css", "/render.js", "/pending.js", "/gis.png", "/gis_no_eyes.png", "/gis_a_job_no_eyes.png", "/eye.png", "/gis_video_idle.mp4", "/gis_video_typing_loop.mp4", "/gis_video_typing_finish.mp4", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/logo.webp", "/model-picker.js", "/model-picker.css", "/tool.js", "/tool.css", "/tools/", "/tools-modal.js", "/tools-modal.css", "/ffmpeg-engine.js", "/ffmpeg.js", "/header.js", "/header.css", "/tools-index.js", "/sitemap.xml", "/robots.txt", "/llms.txt"]
 
 [[assets.overlay]]
 from = "site/index.html"
@@ -30,6 +30,17 @@ to = "gizza-app.js"
 [[assets.overlay]]
 from = "site/gizza.css"
 to = "gizza.css"
+
+# Shared animated-mascot module + styles — reused by both the chat shell
+# (render_chat) and the static apex chooser (site/index.html). SW-bypassed via
+# extra_bypass_prefix above so the chooser can load them while staying inert.
+[[assets.overlay]]
+from = "site/mascot.js"
+to = "mascot.js"
+
+[[assets.overlay]]
+from = "site/mascot.css"
+to = "mascot.css"
 
 [[assets.overlay]]
 from = "site/render.js"
