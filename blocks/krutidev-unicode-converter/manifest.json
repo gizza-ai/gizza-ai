@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/krutidev-unicode-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Hindi text between Kruti Dev 010 and Unicode Devanagari.",
+  "role": "skill",
+  "tool": {
+    "description": "Converts legacy Hindi Kruti Dev text to Unicode Devanagari and vice versa.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": { "input": { "type": "string", "description": "The Hindi Kruti Dev or Unicode Devanagari text to convert." } },
+      "additionalProperties": false
+    }
+  }
+}

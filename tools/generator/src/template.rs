@@ -149,7 +149,19 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                             div class="tool-cli-card" {
                                 h3 { "Run it from the terminal" }
                                 p { "Same engine as this page, headless — via the gizza CLI:" }
-                                pre class="tool-cli-code" { code { (cli_example) } }
+                                div class="tool-cli-code-wrapper" {
+                                    pre class="tool-cli-code" { code { (cli_example) } }
+                                    button class="tool-cli-copy-btn" title="Copy to clipboard"
+                                        onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent.trim()).then(()=>{this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)})" {
+                                        svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {
+                                            rect width="14" height="14" x="8" y="8" rx="2" ry="2" {}
+                                            path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" {}
+                                        }
+                                        svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" {
+                                            polyline points="20 6 9 17 4 12" {}
+                                        }
+                                    }
+                                }
                                 p class="tool-cli-note" {
                                     "New to the CLI? "
                                     a href="https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md"
@@ -160,7 +172,19 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                                 div class="tool-cli-card" {
                                     h3 { "Open it by URL" }
                                     p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
-                                    pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
+                                    div class="tool-cli-code-wrapper" {
+                                        pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
+                                        button class="tool-cli-copy-btn" title="Copy to clipboard"
+                                            onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent.trim()).then(()=>{this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)})" {
+                                            svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {
+                                                rect width="14" height="14" x="8" y="8" rx="2" ry="2" {}
+                                                path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" {}
+                                            }
+                                            svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" {
+                                                polyline points="20 6 9 17 4 12" {}
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -180,15 +204,18 @@ const TOOL_CLI_CSS: &str = r#"
 .tool-dev-group { max-width: 720px; margin: 48px auto 64px; }
 .tool-dev-group h2 { font-size: 1.3rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
 .tool-dev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-.tool-cli-card { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; }
-.tool-cli-card h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
+.tool-cli-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.tool-cli-card h3 { font-size: 1.1rem; font-weight: 650; margin: 0 0 8px; color: var(--tool-ink, #0f172a); }
 .tool-cli-card > p { color: var(--tool-muted, #6b7280); font-size: 0.9rem; margin: 0 0 12px; }
-.tool-cli-code { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; overflow-x: auto; font-size: .9rem; line-height: 1.4; margin: 0; scrollbar-width: thin; scrollbar-color: #334155 #0f172a; }
-.tool-cli-code::-webkit-scrollbar { height: 8px; }
-.tool-cli-code::-webkit-scrollbar-track { background: #0f172a; border-radius: 0 0 10px 10px; }
-.tool-cli-code::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-.tool-cli-code::-webkit-scrollbar-thumb:hover { background: #475569; }
+.tool-cli-code-wrapper { position: relative; width: 100%; display: flex; align-items: stretch; }
+.tool-cli-code { flex: 1; background: #0f172a; color: #e2e8f0; padding: 14px 44px 14px 16px; border-radius: 10px; font-size: 0.85rem; line-height: 1.5; margin: 0; border: 1px solid #1e293b; box-shadow: inset 0 2px 4px rgba(0,0,0,0.35); white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; }
 .tool-cli-code code { color: inherit; background: none; padding: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.tool-cli-copy-btn { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #64748b; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s, color 0.15s; }
+.tool-cli-copy-btn:hover { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+.tool-cli-copy-btn.copied { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+.tool-cli-copy-btn .check-icon { display: none; }
+.tool-cli-copy-btn.copied .copy-icon { display: none; }
+.tool-cli-copy-btn.copied .check-icon { display: block; }
 .tool-cli-note { font-size: .85rem; margin: 12px 0 0; color: var(--tool-muted, #6b7280); margin-top: auto; padding-top: 10px; }
 "#;
 
