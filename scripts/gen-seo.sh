@@ -33,6 +33,8 @@ done
   printf '<?xml version="1.0" encoding="UTF-8"?>\n'
   printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
   printf '  <url><loc>%s/</loc></url>\n' "$BASE_URL"
+  printf '  <url><loc>%s/chat</loc></url>\n' "$BASE_URL"
+  printf '  <url><loc>%s/tools/</loc></url>\n' "$BASE_URL"
   for slug in "${page_slugs[@]}"; do
     printf '  <url><loc>%s/tools/%s/</loc></url>\n' "$BASE_URL" "$slug"
   done

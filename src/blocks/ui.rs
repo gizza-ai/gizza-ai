@@ -17,17 +17,19 @@ use wafer_block::{
 
 use super::DEFAULT_MODEL_ID;
 
-/// Canonical SEO / social metadata for the apex page.
+/// Canonical SEO / social metadata for the chat page (`/chat`).
 ///
 /// Single source consumed by BOTH the Service-Worker/SSR render
-/// ([`render_chat`]) and the static, crawler-facing shell `site/index.html`
-/// (which `solobase.toml` overlays as the deployed `index.html`). A no-JS
-/// crawler or social-card scraper only ever sees that static shell, so the SEO
-/// `<head>` must be present there too — the `static_shell_carries_seo_head`
-/// test fails if the shell drifts from these values.
-const SEO_TITLE: &str = "gizza.ai — free, private AI chat in your browser";
+/// ([`render_chat`]) and the static, crawler-facing chat shell `site/chat.html`
+/// (which `solobase.toml` overlays as the deployed `chat.html`). A no-JS
+/// crawler or social-card scraper hitting `/chat` only ever sees that static
+/// shell, so the SEO `<head>` must be present there too — the
+/// `static_shell_carries_seo_head` test fails if the shell drifts from these
+/// values. (The apex `/` is a separate static chooser, `site/index.html`, with
+/// its own SEO head asserted by `apex_chooser_has_root_canonical_and_two_links`.)
+const SEO_TITLE: &str = "gizza.ai — private AI chat in your browser";
 const SEO_DESCRIPTION: &str = "gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
-const SEO_CANONICAL: &str = "https://gizza.ai/";
+const SEO_CANONICAL: &str = "https://gizza.ai/chat";
 const SEO_OG_IMAGE: &str = "https://gizza.ai/gis.png";
 
 pub struct UiBlock;
@@ -50,7 +52,7 @@ impl Block for UiBlock {
         let path = msg.path();
 
         // GET-equivalent for a page render — accept "retrieve" action.
-        if action == "retrieve" && (path == "/" || path == "/b/ui/" || path == "/b/ui") {
+        if action == "retrieve" && (path == "/chat" || path == "/b/ui/" || path == "/b/ui") {
             let markup = render_chat();
             let html_bytes = markup.into_string().into_bytes();
             return OutputStream::respond_with_meta(
@@ -146,6 +148,9 @@ fn render_chat() -> maud::Markup {
                 link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css";
                 script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js" {}
                 link rel="stylesheet" href="/gizza.css";
+                // Shared animated-mascot styles (still + video + eyes). Factored
+                // out of gizza.css so the static apex chooser can reuse them.
+                link rel="stylesheet" href="/mascot.css";
                 link rel="stylesheet" href="/model-picker.css";
                 link rel="stylesheet" href="/tools-modal.css";
             }
@@ -393,17 +398,32 @@ mod tests {
         assert!(s.contains(r#"id="open-tools""#), "hammer button present");
         // Assert BOTH the modal container and its search input are present so this
         // test cannot pass on the header's explore-search alone.
-        assert!(s.contains(r#"id="tools-modal""#), "tools modal dialog present");
-        assert!(s.contains(r#"id="tools-search""#), "modal search input present (modal-owned id)");
-        assert!(!s.contains("class=\"gizza-tools\""), "old inline list removed");
+        assert!(
+            s.contains(r#"id="tools-modal""#),
+            "tools modal dialog present"
+        );
+        assert!(
+            s.contains(r#"id="tools-search""#),
+            "modal search input present (modal-owned id)"
+        );
+        assert!(
+            !s.contains("class=\"gizza-tools\""),
+            "old inline list removed"
+        );
     }
 
     #[test]
     fn about_dialog_links_to_cli_and_skill() {
         let s = render_chat().into_string();
         assert!(s.contains("gizza CLI"), "About dialog mentions the CLI");
-        assert!(s.contains("blob/main/cli/README.md"), "links to the CLI docs");
-        assert!(s.contains("blob/main/SKILL.md"), "links to SKILL.md for agents");
+        assert!(
+            s.contains("blob/main/cli/README.md"),
+            "links to the CLI docs"
+        );
+        assert!(
+            s.contains("blob/main/SKILL.md"),
+            "links to SKILL.md for agents"
+        );
     }
 
     #[test]
@@ -411,7 +431,10 @@ mod tests {
         let s = render_chat().into_string();
         assert!(s.contains(r#"class="composer-note""#), "disclaimer present");
         assert!(s.contains("don't get crabby"), "disclaimer text present");
-        assert!(s.contains("blob/main/cli/README.md"), "links to the CLI tool");
+        assert!(
+            s.contains("blob/main/cli/README.md"),
+            "links to the CLI tool"
+        );
         // slotted into the composer slot (sa-chat) so it sits under the input card.
         assert!(s.contains(r#"p slot="composer" class="composer-note""#));
     }
@@ -438,7 +461,10 @@ mod tests {
             "shared chrome header (explore-search) present"
         );
         // The header's Explore mega-menu trigger is part of the shared chrome.
-        assert!(s.contains("Explore"), "shared header Explore trigger present");
+        assert!(
+            s.contains("Explore"),
+            "shared header Explore trigger present"
+        );
         // The external sa-header web component is gone (element + loader script).
         assert!(
             !s.contains("sa-header"),
@@ -450,9 +476,18 @@ mod tests {
             "#open-settings button still present for JS relocation"
         );
         // Mascot DOM hooks gizza-app.js animates must survive verbatim.
-        assert!(s.contains(r#"id="brand-still""#), "mascot #brand-still present");
-        assert!(s.contains(r#"id="brand-video""#), "mascot #brand-video present");
-        assert!(s.contains("brand-mascot"), "mascot .brand-mascot class present");
+        assert!(
+            s.contains(r#"id="brand-still""#),
+            "mascot #brand-still present"
+        );
+        assert!(
+            s.contains(r#"id="brand-video""#),
+            "mascot #brand-video present"
+        );
+        assert!(
+            s.contains("brand-mascot"),
+            "mascot .brand-mascot class present"
+        );
         assert!(s.contains("brand-eye"), "mascot .brand-eye* hooks present");
         // The new brand wordmark gizza-app.js retargets (id, not `sa-header h1`).
         assert!(
@@ -460,17 +495,32 @@ mod tests {
             "brand wordmark has stable id for gizza-app.js"
         );
         // Chat-only composer menu stays untouched.
-        assert!(s.contains(r#"id="composer-menu""#), "#composer-menu present");
+        assert!(
+            s.contains(r#"id="composer-menu""#),
+            "#composer-menu present"
+        );
         // Header assets are referenced in <head>.
         assert!(s.contains(r#"href="/header.css""#), "header.css linked");
         assert!(s.contains(r#"src="/header.js""#), "header.js loaded");
     }
 
     #[test]
+    fn ui_block_serves_chat_at_chat_route() {
+        // The retrieve handler must answer "/chat" with the chat markup.
+        let markup = render_chat().into_string();
+        assert!(markup.contains(SEO_TITLE));
+        // canonical now points at /chat
+        assert!(
+            markup.contains(r#"href="https://gizza.ai/chat""#),
+            "chat canonical should be /chat: {markup}"
+        );
+    }
+
+    #[test]
     fn head_has_seo_tags() {
         let s = render_chat().into_string();
         assert!(
-            s.contains(r#"rel="canonical" href="https://gizza.ai/""#),
+            s.contains(r#"rel="canonical" href="https://gizza.ai/chat""#),
             "canonical link present"
         );
         assert!(
@@ -489,15 +539,15 @@ mod tests {
         );
     }
 
-    /// The cold, crawler-facing apex is the static `site/index.html` overlay
-    /// (`solobase.toml` copies it to the deployed `index.html`) — NOT
+    /// The cold, crawler-facing chat shell is the static `site/chat.html` overlay
+    /// (`solobase.toml` copies it to the deployed `chat.html`) — NOT
     /// [`render_chat`], which is the Service-Worker/SSR path a no-JS crawler or
     /// social-card scraper (Twitter/Slack/LinkedIn) never executes. So the SEO
     /// `<head>` must be present statically here too, kept in sync with
     /// `render_chat` via the shared `SEO_*` constants (this test is the guard).
     #[test]
     fn static_shell_carries_seo_head() {
-        let shell = include_str!("../../site/index.html");
+        let shell = include_str!("../../site/chat.html");
         assert!(
             shell.contains(SEO_TITLE),
             "static shell <title>/og:title uses the SEO title"
@@ -518,6 +568,40 @@ mod tests {
         assert!(
             shell.contains("application/ld+json"),
             "static shell has JSON-LD"
+        );
+    }
+
+    /// The apex chooser (`site/index.html`) is a static page at `/` that
+    /// presents two buttons: one linking to `/chat` and one to `/tools/`.
+    /// It must carry a canonical tag for `https://gizza.ai/` (distinct from
+    /// the chat canonical `https://gizza.ai/chat`) and hard links to both
+    /// destinations so crawlers can discover them without executing JS.
+    #[test]
+    fn apex_chooser_has_root_canonical_and_two_links() {
+        let chooser = include_str!("../../site/index.html");
+        assert!(
+            chooser.contains(r#"rel="canonical" href="https://gizza.ai/""#),
+            "apex canonical must be /"
+        );
+        assert!(
+            chooser.contains(r#"href="/chat""#),
+            "chooser must link to /chat"
+        );
+        assert!(
+            chooser.contains(r#"href="/tools/""#),
+            "chooser must link to /tools/"
+        );
+        // Core invariant: the apex chooser must stay INERT — it must render even
+        // when the in-browser runtime can't boot (the "gizza-ai couldn't start"
+        // mobile failure this page exists to avoid). So it must NOT load the boot
+        // loader or register a Service Worker.
+        assert!(
+            !chooser.contains("/loader.js"),
+            "apex chooser must not load /loader.js (must stay inert)"
+        );
+        assert!(
+            !chooser.contains("serviceWorker"),
+            "apex chooser must not register a Service Worker (must stay inert)"
         );
     }
 }

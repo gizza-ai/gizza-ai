@@ -97,7 +97,7 @@ pub fn header(brand: Markup, active: Active) -> Markup {
             // ── Right: nav + mega-menu + standalone icon links ─────────────
             nav.site-header__nav aria-label="Main navigation" {
                 // Active-section text links
-                a.(chat_class) href="/" { "Chat" }
+                a.(chat_class) href="/chat" { "Chat" }
                 a.(tool_class) href="/tools/" { "Tools" }
 
                 // ── Explore mega-menu trigger ──────────────────────────────
@@ -270,7 +270,7 @@ pub fn footer() -> Markup {
                 nav.site-footer__col aria-label="Product links" {
                     h4.site-footer__col-title { "Product" }
                     ul {
-                        li { a href="/" { "Chat" } }
+                        li { a href="/chat" { "Chat" } }
                         li { a href="/tools/" { "All tools" } }
                     }
                 }

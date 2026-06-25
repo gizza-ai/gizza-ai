@@ -1,0 +1,83 @@
+/* mascot.css — shared animated gizza mascot (still + video + eyes).
+ *
+ * Single source of truth for the living crab mascot used by BOTH the chat
+ * greeting (src/blocks/ui.rs → render_chat) and the static apex chooser
+ * (site/index.html). The markup is a 3-layer composite:
+ *   - a still PNG with empty eye sockets (.brand-still),
+ *   - a video that overlays it during animation (.brand-video),
+ *   - two pupil sprites that track the cursor while a still is showing
+ *     (.brand-eyes / .brand-eye-socket / .brand-eye).
+ * The JS state machine (mascot.js) toggles which layer is visible via the
+ * [data-pose] attribute. These rules were factored out of gizza.css so the
+ * chooser can reuse them without pulling in the entire chat stylesheet.
+ *
+ * `.brand-still`/`.brand-eye` use class selectors so they outrank
+ * header.css's `.site-header__brand img { width: 30px }` element rule and the
+ * mascot is not collapsed to the tool-page logo size. The container size lives
+ * on `.brand-logo` (chat) / `.chooser__mascot` (chooser); this file owns only
+ * the internal compositing + per-pose pupil placement.
+ */
+
+/* Default mascot box size — the chat greeting wears `.brand-logo brand-mascot`
+ * so the container is sized by this rule. The chooser sizes its own container
+ * (.chooser__mascot) and only borrows the compositing rules below. */
+.brand-logo {
+  width: 168px;
+  height: 168px;
+  flex-shrink: 0;
+  object-fit: contain;
+  background: transparent;
+}
+
+.brand-mascot {
+  position: relative;
+}
+.brand-still,
+.brand-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.brand-video[hidden] { display: none; }
+.brand-still[hidden] { display: none; }
+
+.brand-eyes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.brand-eye-socket {
+  position: absolute;
+  width: 8.5%;  /* slightly smaller than the white eyeball so the pupil
+                 * stays inside the iris with room to roam */
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+}
+.brand-eye {
+  width: 55%;
+  height: 55%;
+  object-fit: contain;
+  transition: transform 60ms linear;
+}
+
+/* Per-pose pupil placement — coordinates measured visually from each
+ * source PNG's white eyeball centers (1254×1254 canvas). */
+.brand-mascot[data-pose="resting"] .brand-eye-left  { left: 45.0%; top: 60.5%; }
+.brand-mascot[data-pose="resting"] .brand-eye-right { left: 58.0%; top: 60.5%; }
+.brand-mascot[data-pose="sign"]    .brand-eye-left  { left: 45.5%; top: 58.2%; }
+.brand-mascot[data-pose="sign"]    .brand-eye-right { left: 56.5%; top: 58.2%; }
+
+/* Hide eyes while a video is playing (the video has its own baked-in eyes). */
+.brand-mascot[data-pose="video"] .brand-eyes { display: none; }
+
+/* ─── Mobile ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .brand-logo { width: 110px; height: 110px; }
+}
