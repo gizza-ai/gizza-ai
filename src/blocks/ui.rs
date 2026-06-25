@@ -25,9 +25,9 @@ use super::DEFAULT_MODEL_ID;
 /// crawler or social-card scraper only ever sees that static shell, so the SEO
 /// `<head>` must be present there too — the `static_shell_carries_seo_head`
 /// test fails if the shell drifts from these values.
-const SEO_TITLE: &str = "gizza.ai — free, private AI chat in your browser";
+const SEO_TITLE: &str = "gizza.ai — private AI chat in your browser";
 const SEO_DESCRIPTION: &str = "gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
-const SEO_CANONICAL: &str = "https://gizza.ai/";
+const SEO_CANONICAL: &str = "https://gizza.ai/chat";
 const SEO_OG_IMAGE: &str = "https://gizza.ai/gis.png";
 
 pub struct UiBlock;
@@ -50,7 +50,7 @@ impl Block for UiBlock {
         let path = msg.path();
 
         // GET-equivalent for a page render — accept "retrieve" action.
-        if action == "retrieve" && (path == "/" || path == "/b/ui/" || path == "/b/ui") {
+        if action == "retrieve" && (path == "/chat" || path == "/b/ui/" || path == "/b/ui") {
             let markup = render_chat();
             let html_bytes = markup.into_string().into_bytes();
             return OutputStream::respond_with_meta(
@@ -467,10 +467,19 @@ mod tests {
     }
 
     #[test]
+    fn ui_block_serves_chat_at_chat_route() {
+        // The retrieve handler must answer "/chat" with the chat markup.
+        let markup = render_chat().into_string();
+        assert!(markup.contains(SEO_TITLE));
+        // canonical now points at /chat
+        assert!(markup.contains(r#"href="https://gizza.ai/chat""#), "chat canonical should be /chat: {markup}");
+    }
+
+    #[test]
     fn head_has_seo_tags() {
         let s = render_chat().into_string();
         assert!(
-            s.contains(r#"rel="canonical" href="https://gizza.ai/""#),
+            s.contains(r#"rel="canonical" href="https://gizza.ai/chat""#),
             "canonical link present"
         );
         assert!(

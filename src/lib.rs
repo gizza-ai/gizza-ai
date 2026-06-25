@@ -175,7 +175,7 @@ pub async fn initialize() -> Result<(), JsValue> {
                 { "path": "/health",                 "block": "suppers-ai/router" },
                 { "path": "/openapi.json",           "block": "suppers-ai/router" },
                 { "path": "/.well-known/agent.json", "block": "suppers-ai/router" },
-                { "path": "/",                       "block": "gizza-ai/ui" },
+                { "path": "/chat",                   "block": "gizza-ai/ui" },
             ],
         }),
     );
