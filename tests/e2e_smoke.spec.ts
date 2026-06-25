@@ -79,7 +79,8 @@ test.describe('gizza-ai smoke', () => {
 
   test('page loads, model loads, clock prompt produces some response', async ({ page }) => {
     // First visit may register the Service Worker and reload the page.
-    await page.goto('/');
+    // Chat lives at /chat now ('/' is the static chooser landing).
+    await page.goto('/chat');
 
     // Wait for the chat UI rendered by the gizza-ai/ui block (served via SW).
     // The SW intercepts /b/ui/ and the page transitions from the boot shell to
@@ -123,7 +124,7 @@ test.describe('gizza-ai smoke', () => {
   });
 
   test('web-fetch retrieves a same-origin fixture and the marker reaches the chat', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/chat');
     await expect(page.locator('h1')).toContainText(/gizza/i, { timeout: 30_000 });
     await expect(page.locator('#composer')).toBeVisible({ timeout: 30_000 });
 

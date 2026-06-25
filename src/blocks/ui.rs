@@ -17,14 +17,16 @@ use wafer_block::{
 
 use super::DEFAULT_MODEL_ID;
 
-/// Canonical SEO / social metadata for the apex page.
+/// Canonical SEO / social metadata for the chat page (`/chat`).
 ///
 /// Single source consumed by BOTH the Service-Worker/SSR render
-/// ([`render_chat`]) and the static, crawler-facing shell `site/index.html`
-/// (which `solobase.toml` overlays as the deployed `index.html`). A no-JS
-/// crawler or social-card scraper only ever sees that static shell, so the SEO
-/// `<head>` must be present there too — the `static_shell_carries_seo_head`
-/// test fails if the shell drifts from these values.
+/// ([`render_chat`]) and the static, crawler-facing chat shell `site/chat.html`
+/// (which `solobase.toml` overlays as the deployed `chat.html`). A no-JS
+/// crawler or social-card scraper hitting `/chat` only ever sees that static
+/// shell, so the SEO `<head>` must be present there too — the
+/// `static_shell_carries_seo_head` test fails if the shell drifts from these
+/// values. (The apex `/` is a separate static chooser, `site/index.html`, with
+/// its own SEO head asserted by `apex_chooser_has_root_canonical_and_two_links`.)
 const SEO_TITLE: &str = "gizza.ai — private AI chat in your browser";
 const SEO_DESCRIPTION: &str = "gizza.ai is a free, private AI chat assistant. All inference runs in your browser via WebGPU — your conversations never leave your device.";
 const SEO_CANONICAL: &str = "https://gizza.ai/chat";
@@ -588,6 +590,18 @@ mod tests {
         assert!(
             chooser.contains(r#"href="/tools/""#),
             "chooser must link to /tools/"
+        );
+        // Core invariant: the apex chooser must stay INERT — it must render even
+        // when the in-browser runtime can't boot (the "gizza-ai couldn't start"
+        // mobile failure this page exists to avoid). So it must NOT load the boot
+        // loader or register a Service Worker.
+        assert!(
+            !chooser.contains("/loader.js"),
+            "apex chooser must not load /loader.js (must stay inert)"
+        );
+        assert!(
+            !chooser.contains("serviceWorker"),
+            "apex chooser must not register a Service Worker (must stay inert)"
         );
     }
 }

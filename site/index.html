@@ -157,7 +157,10 @@
          the .chooser__mascot class sizes the box (chat sizes via .brand-logo). -->
     <div class="chooser__mascot brand-logo brand-mascot" data-pose="resting">
       <img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="gizza mascot">
-      <video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden></video>
+      <!-- preload="none": the idle-reveal video is fetched only when mascot.js
+           plays it, so the mobile-light apex doesn't prefetch MBs of video on
+           load (the whole point of the static chooser). -->
+      <video id="brand-video" class="brand-video" muted playsinline preload="none" hidden></video>
       <div class="brand-eyes" aria-hidden="true">
         <div class="brand-eye-socket brand-eye-left"><img class="brand-eye" src="/eye.png" alt=""></div>
         <div class="brand-eye-socket brand-eye-right"><img class="brand-eye" src="/eye.png" alt=""></div>
