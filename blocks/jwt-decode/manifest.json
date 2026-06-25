@@ -1,0 +1,31 @@
+{
+  "name": "gizza-ai/jwt-decode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a JSON Web Token offline without verification",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a JSON Web Token (JWT) offline to inspect its header, payload claims, signature presence, and validate exp/nbf/iat time claims. No secret/public key is required.",
+    "parameters": {
+      "type": "object",
+      "required": ["token"],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "The compact JWT to decode (header.payload.signature)."
+        },
+        "leeway": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Clock-skew tolerance in seconds applied to exp/nbf/iat checks (default 0)."
+        },
+        "now": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Reference time as seconds since the Unix epoch. When omitted (0), the current clock time is used."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
