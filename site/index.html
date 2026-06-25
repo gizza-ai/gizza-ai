@@ -38,10 +38,8 @@
     body { display: flex; flex-direction: column; min-height: 100svh; }
     /* The chooser hero takes up remaining space and centers its content. */
     .chooser { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 32px 20px; text-align: center; }
-    /* The living mascot reuses the shared .brand-mascot markup + mascot.css
-       compositing rules; we only size its container here (the chat sizes via
-       .brand-logo, which we don't load). */
-    .chooser__mascot { width: 120px; height: 120px; }
+    /* The living mascot reuses .brand-logo sizing from mascot.css (same as
+       the chat greeting), so the chooser hero matches the chat size exactly. */
     .chooser h1 { font-size: clamp(1.6rem, 5vw, 2.3rem); margin: 0; color: #0a0a0a; }
     .chooser p.tag { margin: 0; max-width: 30rem; color: #525252; line-height: 1.55; }
     .chooser__buttons { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; }
@@ -157,7 +155,7 @@
          cursor. mascot.js (idle/landing mode) drives it: eyes follow the mouse
          and the idle video plays. Markup mirrors render_chat()'s brand block;
          the .chooser__mascot class sizes the box (chat sizes via .brand-logo). -->
-    <div class="chooser__mascot brand-mascot" data-pose="resting">
+    <div class="chooser__mascot brand-logo brand-mascot" data-pose="resting">
       <img id="brand-still" class="brand-still" src="/gis_no_eyes.png" alt="gizza mascot">
       <video id="brand-video" class="brand-video" muted playsinline preload="auto" hidden></video>
       <div class="brand-eyes" aria-hidden="true">
@@ -182,6 +180,140 @@
       </a>
     </div>
   </main>
+
+  <!-- About / open-source / install section — static HTML/CSS only, no scripts -->
+  <section class="about-section" aria-labelledby="about-heading">
+    <style>
+      .about-section {
+        padding: 48px 20px 0;
+        max-width: 860px;
+        margin: 0 auto;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      .about-section__heading {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0a0a0a;
+        margin: 0 0 8px;
+        text-align: center;
+      }
+      .about-section__sub {
+        color: #525252;
+        text-align: center;
+        margin: 0 0 36px;
+        line-height: 1.55;
+      }
+      .about-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      .about-card {
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.05);
+      }
+      .about-card__label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        color: #f54e00;
+        margin: 0 0 8px;
+      }
+      .about-card__title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a0a0a;
+        margin: 0 0 8px;
+      }
+      .about-card p {
+        font-size: 14px;
+        color: #525252;
+        line-height: 1.6;
+        margin: 0 0 10px;
+      }
+      .about-card p:last-child { margin-bottom: 0; }
+      .about-card a {
+        color: #f54e00;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .about-card a:hover { text-decoration: underline; }
+      .about-card pre {
+        background: #f4f4f4;
+        border: 1px solid #e0dfdf;
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 12.5px;
+        line-height: 1.7;
+        overflow-x: auto;
+        margin: 10px 0 0;
+        color: #0a0a0a;
+      }
+      .about-card code {
+        font-family: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
+      }
+      .about-card pre code { display: block; }
+      @media (max-width: 600px) {
+        .about-cards { grid-template-columns: 1fr; }
+      }
+    </style>
+
+    <h2 class="about-section__heading" id="about-heading">Free, private &amp; open-source</h2>
+    <p class="about-section__sub">Everything runs in your browser — your data never leaves your device.</p>
+
+    <div class="about-cards">
+      <!-- What it is -->
+      <div class="about-card">
+        <p class="about-card__label">What it is</p>
+        <h3 class="about-card__title">Browser-local AI, open-source</h3>
+        <p>gizza.ai is a free, private AI chat and tool platform. All inference runs in your browser via WebGPU — nothing is sent to a server. The tools work on any device, even mobile, with no sign-up required.</p>
+        <p>Every capability is a WASM <em>skill block</em> — the same block runs both in the browser chat and via the <code>gizza</code> CLI. Source is on <a href="https://github.com/gizza-ai/gizza-ai" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
+      </div>
+
+      <!-- Use it in the browser -->
+      <div class="about-card">
+        <p class="about-card__label">Option 1 — zero install</p>
+        <h3 class="about-card__title">Just open it in your browser</h3>
+        <p>No install needed. Visit <a href="/chat">gizza.ai/chat</a> for AI chat (best on desktop with WebGPU) or <a href="/tools/">gizza.ai/tools/</a> for browser-local utilities that work on any device.</p>
+      </div>
+
+      <!-- CLI -->
+      <div class="about-card">
+        <p class="about-card__label">Option 2 — CLI</p>
+        <h3 class="about-card__title">Run tools from a terminal or agent</h3>
+        <p>The <code>gizza</code> CLI runs the same WASM skill blocks headlessly — for scripts, pipelines, or AI agents (<a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md" target="_blank" rel="noopener noreferrer">SKILL.md</a>).</p>
+        <pre><code># 1. Build blocks + CLI
+solobase build
+cargo build --manifest-path cli/Cargo.toml --release
+
+# 2. Run a tool
+gizza tool calculator "2*2"        # → 4
+gizza tool web-fetch url=https://example.com
+
+# 3. Discover tools
+gizza list
+gizza describe calculator</code></pre>
+      </div>
+
+      <!-- Self-host -->
+      <div class="about-card">
+        <p class="about-card__label">Option 3 — self-host</p>
+        <h3 class="about-card__title">Run the site on your own machine</h3>
+        <p>Build the static site and serve it locally — no cloud required.</p>
+        <pre><code># Build everything into pkg/
+solobase build
+
+# Serve at http://localhost:3000
+solobase serve</code></pre>
+        <p>On first visit the Service Worker registers and intercepts requests through the WAFER runtime blocks.</p>
+      </div>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <div class="site-footer__brand">
       <a class="site-footer__logo" href="/" aria-label="gizza.ai home">gizza.ai</a>
