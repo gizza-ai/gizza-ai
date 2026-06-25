@@ -1,0 +1,18 @@
+slug          = "krutidev-unicode-converter"
+title         = "Kruti Dev to Unicode Converter | Online Hindi Font Converter"
+description   = "Convert legacy Hindi Kruti Dev 010 font text to standard Unicode Devanagari (Mangal font) and vice versa. Safe, offline, client-side conversion."
+tags          = ["hindi", "font", "converter"]
+h1            = "Kruti Dev to Unicode Converter"
+hero_subtitle = "Convert legacy Kruti Dev Hindi typing to standard Unicode Devanagari instantly."
+wasm          = "gizza_ai_krutidev_unicode_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text"
+placeholder = "Enter Kruti Dev or Unicode text..."
+source      = "field"
+multiline   = true
