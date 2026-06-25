@@ -5,16 +5,25 @@ rectangle you want to keep, and get the cropped copy instantly. The cropping
 runs entirely in your browser with ffmpeg compiled to WebAssembly — your image is
 never uploaded to a server.
 
-### How the rectangle works
+<details>
+<summary>How the rectangle works</summary>
+<div>
+<p>The origin <code>(0, 0)</code> is the top-left corner of the image.</p>
+<ul>
+<li><strong>X offset</strong> — how far from the left edge the crop starts, in pixels.</li>
+<li><strong>Y offset</strong> — how far from the top edge the crop starts, in pixels.</li>
+<li><strong>Width</strong> — how wide the kept rectangle is, in pixels.</li>
+<li><strong>Height</strong> — how tall the kept rectangle is, in pixels.</li>
+</ul>
+</div>
+</details>
 
-- **X offset** — how far from the left edge the crop starts, in pixels.
-- **Y offset** — how far from the top edge the crop starts, in pixels.
-- **Width** — how wide the kept rectangle is, in pixels.
-- **Height** — how tall the kept rectangle is, in pixels.
-
-The origin `(0, 0)` is the top-left corner of the image.
-
-### Tips
-
-- Keep the rectangle inside the image's dimensions, or ffmpeg will reject it.
-- Works offline once the page has loaded.
+<details>
+<summary>Tips</summary>
+<div>
+<ul>
+<li>Keep the rectangle inside the image's dimensions, or ffmpeg will reject it.</li>
+<li>Works offline once the page has loaded.</li>
+</ul>
+</div>
+</details>
