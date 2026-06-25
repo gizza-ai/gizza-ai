@@ -543,6 +543,237 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
   margin-top: 2px;
 }
 
+/* JWT Decode Tool Premium Styles */
+.jwt-decode-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.jwt-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .jwt-grid {
+    grid-template-columns: 1.1fr 1fr;
+  }
+}
+
+.jwt-col-left, .jwt-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.jwt-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px;
+}
+
+.jwt-highlight-box {
+  background: #0f172a;
+  color: #94a3b8;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-all;
+  white-space: pre-wrap;
+  border: 1px solid #1e293b;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.jwt-token-part {
+  border-radius: 3px;
+  padding: 1px 3px;
+  font-weight: 600;
+}
+
+.jwt-color-header {
+  color: #f43f5e; /* Rose 500 */
+}
+
+.jwt-color-payload {
+  color: #6366f1; /* Indigo 500 */
+}
+
+.jwt-color-signature {
+  color: #10b981; /* Emerald 500 */
+}
+
+.jwt-color-header-text {
+  color: #e11d48;
+}
+
+.jwt-color-payload-text {
+  color: #4f46e5;
+}
+
+.jwt-color-signature-text {
+  color: #059669;
+}
+
+.jwt-status-banner {
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid;
+}
+
+.jwt-status-valid {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.jwt-status-invalid {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.jwt-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jwt-card-title-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
+}
+
+.jwt-card-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.jwt-copy-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  position: relative;
+  transition: all 0.15s;
+}
+
+.jwt-copy-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.jwt-copy-btn .check-icon {
+  display: none;
+}
+
+.jwt-copy-btn.copied {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.jwt-copy-btn.copied .copy-icon {
+  display: none;
+}
+
+.jwt-copy-btn.copied .check-icon {
+  display: block;
+}
+
+.jwt-code-block {
+  margin: 0;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.jwt-checks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jwt-check-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid transparent;
+}
+
+.jwt-check-ok {
+  background: #f0fdf4;
+  border-color: #dcfce7;
+  color: #15803d;
+}
+
+.jwt-check-fail {
+  background: #fef2f2;
+  border-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.jwt-check-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.jwt-check-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jwt-check-name {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.jwt-check-desc {
+  font-weight: 500;
+}
+
+
 
 
 
