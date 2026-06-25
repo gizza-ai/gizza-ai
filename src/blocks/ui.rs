@@ -393,17 +393,32 @@ mod tests {
         assert!(s.contains(r#"id="open-tools""#), "hammer button present");
         // Assert BOTH the modal container and its search input are present so this
         // test cannot pass on the header's explore-search alone.
-        assert!(s.contains(r#"id="tools-modal""#), "tools modal dialog present");
-        assert!(s.contains(r#"id="tools-search""#), "modal search input present (modal-owned id)");
-        assert!(!s.contains("class=\"gizza-tools\""), "old inline list removed");
+        assert!(
+            s.contains(r#"id="tools-modal""#),
+            "tools modal dialog present"
+        );
+        assert!(
+            s.contains(r#"id="tools-search""#),
+            "modal search input present (modal-owned id)"
+        );
+        assert!(
+            !s.contains("class=\"gizza-tools\""),
+            "old inline list removed"
+        );
     }
 
     #[test]
     fn about_dialog_links_to_cli_and_skill() {
         let s = render_chat().into_string();
         assert!(s.contains("gizza CLI"), "About dialog mentions the CLI");
-        assert!(s.contains("blob/main/cli/README.md"), "links to the CLI docs");
-        assert!(s.contains("blob/main/SKILL.md"), "links to SKILL.md for agents");
+        assert!(
+            s.contains("blob/main/cli/README.md"),
+            "links to the CLI docs"
+        );
+        assert!(
+            s.contains("blob/main/SKILL.md"),
+            "links to SKILL.md for agents"
+        );
     }
 
     #[test]
@@ -411,7 +426,10 @@ mod tests {
         let s = render_chat().into_string();
         assert!(s.contains(r#"class="composer-note""#), "disclaimer present");
         assert!(s.contains("don't get crabby"), "disclaimer text present");
-        assert!(s.contains("blob/main/cli/README.md"), "links to the CLI tool");
+        assert!(
+            s.contains("blob/main/cli/README.md"),
+            "links to the CLI tool"
+        );
         // slotted into the composer slot (sa-chat) so it sits under the input card.
         assert!(s.contains(r#"p slot="composer" class="composer-note""#));
     }
@@ -438,7 +456,10 @@ mod tests {
             "shared chrome header (explore-search) present"
         );
         // The header's Explore mega-menu trigger is part of the shared chrome.
-        assert!(s.contains("Explore"), "shared header Explore trigger present");
+        assert!(
+            s.contains("Explore"),
+            "shared header Explore trigger present"
+        );
         // The external sa-header web component is gone (element + loader script).
         assert!(
             !s.contains("sa-header"),
@@ -450,9 +471,18 @@ mod tests {
             "#open-settings button still present for JS relocation"
         );
         // Mascot DOM hooks gizza-app.js animates must survive verbatim.
-        assert!(s.contains(r#"id="brand-still""#), "mascot #brand-still present");
-        assert!(s.contains(r#"id="brand-video""#), "mascot #brand-video present");
-        assert!(s.contains("brand-mascot"), "mascot .brand-mascot class present");
+        assert!(
+            s.contains(r#"id="brand-still""#),
+            "mascot #brand-still present"
+        );
+        assert!(
+            s.contains(r#"id="brand-video""#),
+            "mascot #brand-video present"
+        );
+        assert!(
+            s.contains("brand-mascot"),
+            "mascot .brand-mascot class present"
+        );
         assert!(s.contains("brand-eye"), "mascot .brand-eye* hooks present");
         // The new brand wordmark gizza-app.js retargets (id, not `sa-header h1`).
         assert!(
@@ -460,7 +490,10 @@ mod tests {
             "brand wordmark has stable id for gizza-app.js"
         );
         // Chat-only composer menu stays untouched.
-        assert!(s.contains(r#"id="composer-menu""#), "#composer-menu present");
+        assert!(
+            s.contains(r#"id="composer-menu""#),
+            "#composer-menu present"
+        );
         // Header assets are referenced in <head>.
         assert!(s.contains(r#"href="/header.css""#), "header.css linked");
         assert!(s.contains(r#"src="/header.js""#), "header.js loaded");
@@ -472,7 +505,10 @@ mod tests {
         let markup = render_chat().into_string();
         assert!(markup.contains(SEO_TITLE));
         // canonical now points at /chat
-        assert!(markup.contains(r#"href="https://gizza.ai/chat""#), "chat canonical should be /chat: {markup}");
+        assert!(
+            markup.contains(r#"href="https://gizza.ai/chat""#),
+            "chat canonical should be /chat: {markup}"
+        );
     }
 
     #[test]
@@ -527,6 +563,28 @@ mod tests {
         assert!(
             shell.contains("application/ld+json"),
             "static shell has JSON-LD"
+        );
+    }
+
+    /// The apex chooser (`site/index.html`) is a static page at `/` that
+    /// presents two buttons: one linking to `/chat` and one to `/tools/`.
+    /// It must carry a canonical tag for `https://gizza.ai/` (distinct from
+    /// the chat canonical `https://gizza.ai/chat`) and hard links to both
+    /// destinations so crawlers can discover them without executing JS.
+    #[test]
+    fn apex_chooser_has_root_canonical_and_two_links() {
+        let chooser = include_str!("../../site/index.html");
+        assert!(
+            chooser.contains(r#"rel="canonical" href="https://gizza.ai/""#),
+            "apex canonical must be /"
+        );
+        assert!(
+            chooser.contains(r#"href="/chat""#),
+            "chooser must link to /chat"
+        );
+        assert!(
+            chooser.contains(r#"href="/tools/""#),
+            "chooser must link to /tools/"
         );
     }
 }

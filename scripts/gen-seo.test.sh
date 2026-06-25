@@ -40,6 +40,14 @@ if ! grep -qF "https://example.test/" "$sitemap"; then
   echo "FAIL: sitemap missing apex URL https://example.test/"
   exit 1
 fi
+if ! grep -qF "https://example.test/chat" "$sitemap"; then
+  echo "FAIL: sitemap missing chat URL https://example.test/chat"
+  exit 1
+fi
+if ! grep -qF "https://example.test/tools/" "$sitemap"; then
+  echo "FAIL: sitemap missing tools index URL https://example.test/tools/"
+  exit 1
+fi
 if ! grep -qF "https://example.test/tools/calculator/" "$sitemap"; then
   echo "FAIL: sitemap missing calculator tool URL"
   exit 1
