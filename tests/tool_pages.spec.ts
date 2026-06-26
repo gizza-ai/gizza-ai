@@ -14,7 +14,7 @@ test.describe('standalone tool pages', () => {
     await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
 
     await expect(page.locator('.tool-brand')).toContainText('gizza.ai');
-    await expect(page.locator('.tool-footer')).toContainText('Powered by gizza.ai');
+    await expect(page.locator('.site-footer')).toContainText('Everything runs in your browser');
 
     await page.fill('#in-expr', '2 + 2 * 3');
     await expect(page.locator('#tool-output')).toHaveText('8', { timeout: 10_000 });
