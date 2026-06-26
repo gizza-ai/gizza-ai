@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  CARGO_HTTP_MULTIPLEXING: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

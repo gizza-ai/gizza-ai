@@ -12,6 +12,9 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CARGO_HTTP_MULTIPLEXING: false
+
 jobs:
   test:
     runs-on: ubuntu-latest
