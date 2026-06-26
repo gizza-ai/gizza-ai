@@ -16,6 +16,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Checkout gizza-ai
         uses: actions/checkout@v4
         with:
