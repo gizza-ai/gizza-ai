@@ -2,18 +2,66 @@
   "name": "gizza-ai/list-converter",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Reformat a list (comma/newline/bullets/numbered/quoted).",
+  "summary": "Reformat a list (comma/newline/bullets/numbered/quoted/sql/json/xml).",
   "role": "skill",
   "tool": {
-    "description": "Reformat a list between forms: comma-separated, newline (one per line), bulleted, numbered, quoted (\"a\", \"b\" for code arrays), or space-separated. input_separator controls splitting ('auto' detects newlines/commas/semicolons); output_format picks the layout. Optionally sort (case-insensitive) and/or dedupe. Items are trimmed and blanks dropped.",
+    "description": "Reformat a list between forms: comma-separated, newline, bulleted, numbered, quoted, space, tab, pipe, json, xml, sql, or custom separators. input_separator controls splitting; output_format controls layout. Optionally sort (alphabetical, length, reverse, shuffle), dedupe, case-transform (lower, upper, title), or prepend prefix/suffix. Items are trimmed and blanks dropped.",
     "parameters": {
       "type": "object",
       "properties": {
-        "input": { "type": "string", "description": "The list text to reformat." },
-        "input_separator": { "type": "string", "enum": ["auto", "comma", "newline", "semicolon", "space"], "default": "auto", "description": "How to split the input. 'auto' (default): newlines if present, else commas, else semicolons." },
-        "output_format": { "type": "string", "enum": ["comma", "newline", "bulleted", "numbered", "quoted", "space"], "default": "newline", "description": "Output layout: comma (a, b), newline (one per line), bulleted (- a), numbered (1. a), quoted (\"a\", \"b\"), or space. Default newline." },
-        "sort": { "type": "boolean", "default": false, "description": "Sort items alphabetically (case-insensitive). Default false." },
-        "dedupe": { "type": "boolean", "default": false, "description": "Remove duplicate items (keeping the first). Default false." }
+        "input": {
+          "type": "string",
+          "description": "The list text to reformat."
+        },
+        "input_separator": {
+          "type": "string",
+          "enum": ["auto", "comma", "newline", "semicolon", "space", "tab", "pipe", "custom"],
+          "default": "auto",
+          "description": "How to split the input. 'auto' (default) detects separators."
+        },
+        "custom_input_separator": {
+          "type": "string",
+          "default": "",
+          "description": "Custom string delimiter to split the input if input_separator is 'custom'."
+        },
+        "output_format": {
+          "type": "string",
+          "enum": ["comma", "newline", "bulleted", "numbered", "quoted", "space", "tab", "pipe", "json", "xml", "sql", "custom"],
+          "default": "newline",
+          "description": "Output format."
+        },
+        "custom_output_separator": {
+          "type": "string",
+          "default": "",
+          "description": "Custom string delimiter to join output items if output_format is 'custom'."
+        },
+        "sort_mode": {
+          "type": "string",
+          "enum": ["none", "asc", "desc", "length_asc", "length_desc", "shuffle"],
+          "default": "none",
+          "description": "Sorting mode."
+        },
+        "dedupe": {
+          "type": "boolean",
+          "default": false,
+          "description": "Remove duplicate items."
+        },
+        "case_transform": {
+          "type": "string",
+          "enum": ["none", "lowercase", "uppercase", "titlecase"],
+          "default": "none",
+          "description": "Case transformation."
+        },
+        "prefix": {
+          "type": "string",
+          "default": "",
+          "description": "Prefix to prepended to each item."
+        },
+        "suffix": {
+          "type": "string",
+          "default": "",
+          "description": "Suffix to appended to each item."
+        }
       },
       "required": ["input"],
       "additionalProperties": false
