@@ -1,9 +1,11 @@
 //! gizza-ai/list-converter — reformat a list between comma/newline/bulleted/
-//! numbered/quoted/space forms with optional sort/dedupe. Thin wrapper; chat
+//! numbered/quoted/space/tab/pipe/json/xml/sql forms. Thin wrapper; chat
 //! schema single-sourced from descriptor(); handler delegates to run_skill. Pure.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 use gizza_ai_block_utils::{run_skill, Input, Param, SkillError, ToolDescriptor};
-use gizza_ai_list_converter_core::{convert, parse_in_sep, parse_out_format};
+use gizza_ai_list_converter_core::{
+    convert, parse_case_transform, parse_in_sep, parse_out_format, parse_sort_mode,
+};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -12,12 +14,24 @@ struct Args {
     input: String,
     #[serde(default)]
     input_separator: String,
+    #[serde(default)]
+    custom_input_separator: String,
     #[serde(default = "default_out")]
     output_format: String,
     #[serde(default)]
-    sort: bool,
+    custom_output_separator: String,
+    #[serde(default)]
+    sort_mode: String,
     #[serde(default)]
     dedupe: bool,
+    #[serde(default)]
+    case_transform: String,
+    #[serde(default)]
+    prefix: String,
+    #[serde(default)]
+    suffix: String,
+    #[serde(default)]
+    seed: u64,
 }
 fn default_out() -> String {
     "newline".to_string()
@@ -26,10 +40,15 @@ fn default_out() -> String {
 fn descriptor() -> ToolDescriptor {
     ToolDescriptor::new(Input::None)
         .param(Param::string("input").required().describe("The list text to reformat."))
-        .param(Param::enumv("input_separator", ["auto", "comma", "newline", "semicolon", "space"]).default("auto").describe("How to split the input. 'auto' (default): newlines if present, else commas, else semicolons."))
-        .param(Param::enumv("output_format", ["comma", "newline", "bulleted", "numbered", "quoted", "space"]).default("newline").describe("Output layout: comma (a, b), newline (one per line), bulleted (- a), numbered (1. a), quoted (\"a\", \"b\"), or space. Default newline."))
-        .param(Param::boolean("sort").default(false).describe("Sort items alphabetically (case-insensitive). Default false."))
-        .param(Param::boolean("dedupe").default(false).describe("Remove duplicate items (keeping the first). Default false."))
+        .param(Param::enumv("input_separator", ["auto", "comma", "newline", "semicolon", "space", "tab", "pipe", "custom"]).default("auto").describe("How to split the input. 'auto' (default) detects separators."))
+        .param(Param::string("custom_input_separator").default("").describe("Custom string delimiter to split the input if input_separator is 'custom'."))
+        .param(Param::enumv("output_format", ["comma", "newline", "bulleted", "numbered", "quoted", "space", "tab", "pipe", "json", "xml", "sql", "custom"]).default("newline").describe("Output format."))
+        .param(Param::string("custom_output_separator").default("").describe("Custom string delimiter to join output items if output_format is 'custom'."))
+        .param(Param::enumv("sort_mode", ["none", "asc", "desc", "length_asc", "length_desc", "shuffle"]).default("none").describe("Sorting mode."))
+        .param(Param::boolean("dedupe").default(false).describe("Remove duplicate items."))
+        .param(Param::enumv("case_transform", ["none", "lowercase", "uppercase", "titlecase"]).default("none").describe("Case transformation."))
+        .param(Param::string("prefix").default("").describe("Prefix to prepended to each item."))
+        .param(Param::string("suffix").default("").describe("Suffix to appended to each item."))
 }
 
 fn schema_json() -> String {
@@ -44,9 +63,9 @@ struct ListConverter;
     name = "gizza-ai/list-converter",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Reformat a list (comma/newline/bullets/numbered/quoted)",
+    summary = "Reformat a list (comma/newline/bullets/numbered/quoted/sql/json/xml)",
     skill(
-        description = "Reformat a list between forms: comma-separated, newline (one per line), bulleted, numbered, quoted (\"a\", \"b\" for code arrays), or space-separated. input_separator controls splitting ('auto' detects newlines/commas/semicolons); output_format picks the layout. Optionally sort (case-insensitive) and/or dedupe. Items are trimmed and blanks dropped.",
+        description = "Reformat a list between forms: comma-separated, newline, bulleted, numbered, quoted, space, tab, pipe, json, xml, sql, or custom separators. input_separator controls splitting; output_format controls layout. Optionally sort (alphabetical, length, reverse, shuffle), dedupe, case-transform (lower, upper, title), or prepend prefix/suffix. Items are trimmed and blanks dropped.",
         parameters = schema_json()
     )
 )]
@@ -55,7 +74,33 @@ impl ListConverter {
         match run_skill(&body, "list-converter", |a: Args| {
             let insep = parse_in_sep(&a.input_separator).map_err(SkillError::InvalidArgs)?;
             let outf = parse_out_format(&a.output_format).map_err(SkillError::InvalidArgs)?;
-            convert(&a.input, insep, outf, a.sort, a.dedupe).map_err(SkillError::InvalidArgs)
+            let smode = parse_sort_mode(&a.sort_mode).map_err(SkillError::InvalidArgs)?;
+            let ctrans = parse_case_transform(&a.case_transform).map_err(SkillError::InvalidArgs)?;
+            
+            // If shuffling and seed is 0, use system clock or basic hashing to avoid same shuffle
+            let seed = if a.seed == 0 {
+                match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+                    Ok(dur) => dur.as_nanos() as u64,
+                    Err(_) => 42,
+                }
+            } else {
+                a.seed
+            };
+
+            convert(
+                &a.input,
+                insep,
+                &a.custom_input_separator,
+                outf,
+                &a.custom_output_separator,
+                smode,
+                a.dedupe,
+                ctrans,
+                &a.prefix,
+                &a.suffix,
+                seed,
+            )
+            .map_err(SkillError::InvalidArgs)
         }) {
             Ok(v) => GuestResult::respond(v),
             Err(e) => GuestResult::error(e.into()),
@@ -73,11 +118,16 @@ mod tests {
             r#"{
                 "type": "object",
                 "properties": {
-                    "input":            { "type": "string", "description": "The list text to reformat." },
-                    "input_separator":  { "type": "string", "enum": ["auto", "comma", "newline", "semicolon", "space"], "default": "auto", "description": "How to split the input. 'auto' (default): newlines if present, else commas, else semicolons." },
-                    "output_format":    { "type": "string", "enum": ["comma", "newline", "bulleted", "numbered", "quoted", "space"], "default": "newline", "description": "Output layout: comma (a, b), newline (one per line), bulleted (- a), numbered (1. a), quoted (\"a\", \"b\"), or space. Default newline." },
-                    "sort":             { "type": "boolean", "default": false, "description": "Sort items alphabetically (case-insensitive). Default false." },
-                    "dedupe":           { "type": "boolean", "default": false, "description": "Remove duplicate items (keeping the first). Default false." }
+                    "input":                  { "type": "string", "description": "The list text to reformat." },
+                    "input_separator":        { "type": "string", "enum": ["auto", "comma", "newline", "semicolon", "space", "tab", "pipe", "custom"], "default": "auto", "description": "How to split the input. 'auto' (default) detects separators." },
+                    "custom_input_separator": { "type": "string", "default": "", "description": "Custom string delimiter to split the input if input_separator is 'custom'." },
+                    "output_format":          { "type": "string", "enum": ["comma", "newline", "bulleted", "numbered", "quoted", "space", "tab", "pipe", "json", "xml", "sql", "custom"], "default": "newline", "description": "Output format." },
+                    "custom_output_separator":{ "type": "string", "default": "", "description": "Custom string delimiter to join output items if output_format is 'custom'." },
+                    "sort_mode":              { "type": "string", "enum": ["none", "asc", "desc", "length_asc", "length_desc", "shuffle"], "default": "none", "description": "Sorting mode." },
+                    "dedupe":                 { "type": "boolean", "default": false, "description": "Remove duplicate items." },
+                    "case_transform":         { "type": "string", "enum": ["none", "lowercase", "uppercase", "titlecase"], "default": "none", "description": "Case transformation." },
+                    "prefix":                 { "type": "string", "default": "", "description": "Prefix to prepended to each item." },
+                    "suffix":                 { "type": "string", "default": "", "description": "Suffix to appended to each item." }
                 },
                 "required": ["input"],
                 "additionalProperties": false
