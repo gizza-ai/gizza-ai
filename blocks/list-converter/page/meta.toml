@@ -1,40 +1,76 @@
 slug          = "list-converter"
-title         = "List Converter — Reformat Lists Online — gizza.ai"
-description   = "Reformat a list between comma-separated, newline, bulleted, numbered, and quoted forms — with optional sort and dedupe. Runs in your browser, nothing uploaded, free."
-tags          = ["list converter", "comma to newline", "column to comma", "list to csv", "dedupe list", "sort list"]
+title         = "List Converter — Reformat, Clean, and Sort Lists — gizza.ai"
+description   = "Split, join, and clean lists online. Convert between comma-separated, columns, SQL IN, JSON, XML, or custom delimiters. Add prefixes, suffixes, change case, sort, and dedupe instantly in your browser."
+tags          = ["list converter", "comma to lines", "sql list formatter", "json list maker", "dedupe list", "sort list", "add prefix to list"]
 h1            = "List Converter"
-hero_subtitle = "Paste a list and reformat it — comma, newline, bullets, numbered, or quoted — with optional sort and dedupe. Runs entirely in your browser."
+hero_subtitle = "Format, transform, and clean any text list. Convert between commas, newlines, tabs, SQL, or custom delimiters. Prepend prefixes, change case, sort, and remove duplicates locally and securely."
 wasm          = "gizza_ai_list_converter_web"
 export        = "run"
 live          = false
-output_label  = "Result"
+output_label  = "Formatted List"
 format        = "text"
 
 [[input]]
 name        = "input"
-label       = "List"
+label       = "Input List"
 placeholder = "apple, banana, cherry"
 source      = "field"
 multiline   = true
 
 [[input]]
 name        = "input_separator"
-label       = "Input separator (auto|comma|newline|semicolon|space)"
+label       = "Split Separator"
 placeholder = "auto"
 source      = "field"
 
 [[input]]
+name        = "custom_input_separator"
+label       = "Custom Split Separator"
+placeholder = ""
+source      = "field"
+
+[[input]]
 name        = "output_format"
-label       = "Output format (comma|newline|bulleted|numbered|quoted|space)"
+label       = "Output Layout"
 placeholder = "newline"
 source      = "field"
 
 [[input]]
-name        = "sort"
-label       = "Sort alphabetically"
+name        = "custom_output_separator"
+label       = "Custom Join Separator"
+placeholder = ""
+source      = "field"
+
+[[input]]
+name        = "sort_mode"
+label       = "Sort Order"
+placeholder = "none"
 source      = "field"
 
 [[input]]
 name        = "dedupe"
-label       = "Remove duplicates"
+label       = "Deduplicate Items"
 source      = "field"
+
+[[input]]
+name        = "case_transform"
+label       = "Text Case"
+placeholder = "none"
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Add Prefix"
+placeholder = ""
+source      = "field"
+
+[[input]]
+name        = "suffix"
+label       = "Add Suffix"
+placeholder = ""
+source      = "field"
+
+[[input]]
+name        = "seed"
+label       = "Random Seed"
+source      = "clock"
