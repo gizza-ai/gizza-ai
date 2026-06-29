@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "risk-matrix"
+version = "0.1.0"
+abi = 1
+summary = "Plot likelihood-vs-impact items onto a colored risk matrix heatmap."
