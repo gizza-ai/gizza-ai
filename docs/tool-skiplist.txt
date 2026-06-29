@@ -182,3 +182,4 @@ pem-to-hex  # duplicate of blocks/pem-der-convert (direction=pem-to-der der_form
 
 phone-parser-formatter  # duplicate of blocks/phone-format: parses, validates, formats E.164/international/national, region, and type
 ripemd160-hash  # duplicate of blocks/hash-all (already computes RIPEMD-160 for text, alongside other common digests; standalone text/file RIPEMD adds no distinct surface here)
+sql-beautify  # duplicate of blocks/sql-formatter (pretty-prints SQL with keyword_case upper/lower/preserve, configurable indent, and major clauses/select-items/AND-OR broken onto their own lines; same scope)
