@@ -1,0 +1,36 @@
+slug          = "rsi-calculator"
+title         = "RSI Calculator — Relative Strength Index from prices — gizza.ai"
+description   = "Calculate Wilder's Relative Strength Index (RSI) from pasted closing prices with configurable period and overbought/oversold thresholds. Runs locally in your browser."
+tags          = ["rsi calculator", "relative strength index", "technical analysis", "wilder rsi", "momentum indicator", "trading"]
+h1            = "RSI calculator"
+hero_subtitle = "Paste closing prices and compute Wilder's RSI, average gains/losses, latest RSI, and overbought/oversold signal locally."
+wasm          = "gizza_ai_rsi_calculator_web"
+export        = "run"
+live          = false
+output_label  = "RSI result (JSON)"
+format        = "text"
+
+[[input]]
+name        = "prices"
+label       = "Prices (oldest first)"
+placeholder = "44.34,44.09,44.15,43.61,44.33,44.83,45.10,45.42,45.84,46.08,45.89,46.03,45.61,46.28,46.28"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "period"
+label       = "Period"
+placeholder = "14"
+source      = "field"
+
+[[input]]
+name        = "overbought"
+label       = "Overbought threshold"
+placeholder = "70"
+source      = "field"
+
+[[input]]
+name        = "oversold"
+label       = "Oversold threshold"
+placeholder = "30"
+source      = "field"
