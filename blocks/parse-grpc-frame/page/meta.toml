@@ -1,0 +1,30 @@
+slug          = "parse-grpc-frame"
+title         = "gRPC Frame Parser — Decode gRPC Length-Prefixed Messages | gizza.ai"
+description   = "Parse a gRPC length-prefixed message stream (base64 or hex) into frames — compressed flag + 4-byte length — and decode each embedded protobuf payload into a readable field tree. No .proto schema needed. Free, private, runs entirely in your browser."
+tags          = ["grpc", "grpc frame", "length-prefixed message", "protobuf", "decode grpc", "grpc wire format", "reverse engineering", "http2"]
+h1            = "gRPC Frame Parser"
+hero_subtitle = "Paste a captured gRPC message stream as base64 or hex and see each length-prefixed frame split out — compressed flag, length, and the embedded protobuf decoded field by field. No .proto schema required. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_parse_grpc_frame_web"
+export        = "run"
+live          = false
+output_label  = "Parsed frames"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "gRPC frame bytes (base64 or hex)"
+placeholder = "00 00 00 00 03 08 96 01"
+source      = "field"
+multiline   = true
+
+# encoding/format render as <select> — the option lists are derived from the
+# descriptor schema (manifest.json), so they are not duplicated here.
+[[input]]
+name        = "encoding"
+label       = "Encoding"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
