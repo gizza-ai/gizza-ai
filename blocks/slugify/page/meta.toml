@@ -1,0 +1,44 @@
+slug          = "slugify"
+title         = "Slugify — URL Slug Generator — gizza.ai"
+description   = "Turn any title or phrase into a clean, URL-safe slug instantly in your browser. Transliterates accents and Unicode to ASCII, lowercases, and collapses spaces and punctuation to hyphens. Custom separator, max length, free, private, no sign-up."
+tags          = ["slugify", "url slug", "slug generator", "permalink", "seo url", "url friendly", "transliterate", "ascii slug", "kebab case"]
+h1            = "Slugify — URL Slug Generator"
+hero_subtitle = "Convert a title or phrase into a clean, URL-safe slug — accents and Unicode folded to ASCII, lowercased, spaces and punctuation collapsed to hyphens. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_slugify_web"
+export        = "run"
+live          = true
+output_label  = "Slug"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Title or phrase"
+placeholder = "10 Tips for Crème Brûlée!"
+source      = "field"
+multiline   = true
+
+# separator renders as a text input, lowercase as a checkbox, and max_length as
+# a number field — the control type is derived from the descriptor schema, so the
+# labels here stay short and option details are not duplicated.
+[[input]]
+name        = "separator"
+label       = "Separator (usually - or _)"
+placeholder = "-"
+source      = "field"
+
+[[input]]
+name        = "lowercase"
+label       = "Lowercase the slug"
+source      = "field"
+
+[[input]]
+name        = "max_length"
+label       = "Max length (0 = no limit)"
+placeholder = "0"
+source      = "field"
+
+# per_line renders as a checkbox; enter one title per line to slugify a batch.
+[[input]]
+name        = "per_line"
+label       = "Slugify each line separately"
+source      = "field"
