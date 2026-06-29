@@ -1,0 +1,30 @@
+slug          = "parse-websocket-frame"
+title         = "WebSocket Frame Parser — Decode RFC 6455 Frames (FIN, Opcode, Mask, Payload) | gizza.ai"
+description   = "Paste a WebSocket frame as base64 or hex and decode it into FIN, RSV1/2/3, opcode, mask flag, payload length, masking key, and the unmasked payload (hex + UTF-8 text). RFC 6455. Free, private, runs entirely in your browser."
+tags          = ["websocket", "websocket frame", "rfc 6455", "ws frame", "frame decoder", "opcode", "masking key", "unmask payload", "web sockets"]
+h1            = "WebSocket Frame Parser"
+hero_subtitle = "Paste a WebSocket frame as base64 or hex and decode it field by field — FIN, the RSV bits, the opcode (text/binary/close/ping/pong), the mask flag and key, the payload length, and the unmasked payload as hex and UTF-8 text. RFC 6455. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_parse_websocket_frame_web"
+export        = "run"
+live          = false
+output_label  = "Decoded frame"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "WebSocket frame bytes (base64 or hex)"
+placeholder = "81 05 48 65 6c 6c 6f"
+source      = "field"
+multiline   = true
+
+# encoding/format render as <select> — the option lists are derived from the
+# descriptor schema (manifest.json), so they are not duplicated here.
+[[input]]
+name        = "encoding"
+label       = "Encoding"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
