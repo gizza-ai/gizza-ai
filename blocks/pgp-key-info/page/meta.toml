@@ -1,0 +1,18 @@
+slug          = "pgp-key-info"
+title         = "PGP Key Info — OpenPGP fingerprint inspector — gizza.ai"
+description   = "Inspect an ASCII-armored PGP public or private key locally: fingerprint, key ID, algorithm, user IDs, dates, and subkeys."
+tags          = ["pgp key info", "openpgp fingerprint", "gpg key id", "pgp public key inspector"]
+h1            = "PGP key info"
+hero_subtitle = "Paste an armored OpenPGP key and inspect its fingerprint, key ID, algorithm, user IDs, creation date, expiry, and subkeys locally."
+wasm          = "gizza_ai_pgp_key_info_web"
+export        = "run"
+live          = false
+output_label  = "Key metadata JSON"
+format        = "text"
+
+[[input]]
+name        = "key"
+label       = "ASCII-armored PGP key"
+placeholder = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
+source      = "field"
+multiline   = true

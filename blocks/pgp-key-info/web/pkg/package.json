@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-pgp-key-info-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_pgp_key_info_web_bg.wasm",
+    "gizza_ai_pgp_key_info_web.js",
+    "gizza_ai_pgp_key_info_web.d.ts"
+  ],
+  "main": "gizza_ai_pgp_key_info_web.js",
+  "types": "gizza_ai_pgp_key_info_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
