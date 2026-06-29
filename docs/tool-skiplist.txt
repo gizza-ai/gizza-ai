@@ -179,3 +179,5 @@ extract-video-metadata  # duplicate of blocks/media-info (reports container/code
 fuzzy-hash-compare  # duplicate of blocks/fuzzy-hash (its compare param already returns a 0-100 similarity score between two SSDEEP/CTPH hashes; core exposes public compare(h1,h2)->u32)
 hex-to-pem  # duplicate of blocks/pem-der-convert (direction=der-to-pem der_format=hex: wraps DER hex bytes into a PEM block with a chosen label + 64-char line folding)
 pem-to-hex  # duplicate of blocks/pem-der-convert (direction=pem-to-der der_format=hex: strips PEM armor, base64-decodes the body, emits DER bytes as hex)
+
+phone-parser-formatter  # duplicate of blocks/phone-format: parses, validates, formats E.164/international/national, region, and type
