@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-spritesheet-slice-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: decode the sprite sheet (PNG/JPEG/GIF/BMP/WebP), crop each frame, and
+# re-encode every frame to PNG (pure-Rust, wasm32-safe — no native deps).
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "bmp", "webp"] }
+# zip with deflate only — bundle every sliced frame into one downloadable archive.
+zip = { version = "8", default-features = false, features = ["deflate"] }
