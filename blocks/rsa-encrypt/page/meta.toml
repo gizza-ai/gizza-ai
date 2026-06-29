@@ -1,0 +1,37 @@
+slug          = "rsa-encrypt"
+title         = "RSA Encrypt — Encrypt a message to an RSA public key (OAEP / PKCS#1) — gizza.ai"
+description   = "Encrypt a short message to an RSA public key (OAEP or PKCS#1 v1.5, SHA-256/384/512) and get base64 ciphertext, in your browser. Nothing is uploaded."
+tags          = ["rsa encrypt", "rsa oaep", "pkcs1", "public key encryption", "rsa cipher", "crypto"]
+h1            = "RSA encrypt"
+hero_subtitle = "Encrypt a short message to someone's RSA public key — OAEP or PKCS#1 v1.5, SHA-256/384/512 — and get base64 ciphertext. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_rsa_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Ciphertext (base64)"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The short message to encrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "public_key"
+label       = "RSA public key (PEM)"
+placeholder = "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "padding"
+label       = "Padding (oaep | pkcs1v15)"
+placeholder = "oaep"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "OAEP hash (sha256 | sha384 | sha512)"
+placeholder = "sha256"
+source      = "field"
