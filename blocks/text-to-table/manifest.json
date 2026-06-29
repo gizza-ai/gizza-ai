@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/text-to-table",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render delimited text as an aligned ASCII or Markdown table.",
+  "role": "skill",
+  "tool": {
+    "description": "Render delimited text (CSV/TSV/custom delimiter) as an aligned table. format=ascii (default) produces a box-drawing grid (+---+ borders, padded cells); format=markdown produces a GitHub-style pipe table padded so columns line up. header=true uses the first row as the header, delimiter chooses the field separator, and align controls column padding.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The delimited text (CSV/TSV/etc.)." },
+        "format": { "type": "string", "enum": ["ascii", "markdown"], "default": "ascii", "description": "Output table format: ascii (default, aligned box-drawing grid) or markdown (padded pipe table)." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as the header (default true); otherwise 'Column N' headers are generated." },
+        "delimiter": { "type": "string", "default": ",", "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'/'space'. Default ','." },
+        "align": { "type": "string", "enum": ["left", "right", "center"], "default": "left", "description": "Column text alignment: left (default), right or center." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}
