@@ -1,0 +1,36 @@
+slug          = "remove-control-chars"
+title         = "Remove Control Characters — Strip null bytes & non-printable chars — gizza.ai"
+description   = "Strip null bytes and non-printable control characters from text, in your browser. Keep tabs and newlines or remove them too. Nothing is uploaded."
+tags          = ["remove control characters", "strip null bytes", "remove non-printable characters", "clean text", "remove invisible characters"]
+h1            = "Remove control characters"
+hero_subtitle = "Strip null bytes and non-printable control characters from text. Keep tabs and newlines, or remove every control character. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_remove_control_chars_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text with control characters here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "keep_tabs"
+label       = "Keep tabs"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "keep_newlines"
+label       = "Keep newlines"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Replacement"
+placeholder = "(empty = delete)"
+source      = "field"
