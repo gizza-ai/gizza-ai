@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai/sm2-keypair-generate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an SM2 key pair (PEM + hex)",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh SM2 key pair (Chinese national standard GM/T 0003, OSCCA curve sm2p256v1) and return the private key (PKCS#8 PEM), the public key (SPKI PEM), the raw 32-byte private scalar in hex, and the public point in SEC1 hex (both uncompressed and compressed). Keys are generated locally with a cryptographic RNG (getrandom). SM2 is the OSCCA-mandated 256-bit elliptic-curve scheme used for signatures and key exchange in Chinese government and commercial systems.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
+  }
+}
