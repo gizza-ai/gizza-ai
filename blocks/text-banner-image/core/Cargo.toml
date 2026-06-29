@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-text-banner-image-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# fontdue: pure-Rust TrueType rasterizer (no freetype / system fonts) — same as
+# text-image-card / meme-caption. image: pure-Rust encode; only png needed for
+# the RGBA banner output (keeps the wasm small). LiberationSans-Bold is a bold
+# sans face that reads well at banner sizes (Mono looks cramped on a headline).
+fontdue = "0.9"
+image = { version = "0.25", default-features = false, features = ["png"] }
