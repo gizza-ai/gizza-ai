@@ -1,0 +1,30 @@
+slug          = "mac-address-format"
+title         = "MAC Address Format Converter — colon, hyphen, Cisco, bare — gizza.ai"
+description   = "Reformat MAC addresses between colon, hyphen, Cisco dotted-quad, and bare hex — in lower or upper case. Paste one or many; runs in your browser, nothing uploaded."
+tags          = ["mac address format", "mac address converter", "colon to hyphen mac", "cisco mac format", "bare mac", "eui-48", "eui-64", "uppercase mac"]
+h1            = "MAC Address Format Converter"
+hero_subtitle = "Reformat one or many MAC addresses between colon, hyphen, Cisco dotted-quad, and bare hex — in the case you choose. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_mac_address_format_web"
+export        = "run"
+live          = false
+output_label  = "Reformatted MAC addresses"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "MAC address(es)"
+placeholder = "Paste one or more MAC addresses (any notation), one per line or comma-separated…"
+source      = "field"
+multiline   = true
+
+# format renders as a <select> — its option list is derived from the descriptor
+# schema (manifest.json), so the label here stays short.
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "case"
+label       = "Output case"
+source      = "field"
