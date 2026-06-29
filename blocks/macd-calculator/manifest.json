@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/macd-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Computes the MACD line, signal line and histogram from prices",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the MACD (Moving Average Convergence Divergence) momentum indicator over a numeric price series (separated by spaces, commas, semicolons, or newlines, oldest first). Uses a fast EMA (default period 12) and a slow EMA (default 26): the MACD line = fastEMA - slowEMA, the signal line = EMA (default 9) of the MACD line, and the histogram = MACD line - signal line. The fast/slow/signal periods are configurable (each 1-10000; fast must be smaller than slow, and slow must not exceed the number of data points). Each EMA is seeded with the simple mean of its first window. Returns the count, the periods used, the fast and slow EMA, the MACD/signal/histogram value at each point (null during the warm-up before enough points are available), and the latest MACD, signal and histogram values. Runs locally — the data never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "prices": { "type": "string", "description": "The numeric price series, separated by spaces, commas, semicolons, or newlines (oldest first)." },
+        "fast": { "type": "integer", "minimum": 1, "maximum": 10000, "default": 12, "description": "Fast EMA period (default 12). Must be smaller than the slow period." },
+        "slow": { "type": "integer", "minimum": 1, "maximum": 10000, "default": 26, "description": "Slow EMA period (default 26). Must not exceed the number of data points." },
+        "signal": { "type": "integer", "minimum": 1, "maximum": 10000, "default": 9, "description": "Signal EMA period — the EMA of the MACD line (default 9)." }
+      },
+      "required": ["prices"],
+      "additionalProperties": false
+    }
+  }
+}
