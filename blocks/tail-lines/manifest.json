@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/tail-lines",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Output the last N lines of text (tail -n).",
+  "role": "skill",
+  "tool": {
+    "description": "Output the last N lines of text — the `tail -n` / 'show the bottom rows' operation. Set count to how many trailing lines to keep (default 10). Use skip to drop that many lines from the end before taking count. Set number=true to prefix each kept line with its 1-based original line number and a tab.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to take the last lines from (split on newlines)." },
+        "count": { "type": "integer", "minimum": 1, "maximum": 1000000, "default": 10, "description": "How many trailing lines to keep (like `tail -n`). Default 10." },
+        "skip": { "type": "integer", "minimum": 0, "default": 0, "description": "Drop this many lines from the end before taking the last `count` (e.g. skip=1 to ignore a footer row). Default 0." },
+        "number": { "type": "boolean", "default": false, "description": "When true, prefix each kept line with its 1-based original line number and a tab (like `cat -n`). Default false." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
