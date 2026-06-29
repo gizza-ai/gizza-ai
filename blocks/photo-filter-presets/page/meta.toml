@@ -1,0 +1,23 @@
+slug          = "photo-filter-presets"
+title         = "Photo Filter Presets — gizza.ai"
+description   = "Apply a one-click photo filter — sepia, vintage, warm, cool, noir, grayscale, vivid, invert, or fade — right in your browser. No upload to a server, runs locally, free."
+tags          = ["photo", "filter", "presets", "sepia", "vintage", "grayscale", "black-and-white", "effects"]
+h1            = "Photo Filter Presets"
+hero_subtitle = "Pick an image and a filter preset — it's applied in your browser, nothing is uploaded."
+wasm          = "gizza_ai_photo_filter_presets_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Filtered image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "preset"
+source      = "field"
+label       = "Filter preset"
+placeholder = "sepia"

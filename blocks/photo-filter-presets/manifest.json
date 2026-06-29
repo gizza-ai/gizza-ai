@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/photo-filter-presets",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Apply a photo filter preset (sepia, vintage, warm, cool, noir, and more) to an image.",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a named photographic filter preset to an image at the given URL. Presets: sepia, vintage, warm, cool, noir, grayscale, vivid, invert, fade. Use when the user asks to add a filter, tint, or vintage/sepia/black-and-white look to a photo.",
+    "parameters": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url":    { "type": "string", "description": "Absolute http(s) URL to an image (PNG, JPEG, or WebP)." },
+        "preset": { "type": "string", "enum": ["sepia", "vintage", "warm", "cool", "noir", "grayscale", "vivid", "invert", "fade"], "default": "sepia", "description": "Filter preset to apply. Default: sepia." }
+      }
+    }
+  }
+}
