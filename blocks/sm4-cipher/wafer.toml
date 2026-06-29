@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sm4-cipher"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt data with SM4 (ECB/CBC)"
