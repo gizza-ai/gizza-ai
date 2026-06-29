@@ -1,0 +1,63 @@
+slug          = "latex-table"
+title         = "CSV to LaTeX Table — tabular & booktabs generator — gizza.ai"
+description   = "Convert CSV or TSV data into a LaTeX tabular environment (booktabs, grid, or plain), in your browser. Free, private, no upload."
+tags          = ["csv to latex", "latex table generator", "tsv to latex", "booktabs table", "latex tabular"]
+h1            = "CSV to LaTeX table"
+hero_subtitle = "Convert CSV or TSV into a LaTeX tabular — booktabs, grid, or plain. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_latex_table_web"
+export        = "run"
+live          = false
+output_label  = "LaTeX"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV / TSV"
+placeholder = "name,score\nAda,95\nBo,88"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (auto, comma, tab, ; |)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "style"
+label       = "Style (booktabs | grid | plain)"
+placeholder = "booktabs"
+source      = "field"
+
+[[input]]
+name        = "alignment"
+label       = "Alignment (l c r, or per-column e.g. lcr)"
+placeholder = "l"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "escape"
+label       = "Escape LaTeX special characters"
+source      = "field"
+
+[[input]]
+name        = "bold_header"
+label       = "Bold header cells"
+source      = "field"
+
+[[input]]
+name        = "caption"
+label       = "Caption (optional)"
+placeholder = "Results"
+source      = "field"
+
+[[input]]
+name        = "label"
+label       = "Label (optional, e.g. tab:results)"
+placeholder = "tab:results"
+source      = "field"
