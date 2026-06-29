@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/rc2-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with RC2 (RFC 2268) in ECB/CBC at a configurable effective key length",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with the RC2 block cipher (RFC 2268) in ECB or CBC mode, at a configurable effective key length (T1, in bits). key (1-128 bytes), iv (8 bytes, cbc only) and ciphertext are hex or base64 (set format; default base64); the plaintext is UTF-8. effective_key_bits 0 = use the key's full length; PKCS#7 padding. NOTE: RC2 is a legacy cipher (old PKCS#12 / S/MIME / Microsoft formats) and is NOT secure for new designs — use it only for interop or to decrypt legacy data; for real encryption use aes-cipher or text-encrypt.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key"],
+      "properties": {
+        "data": { "type": "string" },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
+        "cipher": { "type": "string", "enum": ["cbc", "ecb"], "default": "cbc" },
+        "key": { "type": "string" },
+        "iv": { "type": "string" },
+        "effective_key_bits": { "type": "integer", "minimum": 0, "maximum": 1024, "default": 0 },
+        "format": { "type": "string", "enum": ["base64", "hex"], "default": "base64" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
