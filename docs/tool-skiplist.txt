@@ -181,3 +181,4 @@ hex-to-pem  # duplicate of blocks/pem-der-convert (direction=der-to-pem der_form
 pem-to-hex  # duplicate of blocks/pem-der-convert (direction=pem-to-der der_format=hex: strips PEM armor, base64-decodes the body, emits DER bytes as hex)
 
 phone-parser-formatter  # duplicate of blocks/phone-format: parses, validates, formats E.164/international/national, region, and type
+ripemd160-hash  # duplicate of blocks/hash-all (already computes RIPEMD-160 for text, alongside other common digests; standalone text/file RIPEMD adds no distinct surface here)
