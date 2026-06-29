@@ -1,0 +1,34 @@
+slug          = "opml-converter"
+title         = "OPML Converter — OPML ⇄ JSON ⇄ CSV — gizza.ai"
+description   = "Convert OPML subscription files (podcast/RSS exports) to and from JSON and CSV in any direction — in your browser. Folders round-trip; nothing is uploaded."
+tags          = ["opml to json", "opml to csv", "json to opml", "csv to opml", "opml converter", "rss opml", "podcast opml export"]
+h1            = "OPML ⇄ JSON ⇄ CSV Converter"
+hero_subtitle = "Convert OPML subscription files (podcast/RSS feed exports) to and from JSON and CSV in any direction. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_opml_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input (OPML / JSON / CSV)"
+placeholder = "<opml version=\"2.0\"><body><outline type=\"rss\" text=\"Example\" xmlUrl=\"https://example.com/rss\"/></body></opml>"
+source      = "field"
+multiline   = true
+
+# from/to render as <select>; option lists derive from the descriptor schema.
+[[input]]
+name        = "from"
+label       = "From"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print output (OPML/JSON)"
+source      = "field"

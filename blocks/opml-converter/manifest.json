@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/opml-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert OPML subscription files to/from JSON and CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert OPML subscription files (podcast/RSS feed exports) between OPML, JSON, and CSV in any direction. Specify from and to (opml/json/csv). OPML ⇄ JSON faithfully round-trips the whole outline tree (each <outline> becomes a JSON object of its attributes — text, type, xmlUrl, htmlUrl — plus a nested \"outlines\" array). CSV is the flat feed list: one row per feed with a category column recording the folder path, so folders round-trip back to nested OPML/JSON. pretty indents OPML/JSON output (default true). Runs locally; nothing is uploaded.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The OPML, JSON, or CSV data to convert. OPML is the XML outline format used by podcast/RSS subscription exports; JSON is the faithful tree {\"title\":…,\"outlines\":[…]}; CSV is the flat feed list with a category column." },
+        "from": { "type": "string", "enum": ["opml", "json", "csv"], "default": "opml", "description": "Source format of the input." },
+        "to": { "type": "string", "enum": ["opml", "json", "csv"], "default": "json", "description": "Target format to convert to." },
+        "pretty": { "type": "boolean", "default": true, "description": "Indent the OPML/JSON output. Set false for compact single-line output (ignored for CSV). Default true." }
+      },
+      "required": ["input", "from", "to"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "opml-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert OPML subscription files to/from JSON and CSV."
