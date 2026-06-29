@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-sha3-hash-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+digest = "0.10"
+sha3 = "0.10"
+base64 = "0.22"
+hex = "0.4"

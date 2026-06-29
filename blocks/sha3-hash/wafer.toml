@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sha3-hash"
+version = "0.1.0"
+abi = 1
+summary = "Hash text with FIPS-202 SHA-3 (SHA3-256/384/512)"
