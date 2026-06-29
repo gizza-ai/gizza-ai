@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "spritesheet-to-gif"
+version = "0.1.0"
+abi = 1
+summary = "Combine a grid sprite sheet's frames into one animated GIF."

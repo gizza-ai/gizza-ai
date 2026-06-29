@@ -1,0 +1,30 @@
+{
+  "name": "gizza-ai/spritesheet-to-gif",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine a grid sprite sheet's frames into one animated GIF.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Combine a grid sprite sheet's frames into a single animated GIF. Describe the grid either by columns + rows, or by tile_width + tile_height (fixed-size tiles); margin (outer border) and spacing (gap between frames) default to 0. Frames are taken in row-major (left-to-right, top-to-bottom) order. delay_ms sets the per-frame delay (default 100ms, 10ms granularity), loop_count controls repeats (0 = forever), skip_empty drops fully-transparent cells, and max_frames caps how many frames are used. Provide the sheet as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "columns": { "type": "integer", "minimum": 1, "description": "Number of columns in the grid. Pair with rows (grid mode)." },
+        "rows": { "type": "integer", "minimum": 1, "description": "Number of rows in the grid. Pair with columns (grid mode)." },
+        "tile_width": { "type": "integer", "minimum": 1, "description": "Frame width in pixels. Pair with tile_height (tile-size mode)." },
+        "tile_height": { "type": "integer", "minimum": 1, "description": "Frame height in pixels. Pair with tile_width (tile-size mode)." },
+        "margin": { "type": "integer", "minimum": 0, "default": 0, "description": "Border in pixels around all four edges of the sheet." },
+        "spacing": { "type": "integer", "minimum": 0, "default": 0, "description": "Gap in pixels between adjacent frames." },
+        "skip_empty": { "type": "boolean", "default": false, "description": "Drop frames that are fully transparent (every pixel alpha 0)." },
+        "delay_ms": { "type": "integer", "minimum": 10, "maximum": 60000, "default": 100, "description": "Per-frame delay in milliseconds (10ms granularity)." },
+        "loop_count": { "type": "integer", "minimum": 0, "default": 0, "description": "Times to repeat: 0 loops forever, N plays N+1 times then stops." },
+        "max_frames": { "type": "integer", "minimum": 1, "description": "Stop after this many frames (default: all cells)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
