@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-tester"
+version = "0.1.0"
+abi = 1
+summary = "Test a regular expression and inspect every match and capture group"
