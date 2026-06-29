@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sm2-public-from-private"
+version = "0.1.0"
+abi = 1
+summary = "Derive the SM2 public key from a private key."

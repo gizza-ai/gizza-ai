@@ -1,0 +1,24 @@
+[package]
+name = "gizza-ai-sm2-public-from-private-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# sm2: RustCrypto's pure-Rust implementation of the SM2 elliptic curve
+# (Chinese national standard GM/T 0003 / OSCCA sm2p256v1). Features:
+#   arithmetic — scalar/point ops needed to derive the public point from a
+#                private scalar (Q = d·G);
+#   pkcs8      — PKCS#8 (private) + SPKI (public) DER/PEM decoding/encoding;
+#   pem        — *_pem helpers.
+# Deriving the public key is deterministic (no RNG), so this runs on every
+# backend including the chat Service Worker and the browser page.
+sm2 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem"] }
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }
+
+# The browser page builds the core for wasm32-unknown-unknown via wasm-pack; the
+# sm2/elliptic-curve stack pulls getrandom transitively, which needs the "js"
+# backend on that target (no-op on wasm32-wasip1 / native). See pgp-key-info.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
