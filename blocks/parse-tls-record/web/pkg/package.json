@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-parse-tls-record-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_parse_tls_record_web_bg.wasm",
+    "gizza_ai_parse_tls_record_web.js",
+    "gizza_ai_parse_tls_record_web.d.ts"
+  ],
+  "main": "gizza_ai_parse_tls_record_web.js",
+  "types": "gizza_ai_parse_tls_record_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-data-uri-decode-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_data_uri_decode_web_bg.wasm",
+    "gizza_ai_data_uri_decode_web.js",
+    "gizza_ai_data_uri_decode_web.d.ts"
+  ],
+  "main": "gizza_ai_data_uri_decode_web.js",
+  "types": "gizza_ai_data_uri_decode_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

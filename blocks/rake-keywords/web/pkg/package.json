@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-rake-keywords-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_rake_keywords_web_bg.wasm",
+    "gizza_ai_rake_keywords_web.js",
+    "gizza_ai_rake_keywords_web.d.ts"
+  ],
+  "main": "gizza_ai_rake_keywords_web.js",
+  "types": "gizza_ai_rake_keywords_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

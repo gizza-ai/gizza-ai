@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-extract-domains-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_extract_domains_web_bg.wasm",
+    "gizza_ai_extract_domains_web.js",
+    "gizza_ai_extract_domains_web.d.ts"
+  ],
+  "main": "gizza_ai_extract_domains_web.js",
+  "types": "gizza_ai_extract_domains_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

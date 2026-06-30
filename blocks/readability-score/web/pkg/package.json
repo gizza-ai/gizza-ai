@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-readability-score-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_readability_score_web_bg.wasm",
+    "gizza_ai_readability_score_web.js",
+    "gizza_ai_readability_score_web.d.ts"
+  ],
+  "main": "gizza_ai_readability_score_web.js",
+  "types": "gizza_ai_readability_score_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
