@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/xpath-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Evaluate an XPath 1.0 expression against XML or XHTML",
+  "role": "skill",
+  "tool": {
+    "description": "Evaluate an XPath 1.0 expression against an XML or XHTML document and return matching nodes or values. Supports XPath 1.0 location paths, attributes, predicates, functions, scalar results, and node-set output as string values or serialized XML.",
+    "parameters": {
+      "type": "object",
+      "required": ["expression", "xml"],
+      "properties": {
+        "expression": { "type": "string", "description": "The XPath 1.0 expression, e.g. '//book/title', '//a/@href', or 'count(//item)'." },
+        "xml": { "type": "string", "description": "The XML or XHTML document to query." },
+        "output": { "type": "string", "enum": ["value", "xml"], "default": "value", "description": "What to return for each matched node: value = its string value; xml = serialized outer XML." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
