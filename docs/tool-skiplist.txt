@@ -46,7 +46,8 @@ audio-convert          # audio-only (no Input::Audio kind)
 audio-normalize        # audio-only (no Input::Audio kind)
 audio-silence-remove   # audio-only (no Input::Audio kind)
 audio-to-mono          # audio-only (no Input::Audio kind)
-audio-volume-adjust    # audio-only (no Input::Audio kind)
+audio-volume-adjust   # audio-only (no Input::Audio kind)
+waveform-image        # audio-input ffmpeg tool (renders waveform from audio); no AssetKind::Audio + accept=audio/* page input exists yet, and ffmpeg cannot run in chat SW. Deferred.
 burn-subtitles         # needs 2 media inputs (video + .srt); single-input ffmpeg dispatch + page take one file
 csv-to-tsv  # dup of csv-change-delimiter (comma->tab is the default tab target)
 decrypt-file  # dup of encrypt-file (mode=decrypt already implemented)
