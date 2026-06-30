@@ -26,6 +26,11 @@ printf 'title = "Calculator"\n' > "$tmpdir/blocks/calculator/page/meta.toml"
 
 # No blocks/web-fetch/page/meta.toml (chat-only tool)
 
+# Create a fake blocks/page tool that is NOT returned by the stub gizza list
+# (simulates the CLI catalog lagging behind the on-disk blocks/*/page tools)
+mkdir -p "$tmpdir/blocks/ghost-tool/page"
+printf 'title = "Ghost Tool"\ndescription = "A tool only present on disk"\n' > "$tmpdir/blocks/ghost-tool/page/meta.toml"
+
 # Create pkg/ dir
 mkdir -p "$tmpdir/pkg"
 
@@ -54,6 +59,12 @@ if ! grep -qF "https://example.test/tools/calculator/" "$sitemap"; then
 fi
 if grep -qF "web-fetch" "$sitemap"; then
   echo "FAIL: sitemap must NOT contain web-fetch (no page)"
+  exit 1
+fi
+# ghost-tool has a blocks/*/page/meta.toml but is absent from gizza list —
+# it must still appear in the sitemap (derived directly from the filesystem)
+if ! grep -qF "https://example.test/tools/ghost-tool/" "$sitemap"; then
+  echo "FAIL: sitemap missing ghost-tool page URL (page exists but not in gizza list)"
   exit 1
 fi
 
@@ -96,6 +107,16 @@ if ! grep -qF "Fetch a web page and return its content" "$llmstxt"; then
 fi
 if grep -qF "https://example.test/tools/web-fetch/" "$llmstxt"; then
   echo "FAIL: llms.txt must NOT contain a web-fetch page link"
+  exit 1
+fi
+# ghost-tool: page tool absent from gizza JSON must still get a linked entry,
+# with its description sourced from page/meta.toml as a fallback
+if ! grep -qF "https://example.test/tools/ghost-tool/index.md" "$llmstxt"; then
+  echo "FAIL: llms.txt missing ghost-tool index.md link (page exists but not in gizza list)"
+  exit 1
+fi
+if ! grep -qF "A tool only present on disk" "$llmstxt"; then
+  echo "FAIL: llms.txt missing ghost-tool fallback description from meta.toml"
   exit 1
 fi
 
