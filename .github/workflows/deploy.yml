@@ -101,14 +101,30 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export CARGO_BUILD_JOBS=1
+          export CARGO_TARGET_DIR="$RUNNER_TEMP/gizza-block-target"
+          mkdir -p "$CARGO_TARGET_DIR"
           for manifest in blocks/*/manifest.json; do
             block="$(basename "$(dirname "$manifest")")"
             if [ -f "blocks/$block/target/block.wasm" ]; then
-              echo "target/block.wasm exists for $block — skipping wafer build"
+              echo "target/block.wasm exists for $block — skipping block build"
               continue
             fi
-            echo "building missing target/block.wasm for $block"
-            (cd "blocks/$block" && wafer build)
+            echo "building missing target/block.wasm for $block with shared CARGO_TARGET_DIR"
+            before="$(mktemp)"
+            find "$CARGO_TARGET_DIR/wasm32-wasip1/release" -maxdepth 1 -type f -name '*.wasm' -printf '%T@ %p\n' 2>/dev/null | sort -n > "$before" || true
+            cargo build --manifest-path "blocks/$block/Cargo.toml" --target wasm32-wasip1 --release
+            wasm="$(comm -13 "$before" <(find "$CARGO_TARGET_DIR/wasm32-wasip1/release" -maxdepth 1 -type f -name '*.wasm' -printf '%T@ %p\n' | sort -n) | tail -1 | cut -d' ' -f2-)"
+            if [ -z "$wasm" ]; then
+              wasm="$(find "$CARGO_TARGET_DIR/wasm32-wasip1/release" -maxdepth 1 -type f -name '*.wasm' -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)"
+            fi
+            if [ -z "$wasm" ] || [ ! -f "$wasm" ]; then
+              echo "No wasm artifact found for $block" >&2
+              exit 1
+            fi
+            mkdir -p "blocks/$block/target"
+            cp "$wasm" "blocks/$block/target/block.wasm"
+            rm -f "$before"
           done
 
       - name: Build site
