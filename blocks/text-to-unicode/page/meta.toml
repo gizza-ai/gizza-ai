@@ -1,0 +1,23 @@
+slug          = "text-to-unicode"
+title         = "Text to Unicode — gizza.ai"
+description   = "List each character's Unicode code point (U+XXXX), name, \\u escape sequence and UTF-8 bytes for any text."
+tags          = ["text", "unicode", "encoding"]
+h1            = "Text to Unicode"
+hero_subtitle = "Paste text to break it into Unicode code points — see each character's U+ value, name, \\u escape and UTF-8 bytes."
+wasm          = "gizza_ai_text_to_unicode_web"
+export        = "run"
+live          = false
+output_label  = "Code points"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Héllo 😀"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"

@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-text-to-unicode-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+unicode_names2 = "1"
+unicode-width = "0.2"
+
+[dev-dependencies]
+serde_json = "1"
