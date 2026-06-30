@@ -1,0 +1,18 @@
+{
+  "name": "gizza-ai/unicode-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode Unicode escape sequences back into readable text.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode text that contains Unicode escape sequences back into the actual characters. Auto-detects and decodes, all in one pass (no target to pick): \\uXXXX (4-hex JS/JSON/Java, surrogate pairs are combined), \\u{X..} (braced Rust/ES6), \\xXX (2-hex byte), \\U00XXXXXX (8-hex Python), U+XXXX / u+xxxx (code-point notation), and HTML numeric character references &#DDDD; (decimal) and &#xHHHH; (hex). Text that isn't an escape is passed through unchanged; invalid code points become U+FFFD. The inverse of an escaping tool. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "Text containing Unicode escape sequences to decode back into characters." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
