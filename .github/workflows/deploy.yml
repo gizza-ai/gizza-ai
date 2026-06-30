@@ -96,6 +96,21 @@ jobs:
       - name: Build wafer CLI
         run: cargo install --path wafer-run/crates/wafer-cli --locked
 
+      - name: Build missing skill wasm artifacts
+        working-directory: gizza-ai
+        shell: bash
+        run: |
+          set -euo pipefail
+          for manifest in blocks/*/manifest.json; do
+            block="$(basename "$(dirname "$manifest")")"
+            if [ -f "blocks/$block/target/block.wasm" ]; then
+              echo "target/block.wasm exists for $block — skipping wafer build"
+              continue
+            fi
+            echo "building missing target/block.wasm for $block"
+            (cd "blocks/$block" && wafer build)
+          done
+
       - name: Build site
         working-directory: gizza-ai
         # `--release` is required: without it `solobase build` runs
@@ -104,15 +119,21 @@ jobs:
         # (+ the size-optimized [profile.release] in Cargo.toml) the bundle
         # drops to a few MB. The per-tool wasm-pack builds below already use
         # `--release`.
-        run: solobase build --release
+        run: SOLOBASE_SKIP_BLOCK_BUILD=1 solobase build --release
 
       - name: Build tool pages
         # Per-tool web wasm + rendered standalone pages into pkg/tools/.
         # Mirrors gizza-ai/justfile's `build-tools` recipe.
         working-directory: gizza-ai
         run: |
+          set -euo pipefail
           for dir in blocks/*/page; do
             tool="$(basename "$(dirname "$dir")")"
+            if [ -f "blocks/$tool/web/pkg/package.json" ]; then
+              echo "web/pkg exists for $tool — skipping wasm-pack"
+              continue
+            fi
+            echo "building missing web/pkg for $tool"
             wasm-pack build "blocks/$tool/web" --target web --release --out-dir pkg
           done
           cargo run --manifest-path tools/generator/Cargo.toml -- .

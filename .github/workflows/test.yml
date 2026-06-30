@@ -121,10 +121,26 @@ jobs:
           cargo install --path solobase/crates/solobase --locked
           cargo install --path wafer-run/crates/wafer-cli --locked
 
+      - name: Build missing skill wasm artifacts
+        if: github.event_name != 'pull_request'
+        working-directory: gizza-ai
+        shell: bash
+        run: |
+          set -euo pipefail
+          for manifest in blocks/*/manifest.json; do
+            block="$(basename "$(dirname "$manifest")")"
+            if [ -f "blocks/$block/target/block.wasm" ]; then
+              echo "target/block.wasm exists for $block — skipping wafer build"
+              continue
+            fi
+            echo "building missing target/block.wasm for $block"
+            (cd "blocks/$block" && wafer build)
+          done
+
       - name: Build skill wasms (full)
         if: github.event_name != 'pull_request'
         working-directory: gizza-ai
-        run: solobase build
+        run: SOLOBASE_SKIP_BLOCK_BUILD=1 solobase build
 
       - name: Build changed skill wasms
         if: github.event_name == 'pull_request'
