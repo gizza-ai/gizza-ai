@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-luhn-validate-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_luhn_validate_web_bg.wasm",
+    "gizza_ai_luhn_validate_web.js",
+    "gizza_ai_luhn_validate_web.d.ts"
+  ],
+  "main": "gizza_ai_luhn_validate_web.js",
+  "types": "gizza_ai_luhn_validate_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

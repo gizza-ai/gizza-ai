@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-markdown-to-slides-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_markdown_to_slides_web_bg.wasm",
+    "gizza_ai_markdown_to_slides_web.js",
+    "gizza_ai_markdown_to_slides_web.d.ts"
+  ],
+  "main": "gizza_ai_markdown_to_slides_web.js",
+  "types": "gizza_ai_markdown_to_slides_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

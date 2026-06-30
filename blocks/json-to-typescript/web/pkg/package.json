@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-json-to-typescript-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_json_to_typescript_web_bg.wasm",
+    "gizza_ai_json_to_typescript_web.js",
+    "gizza_ai_json_to_typescript_web.d.ts"
+  ],
+  "main": "gizza_ai_json_to_typescript_web.js",
+  "types": "gizza_ai_json_to_typescript_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

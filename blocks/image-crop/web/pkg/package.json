@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-image-crop-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_image_crop_web_bg.wasm",
+    "gizza_ai_image_crop_web.js",
+    "gizza_ai_image_crop_web.d.ts"
+  ],
+  "main": "gizza_ai_image_crop_web.js",
+  "types": "gizza_ai_image_crop_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

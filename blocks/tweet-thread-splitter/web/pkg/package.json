@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-tweet-thread-splitter-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_tweet_thread_splitter_web_bg.wasm",
+    "gizza_ai_tweet_thread_splitter_web.js",
+    "gizza_ai_tweet_thread_splitter_web.d.ts"
+  ],
+  "main": "gizza_ai_tweet_thread_splitter_web.js",
+  "types": "gizza_ai_tweet_thread_splitter_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

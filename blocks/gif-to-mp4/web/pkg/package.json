@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-gif-to-mp4-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_gif_to_mp4_web_bg.wasm",
+    "gizza_ai_gif_to_mp4_web.js",
+    "gizza_ai_gif_to_mp4_web.d.ts"
+  ],
+  "main": "gizza_ai_gif_to_mp4_web.js",
+  "types": "gizza_ai_gif_to_mp4_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

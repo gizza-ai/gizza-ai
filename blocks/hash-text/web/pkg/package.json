@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-hash-text-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_hash_text_web_bg.wasm",
+    "gizza_ai_hash_text_web.js",
+    "gizza_ai_hash_text_web.d.ts"
+  ],
+  "main": "gizza_ai_hash_text_web.js",
+  "types": "gizza_ai_hash_text_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
