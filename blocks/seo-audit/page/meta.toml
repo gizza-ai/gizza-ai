@@ -1,0 +1,18 @@
+slug          = "seo-audit"
+title         = "SEO Audit — Check On-Page SEO of HTML Online — gizza.ai"
+description   = "Paste a page's HTML and get a scored on-page SEO audit — title, meta description, headings, image alt text, canonical, and Open Graph tags. Free, private, no upload."
+tags          = ["seo audit", "on-page seo", "meta tags checker", "html seo check", "open graph checker", "seo score"]
+h1            = "SEO Audit"
+hero_subtitle = "Paste a page's HTML and get a scored on-page SEO report — title, meta description, heading hierarchy, image alt text, canonical link, and Open Graph tags. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_seo_audit_web"
+export        = "run"
+live          = false
+output_label  = "SEO report"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "Page HTML"
+placeholder = "<html><head><title>…</title><meta name=\"description\" content=\"…\"></head><body>…</body></html>"
+source      = "field"
+multiline   = true

@@ -1,0 +1,31 @@
+slug          = "page-weight-analyzer"
+title         = "Page Weight Analyzer — Resource Counts & Render-Blocking Audit | gizza.ai"
+description   = "Paste a page's HTML and get resource counts, render-blocking scripts and stylesheets, inline JS/CSS sizes, an estimated request count, and a page-weight budget. Free, private, runs in your browser."
+tags          = ["page weight", "page weight analyzer", "render blocking", "performance budget", "html analyzer", "resource counter", "web performance", "render-blocking css", "page size", "front-end audit"]
+h1            = "Page Weight Analyzer"
+hero_subtitle = "Paste a page's HTML and see its scripts, stylesheets, images, render-blocking resources, and an estimated weight budget. Runs entirely in your browser — no server, no sign-up."
+wasm          = "gizza_ai_page_weight_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Page-weight report"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML source"
+placeholder = "<!doctype html>\n<html>\n<head>\n  <link rel=\"stylesheet\" href=\"/main.css\">\n  <script src=\"/app.js\"></script>\n</head>\n<body>...</body>\n</html>"
+source      = "field"
+multiline   = true
+
+# output renders as <select>; list_resources renders as a checkbox — control type
+# + options come from the descriptor schema (manifest.json), so labels here stay
+# short and the option lists aren't duplicated.
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "list_resources"
+label       = "List every external resource URL"
+source      = "field"

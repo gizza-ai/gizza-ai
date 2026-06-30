@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/text-to-unicode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List each character's Unicode code point, name and escape sequence.",
+  "role": "skill",
+  "tool": {
+    "description": "Break text into its Unicode scalar values and, for each character, report the code point (U+XXXX), decimal value, official Unicode name, the \\u escape sequence (\\uXXXX for the BMP, \\u{XXXX} for astral code points like emoji), and the UTF-8 bytes in hex. format=table (default) returns an aligned ASCII grid; format=json returns an array of objects.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to break down into Unicode code points." },
+        "format": { "type": "string", "enum": ["table", "json"], "default": "table", "description": "Output format: table (default, aligned ASCII grid with Char/Code Point/Dec/Escape/UTF-8/Name columns) or json (an array of objects)." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

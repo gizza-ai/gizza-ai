@@ -1,0 +1,30 @@
+{
+  "name": "gizza-ai/spritesheet-slice",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Slice a grid sprite sheet into individual frame PNGs (ZIP).",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Slice a grid sprite sheet into individual frames, returned bundled in a ZIP. Describe the grid either by columns + rows, or by tile_width + tile_height (fixed-size tiles); margin (outer border) and spacing (gap between frames) default to 0. Set skip_empty to drop fully-transparent frames, max_frames to cap how many are written, format to choose the per-frame encoding (png/jpeg/webp/bmp), and prefix to name them. Frames are named <prefix>_000.<ext>, <prefix>_001.<ext>, … (prefix defaults to frame) in row-major order. Provide the sheet as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "columns": { "type": "integer", "minimum": 1, "description": "Number of columns in the grid. Pair with rows (grid mode)." },
+        "rows": { "type": "integer", "minimum": 1, "description": "Number of rows in the grid. Pair with columns (grid mode)." },
+        "tile_width": { "type": "integer", "minimum": 1, "description": "Frame width in pixels. Pair with tile_height (tile-size mode)." },
+        "tile_height": { "type": "integer", "minimum": 1, "description": "Frame height in pixels. Pair with tile_width (tile-size mode)." },
+        "margin": { "type": "integer", "minimum": 0, "default": 0, "description": "Border in pixels around all four edges of the sheet." },
+        "spacing": { "type": "integer", "minimum": 0, "default": 0, "description": "Gap in pixels between adjacent frames." },
+        "skip_empty": { "type": "boolean", "default": false, "description": "Drop frames that are fully transparent (every pixel alpha 0)." },
+        "format": { "type": "string", "enum": ["png", "jpeg", "webp", "bmp"], "default": "png", "description": "Per-frame image format. png/webp/bmp keep alpha; jpeg is opaque." },
+        "prefix": { "type": "string", "default": "frame", "description": "Filename base for each frame, e.g. frame -> frame_000.png." },
+        "max_frames": { "type": "integer", "minimum": 1, "description": "Stop after writing this many frames (default: all cells)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

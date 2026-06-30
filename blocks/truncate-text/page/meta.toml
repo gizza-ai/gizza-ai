@@ -1,0 +1,45 @@
+slug          = "truncate-text"
+title         = "Truncate Text — Shorten Text by Characters or Words | gizza.ai"
+description   = "Truncate text to a maximum number of characters or words and add an ellipsis. Word-safe cutting, custom ellipsis, and control over whether the ellipsis counts toward the limit. Free, private, runs in your browser, no sign-up."
+tags          = ["truncate text", "shorten text", "text ellipsis", "trim text to length", "limit characters", "limit words", "text snippet", "meta description length"]
+h1            = "Truncate Text"
+hero_subtitle = "Shorten any text to a set number of characters or words and append an ellipsis — without splitting a word in half. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_truncate_text_web"
+export        = "run"
+live          = false
+output_label  = "Truncated text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the text you want to shorten…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "length"
+label       = "Limit"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "unit"
+label       = "Measure limit in"
+source      = "field"
+
+[[input]]
+name        = "ellipsis"
+label       = "Ellipsis / suffix"
+placeholder = "…"
+source      = "field"
+
+[[input]]
+name        = "count_ellipsis"
+label       = "Ellipsis counts toward the limit"
+source      = "field"
+
+[[input]]
+name        = "break_words"
+label       = "Allow breaking words mid-cut"
+source      = "field"

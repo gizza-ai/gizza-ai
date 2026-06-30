@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/outline-to-mindmap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Outline to mind-map SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Turn an indented text outline into a mind-map SVG. Each line is a node; deeper indentation (spaces or tabs) nests it under the line above; leading bullet/number markers are stripped. A single top-level line is the central topic; multiple top-level lines hang under a synthetic center. Optional layout direction (right/down), per-branch color, and dark mode. Returns scalable SVG markup as text.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "outline": { "type": "string", "description": "The indented text outline to map." },
+        "direction": { "type": "string", "enum": ["right", "down"], "default": "right", "description": "Layout direction: right (default) or down." },
+        "colorful": { "type": "boolean", "default": true, "description": "Color each top-level branch (default true)." },
+        "dark_mode": { "type": "boolean", "default": false, "description": "Recolor for a dark background (default false)." },
+        "title": { "type": "string", "default": "Mind Map", "description": "Central node label for multi-root outlines." }
+      },
+      "required": ["outline"],
+      "additionalProperties": false
+    }
+  }
+}

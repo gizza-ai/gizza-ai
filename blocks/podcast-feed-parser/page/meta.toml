@@ -1,0 +1,36 @@
+slug          = "podcast-feed-parser"
+title         = "Podcast Feed Parser — RSS/XML episode list to JSON — gizza.ai"
+description   = "Parse a pasted podcast RSS/XML feed into clean JSON with episode titles, dates, durations, and audio enclosure URLs. Free, private, in-browser."
+tags          = ["podcast", "rss", "xml", "feed", "itunes", "episodes", "json"]
+h1            = "Podcast feed parser"
+hero_subtitle = "Paste podcast RSS/XML and extract channel metadata plus a clean episode list with publish dates, durations, and audio URLs. Runs locally."
+wasm          = "gizza_ai_podcast_feed_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed feed JSON"
+format        = "text"
+
+[[input]]
+name        = "feed"
+label       = "Podcast RSS/XML feed"
+placeholder = "<rss version=\"2.0\"><channel><title>Example Podcast</title><item><title>Episode 1</title><enclosure url=\"https://example.com/ep1.mp3\" type=\"audio/mpeg\" /></item></channel></rss>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "limit"
+label       = "Episode limit (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "order"
+label       = "Order (feed | newest | oldest)"
+placeholder = "feed"
+source      = "field"
+
+[[input]]
+name        = "include_descriptions"
+label       = "Include descriptions"
+placeholder = "false"
+source      = "field"

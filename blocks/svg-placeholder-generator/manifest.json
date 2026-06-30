@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/svg-placeholder-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a placeholder SVG image at a given size with an optional label.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a placeholder image as a scalable SVG at a chosen size, for mockups, wireframes, design comps, and dummy content. width and height set the size in pixels (1-4096). text is the centred label — leave it empty to auto-label with the dimensions (e.g. \"600×400\"). bg_color sets the background (a hex colour; defaults to light grey) and text_color the label (a hex colour; leave empty to auto-pick a readable dark/white colour from the background). font_size sets the label size in px (0 = auto-fit) and font_family the typeface. Returns a scalable SVG image. Runs locally — nothing leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "width": { "type": "integer", "default": 600, "minimum": 1, "maximum": 4096, "description": "Placeholder width in pixels (1-4096)." },
+        "height": { "type": "integer", "default": 400, "minimum": 1, "maximum": 4096, "description": "Placeholder height in pixels (1-4096)." },
+        "text": { "type": "string", "description": "The centred label text. Leave empty to auto-label with the dimensions, e.g. \"600×400\"." },
+        "bg_color": { "type": "string", "default": "#cccccc", "description": "Background colour as a hex value (#rgb, #rgba, #rrggbb, or #rrggbbaa — alpha is ignored). Defaults to a light grey." },
+        "text_color": { "type": "string", "description": "Label colour as a hex value (#rgb/#rrggbb…). Leave empty to auto-pick a readable colour (dark text on light backgrounds, white on dark)." },
+        "font_size": { "type": "number", "default": 0.0, "minimum": 0, "maximum": 4096, "description": "Label font size in pixels. 0 (the default) auto-fits the label to the box." },
+        "font_family": { "type": "string", "default": "sans-serif", "description": "CSS font-family for the label, e.g. \"sans-serif\", \"serif\", or \"Georgia, serif\"." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

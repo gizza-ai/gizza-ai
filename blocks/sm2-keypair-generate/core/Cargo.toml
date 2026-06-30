@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-sm2-keypair-generate-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# sm2: RustCrypto's pure-Rust implementation of the SM2 elliptic curve
+# (Chinese national standard GM/T 0003 / OSCCA sm2p256v1). Features:
+#   arithmetic — scalar/point ops needed to derive the public point;
+#   pkcs8      — PKCS#8 (private) + SPKI (public) DER/PEM encoding;
+#   pem        — *_pem encode/decode helpers.
+# Key generation uses getrandom (WASI random_get on wasm32-wasip1), so it runs
+# on every backend.
+sm2 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }

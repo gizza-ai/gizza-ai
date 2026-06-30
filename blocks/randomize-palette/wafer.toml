@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "randomize-palette"
+version = "0.1.0"
+abi = 1
+summary = "Randomly remap an indexed image's palette"

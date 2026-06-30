@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/risk-matrix",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Plot likelihood-vs-impact items onto a colored risk matrix heatmap.",
+  "role": "skill",
+  "tool": {
+    "description": "Plot likelihood-versus-impact items onto a classic colored risk-matrix heatmap (green/amber/red probability-impact grid). `items` is a risk register, one per line as `name, likelihood, impact` with integer ratings 1..=size. Each cell is shaded by its risk score (likelihood × impact) relative to the grid maximum — amber_at and red_at set the Low/Medium/High band fractions — and items are drawn as numbered markers in their cell with a legend listing name, L×I = score and band. Likelihood is the X axis, impact the Y axis (High-risk corner top-right). Returns an SVG image.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "items": { "type": "string", "description": "The risk register: one item per line as `name, likelihood, impact`. likelihood and impact are integers 1..=size (the name may contain commas). E.g. `Server outage, 4, 5`." },
+        "size": { "type": "integer", "default": 5, "minimum": 2, "maximum": 10, "description": "Matrix dimension N (an N×N grid, likelihood and impact each rated 1..=N). Default 5." },
+        "likelihood_labels": { "type": "string", "default": "", "description": "Optional comma-separated names for the likelihood (X) axis, low→high (defaults to 1..N)." },
+        "impact_labels": { "type": "string", "default": "", "description": "Optional comma-separated names for the impact (Y) axis, low→high (defaults to 1..N)." },
+        "amber_at": { "type": "number", "default": 0.25, "description": "Fraction of the max score (size×size) at/below which a cell is green/Low. Default 0.25." },
+        "red_at": { "type": "number", "default": 0.5, "description": "Fraction of the max score at/below which a cell is amber/Medium (above it is red/High). Must exceed amber_at. Default 0.5." },
+        "title": { "type": "string", "default": "", "description": "Optional chart title." }
+      },
+      "required": ["items"],
+      "additionalProperties": false
+    }
+  }
+}

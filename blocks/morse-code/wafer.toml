@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "morse-code"
+version = "0.1.0"
+abi = 1
+summary = "Converts text to Morse code and Morse code back to text."

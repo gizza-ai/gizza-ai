@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/latex-to-mathml",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a LaTeX math expression to MathML markup.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a LaTeX math expression into MathML markup (a <math> element). Accessible, selectable and reusable in HTML, EPUB and Office documents. Supports fractions, roots, super/subscripts, Greek letters, big operators, delimiters and matrices; block or inline display; optional pretty-print.",
+    "parameters": {
+      "type": "object",
+      "required": ["latex"],
+      "properties": {
+        "latex": { "type": "string" },
+        "display": { "type": "string", "enum": ["block", "inline"], "default": "block" },
+        "pretty": { "type": "boolean", "default": false }
+      },
+      "additionalProperties": false
+    }
+  }
+}

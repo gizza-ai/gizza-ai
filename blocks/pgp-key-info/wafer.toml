@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pgp-key-info"
+version = "0.1.0"
+abi = 1
+summary = "Inspect ASCII-armored OpenPGP key metadata."

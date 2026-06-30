@@ -1,0 +1,38 @@
+slug          = "morse-code"
+title         = "Morse Code Translator — Text to Morse & Back — gizza.ai"
+description   = "Translate text to International Morse code and decode Morse back to text instantly in your browser. Full A-Z, 0-9, and punctuation, case-insensitive, with configurable letter and word separators. Free, private, no sign-up."
+tags          = ["morse code", "morse translator", "text to morse", "morse to text", "morse decoder", "morse encoder", "international morse", "sos", "cw", "dot dash"]
+h1            = "Morse Code Translator"
+hero_subtitle = "Convert text to Morse code or decode Morse back to text — full International Morse alphabet, digits, and punctuation, with adjustable separators. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_morse_code_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text or Morse code"
+placeholder = "SOS"
+source      = "field"
+multiline   = true
+
+# direction renders as a <select>; letter_sep / word_sep render as text fields —
+# the control type + option list are derived from the descriptor schema
+# (manifest.json), so labels here stay short and aren't duplicated.
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[[input]]
+name        = "letter_sep"
+label       = "Letter separator (blank = space)"
+placeholder = " "
+source      = "field"
+
+[[input]]
+name        = "word_sep"
+label       = "Word separator (blank = ' / ')"
+placeholder = " / "
+source      = "field"

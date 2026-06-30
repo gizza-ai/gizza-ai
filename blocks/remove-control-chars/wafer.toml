@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "remove-control-chars"
+version = "0.1.0"
+abi = 1
+summary = "Strip null bytes and non-printable control characters from text"

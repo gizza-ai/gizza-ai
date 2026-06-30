@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-to-unicode"
+version = "0.1.0"
+abi = 1
+summary = "List each character's Unicode code point, name and escape sequence."

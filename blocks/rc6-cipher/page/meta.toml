@@ -1,0 +1,48 @@
+slug          = "rc6-cipher"
+title         = "RC6 Cipher — Encrypt/decrypt with RC6 (ECB/CBC) — gizza.ai"
+description   = "Encrypt or decrypt data with RC6-32/20 in ECB or CBC mode with hex/base64 I/O — in your browser. For interop, learning, and CTFs. Nothing is uploaded."
+tags          = ["rc6", "rc6 encrypt", "rc6 decrypt", "block cipher", "ecb", "cbc", "aes finalist", "legacy cipher"]
+h1            = "RC6 cipher"
+hero_subtitle = "Encrypt or decrypt data with RC6-32/20, ECB or CBC, hex or base64. Useful for interop, learning, and CTFs. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_rc6_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "cipher"
+label       = "Mode (cbc | ecb)"
+placeholder = "cbc"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (1-255 bytes, encoded)"
+placeholder = "base64 or hex key"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV (16 bytes, for cbc)"
+placeholder = "base64 or hex iv"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (base64 | hex)"
+placeholder = "base64"
+source      = "field"

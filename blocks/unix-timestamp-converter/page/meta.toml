@@ -1,0 +1,30 @@
+slug          = "unix-timestamp-converter"
+title         = "Unix Timestamp Converter — epoch date converter — gizza.ai"
+description   = "Convert Unix timestamps (seconds, milliseconds, microseconds, nanoseconds) to UTC dates, or parse human-readable dates back to epoch timestamps. Free, private, no upload."
+tags          = ["unix timestamp", "epoch converter", "timestamp to date", "date to timestamp", "utc time"]
+h1            = "Unix timestamp converter"
+hero_subtitle = "Convert epoch timestamps to readable UTC dates — or parse dates back to seconds, milliseconds, microseconds and nanoseconds. Runs locally in your browser."
+wasm          = "gizza_ai_unix_timestamp_converter_web"
+export        = "run"
+live          = false
+output_label  = "Conversion result"
+format        = "text"
+
+[[input]]
+name        = "value"
+label       = "Timestamp or date"
+placeholder = "1700000000 or 2023-11-14T22:13:20Z"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "unit"
+label       = "Timestamp unit"
+placeholder = "auto"
+source      = "field"

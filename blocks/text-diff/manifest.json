@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/text-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two text blocks and highlight changed lines.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two blocks of text line-by-line. Produces either a classic unified diff with added/removed/context lines or a structured JSON report with added, removed, changed, and unchanged counts. Supports optional case-insensitive and whitespace-normalized matching while preserving original text in the output.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "left": { "type": "string", "description": "The original/left text to compare." },
+        "right": { "type": "string", "description": "The updated/right text to compare." },
+        "format": { "type": "string", "enum": ["unified", "json"], "default": "unified", "description": "Output format: unified diff text or a structured JSON report." },
+        "ignore_case": { "type": "boolean", "default": false, "description": "Compare lines case-insensitively while preserving original text in the output." },
+        "ignore_whitespace": { "type": "boolean", "default": false, "description": "Normalize runs of whitespace for matching while preserving original text in the output." },
+        "context": { "type": "integer", "minimum": 0, "maximum": 100, "default": 3, "description": "Unchanged context lines around each hunk in unified output. Default 3." }
+      },
+      "required": ["left", "right"],
+      "additionalProperties": false
+    }
+  }
+}

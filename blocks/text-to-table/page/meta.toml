@@ -1,0 +1,39 @@
+slug          = "text-to-table"
+title         = "Text to Table — gizza.ai"
+description   = "Render delimited text (CSV, TSV, or custom-separated data) as an aligned ASCII or Markdown table."
+tags          = ["text", "csv", "table"]
+h1            = "Text to Table"
+hero_subtitle = "Paste CSV/TSV/custom-delimited text and format it as a padded ASCII grid or Markdown pipe table."
+wasm          = "gizza_ai_text_to_table_web"
+export        = "run"
+live          = false
+output_label  = "Table"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Delimited text"
+placeholder = "name,score\nAlice,10\nBob,9"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "align"
+label       = "Alignment"
+source      = "field"

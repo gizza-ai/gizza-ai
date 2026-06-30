@@ -1,0 +1,37 @@
+slug          = "tail-lines"
+title         = "Tail — Get the Last N Lines of Text | gizza.ai"
+description   = "Output the last N lines of any text, right in your browser — the `tail -n` operation. Pick how many lines, skip a footer row, and optionally number each line. Free, private, no sign-up."
+tags          = ["tail", "last lines", "last n lines", "tail -n", "bottom lines", "truncate lines", "line numbers", "text tool"]
+h1            = "Tail — Last N Lines"
+hero_subtitle = "Keep just the last N lines of your text — like `tail -n`. Choose the count, skip trailing lines, and optionally number each line. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_tail_lines_web"
+export        = "run"
+live          = false
+output_label  = "Last lines"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "line 1\nline 2\nline 3\n..."
+source      = "field"
+multiline   = true
+
+# count/skip render as number fields and `number` as a checkbox — control type +
+# bounds are derived from the descriptor's schema, so labels here stay short.
+[[input]]
+name        = "count"
+label       = "Number of lines to keep"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "skip"
+label       = "Skip trailing lines"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "number"
+label       = "Number each line"
+source      = "field"

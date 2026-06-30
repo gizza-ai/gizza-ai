@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lznt1-decompress"
+version = "0.1.0"
+abi = 1
+summary = "Decompress LZNT1 (RtlCompressBuffer) blobs to hex, text, or Base64."

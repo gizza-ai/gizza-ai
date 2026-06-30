@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/latex-table",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert CSV or TSV data into a LaTeX tabular.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert CSV or TSV data into a LaTeX tabular environment. style=booktabs (default) uses \\toprule/\\midrule/\\bottomrule (needs \\usepackage{booktabs}); style=grid uses vertical bars and \\hline; style=plain has no rules. alignment is a single l/c/r for all columns or a per-column string like 'lcr'. header=true (default) separates the first row with a rule; escape=true (default) escapes LaTeX special characters; bold_header wraps header cells in \\textbf{}. Set caption and/or label to wrap the tabular in a centered table float. delimiter is 'auto' (detect), a single char, or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": { "type": "string", "description": "The CSV or TSV text to convert." },
+        "delimiter": { "type": "string", "default": "auto", "description": "Field separator: 'auto' (detect CSV vs TSV), a single char, or comma/tab/semicolon/pipe. Default 'auto'." },
+        "style": { "type": "string", "enum": ["booktabs", "grid", "plain"], "default": "booktabs", "description": "Rule style: booktabs (\\toprule/\\midrule/\\bottomrule, needs \\usepackage{booktabs}), grid (vertical bars + \\hline), or plain (no rules)." },
+        "alignment": { "type": "string", "default": "l", "description": "Column alignment: a single l/c/r applied to all columns, or a per-column string like 'lcr'." },
+        "header": { "type": "boolean", "default": true, "description": "Treat the first row as the header (default true); a \\midrule/\\hline separates it from the body." },
+        "escape": { "type": "boolean", "default": true, "description": "Escape LaTeX special characters (& % $ # _ { } ~ ^ \\) in cells (default true). Turn off to keep raw LaTeX." },
+        "bold_header": { "type": "boolean", "default": false, "description": "Wrap header cells in \\textbf{} (default false)." },
+        "caption": { "type": "string", "default": "", "description": "Optional caption; if set (or label is), the tabular is wrapped in a centered table float." },
+        "label": { "type": "string", "default": "", "description": "Optional \\label for cross-references; if set (or caption is), the tabular is wrapped in a table float." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

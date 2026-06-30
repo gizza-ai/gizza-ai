@@ -1,0 +1,39 @@
+slug          = "outline-to-mindmap"
+title         = "Outline to Mind Map — turn an indented outline into an SVG mind map — gizza.ai"
+description   = "Paste an indented text outline and get a clean, scalable mind-map SVG in your browser — no sign-up, nothing uploaded. Spaces or tabs set the nesting, bullets are stripped, branches are auto-colored, with right or top-down layouts and a dark theme."
+tags          = ["outline to mind map", "text to mind map", "mind map maker", "mind map svg", "outline mind map generator", "indented outline diagram"]
+h1            = "Outline to Mind Map"
+hero_subtitle = "Paste an indented outline — each line a node, indentation the nesting — and get a clean, scalable mind-map SVG. Auto-colored branches, right or top-down layouts, optional dark mode. Pure-Rust, runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_outline_to_mindmap_web"
+export        = "run"
+live          = false
+output_label  = "Mind-map SVG"
+format        = "text"
+
+[[input]]
+name        = "outline"
+label       = "Outline (indent with spaces or tabs to nest)"
+placeholder = "Project\n  Research\n    Interviews\n    Surveys\n  Design\n    Wireframes\n  Build\n  Launch"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "direction"
+label       = "Layout direction"
+source      = "field"
+
+[[input]]
+name        = "colorful"
+label       = "Color each branch"
+source      = "field"
+
+[[input]]
+name        = "dark_mode"
+label       = "Dark mode (light text on a dark canvas)"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "Central topic label (used only for multi-root outlines)"
+placeholder = "Mind Map"
+source      = "field"

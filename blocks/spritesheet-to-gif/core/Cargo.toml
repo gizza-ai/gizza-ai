@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-spritesheet-to-gif-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: decode the sprite sheet (PNG/JPEG/GIF/BMP/WebP), crop each frame, and
+# encode the frames into one animated GIF (pure-Rust, wasm32-safe — no native deps).
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "bmp", "webp"] }

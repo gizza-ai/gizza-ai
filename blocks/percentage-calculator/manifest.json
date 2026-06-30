@@ -1,0 +1,30 @@
+{
+  "name": "gizza-ai/percentage-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Percent of, what percent, percent change, apply change, and share of total.",
+  "role": "skill",
+  "tool": {
+    "description": "Answer everyday percentage questions from plain numbers: percent of a base, what percent one number is of another, percent change, apply a percent change, or a value's share of a total.",
+    "parameters": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["percent_of","what_percent","change","apply_change","percent_of_total"],
+          "description": "Which percentage question to answer."
+        },
+        "percent": { "type": "number", "description": "Percentage value, e.g. 15 for 15% (percent_of, apply_change)." },
+        "base": { "type": "number", "description": "The base amount the percentage acts on (percent_of, apply_change)." },
+        "part": { "type": "number", "description": "The part amount (what_percent)." },
+        "whole": { "type": "number", "description": "The whole amount, non-zero (what_percent)." },
+        "from": { "type": "number", "description": "Starting (old) value, non-zero (change)." },
+        "to": { "type": "number", "description": "Ending (new) value (change)." },
+        "value": { "type": "number", "description": "The value whose share of the total you want (percent_of_total)." },
+        "total": { "type": "number", "description": "The total, non-zero (percent_of_total)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/truncate-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shorten text to a chosen number of characters or words.",
+  "role": "skill",
+  "tool": {
+    "description": "Shorten text to a maximum number of characters or words, appending an ellipsis only when the text is actually cut (text that already fits is returned unchanged). Set length (default 100) to the limit and unit to \"characters\" (default) or \"words\". For character truncation, break_words=false (default) backs the cut up to the last whitespace so a word is never split, and count_ellipsis=true (default) keeps the whole result — ellipsis included — within length. ellipsis is the marker appended when cut (default \"…\"; set empty for a hard cut). Useful for building previews, snippets, meta descriptions, table cells, or summaries of a fixed length.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text to shorten. Returned unchanged (no ellipsis) when it already fits within the limit." },
+        "length": { "type": "integer", "minimum": 1, "maximum": 1000000, "default": 100, "description": "Maximum number of units to keep (default 100), measured per `unit`." },
+        "unit": { "type": "string", "enum": ["characters", "words"], "default": "characters", "description": "Measure the limit in characters (default) or whole words." },
+        "ellipsis": { "type": "string", "default": "…", "description": "Marker appended when text is actually cut (default \"…\"). Set to an empty string for a hard cut with no marker." },
+        "count_ellipsis": { "type": "boolean", "default": true, "description": "When true (default), the ellipsis length counts toward the character budget so the whole result fits within `length`. Ignored when unit is words." },
+        "break_words": { "type": "boolean", "default": false, "description": "When false (default), the cut is backed up to the last whitespace so a word is never split mid-way. When true, the text is cut exactly at the character limit. Ignored when unit is words." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}

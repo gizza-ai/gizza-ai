@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/sm2-public-from-private",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive the SM2 public key from a private key.",
+  "role": "skill",
+  "tool": {
+    "description": "Derive the SM2 public key from a private key (Chinese national standard GM/T 0003, OSCCA curve sm2p256v1). Supply private_key as a raw 32-byte private scalar in hex (input_format=hex) or a PKCS#8 PEM (input_format=pem); input_format=auto (default) detects which. The public point Q = d·G is computed locally and returned per output_format: 'all' (default) a summary of every encoding, 'uncompressed' SEC1 hex (04 || x || y), 'compressed' SEC1 hex (02|03 || x), or 'pem' SPKI PEM. Deterministic, no RNG. The private key is never echoed back — only public key material is returned. To create a fresh SM2 key pair instead, use sm2-keypair-generate.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "private_key": { "type": "string", "description": "The SM2 private key. Either a raw 32-byte private scalar in hexadecimal (64 hex chars, an optional leading 0x is accepted) or a PKCS#8 PEM block (-----BEGIN PRIVATE KEY-----). The scalar must be in [1, n-1] for the sm2p256v1 curve." },
+        "input_format": { "type": "string", "enum": ["auto", "hex", "pem"], "default": "auto", "description": "How to interpret private_key: 'auto' (default) detects a PEM block, otherwise parses raw hex; 'hex' forces a raw 32-byte hex scalar; 'pem' forces PKCS#8 PEM." },
+        "output_format": { "type": "string", "enum": ["all", "uncompressed", "compressed", "pem"], "default": "all", "description": "Which encoding of the derived public key to return: 'all' (default) a labelled summary of every encoding; 'uncompressed' SEC1 uncompressed hex (04 || x || y, 130 chars); 'compressed' SEC1 compressed hex (02|03 || x, 66 chars); 'pem' SPKI PEM (-----BEGIN PUBLIC KEY-----)." }
+      },
+      "required": ["private_key"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-opml-converter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# quick-xml: pure-Rust, wasm-safe streaming XML reader (proven in gpx-analyzer,
+# epub-to-markdown). default-features=false drops the optional async/encoding bits.
+quick-xml = { version = "0.40", default-features = false }
+# preserve_order keeps OPML attribute order (text, type, xmlUrl, …) in JSON output.
+serde_json = { version = "1", features = ["preserve_order"] }
+csv = "1"

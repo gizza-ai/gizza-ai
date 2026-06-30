@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/sha3-hash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hash text with FIPS-202 SHA-3 (SHA3-256/384/512)",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the FIPS-202 SHA-3 digest of text — SHA3-256 (default), SHA3-384, or SHA3-512. This is the NIST-standardized SHA-3 (0x06 multi-rate padding), which produces a DIFFERENT digest from the original Keccak (0x01 padding) used throughout Ethereum (for Keccak-256/Keccak-512 use the keccak-hash tool instead). By default the input is hashed as UTF-8 text and the digest is returned as lowercase hex; set input_encoding='hex' (a leading 0x is accepted) or 'base64' to decode the input to raw bytes before hashing, output_format='base64' for a base64 digest, or uppercase=true for uppercase hex.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The text to hash with SHA-3." },
+        "algorithm": { "type": "string", "enum": ["sha3-256", "sha3-384", "sha3-512"], "default": "sha3-256", "description": "FIPS-202 SHA-3 variant (sha3-256 default)." },
+        "input_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to interpret `text` before hashing." },
+        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "Digest representation: hex (default) or base64." },
+        "uppercase": { "type": "boolean", "default": false, "description": "Emit uppercase hex (no effect on base64). Default false." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

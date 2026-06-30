@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/magnet-link-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse and build BitTorrent magnet links",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a BitTorrent magnet: link into its structured parts (info-hash, display name, trackers, web seeds, sources, keywords, length), or build a magnet: link from parts. parse mode reads magnet; build mode reads info_hash plus optional fields.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["parse", "build"], "default": "parse", "description": "Direction: 'parse' (default) decodes a magnet: link; 'build' assembles one from parts." },
+        "magnet": { "type": "string", "description": "Parse mode: the magnet: URI to decode. A bare query string is also accepted." },
+        "info_hash": { "type": "string", "description": "Build mode: the v1 info-hash — 40 hex chars, 32 base32 chars, or a urn:btih:<hash>. Required to build." },
+        "display_name": { "type": "string", "description": "Build mode: the display name (dn). Optional." },
+        "trackers": { "type": "string", "description": "Build mode: tracker URLs (tr), newline- or comma-separated. Optional." },
+        "web_seeds": { "type": "string", "description": "Build mode: web-seed URLs (ws), newline- or comma-separated. Optional." },
+        "exact_length": { "type": "integer", "description": "Build mode: exact total length in bytes (xl). Optional." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

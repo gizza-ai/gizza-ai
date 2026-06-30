@@ -1,0 +1,16 @@
+{
+  "name": "gizza-ai/seo-audit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Audit HTML for on-page SEO issues",
+  "role": "skill",
+  "tool": {
+    "description": "Audit pasted HTML for common on-page SEO issues — missing or poorly sized <title> and meta description, H1 usage, skipped heading levels, images missing alt text, canonical link, and Open Graph tags — and return a 0–100 score with per-check findings. Pass the page HTML as `html`.",
+    "parameters": {
+      "type": "object",
+      "required": ["html"],
+      "properties": { "html": { "type": "string", "description": "The full HTML source of the page to audit (paste the page's <head> and <body>)." } },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,31 @@
+slug          = "sm2-public-from-private"
+title         = "SM2 Public Key from Private Key — Derive Q = d·G (GM/T 0003) — gizza.ai"
+description   = "Derive the SM2 public key from a private key (Chinese GM/T 0003 / OSCCA curve sm2p256v1). Paste a hex scalar or PKCS#8 PEM; get SEC1 hex (compressed/uncompressed) and SPKI PEM — in your browser. Nothing is uploaded."
+tags          = ["sm2", "sm2p256v1", "public key", "private key", "gm/t 0003", "oscca", "sec1", "pkcs8"]
+h1            = "SM2 public key from private key"
+hero_subtitle = "Derive the SM2 public key (Q = d·G) from a private scalar or PKCS#8 PEM — sm2p256v1 (GM/T 0003). Get SEC1 hex and SPKI PEM. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_sm2_public_from_private_web"
+export        = "run"
+live          = false
+output_label  = "Public key"
+format        = "text"
+
+[[input]]
+name        = "private_key"
+label       = "Private key (hex scalar or PKCS#8 PEM)"
+placeholder = "3945208F7B2144B13F36E38AC6D39F95889393692860B51A42FB81EF4DF7C5B8"
+source      = "field"
+multiline   = true
+
+# input_format/output_format are enum params in the descriptor (manifest.json),
+# so they render as <select>s — control type + options come from the schema, so
+# labels stay short and option lists aren't duplicated here.
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"

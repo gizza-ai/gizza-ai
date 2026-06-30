@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/rc6-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with RC6-32/20 in ECB/CBC mode",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with RC6-32/20 (the standard 32-bit-word, 20-round AES-finalist RC6 variant) in ECB or CBC mode. key (1-255 bytes), iv (16 bytes, cbc only) and ciphertext are hex or base64 (set format; default base64); plaintext is UTF-8 and PKCS#7 padded. RC6 is rarely used in modern systems and was not standardized as AES — use aes-cipher or text-encrypt for new encryption; use this for interop, learning, or CTFs.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key"],
+      "properties": {
+        "data": { "type": "string" },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
+        "cipher": { "type": "string", "enum": ["cbc", "ecb"], "default": "cbc" },
+        "key": { "type": "string" },
+        "iv": { "type": "string" },
+        "format": { "type": "string", "enum": ["base64", "hex"], "default": "base64" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

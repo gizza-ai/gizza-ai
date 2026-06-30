@@ -46,7 +46,8 @@ audio-convert          # audio-only (no Input::Audio kind)
 audio-normalize        # audio-only (no Input::Audio kind)
 audio-silence-remove   # audio-only (no Input::Audio kind)
 audio-to-mono          # audio-only (no Input::Audio kind)
-audio-volume-adjust    # audio-only (no Input::Audio kind)
+audio-volume-adjust   # audio-only (no Input::Audio kind)
+waveform-image        # audio-input ffmpeg tool (renders waveform from audio); no AssetKind::Audio + accept=audio/* page input exists yet, and ffmpeg cannot run in chat SW. Deferred.
 burn-subtitles         # needs 2 media inputs (video + .srt); single-input ffmpeg dispatch + page take one file
 csv-to-tsv  # dup of csv-change-delimiter (comma->tab is the default tab target)
 decrypt-file  # dup of encrypt-file (mode=decrypt already implemented)
@@ -159,6 +160,7 @@ html-beautify  # duplicate of blocks/html-formatter (indents/pretty-prints HTML,
 math-expression-evaluator  # duplicate of blocks/calculator (meval-based: evaluates arithmetic expressions with functions e.g. sqrt, parentheses and constants pi/e; same scope)
 md5-hash  # duplicate: text MD5 covered by blocks/hash-text (algorithm="md5", with input/output encodings) and file MD5 covered by blocks/file-hash (returns md5 digest of any file). No distinct surface.
 percent-encode-decode  # duplicate of blocks/url-encode (percent-encode/decode text per RFC 3986 with selectable reserved-char sets: component/uri/form covers query/path/component; plus per_line + repeat). Same scope.
+url-codec  # duplicate of blocks/url-encode (percent-encode/decode URLs and query-string components; target=component/uri/form covers form '+' handling, per-line batches, and repeated decode/encode). Same scope.
 readability-scorer  # duplicate of blocks/readability-score (computes Flesch Reading Ease + Flesch-Kincaid Grade + Gunning-Fog + SMOG + Coleman-Liau + ARI with the underlying word/sentence/syllable/complex-word counts; same scope). "Flag long/complex sentences" is a minor improvement to readability-score, not a distinct tool.
 regex-extractor  # duplicate of blocks/regex-extract (applies a regex (Rust syntax) to text and returns all matches, with ignore_case/multiline/dotall flags, capture_group selection, and dedup; same scope). Returning all capture groups per match is a minor improvement to regex-extract, not a distinct tool.
 string-unescaper        # duplicate of blocks/string-escaper (already has mode=unescape for json/javascript/html/url; backslash escapes overlap js-unescape)
@@ -169,6 +171,7 @@ url-parser  # duplicate of blocks/parse-uri (splits a URL/URI into scheme/host/p
 view-exif  # duplicate of blocks/image-metadata-viewer (reads + displays all EXIF/TIFF metadata fields from an image: camera settings, timestamps, decoded GPS; same scope as extract-exif skip)
 xml-escape-unescape  # duplicate of blocks/string-escaper (target=html/xml escapes & < > " ' and unescapes named + numeric (&#NN;) entities, mode=escape|unescape; same scope)
 xml-prettify  # duplicate of blocks/xml-formatter (mode=pretty indents compact XML into nested markup with configurable indent + well-formedness check; same scope)
+xml-beautify  # duplicate of blocks/xml-formatter (pretty mode reformats XML with configurable indentation while preserving attributes/CDATA and validating well-formedness; same scope).
 argon2-verify  # duplicate of blocks/argon2-hash (mode=verify already checks a password against an Argon2 PHC hash string)
 bcrypt-verify  # duplicate of blocks/bcrypt-hash (mode=verify already checks a plaintext password against a $2a/$2b/$2x/$2y bcrypt hash, across chat/CLI/page)
 bibtex-formatter  # duplicate of blocks/bibtex-format
@@ -178,3 +181,9 @@ drop-bytes  # duplicate of blocks/byte-drop (removes a byte/char range from text
 extract-video-metadata  # duplicate of blocks/media-info (reports container/codecs/duration/bitrate + per-track stream list for a video, ffprobe-style; resolution+fps are a minor media-info improvement, not a distinct tool)
 fuzzy-hash-compare  # duplicate of blocks/fuzzy-hash (its compare param already returns a 0-100 similarity score between two SSDEEP/CTPH hashes; core exposes public compare(h1,h2)->u32)
 hex-to-pem  # duplicate of blocks/pem-der-convert (direction=der-to-pem der_format=hex: wraps DER hex bytes into a PEM block with a chosen label + 64-char line folding)
+pem-to-hex  # duplicate of blocks/pem-der-convert (direction=pem-to-der der_format=hex: strips PEM armor, base64-decodes the body, emits DER bytes as hex)
+
+phone-parser-formatter  # duplicate of blocks/phone-format: parses, validates, formats E.164/international/national, region, and type
+ripemd160-hash  # duplicate of blocks/hash-all (already computes RIPEMD-160 for text, alongside other common digests; standalone text/file RIPEMD adds no distinct surface here)
+sql-beautify  # duplicate of blocks/sql-formatter (pretty-prints SQL with keyword_case upper/lower/preserve, configurable indent, and major clauses/select-items/AND-OR broken onto their own lines; same scope)
+temperature-converter  # duplicate of blocks/unit-converter (temperature category: celsius/fahrenheit/kelvin via affine to/from-base helpers)

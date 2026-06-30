@@ -1,0 +1,31 @@
+slug          = "smart-quotes-clean"
+title         = "Smart Quotes Cleaner — Curly Quotes to Straight Quotes — gizza.ai"
+description   = "Replace smart (curly) quotes, em and en dashes, the ellipsis glyph, and other typographic characters with plain ASCII — instantly in your browser. Strips non-breaking and zero-width spaces too. Free, private, no sign-up."
+tags          = ["smart quotes", "curly quotes to straight quotes", "straighten quotes", "em dash to hyphen", "ascii cleaner", "typographic characters", "remove smart quotes", "non-breaking space", "fancy quotes"]
+h1            = "Smart Quotes Cleaner"
+hero_subtitle = "Replace curly quotes, em and en dashes, the ellipsis glyph, prime marks, and other typographic characters with plain ASCII — and strip non-breaking and zero-width spaces. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_smart_quotes_clean_web"
+export        = "run"
+live          = true
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to clean"
+placeholder = "“Smart” quotes, em—dashes, and ellipses…"
+source      = "field"
+multiline   = true
+
+# em_dash renders as a <select> (its descriptor Param is an enum); normalize_spaces
+# renders as a checkbox — control types are derived from the descriptor schema, so
+# the labels here stay short.
+[[input]]
+name        = "em_dash"
+label       = "Em dash becomes"
+source      = "field"
+
+[[input]]
+name        = "normalize_spaces"
+label       = "Normalize spaces (fold non-breaking/zero-width)"
+source      = "field"

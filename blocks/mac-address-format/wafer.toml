@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mac-address-format"
+version = "0.1.0"
+abi = 1
+summary = "Reformat MAC addresses between colon, hyphen, Cisco, and bare styles"

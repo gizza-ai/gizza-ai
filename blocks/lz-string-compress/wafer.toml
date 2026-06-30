@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lz-string-compress"
+version = "0.1.0"
+abi = 1
+summary = "Compress / decompress text with LZ-String (base64, url, utf16)."

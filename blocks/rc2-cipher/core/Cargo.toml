@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-rc2-cipher-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+rc2 = "0.9"
+hex = "0.4"
+base64 = "0.22"

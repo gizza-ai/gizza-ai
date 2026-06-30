@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/remove-control-chars",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip null bytes and non-printable control characters from text",
+  "role": "skill",
+  "tool": {
+    "description": "Remove null bytes and non-printable control characters (Unicode category Cc) from text. Tabs and newlines are kept by default; replacement is substituted for each removed character.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "keep_tabs": { "type": "boolean", "default": true },
+        "keep_newlines": { "type": "boolean", "default": true },
+        "replacement": { "type": "string", "default": "" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

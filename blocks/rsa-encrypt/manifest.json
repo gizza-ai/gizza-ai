@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/rsa-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt a message to an RSA public key.",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt a small payload to an RSA public key and return base64 ciphertext. padding=oaep (default, RSAES-OAEP, recommended) or pkcs1v15 (legacy RSAES-PKCS1-v1_5); hash=sha256 (default), sha384, or sha512 selects the OAEP digest (ignored for pkcs1v15). The public key is PEM-encoded (SPKI or PKCS#1). Only the holder of the matching private key can decrypt. The message must fit in one RSA block (≈190 bytes for a 2048-bit key with OAEP-SHA256) — for larger data, encrypt a symmetric key instead. Runs locally — nothing leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "description": "The plaintext message to encrypt. Must fit in one RSA block (e.g. up to ~190 bytes for a 2048-bit key with OAEP-SHA256)." },
+        "public_key": { "type": "string", "description": "The recipient's RSA public key, PEM-encoded (SPKI '-----BEGIN PUBLIC KEY-----' or PKCS#1 '-----BEGIN RSA PUBLIC KEY-----')." },
+        "padding": { "type": "string", "enum": ["oaep", "pkcs1v15"], "default": "oaep", "description": "Padding scheme: oaep (default, RSAES-OAEP, recommended) or pkcs1v15 (legacy RSAES-PKCS1-v1_5)." },
+        "hash": { "type": "string", "enum": ["sha256", "sha384", "sha512"], "default": "sha256", "description": "OAEP digest (MGF1 + label hash); used only when padding=oaep (default sha256). Ignored for pkcs1v15." }
+      },
+      "required": ["message", "public_key"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,59 @@
+slug          = "magnet-link-parser"
+title         = "Magnet Link Parser & Builder — decode magnet: URIs — gizza.ai"
+description   = "Parse a BitTorrent magnet: link into its info-hash, display name, trackers, web seeds and more — or build a magnet link from parts. Runs in your browser, nothing uploaded."
+tags          = ["magnet link parser", "magnet uri", "parse magnet link", "bittorrent magnet", "info hash", "btih", "magnet link builder", "torrent magnet decoder"]
+h1            = "Magnet Link Parser & Builder"
+hero_subtitle = "Decode a BitTorrent magnet: link into its info-hash, display name, trackers and web seeds — or build a magnet link from parts. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_magnet_link_parser_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# mode renders as a <select> and exact_length as a number input — control types
+# come from the descriptor schema (manifest.json), so labels here stay short.
+# In parse mode fill "Magnet link"; in build mode fill the info-hash and the
+# optional fields below.
+[[input]]
+name        = "mode"
+label       = "Mode (parse or build)"
+source      = "field"
+
+[[input]]
+name        = "magnet"
+label       = "Magnet link (parse mode)"
+placeholder = "magnet:?xt=urn:btih:c12fe1c06bba254a9dc9f519b335aa7c1367a88a&dn=example"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "info_hash"
+label       = "Info hash (build mode)"
+placeholder = "40 hex chars, 32 base32 chars, or urn:btih:…"
+source      = "field"
+
+[[input]]
+name        = "display_name"
+label       = "Display name (build mode)"
+placeholder = "My File"
+source      = "field"
+
+[[input]]
+name        = "trackers"
+label       = "Trackers — one per line (build mode)"
+placeholder = "udp://tracker.example.com:1337\nhttp://track2.org/announce"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "web_seeds"
+label       = "Web seeds — one per line (build mode)"
+placeholder = "https://seed.example/file"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "exact_length"
+label       = "Exact length in bytes (build mode)"
+placeholder = "123456"
+source      = "field"

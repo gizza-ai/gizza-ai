@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "page-weight-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Parses pasted HTML and reports resource counts, render-blocking scripts/styles, and an estimated page-weight budget."
