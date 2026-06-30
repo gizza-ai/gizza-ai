@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-lznt1-decompress-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_lznt1_decompress_web_bg.wasm",
+    "gizza_ai_lznt1_decompress_web.js",
+    "gizza_ai_lznt1_decompress_web.d.ts"
+  ],
+  "main": "gizza_ai_lznt1_decompress_web.js",
+  "types": "gizza_ai_lznt1_decompress_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

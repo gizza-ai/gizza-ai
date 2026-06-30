@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-remove-control-chars-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_remove_control_chars_web_bg.wasm",
+    "gizza_ai_remove_control_chars_web.js",
+    "gizza_ai_remove_control_chars_web.d.ts"
+  ],
+  "main": "gizza_ai_remove_control_chars_web.js",
+  "types": "gizza_ai_remove_control_chars_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

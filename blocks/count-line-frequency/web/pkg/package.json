@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-count-line-frequency-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_count_line_frequency_web_bg.wasm",
+    "gizza_ai_count_line_frequency_web.js",
+    "gizza_ai_count_line_frequency_web.d.ts"
+  ],
+  "main": "gizza_ai_count_line_frequency_web.js",
+  "types": "gizza_ai_count_line_frequency_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

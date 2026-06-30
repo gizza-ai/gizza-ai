@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-dot-to-svg-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_dot_to_svg_web_bg.wasm",
+    "gizza_ai_dot_to_svg_web.js",
+    "gizza_ai_dot_to_svg_web.d.ts"
+  ],
+  "main": "gizza_ai_dot_to_svg_web.js",
+  "types": "gizza_ai_dot_to_svg_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

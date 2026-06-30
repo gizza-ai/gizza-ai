@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-srt-to-vtt-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_srt_to_vtt_web_bg.wasm",
+    "gizza_ai_srt_to_vtt_web.js",
+    "gizza_ai_srt_to_vtt_web.d.ts"
+  ],
+  "main": "gizza_ai_srt_to_vtt_web.js",
+  "types": "gizza_ai_srt_to_vtt_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

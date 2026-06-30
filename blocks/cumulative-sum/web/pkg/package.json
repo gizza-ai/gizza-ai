@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-cumulative-sum-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_cumulative_sum_web_bg.wasm",
+    "gizza_ai_cumulative_sum_web.js",
+    "gizza_ai_cumulative_sum_web.d.ts"
+  ],
+  "main": "gizza_ai_cumulative_sum_web.js",
+  "types": "gizza_ai_cumulative_sum_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
