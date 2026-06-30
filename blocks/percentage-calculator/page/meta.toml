@@ -1,0 +1,64 @@
+slug          = "percentage-calculator"
+title         = "Percentage Calculator — Percent Of, Percent Change & Share of Total — gizza.ai"
+description   = "Free percentage calculator: find what is P% of a number, what percent one number is of another, percent increase/decrease, apply a percent change, or a value's share of a total. Private, runs entirely in your browser."
+tags          = ["percentage calculator", "percent of a number", "percent change calculator", "percent increase calculator", "percent decrease calculator", "what percent calculator", "percentage of total", "percent difference"]
+h1            = "Percentage Calculator"
+hero_subtitle = "Pick a question, enter your numbers, and get the answer instantly — percent of a number, what percent, percent change, apply a change, or share of a total. Runs entirely in your browser."
+wasm          = "gizza_ai_percentage_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result (JSON)"
+format        = "text"
+
+[[input]]
+name        = "mode"
+label       = "Question"
+source      = "field"
+
+[[input]]
+name        = "percent"
+label       = "Percent (percent_of, apply_change)"
+placeholder = "15"
+source      = "field"
+
+[[input]]
+name        = "base"
+label       = "Base (percent_of, apply_change)"
+placeholder = "200"
+source      = "field"
+
+[[input]]
+name        = "part"
+label       = "Part (what_percent)"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name        = "whole"
+label       = "Whole (what_percent)"
+placeholder = "200"
+source      = "field"
+
+[[input]]
+name        = "from"
+label       = "From / old value (change)"
+placeholder = "200"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To / new value (change)"
+placeholder = "230"
+source      = "field"
+
+[[input]]
+name        = "value"
+label       = "Value (percent_of_total)"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name        = "total"
+label       = "Total (percent_of_total)"
+placeholder = "200"
+source      = "field"

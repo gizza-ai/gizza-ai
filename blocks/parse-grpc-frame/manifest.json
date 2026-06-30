@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/parse-grpc-frame",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse gRPC length-prefixed framing and decode each embedded protobuf payload into a field tree.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a gRPC length-prefixed message stream and decode each embedded protobuf payload into a field tree — no .proto schema needed. gRPC wraps every message as a 1-byte compressed flag (0=uncompressed, 1=compressed) + a 4-byte big-endian length + that many payload bytes, and several messages can be concatenated. Give the bytes as base64 or hex in 'input' (encoding='auto' (default), 'base64', or 'hex'). For each frame the output reports its index, compressed flag, declared length, and — for uncompressed frames — the protobuf payload decoded by field number / wire type. Use format='json' (default) for a structured tree or 'text' for a compact outline.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The gRPC length-prefixed message stream, as a base64 or hex string." },
+        "encoding": { "type": "string", "enum": ["auto", "base64", "hex"], "default": "auto", "description": "How the input bytes are encoded." },
+        "format": { "type": "string", "enum": ["json", "text"], "default": "json", "description": "Output shape: 'json' tree or 'text' outline." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

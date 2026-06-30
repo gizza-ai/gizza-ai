@@ -1,0 +1,29 @@
+slug          = "seconds-to-hms"
+title         = "Seconds to HH:MM:SS converter — gizza.ai"
+description   = "Convert seconds into HH:MM:SS, D:HH:MM:SS, ISO-8601, or human-readable duration text with optional fractional seconds. Runs locally in your browser."
+tags          = ["seconds to hms", "duration converter", "hh:mm:ss", "time converter", "iso 8601 duration", "video timestamp"]
+h1            = "Seconds to HH:MM:SS"
+hero_subtitle = "Convert raw seconds into clock, day-clock, ISO-8601, or words format with optional fractional-second precision."
+wasm          = "gizza_ai_seconds_to_hms_web"
+export        = "run"
+live          = false
+output_label  = "Formatted duration"
+format        = "text"
+
+[[input]]
+name        = "seconds"
+label       = "Seconds"
+placeholder = "5025"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Format (hms | dhms | auto | iso | words)"
+placeholder = "hms"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Fractional digits"
+placeholder = "0"
+source      = "field"

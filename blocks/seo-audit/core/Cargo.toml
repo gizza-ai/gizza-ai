@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-seo-audit-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# regex: pure-Rust, wasm-safe. Scans pasted HTML for SEO-relevant tags
+# (title, meta, headings, images, canonical, Open Graph) without a full parser.
+regex = "1"

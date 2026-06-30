@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nt-hash"
+version = "0.1.0"
+abi = 1
+summary = "Compute the NT (NTLM) hash of a password"

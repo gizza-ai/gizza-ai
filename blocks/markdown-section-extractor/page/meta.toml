@@ -1,0 +1,42 @@
+slug          = "markdown-section-extractor"
+title         = "Markdown Section Extractor — Pull One Section by Heading | gizza.ai"
+description   = "Extract a single section from a Markdown document by its heading. Keep or drop nested subsections, include or omit the heading line, and match exactly or by substring. Handles ATX and setext headings and skips code blocks. Free, private, runs in your browser."
+tags          = ["markdown", "section extractor", "heading", "extract section", "markdown parser", "split markdown", "subsection", "documentation", "readme"]
+h1            = "Markdown Section Extractor"
+hero_subtitle = "Pull a single section out of a Markdown document by its heading — keep or drop nested subsections. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_markdown_section_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted section"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown document"
+placeholder = "# Title\n\n## Installation\n\nRun the installer...\n\n## Usage\n\n..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "heading"
+label       = "Heading to extract"
+placeholder = "Installation"
+source      = "field"
+
+# match_mode renders as <select>; include_subsections / include_heading render as
+# checkboxes — control type + options come from the descriptor schema
+# (manifest.json), so labels here stay short and option lists aren't duplicated.
+[[input]]
+name        = "match_mode"
+label       = "Match mode"
+source      = "field"
+
+[[input]]
+name        = "include_subsections"
+label       = "Include nested subsections"
+source      = "field"
+
+[[input]]
+name        = "include_heading"
+label       = "Include the heading line"
+source      = "field"

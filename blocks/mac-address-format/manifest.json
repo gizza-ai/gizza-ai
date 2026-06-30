@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/mac-address-format",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reformat MAC addresses between colon, hyphen, Cisco, and bare styles",
+  "role": "skill",
+  "tool": {
+    "description": "Reformat one or many MAC addresses (EUI-48 and EUI-64) between colon, hyphen, Cisco dotted-quad, and bare hex notations with a chosen hex case. Input may be in any notation; order is preserved and duplicates kept.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "One or more MAC addresses to reformat, in any notation. Separate with whitespace, commas, or newlines." },
+        "format": { "type": "string", "enum": ["colon", "hyphen", "cisco", "bare"], "default": "colon", "description": "Output notation." },
+        "case": { "type": "string", "enum": ["lower", "upper"], "default": "lower", "description": "Hex case of the output." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

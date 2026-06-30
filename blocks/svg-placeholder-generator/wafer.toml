@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "svg-placeholder-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a placeholder SVG image at a given size with an optional label."

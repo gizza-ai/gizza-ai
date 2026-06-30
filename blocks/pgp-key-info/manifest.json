@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/pgp-key-info",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect ASCII-armored OpenPGP key metadata.",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect an ASCII-armored OpenPGP public or private key and return fingerprint, key ID, algorithm, user IDs, dates, and subkeys as JSON.",
+    "parameters": {
+      "type": "object",
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "ASCII-armored OpenPGP public or private key block to inspect."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

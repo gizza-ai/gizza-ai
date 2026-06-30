@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/nt-hash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the NT (NTLM) hash of a password",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the NT hash (NTLM hash / NTOWF) of a password: MD4(UTF-16LE(password)), a 128-bit digest returned by default as 32 lowercase hex chars. Set output_format='base64' for base64, or uppercase=true for uppercase hex. NOTE: the NT hash is unsalted and MD4 is broken — use it for password audits, CTFs, and NTLM/pass-the-hash interop, not for storing new passwords (use argon2-hash or bcrypt-hash).",
+    "parameters": {
+      "type": "object",
+      "required": ["password"],
+      "properties": {
+        "password": { "type": "string", "description": "The password (or any text) to hash." },
+        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "Digest representation: hex (default) or base64." },
+        "uppercase": { "type": "boolean", "default": false, "description": "Emit uppercase hex (no effect on base64). Default false." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

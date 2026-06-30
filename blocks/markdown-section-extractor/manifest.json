@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/markdown-section-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extracts a single subsection from a Markdown document by its heading.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract a single subsection from a Markdown document by its heading. Give the full document as 'markdown' and the heading text as 'heading' (e.g. 'Installation', without the '#'). Returns the heading and everything beneath it up to the next heading at the same or a shallower level — by default including all deeper nested subsections. Set include_subsections=false to return only the body directly under the heading (stopping at the first deeper heading). Set include_heading=false to omit the heading line. match_mode controls how the heading is found: 'exact' (default, case-insensitive), 'exact_case' (case-sensitive), or 'contains' (substring). Recognizes ATX (#, ##, …) and setext (===/---) headings and skips '#' lines inside fenced code blocks.",
+    "parameters": {
+      "type": "object",
+      "required": ["markdown", "heading"],
+      "properties": {
+        "markdown": { "type": "string", "description": "The full Markdown document to extract a section from." },
+        "heading": { "type": "string", "description": "The heading text of the section to extract (without the leading '#'), e.g. 'Installation'." },
+        "match_mode": { "type": "string", "enum": ["exact", "exact_case", "contains"], "default": "exact", "description": "How to match the heading: 'exact' (default) is a case-insensitive exact match of the trimmed heading text; 'exact_case' is case-sensitive; 'contains' matches any heading whose text contains the query (case-insensitive). The first matching heading wins." },
+        "include_subsections": { "type": "boolean", "default": true, "description": "When true (default), the extracted section includes every deeper-nested subsection, ending at the next heading of the same or a shallower level. When false, it stops at the first heading of any level after the target, returning only the body directly under it." },
+        "include_heading": { "type": "boolean", "default": true, "description": "When true (default), the matched heading line is the first line of the output. When false, only the section body is returned." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

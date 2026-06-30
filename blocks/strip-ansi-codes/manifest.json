@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/strip-ansi-codes",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove ANSI escape & color codes from terminal output",
+  "role": "skill",
+  "tool": {
+    "description": "Remove ANSI escape and color codes from terminal output, leaving clean readable text. scope='all' (default) strips every escape sequence (colors, cursor/erase control, OSC strings); scope='color' strips only SGR color/style codes and keeps cursor/erase control.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The terminal text (with ANSI escape codes) to clean." },
+        "scope": { "type": "string", "enum": ["all", "color"], "default": "all", "description": "What to remove: 'all' or 'color'." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

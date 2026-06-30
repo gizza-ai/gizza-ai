@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/parse-websocket-frame",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a WebSocket frame (RFC 6455) into FIN/RSV/opcode, mask flag, payload length, and the unmasked payload bytes.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a WebSocket frame (RFC 6455) into its FIN bit, RSV1/2/3 reserved bits, opcode (numeric + human name), the MASK flag, the payload length, the 4-byte masking key (when present), and the unmasked payload bytes. Give the frame bytes as base64 or hex in 'input' (encoding='auto' (default), 'base64', or 'hex'). The output reports payload_hex always, payload_text (UTF-8) for text frames, and a {code, reason} object for close frames. Use format='json' (default) for a structured object or 'text' for a compact summary.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The WebSocket frame, as a base64 or hex byte string." },
+        "encoding": { "type": "string", "enum": ["auto", "base64", "hex"], "default": "auto", "description": "How the input bytes are encoded." },
+        "format": { "type": "string", "enum": ["json", "text"], "default": "json", "description": "Output shape: 'json' object or 'text' summary." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

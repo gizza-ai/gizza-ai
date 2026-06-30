@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "time-to-decimal-hours"
+version = "0.1.0"
+abi = 1
+summary = "Convert HH:MM clock durations to decimal hours and back."

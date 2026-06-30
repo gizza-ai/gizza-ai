@@ -1,0 +1,41 @@
+slug          = "sha3-hash"
+title         = "SHA-3 Hash Generator — SHA3-256 / SHA3-384 / SHA3-512 (FIPS-202) | gizza.ai"
+description   = "Compute the FIPS-202 SHA-3 hash (SHA3-256, SHA3-384, or SHA3-512) of any text in your browser — the NIST standard, not the original Keccak. Hex or base64 output, hex/base64 input. Free, private, no sign-up — nothing is uploaded."
+tags          = ["sha3", "sha3-256", "sha3-384", "sha3-512", "fips-202", "nist", "keccak", "hash", "digest", "checksum", "hex", "base64", "cryptography"]
+h1            = "SHA-3 Hash Generator"
+hero_subtitle = "Compute the NIST FIPS-202 SHA-3 hash (SHA3-256, SHA3-384, or SHA3-512) of any text. This is the standardized SHA-3, which differs from the original Keccak used by Ethereum. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_sha3_hash_web"
+export        = "run"
+live          = false
+output_label  = "SHA-3 digest"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to hash"
+placeholder = "Hello, World!"
+source      = "field"
+multiline   = true
+
+# algorithm/input_encoding/output_format render as <select> and uppercase as a
+# checkbox — control type + options are derived from the descriptor's schema
+# (manifest.json), so labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "algorithm"
+label       = "Variant"
+source      = "field"
+
+[[input]]
+name        = "input_encoding"
+label       = "Interpret input as"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex"
+source      = "field"

@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/morse-code",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Converts text to Morse code and Morse code back to text.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert text to International Morse code and Morse code back to text. Use direction='encode' (default) to turn plain text into Morse (e.g. 'SOS' -> '... --- ...'), or direction='decode' to turn Morse back into text. Supports the standard International Morse alphabet: A-Z, 0-9, and common punctuation. Encoding is case-insensitive; unknown characters become the code for '?'. Letters are separated by letter_sep (default a single space) and words by word_sep (default ' / ').",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "description": "The text to convert to Morse code, or the Morse code to convert back to text." },
+        "direction": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) turns plain text into Morse code; 'decode' turns Morse code back into text." },
+        "letter_sep": { "type": "string", "default": " ", "description": "Separator placed between the Morse symbols for each letter. Blank uses a single space." },
+        "word_sep": { "type": "string", "default": " / ", "description": "Separator placed between words. Blank uses ' / ' (space-slash-space), the common convention." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

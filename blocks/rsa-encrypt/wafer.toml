@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rsa-encrypt"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt a message to an RSA public key"

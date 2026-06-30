@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/sm4-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with SM4 (ECB/CBC).",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with the SM4 block cipher (the Chinese national standard GB/T 32907-2016) in ECB or CBC mode, using a 128-bit (16-byte) key and a 16-byte iv for cbc. key, iv and ciphertext are hex or base64 (set format; default base64); the plaintext is UTF-8. Both modes use PKCS#7 padding.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "For encrypt: the plaintext. For decrypt: the ciphertext, encoded with `format`." },
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt", "description": "encrypt (default) or decrypt." },
+        "cipher": { "type": "string", "enum": ["cbc", "ecb"], "default": "cbc", "description": "SM4 mode of operation: cbc (default) or ecb." },
+        "key": { "type": "string", "description": "The SM4 key — exactly 16 bytes (128 bits), encoded with `format`." },
+        "iv": { "type": "string", "description": "The 16-byte IV, encoded with `format`. Required for cbc; omit for ecb." },
+        "format": { "type": "string", "enum": ["base64", "hex"], "default": "base64", "description": "Encoding for the key, iv, and ciphertext (base64 default, or hex). The plaintext is always UTF-8 text." }
+      },
+      "required": ["data", "key"],
+      "additionalProperties": false
+    }
+  }
+}

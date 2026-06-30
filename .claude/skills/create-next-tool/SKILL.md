@@ -214,6 +214,13 @@ None.into())?`. Fingerprint: `sk.fingerprint().as_bytes()`. Tests need `use pgp:
 `.unlock()`. Curve25519 = fast (good for tests); RSA-4096 slow. Non-deterministic generator → **no page**.
 Cross-verify a generated public key by feeding it to the existing `pgp-encrypt` tool.
 
+**OpenPGP key inspection with a page (pgp-key-info):** `pgp = "0.14"` works for read-only key
+metadata on both wafer and wasm-pack, but the browser `wasm32-unknown-unknown` build may pull
+`getrandom` transitively through crypto crates even when the code only parses keys. Add
+`getrandom = { version = "0.2", features = ["js"] }` in the core crate so
+`wasm-pack --target web` doesn't fail with "wasm*-unknown-unknown targets are not supported by
+default". The same crate still builds under `wafer build` for `wasm32-wasip1`.
+
 **Dup-skiplist:** generate-totp (= existing totp-generator), generate-pgp-key… no — built. Always grep
 `ls blocks/ | grep -i <topic>` before building; a near-dup of an existing block → skiplist + re-pick.
 

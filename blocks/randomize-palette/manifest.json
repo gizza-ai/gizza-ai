@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/randomize-palette",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Randomly remap an indexed image's palette",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Randomly remap the color palette of an indexed GIF/PNG-8 image — every pixel keeps its index but each palette slot is reassigned a different color, so shapes and stego payloads hidden by near-identical palette entries become visible. Images with more than 256 colors are quantized to 256 first. The shuffle is driven by seed (default 0) so results are reproducible; change seed to try a different shuffle. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "seed": { "type": "integer", "minimum": 0, "default": 0, "description": "Seed for the random palette permutation (default 0). The same seed always produces the same remap; change it to try a different shuffle and reveal different hidden structure." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

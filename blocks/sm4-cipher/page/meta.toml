@@ -1,0 +1,48 @@
+slug          = "sm4-cipher"
+title         = "SM4 Cipher — Encrypt/decrypt with SM4 (ECB/CBC) — gizza.ai"
+description   = "Encrypt or decrypt data with the SM4 block cipher (GB/T 32907) in ECB or CBC mode, with hex/base64 I/O — in your browser. 128-bit key. Nothing is uploaded."
+tags          = ["sm4", "sm4 encrypt", "sm4 decrypt", "block cipher", "ecb", "cbc"]
+h1            = "SM4 cipher"
+hero_subtitle = "Encrypt or decrypt data with SM4 (ECB/CBC), hex or base64, with a 128-bit (16-byte) key. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_sm4_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (plaintext to encrypt, or ciphertext to decrypt)"
+placeholder = "Text to encrypt…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source      = "field"
+
+[[input]]
+name        = "cipher"
+label       = "Mode (cbc | ecb)"
+placeholder = "cbc"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (16 bytes, encoded)"
+placeholder = "base64 or hex key"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV (16 bytes, for cbc)"
+placeholder = "base64 or hex iv"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Encoding (base64 | hex)"
+placeholder = "base64"
+source      = "field"

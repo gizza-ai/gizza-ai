@@ -19,14 +19,36 @@ tools_json="$("$GIZZA" list --json-out)"
 # Derive sorted slug list from the stored JSON (no per-tool gizza invocation)
 mapfile -t all_slugs < <(printf '%s' "$tools_json" | jq -r '.[].name | sub("^gizza-ai/"; "")' | sort)
 
-# Collect slugs that have a standalone page (blocks/<slug>/page/meta.toml exists)
+# Read a quoted scalar field from a TOML meta file (best-effort, first match).
+meta_field() {
+  # $1 = meta.toml path, $2 = field name
+  [[ -f "$1" ]] || return 0
+  sed -n -E "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*\"(.*)\"[[:space:]]*\$/\1/p" "$1" | head -n1
+}
+
+# Collect slugs that have a standalone page directly from the filesystem
+# (blocks/<slug>/page/meta.toml). Deriving these from disk — not from the gizza
+# catalog — guarantees every page tool lands in the sitemap even if the CLI
+# catalog lags behind the on-disk blocks/*/page tools.
 page_slugs=()
-for slug in "${all_slugs[@]}"; do
-  [[ -z "$slug" ]] && continue
-  if [[ -f "$REPO_ROOT/blocks/$slug/page/meta.toml" ]]; then
-    page_slugs+=("$slug")
-  fi
-done
+while IFS= read -r meta_file; do
+  [[ -z "$meta_file" ]] && continue
+  slug="${meta_file#"$REPO_ROOT/blocks/"}"
+  slug="${slug%/page/meta.toml}"
+  page_slugs+=("$slug")
+done < <(
+  [[ -d "$REPO_ROOT/blocks" ]] &&
+    find "$REPO_ROOT/blocks" -mindepth 3 -maxdepth 3 -path '*/page/meta.toml' -type f | sort
+)
+
+# Membership lookup for page slugs (used when emitting llms.txt)
+is_page_slug() {
+  local s
+  for s in "${page_slugs[@]}"; do
+    [[ "$s" == "$1" ]] && return 0
+  done
+  return 1
+}
 
 # --- sitemap.xml ---
 {
@@ -57,13 +79,22 @@ done
 
   printf '## Tools\n\n'
 
-  # Emit one entry per tool from gizza list (order: sorted slugs)
-  # Page tools: link to index.md; chat-only tools: description, no link
-  for slug in "${all_slugs[@]}"; do
-    [[ -z "$slug" ]] && continue
+  # Emit one entry per tool, over the union of gizza-listed slugs and on-disk
+  # page slugs (sorted, deduped). Page tools link to index.md — even when the
+  # gizza catalog omits them — falling back to page/meta.toml description/title
+  # for the summary. Chat-only tools (in gizza list, no page) keep their
+  # description-only line as before.
+  mapfile -t llms_slugs < <(printf '%s\n' "${all_slugs[@]}" "${page_slugs[@]}" | grep -v '^$' | sort -u)
+  for slug in "${llms_slugs[@]}"; do
     # Look up description from the already-loaded JSON — no additional gizza invocation
     desc="$(printf '%s' "$tools_json" | jq -r --arg n "gizza-ai/$slug" '.[] | select(.name == $n) | .description')"
-    if [[ -f "$REPO_ROOT/blocks/$slug/page/meta.toml" ]]; then
+    if is_page_slug "$slug"; then
+      # Fall back to meta.toml when gizza has no entry (or a null description)
+      if [[ -z "$desc" || "$desc" == "null" ]]; then
+        meta="$REPO_ROOT/blocks/$slug/page/meta.toml"
+        desc="$(meta_field "$meta" description)"
+        [[ -z "$desc" ]] && desc="$(meta_field "$meta" title)"
+      fi
       printf -- '- [%s](%s/tools/%s/index.md): %s\n' "$slug" "$BASE_URL" "$slug" "$desc"
     else
       printf -- '- %s: %s (available in chat + via the gizza CLI)\n' "$slug" "$desc"

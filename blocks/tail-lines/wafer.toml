@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tail-lines"
+version = "0.1.0"
+abi = 1
+summary = "Output the last N lines of text (tail -n)."

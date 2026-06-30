@@ -1,0 +1,18 @@
+slug          = "unicode-to-text"
+title         = "Unicode to Text — gizza.ai"
+description   = "Decode Unicode escape sequences back into readable text. Auto-detects \\uXXXX, \\u{X}, \\xXX, \\U00XXXXXX, U+XXXX and HTML &#nn; / &#xnn; in one pass."
+tags          = ["text", "unicode", "decode", "encoding", "unescape"]
+h1            = "Unicode to Text"
+hero_subtitle = "Paste escaped text and get the real characters back — \\uXXXX, \\u{X}, \\xXX, \\U00XXXXXX, U+XXXX and HTML numeric references are all decoded automatically."
+wasm          = "gizza_ai_unicode_to_text_web"
+export        = "run"
+live          = false
+output_label  = "Decoded text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Escaped text"
+placeholder = "Caf\\u00e9 \\u{1F600} U+2764 &#128512;"
+source      = "field"
+multiline   = true

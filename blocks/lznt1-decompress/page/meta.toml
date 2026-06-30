@@ -1,0 +1,30 @@
+slug          = "lznt1-decompress"
+title         = "LZNT1 Decompress — Decode RtlCompressBuffer Blobs — gizza.ai"
+description   = "Decompress LZNT1 blobs from Windows RtlCompressBuffer — registry hives, hibernation files, and malware config data. Paste hex or Base64, view the recovered bytes as hex, text, or Base64. Runs entirely in your browser. Free, private, no sign-up."
+tags          = ["lznt1", "lznt1 decompress", "rtldecompressbuffer", "rtlcompressbuffer", "ntfs compression", "registry hive", "hibernation file", "malware analysis", "forensics", "compression_format_lznt1"]
+h1            = "LZNT1 Decompress"
+hero_subtitle = "Decode LZNT1-compressed blobs from Windows RtlCompressBuffer — NTFS files, registry hives, hibernation pages, and malware configs. Paste hex or Base64 and recover the original bytes. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_lznt1_decompress_web"
+export        = "run"
+live          = false
+output_label  = "Decompressed output"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Compressed LZNT1 blob"
+placeholder = "Paste the compressed blob as hex (e.g. 03b0 0041 4243) or Base64"
+source      = "field"
+multiline   = true
+
+# input_encoding/output_encoding render as <select> — control type + option
+# lists are derived from the descriptor's schema (manifest.json).
+[[input]]
+name        = "input_encoding"
+label       = "Input encoding"
+source      = "field"
+
+[[input]]
+name        = "output_encoding"
+label       = "Output encoding"
+source      = "field"

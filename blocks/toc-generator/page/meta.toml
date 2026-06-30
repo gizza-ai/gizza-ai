@@ -1,0 +1,47 @@
+slug          = "toc-generator"
+title         = "Table of Contents Generator — gizza.ai"
+description   = "Generate a linked table of contents from the headings of any Markdown or HTML document. Pick the heading levels, bullet or numbered list, and Markdown or HTML output. Free, private, runs entirely in your browser — no sign-up."
+tags          = ["table of contents generator", "markdown toc", "toc generator", "html table of contents", "markdown table of contents", "heading links", "github anchors", "readme toc"]
+h1            = "Table of Contents Generator"
+hero_subtitle = "Paste a Markdown or HTML document and get a linked table of contents from its headings — choose the levels, bullet or numbered, Markdown or HTML. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_toc_generator_web"
+export        = "run"
+live          = false
+output_label  = "Table of contents"
+format        = "text"
+
+[[input]]
+name        = "document"
+label       = "Document (Markdown or HTML)"
+placeholder = "# Getting Started\n## Installation\n## Usage\n### Examples"
+source      = "field"
+multiline   = true
+
+# input_format / output_format render as <select>, min_level / max_level as number
+# fields, ordered as a checkbox — control types come from the descriptor schema.
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "min_level"
+label       = "Min heading level (1-6)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "max_level"
+label       = "Max heading level (1-6)"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "ordered"
+label       = "Numbered list"
+source      = "field"

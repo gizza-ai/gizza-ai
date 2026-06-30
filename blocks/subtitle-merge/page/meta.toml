@@ -1,0 +1,30 @@
+slug          = "subtitle-merge"
+title         = "Subtitle Merger — Combine SRT &amp; VTT Files Into One | gizza.ai"
+description   = "Merge two or more SubRip (.srt) or WebVTT (.vtt) subtitle files into one: combine split parts, overlay a second language track, or join captions. Optional per-file time-shift, auto SRT/VTT output. Free, private, runs in your browser — no upload, no sign-up."
+tags          = ["subtitle merge", "merge srt", "combine subtitles", "srt", "vtt", "webvtt", "subrip", "join subtitles", "bilingual subtitles", "subtitle combiner"]
+h1            = "Subtitle Merger"
+hero_subtitle = "Combine two or more .srt or .vtt subtitle files into one — merged by time, renumbered, with an optional per-file shift. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_subtitle_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged subtitles"
+format        = "text"
+
+[[input]]
+name        = "subtitles"
+label       = "Subtitle files (separate each file with a line of ===)"
+placeholder = "1\n00:00:01,000 --> 00:00:02,000\nFirst file, first line.\n\n===\n\n1\n00:00:01,000 --> 00:00:02,000\nSecond file, first line."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "offset_ms"
+label       = "Per-file shift (ms, cumulative; 0 = overlay)"
+placeholder = "0"
+source      = "field"
+
+# format renders as a <select> — its options come from the descriptor schema.
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"

@@ -1,0 +1,41 @@
+slug          = "plist-viewer"
+title         = "Plist Viewer — Apple Property List to JSON/tree — gizza.ai"
+description   = "Parse XML plist or Base64 binary bplist data and render it as readable JSON or a plutil-style tree. Free, private, in-browser."
+tags          = ["plist", "property list", "bplist", "apple", "json", "viewer"]
+h1            = "Plist viewer"
+hero_subtitle = "Paste an XML plist or Base64-encoded binary bplist and convert it to readable JSON or a key/value tree. Runs locally."
+wasm          = "gizza_ai_plist_viewer_web"
+export        = "run"
+live          = false
+output_label  = "Parsed plist"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "XML plist or Base64 bplist"
+placeholder = "<?xml version=\"1.0\"?><plist version=\"1.0\"><dict><key>Name</key><string>Example</string></dict></plist>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "json"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "sort_keys"
+label       = "Sort keys"
+source      = "field"
+
+[[input]]
+name        = "data_encoding"
+label       = "Data encoding"
+placeholder = "base64"
+source      = "field"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rc2-cipher"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt data with RC2 (RFC 2268) in ECB/CBC at a configurable effective key length"

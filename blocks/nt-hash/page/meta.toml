@@ -1,0 +1,31 @@
+slug          = "nt-hash"
+title         = "NT / NTLM Hash Generator — gizza.ai"
+description   = "Generate the NT (NTLM) hash of a password instantly in your browser — MD4 of the UTF-16LE password. Hex or base64 output, uppercase option. Free, private, no sign-up — nothing is uploaded."
+tags          = ["nt-hash", "ntlm", "ntlm-hash", "md4", "windows-password", "pass-the-hash", "hash", "hex"]
+h1            = "NT / NTLM Hash Generator"
+hero_subtitle = "Compute the NT (NTLM) hash of any password — MD4 of its UTF-16LE encoding — with hex or base64 output. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_nt_hash_web"
+export        = "run"
+live          = false
+output_label  = "NT (NTLM) hash"
+format        = "text"
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "password"
+source      = "field"
+multiline   = true
+
+# output_format renders as a <select> and uppercase as a checkbox — the control
+# type + options are derived from the descriptor's schema (manifest.json), so
+# labels here stay short and the option lists are NOT duplicated.
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex"
+source      = "field"

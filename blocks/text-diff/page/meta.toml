@@ -1,0 +1,45 @@
+slug          = "text-diff"
+title         = "Text Diff — gizza.ai"
+description   = "Compare two text blocks and highlight added, removed, and changed lines."
+tags          = ["text", "diff", "developer"]
+h1            = "Text Diff"
+hero_subtitle = "Paste original and updated text to produce a unified diff or structured JSON change report."
+wasm          = "gizza_ai_text_diff_web"
+export        = "run"
+live          = false
+output_label  = "Diff"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "Original text"
+placeholder = "alpha\nbeta\ngamma"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Updated text"
+placeholder = "alpha\nBETA\ngamma\ndelta"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "ignore_whitespace"
+label       = "Ignore whitespace"
+source      = "field"
+
+[[input]]
+name        = "context"
+label       = "Context lines"
+source      = "field"
