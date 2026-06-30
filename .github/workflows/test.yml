@@ -57,6 +57,7 @@ jobs:
               diff_base="origin/$base_ref"
             fi
             mapfile -t blocks < <(git diff --name-only "$diff_base...HEAD" \
+              | grep -v '^blocks/[^/]*/target/block\.wasm$' \
               | sed -n 's#^blocks/\([^/]*\)/.*#\1#p' \
               | sort -u)
           else
