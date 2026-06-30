@@ -96,36 +96,20 @@ jobs:
       - name: Build wafer CLI
         run: cargo install --path wafer-run/crates/wafer-cli --locked
 
-      - name: Build missing skill wasm artifacts
+      - name: Audit missing skill wasm artifacts
         working-directory: gizza-ai
         shell: bash
         run: |
           set -euo pipefail
-          export CARGO_BUILD_JOBS=1
-          export CARGO_TARGET_DIR="$RUNNER_TEMP/gizza-block-target"
-          mkdir -p "$CARGO_TARGET_DIR"
+          missing=0
           for manifest in blocks/*/manifest.json; do
             block="$(basename "$(dirname "$manifest")")"
-            if [ -f "blocks/$block/target/block.wasm" ]; then
-              echo "target/block.wasm exists for $block — skipping block build"
-              continue
+            if [ ! -f "blocks/$block/target/block.wasm" ]; then
+              missing=$((missing + 1))
             fi
-            echo "building missing target/block.wasm for $block with shared CARGO_TARGET_DIR"
-            before="$(mktemp)"
-            find "$CARGO_TARGET_DIR/wasm32-wasip1/release" -maxdepth 1 -type f -name '*.wasm' -printf '%T@ %p\n' 2>/dev/null | sort -n > "$before" || true
-            cargo build --manifest-path "blocks/$block/Cargo.toml" --target wasm32-wasip1 --release
-            wasm="$(comm -13 "$before" <(find "$CARGO_TARGET_DIR/wasm32-wasip1/release" -maxdepth 1 -type f -name '*.wasm' -printf '%T@ %p\n' | sort -n) | tail -1 | cut -d' ' -f2-)"
-            if [ -z "$wasm" ]; then
-              wasm="$(find "$CARGO_TARGET_DIR/wasm32-wasip1/release" -maxdepth 1 -type f -name '*.wasm' -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)"
-            fi
-            if [ -z "$wasm" ] || [ ! -f "$wasm" ]; then
-              echo "No wasm artifact found for $block" >&2
-              exit 1
-            fi
-            mkdir -p "blocks/$block/target"
-            cp "$wasm" "blocks/$block/target/block.wasm"
-            rm -f "$before"
           done
+          echo "Missing committed blocks/*/target/block.wasm artifacts: $missing"
+          echo "Skipping rebuild here; deploy reuses committed artifacts and standalone tool pages are generated separately."
 
       - name: Build site
         working-directory: gizza-ai
