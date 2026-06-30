@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "toc-generator"
+version = "0.1.0"
+abi = 1
+summary = "Build a linked table of contents from the headings of a Markdown or HTML document."
