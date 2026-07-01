@@ -84,16 +84,12 @@ design** (page styling).
 - **Copy/SEO** — `page/content.md` (body, examples, FAQ) + `page/meta.toml`
   (title/description/tags/h1/hero). **Original copy only.**
 - **UX/layout** — page input/output presentation; keep `[[input]]` field names + order in sync
-  with the web export params. **MANDATORY Usability Guidelines**:
-  - *Smart Defaults*: Pre-fill dates, times, and other fields with sensible defaults (e.g., current local date/time) rather than leaving them empty.
-  - *Context Detection*: Automatically detect the user's local timezone (via `Intl.DateTimeFormat().resolvedOptions().timeZone`), language, or locale to initialize fields correctly.
-  - *Searchable Autocompletes*: Avoid raw text fields for timezones, country codes, currencies, formats, or other predefined values. Dynamically inject an HTML5 `<datalist>` or custom searchable select list to let the user search and autocomplete.
-  - *Native Date/Time Selectors*: Avoid text fields for dates/times. Set `input.type` to picker types (e.g., `datetime-local`, `date`, `time`). Normalize default and URL pre-fill formats to use a `T` separator for ISO format support.
-  - *Tag-Pill List UI*: If inputs are list-based (e.g. multi-timezone comma-separated targets), build a tag-pill container (`.tz-tags-list`) where added timezones render as badges with delete buttons (`&times;`), hiding the raw comma-separated text input.
-  - *Layout Stability*: Keep the `.tool-widget` width stable (e.g. a fixed `760px` for multi-column widgets). Avoid toggling sizes on keystrokes, empty states, or validation errors to prevent layouts from shifting under the user's cursor.
-  - *Actionable Reset Button*: Place an explicit, styled Reset button next to the input fields to clear filters, reset list targets to default (e.g., `["UTC"]`), and re-fill inputs with current local defaults.
-  - *FAQ Accordions*: Wrap FAQ copy in HTML `<details>` and `<summary>` tags inside `content.md`. Wrap the details content in `<p>...</p>` or `<div>...</div>` blocks to properly scope styling (padding, borders, transitions). Style details/summary blocks in CSS with transition indicators (like plus/minus content arrows on toggle).
-  - *Developer Access Layout & Header Spacing*: Group terminal execution and deep-link instruction card grids under a `.tool-dev-group` wrapper using `tools/generator/src/template.rs`. Ensure code blocks (`.tool-cli-code`) configure custom styled scrollbars to match track/thumb colors (`scrollbar-width: thin; scrollbar-color: #334155 #0f172a` plus matching webkit styles) to avoid clipping bottom rounded corners. Set explicit bottom margins (e.g., `8px`) on `h2` headings for correct visual spacing.
+  with the web export params. Apply the **Usability Standards** in SKILL.md Phase 4 (right
+  control for the data; platform over per-tool hacks — extend `tools/generator` declaratively,
+  NEVER add a `cfg.slug === "…"` branch to `site/tool.js`; smart defaults + context detection;
+  worked examples; layout stability; one-click reset; FAQ accordions; state the limits;
+  actionable errors). Shared chrome (dev-group cards, CLI copy buttons, scrollbar styling) lives
+  in `tools/generator/src/template.rs` + `site/tool.css` — improve it THERE so all tools get it.
 - **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
 
 ### param types across surfaces (GOTCHA — bit me on url-encode)
@@ -133,7 +129,9 @@ The block has a unit test pinning `derived == authored` (e.g. url-encode's
    (add the new property/enum/default exactly as `to_schema_json()` emits it —
    `additionalProperties: false`, property order as inserted).
 3. Re-run → PASS. Capture the **before→after schema diff** (old literal vs new) for the PR.
-4. Update `manifest.json` `tool.description`/`tool.parameters` to match the new descriptor.
+4. Regenerate the manifest: `cargo install --path cli --force` then
+   `python3 scripts/sync-tool-manifest.py <slug>` (writes `tool.description`/`tool.parameters`
+   from the live descriptor + syncs summaries — do not hand-edit).
 
 Do NOT delete the drift-guard test — it stays as the migration guard for the NEXT change.
 
@@ -159,9 +157,11 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
   `/tools/<slug>/`, AND a `?<param>=<value>` deep-link assertion. Add a case per new capability.
 - **CLI** `cargo install --path cli --force` then `gizza tool <slug> "<args>"` — incl. a new
   case per new capability. (gpu tools: assert `unsupported_in_cli` + exit 3.)
-- **Hygiene gate** `python3 scripts/check-tool-hygiene.py <slug>` — MUST exit 0. Enforces the two
-  standards that silently regressed before: enum params synced into `manifest.json` (§Phase 4 select
-  rendering) and FAQ as `<details>` accordions (Usability Standard #8). CI runs it repo-wide.
+- **Hygiene gate** `python3 scripts/check-tool-hygiene.py <slug>` — MUST exit 0. Enforces the
+  standards that silently regressed before: enum params synced into `manifest.json` (run
+  `scripts/sync-tool-manifest.py <slug>` after any descriptor change — never hand-sync), FAQ as
+  `<details>` accordions, no scaffold TODOs, summary consistency; per-slug strict mode also gates
+  placeholders, FAQ count, and meta description length. CI runs it repo-wide.
 - Hard gates: pre-existing behavior tests GREEN; every new capability has a test; API/CLI/query
   pass; hygiene gate exits 0. ≤3 fix attempts per failure, else escalate.
 
