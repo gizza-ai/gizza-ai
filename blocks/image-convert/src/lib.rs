@@ -71,7 +71,7 @@ struct ImageConvert;
     name = "gizza-ai/image-convert",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Convert an image to a different format",
+    summary = "Convert an image to a different format (JPEG, PNG, WebP).",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Convert an image to a different format (jpeg, png, webp). Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",

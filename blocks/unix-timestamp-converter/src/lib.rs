@@ -51,7 +51,7 @@ struct Tool;
     name = "gizza-ai/unix-timestamp-converter",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Unix timestamp converter skill",
+    summary = "Convert between Unix timestamps and human-readable UTC dates.",
     skill(
         description = "Convert between Unix (epoch) timestamps and human-readable dates in many common formats, entirely locally. Give 'value' as either a numeric timestamp (e.g. 1700000000) to convert to a UTC date, or a date/time string (ISO 8601 / RFC 3339, RFC 2822 email dates, US/European slash & dotted dates, month-name dates, e.g. '2023-11-14 22:13:20', '2023-11-14T22:13:20+02:00', 'January 1, 1970') to convert to a timestamp. 'mode' = auto (default; numeric -> date, else date -> timestamp), to-date, or to-timestamp. 'unit' = auto (default, detected from magnitude), seconds, milliseconds, microseconds, or nanoseconds — the unit of a numeric timestamp being read as a date (outputs always include all four units). For timestamp -> date it returns the timestamp in every unit, a UTC string, ISO 8601 and RFC 2822 renderings, and a full calendar breakdown (year, month + name, day, weekday, day-of-year, ISO week, hour/minute/second/nanosecond). For date -> timestamp it returns the Unix timestamp in seconds/milliseconds/microseconds/nanoseconds; an offset-less wall-clock is interpreted as UTC (assumed_utc=true). Runs locally; nothing is uploaded.",
         parameters = schema_json()

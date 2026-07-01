@@ -107,7 +107,7 @@ struct Tool;
     name = "gizza-ai/percentage-calculator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Percentage calculator: percent of, what percent, percent change, apply change, share of total",
+    summary = "Percent of, what percent, percent change, apply change, and share of total.",
     skill(
         description = "Answer everyday percentage questions from plain numbers. Choose a mode: percent_of (what is P% of a base — percent, base), what_percent (a part is what percent of a whole — part, whole), change (percent change from one value to another — from, to), apply_change (increase or decrease a base by a percent — base, percent), or percent_of_total (a value's share of a total — value, total). Pass mode plus only the numbers that mode needs. Returns the canonical mode, the inputs echoed back, the computed measures with unit suffixes, and a human-readable summary.",
         parameters = schema_json()

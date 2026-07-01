@@ -2,7 +2,7 @@
   "name": "gizza-ai/seconds-to-hms",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Seconds to HH:MM:SS skill",
+  "summary": "Seconds to HH:MM:SS",
   "role": "skill",
   "tool": {
     "description": "Convert a number of seconds into a duration string. format='hms' (default) gives HH:MM:SS with the hours field accumulating past 24 (e.g. 90061 -> 25:01:01); format='dhms' splits out days as D:HH:MM:SS (e.g. 1:01:01:01); format='auto' returns the shortest clock form, dropping leading zero days/hours (MM:SS, HH:MM:SS, or D:HH:MM:SS); format='iso' returns an ISO-8601 duration (e.g. P1DT1H1M1S, zero -> PT0S); format='words' returns human-readable text (e.g. '1 hour, 1 minute, 1 second'). seconds may be fractional or negative (a negative input is '-'-prefixed); set decimals=1..9 to append fractional seconds (e.g. 90.5 -> 00:01:30.5).",

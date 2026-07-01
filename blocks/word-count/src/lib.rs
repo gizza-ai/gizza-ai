@@ -37,7 +37,7 @@ struct WordCount;
     name = "gizza-ai/word-count",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Word Count skill",
+    summary = "Count the words, characters, and lines in a block of text.",
     skill(
         description = "Count the words, characters, and lines in a block of text.",
         parameters = schema_json()

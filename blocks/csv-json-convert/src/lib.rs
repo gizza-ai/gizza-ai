@@ -76,7 +76,7 @@ struct CsvJsonConvert;
     name = "gizza-ai/csv-json-convert",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "CSV <-> JSON convert skill",
+    summary = "Convert tabular data between CSV and JSON in either direction.",
     skill(
         description = "Convert tabular data between CSV and JSON in either direction. direction='auto' (default) detects the input format (text starting with '[' or '{' is JSON -> CSV, otherwise CSV -> JSON); set 'csv-to-json' or 'json-to-csv' to force it. csv->json yields an array of objects keyed by the header row (headers=true, default) or an array of arrays (headers=false), inferring numbers/booleans/null from cell text. json->csv accepts an array of objects (header row from the union of keys) or an array of arrays. delimiter is a single char or 'tab'/'comma'/'semicolon'/'pipe'. pretty=true indents JSON output. flatten=true (json->csv) expands nested objects/arrays into dot-notation columns.",
         parameters = schema_json()

@@ -54,7 +54,7 @@ struct EmojiSearch;
     name = "gizza-ai/emoji-search",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Emoji Search skill",
+    summary = "Search emoji by keyword, shortcode, or category.",
     skill(
         description = "Search a curated set of common emoji by keyword, :shortcode:, or category and return the matching glyphs. The query matches each emoji's name, shortcode, keywords, and category (case-insensitively; surrounding colons in a :shortcode: are ignored). Search by meaning ('happy', 'love', 'celebrate', 'fire'), by shortcode (':rocket:' -> 🚀), or by a category name (smileys, people, animals, food, activities, symbols, flags) to list that whole category. Use limit (1-100, default 20) to bound the result count, and glyphs_only=true to get just the bare emoji. Results are ranked best-match-first. Fully offline — no network.",
         parameters = schema_json()

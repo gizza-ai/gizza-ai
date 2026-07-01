@@ -46,7 +46,7 @@ struct Tool;
     name = "gizza-ai/latex-to-mathml",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Convert LaTeX math to MathML",
+    summary = "Convert a LaTeX math expression to MathML markup.",
     skill(
         description = "Convert a LaTeX math expression into MathML markup (a <math xmlns=\"http://www.w3.org/1998/Math/MathML\"> element). MathML is the W3C standard for math in HTML — it's accessible to screen readers, selectable/searchable as text, and reusable in EPUB, DocBook and Office documents, unlike a rendered image. Pass `latex` as math-mode source with no surrounding $ (e.g. \\frac{a}{b}, x^2, \\sqrt{x+1}, \\sum_{i=1}^{n} i, \\alpha+\\beta, \\left(\\frac{a}{b}\\right)). Covers fractions, super/subscripts, roots, Greek letters, big operators with limits, relations/arrows, scalable delimiters, font styles (\\mathbb/\\mathbf), and matrix/align environments. Set display='inline' for an inline equation (default 'block' is a centred standalone equation), or pretty=true to indent the output. Runs locally on the device.",
         parameters = schema_json()

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "color-channel-split"
 version = "0.1.0"
 abi = 1
-summary = "Extract a single colour channel (R/G/B/A) from an image as a PNG"
+summary = "Extract a single colour channel (R/G/B/A) from an image as a PNG."

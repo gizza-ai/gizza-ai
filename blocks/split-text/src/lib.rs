@@ -66,7 +66,7 @@ struct Tool;
     name = "gizza-ai/split-text",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Split Text skill",
+    summary = "Split text on a delimiter into one item per line.",
     skill(
         description = "Split text on a chosen delimiter into one item per line. By default splits on a comma; set delimiter to any substring (escapes \\n, \\t, \\r, \\\\ are recognised). Use mode='whitespace' to split on runs of spaces/tabs/newlines, or mode='chars' to put each character on its own line. Set trim=true to strip surrounding whitespace from each item and remove_empty=true to drop blank items (e.g. from a trailing delimiter). Returns the items joined by newlines.",
         parameters = schema_json()

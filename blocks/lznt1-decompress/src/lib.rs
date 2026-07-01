@@ -47,7 +47,7 @@ struct Tool;
     name = "gizza-ai/lznt1-decompress",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "LZNT1 decompress skill",
+    summary = "Decompress LZNT1 (RtlCompressBuffer) blobs to hex, text, or Base64.",
     skill(
         description = "Decompress an LZNT1 blob — the legacy compression format produced by Windows RtlCompressBuffer / RtlDecompressBuffer with COMPRESSION_FORMAT_LZNT1, used in NTFS compressed files, registry hives, hibernation files, and many malware configuration blobs. Provide the compressed bytes in 'data' as hex (default) or base64 via input_encoding, and choose output_encoding='hex' (default, binary-safe), 'text' (UTF-8), or 'base64' to view the recovered original data. Pure decoder of the chunk/flag-group/back-reference wire format; no host calls.",
         parameters = schema_json()

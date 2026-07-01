@@ -74,7 +74,7 @@ struct RiskMatrix;
     name = "gizza-ai/risk-matrix",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Plot likelihood-vs-impact items onto a colored risk matrix",
+    summary = "Plot likelihood-vs-impact items onto a colored risk matrix heatmap.",
     skill(
         description = "Plot likelihood-versus-impact items onto a classic colored risk-matrix heatmap (green/amber/red probability-impact grid). `items` is a risk register, one per line as `name, likelihood, impact` with integer ratings 1..=size. Each cell is shaded by its risk score (likelihood × impact) relative to the grid maximum — amber_at and red_at set the Low/Medium/High band fractions — and items are drawn as numbered markers in their cell with a legend listing name, L×I = score and band. Likelihood is the X axis, impact the Y axis (High-risk corner top-right). Returns an SVG image.",
         parameters = schema_json()

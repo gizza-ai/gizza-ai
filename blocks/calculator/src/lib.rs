@@ -37,7 +37,7 @@ struct Calculator;
     name = "gizza-ai/calculator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Calculator skill",
+    summary = "Evaluate an arithmetic expression.",
     skill(
         description = "Evaluate an arithmetic expression (e.g. '2+2*3'). Returns the numeric result.",
         parameters = schema_json()

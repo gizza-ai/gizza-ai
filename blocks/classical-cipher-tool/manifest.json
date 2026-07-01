@@ -2,18 +2,41 @@
   "name": "gizza-ai/classical-cipher-tool",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Classical cipher (Caesar / Vigenère / Atbash / rail-fence) skill",
+  "summary": "Classical cipher (Caesar / Vigenère / Atbash / rail-fence)",
   "role": "skill",
   "tool": {
     "description": "Encrypt or decrypt text with classic pre-computer ciphers: Caesar (fixed shift), Vigenère (keyword), Atbash (alphabet mirror, keyless), and rail-fence (zig-zag transposition). Supports encrypt, decrypt, and a Caesar-only brute-force that lists all 26 shifts. Educational/puzzle ciphers, not secure encryption.",
     "parameters": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "properties": {
-        "text": { "type": "string" },
-        "cipher": { "type": "string", "enum": ["caesar", "vigenere", "atbash", "rail-fence"], "default": "caesar" },
-        "operation": { "type": "string", "enum": ["encrypt", "decrypt", "brute-force"], "default": "encrypt" },
-        "key": { "type": "string" }
+        "text": {
+          "type": "string"
+        },
+        "cipher": {
+          "type": "string",
+          "enum": [
+            "caesar",
+            "vigenere",
+            "atbash",
+            "rail-fence"
+          ],
+          "default": "caesar"
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "encrypt",
+            "decrypt",
+            "brute-force"
+          ],
+          "default": "encrypt"
+        },
+        "key": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     }

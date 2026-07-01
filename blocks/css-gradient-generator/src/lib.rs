@@ -71,7 +71,7 @@ struct Tool;
     name = "gizza-ai/css-gradient-generator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "CSS Gradient Generator skill",
+    summary = "CSS Gradient Generator",
     skill(
         description = "Generate a CSS gradient declaration from color stops. Returns a ready-to-paste `background-image: linear-gradient(...);` (or radial/conic) line. Provide the `colors` as a comma- or newline-separated list of CSS colors, optionally with positions (e.g. '#ff0000, #0000ff' or '#fff 0%, #000 100%'); with no positions, evenly-spaced percentages are added. Set gradient_type='linear' (default), 'radial', or 'conic'. For linear, `angle` is the direction in degrees (90 = left-to-right, 180 = top-to-bottom default); for conic it's the start angle. For radial, `shape` is 'ellipse' (default) or 'circle'. Set repeating=true for a repeating-*-gradient (stripes/tiles).",
         parameters = schema_json()

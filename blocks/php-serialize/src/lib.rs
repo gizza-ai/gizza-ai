@@ -36,7 +36,7 @@ struct PhpSerialize;
     name = "gizza-ai/php-serialize",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "PHP serialize() encoder",
+    summary = "Convert JSON into PHP serialize() format.",
     skill(
         description = "Convert JSON data into PHP's serialize() wire format so it can be read by PHP's unserialize() — useful for writing PHP sessions, caches, or WordPress options from a non-PHP system. Mapping: null -> 'N;', true/false -> 'b:1;'/'b:0;', whole numbers -> 'i:N;', fractional numbers -> 'd:N;', strings -> 's:<byte-length>:\"...\";' (length is in bytes, not characters), and both JSON arrays and objects -> PHP arrays ('a:<count>:{...}'), keyed by index or by string key respectively. Object key order is preserved.",
         parameters = schema_json()

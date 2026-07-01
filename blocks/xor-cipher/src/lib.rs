@@ -70,7 +70,7 @@ struct XorCipher;
     name = "gizza-ai/xor-cipher",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "XOR text/hex/base64 data against a repeating key (output hex, Base64 or UTF-8)",
+    summary = "XOR text, hex, or Base64 data against a repeating key; output hex, Base64, or UTF-8",
     skill(
         description = "Repeating-key XOR cipher: XOR `data` against a repeating `key`, byte by byte. XOR is symmetric — the same operation encrypts and decrypts (feed the ciphertext back with the same key to recover the plaintext). input = how to read data (text, hex or base64; default text). key_format = how to read the key (text, hex or base64; default text). output = how to encode the result (hex default, base64, or utf8 to get plaintext back). WARNING: repeating-key XOR is NOT secure — use it for CTFs, obfuscation, interop and learning only. For real encryption use aes-cipher or text-encrypt.",
         parameters = schema_json()

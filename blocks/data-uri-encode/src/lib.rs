@@ -51,7 +51,7 @@ struct Tool;
     name = "gizza-ai/data-uri-encode",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Build a data: URI from text",
+    summary = "Build a data: URI from text with a chosen MIME type and Base64 or percent encoding.",
     skill(
         description = "Build a self-contained 'data:' URI (RFC 2397) from text, for inline embedding in CSS url(...), an <img src>, a JSON payload, or an email. Pass the content as 'text', the media type as 'mime' (e.g. 'text/plain', 'text/html', 'image/svg+xml', 'application/json'; default 'text/plain', and a 'charset' parameter is allowed), and 'encoding' as 'base64' (default — 'data:<mime>;base64,<...>') or 'url' (percent-encoded — 'data:<mime>,<...>'). Returns the data: URI plus its mime, encoding, input byte count, and URI length. To go the other way, use data-uri-decode; to encode a file, use file-to-data-uri.",
         parameters = schema_json()

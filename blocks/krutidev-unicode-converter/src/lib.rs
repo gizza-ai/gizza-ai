@@ -28,7 +28,7 @@ struct Tool;
     name = "gizza-ai/krutidev-unicode-converter",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Convert Kruti Dev legacy Hindi text to Unicode Devanagari and vice versa.",
+    summary = "Convert Hindi text between Kruti Dev 010 and Unicode Devanagari.",
     skill(
         description = "Converts Hindi text between the legacy Kruti Dev 010 font layout and standard Unicode Devanagari.",
         parameters = schema_json()

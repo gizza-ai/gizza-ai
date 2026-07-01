@@ -51,7 +51,7 @@ struct Tool;
     name = "gizza-ai/index-of-coincidence",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Index of Coincidence skill",
+    summary = "Calculate the Index of Coincidence of a text",
     skill(
         description = "Calculate the Index of Coincidence (IC) of a text — the probability that two randomly drawn letters are the same — to gauge whether it is monoalphabetic, polyalphabetic, or random. Counts only the 26 Latin letters A-Z (case-folded); other characters are ignored. Reports the IC both normalized (English plaintext ~1.73, uniform/random ~1.0) and raw (English ~0.0667, random ~0.0385), plus a plain-language interpretation. Set max_period > 0 to also estimate a Vigenère key length (the period whose average column IC is highest is the likely key length). Set show_counts=true to include a per-letter frequency table.",
         parameters = schema_json()

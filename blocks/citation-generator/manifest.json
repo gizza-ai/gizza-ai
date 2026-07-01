@@ -2,25 +2,68 @@
   "name": "gizza-ai/citation-generator",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Citation generator skill",
+  "summary": "Citation generator",
   "role": "skill",
   "tool": {
     "description": "Format a single reference into APA 7th, MLA 9th, Chicago 17th, or Harvard style from structured fields.",
     "parameters": {
       "type": "object",
       "properties": {
-        "style": { "type": "string", "enum": ["apa", "mla", "chicago", "harvard"], "default": "apa", "description": "Citation style." },
-        "title": { "type": "string", "description": "Title of the work." },
-        "authors": { "type": "string", "description": "Author(s), separated with ';' or ' and '." },
-        "year": { "type": "string", "description": "Publication year." },
-        "container": { "type": "string", "description": "Journal/website/book the source appears in." },
-        "publisher": { "type": "string", "description": "Publisher name." },
-        "volume": { "type": "string", "description": "Volume number." },
-        "issue": { "type": "string", "description": "Issue number." },
-        "pages": { "type": "string", "description": "Page range." },
-        "url": { "type": "string", "description": "URL of the online source." },
-        "doi": { "type": "string", "description": "DOI of the source." },
-        "accessed": { "type": "string", "description": "Date accessed." }
+        "style": {
+          "type": "string",
+          "enum": [
+            "apa",
+            "mla",
+            "chicago",
+            "harvard"
+          ],
+          "default": "apa",
+          "description": "Citation style."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the work."
+        },
+        "authors": {
+          "type": "string",
+          "description": "Author(s), separated with ';' or ' and '."
+        },
+        "year": {
+          "type": "string",
+          "description": "Publication year."
+        },
+        "container": {
+          "type": "string",
+          "description": "Journal/website/book the source appears in."
+        },
+        "publisher": {
+          "type": "string",
+          "description": "Publisher name."
+        },
+        "volume": {
+          "type": "string",
+          "description": "Volume number."
+        },
+        "issue": {
+          "type": "string",
+          "description": "Issue number."
+        },
+        "pages": {
+          "type": "string",
+          "description": "Page range."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL of the online source."
+        },
+        "doi": {
+          "type": "string",
+          "description": "DOI of the source."
+        },
+        "accessed": {
+          "type": "string",
+          "description": "Date accessed."
+        }
       },
       "required": [],
       "additionalProperties": false

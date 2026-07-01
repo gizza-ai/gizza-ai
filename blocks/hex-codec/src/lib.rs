@@ -71,7 +71,7 @@ struct HexCodec;
     name = "gizza-ai/hex-codec",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Hex encode/decode skill",
+    summary = "Encode text or bytes to a hexadecimal string and decode hex back to text.",
     skill(
         description = "Encode text or bytes to a hexadecimal string, or decode a hex string back to text. Use mode='encode' (default, e.g. 'Hi' -> '4869') or mode='decode' (e.g. '4869' -> 'Hi'). delimiter inserts a separator between bytes when encoding ('none' default, 'space', 'colon', 'dash', 'comma', 'newline'); uppercase emits A-F caps; prefix adds '0x' or '\\x' before each byte. On decode, format='text' (default) renders UTF-8 (errors on non-UTF-8 bytes) and format='bytes' shows the raw bytes as a plain hex string. Decoding is case-insensitive and ignores whitespace, the common delimiters (: - ,), and 0x / \\x prefixes, so any encoded form round-trips back.",
         parameters = schema_json()

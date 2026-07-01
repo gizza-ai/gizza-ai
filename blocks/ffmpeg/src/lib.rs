@@ -65,7 +65,7 @@ struct FfmpegSkill;
     name = "gizza-ai/ffmpeg",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Inspect a media file via ffmpeg",
+    summary = "Inspect a media file's codec/duration/dimensions via ffmpeg.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Run ffprobe on a media URL and return format/stream metadata.",

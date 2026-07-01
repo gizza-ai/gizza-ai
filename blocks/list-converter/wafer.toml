@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "list-converter"
 version = "0.1.0"
 abi = 1
-summary = "Reformat a list (comma/newline/bullets/numbered/quoted)."
+summary = "Reformat a list (comma/newline/bullets/numbered/quoted/sql/json/xml)."

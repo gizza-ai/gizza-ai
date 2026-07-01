@@ -58,7 +58,7 @@ struct SmartQuotesClean;
     name = "gizza-ai/smart-quotes-clean",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Smart-quotes / typography cleaner skill",
+    summary = "Replace smart quotes and typographic characters with ASCII.",
     skill(
         description = "Replace smart (curly) quotes, em/en dashes, the ellipsis glyph, prime marks, guillemets, and other typographic characters with plain ASCII equivalents: “ ” -> \", ‘ ’ -> ', – (en dash) -> -, — (em dash) -> -- (configurable via em_dash), … -> ..., ′ ″ -> ' \". Set em_dash to '-' or ' - ' to change how em dashes render. With normalize_spaces=true (default) it also folds non-breaking/thin/ideographic spaces to a regular space and strips zero-width characters and the BOM. Ordinary Unicode — accents, CJK, emoji — is preserved.",
         parameters = schema_json()

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "text-banner-image"
 version = "0.1.0"
 abi = 1
-summary = "Render stylized text (outline, drop shadow, gradient fill) to a PNG banner"
+summary = "Render a headline into a stylized PNG banner (gradient, shadow, outline)"

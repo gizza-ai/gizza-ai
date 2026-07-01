@@ -51,7 +51,7 @@ struct LzStringCompress;
     name = "gizza-ai/lz-string-compress",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "LZ-String compress / decompress skill",
+    summary = "LZ-String compress / decompress",
     skill(
         description = "Compress or decompress text with LZ-String (pieroxy's lz-string), the LZW variant made for fitting data into URLs and browser storage. Use mode='compress' (default) to shrink text or mode='decompress' to restore it. Choose format='base64' (default, portable ASCII, byte-identical to LZString.compressToBase64), format='uri' (URL-query-safe, no + / = — paste straight into a ?param= value), or format='utf16' (packs 15 bits per character, most compact for localStorage). When decompressing, format must match how the payload was produced. Output is byte-compatible with the original lz-string JavaScript library.",
         parameters = schema_json()
