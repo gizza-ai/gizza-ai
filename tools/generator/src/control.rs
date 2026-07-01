@@ -4,8 +4,14 @@
 //!
 //! A `source="field"` input renders as: `<select>` (param has an `enum`),
 //! checkbox (`boolean`), number input (`integer`/`number`), or text/textarea
-//! (`string` or — defensively — any param missing from the schema).
+//! (`string` or — defensively — any param missing from the schema). The meta can
+//! override a string param with a native picker (`kind = "date" | "time" |
+//! "datetime-local"`) or a named `<datalist>` vocabulary (`options = "timezones"`)
+//! — the descriptor only knows "string", so these page-level refinements live in
+//! `page/meta.toml`.
 
+use crate::meta::Input;
+use crate::vocab;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -35,6 +41,14 @@ pub enum Control {
     },
     Checkbox {
         default: bool,
+    },
+    /// A native picker: `<input type="date|time|datetime-local">` (meta `kind`).
+    Picker {
+        input_type: String,
+    },
+    /// A text input backed by a `<datalist>` of a named vocabulary (meta `options`).
+    Datalist {
+        options: Vec<String>,
     },
 }
 
@@ -67,8 +81,41 @@ impl ParamSchema {
         ParamSchema(props)
     }
 
-    /// Resolve the control for field `name`. `multiline` only matters for a
-    /// string/unknown param (textarea vs single-line text).
+    /// Resolve the control for a `source="field"` input: meta-level overrides
+    /// (`kind`, `options`) win over the schema-derived control, because the
+    /// schema only knows JSON types ("string") while the meta knows the page
+    /// affordance (a date picker, a timezone autocomplete).
+    pub fn control_for_input(&self, input: &Input) -> Control {
+        match input.kind.as_str() {
+            "" => {}
+            k @ ("date" | "time" | "datetime-local") => {
+                return Control::Picker { input_type: k.to_string() };
+            }
+            other => {
+                eprintln!(
+                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local) — falling back to the schema control",
+                    input.name
+                );
+            }
+        }
+        if !input.options.is_empty() {
+            match vocab::options(&input.options) {
+                Some(opts) => {
+                    return Control::Datalist {
+                        options: opts.iter().map(|s| s.to_string()).collect(),
+                    };
+                }
+                None => eprintln!(
+                    "warning: [[input]] \"{}\" names unknown options vocabulary \"{}\" (see tools/generator/src/vocab.rs) — falling back to the schema control",
+                    input.name, input.options
+                ),
+            }
+        }
+        self.control_for(&input.name, input.multiline)
+    }
+
+    /// Resolve the schema-derived control for field `name`. `multiline` only
+    /// matters for a string/unknown param (textarea vs single-line text).
     pub fn control_for(&self, name: &str, multiline: bool) -> Control {
         let text_or_area = || {
             if multiline {
@@ -166,5 +213,60 @@ mod tests {
         let s = ParamSchema::empty();
         assert_eq!(s.control_for("whatever", false), Control::Text);
         assert_eq!(s.control_for("whatever", true), Control::Textarea);
+    }
+
+    fn field(name: &str, kind: &str, options: &str) -> Input {
+        Input {
+            name: name.into(),
+            source: "field".into(),
+            label: String::new(),
+            placeholder: String::new(),
+            accept: String::new(),
+            multiline: false,
+            kind: kind.into(),
+            options: options.into(),
+            default: String::new(),
+        }
+    }
+
+    #[test]
+    fn meta_kind_overrides_schema_with_a_native_picker() {
+        let s = schema(json!({ "birthdate": { "type": "string" } }));
+        assert_eq!(
+            s.control_for_input(&field("birthdate", "date", "")),
+            Control::Picker { input_type: "date".into() }
+        );
+        assert_eq!(
+            s.control_for_input(&field("at", "datetime-local", "")),
+            Control::Picker { input_type: "datetime-local".into() }
+        );
+    }
+
+    #[test]
+    fn named_options_render_a_datalist() {
+        let s = schema(json!({ "from": { "type": "string" } }));
+        match s.control_for_input(&field("from", "", "timezones")) {
+            Control::Datalist { options } => {
+                assert!(options.iter().any(|o| o == "UTC"));
+                assert!(options.iter().any(|o| o == "Europe/Amsterdam"));
+            }
+            other => panic!("expected Datalist, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn unknown_kind_and_vocab_fall_back_to_schema_control() {
+        let s = schema(json!({ "x": { "type": "string" } }));
+        assert_eq!(s.control_for_input(&field("x", "color", "")), Control::Text);
+        assert_eq!(s.control_for_input(&field("x", "", "nope")), Control::Text);
+    }
+
+    #[test]
+    fn without_overrides_meta_input_uses_schema_control() {
+        let s = schema(json!({ "mode": { "type": "string", "enum": ["a", "b"] } }));
+        match s.control_for_input(&field("mode", "", "")) {
+            Control::Select { options, .. } => assert_eq!(options, vec!["a", "b"]),
+            other => panic!("expected Select, got {other:?}"),
+        }
     }
 }

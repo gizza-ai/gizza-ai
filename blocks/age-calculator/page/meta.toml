@@ -9,15 +9,27 @@ export        = "run"
 live          = false
 output_label  = "Age (JSON)"
 format        = "text"
+wide          = true
 
 [[input]]
 name        = "birthdate"
 label       = "Date of birth"
 placeholder = "2000-06-22"
 source      = "field"
+kind        = "date"
 
 [[input]]
 name        = "as_of"
 label       = "As of date (optional — defaults to today)"
 placeholder = "2026-06-22"
 source      = "field"
+kind        = "date"
+default     = "today"
+
+[[example]]
+label  = "Born 15 Apr 1990"
+params = { birthdate = "1990-04-15" }
+
+[[example]]
+label  = "Millennium baby"
+params = { birthdate = "2000-01-01" }

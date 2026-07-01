@@ -10,6 +10,7 @@ mod index;
 mod markdown;
 mod meta;
 mod template;
+mod vocab;
 
 use std::fs;
 use std::path::{Path, PathBuf};

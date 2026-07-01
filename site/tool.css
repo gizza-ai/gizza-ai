@@ -1455,3 +1455,22 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 
 
 
+
+/* Declarative widget chrome (generator-rendered on every page — see
+   tools/generator/src/template.rs): example chips, Reset / Copy-result
+   actions, and the wide-widget class that replaces per-tool JS width hacks. */
+.tool-widget--wide { max-width: 760px; }
+.tool-examples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 2px 0 12px; }
+.tool-examples-label { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #94a3b8; }
+.tool-example-chip { border: 1px solid #cbd5e1; background: #fff; color: var(--tool-ink, #0f172a);
+  font-size: .85rem; padding: 4px 12px; border-radius: 999px; cursor: pointer;
+  transition: border-color .15s, box-shadow .15s; }
+.tool-example-chip:hover, .tool-example-chip:focus-visible { border-color: var(--tool-accent, #4f46e5);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .08); }
+.tool-widget-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.tool-widget-btn { border: 1px solid #cbd5e1; background: #fff; color: var(--tool-muted, #6b7280);
+  font-size: .85rem; padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  transition: border-color .15s, color .15s; }
+.tool-widget-btn:hover, .tool-widget-btn:focus-visible { border-color: var(--tool-accent, #4f46e5);
+  color: var(--tool-ink, #0f172a); }
+.tool-widget-btn.copied { border-color: #16a34a; color: #16a34a; }
