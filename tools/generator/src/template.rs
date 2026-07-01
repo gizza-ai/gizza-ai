@@ -82,12 +82,13 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                     section class="tool-hero" {
                         h1 { (meta.h1) }
                         p class="tool-hero-sub" { (meta.hero_subtitle) }
-                        div class="tool-widget" {
+                        @let widget_class = if meta.wide { "tool-widget tool-widget--wide" } else { "tool-widget" };
+                        div class=(widget_class) {
                             @for input in &meta.inputs {
                                 @if input.source == "field" {
                                     @let id = format!("in-{}", input.name);
                                     label class="tool-field-label" for=(id) { (input.label) }
-                                    @match schema.control_for(&input.name, input.multiline) {
+                                    @match schema.control_for_input(input) {
                                         Control::Select { options, default } => {
                                             select id=(id) class="tool-input tool-select" {
                                                 @for opt in &options {
@@ -107,6 +108,19 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                                                   min=[min_s.as_deref()] max=[max_s.as_deref()] value=[val_s.as_deref()]
                                                   autocomplete="off" autocapitalize="off" spellcheck="false";
                                         }
+                                        Control::Picker { input_type } => {
+                                            input id=(id) class="tool-input" type=(input_type)
+                                                  placeholder=(input.placeholder) autocomplete="off";
+                                        }
+                                        Control::Datalist { options } => {
+                                            @let list_id = format!("dl-{}", input.name);
+                                            input id=(id) class="tool-input" type="text" list=(list_id)
+                                                  placeholder=(input.placeholder)
+                                                  autocomplete="off" autocapitalize="off" spellcheck="false";
+                                            datalist id=(list_id) {
+                                                @for opt in &options { option value=(opt) {} }
+                                            }
+                                        }
                                         Control::Textarea => {
                                             textarea id=(id) class="tool-input" rows="4"
                                                   placeholder=(input.placeholder)
@@ -124,6 +138,14 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                                           type="file" accept=(input.accept);
                                 }
                             }
+                            @if !meta.examples.is_empty() {
+                                div class="tool-examples" {
+                                    span class="tool-examples-label" { "Try:" }
+                                    @for (i, ex) in meta.examples.iter().enumerate() {
+                                        button type="button" class="tool-example-chip" data-example=(i) { (ex.label) }
+                                    }
+                                }
+                            }
                             div class="tool-output-label" { (meta.output_label) }
                             @if meta.format == "image" || meta.format == "video" || meta.format == "audio" {
                                 @if meta.format == "image" {
@@ -137,6 +159,20 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                                 output id="tool-output" class="tool-output" { "" }
                             } @else {
                                 output id="tool-output" class="tool-output" { "" }
+                            }
+                            @let has_fields = meta.inputs.iter().any(|i| i.source == "field");
+                            @let is_media = meta.format == "image" || meta.format == "video" || meta.format == "audio";
+                            @if has_fields || !is_media {
+                                div class="tool-widget-actions" {
+                                    @if has_fields {
+                                        button id="tool-reset" class="tool-widget-btn" type="button"
+                                               title="Restore the default inputs" { "Reset" }
+                                    }
+                                    @if !is_media {
+                                        button id="tool-copy-output" class="tool-widget-btn" type="button"
+                                               title="Copy the result to the clipboard" { "Copy result" }
+                                    }
+                                }
                             }
                         }
                     }
@@ -494,6 +530,77 @@ placeholder = "640"
 "#,
         )
         .unwrap()
+    }
+
+    fn declarative_sample() -> ToolMeta {
+        ToolMeta::from_toml(
+            r#"
+slug          = "age-calculator"
+title         = "Age Calculator — gizza.ai"
+description   = "d"
+h1            = "Age Calculator"
+hero_subtitle = "s"
+wasm          = "gizza_ai_age_calculator_web"
+export        = "run"
+output_label  = "Age"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "birthdate"
+label       = "Date of birth"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "as_of"
+label       = "As of"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[input]]
+name        = "from"
+label       = "From zone"
+source      = "field"
+options     = "timezones"
+
+[[example]]
+label  = "Born 1990-04-15"
+params = { birthdate = "1990-04-15" }
+"#,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn renders_declarative_controls_examples_and_widget_chrome() {
+        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty());
+        // meta kind="date" → native picker, no per-tool JS type-swapping
+        assert!(html.contains(r#"id="in-birthdate" class="tool-input" type="date""#), "date picker rendered");
+        // meta options="timezones" → datalist autocomplete
+        assert!(html.contains(r#"list="dl-from""#), "input references its datalist");
+        assert!(html.contains(r#"<datalist id="dl-from">"#), "datalist rendered");
+        assert!(html.contains(r#"<option value="Europe/Amsterdam">"#), "vocab options present");
+        // [[example]] → one-click chip wired by data-example index
+        assert!(html.contains("tool-example-chip"), "example chip rendered");
+        assert!(html.contains(r#"data-example="0""#), "chip carries its example index");
+        assert!(html.contains("Born 1990-04-15"), "chip shows the example label");
+        // wide widgets are a class, not a JS style override
+        assert!(html.contains("tool-widget tool-widget--wide"), "wide widget class");
+        // standard chrome: reset + copy-result on every field/text tool
+        assert!(html.contains(r#"id="tool-reset""#), "reset button rendered");
+        assert!(html.contains(r#"id="tool-copy-output""#), "copy-result button rendered");
+        // client config carries the declarative default + examples for tool.js
+        assert!(html.contains(r#""default":"today""#), "input default in client config");
+        assert!(html.contains(r#""examples":[{"label":"Born 1990-04-15""#), "examples in client config");
+    }
+
+    #[test]
+    fn media_tools_get_reset_but_not_copy_result() {
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty());
+        assert!(html.contains(r#"id="tool-reset""#), "reset present (has fields)");
+        assert!(!html.contains(r#"id="tool-copy-output""#), "no copy-result on media output");
     }
 
     #[test]

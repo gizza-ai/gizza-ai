@@ -20,6 +20,30 @@ pub struct Input {
     /// single-line `<input>` (e.g. for batch/per-line input). Default false.
     #[serde(default)]
     pub multiline: bool,
+    /// For source="field": force a native picker control — "date", "time", or
+    /// "datetime-local". Overrides the schema-derived control (the descriptor
+    /// only knows "string"). Empty = derive from the schema.
+    #[serde(default)]
+    pub kind: String,
+    /// For source="field": the NAME of an option vocabulary (see `vocab.rs`,
+    /// e.g. "timezones") rendered as a `<datalist>` for searchable autocomplete.
+    #[serde(default)]
+    pub options: String,
+    /// For source="field": client-side default applied on load when the field is
+    /// empty and not pre-filled from the URL. "today" → local YYYY-MM-DD, "now" →
+    /// local YYYY-MM-DDTHH:MM, "local-timezone" → the user's IANA zone; anything
+    /// else is used literally. Also what the Reset button restores.
+    #[serde(default)]
+    pub default: String,
+}
+
+/// A one-click example: a chip under the inputs that pre-fills `params` and runs.
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+pub struct Example {
+    pub label: String,
+    /// param name → value, applied via the same path as URL query pre-fill.
+    #[serde(default)]
+    pub params: std::collections::BTreeMap<String, String>,
 }
 
 /// Full metadata for a single tool page.
@@ -49,6 +73,13 @@ pub struct ToolMeta {
     pub runtime: String,
     #[serde(default, rename = "input")]
     pub inputs: Vec<Input>,
+    /// One-click example chips rendered under the inputs.
+    #[serde(default, rename = "example")]
+    pub examples: Vec<Example>,
+    /// Widen the widget (multi-column result layouts). Renders as the
+    /// `tool-widget--wide` class instead of a per-tool JS width hack.
+    #[serde(default)]
+    pub wide: bool,
 }
 
 fn default_runtime() -> String {
@@ -72,8 +103,14 @@ impl ToolMeta {
                     "source": i.source,
                     "elementId": format!("in-{}", i.name),
                     "accept": i.accept,
+                    "default": i.default,
                 })
             })
+            .collect();
+        let examples: Vec<serde_json::Value> = self
+            .examples
+            .iter()
+            .map(|e| serde_json::json!({ "label": e.label, "params": e.params }))
             .collect();
         serde_json::json!({
             "slug": self.slug,
@@ -82,6 +119,7 @@ impl ToolMeta {
             "live": self.live,
             "intervalMs": self.interval_ms,
             "inputs": inputs,
+            "examples": examples,
             "output": { "label": self.output_label, "elementId": "tool-output" },
             "format": self.format,
             "runtime": self.runtime,
