@@ -31,3 +31,14 @@ builder per tool keeps the dispatcher's context tiny so the loop runs indefinite
 `~/.claude/.credentials.json` holds only OAuth tokens (token expiry, not the usage window). The quota
 + reset are enforced server-side and only surfaced on a rate-limit error response — the loop can't
 pre-read remaining budget from disk; it must react to a limit error (back off / stop) when it hits one.
+
+**Fresh checkout / worktree gotchas (2026-07-02, from the first isolated builder run):**
+- `tests/package-lock.json` is deliberately gitignored — use `npm install` in `tests/` (what CI
+  does), NOT `npm ci` (which hard-requires a lockfile and fails).
+- `cargo install --path cli` embeds only the blocks whose `target/block.wasm` exists. A fresh
+  checkout has just the ~33 COMMITTED wasm fixtures, so the install produces (and globally
+  overwrites `~/.cargo/bin/gizza` with) a CLI missing most tools. Either run the baseline
+  `solobase build` first, or reinstall from the full checkout when done.
+- The page generator prints a "web/pkg not found (skipping WASM copy)" warning per block whose
+  wasm-pack output is missing — in a fresh checkout that's ~300 warnings. Harmless for the tool
+  you're building (its own page still renders); noisy but expected without the baseline build.

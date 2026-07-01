@@ -63,6 +63,9 @@ shared `site/tool.js` for these:
 Every spec asserts REAL output (an exact value a user would see), never just "something
 rendered" — a tool whose transform silently no-ops must FAIL its spec. Always include one
 `?param=` deep-link case (the page pre-fills from the query string and auto-runs).
+GOTCHA: `toHaveText` normalizes whitespace, so it can't assert MULTI-LINE output exactly —
+compare `await page.locator('#tool-output').textContent()` against the expected string with
+real newlines instead (single-line outputs are fine with `toHaveText`).
 
 ### pure
 ```ts
