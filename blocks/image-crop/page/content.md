@@ -8,7 +8,15 @@ never uploaded to a server.
 <details>
 <summary>How the rectangle works</summary>
 
-The origin <code>(0, 0)</code> is the top-left corner of the image.
+<div>
+<p>The origin <code>(0, 0)</code> is the top-left corner of the image.</p>
+<ul>
+<li><strong>X offset</strong> — how far from the left edge the crop starts, in pixels.</li>
+<li><strong>Y offset</strong> — how far from the top edge the crop starts, in pixels.</li>
+<li><strong>Width</strong> — how wide the kept rectangle is, in pixels.</li>
+<li><strong>Height</strong> — how tall the kept rectangle is, in pixels.</li>
+</ul>
+</div>
 
 </details>
 
