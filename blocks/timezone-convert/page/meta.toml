@@ -9,21 +9,29 @@ export        = "run"
 live          = false
 output_label  = "Converted time & Meeting Grid"
 format        = "text"
+wide          = true
 
 [[input]]
 name        = "datetime"
 label       = "Date & time (in the source zone)"
 placeholder = "2024-03-10 14:30"
 source      = "field"
+kind        = "datetime-local"
+default     = "now"
 
 [[input]]
 name        = "from"
 label       = "From timezone (IANA name)"
 placeholder = "America/New_York"
 source      = "field"
+options     = "timezones"
+default     = "local-timezone"
 
 [[input]]
 name        = "to"
-label       = "To timezone (comma-separated list)"
-placeholder = "Asia/Tokyo, Europe/London"
+label       = "To timezones (add one or more target zones)"
+placeholder = "Asia/Tokyo"
 source      = "field"
+kind        = "tag-list"
+options     = "timezones"
+default     = "UTC"
