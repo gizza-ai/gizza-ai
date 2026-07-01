@@ -66,7 +66,9 @@ the build/test/PR commands. Follow these steps in order:
    `cargo install --path cli --force`; `python3 scripts/sync-tool-manifest.py <slug>` (regenerates
    manifest `tool.*` + summaries from the live descriptor — required BEFORE the generator, which
    reads the manifest); `cargo run --manifest-path tools/generator/Cargo.toml -- .`;
-   `solobase build`; and `python3 scripts/check-tool-hygiene.py <slug>` (the hard gate CI
+   `solobase build` (may be SKIPPED per the create-next-tool throughput rule — `wafer build`
+   already validated this block's wasm and CI runs the full build on deploy; say so in the PR
+   if skipped); and `python3 scripts/check-tool-hygiene.py <slug>` (the hard gate CI
    enforces — per-slug mode is strict: drifted manifest, plain-markdown FAQ, scaffold TODOs,
    summary drift, missing placeholders, <3 FAQs, bad meta description length). Fix
    compile/test failures (≤3 attempts) before escalating. (No SKILL.md to regenerate —
