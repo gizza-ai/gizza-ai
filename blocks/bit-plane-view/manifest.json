@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/bit-plane-view",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a single bit plane of an image channel as a PNG.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Isolate one bit plane of an image channel to reveal bit-level patterns and hidden data (steganography / image forensics). channel = red (default), green, blue, alpha, or gray (Rec. 601 luminance). bit = 0-7, where 0 is the least-significant bit (LSB, default) — the classic place steganographic payloads hide, which pops out as structured noise against the natural image's randomness — and 7 is the most-significant bit (MSB). mode = binary (default) renders a set bit white and a clear bit black (max contrast); weighted renders the bit at its positional weight (bit << plane) as a gray level; color renders a set bit in the channel's colour over black. Output is a PNG the same size as the input. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "channel": { "type": "string", "enum": ["red", "green", "blue", "alpha", "gray"], "default": "red", "description": "Which channel's bit plane to extract: red (default), green, blue, alpha, or gray (Rec. 601 luminance of the RGB pixel)." },
+        "bit": { "type": "integer", "minimum": 0, "maximum": 7, "default": 0, "description": "Which bit plane to isolate, 0-7. 0 is the least-significant bit (LSB, default) where steganographic payloads usually hide; 7 is the most-significant bit (MSB), which resembles the visible image." },
+        "mode": { "type": "string", "enum": ["binary", "weighted", "color"], "default": "binary", "description": "How to render the plane: binary (default) shows a set bit as white and a clear bit as black — the maximum-contrast stego / forensics view; weighted renders the bit at its positional weight (bit << plane) as a gray level, showing its real contribution to the pixel; color shows a set bit in the channel's colour (red→red, gray/alpha→white) over black." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
