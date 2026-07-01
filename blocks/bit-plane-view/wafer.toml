@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bit-plane-view"
+version = "0.1.0"
+abi = 1
+summary = "Extract a single bit plane of an image channel as a PNG"

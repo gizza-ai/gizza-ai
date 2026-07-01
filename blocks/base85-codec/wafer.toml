@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "base85-codec"
+version = "0.1.0"
+abi = 1
+summary = "Encode and decode Ascii85, Z85, and RFC 1924 Base85"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xor-cipher"
+version = "0.1.0"
+abi = 1
+summary = "XOR text, hex, or Base64 data against a repeating key; output hex, Base64, or UTF-8"

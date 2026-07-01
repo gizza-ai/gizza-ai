@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/app-icon-set",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a full PWA/iOS/Android app-icon set from one image.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Resize a single source image into a complete cross-platform app-icon set, returned as one ZIP. Includes: a drop-in iOS Xcode AppIcon.appiconset/ folder with every iPhone/iPad size (20–83.5pt across @1x/@2x/@3x) plus the 1024px App-Store marketing icon and the Contents.json catalog; the Android res/mipmap-* launcher tree (mdpi 48, hdpi 72, xhdpi 96, xxhdpi 144, xxxhdpi 192) plus the 512px Google Play store icon; and PWA/web icons (192, 512, a padded 512 maskable icon, a 180px apple-touch-icon) with a ready manifest.webmanifest. For best results provide a square image at least 1024px. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional app_name names the PWA manifest; background (hex) flattens the opaque iOS marketing icon and pads the maskable icon; set ios/android/web=false to omit a platform.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":  { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref":  { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "app_name": { "type": "string", "default": "My App", "description": "App name written into the PWA manifest.webmanifest (name and short_name). Default \"My App\"." },
+        "background": { "type": "string", "default": "#ffffff", "description": "Background colour (hex, e.g. #ffffff) used to flatten the opaque iOS 1024px App-Store icon (Apple rejects transparency there) and to pad the maskable PWA icon's safe zone. Default #ffffff (white)." },
+        "ios": { "type": "boolean", "default": true, "description": "Emit the iOS Xcode AppIcon.appiconset folder (every iPhone/iPad/App-Store size + Contents.json). Default true." },
+        "android": { "type": "boolean", "default": true, "description": "Emit the Android res/mipmap-* launcher tree (mdpi 48 → xxxhdpi 192) plus the 512px Google Play store icon. Default true." },
+        "web": { "type": "boolean", "default": true, "description": "Emit the PWA/web icons (192, 512, a padded 512 maskable icon, a 180px apple-touch-icon) and a manifest.webmanifest. Default true." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

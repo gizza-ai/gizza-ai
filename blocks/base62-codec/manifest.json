@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/base62-codec",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode text, hex bytes, or numbers to Base62 (0-9A-Za-z) and decode Base62 back.",
+  "role": "skill",
+  "tool": {
+    "description": "Encode text, hex bytes, or a decimal number to Base62, or decode a Base62 string back to the original data. Base62 uses the 62 alphanumerics (0-9, A-Z, a-z) with no padding and no special characters, so its strings are compact and safe in URLs — it's commonly used for short IDs and URL slugs. Use mode='encode' (default) or mode='decode'. variant selects the alphabet order: 'standard' (default) is 0-9A-Za-z (e.g. 'Hello World!' -> 'T8dgcjRGkZ3aysdN'; the number 12345 -> '3D7'); 'inverted' is 0-9a-zA-Z. format='text' (default) treats the data as UTF-8; format='hex' reads/writes a hex byte string for binary data; format='number' reads/writes a non-negative decimal integer of arbitrary size. Byte encoding preserves leading-zero bytes as leading '0' symbols.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The data to encode (text, hex bytes, or a decimal number), or the Base62 string to decode." },
+        "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) turns data into Base62, 'decode' reverses it." },
+        "variant": { "type": "string", "enum": ["standard", "inverted"], "default": "standard", "description": "Base62 alphabet order. 'standard' (default) is 0-9A-Za-z (digits, then uppercase, then lowercase — the GMP order used by most short-ID libraries); 'inverted' is 0-9a-zA-Z (lowercase before uppercase). Base62 has no padding and no ambiguous-character exclusions." },
+        "format": { "type": "string", "enum": ["text", "hex", "number"], "default": "text", "description": "How to read the input when encoding, or render the result when decoding. 'text' (default) is UTF-8; 'hex' is a hex byte string (e.g. '48 65 6c' or '0x48656c') for binary data; 'number' is a non-negative decimal integer of any size (encoded with no leading-zero padding)." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

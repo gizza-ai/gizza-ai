@@ -1,0 +1,24 @@
+slug          = "asn1-parser"
+title         = "ASN.1 / DER Parser — decode DER hex to a readable tree — gizza.ai"
+description   = "Parse an ASN.1 / DER hex string into a readable tree of tags, lengths, OIDs and decoded values — right in your browser. Inspect X.509 certificates, keys and CSRs. Nothing is uploaded."
+tags          = ["asn.1 parser", "asn1 decoder", "der decoder", "der parser", "der to text", "x.509 parser", "oid decoder", "asn1 hex", "certificate decoder"]
+h1            = "ASN.1 / DER parser"
+hero_subtitle = "Paste a DER byte stream as hex and get a readable tree of tags, lengths, OIDs and decoded primitive values. Runs entirely in your browser; your data never leaves your device."
+wasm          = "gizza_ai_asn1_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parse tree"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "ASN.1 / DER (hex)"
+placeholder = "30 06 02 01 01 01 01 FF"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format (tree or json)"
+placeholder = "tree"
+source      = "field"

@@ -1,0 +1,48 @@
+slug          = "zero-width-cleaner"
+title         = "Zero-Width Character Cleaner — Remove invisible spaces, joiners & BOMs — gizza.ai"
+description   = "Detect and strip invisible zero-width spaces, joiners, byte-order marks, bidi controls and soft hyphens from pasted text, in your browser. Nothing is uploaded."
+tags          = ["zero width space remover", "remove invisible characters", "strip zero width joiner", "remove byte order mark", "clean pasted text", "delete zero width space"]
+h1            = "Zero-width character cleaner"
+hero_subtitle = "Detect and strip invisible zero-width spaces, joiners, byte-order marks, bidirectional controls and soft hyphens from pasted text. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_zero_width_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text that may contain invisible zero-width characters here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "remove_zero_width"
+label       = "Remove zero-width characters"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "remove_bidi"
+label       = "Remove bidirectional controls"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "remove_soft_hyphen"
+label       = "Remove soft hyphens"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "replace_nbsp"
+label       = "Replace non-breaking spaces"
+placeholder = "false"
+source      = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Replacement"
+placeholder = "(empty = delete)"
+source      = "field"

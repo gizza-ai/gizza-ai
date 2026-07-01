@@ -1,0 +1,43 @@
+slug          = "xor-cipher"
+title         = "XOR Cipher — Repeating-key XOR for text, hex, and Base64 — gizza.ai"
+description   = "XOR text, hex, or Base64 data against a repeating key and output hex, Base64, or UTF-8. Symmetric encrypt/decrypt in your browser."
+tags          = ["xor", "xor cipher", "xor encrypt", "xor decrypt", "repeating-key xor", "vigenere xor", "cryptopals", "hex xor", "base64 xor"]
+h1            = "XOR cipher"
+hero_subtitle = "Repeating-key bytewise XOR for text, hex, and Base64. Encrypt or decrypt locally in your browser with hex, Base64, or UTF-8 output."
+wasm          = "gizza_ai_xor_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "Text, hex, or Base64 to XOR…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input"
+label       = "Data format (text | hex | base64)"
+placeholder = "text"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key"
+placeholder = "Repeating key (must not be empty)…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key_format"
+label       = "Key format (text | hex | base64)"
+placeholder = "text"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format (hex | base64 | utf8)"
+placeholder = "hex"
+source      = "field"

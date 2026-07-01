@@ -1,0 +1,47 @@
+slug          = "add-line-numbers"
+title         = "Add Line Numbers — number every line of text — gizza.ai"
+description   = "Prefix every line of text with a sequential line number, like nl or cat -n — with a custom start, step, separator, and alignment. Runs in your browser; nothing is uploaded."
+tags          = ["add line numbers", "number lines", "line numbering", "nl", "cat -n", "prefix line numbers"]
+h1            = "Add Line Numbers"
+hero_subtitle = "Prefix every line with a sequential number — pick the start, step, separator, and alignment. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_add_line_numbers_web"
+export        = "run"
+live          = false
+output_label  = "Numbered text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text to number…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "start"
+label       = "Start number"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "step"
+label       = "Step"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Separator (between number and line)"
+placeholder = "tab"
+source      = "field"
+
+# pad renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "pad"
+label       = "Number alignment"
+source      = "field"
+
+[[input]]
+name        = "number_nonblank"
+label       = "Skip blank lines (like cat -b)"
+source      = "field"

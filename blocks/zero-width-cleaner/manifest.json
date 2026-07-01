@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/zero-width-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect and strip invisible zero-width spaces, joiners, BOMs and other non-printing characters from text",
+  "role": "skill",
+  "tool": {
+    "description": "Remove invisible characters from text: zero-width spaces/joiners, word joiner, invisible math operators, byte-order mark (BOM), bidirectional formatting controls and soft hyphens. remove_zero_width, remove_bidi and remove_soft_hyphen default true; replace_nbsp (default false) normalizes non-breaking/odd spaces; replacement is substituted for each removed character.",
+    "parameters": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "remove_zero_width": { "type": "boolean", "default": true },
+        "remove_bidi": { "type": "boolean", "default": true },
+        "remove_soft_hyphen": { "type": "boolean", "default": true },
+        "replace_nbsp": { "type": "boolean", "default": false },
+        "replacement": { "type": "string", "default": "" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

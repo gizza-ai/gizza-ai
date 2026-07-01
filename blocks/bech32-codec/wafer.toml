@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bech32-codec"
+version = "0.1.0"
+abi = 1
+summary = "Encode and decode Bech32 / Bech32m strings"
