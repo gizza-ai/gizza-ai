@@ -1,0 +1,152 @@
+/* timezone-convert page/custom.css — styles for the result dashboard rendered
+   by page/custom.js (target cards + meeting-planner grid). Inputs use the
+   shared declarative controls (tool.css: datetime-local picker, timezone
+   datalist, tag-list pills). */
+
+.tz-active-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.tz-target-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.tz-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tz-card-zone {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4f46e5;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+}
+.tz-card-time {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+.tz-card-date {
+  font-size: 13px;
+  color: #64748b;
+}
+.tz-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.tz-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.tz-badge-offset {
+  background: #f1f5f9;
+  color: #475569;
+}
+.tz-badge-dst {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.tz-badge-diff {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.tz-planner-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+  margin-top: 10px;
+}
+.tz-planner-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.tz-planner-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.tz-planner-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+.tz-planner-table th, .tz-planner-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.tz-planner-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+}
+.tz-planner-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.tz-planner-row:hover {
+  background-color: #f8fafc;
+}
+.tz-planner-row.selected {
+  background-color: #eef2ff !important;
+}
+.tz-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-align: center;
+}
+.tz-status-business {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+.tz-status-leisure {
+  background-color: #fffbeb;
+  color: #b45309;
+}
+.tz-status-rest {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+/* Custom scrollbar for the planner grid */
+.tz-planner-table-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.tz-planner-table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.tz-planner-table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.tz-planner-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

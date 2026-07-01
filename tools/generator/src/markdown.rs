@@ -120,7 +120,7 @@ fn sample_value(control: &Control, placeholder: &str) -> String {
             }
             .to_string()
         }),
-        Control::Datalist { options } => ph
+        Control::Datalist { options } | Control::TagList { options } => ph
             .or_else(|| options.first().cloned())
             .unwrap_or_else(|| "value".to_string()),
         Control::Text | Control::Textarea => ph.unwrap_or_else(|| "value".to_string()),

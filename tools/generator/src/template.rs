@@ -8,14 +8,25 @@ use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, PreEscaped, DOCTYPE};
 
 /// Render the full HTML document for a tool page. `content_html` is the
-/// markdown-rendered SEO section.
-pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) -> String {
+/// markdown-rendered SEO section. `custom_js`/`custom_css` say whether the tool
+/// ships a `page/custom.js`/`page/custom.css` (copied next to the page by
+/// main.rs) — the escape hatch for bespoke UI that the declarative meta.toml
+/// controls can't express.
+pub fn render_page(
+    meta: &ToolMeta,
+    content_html: &str,
+    schema: &ParamSchema,
+    custom_js: bool,
+    custom_css: bool,
+) -> String {
     let canonical = format!("https://gizza.ai/tools/{}/", meta.slug);
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
     // literal "</script>" in any value would break out of the element. serde_json
     // does not escape '/', so we neutralize the closing-tag sequence. Values are
     // repo-authored today; this is defense-in-depth against a future meta.toml.
-    let client_cfg = meta.client_config().to_string().replace("</", "<\\/");
+    let mut client_cfg_json = meta.client_config();
+    client_cfg_json["custom"] = serde_json::json!(custom_js);
+    let client_cfg = client_cfg_json.to_string().replace("</", "<\\/");
     let json_ld = serde_json::json!({
         "@context": "https://schema.org",
         "@type": "WebApplication",
@@ -63,6 +74,9 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 link rel="stylesheet" href="./tool.css";
                 link rel="stylesheet" href="./header.css";
+                @if custom_css {
+                    link rel="stylesheet" href="./custom.css";
+                }
                 link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
                 style { (PreEscaped(TOOL_CLI_CSS)) }
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
@@ -119,6 +133,26 @@ pub fn render_page(meta: &ToolMeta, content_html: &str, schema: &ParamSchema) ->
                                                   autocomplete="off" autocapitalize="off" spellcheck="false";
                                             datalist id=(list_id) {
                                                 @for opt in &options { option value=(opt) {} }
+                                            }
+                                        }
+                                        Control::TagList { options } => {
+                                            @let list_id = format!("dl-{}", input.name);
+                                            @let has_opts = !options.is_empty();
+                                            input id=(id) type="text" hidden;
+                                            div class="tool-tags" data-input=(id) {
+                                                div class="tool-tags-list" {}
+                                                div class="tool-tags-add" {
+                                                    input type="text" class="tool-input tool-tags-search"
+                                                          list=[has_opts.then(|| list_id.clone())]
+                                                          placeholder=(input.placeholder)
+                                                          autocomplete="off" autocapitalize="off" spellcheck="false";
+                                                    button type="button" class="tool-tags-add-btn" { "Add" }
+                                                }
+                                            }
+                                            @if has_opts {
+                                                datalist id=(list_id) {
+                                                    @for opt in &options { option value=(opt) {} }
+                                                }
                                             }
                                         }
                                         Control::Textarea => {
@@ -435,7 +469,7 @@ source      = "field"
 
     #[test]
     fn includes_seo_head_and_widget() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty());
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         assert!(html.contains("<title>Free Online Calculator — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/calculator/">"#));
         assert!(
@@ -451,7 +485,7 @@ source      = "field"
 
     #[test]
     fn page_documents_query_param_deep_link() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty());
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         assert!(html.contains("Open it by URL"), "deep-link section present");
         assert!(
             html.contains("https://gizza.ai/tools/calculator/?expr="),
@@ -461,7 +495,7 @@ source      = "field"
 
     #[test]
     fn includes_shared_chrome_header_and_footer() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty());
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         // Shared header markers from gizza-chrome
         assert!(
             html.contains(r#"id="explore-search""#),
@@ -575,7 +609,7 @@ params = { birthdate = "1990-04-15" }
 
     #[test]
     fn renders_declarative_controls_examples_and_widget_chrome() {
-        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty());
+        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         // meta kind="date" → native picker, no per-tool JS type-swapping
         assert!(html.contains(r#"id="in-birthdate" class="tool-input" type="date""#), "date picker rendered");
         // meta options="timezones" → datalist autocomplete
@@ -598,14 +632,14 @@ params = { birthdate = "1990-04-15" }
 
     #[test]
     fn media_tools_get_reset_but_not_copy_result() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty());
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         assert!(html.contains(r#"id="tool-reset""#), "reset present (has fields)");
         assert!(!html.contains(r#"id="tool-copy-output""#), "no copy-result on media output");
     }
 
     #[test]
     fn renders_file_input_and_media_output() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty());
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         assert!(html.contains(r#"type="file""#), "file input present");
         assert!(html.contains(r#"id="in-image""#), "file input id");
         assert!(html.contains(r#"accept="image/*""#), "accept attr");

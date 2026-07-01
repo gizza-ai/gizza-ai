@@ -9,6 +9,7 @@ export        = "run"
 live          = false
 output_label  = "Result"
 format        = "text"
+wide          = true
 
 [[input]]
 name        = "input"

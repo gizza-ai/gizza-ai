@@ -45,7 +45,19 @@ fn run() -> Result<(), String> {
         // Resolve each field's control (select/checkbox/number/text) from the
         // tool's declared schema so the page form mirrors the descriptor.
         let schema = control::ParamSchema::load(tool_dir);
-        let html = template::render_page(m, &content_html, &schema);
+        // Optional per-tool escape hatch: page/custom.js (+ custom.css) are copied
+        // next to the page; the shared driver imports custom.js via cfg.custom.
+        let custom_js = tool_dir.join("page/custom.js");
+        let custom_css = tool_dir.join("page/custom.css");
+        let has_custom_js = custom_js.is_file();
+        let has_custom_css = custom_css.is_file();
+        if has_custom_js {
+            copy_file(&custom_js, &out.join("custom.js"))?;
+        }
+        if has_custom_css {
+            copy_file(&custom_css, &out.join("custom.css"))?;
+        }
+        let html = template::render_page(m, &content_html, &schema, has_custom_js, has_custom_css);
         fs::write(out.join("index.html"), html)
             .map_err(|e| format!("write index.html: {e}"))?;
         fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md, &schema))

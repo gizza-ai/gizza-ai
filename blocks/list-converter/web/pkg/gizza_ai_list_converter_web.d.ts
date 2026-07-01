@@ -1,13 +1,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export function run(input: string, input_separator: string, output_format: string, sort: string, dedupe: string): string;
+export function run(input: string, input_separator: string, custom_input_separator: string, output_format: string, custom_output_separator: string, sort_mode: string, dedupe: string, case_transform: string, prefix: string, suffix: string, seed: number): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
-    readonly run: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => [number, number, number, number];
+    readonly run: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number, r: number, s: number, t: number, u: number) => [number, number, number, number];
     readonly __wbindgen_externrefs: WebAssembly.Table;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;

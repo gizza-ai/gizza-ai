@@ -15,7 +15,7 @@
   manifest whose `tool.parameters` drifted from the descriptor (page renders text not `<select>`), a
   `page/content.md` FAQ written as plain markdown instead of `<details>` accordions, scaffold TODOs,
   or summary drift. Per-slug mode is STRICT and additionally fails on missing field placeholders,
-  fewer than 3 FAQ entries, and a meta description outside 50–160 chars.
+  fewer than 3 FAQ entries, and a meta description outside 50–170 chars.
 
 ## Per-type file checklist (fill the scaffold's TODO/stub files)
 
@@ -25,6 +25,29 @@
 - `web/src/lib.rs`: `#[wasm_bindgen] pub fn <export>(...) -> Result<T, JsValue>` — the `<export>` name MUST match `page/meta.toml`'s `export`.
 - `page/meta.toml`: real slug/title/description/tags/h1/hero_subtitle; `format` = "number"|"text"; one `[[input]] source="field"` per arg — input NAMES + ORDER must equal the web fn's params.
 - `page/content.md`: real SEO copy. FAQ as `<details>`/`<summary>` accordions (blank line inside each), never plain `## FAQ` markdown.
+
+#### Declarative page controls (meta.toml — USE these instead of custom JS)
+
+The generator renders premium controls straight from `meta.toml`; never add per-tool JS to the
+shared `site/tool.js` for these:
+
+- `[[input]] kind = "date" | "time" | "datetime-local"` — native picker (overrides the schema's
+  `string`). Use for every date/time field.
+- `[[input]] kind = "tag-list"` — multi-value pill list (add via search, remove via ×). The field's
+  wasm-side value is the comma-joined string. Combine with `options` to restrict to a vocabulary.
+- `[[input]] options = "timezones"` — searchable `<datalist>` autocomplete from a named vocabulary
+  (`tools/generator/src/vocab.rs`; add new vocabularies there, don't inline big lists).
+- `[[input]] default = "today" | "now" | "local-timezone" | <literal>` — client-side smart default
+  applied when the field is empty and not URL-prefilled; also what Reset restores.
+- `[[example]]` blocks (`label` + `params` table) — one-click "Try:" chips that prefill and run.
+  Give every tool 1–3 real examples; they double as the page's worked examples.
+- `wide = true` — 760px widget (`tool-widget--wide`) for multi-column result layouts.
+- Every field/text tool automatically gets **Reset** + **Copy result** buttons — don't build your own.
+- Escape hatch for genuinely bespoke UI: `page/custom.js` (+ optional `page/custom.css`), copied
+  next to the page and hooked by the shared driver — `export function setup(ctx)` (return `true`
+  to take over wiring entirely), `renderResult(value, ctx) -> bool`, `renderError(msg, ctx) -> bool`.
+  `ctx = { cfg, mod, out, helpers }`. Prefer the declarative keys; reach for custom.js only when a
+  layout/renderer truly can't be expressed (see blocks/timezone-convert for the exemplar).
 - `manifest.json` + `wafer.toml`: scaffold-generated. **`tool.parameters` drives the page form** — `control.rs` reads it (not the descriptor) to render `<select>`/checkbox/number/text, so a scaffold stub makes every field a text box. Do NOT hand-sync: run `python3 scripts/sync-tool-manifest.py <slug>` after the CLI install (it writes `tool.parameters`/`tool.description` from the live descriptor and propagates the macro summary into both files).
 - `tests/*.json`: wafer fixtures (recipe below).
 
