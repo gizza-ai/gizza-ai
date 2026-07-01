@@ -40,16 +40,36 @@ plus sign).
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and the
 page keeps working offline once loaded.
 
-**Does it parse a whole URL?** Paste only the query part (after `?`). It will
+</details>
+
+<details>
+<summary>Does it parse a whole URL?</summary>
+
+Paste only the query part (after `?`). It will
 strip a leading `?` for you. For splitting a full URL into scheme/host/path/etc.,
 use the URI parser tool.
 
-**Why does a bare key like `?flag` show no value?** A key with no `=` has no
+</details>
+
+<details>
+<summary>Why does a bare key like <code>?flag</code> show no value?</summary>
+
+A key with no `=` has no
 value — it's reported with `value` absent in the pairs list and as an empty
 string in the structured object.
 
-**What happens to duplicate keys?** They are all kept. In the ordered pairs list
+</details>
+
+<details>
+<summary>What happens to duplicate keys?</summary>
+
+They are all kept. In the ordered pairs list
 each appears in order; in the structured object they collapse into an array.
+
+</details>

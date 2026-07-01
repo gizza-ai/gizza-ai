@@ -19,5 +19,10 @@ replaced with a mask character. It all runs in your browser; nothing is uploaded
 
 ### FAQ
 
-**Is my text uploaded?** No — it's processed locally in your browser with
+<details>
+<summary>Is my text uploaded?</summary>
+
+No — it's processed locally in your browser with
 WebAssembly.
+
+</details>

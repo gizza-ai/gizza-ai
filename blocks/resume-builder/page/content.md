@@ -25,8 +25,18 @@ most reliably.
 
 ### FAQ
 
-**Is my data uploaded?** No — the builder is compiled to WebAssembly and runs
+<details>
+<summary>Is my data uploaded?</summary>
+
+No — the builder is compiled to WebAssembly and runs
 entirely in your browser tab.
 
-**Can I convert the result to a PDF?** Render the Markdown to HTML (any Markdown
+</details>
+
+<details>
+<summary>Can I convert the result to a PDF?</summary>
+
+Render the Markdown to HTML (any Markdown
 viewer) and print to PDF, or use a Markdown-to-PDF tool.
+
+</details>

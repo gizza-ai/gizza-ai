@@ -14,8 +14,18 @@ with ffmpeg; nothing is uploaded.
 
 ### FAQ
 
-**Is my video uploaded?** No — ffmpeg runs in your browser tab; the file never
+<details>
+<summary>Is my video uploaded?</summary>
+
+No — ffmpeg runs in your browser tab; the file never
 leaves your device.
 
-**Why did my height change when I only set width?** To keep the aspect ratio —
+</details>
+
+<details>
+<summary>Why did my height change when I only set width?</summary>
+
+To keep the aspect ratio —
 the other dimension is computed for you.
+
+</details>

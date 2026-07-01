@@ -23,8 +23,18 @@ can inspect a suspicious destination without visiting it.
 
 ### FAQ
 
-**Does it visit the link?** No. It's pure local string decoding; nothing is
+<details>
+<summary>Does it visit the link?</summary>
+
+No. It's pure local string decoding; nothing is
 fetched or uploaded.
 
-**My link wasn't a known wrapper.** It's returned unchanged — only recognized
+</details>
+
+<details>
+<summary>My link wasn't a known wrapper.</summary>
+
+It's returned unchanged — only recognized
 wrappers are unwrapped.
+
+</details>

@@ -51,24 +51,49 @@ sender and reader hold different keys — use a public-key scheme such as PGP in
 
 ## FAQ
 
-**Is this compatible with Python's `cryptography` Fernet?** Yes. The token format,
+<details>
+<summary>Is this compatible with Python's <code>cryptography</code> Fernet?</summary>
+
+Yes. The token format,
 key format, and TTL semantics follow the published Fernet spec, so a token made here
 can be read by `Fernet(key).decrypt(token)` and vice versa.
 
-**What does TTL do?** On decrypt, TTL is the maximum allowed age of a token in
+</details>
+
+<details>
+<summary>What does TTL do?</summary>
+
+On decrypt, TTL is the maximum allowed age of a token in
 seconds. If the token's embedded timestamp is older than `now - ttl` (or set in the
 future), decryption is refused. A TTL of `0` disables the check.
 
-**What happens with the wrong key or a tampered token?** Verification fails before any
+</details>
+
+<details>
+<summary>What happens with the wrong key or a tampered token?</summary>
+
+Verification fails before any
 plaintext is produced — you get a clean error, never garbage output.
 
-**Can I rotate keys?** Generate a new key for new tokens and keep old keys around long
+</details>
+
+<details>
+<summary>Can I rotate keys?</summary>
+
+Generate a new key for new tokens and keep old keys around long
 enough to read tokens that are still within their TTL. This tool reads one key at a
 time.
 
-**What does inspect mode do?** Choose *inspect* and paste a token to see its internal
+</details>
+
+<details>
+<summary>What does inspect mode do?</summary>
+
+Choose *inspect* and paste a token to see its internal
 structure without decrypting it: the version byte, the embedded creation time, the
 initialization vector (IV), the ciphertext size, and the HMAC tag. No key is needed to
 read the structure. If you also paste the key, inspect reports whether the HMAC is
 valid — a quick way to check that a token belongs to a given key, without revealing the
 plaintext.
+
+</details>

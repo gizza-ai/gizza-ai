@@ -39,21 +39,46 @@ per-byte `0b` **prefix**.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it keeps
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it keeps
 working offline once the page has loaded.
 
-**What encoding does it use for text?** Text is read and written as **UTF-8**, so
+</details>
+
+<details>
+<summary>What encoding does it use for text?</summary>
+
+Text is read and written as **UTF-8**, so
 each character becomes its one-or-more UTF-8 bytes, and each byte becomes eight
 bits. An emoji or accented letter therefore spans several bytes (`é` →
 `11000011 10101001`).
 
-**Can I paste binary with spaces or `0b` prefixes?** Yes. Decoding ignores ASCII
+</details>
+
+<details>
+<summary>Can I paste binary with spaces or <code>0b</code> prefixes?</summary>
+
+Yes. Decoding ignores ASCII
 whitespace, the `:` `-` `,` delimiters, and the `0b` prefix, so a string copied
 from a hex dump, a debugger, or Python's `bin()` output decodes without editing.
 
-**Does the bit count matter?** Yes — after stripping formatting, the number of
+</details>
+
+<details>
+<summary>Does the bit count matter?</summary>
+
+Yes — after stripping formatting, the number of
 `0`/`1` bits must be a multiple of 8 (one byte per eight bits). A partial byte is
 an error.
 
-**My decoded output looks garbled.** The bytes probably aren't UTF-8 text. Switch
+</details>
+
+<details>
+<summary>My decoded output looks garbled.</summary>
+
+The bytes probably aren't UTF-8 text. Switch
 the **Decode output** to **bytes** to see the raw hex instead.
+
+</details>

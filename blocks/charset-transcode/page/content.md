@@ -60,18 +60,38 @@ usual aliases:
 
 ## FAQ
 
-**What is mojibake?** It's garbled text that appears when bytes encoded in one
+<details>
+<summary>What is mojibake?</summary>
+
+It's garbled text that appears when bytes encoded in one
 character set are decoded with a different one. The fix is to decode with the
 *correct* charset — which is exactly what this tool does.
 
-**Which charset should I choose?** Start with `windows-1252` for European text —
+</details>
+
+<details>
+<summary>Which charset should I choose?</summary>
+
+Start with `windows-1252` for European text —
 it's behind the vast majority of `Ã`-prefixed mojibake. If the result still looks
 wrong, try `iso-8859-1`, and for non-Latin scripts pick the matching regional
 encoding from the table above.
 
-**Is it free and private?** Yes — your text never leaves your device, and the
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**Why didn't anything change?** If your text was already clean UTF-8 (or pure
+</details>
+
+<details>
+<summary>Why didn't anything change?</summary>
+
+If your text was already clean UTF-8 (or pure
 ASCII), re-decoding it as a single-byte charset won't help — this tool only fixes
 text that was genuinely mis-decoded.
+
+</details>

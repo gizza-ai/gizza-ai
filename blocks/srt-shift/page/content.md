@@ -36,22 +36,47 @@ Any timestamp that would land before the start of the video is clamped to
 
 ## FAQ
 
-**Which way should I shift?** If the subtitles appear *too early* (before the
+<details>
+<summary>Which way should I shift?</summary>
+
+If the subtitles appear *too early* (before the
 words are spoken), use a **positive** offset to delay them. If they appear *too
 late*, use a **negative** offset to advance them.
 
-**Does it handle fractional seconds?** Yes — enter values like `1.25` seconds,
+</details>
+
+<details>
+<summary>Does it handle fractional seconds?</summary>
+
+Yes — enter values like `1.25` seconds,
 or switch to milliseconds for exact frame-level nudges.
 
-**Is my file uploaded anywhere?** No. The shift happens locally in your browser,
+</details>
+
+<details>
+<summary>Is my file uploaded anywhere?</summary>
+
+No. The shift happens locally in your browser,
 so your subtitles never leave your device, and it keeps working offline once the
 page has loaded.
 
-**My subtitles drift — they're fine at the start but off by the end.** This tool
+</details>
+
+<details>
+<summary>My subtitles drift — they're fine at the start but off by the end.</summary>
+
+This tool
 applies one constant offset to the whole file, which fixes a uniform lead/lag. A
 *growing* drift means a frame-rate mismatch (e.g. 23.976 vs 25 fps), which needs
 a linear time-stretch rather than a flat shift.
 
-**What format does it expect?** Standard SubRip (`.srt`): a cue number, a
+</details>
+
+<details>
+<summary>What format does it expect?</summary>
+
+Standard SubRip (`.srt`): a cue number, a
 `HH:MM:SS,mmm --> HH:MM:SS,mmm` timing line, then one or more lines of text,
 with a blank line between cues.
+
+</details>

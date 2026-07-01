@@ -49,16 +49,36 @@ PHP's serialized format is compact and type-tagged. Each value carries its type:
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and the
 page keeps working offline once it has loaded.
 
-**Can I unserialize the output in PHP?** Yes. Paste the result into
+</details>
+
+<details>
+<summary>Can I unserialize the output in PHP?</summary>
+
+Yes. Paste the result into
 `unserialize($string)` in any PHP 7+ install and you get the equivalent array or
 scalar back.
 
-**Why does my string length look "too big"?** Because PHP counts string length
+</details>
+
+<details>
+<summary>Why does my string length look "too big"?</summary>
+
+Because PHP counts string length
 in bytes, not characters — accented and non-Latin text takes more than one byte
 per character. The byte count here is what `unserialize()` requires.
 
-**Does it handle nested arrays and objects?** Yes, to any depth — nested arrays
+</details>
+
+<details>
+<summary>Does it handle nested arrays and objects?</summary>
+
+Yes, to any depth — nested arrays
 and objects are serialized recursively.
+
+</details>

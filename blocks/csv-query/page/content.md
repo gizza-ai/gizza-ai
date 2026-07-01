@@ -25,4 +25,9 @@ For grouping/aggregation use the CSV group-by or pivot tools.
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+<details>
+<summary>Is my data uploaded?</summary>
+
+No — it's processed locally with WebAssembly.
+
+</details>

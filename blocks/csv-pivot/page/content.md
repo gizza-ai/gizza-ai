@@ -21,4 +21,9 @@ the cells.
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+<details>
+<summary>Is my data uploaded?</summary>
+
+No — it's processed locally with WebAssembly.
+
+</details>

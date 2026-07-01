@@ -19,6 +19,16 @@ offline, and needs no sign-up.
 
 ### FAQ
 
-**Is it really free?** Yes — and private. Your input never leaves your device.
+<details>
+<summary>Is it really free?</summary>
 
-**Does it work offline?** Yes, once the page has loaded.
+Yes — and private. Your input never leaves your device.
+
+</details>
+
+<details>
+<summary>Does it work offline?</summary>
+
+Yes, once the page has loaded.
+
+</details>

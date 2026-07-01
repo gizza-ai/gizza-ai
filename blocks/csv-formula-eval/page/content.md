@@ -22,4 +22,9 @@ existing columns by their header name — for example `total = price * qty` or
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+<details>
+<summary>Is my data uploaded?</summary>
+
+No — it's processed locally with WebAssembly.
+
+</details>

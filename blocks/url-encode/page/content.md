@@ -44,15 +44,35 @@ When decoding with **form**, a `+` turns back into a space.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**When should I use `form` instead of `component`?** Use **form** when the value
+</details>
+
+<details>
+<summary>When should I use <code>form</code> instead of <code>component</code>?</summary>
+
+Use **form** when the value
 goes into an HTML form submission or a query string that encodes spaces as `+`.
 Use **component** for modern percent-encoded URLs, where a space is `%20`.
 
-**How does this map to JavaScript?** `component` matches `encodeURIComponent`,
+</details>
+
+<details>
+<summary>How does this map to JavaScript?</summary>
+
+`component` matches `encodeURIComponent`,
 `uri` matches `encodeURI`, and `form` additionally turns spaces into `+`.
 
-**My string looks like it's encoded twice — how do I fix it?** Decode with the
+</details>
+
+<details>
+<summary>My string looks like it's encoded twice — how do I fix it?</summary>
+
+Decode with the
 **Repeat** field set to `2` (or higher) to peel off each layer of encoding.
+
+</details>

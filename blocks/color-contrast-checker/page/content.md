@@ -64,16 +64,36 @@ background instead.
 
 ## FAQ
 
-**Is it free and private?** Yes — your colours never leave your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your colours never leave your device, and it
 keeps working offline once the page has loaded.
 
-**What counts as "large" text?** WCAG defines large text as roughly 18pt (24px)
+</details>
+
+<details>
+<summary>What counts as "large" text?</summary>
+
+WCAG defines large text as roughly 18pt (24px)
 and up, or 14pt (about 18.66px) and up when bold. Large text only needs a 3:1
 ratio for AA.
 
-**Does the order of the two colours matter?** No. The ratio is symmetric — the
+</details>
+
+<details>
+<summary>Does the order of the two colours matter?</summary>
+
+No. The ratio is symmetric — the
 tool always divides by the darker colour's luminance, so swapping foreground and
 background gives the same number.
 
-**Which WCAG version is this?** The 4.5 / 3 / 7 thresholds and the luminance
+</details>
+
+<details>
+<summary>Which WCAG version is this?</summary>
+
+The 4.5 / 3 / 7 thresholds and the luminance
 formula are shared by WCAG 2.0, 2.1, and 2.2.
+
+</details>
