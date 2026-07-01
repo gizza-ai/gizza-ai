@@ -32,3 +32,45 @@ instead of guessing one, and labels each with a confidence level.
 
 Everything runs locally in your browser via WebAssembly. The hash you paste is
 never uploaded to a server.
+
+## FAQ
+
+<details>
+<summary>Why do I get several candidates for one hash?</summary>
+
+Because many algorithms share an output size, a bare digest is genuinely
+ambiguous — a 64-char hex string could be SHA-256, SHA3-256, or BLAKE2s-256.
+The tool lists every structural match ordered by how common it is, and tags each
+with a **high / medium / low** confidence: prefixed formats like `$2b$` (bcrypt)
+or `$argon2id$` are high confidence, bare hex/base64 digests are low.
+
+</details>
+
+<details>
+<summary>Does it tell me the hashcat mode to use?</summary>
+
+Yes — when a candidate maps to a single Hashcat `-m` mode number (e.g. bcrypt
+= 3200, NetNTLMv2 = 5600) it is included with the match, so you can go straight
+from identification to a cracking or auditing command. Grouped ambiguous
+candidates that span multiple modes don't carry a number.
+
+</details>
+
+<details>
+<summary>Can this tool crack or reverse the hash?</summary>
+
+No. Recognition is purely structural: it looks at prefixes, length, and character
+set to classify the format. It never attempts to recover the original password or
+plaintext, and since it runs entirely in your browser the hash is never sent
+anywhere.
+
+</details>
+
+<details>
+<summary>What happens if my string isn't a known hash format?</summary>
+
+You get an explicit "no match" result (and an error for empty input) rather than
+a bad guess. Common causes: extra whitespace, a truncated digest, or an encoded
+wrapper (e.g. hex wrapped in base64) — try trimming or decoding one layer first.
+
+</details>

@@ -34,3 +34,47 @@ Each symbol keeps its `viewBox`; if a source SVG only has `width`/`height`, a
 the ready-to-paste `<use>` snippet for every symbol.
 
 Everything runs locally in your browser — your SVGs are never uploaded.
+
+## FAQ
+
+<details>
+<summary>How are the symbol ids chosen, and what about duplicates?</summary>
+
+Three naming modes: **auto** numbers them `prefix-1`, `prefix-2`, … (prefix
+default `icon`); **id** reuses each source SVG's `id` attribute; **title** slugs
+the `<title>` text. An icon missing the chosen attribute falls back to auto
+naming, and any duplicate id gets a numeric suffix — so `<use>` references are
+always unique.
+
+</details>
+
+<details>
+<summary>My icons only have width/height, no viewBox — will they still scale?</summary>
+
+Yes. When a source SVG lacks a `viewBox` but has pixel `width`/`height`
+attributes, a `viewBox="0 0 W H"` is derived automatically (a trailing `px` is
+fine). Percentage or em/rem sizes can't be converted to a viewBox, so such icons
+are left without one — add a real viewBox to the source if scaling matters.
+
+</details>
+
+<details>
+<summary>How do I actually use the generated sprite?</summary>
+
+Paste the sprite once near the top of `<body>` — with **Hidden wrapper** on it
+carries `aria-hidden` and zero-size styling, so it renders nothing by itself.
+Then draw any icon with `<svg class="icon"><use href="#icon-1" /></svg>`. The
+output even ends with a comment listing the ready-made `<use>` snippet for every
+symbol.
+
+</details>
+
+<details>
+<summary>What happens if one of my pasted SVGs is malformed?</summary>
+
+You get a specific error — "no &lt;svg&gt; element found", an opening tag that's
+never closed, or a missing `</svg>` — instead of a silently truncated sprite.
+Fix the offending icon and rebuild; the order of the pasted documents is always
+preserved in the output.
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "ciphersaber2"
 title         = "CipherSaber-2 — Encrypt/decrypt with CipherSaber (RC4 + random IV) — gizza.ai"
-description   = "Encrypt or decrypt text with CipherSaber-2: RC4 with a random 10-byte IV and a repeated key-setup loop (rounds). Text or encoded keys, hex/base64 I/O — in your browser. Nothing is uploaded."
+description   = "Encrypt and decrypt CipherSaber-2 (RC4 with a 10-byte IV and repeated key setup) in your browser — hex or base64 output. Free, private, nothing uploaded."
 tags          = ["ciphersaber", "ciphersaber-2", "ciphersaber2", "rc4", "arcfour", "stream cipher", "cipher", "encrypt", "decrypt"]
 h1            = "CipherSaber-2 cipher"
 hero_subtitle = "Encrypt or decrypt text with CipherSaber-2 — RC4 with a random 10-byte IV and repeated key setup (rounds). Text or encoded keys, hex or base64. Runs in your browser; nothing is uploaded."

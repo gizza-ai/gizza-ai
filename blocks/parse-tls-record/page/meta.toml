@@ -1,6 +1,6 @@
 slug          = "parse-tls-record"
 title         = "TLS Record Parser — decode a TLS handshake / ClientHello from hex — gizza.ai"
-description   = "Paste TLS record-layer bytes in hex and decode the record header (content type, version, length) and handshake messages — fully decoding ClientHello / ServerHello: version, random, cipher suites by name, SNI, ALPN, supported_versions and more — in your browser. Nothing is uploaded."
+description   = "Decode TLS record bytes from hex in your browser — record header plus full ClientHello/ServerHello: cipher suites, SNI, ALPN, versions. Nothing is uploaded."
 tags          = ["tls record parser", "decode tls handshake", "clienthello parser", "serverhello", "tls cipher suites", "sni", "alpn", "supported_versions", "tls 1.3", "tls extensions"]
 h1            = "TLS Record Parser"
 hero_subtitle = "Paste TLS record-layer bytes as hex and decode the 5-byte record header (content type, version, length) and the handshake it carries. ClientHello and ServerHello are fully decoded: version, the 32-byte random, session id, cipher suites named by their IANA identifier, compression, and extensions — SNI server names, ALPN protocols, supported_versions, supported_groups, signature_algorithms, and key_share groups. Spaces, colons, dashes, dots, commas, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."

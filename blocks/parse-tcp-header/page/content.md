@@ -38,3 +38,44 @@ c2 13  00 50  4f 8e 6b 1a  00 00 00 00  50 02  ff ff  fe 34  00 00
 - Read a TCP header captured in Wireshark/tcpdump without re-opening the capture.
 - Confirm the ports, flags (SYN/ACK/FIN), sequence, and window of a handshake.
 - Inspect TCP options such as MSS and Window Scale negotiated on a SYN.
+
+## FAQ
+
+<details>
+<summary>Can I paste bytes copied straight from Wireshark or tcpdump?</summary>
+
+Yes — the hex may contain spaces, colons, dashes, dots, or a leading `0x`;
+all separators are stripped before decoding. Just make sure you copy the
+**TCP** portion of the frame (after the Ethernet and IP headers), because the
+parser reads byte 0 as the start of the source port.
+
+</details>
+
+<details>
+<summary>Why do I get a "data offset says the header is N bytes" error?</summary>
+
+The 4-bit data-offset field claims the header is longer than the hex you
+pasted. A plain header is 5 words (20 bytes); with options it grows up to
+60 bytes. Either you truncated the copy, or you pasted something that isn't
+the start of a TCP header — a data offset below 5 is rejected outright too.
+
+</details>
+
+<details>
+<summary>Is it a problem if I include payload bytes after the header?</summary>
+
+No. The parser reads exactly the number of bytes the data offset declares
+(20–60) and ignores anything after them, so pasting a whole segment — header
+plus application data — decodes fine.
+
+</details>
+
+<details>
+<summary>Does the tool verify the TCP checksum?</summary>
+
+No — it reports the stored 16-bit checksum value but can't validate it,
+because the TCP checksum is computed over a pseudo-header that includes the
+source and destination **IP addresses**, which aren't part of the TCP header
+you paste.
+
+</details>

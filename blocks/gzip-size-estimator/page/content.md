@@ -46,3 +46,46 @@ estimate.
   every modern browser supports and which usually compresses text a bit smaller.
 - Measurement is byte-exact for the gzip format — the same deflate engine used
   by real servers — so the number reflects what your input would actually weigh.
+
+## FAQ
+
+<details>
+<summary>Why is "Saved" negative for my short snippet?</summary>
+
+The gzip container costs roughly 18 bytes of header and trailer before any
+compression happens. On inputs of a few dozen bytes that overhead outweighs
+the savings, so the gzip stream is *larger* than the raw text — which is
+exactly why servers skip compressing tiny responses.
+
+</details>
+
+<details>
+<summary>Is this an estimate or the real transfer size?</summary>
+
+The gzip number is **byte-exact**: your input is actually compressed with the
+same deflate engine servers use, at the level you chose. It matches the wire
+size whenever your server uses the same level (6 is the gzip/zlib/nginx
+default). The brotli line uses quality 11 — typical for pre-compressed static
+assets; CDNs compressing on the fly often use a lower quality, so their `br`
+size can be slightly larger.
+
+</details>
+
+<details>
+<summary>Which gzip level should I set?</summary>
+
+Leave it at **6** to mirror a stock server config. Use **9** if your build
+pre-compresses assets at max effort, and **0** to see the stored
+(uncompressed) framing size. Values outside 0–9 are clamped into range. The
+level trades CPU for size — 9 usually buys only a few percent over 6.
+
+</details>
+
+<details>
+<summary>Are the KB figures decimal or binary?</summary>
+
+Binary — 1 KB = 1024 bytes, the same convention as browser dev tools, so you
+can compare the report directly with the Network panel. Exact byte counts are
+shown alongside every human-readable size.
+
+</details>

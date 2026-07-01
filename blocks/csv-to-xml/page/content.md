@@ -23,3 +23,42 @@ tag:
 
 Everything runs **in your browser** via WebAssembly — your CSV is never uploaded.
 Also available from the [gizza CLI](/) and in chat.
+
+## FAQ
+
+<details>
+<summary>My CSV has no header row — what tags do the fields get?</summary>
+
+Turn the **header** toggle off and the fields are emitted as `<col1>`, `<col2>`,
+`<col3>`… in order. With the toggle on (the default), the first row supplies the
+tag names and is not emitted as a record itself.
+
+</details>
+
+<details>
+<summary>What happens to column names with spaces or leading digits?</summary>
+
+They are sanitized into valid XML element names: spaces and other illegal
+characters become `_`, and a name starting with a digit gets a `_` prefix — so a
+header like `2024 sales` becomes `<_2024_sales>`. Cell values are separately
+XML-escaped (`&`, `<`, `>`), so the output is always well-formed.
+
+</details>
+
+<details>
+<summary>Can I rename the &lt;rows&gt; and &lt;row&gt; wrapper elements?</summary>
+
+Yes — the **root** tag (default `rows`) wraps the whole document and the
+**record** tag (default `row`) wraps each CSV line. Set them to e.g. `products`
+and `product` to match the schema your importer expects.
+
+</details>
+
+<details>
+<summary>Does it handle semicolon- or tab-separated files?</summary>
+
+Yes. The delimiter accepts any single character or the words `comma`, `tab`,
+`semicolon`, `pipe` — handy for European-style `;` exports or TSV clipboard
+pastes.
+
+</details>

@@ -42,3 +42,41 @@ blocked by anti-abuse measures. Catching the obvious syntax mistakes and typos
 *before* you send — instantly and privately, right in the browser — fixes the
 large majority of bad addresses (fat-fingered domains, stray spaces, missing
 `@`) without ever leaking the address to a third-party service.
+
+## FAQ
+
+<details>
+<summary>Does "Valid: yes" mean the mailbox actually exists?</summary>
+
+No. The check is syntax-only — it confirms the address is *well-formed* under
+RFC 5321/5322 rules. It never performs a DNS, MX, or SMTP lookup, so a valid
+result can still bounce if the mailbox was deleted or never existed.
+
+</details>
+
+<details>
+<summary>What length limits does it enforce?</summary>
+
+The RFC limits: 254 characters for the whole address, 64 for the local part
+(before the `@`), 253 for the domain, and 63 per domain label. Anything longer
+is reported as a hard error with the offending length.
+
+</details>
+
+<details>
+<summary>Can I paste "Jane Doe &lt;jane@example.com&gt;" or a mailto: link?</summary>
+
+Yes — a `Name <addr>` display form, bare angle brackets, or a `mailto:` prefix
+is stripped automatically before validation, so you can paste straight from an
+email header or a web link.
+
+</details>
+
+<details>
+<summary>Why is user@localhost marked invalid?</summary>
+
+The domain must contain at least one dot. Single-label domains like
+`localhost` work on private networks but aren't routable internet addresses,
+so the tool treats a dotless domain as a hard error.
+
+</details>

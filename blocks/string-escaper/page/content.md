@@ -25,3 +25,46 @@ Everything runs **locally in your browser** via WebAssembly — nothing is uploa
 - Pasting a snippet safely into a JSON or HTML config or an API payload.
 - Building a shell command or SQL query with untrusted text.
 - Turning a fixed string into a literal regex pattern.
+
+## FAQ
+
+<details>
+<summary>Why is unescape unavailable for shell, SQL and regex?</summary>
+
+Those escapings aren't uniquely reversible: given `''` in SQL you can't tell
+whether the original was a quote or two adjacent strings, and a shell-quoted
+or regex-escaped string has several raw forms that produce identical output.
+Unescape therefore works only for **JSON, JavaScript, HTML and URL**, where a
+strict inverse exists — the other three return an explicit error.
+
+</details>
+
+<details>
+<summary>What does the "Wrap in quotes" checkbox actually change?</summary>
+
+It adds the outer delimiters for targets that have them: `"…"` for JSON and
+JavaScript, `'…'` for SQL. HTML, URL and regex have no quoting concept, and
+the shell target *always* produces one safe POSIX single-quoted argument
+regardless of the checkbox.
+
+</details>
+
+<details>
+<summary>Should I URL-escape a whole address or just a piece of it?</summary>
+
+Just the piece. The URL target does strict **component** encoding — every
+byte outside `A–Z a–z 0–9 - _ . ~` is percent-encoded, including `/`, `:`
+and `?`. Escape a query value or path segment and splice it into the URL;
+escaping a complete URL would mangle its structure.
+
+</details>
+
+<details>
+<summary>Is SQL escaping here enough to stop injection?</summary>
+
+It applies the standard rule — doubling single quotes inside a string
+literal — which is correct for a well-formed literal. But for untrusted
+input in production code, parameterized queries remain the right tool;
+string escaping is best for one-off queries and generated fixtures.
+
+</details>

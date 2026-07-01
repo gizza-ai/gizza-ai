@@ -24,3 +24,50 @@ uploaded.
 - Building a SQL `IN ('a', 'b', 'c')` clause from a pasted list of IDs.
 - Collapsing a multi-line snippet into one line for a single-line field or log.
 - Joining words or tokens with a custom delimiter such as a tab or pipe.
+
+## FAQ
+
+<details>
+<summary>How do I use a tab (or a literal backslash) as the separator?</summary>
+
+Type the escape into the separator box: `\t` becomes a tab, `\n` a newline,
+`\r` a carriage return, and `\\` a literal backslash. Any other backslash
+sequence is kept as-is, so a separator like `\d` really joins with the two
+characters `\d`.
+
+</details>
+
+<details>
+<summary>How do I turn a list of IDs into a SQL IN (...) clause?</summary>
+
+Set **Prefix** and **Suffix** both to `'` and keep the default `, ` separator:
+
+```
+alice
+bob
+```
+
+joins to `'alice', 'bob'` — paste it straight into `IN (…)`. The prefix and
+suffix wrap every line *before* joining, so quotes never end up around the
+separator.
+
+</details>
+
+<details>
+<summary>What counts as a blank line for "Remove blank lines"?</summary>
+
+Empty lines **and** whitespace-only lines (spaces or tabs) are dropped, even
+when "Trim each line" is off. Dropped lines get no prefix, suffix or
+separator, so you never see `'', ''` artifacts from stray empty rows at the
+end of a paste.
+
+</details>
+
+<details>
+<summary>What happens if I leave the separator blank?</summary>
+
+The lines are concatenated with nothing between them — useful for stitching a
+wrapped Base64 string or hex dump back into one unbroken token. (The default,
+when the field is untouched, is `", "`.)
+
+</details>

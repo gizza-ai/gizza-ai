@@ -25,3 +25,21 @@ time zones, and coordination.
 It is as accurate as your device's clock.
 
 </details>
+
+<details>
+<summary>What format is the timestamp in?</summary>
+
+ISO 8601 / RFC 3339 — for example `2026-04-20T12:00:00+00:00`, where `+00:00`
+marks UTC. This format sorts chronologically as plain text, which is why it's
+the standard for logs and APIs.
+
+</details>
+
+<details>
+<summary>How do I get my local time from the UTC reading?</summary>
+
+Add (or subtract) your time zone's UTC offset — e.g. New York is UTC−5 in
+winter and UTC−4 in summer. UTC itself never observes daylight saving, so the
+offset you apply is what changes, not the UTC reading.
+
+</details>

@@ -25,3 +25,42 @@ Also available from the [gizza CLI](/) and in chat.
 
 - Turn a spreadsheet into a YAML config or fixtures file.
 - Convert tabular data for a tool that expects YAML.
+
+## FAQ
+
+<details>
+<summary>How does type inference decide what becomes a number or boolean?</summary>
+
+With inference on (the default), an empty cell becomes `null`, `true`/`false`
+become booleans, and anything that parses as an integer or float becomes a
+number. Values that would lose information — like the leading-zero code `007`
+or a `+1` — deliberately stay strings. Switch inference off to keep **every**
+cell a string.
+
+</details>
+
+<details>
+<summary>What if my CSV has no header row?</summary>
+
+Untick the header option and the tool generates `col1`, `col2`, … keys for
+each column instead. The same fallback fills in any *blank* header cells when
+the header option is on, so you never get an empty YAML key.
+
+</details>
+
+<details>
+<summary>Can rows have different numbers of cells?</summary>
+
+Yes — parsing is flexible. The object keys come from the widest row, and any
+missing cells in shorter rows are emitted as empty values, so every YAML
+object has the same set of keys.
+
+</details>
+
+<details>
+<summary>Which delimiters are supported?</summary>
+
+Comma (default), tab, semicolon, and pipe — pick one explicitly if your file
+isn't comma-separated, since the delimiter is not auto-detected.
+
+</details>

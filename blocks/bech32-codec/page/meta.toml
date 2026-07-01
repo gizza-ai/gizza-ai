@@ -1,6 +1,6 @@
 slug          = "bech32-codec"
 title         = "Bech32 & Bech32m Encoder / Decoder (BIP 173 / BIP 350) — gizza.ai"
-description   = "Encode a prefix (HRP) and data into a checksummed Bech32 or Bech32m string, or decode and validate Bech32 strings. Used by SegWit, Taproot, Lightning, and Nostr. Free, private, browser-local."
+description   = "Encode and decode checksummed Bech32 and Bech32m strings (HRP + data) as used by SegWit, Taproot, Lightning and Nostr. Free, private, browser-local."
 tags          = ["bech32", "bech32m", "bech32 encoder", "bech32 decoder", "bip173", "bip350", "segwit address", "taproot", "lightning invoice", "nostr npub"]
 h1            = "Bech32 / Bech32m Encoder & Decoder"
 hero_subtitle = "Build a checksummed Bech32 or Bech32m string from a prefix and data, or decode and validate one back to its parts — all locally in your browser, no upload, no sign-up."

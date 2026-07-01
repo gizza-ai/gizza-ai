@@ -23,3 +23,44 @@ as `COUNT(*)` stay tight.
 
 Everything runs locally in your browser via WebAssembly. Your query is never uploaded to
 a server.
+
+## FAQ
+
+<details>
+<summary>Will it tell me if my SQL has a syntax error?</summary>
+
+No — by design. It reformats the token stream without parsing your query
+against a grammar, which is what lets it accept any dialect and never reject
+unusual syntax. An invalid query comes out nicely formatted but still invalid;
+validation is your database's job.
+
+</details>
+
+<details>
+<summary>Does it work with PostgreSQL, MySQL, SQL Server…?</summary>
+
+Yes — because it's dialect-agnostic. Instead of implementing one SQL grammar,
+it tokenizes and re-lays-out the statement, so PostgreSQL casts, MySQL
+backtick identifiers, SQL Server brackets, and SQLite quirks all pass through
+unchanged.
+
+</details>
+
+<details>
+<summary>Will formatting alter my string literals, identifiers, or comments?</summary>
+
+No. `'string literals'` (including `''` escapes), quoted identifiers, and both
+`--` line and `/* … */` block comments are preserved byte-for-byte. Only
+recognized SQL keywords are re-cased, and only if you chose `upper` or
+`lower` — table and column names are never touched.
+
+</details>
+
+<details>
+<summary>Can it minify a query onto one line?</summary>
+
+Not fully — setting **Indent** to 0 removes the indentation, but each major
+clause (`SELECT`, `FROM`, `WHERE`, …) still gets its own line. This tool is a
+pretty-printer; a dedicated minifier would be the reverse operation.
+
+</details>

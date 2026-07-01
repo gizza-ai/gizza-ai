@@ -38,3 +38,43 @@ The 20-byte header is removed and the payload `0035003500080000` is returned.
   decoder.
 - Strip IP options and padding to isolate the exact payload bytes.
 - Confirm the carried protocol and payload length by hand.
+
+## FAQ
+
+<details>
+<summary>What happens when the packet carries IP options?</summary>
+
+The header length is taken from the IHL nibble, not assumed to be 20 bytes. If
+IHL is greater than 5, the full IHL × 4 bytes — options included — are removed,
+so option bytes never end up in the extracted payload.
+
+</details>
+
+<details>
+<summary>Why is the returned payload shorter than the bytes after the header?</summary>
+
+When the packet's Total Length field is consistent (at least the header size and
+no larger than the bytes you pasted), the payload is cut at that length. That
+drops trailing link-layer padding — Ethernet pads short frames to 60 bytes. If
+Total Length looks wrong, everything after the header is returned instead.
+
+</details>
+
+<details>
+<summary>Which input formats are accepted, and what makes the tool reject a packet?</summary>
+
+Hex with spaces, colons, dashes, dots or a leading `0x` all work — separators
+are ignored. The packet is rejected with a specific error if it's under 20
+bytes, its version nibble isn't 4, its IHL is below 5, or it's shorter than the
+header length the IHL claims.
+
+</details>
+
+<details>
+<summary>Can it strip an IPv6 header too?</summary>
+
+No. The version field must be 4; an IPv6 packet (version 6, fixed 40-byte
+header plus extension headers) is a different format and is rejected with a
+clear message rather than mis-parsed.
+
+</details>

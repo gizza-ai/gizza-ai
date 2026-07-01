@@ -1,6 +1,6 @@
 slug          = "verify-checksum"
 title         = "Checksum Verifier — Check MD5, SHA-256, SHA-3, BLAKE Hashes | gizza.ai"
-description   = "Verify that text or data matches an expected checksum, instantly in your browser. Auto-detects MD5, SHA-1, SHA-224/256/384/512, SHA3, BLAKE2 or BLAKE3 from the digest length, or pick one. Free, private, no sign-up — nothing is uploaded."
+description   = "Verify text or data against an expected checksum — auto-detects MD5, SHA-1, SHA-256, SHA-3, BLAKE2 or BLAKE3 from digest length. Free, private, in-browser."
 tags          = ["checksum", "verify", "hash", "md5", "sha1", "sha256", "sha512", "sha3", "blake2", "blake3", "integrity", "digest", "compare"]
 h1            = "Checksum Verifier"
 hero_subtitle = "Paste your data and an expected checksum to confirm they match. The algorithm is auto-detected from the digest length (MD5, SHA-1, the SHA-2 family, SHA-3, BLAKE2 and BLAKE3), or pick one. Runs entirely in your browser, no server, no sign-up."

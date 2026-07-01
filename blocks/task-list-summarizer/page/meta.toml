@@ -1,6 +1,6 @@
 slug          = "task-list-summarizer"
 title         = "Task List Summarizer — count done & pending Markdown tasks · gizza.ai"
-description   = "Paste a Markdown checklist and instantly see total, done, and pending counts with a completion percentage — or list just the done or pending tasks, or get JSON. Supports -, *, + and numbered lists, nested items. Free, private, no sign-up."
+description   = "Summarize a Markdown task list — count done and pending checkboxes, get a completion percentage, or filter tasks — free and private in your browser."
 tags          = ["task list", "markdown checklist", "todo", "done pending count", "completion percentage", "checkbox", "gfm task list", "progress"]
 h1            = "Markdown Task List Summarizer"
 hero_subtitle = "Paste a Markdown checklist and get a done/pending count and completion percentage — or list just the done or pending tasks, or export JSON. Runs entirely in your browser."

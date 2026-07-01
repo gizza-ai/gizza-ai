@@ -1,6 +1,6 @@
 slug          = "outline-to-json"
 title         = "Outline to JSON Converter — gizza.ai"
-description   = "Turn an indented text outline into nested JSON instantly in your browser. Spaces or tabs set the nesting; choose a children-array or nested-object shape, set the tab width, and pretty-print or minify. Free, private, no sign-up."
+description   = "Turn an indented text outline into nested JSON in your browser — spaces or tabs, children-array or nested-object shape, pretty or minified. Free, private."
 tags          = ["outline to json", "indented text to json", "tree to json", "nested json", "text outline", "json converter", "tab to json", "bullet list to json"]
 h1            = "Outline to JSON"
 hero_subtitle = "Convert an indented text outline into nested JSON — spaces or tabs set the nesting. Pick a children-array or nested-object shape. Runs entirely in your browser, no server, no sign-up."

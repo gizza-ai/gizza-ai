@@ -1,6 +1,6 @@
 slug          = "magnet-link-parser"
 title         = "Magnet Link Parser & Builder — decode magnet: URIs — gizza.ai"
-description   = "Parse a BitTorrent magnet: link into its info-hash, display name, trackers, web seeds and more — or build a magnet link from parts. Runs in your browser, nothing uploaded."
+description   = "Parse a BitTorrent magnet link into info-hash, display name, trackers, and web seeds — or build one from parts. Runs in your browser, nothing uploaded."
 tags          = ["magnet link parser", "magnet uri", "parse magnet link", "bittorrent magnet", "info hash", "btih", "magnet link builder", "torrent magnet decoder"]
 h1            = "Magnet Link Parser & Builder"
 hero_subtitle = "Decode a BitTorrent magnet: link into its info-hash, display name, trackers and web seeds — or build a magnet link from parts. Runs entirely in your browser; nothing is uploaded."

@@ -1,6 +1,6 @@
 slug          = "extract-domains"
 title         = "Extract Domains from Text — gizza.ai"
-description   = "Pull every hostname and registrable domain (eTLD+1) out of any text, URLs, or email addresses — validated against the Public Suffix List and deduplicated, in your browser. Nothing is uploaded."
+description   = "Extract domains from text, URLs, and emails — hostnames or registrable eTLD+1, validated against the Public Suffix List. Free, private, in your browser."
 tags          = ["extract domains", "domain extractor", "find domains", "registrable domain", "etld+1", "public suffix list", "parse hostnames"]
 h1            = "Extract Domains"
 hero_subtitle = "Paste any text, URLs, or emails and pull out every domain — full hostnames and registrable domains (eTLD+1), validated against the Public Suffix List and deduplicated. Runs in your browser; nothing is uploaded."

@@ -1,6 +1,6 @@
 slug          = "svg-sprite-builder"
 title         = "SVG Sprite Sheet Builder — gizza.ai"
-description   = "Combine multiple SVG icons into a single SVG symbol sprite sheet you reference with <use href=\"#id\">. Auto, id-attribute, or title-based ids, automatic viewBox, and a hidden wrapper. Runs entirely in your browser, free, private, no sign-up."
+description   = "Combine multiple SVG icons into one symbol sprite sheet referenced with <use href> — auto, id, or title naming and automatic viewBox. Free, in your browser."
 tags          = ["svg sprite", "svg symbol", "sprite sheet", "svg use", "icon sprite", "combine svg", "svg icons", "symbol id", "viewbox"]
 h1            = "SVG Sprite Sheet Builder"
 hero_subtitle = "Paste several SVG icons and get one <symbol> sprite sheet to drop in your page and reference with <use href=\"#id\">. Runs entirely in your browser — no upload, no sign-up."

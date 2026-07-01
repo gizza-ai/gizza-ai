@@ -39,3 +39,45 @@ ver/IHL  length      frag-off
 - Read an IP header captured in Wireshark/tcpdump without re-opening the capture.
 - Verify a header checksum, or confirm TTL, protocol, and addresses by hand.
 - Inspect fragmentation (DF/MF, offset) and QoS marking (DSCP/ECN) on a packet.
+
+## FAQ
+
+<details>
+<summary>Can I paste the whole packet, or only the 20-byte header?</summary>
+
+Paste as much as you like — the parser reads the first IHL × 4 bytes (20 bytes
+for a typical header, up to 60 with options) and ignores anything after them.
+The payload length shown is derived from the Total Length field minus the
+header length, so it is reported correctly even if you only pasted the header.
+
+</details>
+
+<details>
+<summary>Why is the checksum reported as INVALID for a packet that clearly worked?</summary>
+
+Usually checksum offload. When you capture on the *sending* host, the NIC
+fills in the checksum in hardware after the capture point, so tools like
+Wireshark record `0x0000` or a stale value. This tool recomputes the RFC 1071
+one's-complement sum over the header bytes you pasted — capture on the
+receiving side (or a middle hop) to see the real on-wire checksum.
+
+</details>
+
+<details>
+<summary>How do I copy the header bytes out of Wireshark?</summary>
+
+Select the "Internet Protocol Version 4" layer in the packet-detail pane,
+right-click → **Copy → …as a Hex Stream**, and paste it here. Separators don't
+matter: spaces, colons, dashes, dots, and a leading `0x` are all stripped
+before parsing.
+
+</details>
+
+<details>
+<summary>Does it parse IPv6 headers too?</summary>
+
+No. The version nibble must be 4; an IPv6 packet (version 6) is rejected with
+an explicit error. IPv6 uses a different, fixed 40-byte header with no
+checksum, so it needs a different parser.
+
+</details>

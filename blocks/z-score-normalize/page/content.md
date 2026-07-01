@@ -65,3 +65,48 @@ so that is the default here.
 
 Everything runs locally in your browser via WebAssembly. Your numbers are never
 uploaded to a server.
+
+## FAQ
+
+<details>
+<summary>Will the results match scikit-learn and NumPy?</summary>
+
+Yes, by design: z-score defaults to the population standard deviation (÷N)
+like `StandardScaler` and `numpy.std()`, max-abs mirrors `MaxAbsScaler`, and
+robust scaling mirrors `RobustScaler`, using the same linear-interpolated
+quantile method NumPy defaults to for Q1/Q3. Outputs are rounded to 6 decimal
+places, so expect agreement to that precision.
+
+</details>
+
+<details>
+<summary>Why do I get an "undefined" error instead of results?</summary>
+
+Every method divides by a spread, and when that spread is zero there is
+nothing meaningful to return: z-score fails when all values are identical
+(standard deviation 0), min-max when the range is 0, max-abs when every value
+is 0, and robust when Q3 equals Q1. Sample standard deviation additionally
+needs at least 2 values (N−1 would be zero).
+
+</details>
+
+<details>
+<summary>How should the numbers be formatted?</summary>
+
+Separate them with spaces, commas, semicolons, or newlines — a column pasted
+from Excel or a CSV row both work as-is. Every token must be a finite number;
+a stray header or text cell is reported as `'…' is not a number` so you know
+exactly which token to remove.
+
+</details>
+
+<details>
+<summary>Can I apply the same scaling to new data later?</summary>
+
+Yes — alongside the transformed list (returned in your original order), the
+tool reports the parameters it used: mean and standard deviation for z-score,
+min/max, the largest absolute value, or median/IQR. Plug those into
+`(x − center) / spread` to scale future values consistently, exactly like
+calling `transform()` on a fitted scikit-learn scaler.
+
+</details>

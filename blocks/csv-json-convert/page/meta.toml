@@ -1,6 +1,6 @@
 slug          = "csv-json-convert"
 title         = "CSV to JSON & JSON to CSV Converter — gizza.ai"
-description   = "Convert CSV to JSON or JSON to CSV instantly in your browser. Auto-detects the input, infers numbers and booleans, handles quoted fields, custom delimiters (tab/semicolon/pipe), and headerless data. Free, private, no upload, no sign-up."
+description   = "Convert CSV to JSON or JSON to CSV in your browser — auto-detects direction, infers types, handles quoted fields and custom delimiters. Free, no upload."
 tags          = ["csv to json", "json to csv", "csv converter", "json converter", "csv parser", "tabular data", "tsv", "data conversion"]
 h1            = "CSV ⇄ JSON Converter"
 hero_subtitle = "Convert between CSV and JSON in either direction — auto-detected, with type inference, quoted fields, and custom delimiters. Runs entirely in your browser, no upload, no sign-up."

@@ -39,3 +39,44 @@ file is never uploaded.
 - Check the distance and climbing of a route before heading out.
 - Pull pace and speed from a recorded run or ride.
 - Sanity-check a track exported from one app before importing it into another.
+
+## FAQ
+
+<details>
+<summary>Why are duration, speed and pace missing from my result?</summary>
+
+Those stats need `<time>` stamps on the track points. Recorded activities have
+them; *planned* routes exported from Komoot, Ride with GPS, etc. usually
+don't — for those you'll get distance and elevation only.
+
+</details>
+
+<details>
+<summary>Does it read heart rate, cadence or power?</summary>
+
+Yes — sensor channels stored as Garmin TrackPointExtension (or the common
+variants `hr`/`heartrate`, `cad`/`cadence`, `power`/`watts`,
+`atemp`/`temperature`) are picked up, and each channel is reported as an
+average plus a maximum.
+
+</details>
+
+<details>
+<summary>Why is my elevation gain different from Strava or Garmin Connect?</summary>
+
+The tool sums every positive elevation change between consecutive points, with
+no smoothing. Platforms apply their own noise filtering and sometimes replace
+GPS altitude with map elevation data, so their gain figures routinely differ —
+especially for tracks recorded without a barometric altimeter.
+
+</details>
+
+<details>
+<summary>How are the per-kilometre and per-mile splits calculated?</summary>
+
+Split boundaries rarely land exactly on a track point, so the crossing segment
+is linearly interpolated (constant pace assumed within the segment). Each
+split therefore gets a precise duration, pace, and elevation gain rather than
+being snapped to the nearest point.
+
+</details>

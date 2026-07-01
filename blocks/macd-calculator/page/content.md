@@ -50,3 +50,45 @@ least `slow + signal − 1` points (34 with the default settings).
 
 Everything runs locally in your browser via WebAssembly. Your data is never
 uploaded to a server.
+
+## FAQ
+
+<details>
+<summary>Why are the first values in each series null?</summary>
+
+That's the warm-up region. Each EMA is seeded with the simple mean of its
+first window, so the MACD line only starts at the slow period's point (26 by
+default), and the signal line needs a further `signal` MACD values — a full
+warm-up takes `slow + signal − 1` points (34 with the default 12/26/9).
+
+</details>
+
+<details>
+<summary>How much data can I paste, and are the periods capped?</summary>
+
+Up to 100,000 data points and periods up to 10,000. Two other rules apply: the
+fast period must be smaller than the slow period, and the slow period can't
+exceed the number of points you supply — otherwise you get a clear error
+instead of a partial result.
+
+</details>
+
+<details>
+<summary>Why don't my numbers exactly match TradingView or my broker?</summary>
+
+Check the seeding. This tool uses the standard finance convention — each EMA
+starts from the simple average of its first window, then advances with
+`k = 2/(period + 1)`. Platforms that seed the EMA from the very first price
+instead will differ slightly at the start of the series; the two converge as
+more data arrives.
+
+</details>
+
+<details>
+<summary>What order and format should the prices be in?</summary>
+
+Oldest first, newest last — MACD is a running computation, so a reversed
+series gives meaningless output. Values can be separated by spaces, commas,
+semicolons, or newlines, and every entry must be a finite number.
+
+</details>

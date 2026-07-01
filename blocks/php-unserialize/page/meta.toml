@@ -1,6 +1,6 @@
 slug          = "php-unserialize"
 title         = "PHP unserialize() to JSON Converter — gizza.ai"
-description   = "Decode a PHP serialize() string to readable JSON instantly in your browser. Inspect PHP sessions, caches, and WordPress wp_options values. Byte-accurate string lengths, full Unicode, free, private, no sign-up."
+description   = "Decode a PHP serialize() string to readable JSON in your browser. Inspect PHP sessions and WordPress wp_options values. Free, private, no sign-up."
 tags          = ["php unserialize", "php to json", "serialize", "php session", "wordpress options", "serialized array", "php array", "deserialize"]
 h1            = "PHP unserialize() → JSON"
 hero_subtitle = "Decode a PHP serialize() string into readable JSON. Handles arrays, objects, byte-accurate string lengths, and nesting. Runs entirely in your browser, no server, no sign-up."

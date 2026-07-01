@@ -1,6 +1,6 @@
 slug          = "slugify"
 title         = "Slugify — URL Slug Generator — gizza.ai"
-description   = "Turn any title or phrase into a clean, URL-safe slug instantly in your browser. Transliterates accents and Unicode to ASCII, lowercases, and collapses spaces and punctuation to hyphens. Custom separator, max length, free, private, no sign-up."
+description   = "Turn any title into a clean URL-safe slug — accents transliterated to ASCII, lowercased, punctuation collapsed to hyphens. Free slug generator, in-browser."
 tags          = ["slugify", "url slug", "slug generator", "permalink", "seo url", "url friendly", "transliterate", "ascii slug", "kebab case"]
 h1            = "Slugify — URL Slug Generator"
 hero_subtitle = "Convert a title or phrase into a clean, URL-safe slug — accents and Unicode folded to ASCII, lowercased, spaces and punctuation collapsed to hyphens. Runs entirely in your browser, no server, no sign-up."

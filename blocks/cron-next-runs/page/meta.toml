@@ -1,6 +1,6 @@
 slug          = "cron-next-runs"
 title         = "Cron Expression Next Run Times — Crontab Schedule Preview (UTC) | gizza.ai"
-description   = "Paste a cron expression and see the next run times. Supports 5-field crontab, seconds, ranges, steps, lists, @daily/@hourly shortcuts and month/weekday names. Free, private, runs in your browser, no sign-up."
+description   = "Cron expression parser and next-run calculator — see upcoming run times in UTC with plain-English schedules, free and entirely in your browser."
 tags          = ["cron expression", "crontab", "next run time", "cron schedule", "cron preview", "crontab tester", "cron next runs", "cron parser", "cron calculator"]
 h1            = "Cron Next Run Times"
 hero_subtitle = "Enter a cron expression like */15 * * * * or 0 9 * * MON-FRI and see the next run times in UTC. Supports seconds, ranges, steps, lists, month/weekday names and @daily/@hourly shortcuts. Runs entirely in your browser, no server, no sign-up."

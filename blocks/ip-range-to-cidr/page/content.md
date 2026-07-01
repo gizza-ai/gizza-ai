@@ -50,3 +50,45 @@ than strictly necessary.
 Everything runs locally in your browser via WebAssembly. Your IP ranges are
 never uploaded to a server — there is no network call, no logging, and no
 sign-up.
+
+## FAQ
+
+<details>
+<summary>Why does a small range split into so many blocks?</summary>
+
+Because CIDR blocks must be *aligned*: a `/29` can only start on a multiple of 8
+addresses, a `/30` on a multiple of 4, and so on. An unaligned range like
+`10.0.0.5-10.0.0.20` (16 addresses) therefore needs five blocks even though a
+single `/28` would hold 16 addresses — the `/28` would start at `.0` and cover
+addresses outside your range. The result is always the fewest blocks possible.
+
+</details>
+
+<details>
+<summary>What input formats are accepted?</summary>
+
+A full start–end pair (`10.0.0.5-10.0.0.20`, `2001:db8::-2001:db8::ffff`), the
+IPv4 shorthand where the right side is just the final octet
+(`192.168.1.10-20`), or a single address with no dash — which returns a `/32`
+(IPv4) or `/128` (IPv6) host route. Both endpoints must be the same address
+family, and the start must not be greater than the end.
+
+</details>
+
+<details>
+<summary>Can I just get the number of blocks instead of the list?</summary>
+
+Yes — switch the output option from **list** to **count** to get only how many
+CIDR blocks the range needs. That's handy when checking whether a range will fit
+a firewall's rule limit before generating the full list.
+
+</details>
+
+<details>
+<summary>Does it work for IPv6?</summary>
+
+Fully. IPv6 ranges like `2001:db8::1-2001:db8::5` are aggregated with the same
+minimal-cover algorithm, producing prefixes up to `/128`, and the alignment rules
+work identically on the 128-bit address space.
+
+</details>

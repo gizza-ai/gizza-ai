@@ -35,3 +35,46 @@ BibTeX behaviour.
 - Turn on **Align the = signs** for the most readable hand-edited `.bib` files.
 - Set the **indent to 0** for a compact one-level layout, or up to 16 spaces for
   deeply indented output.
+
+## FAQ
+
+<details>
+<summary>Will formatting change the text inside my field values?</summary>
+
+No. Field **values are preserved byte-for-byte** — protective `{braces}`,
+`"quoted"` values, bare numbers and `#`-concatenated `@string` macros all come
+through unchanged. Only the entry type (`@ARTICLE` → `@article`, unless you
+turn "Lowercase the @entry type" off) and the field names are normalized to
+lowercase.
+
+</details>
+
+<details>
+<summary>Where do @string, @preamble and @comment blocks go when I sort?</summary>
+
+They stay at the **front of the file**, keeping their original relative order.
+Sorting (`key` or `type-key`) only reorders the normal entries among
+themselves, so abbreviations defined in `@string` are still declared before the
+entries that use them.
+
+</details>
+
+<details>
+<summary>Why am I getting a "duplicate cite key" error?</summary>
+
+Duplicate-key checking is **on by default** because two entries with the same
+key silently shadow each other in LaTeX. The error names the repeated key so
+you can rename one of them; if the duplicates are intentional, untick
+"Error on duplicate cite keys" and the file will format anyway.
+
+</details>
+
+<details>
+<summary>Why did loose text between my entries disappear?</summary>
+
+BibTeX itself treats anything outside an `@entry{...}` as an implicit comment,
+so the formatter drops free text between entries to produce a canonical file.
+If you need a comment to survive formatting, wrap it in an explicit
+`@comment{...}` block — those are kept.
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "evp-derive"
 title         = "EVP_BytesToKey — OpenSSL key/IV derivation from a password — gizza.ai"
-description   = "Reproduce OpenSSL's legacy EVP_BytesToKey key and IV derivation from a password, salt and hash (MD5/SHA-1/SHA-256/SHA-512). hex or base64 output, all in your browser. Nothing is uploaded."
+description   = "Reproduce OpenSSL's EVP_BytesToKey key and IV derivation from a password and salt (MD5, SHA-1, SHA-256, SHA-512) — free and entirely in your browser."
 tags          = ["evp_bytestokey", "openssl key derivation", "openssl iv", "derive key from password", "openssl enc", "md5 key derivation", "legacy kdf", "openssl decrypt"]
 h1            = "EVP_BytesToKey — OpenSSL key & IV derivation"
 hero_subtitle = "Reproduce the legacy EVP_BytesToKey derivation that `openssl enc` uses to turn a password into a key and IV. Pick the hash, salt, key/IV length and iteration count — it runs in your browser, so the password never leaves your device."

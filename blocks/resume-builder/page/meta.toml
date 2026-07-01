@@ -1,6 +1,6 @@
 slug          = "resume-builder"
 title         = "Resume Builder — Structured Details to ATS Markdown"
-description   = "Turn your structured details (contact, experience, skills) into a clean, ATS-friendly Markdown resume — right in your browser. Plain headings, no graphics that break resume parsers. Free, private, no sign-up."
+description   = "Turn structured JSON details — contact, experience, skills — into a clean, ATS-friendly Markdown resume in your browser. Free, private, no sign-up."
 tags          = ["resume builder", "cv builder", "ats resume", "markdown resume", "json to resume", "resume generator"]
 h1            = "Resume Builder"
 hero_subtitle = "Paste your details as JSON and get a clean, ATS-friendly Markdown resume. Runs entirely in your browser, no upload, no sign-up."

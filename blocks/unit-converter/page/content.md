@@ -40,3 +40,46 @@ example 1 inch = 2.54 cm exactly, 1 pound = 0.453 592 37 kg exactly). Months use
 the average Gregorian month length and years use the Julian year (365.25 days).
 Data sizes distinguish decimal SI multiples (KB = 1000 bytes) from binary IEC
 multiples (KiB = 1024 bytes).
+
+## FAQ
+
+<details>
+<summary>Do I have to select a category before converting?</summary>
+
+No — the category is inferred from the units you type. If the two units don't
+belong together you get a specific error rather than a wrong answer, e.g.
+converting `metre` to `kilogram` reports "cannot convert metre (length) to
+kilogram (mass)".
+
+</details>
+
+<details>
+<summary>Is a gigabyte (GB) the same as a gibibyte (GiB)?</summary>
+
+No, and the tool keeps them separate: `kb`/`mb`/`gb`/`tb`/`pb` are decimal SI
+multiples (1 GB = 1000 MB = 10⁹ bytes) while `kib`/`mib`/`gib`/`tib` are binary
+IEC multiples (1 GiB = 1024 MiB = 2³⁰ bytes). You can convert between the two
+systems directly — 1 GiB ≈ 1.074 GB. Bits are supported too (8 bits = 1 byte).
+
+</details>
+
+<details>
+<summary>Are "gallon", "pint" and "cup" US or imperial measures?</summary>
+
+The bare names default to US measures: `gallon`, `quart`, `pint`, `cup` and
+`fluid-ounce` are all US units. For the imperial versions use `uk-gallon` or
+`imperial-gallon`. Likewise `ton` is ambiguous, so use `us-ton`/`short-ton` or
+`long-ton`/`imperial-ton` explicitly.
+
+</details>
+
+<details>
+<summary>How many digits of precision does the result keep?</summary>
+
+Results are rounded to 12 significant figures with trailing zeros trimmed, and
+extreme magnitudes (10¹⁵ and up, or below 10⁻⁹) switch to scientific notation.
+The underlying factors are the exact defined values where one exists, so
+round-trips like metres → feet → metres come back to the number you started
+with.
+
+</details>

@@ -50,3 +50,33 @@ to a server. You can also run it from the [gizza CLI](/) or inside a gizza chat.
 - Remove invisible zero-width "watermark" characters some tools inject into text.
 - Sanitize usernames, passwords, or search terms that silently fail to match.
 - Detect Trojan-Source-style bidi overrides hiding in source code.
+
+### FAQ
+
+<details>
+<summary>Will cleaning break my emoji?</summary>
+
+It can. Family, profession, and flag emoji are built from several glyphs joined with the zero-width joiner (U+200D), so removing zero-width characters splits 👨‍👩‍👧 into individual faces. Untick **Remove zero-width characters** when the text contains composed emoji you want to keep.
+
+</details>
+
+<details>
+<summary>How can I see where the invisible characters were?</summary>
+
+Put something visible in the **Replacement** field — e.g. `?` or `[zwsp]`. Every deleted zero-width, bidi, or soft-hyphen character is then substituted with that marker instead of vanishing, which makes hidden watermarks easy to spot.
+
+</details>
+
+<details>
+<summary>Does it remove the BOM at the start of a file?</summary>
+
+Yes — U+FEFF (the byte-order mark, also known as the zero-width no-break space) is part of the default zero-width set, so a BOM that's breaking your CSV/JSON parser is stripped automatically.
+
+</details>
+
+<details>
+<summary>Why is "Replace non-breaking spaces" off by default?</summary>
+
+Because non-breaking spaces are often intentional (e.g. keeping "10 km" together). When you do enable it, U+00A0 and the other odd Unicode spaces (U+2000–U+200A, U+202F, U+205F, U+3000, U+1680) become a plain ASCII space — the word gap is preserved, never deleted.
+
+</details>

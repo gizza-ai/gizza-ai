@@ -39,3 +39,44 @@ unrecognizable input are reported as errors rather than guessed at.
 
 This tool runs entirely client-side as WebAssembly. The string you paste stays
 in your browser and is never sent to a server.
+
+## FAQ
+
+<details>
+<summary>Is 01/05/2024 read as January 5 or May 1?</summary>
+
+Slash dates are read **month-first** (US style), so `01/05/2024` is January 5.
+The only exception is when the first field can't be a month — `25/12/2024` is
+parsed day-first because 25 > 12. If your date is European-style with an
+ambiguous first field, write it with dots (`05.01.2024`), which is always read
+**day-first**, or use the unambiguous ISO form `2024-01-05`.
+
+</details>
+
+<details>
+<summary>How are two-digit years interpreted?</summary>
+
+`00–69` maps to the 2000s and `70–99` to the 1900s, so `1/5/24` means 2024 and
+`1/5/85` means 1985. If that guess isn't what you want, spell out the full
+four-digit year.
+
+</details>
+
+<details>
+<summary>Does it convert between timezones?</summary>
+
+No — it's a parser, not a converter. When the input carries an offset (like
+`+02:00` or the `+0000` in an email date) the tool reports it and includes it in
+the canonical ISO 8601 output, but it never shifts the clock time to another
+zone.
+
+</details>
+
+<details>
+<summary>What happens with an impossible date like February 30?</summary>
+
+You get an error. Invalid calendar dates, out-of-range times, and strings the
+parser can't recognize are reported as errors rather than silently "corrected"
+to the nearest valid value.
+
+</details>

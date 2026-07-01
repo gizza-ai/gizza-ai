@@ -71,3 +71,45 @@ and a leading `0x` are ignored.
 JA3 is a heuristic, not a cryptographic identifier — different clients can
 collide on the same JA3, and a client can deliberately randomize its
 ClientHello. Treat a JA3 match as a signal, not proof.
+
+## FAQ
+
+<details>
+<summary>Why do I get a different JA3 hash for the same browser on every connection?</summary>
+
+Chrome 110+ and Firefox 114+ randomize the order of their TLS extensions per
+connection, and JA3 hashes the extension list in wire order. Use the **JA3N**
+value this tool also computes — it sorts the extension list before hashing, so
+it stays stable across the randomization.
+
+</details>
+
+<details>
+<summary>Exactly what bytes do I need to paste?</summary>
+
+Any of three starting points works: the full TLS record (begins `16 03 …`),
+the handshake message (begins `01 …`), or the raw ClientHello body. Spaces,
+colons, dashes, dots, commas, and a leading `0x` are stripped automatically —
+but the remaining hex must have an even number of digits, or you'll get an
+"odd number of digits" error.
+
+</details>
+
+<details>
+<summary>Why are the fields decimal numbers like 771 instead of 0x0303?</summary>
+
+That's the JA3 specification: each version, cipher, extension, and curve value
+is written in decimal, joined by dashes within a field and commas between
+fields. `771` is simply `0x0303` (TLS 1.2's legacy_version) in decimal —
+identical to what Suricata, Zeek, and other JA3 implementations emit.
+
+</details>
+
+<details>
+<summary>Does computing a fingerprint expose my capture anywhere?</summary>
+
+No. The hex is parsed and hashed entirely in your browser via WebAssembly, and
+a ClientHello is sent in plaintext anyway — no keys or decrypted traffic are
+involved.
+
+</details>

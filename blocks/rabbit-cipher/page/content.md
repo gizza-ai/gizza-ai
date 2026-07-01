@@ -33,3 +33,47 @@ different messages.
 
 Everything runs **in your browser** via WebAssembly — your key and data never leave
 the device. Also available from the [gizza CLI](/) and in chat.
+
+## FAQ
+
+<details>
+<summary>Why must the key be exactly 16 characters (or 32 hex digits)?</summary>
+
+Rabbit is defined over a fixed **128-bit key**, so the tool needs exactly 16
+bytes — either a 16-character text passphrase, or, with the key format set to
+*encoded*, 32 hex or 24 base64 characters. Shorter or longer keys are
+rejected rather than silently padded, because padding would break interop
+with other RFC 4503 implementations.
+
+</details>
+
+<details>
+<summary>Do I have to use an IV?</summary>
+
+No — the IV is optional, but when you give one it must be exactly **8 bytes**
+(64 bits) and identical on encrypt and decrypt. The IV is what lets you reuse
+one key safely: the same key with a different IV yields a completely
+different keystream. Never encrypt two different messages with the same
+key + IV pair.
+
+</details>
+
+<details>
+<summary>Decrypting with the wrong key gave gibberish instead of an error — why?</summary>
+
+Because Rabbit is a plain XOR stream cipher with no built-in authentication:
+any 16-byte key produces *some* keystream, so a wrong key, wrong IV, or wrong
+encoding yields garbled output rather than a failure. If you need tamper
+detection, add a MAC (e.g. the hmac-generate tool) over the ciphertext.
+
+</details>
+
+<details>
+<summary>Will the output match other Rabbit implementations and the RFC test vectors?</summary>
+
+Yes. Keys and IVs are read most-significant-byte first, exactly as the hex
+strings are written in RFC 4503, and the implementation is validated against
+the official test vectors — so a hex key/IV pair from the spec or another
+conforming library produces identical ciphertext here.
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "hmac-generate"
 title         = "HMAC Generator — HMAC-SHA256, SHA-1, SHA-512, SHA-3, MD5 | gizza.ai"
-description   = "Generate an HMAC (keyed hash) of any message and secret key instantly in your browser. Pick HMAC-SHA256, SHA-1, SHA-224/384/512, SHA3-256/512 or MD5, with hex or base64 output. Free, private, no sign-up — nothing is uploaded."
+description   = "Generate an HMAC of any message and secret key in your browser — HMAC-SHA256, SHA-1, SHA-512, SHA-3 or MD5, hex or base64 output. Free and private."
 tags          = ["hmac", "hmac-sha256", "sha256", "sha1", "sha512", "sha3", "md5", "mac", "keyed-hash", "signature", "webhook", "hex", "base64", "cryptography"]
 h1            = "HMAC Generator"
 hero_subtitle = "Compute a keyed-hash message authentication code (HMAC) from a message and a secret key, with a selectable hash — HMAC-SHA256, SHA-1, the SHA-2 family, SHA-3 and MD5 — in hex or base64. Runs entirely in your browser, no server, no sign-up."

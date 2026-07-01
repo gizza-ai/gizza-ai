@@ -44,3 +44,47 @@ which handle key derivation for you.
 
 Everything runs **in your browser** via WebAssembly — your key, nonce and data
 never leave the device. Also available from the [gizza CLI](/) and in chat.
+
+## FAQ
+
+<details>
+<summary>Why do I get a key or nonce length error?</summary>
+
+ChaCha20 requires **exactly 32 key bytes and 12 nonce bytes** — no padding, no
+truncation. With the key format set to **text**, the length is counted in UTF-8
+bytes, so a 32-character ASCII string works but accented or multi-byte characters
+throw the count off. Switch the format to **encoded** and supply the key/nonce as
+64 hex characters (or the base64 equivalent) to be exact.
+
+</details>
+
+<details>
+<summary>Why does AEAD decryption fail even though my key looks right?</summary>
+
+ChaCha20-Poly1305 verifies a 16-byte Poly1305 tag before returning anything. If the
+key, nonce, AAD, or ciphertext differ by even one bit, verification fails on
+purpose. Also make sure the encoded input includes the tag: this tool (like RFC
+8439) appends the 16-byte tag to the ciphertext, so the value you paste must be
+ciphertext + tag, not the ciphertext alone.
+
+</details>
+
+<details>
+<summary>Can I decrypt data produced by OpenSSL or another library?</summary>
+
+Yes, as long as it used the **IETF RFC 8439 variant** — 32-byte key, 12-byte nonce,
+32-bit counter — which is what TLS and most modern libraries implement. Data from
+the original Bernstein variant (8-byte nonce) or XChaCha20 (24-byte nonce) will not
+match because the nonce size differs.
+
+</details>
+
+<details>
+<summary>What does the block counter setting do?</summary>
+
+In **stream** mode it sets the initial 32-bit block counter — each block covers 64
+bytes of keystream — which lets you match implementations that start counting at 1
+or resume mid-stream. Leave it at `0` for normal use. **aead** mode ignores it,
+because RFC 8439 fixes the counter layout for ChaCha20-Poly1305.
+
+</details>

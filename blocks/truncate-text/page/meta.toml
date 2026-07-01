@@ -1,6 +1,6 @@
 slug          = "truncate-text"
 title         = "Truncate Text — Shorten Text by Characters or Words | gizza.ai"
-description   = "Truncate text to a maximum number of characters or words and add an ellipsis. Word-safe cutting, custom ellipsis, and control over whether the ellipsis counts toward the limit. Free, private, runs in your browser, no sign-up."
+description   = "Truncate text to a character or word limit with word-safe cutting and a custom ellipsis. Free, private, runs in your browser, no sign-up."
 tags          = ["truncate text", "shorten text", "text ellipsis", "trim text to length", "limit characters", "limit words", "text snippet", "meta description length"]
 h1            = "Truncate Text"
 hero_subtitle = "Shorten any text to a set number of characters or words and append an ellipsis — without splitting a word in half. Runs entirely in your browser, no server, no sign-up."

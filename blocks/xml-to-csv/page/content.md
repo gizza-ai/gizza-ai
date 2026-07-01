@@ -48,3 +48,45 @@ With attributes on, record tag `user`, you get:
   record tag explicitly if your XML nests records deeper.
 - Everything is computed locally and deterministically — no account, no AI model,
   no server round-trip.
+
+## FAQ
+
+<details>
+<summary>How does auto-detect pick the record element?</summary>
+
+When you leave **Record tag** blank, the tool counts the direct children of
+the root element and picks the tag that appears most often (ties break to the
+first one seen). That's right for a flat `<catalog><book>…` list, but if your
+records are nested deeper, type the tag (e.g. `book` or `item`) explicitly.
+
+</details>
+
+<details>
+<summary>What happens to nested elements and repeated tags?</summary>
+
+Nested elements are flattened into **dot-notation** columns, so
+`<address><city>` becomes `address.city`. If a child tag repeats within one
+record, the copies become `tag`, `tag.2`, `tag.3`, … Columns are created in
+first-seen order, and any record missing a field just gets an empty cell.
+
+</details>
+
+<details>
+<summary>Can I include XML attributes as columns?</summary>
+
+Yes — **Include attributes as columns** is on by default. An attribute on the
+record element becomes `@id`, and one on a child element becomes
+`price@currency`. Turn it off to keep only element text. Namespaced tags like
+`ns:title` are flattened to their local name (`title`).
+
+</details>
+
+<details>
+<summary>Are special characters and entities handled safely?</summary>
+
+Yes. XML entities (`&amp;`, `&lt;`) and `CDATA` blocks are decoded back to
+plain text, and any value containing the delimiter, a quote or a newline is
+CSV-quoted automatically — so the output opens cleanly in a spreadsheet. Pick
+a tab, semicolon or pipe delimiter if a comma clashes with your data.
+
+</details>

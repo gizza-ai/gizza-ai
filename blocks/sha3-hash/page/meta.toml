@@ -1,6 +1,6 @@
 slug          = "sha3-hash"
 title         = "SHA-3 Hash Generator — SHA3-256 / SHA3-384 / SHA3-512 (FIPS-202) | gizza.ai"
-description   = "Compute the FIPS-202 SHA-3 hash (SHA3-256, SHA3-384, or SHA3-512) of any text in your browser — the NIST standard, not the original Keccak. Hex or base64 output, hex/base64 input. Free, private, no sign-up — nothing is uploaded."
+description   = "Compute the FIPS-202 SHA-3 hash (SHA3-256/384/512) of any text in your browser — the NIST standard, not Keccak. Hex or base64 output. Free, private, no sign-up."
 tags          = ["sha3", "sha3-256", "sha3-384", "sha3-512", "fips-202", "nist", "keccak", "hash", "digest", "checksum", "hex", "base64", "cryptography"]
 h1            = "SHA-3 Hash Generator"
 hero_subtitle = "Compute the NIST FIPS-202 SHA-3 hash (SHA3-256, SHA3-384, or SHA3-512) of any text. This is the standardized SHA-3, which differs from the original Keccak used by Ethereum. Runs entirely in your browser, no server, no sign-up."

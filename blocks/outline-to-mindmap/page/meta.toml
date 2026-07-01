@@ -1,6 +1,6 @@
 slug          = "outline-to-mindmap"
 title         = "Outline to Mind Map — turn an indented outline into an SVG mind map — gizza.ai"
-description   = "Paste an indented text outline and get a clean, scalable mind-map SVG in your browser — no sign-up, nothing uploaded. Spaces or tabs set the nesting, bullets are stripped, branches are auto-colored, with right or top-down layouts and a dark theme."
+description   = "Paste an indented text outline and get a clean mind-map SVG in your browser — nothing uploaded. Indentation sets nesting; right or top-down layouts, dark theme."
 tags          = ["outline to mind map", "text to mind map", "mind map maker", "mind map svg", "outline mind map generator", "indented outline diagram"]
 h1            = "Outline to Mind Map"
 hero_subtitle = "Paste an indented outline — each line a node, indentation the nesting — and get a clean, scalable mind-map SVG. Auto-colored branches, right or top-down layouts, optional dark mode. Pure-Rust, runs in your browser; nothing is uploaded."

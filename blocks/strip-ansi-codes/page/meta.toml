@@ -1,6 +1,6 @@
 slug          = "strip-ansi-codes"
 title         = "Strip ANSI Codes — Remove Terminal Color Escape Codes | gizza.ai"
-description   = "Remove ANSI escape and color codes from terminal output, logs, and CI build logs instantly in your browser. Strip everything or only colors. Keeps Unicode and line breaks. Free, private, no sign-up."
+description   = "Remove ANSI escape and color codes from terminal output and CI logs instantly in your browser. Strip everything or only colors. Free, private, no sign-up."
 tags          = ["strip ansi", "remove ansi codes", "ansi escape codes", "terminal colors", "clean log output", "ci log cleaner", "remove color codes", "sgr codes", "escape sequence"]
 h1            = "Strip ANSI Codes"
 hero_subtitle = "Remove ANSI escape and color codes from terminal output and logs — paste your raw output, get clean readable text. Runs entirely in your browser, no server, no sign-up."

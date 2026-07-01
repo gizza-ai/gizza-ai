@@ -27,3 +27,30 @@ the cells.
 No — it's processed locally with WebAssembly.
 
 </details>
+
+<details>
+<summary>Can I group by more than one row column?</summary>
+
+Yes. Give the row field a comma-separated list — column names or 1-based indices,
+e.g. `region,product` or `1,3`. Each distinct combination of those values becomes
+one output row.
+
+</details>
+
+<details>
+<summary>My CSV uses semicolons or tabs — will it work?</summary>
+
+Yes. Set the delimiter option to the actual separator: a single character, or one
+of the words `comma`, `tab`, `semicolon`, `pipe`. The default is a comma, and the
+first row must always be a header.
+
+</details>
+
+<details>
+<summary>What order are the pivot rows and columns in, and what goes in empty cells?</summary>
+
+Both row keys and pivot columns appear in first-seen order from your data — they
+are not sorted alphabetically. A cell with no matching source rows is left blank
+rather than showing 0, so "no data" stays distinguishable from "sums to zero".
+
+</details>

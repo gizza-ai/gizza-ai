@@ -22,3 +22,43 @@ and the tool works offline with no sign-up.
 - A `charset` is allowed in the MIME field, e.g. `text/html;charset=utf-8`.
 - To go the other way and read a `data:` URI, use the data URI decoder. To turn
   a whole file into a data URI, use the file-to-data-URI tool.
+
+## FAQ
+
+<details>
+<summary>Should I choose Base64 or URL encoding?</summary>
+
+Base64 (the default) is the safe choice — it handles any content, including binary-ish
+text and Unicode, and produces `data:<mime>;base64,…`. URL (percent) encoding keeps
+short ASCII snippets human-readable in the address, but non-ASCII characters balloon
+into `%XX` sequences, so it's best for small plain-text payloads.
+
+</details>
+
+<details>
+<summary>Can I include a charset in the MIME type?</summary>
+
+Yes. The MIME field accepts parameters, so `text/html;charset=utf-8` or
+`text/plain;charset=utf-8` works — useful when the consumer needs to know how to
+decode the bytes. If you leave the field empty, `text/plain` is used.
+
+</details>
+
+<details>
+<summary>Can this encode an image or other file?</summary>
+
+This tool encodes **text** you paste. For a PNG, font, or any other file on disk,
+use the file-to-data-URI tool, which reads the file bytes directly. For inline SVG
+you can paste the SVG markup here with the `image/svg+xml` MIME type.
+
+</details>
+
+<details>
+<summary>Is there a size limit on data URIs?</summary>
+
+The tool itself doesn't cap the output (it reports the URI length so you can judge),
+but browsers do have practical limits — very large data URIs slow down parsing and
+some contexts (like CSS in older browsers) truncate them. Keep inline assets in the
+tens of kilobytes.
+
+</details>

@@ -53,3 +53,45 @@ Keccak-256 is the workhorse hash of Ethereum and EVM-compatible chains:
 - For the NIST SHA-3 family (SHA3-256, SHA3-512) and other algorithms (MD5,
   SHA-1, the SHA-2 family, BLAKE2, BLAKE3), use the Text Hash Generator tool
   instead.
+
+## FAQ
+
+<details>
+<summary>Why is my digest different from a SHA3-256 tool's output?</summary>
+
+Because Keccak-256 ≠ SHA3-256. The original Keccak uses `0x01` multi-rate
+padding; when NIST standardized it as FIPS-202 SHA-3 the padding changed to
+`0x06`, so the two algorithms give completely different digests for the same
+input. This tool is the original Keccak — the one Ethereum uses. For the NIST
+SHA-3 variants, use the Text Hash Generator.
+
+</details>
+
+<details>
+<summary>How do I hash raw bytes (calldata, a key) instead of a string?</summary>
+
+Set **Interpret input as** to `hex` or `base64`. In hex mode a leading `0x` is
+accepted, so you can paste EVM calldata like `0xa9059cbb…` directly and the tool
+hashes the decoded bytes, not the literal characters.
+
+</details>
+
+<details>
+<summary>How do I compute an Ethereum function selector?</summary>
+
+Hash the canonical signature — no spaces, no parameter names — with Keccak-256
+and take the first 4 bytes of the digest. For example,
+`keccak256("transfer(address,uint256)")` starts with `a9059cbb`, the familiar
+ERC-20 transfer selector.
+
+</details>
+
+<details>
+<summary>Which variant should I pick, Keccak-256 or Keccak-512?</summary>
+
+Keccak-256 (the default, 32-byte digest) is what Ethereum and the EVM ecosystem
+use everywhere — addresses, storage keys, the `KECCAK256` opcode. Keccak-512
+gives a 64-byte digest; choose it only when a spec explicitly asks for the
+512-bit variant.
+
+</details>

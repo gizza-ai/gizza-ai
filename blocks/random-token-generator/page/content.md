@@ -31,3 +31,33 @@ stronger) and the size of the alphabet used.
 - Each token is drawn uniformly with rejection sampling, so there is no
   modulo bias even for non-power-of-two alphabets.
 - Re-run for a fresh value — nothing is stored.
+
+### FAQ
+
+<details>
+<summary>How long and how many tokens can I generate?</summary>
+
+Length can be 1 to 4096 characters per token, and you can generate up to 1000 tokens in one batch. Values outside those ranges return an error rather than being silently clamped.
+
+</details>
+
+<details>
+<summary>Are these tokens really random enough for secrets?</summary>
+
+Yes — bytes come from the platform's cryptographic RNG (the same source as `crypto.getRandomValues`), and characters are picked with rejection sampling so every character of the alphabet is equally likely, even when the alphabet size isn't a power of two.
+
+</details>
+
+<details>
+<summary>What are the rules for a custom alphabet?</summary>
+
+Anything goes as long as there are at least **2 distinct characters** — duplicates are removed automatically, and Unicode is fine. When the custom alphabet field is non-empty it fully replaces the charset preset. Example: `BCDFGHJKMNPQRSTVWXYZ23456789` gives vowel-free voucher codes.
+
+</details>
+
+<details>
+<summary>How is the entropy figure calculated?</summary>
+
+Entropy = token length × log2(alphabet size). A 32-character hex token is 32 × 4 = 128 bits; 22 base64url characters give ~131 bits. If the number looks low, either lengthen the token or pick a larger alphabet.
+
+</details>

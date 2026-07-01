@@ -37,3 +37,46 @@ The syllable count uses an English heuristic (vowel groups with silent-`e` and
 `-le` adjustments), so scores are estimates — accurate enough to compare drafts
 and hit a target band, but they can differ by a fraction of a grade from a
 dictionary-based counter. SMOG is designed for samples of about 30 sentences.
+
+## FAQ
+
+<details>
+<summary>Which readability formulas does it calculate?</summary>
+
+Six at once: **Flesch Reading Ease**, **Flesch-Kincaid Grade Level**,
+**Gunning-Fog**, **SMOG**, **Coleman-Liau** and the **Automated Readability
+Index (ARI)** — plus their average grade and a plain-language reading level.
+It also shows the raw counts (words, sentences, syllables, complex words) so
+you can see what drives each number.
+
+</details>
+
+<details>
+<summary>Why do the different indices disagree on a grade?</summary>
+
+Each formula weights different signals. Flesch-Kincaid, Gunning-Fog and SMOG
+lean on syllable and complex-word counts, while Coleman-Liau and ARI use
+letters/characters per word instead — so they sidestep syllable-counting error
+but react differently to long words. A spread of a grade or two across the six
+is normal; the average smooths it out.
+
+</details>
+
+<details>
+<summary>Is the English scoring exact, and does it work for one sentence?</summary>
+
+Syllables are estimated with an English heuristic, so grades are close but can
+differ by a fraction from a dictionary counter — great for comparing drafts,
+not for a legal cutoff. It scores any length, but SMOG is designed for ~30
+sentence samples, so single-sentence SMOG values are unreliable. Empty input
+returns "No text to analyze." rather than a score.
+
+</details>
+
+<details>
+<summary>Is my text sent anywhere?</summary>
+
+No — every count and score is computed in your browser with WebAssembly, so
+unpublished drafts and private documents never leave your device.
+
+</details>

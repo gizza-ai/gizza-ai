@@ -1,6 +1,6 @@
 slug          = "parse-ipv4-header"
 title         = "IPv4 Header Parser — decode a raw IPv4 packet header from hex — gizza.ai"
-description   = "Paste an IPv4 packet header in hex and decode the version, IHL, DSCP/ECN, total length, identification, flags, fragment offset, TTL, protocol, checksum, and source/destination addresses — in your browser. Nothing is uploaded."
+description   = "IPv4 header parser: paste hex and decode DSCP/ECN, flags, fragment offset, TTL, protocol, checksum validity, and addresses — free, in your browser."
 tags          = ["ipv4 header parser", "decode ipv4 header", "ip packet header", "ip header decoder", "dscp", "ecn", "ttl", "ip protocol number", "header checksum", "fragment offset"]
 h1            = "IPv4 Header Parser"
 hero_subtitle = "Paste a raw IPv4 packet header as hex and decode every field: version, IHL, DSCP/ECN, total length, identification, flags (DF/MF), fragment offset, TTL, protocol, header checksum (validated), and the source and destination addresses. Spaces, colons, dashes, dots, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."

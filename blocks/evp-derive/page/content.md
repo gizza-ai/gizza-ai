@@ -59,3 +59,45 @@ high iteration count.
 This tool matches OpenSSL's output byte-for-byte. For example,
 `openssl enc -aes-256-cbc -md sha256 -nosalt -pass pass:password -P` yields the same
 key and IV this tool produces for password `password`, hash `sha256`, key 32, IV 16.
+
+## FAQ
+
+<details>
+<summary>Which settings match my `openssl enc` command?</summary>
+
+Match the `-md` digest (OpenSSL used **MD5** by default before 1.1.0, **SHA-256**
+since), the cipher's key/IV sizes (AES-256-CBC = key 32, IV 16; AES-128-CBC =
+key 16, IV 16), and the iteration count (`-iter N`, default **1** when the flag
+is absent). If the command had `-nosalt`, leave the salt field empty.
+
+</details>
+
+<details>
+<summary>Where do I find the salt of an OpenSSL-encrypted file?</summary>
+
+A salted `openssl enc` file starts with the 8-byte magic `Salted__` followed by
+the 8-byte salt. Dump the first 16 bytes (e.g. `xxd -l 16 file.enc`), take bytes
+9–16 as hex, paste them into the salt field, and set the salt encoding to
+**hex**. The salt can also be given as base64 or plain utf8 text.
+
+</details>
+
+<details>
+<summary>What are the input limits?</summary>
+
+The combined key + IV length must be between 1 and 1024 bytes, the iteration
+count must be at least 1, and a hex salt needs an even number of digits. Only
+the four digests OpenSSL commonly used are supported: MD5, SHA-1, SHA-256, and
+SHA-512.
+
+</details>
+
+<details>
+<summary>Should I use EVP_BytesToKey for new encryption?</summary>
+
+No. With the default count of 1 it is essentially a single unsalted-or-lightly-
+salted hash, so it offers almost no brute-force resistance. It exists here for
+interoperability — decrypting old files and matching CryptoJS. For anything new,
+use PBKDF2 (`openssl enc -pbkdf2`), scrypt, or Argon2id with a random salt.
+
+</details>

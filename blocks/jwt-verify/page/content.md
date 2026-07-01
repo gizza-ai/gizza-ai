@@ -39,3 +39,44 @@ the token is `valid`, which checks passed, and — if it isn't — exactly why.
   or EC key pair? See the key-pair generator tools.
 - For HS* the secret is taken as raw UTF-8 bytes (the same way most JWT
   libraries treat a string secret).
+
+## FAQ
+
+<details>
+<summary>What goes in the key field — a secret, a public key, or a private key?</summary>
+
+It depends on the algorithm. For HS256/384/512, paste the shared secret string
+(interpreted as raw UTF-8 bytes, as most JWT libraries do). For RS* and ES*,
+paste the PEM **public** key — `-----BEGIN PUBLIC KEY-----` (SPKI) or
+`-----BEGIN RSA PUBLIC KEY-----` (PKCS#1). Never paste a private key;
+verification doesn't need it.
+
+</details>
+
+<details>
+<summary>Do I need to fill in the required-algorithm field?</summary>
+
+It's optional but recommended: when set, any token whose `alg` header differs
+is rejected outright, which blocks algorithm-confusion and downgrade attacks.
+Left empty, the token's own `alg` is used — except `alg: none`, which this
+tool always refuses.
+
+</details>
+
+<details>
+<summary>A token that just expired still fails — can I allow for clock skew?</summary>
+
+Yes, that's the **leeway** field: the number of seconds of tolerance applied
+to both the `exp` (expiry) and `nbf` (not-before) checks. It defaults to 0,
+so even one second past expiry fails until you grant some leeway.
+
+</details>
+
+<details>
+<summary>How are the issuer and audience claims matched?</summary>
+
+Both are only checked when you supply an expected value. The issuer must equal
+the token's `iss` exactly. The audience passes if the token's `aud` — whether
+a single string or an array — contains your expected value.
+
+</details>

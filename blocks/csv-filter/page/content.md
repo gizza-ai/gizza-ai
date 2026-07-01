@@ -30,3 +30,23 @@ Not yet — run the tool twice, or chain it
 with the other CSV tools. (Multi-condition support is a planned addition.)
 
 </details>
+
+<details>
+<summary>Does it work with semicolon- or tab-separated files?</summary>
+
+Yes. Set the delimiter to `comma`, `tab`, `semicolon`, or `pipe` (or type any
+single character). The filtered output is written back with the same
+delimiter, and rows with differing field counts are tolerated.
+
+</details>
+
+<details>
+<summary>What if my CSV has no header row?</summary>
+
+Turn *first row is a header* off and refer to columns by **1-based index** —
+e.g. `2 > 100` filters on the second column. With the header option on, the
+header row itself is always kept in the output; note that `contains` needs
+spaces around it (`name contains al`), while a bare `=` is accepted as
+equality.
+
+</details>

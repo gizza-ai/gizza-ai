@@ -22,3 +22,41 @@ a file keeps its original structure.
 Everything runs locally in your browser via WebAssembly. Your text is never
 uploaded to a server — there's nothing to sign up for and nothing leaves your
 machine.
+
+## FAQ
+
+<details>
+<summary>What if I ask for more lines than the text has?</summary>
+
+You simply get the whole text back — no error and no padding. Asking for the
+first 100 lines of a 20-line paste returns all 20 lines, same as `head -n 100`
+on a short file.
+
+</details>
+
+<details>
+<summary>Is there a maximum line count?</summary>
+
+Yes: the count is clamped to the range 1 – 1,000,000. Leaving it empty uses the
+classic `head` default of 10 lines. Values outside the range are pulled back to
+the nearest bound rather than rejected.
+
+</details>
+
+<details>
+<summary>How does skipping lines interact with line numbering?</summary>
+
+Numbering always reflects the **original** position in your text. With *Skip
+leading lines* = 1 and *Number of lines* = 2, you get lines 2 and 3 prefixed
+`2⇥` and `3⇥` (a tab after the number, like `cat -n`) — not renumbered from 1.
+
+</details>
+
+<details>
+<summary>Does it mangle Windows line endings or the final newline?</summary>
+
+No. Lines are split on `\n` and any `\r` from CRLF endings is carried through
+untouched, and a trailing newline is kept only if your input ended with one —
+so the head of a file preserves the file's original structure byte-for-byte.
+
+</details>

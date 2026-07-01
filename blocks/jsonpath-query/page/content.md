@@ -32,3 +32,44 @@ engine — your data is never uploaded to a server.
   instead of one value per line.
 - Tick **Pretty-print** for indented output.
 - This follows the **RFC 9535** standard for JSONPath.
+
+## FAQ
+
+<details>
+<summary>Why did my query return nothing — is that an error?</summary>
+
+No. A JSONPath query legitimately selects zero, one, or many nodes, so "no
+match" simply produces empty output (or `[]` when "Wrap matches in a JSON
+array" is ticked). You only get an error for an empty/invalid expression or
+JSON that doesn't parse.
+
+</details>
+
+<details>
+<summary>What does the "Wrap matches in a JSON array" option change?</summary>
+
+By default each matched value is printed on its own line — easy to eyeball,
+but the output as a whole isn't valid JSON when there are multiple matches.
+Wrapping returns one JSON array containing all matches, which you can feed
+straight into another tool or script.
+
+</details>
+
+<details>
+<summary>Which JSONPath dialect does this follow?</summary>
+
+The IETF standard, **RFC 9535**. The familiar constructs all work — `$..price`
+recursive descent, `[*]` wildcards, `[start:end:step]` slices, negative
+indices, and `[?(@.price < 10)]` filters — but non-standard extensions from
+older "Goessner-style" implementations may be rejected with a parse error.
+
+</details>
+
+<details>
+<summary>Can I filter on more than one condition?</summary>
+
+Yes — filter expressions support logical operators, so
+`$[?(@.active && @.age >= 18)]` selects elements matching both conditions,
+with `@` referring to the element currently being tested.
+
+</details>

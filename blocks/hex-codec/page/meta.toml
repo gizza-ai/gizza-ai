@@ -1,6 +1,6 @@
 slug          = "hex-codec"
 title         = "Hex Encoder & Decoder — Text to Hex & Hex to Text — gizza.ai"
-description   = "Encode text to a hexadecimal string and decode hex back to text, instantly in your browser. Choose byte delimiters (space, colon, dash), uppercase, and 0x / \\x prefixes; tolerant decoding round-trips any format. Free, private, no sign-up."
+description   = "Encode text to hex and decode hex back to text in your browser. Delimiters, uppercase, and 0x prefixes; tolerant decoding accepts any format. Free and private."
 tags          = ["hex", "hex encode", "hex decode", "text to hex", "hex to text", "hexadecimal", "encoder", "decoder", "hex converter", "bytes"]
 h1            = "Hex Encoder / Decoder"
 hero_subtitle = "Convert text to a hexadecimal string, or decode hex back to text — with byte delimiters, uppercase, and 0x / \\x prefixes. Decoding ignores spacing and prefixes, so any format round-trips. Runs entirely in your browser, no server, no sign-up."
