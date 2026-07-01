@@ -44,18 +44,43 @@ classic `0x48 0x69 0x21` C-array style.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it keeps
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it keeps
 working offline once the page has loaded.
 
-**What encoding does it use for text?** Text is read and written as **UTF-8**, so
+</details>
+
+<details>
+<summary>What encoding does it use for text?</summary>
+
+Text is read and written as **UTF-8**, so
 accented letters and emoji become their multi-byte UTF-8 sequences (`é` → `c3a9`).
 
-**Can I paste hex with spaces or colons?** Yes. Decoding ignores ASCII whitespace,
+</details>
+
+<details>
+<summary>Can I paste hex with spaces or colons?</summary>
+
+Yes. Decoding ignores ASCII whitespace,
 the `:` `-` `,` delimiters, and `0x` / `\x` prefixes, so a string copied from a hex
 dump, a `0x`-prefixed C array, or a `\x`-escaped string all decode without editing.
 
-**My decoded output looks garbled.** The bytes probably aren't UTF-8 text. Switch
+</details>
+
+<details>
+<summary>My decoded output looks garbled.</summary>
+
+The bytes probably aren't UTF-8 text. Switch
 the **Decode output** to **bytes** to see the raw hex instead.
 
-**Lowercase or uppercase?** Lowercase is the default and the most common in tools
+</details>
+
+<details>
+<summary>Lowercase or uppercase?</summary>
+
+Lowercase is the default and the most common in tools
 and protocols. Toggle **Uppercase hex** when a spec or system expects `A–F` caps.
+
+</details>

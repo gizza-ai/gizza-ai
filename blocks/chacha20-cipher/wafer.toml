@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "chacha20-cipher"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Encrypt or decrypt data with ChaCha20 or ChaCha20-Poly1305 (RFC 8439)"

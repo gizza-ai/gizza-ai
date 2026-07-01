@@ -55,15 +55,35 @@ ship it
 
 ## FAQ
 
-**Is it free and private?** Yes — your checklist never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your checklist never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**Does it support numbered lists?** Yes. `1. [ ] task` and `2) [x] task` are both
+</details>
+
+<details>
+<summary>Does it support numbered lists?</summary>
+
+Yes. `1. [ ] task` and `2) [x] task` are both
 recognized alongside the `-`, `*`, and `+` bullet markers.
 
-**Why isn't one of my lines counted?** A task needs a checkbox right after the
+</details>
+
+<details>
+<summary>Why isn't one of my lines counted?</summary>
+
+A task needs a checkbox right after the
 list marker — `- [ ] text` or `- [x] text`. A bullet without a `[ ]`/`[x]`
 checkbox is treated as a plain list item and ignored.
 
-**How is the percentage calculated?** It's `done ÷ total`, rounded to the nearest
+</details>
+
+<details>
+<summary>How is the percentage calculated?</summary>
+
+It's `done ÷ total`, rounded to the nearest
 whole percent. An empty list reports 0%.
+
+</details>

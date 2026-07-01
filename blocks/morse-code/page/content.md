@@ -49,33 +49,43 @@ underscore (`_`) anywhere a dash (`-`) would appear.
 
 <details>
 <summary>Is it free and private?</summary>
-<p>Yes — your input never leaves your device, and the translator keeps working
-offline once the page has loaded. There is no sign-up and nothing is logged.</p>
+
+Yes — your input never leaves your device, and the translator keeps working
+offline once the page has loaded. There is no sign-up and nothing is logged.
+
 </details>
 
 <details>
 <summary>Which Morse standard does it use?</summary>
-<p>The International Morse code (ITU-R M.1677-1) alphabet — the same letters,
+
+The International Morse code (ITU-R M.1677-1) alphabet — the same letters,
 digits, and punctuation used worldwide for amateur radio and signalling, plus a
-few everyday extras like <code>@</code> and <code>$</code>.</p>
+few everyday extras like <code>@</code> and <code>$</code>.
+
 </details>
 
 <details>
 <summary>What happens to characters that have no Morse code?</summary>
-<p>When encoding, any character outside the supported set is replaced by the code
-for <code>?</code> (<code>..--..</code>) so the message still translates cleanly.</p>
+
+When encoding, any character outside the supported set is replaced by the code
+for <code>?</code> (<code>..--..</code>) so the message still translates cleanly.
+
 </details>
 
 <details>
 <summary>How do I decode Morse with unusual spacing?</summary>
-<p>Set the <strong>Letter separator</strong> and <strong>Word separator</strong> to
+
+Set the <strong>Letter separator</strong> and <strong>Word separator</strong> to
 match the spacing in your input. For example, if words are split with a pipe
 (<code>|</code>) and letters by a single space, set the word separator to
-<code>|</code> and leave the letter separator blank.</p>
+<code>|</code> and leave the letter separator blank.
+
 </details>
 
 <details>
 <summary>Can I convert numbers and punctuation?</summary>
-<p>Yes — digits 0–9 and common punctuation (<code>. , ? ! / : ; = + - " $ @</code>
-and more) all have Morse codes and round-trip both ways.</p>
+
+Yes — digits 0–9 and common punctuation (<code>. , ? ! / : ; = + - " $ @</code>
+and more) all have Morse codes and round-trip both ways.
+
 </details>

@@ -28,8 +28,18 @@ still works.
 
 ### FAQ
 
-**Is my link sent anywhere?** No. The cleaner is compiled to WebAssembly and runs
+<details>
+<summary>Is my link sent anywhere?</summary>
+
+No. The cleaner is compiled to WebAssembly and runs
 entirely in your browser tab.
 
-**Will it break my URL?** No — only known tracking parameters (and any you list)
+</details>
+
+<details>
+<summary>Will it break my URL?</summary>
+
+No — only known tracking parameters (and any you list)
 are removed; the path and remaining query stay exactly as they were.
+
+</details>

@@ -44,7 +44,7 @@ struct PhoneFormat;
     name = "gizza-ai/phone-format",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Phone number formatter & validator skill",
+    summary = "Parse, validate, and format an international phone number.",
     skill(
         description = "Parse, validate, and format an international phone number. Reports validity, E.164, national & international formats, the country/region, and the number type when derivable.",
         parameters = schema_json()

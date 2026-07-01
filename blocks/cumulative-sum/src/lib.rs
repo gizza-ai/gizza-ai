@@ -55,7 +55,7 @@ struct CumulativeSum;
     name = "gizza-ai/cumulative-sum",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Running total (prefix sum) of a list of numbers.",
+    summary = "Running total (prefix sum) of a list of numbers, with optional running average, min, and max.",
     skill(
         description = "Compute the running total (prefix sum) of a list of numbers. Pass the values in 'numbers' (separated by commas, spaces, or newlines). The result is a table with one row per input value: the value and the cumulative sum up to that point. Optionally set average=true to add a running-average column (the mean of values seen so far), min=true for a running-minimum column, and max=true for a running-maximum column. Use it for prefix sums, running balances, cumulative totals, and step-by-step accumulation.",
         parameters = schema_json()

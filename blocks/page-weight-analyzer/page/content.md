@@ -67,41 +67,53 @@ or `async` to the blocking one.
 
 <details>
 <summary>Is it free and private?</summary>
-<p>Yes. The HTML you paste never leaves your device, and the tool keeps working
-offline once the page has loaded.</p>
+
+Yes. The HTML you paste never leaves your device, and the tool keeps working
+offline once the page has loaded.
+
 </details>
 
 <details>
 <summary>Why are the external file sizes only estimates?</summary>
-<p>The tool runs entirely in your browser and never makes network requests, so it
+
+The tool runs entirely in your browser and never makes network requests, so it
 can't download the linked scripts, styles, images, or fonts to measure them. It
 estimates their sizes from typical median transfer sizes. The HTML you paste is
-measured exactly.</p>
+measured exactly.
+
 </details>
 
 <details>
 <summary>What counts as a "render-blocking" stylesheet?</summary>
-<p>A normal <code>&lt;link rel="stylesheet"&gt;</code> with no media restriction.
+
+A normal <code>&lt;link rel="stylesheet"&gt;</code> with no media restriction.
 Sheets marked <code>media="print"</code> or <code>disabled</code> are excluded
-because they don't block the first paint.</p>
+because they don't block the first paint.
+
 </details>
 
 <details>
 <summary>Why is the request count a "lower bound"?</summary>
-<p>Static HTML only shows the resources written directly in the markup. Files
+
+Static HTML only shows the resources written directly in the markup. Files
 that CSS (background images, <code>@import</code>, web fonts) or JavaScript fetch
-at runtime aren't visible, so the real request count is usually higher.</p>
+at runtime aren't visible, so the real request count is usually higher.
+
 </details>
 
 <details>
 <summary>Can I get the results as JSON?</summary>
-<p>Yes. Switch the output format to "json" for a structured object containing
-every count and the estimate, ready to script against.</p>
+
+Yes. Switch the output format to "json" for a structured object containing
+every count and the estimate, ready to script against.
+
 </details>
 
 <details>
 <summary>Do data: URIs count as requests?</summary>
-<p>No. Inline <code>data:</code> URIs are embedded in the HTML itself, so they add
+
+No. Inline <code>data:</code> URIs are embedded in the HTML itself, so they add
 to the document's measured size but aren't counted as separate network
-requests.</p>
+requests.
+
 </details>

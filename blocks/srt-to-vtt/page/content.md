@@ -54,23 +54,48 @@ First line.
 
 ## FAQ
 
-**Which format do I need?** Use **WebVTT** (`.vtt`) for subtitles shown in a web
+<details>
+<summary>Which format do I need?</summary>
+
+Use **WebVTT** (`.vtt`) for subtitles shown in a web
 browser via the HTML5 `<track>` tag. Use **SubRip** (`.srt`) for desktop media
 players (VLC, MPV), uploading to most video platforms, and muxing into a video
 file.
 
-**Does it change the timing?** No. Only the timestamp *format* changes (comma vs
+</details>
+
+<details>
+<summary>Does it change the timing?</summary>
+
+No. Only the timestamp *format* changes (comma vs
 period); the actual times stay the same, so the subtitles stay in sync.
 
-**What about WebVTT styling and positioning?** Cue settings after the timestamp
+</details>
+
+<details>
+<summary>What about WebVTT styling and positioning?</summary>
+
+Cue settings after the timestamp
 (like `line:90%` or `align:center`) are dropped when converting to SRT, because
 SubRip doesn't support them. WebVTT styling blocks (`STYLE`, `NOTE`) in the
 header are removed too. Going the other way, SRT has no cue settings to add.
 
-**Is my file uploaded anywhere?** No. The conversion happens locally in your
+</details>
+
+<details>
+<summary>Is my file uploaded anywhere?</summary>
+
+No. The conversion happens locally in your
 browser, so your subtitles never leave your device, and it keeps working offline
 once the page has loaded.
 
-**What format does it expect?** Standard SubRip or WebVTT: a cue number
+</details>
+
+<details>
+<summary>What format does it expect?</summary>
+
+Standard SubRip or WebVTT: a cue number
 (optional in VTT), a `-->` timing line, then one or more lines of text, with a
 blank line between cues.
+
+</details>

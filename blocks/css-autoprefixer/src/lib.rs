@@ -49,7 +49,7 @@ struct CssAutoprefixer;
     name = "gizza-ai/css-autoprefixer",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "CSS Autoprefixer skill",
+    summary = "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS.",
     skill(
         description = "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS for the properties and values that still need them in modern browsers. Pass the CSS in `css`; the tool inserts the needed prefixed clones immediately before each original declaration (standard form last, so a fully-supporting browser wins). It covers property prefixes (e.g. user-select, appearance, backdrop-filter, clip-path, mask, hyphens, text-size-adjust, background-clip:text), property renames (tab-size -> -moz-/-o-tab-size), and value prefixes (display:flex -> -webkit-box/-webkit-flex/-ms-flexbox, position:sticky -> -webkit-sticky, width:max-content -> -webkit-/-moz-). Declarations inside /* comments */ and strings, and CSS custom properties (--vars), are left untouched. Set dedup=false to also emit a prefix that already appears in the rule. The prefix set is curated for current browser targets, not an exhaustive historical list.",
         parameters = schema_json()

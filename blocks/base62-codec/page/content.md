@@ -63,28 +63,58 @@ leading-zero padding (the integer `0` encodes to `0`).
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**What's the difference from Base64?** Base64 uses 64 symbols including `+`, `/`,
+</details>
+
+<details>
+<summary>What's the difference from Base64?</summary>
+
+Base64 uses 64 symbols including `+`, `/`,
 and `=` padding, which aren't URL-safe without extra escaping. Base62 sticks to
 the 62 letters and digits, so its output needs no padding and is safe in URLs,
 filenames, and IDs — at the cost of being slightly longer than Base64.
 
-**How is Base62 different from Base58?** Base58 drops the four visually
+</details>
+
+<details>
+<summary>How is Base62 different from Base58?</summary>
+
+Base58 drops the four visually
 ambiguous characters `0 O I l` (leaving 58), which makes it easier to read and
 type by hand. Base62 keeps all 62 alphanumerics, so it's a bit more compact but
 not optimised for hand-copying.
 
-**Which alphabet should I pick?** Use **standard** (`0-9A-Za-z`) unless a
+</details>
+
+<details>
+<summary>Which alphabet should I pick?</summary>
+
+Use **standard** (`0-9A-Za-z`) unless a
 specific library you're matching uses the inverted order. The two are not
 interchangeable — a string encoded with one alphabet must be decoded with the
 same one.
 
-**Can I shorten a big number?** Yes — set the **Data format** to **number** and
+</details>
+
+<details>
+<summary>Can I shorten a big number?</summary>
+
+Yes — set the **Data format** to **number** and
 paste the integer. There's no size limit; huge counters and UUID-sized values
 round-trip exactly.
 
-**My decoded output looks garbled.** The bytes probably aren't UTF-8 text.
+</details>
+
+<details>
+<summary>My decoded output looks garbled.</summary>
+
+The bytes probably aren't UTF-8 text.
 Switch the **Data format** to **hex** to see the raw bytes, or **number** if the
 value is an integer.
+
+</details>

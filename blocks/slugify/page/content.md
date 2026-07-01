@@ -44,21 +44,46 @@ Type a **Title or phrase** and the slug updates instantly. Optionally change the
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and the tool
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and the tool
 keeps working offline once the page has loaded.
 
-**What's a slug?** It's the readable, URL-safe part of a web address that
+</details>
+
+<details>
+<summary>What's a slug?</summary>
+
+It's the readable, URL-safe part of a web address that
 identifies a page, such as `creme-brulee-recipe` in
 `example.com/recipes/creme-brulee-recipe`. Slugs use only lowercase letters,
 digits, and hyphens, which is friendly for both readers and search engines.
 
-**How are accented and non-Latin characters handled?** They're transliterated to
+</details>
+
+<details>
+<summary>How are accented and non-Latin characters handled?</summary>
+
+They're transliterated to
 the closest ASCII equivalent — `é`→`e`, `ñ`→`n`, `ß`→`ss`, and scripts like
 Chinese, Cyrillic, or Greek are romanised — so the slug stays plain ASCII.
 
-**Can I use underscores instead of hyphens?** Yes — set the **Separator** to `_`
+</details>
+
+<details>
+<summary>Can I use underscores instead of hyphens?</summary>
+
+Yes — set the **Separator** to `_`
 (or any non-alphanumeric character) to change the word separator.
 
-**Does it limit the length?** Only if you want it to. Set **Max length** to a
+</details>
+
+<details>
+<summary>Does it limit the length?</summary>
+
+Only if you want it to. Set **Max length** to a
 positive number and the slug is trimmed on a word boundary so words aren't cut in
 half; leave it at `0` for no limit.
+
+</details>

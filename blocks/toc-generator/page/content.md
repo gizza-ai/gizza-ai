@@ -52,22 +52,47 @@ Markdown table of contents:
 
 ## FAQ
 
-**Is it free and private?** Yes — your document never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your document never leaves your device, and the
 page keeps working offline once it has loaded.
 
-**Does it work with both Markdown and HTML?** Yes. Leave the input format on
+</details>
+
+<details>
+<summary>Does it work with both Markdown and HTML?</summary>
+
+Yes. Leave the input format on
 **auto** and it picks the right parser, or set it explicitly if your document
 mixes both.
 
-**Do the anchor links actually work?** They use the same GitHub-style slug that
+</details>
+
+<details>
+<summary>Do the anchor links actually work?</summary>
+
+They use the same GitHub-style slug that
 GitHub, GitLab, and common Markdown renderers generate from heading text, so a
 table of contents pasted into a README or rendered page links correctly. HTML
 headings with an existing `id` keep that id.
 
-**Can I leave out the top-level title?** Yes — set the minimum heading level to
+</details>
+
+<details>
+<summary>Can I leave out the top-level title?</summary>
+
+Yes — set the minimum heading level to
 **2** so the document's single `#` / `<h1>` title is skipped and the contents
 start at the sections.
 
-**Why did I get an error?** The document must contain at least one heading within
+</details>
+
+<details>
+<summary>Why did I get an error?</summary>
+
+The document must contain at least one heading within
 the chosen level range. Check the input format and the min/max levels if nothing
 comes back.
+
+</details>

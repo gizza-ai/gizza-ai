@@ -33,7 +33,7 @@ struct Tool;
     name = "gizza-ai/parse-datetime",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Parse Date/Time skill",
+    summary = "Parse a date/time string in many formats into structured components.",
     skill(
         description = "Parse a single date and/or time string in many common formats and return its structured components as JSON: kind (date/time/datetime), year, month (number + English name), day, weekday name, day_of_year, iso_week (ISO-8601 week number), hour/minute/second (24-hour), utc_offset_seconds when a timezone is present, and a canonical iso8601 rendering. Accepts ISO 8601 / RFC 3339 (2024-01-05, 2024-01-05T14:30:00Z, 2024-01-05T14:30:00+02:00, '2024-01-05 14:30'), RFC 2822 email dates ('Fri, 05 Jan 2024 14:30:00 +0000'), US slash dates (01/05/2024, read month-first unless the first field is >12), European dotted dates (05.01.2024, day-first), year-first (2024/01/05), month-name dates ('January 5, 2024', '5 Jan 2024', 'Jan 5, 2024 2:30 PM'), and bare clock times (14:30, 2:30:15, 3pm, '9:05 AM'). Two-digit years map 00-69 to 2000s and 70-99 to 1900s. Returns an error for inputs it cannot recognize or that are not valid calendar dates/times. Runs locally; nothing is uploaded.",
         parameters = schema_json()

@@ -16,7 +16,17 @@ Keep only the rows of a CSV that match a condition. Write it as
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+<details>
+<summary>Is my data uploaded?</summary>
 
-**Can I combine conditions (AND/OR)?** Not yet — run the tool twice, or chain it
+No — it's processed locally with WebAssembly.
+
+</details>
+
+<details>
+<summary>Can I combine conditions (AND/OR)?</summary>
+
+Not yet — run the tool twice, or chain it
 with the other CSV tools. (Multi-condition support is a planned addition.)
+
+</details>

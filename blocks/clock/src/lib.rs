@@ -41,7 +41,7 @@ struct Clock;
     name = "gizza-ai/clock",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Current time skill",
+    summary = "Get the current wall-clock time.",
     skill(
         description = "Get the current UTC time. Returns ISO 8601 timestamp.",
         parameters = schema_json()

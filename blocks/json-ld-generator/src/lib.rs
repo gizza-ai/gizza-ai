@@ -83,7 +83,7 @@ struct Tool;
     name = "gizza-ai/json-ld-generator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "JSON-LD structured data generator",
+    summary = "Generate schema.org JSON-LD structured data from simple field inputs.",
     skill(
         description = "Generate schema.org JSON-LD structured-data markup from simple field inputs. Pick a schema_type (Article, Product, FAQPage, Organization, LocalBusiness, Person, Event, Recipe, WebSite, BreadcrumbList, Review, VideoObject, HowTo, JobPosting, Course, SoftwareApplication) and pass 'fields' as newline-separated 'name = value' pairs. Dotted names build nested objects with an inferred @type (author.name, address.streetAddress, offers.price); list fields split on commas; numeric fields become JSON numbers. For FAQPage, pass 'faq' as 'Question? | Answer' pairs. Set wrap_script=true to get a ready-to-paste <script type=\"application/ld+json\"> tag. Output validates against Google's Rich Results requirements for the chosen type.",
         parameters = schema_json()

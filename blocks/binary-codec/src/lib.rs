@@ -63,7 +63,7 @@ struct BinaryCodec;
     name = "gizza-ai/binary-codec",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Binary encode/decode skill",
+    summary = "Binary encode/decode",
     skill(
         description = "Encode text or bytes to a per-byte binary bit string (eight 0/1 bits per byte), or decode a binary string back to text. Use mode='encode' (default, e.g. 'Hi' -> '01001000 01101001') or mode='decode' (e.g. '01001000 01101001' -> 'Hi'). delimiter sets the separator between bytes when encoding ('space' default, 'none', 'colon', 'dash', 'comma', 'newline'); prefix adds '0b' before each byte. On decode, format='text' (default) renders UTF-8 (errors on non-UTF-8 bytes) and format='bytes' shows the raw bytes as a plain hex string. Decoding ignores whitespace, the common delimiters (: - ,), and the 0b prefix, so any encoded form round-trips back.",
         parameters = schema_json()

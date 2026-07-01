@@ -49,7 +49,7 @@ struct ColumnMath;
     name = "gizza-ai/column-math",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Element-wise math between two numeric columns.",
+    summary = "Element-wise add/subtract/multiply/divide between two numeric columns.",
     skill(
         description = "Perform element-wise arithmetic between two equal-length numeric columns. Pass column A in 'a' and column B in 'b' (numbers separated by commas, spaces, or newlines), and choose operation='add' (default, A+B), 'subtract' (A-B), 'multiply' (A*B), or 'divide' (A/B). The columns must have the same number of values; a zero divisor on divide is an error. Returns the per-row results as a newline-separated list. Use it for spreadsheet-style column math — summing two columns, computing differences, scaling, or ratios.",
         parameters = schema_json()

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "smart-quotes-clean"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Replace smart quotes and typographic characters with ASCII."

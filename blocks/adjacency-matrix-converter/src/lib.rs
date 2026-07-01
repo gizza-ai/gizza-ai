@@ -68,7 +68,7 @@ struct Tool;
     name = "gizza-ai/adjacency-matrix-converter",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Adjacency matrix converter skill",
+    summary = "Convert a graph between an edge list, an adjacency matrix, and an incidence matrix.",
     skill(
         description = "Convert a graph between an edge list, an adjacency matrix, an adjacency list, an incidence matrix, a degree matrix, and the graph Laplacian. Set from='edges' (default, one 'A B' edge per line, optional 3rd weight token) or from='adjacency' (a square numeric matrix with auto-detected label header). Set to='adjacency' (default), 'incidence' (vertices×edges; directed uses -1 for the tail and +1 for the head), 'edges', 'list' (adjacency list), 'degree' (diagonal degree matrix), or 'laplacian' (L=D-A, undirected only). Use directed=true so 'A B' is one-way, and weighted=true to read/emit edge weights (otherwise every edge is 1). Matrices are tab-separated with a label row and column.",
         parameters = schema_json()

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "parse-uri"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Split a URI/URL into its RFC 3986 components"

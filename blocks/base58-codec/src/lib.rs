@@ -59,7 +59,7 @@ struct Base58Codec;
     name = "gizza-ai/base58-codec",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Base58 encode/decode skill",
+    summary = "Encode text or bytes to Base58 (Bitcoin/IPFS) and decode Base58 back.",
     skill(
         description = "Encode text or bytes to Base58, or decode a Base58 string back to the original data. Use mode='encode' (default) or mode='decode'. variant selects the alphabet: 'bitcoin' (default) is the Satoshi/IPFS alphabet (e.g. 'Hello World!' -> '2NEpo7TZRRrLZSi2U'); 'ripple' is the XRP Ledger alphabet; 'flickr' is Flickr's short-URL alphabet. Base58 omits the ambiguous characters 0 O I l, has no padding, and preserves leading-zero bytes (each becomes a leading '1'). format='text' (default) treats the data as UTF-8; format='hex' reads/writes a hex byte string for binary data that isn't valid UTF-8.",
         parameters = schema_json()

@@ -19,5 +19,10 @@ ffmpeg; nothing is uploaded.
 
 ### FAQ
 
-**Is my video uploaded?** No — ffmpeg runs in your browser tab; the file never
+<details>
+<summary>Is my video uploaded?</summary>
+
+No — ffmpeg runs in your browser tab; the file never
 leaves your device.
+
+</details>

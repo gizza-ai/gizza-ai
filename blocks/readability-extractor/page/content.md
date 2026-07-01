@@ -20,8 +20,18 @@ browser; nothing is uploaded.
 
 ### FAQ
 
-**Does it fetch the URL for me?** No — paste the page's HTML. (Use the web-fetch
+<details>
+<summary>Does it fetch the URL for me?</summary>
+
+No — paste the page's HTML. (Use the web-fetch
 tool first if you need to retrieve a page, then pass its HTML here.)
 
-**Is anything uploaded?** No. The extractor is compiled to WebAssembly and runs
+</details>
+
+<details>
+<summary>Is anything uploaded?</summary>
+
+No. The extractor is compiled to WebAssembly and runs
 entirely in your browser tab.
+
+</details>

@@ -63,7 +63,7 @@ struct ListConverter;
     name = "gizza-ai/list-converter",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Reformat a list (comma/newline/bullets/numbered/quoted/sql/json/xml)",
+    summary = "Reformat a list (comma/newline/bullets/numbered/quoted/sql/json/xml).",
     skill(
         description = "Reformat a list between forms: comma-separated, newline, bulleted, numbered, quoted, space, tab, pipe, json, xml, sql, or custom separators. input_separator controls splitting; output_format controls layout. Optionally sort (alphabetical, length, reverse, shuffle), dedupe, case-transform (lower, upper, title), or prepend prefix/suffix. Items are trimmed and blanks dropped.",
         parameters = schema_json()

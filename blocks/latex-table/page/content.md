@@ -53,18 +53,43 @@ Delhi & 32900000 & 1484 \\
 
 ## FAQ
 
-**Is it free and private?** Yes — your data never leaves your device, and the tool
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your data never leaves your device, and the tool
 keeps working offline once the page has loaded.
 
-**Do I need any LaTeX packages?** Only for `booktabs` style: add
+</details>
+
+<details>
+<summary>Do I need any LaTeX packages?</summary>
+
+Only for `booktabs` style: add
 `\usepackage{booktabs}` to your preamble. `grid` and `plain` need nothing extra.
 
-**My cells contain `%` or `&` — will it break?** No. Escaping is on by default, so
+</details>
+
+<details>
+<summary>My cells contain <code>%</code> or <code>&amp;</code> — will it break?</summary>
+
+No. Escaping is on by default, so
 special characters are converted to their LaTeX-safe forms. Turn escaping off only
 if you want to keep raw LaTeX inside a cell.
 
-**Can I align columns differently?** Yes — put a per-column string like `lcr` in the
+</details>
+
+<details>
+<summary>Can I align columns differently?</summary>
+
+Yes — put a per-column string like `lcr` in the
 Alignment field (one letter per column), or a single letter to align them all the same.
 
-**Ragged rows?** Short rows are padded with empty cells so every row has the same
+</details>
+
+<details>
+<summary>Ragged rows?</summary>
+
+Short rows are padded with empty cells so every row has the same
 number of columns.
+
+</details>

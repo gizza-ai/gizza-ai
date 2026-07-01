@@ -46,16 +46,36 @@ produces — a result set for a `SELECT`, or a "rows affected" line for an
 
 ### FAQ
 
-**Do I need to set up a database?** No. A fresh in-memory database is created for
+<details>
+<summary>Do I need to set up a database?</summary>
+
+No. A fresh in-memory database is created for
 each run and discarded afterward — there is nothing to install or connect to.
 
-**Is my SQL or data uploaded?** No. The SQL engine runs locally in your browser
+</details>
+
+<details>
+<summary>Is my SQL or data uploaded?</summary>
+
+No. The SQL engine runs locally in your browser
 via WebAssembly. Your queries and data never leave your machine.
 
-**Is the data saved between runs?** No. Every run starts from an empty database,
+</details>
+
+<details>
+<summary>Is the data saved between runs?</summary>
+
+No. Every run starts from an empty database,
 so put your `CREATE TABLE` and `INSERT` statements in the same script as your
 query.
 
-**Which SQL dialect is this?** A standards-leaning subset implemented by a
+</details>
+
+<details>
+<summary>Which SQL dialect is this?</summary>
+
+A standards-leaning subset implemented by a
 pure-Rust SQL engine — most common `CREATE`/`INSERT`/`SELECT` features work;
 engine-specific extensions may not.
+
+</details>

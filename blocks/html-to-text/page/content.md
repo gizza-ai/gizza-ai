@@ -19,7 +19,17 @@ uploaded.
 
 ### FAQ
 
-**Is my HTML uploaded?** No — the converter is compiled to WebAssembly and runs
+<details>
+<summary>Is my HTML uploaded?</summary>
+
+No — the converter is compiled to WebAssembly and runs
 entirely in your browser tab.
 
-**Does it run scripts or fetch the page?** No. It only parses the HTML you paste.
+</details>
+
+<details>
+<summary>Does it run scripts or fetch the page?</summary>
+
+No. It only parses the HTML you paste.
+
+</details>

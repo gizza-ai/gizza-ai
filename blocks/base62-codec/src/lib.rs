@@ -59,7 +59,7 @@ struct Base62Codec;
     name = "gizza-ai/base62-codec",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Base62 encode/decode skill",
+    summary = "Encode text, hex bytes, or numbers to Base62 (0-9A-Za-z) and decode Base62 back.",
     skill(
         description = "Encode text, hex bytes, or a decimal number to Base62, or decode a Base62 string back to the original data. Base62 uses the 62 alphanumerics (0-9, A-Z, a-z) with no padding and no special characters, so its strings are compact and safe in URLs — it's commonly used for short IDs and URL slugs. Use mode='encode' (default) or mode='decode'. variant selects the alphabet order: 'standard' (default) is 0-9A-Za-z (e.g. 'Hello World!' -> 'T8dgcjRGkZ3aysdN'; the number 12345 -> '3D7'); 'inverted' is 0-9a-zA-Z. format='text' (default) treats the data as UTF-8; format='hex' reads/writes a hex byte string for binary data; format='number' reads/writes a non-negative decimal integer of arbitrary size. Byte encoding preserves leading-zero bytes as leading '0' symbols.",
         parameters = schema_json()

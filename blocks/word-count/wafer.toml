@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "word-count"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Count the words, characters, and lines in a block of text."

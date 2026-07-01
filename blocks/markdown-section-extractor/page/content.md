@@ -66,29 +66,39 @@ Use it like so.
 
 <details>
 <summary>Is it free and private?</summary>
-<p>Yes. Your document never leaves your device, and the tool keeps working
-offline once the page has loaded.</p>
+
+Yes. Your document never leaves your device, and the tool keeps working
+offline once the page has loaded.
+
 </details>
 
 <details>
 <summary>What if two headings have the same text?</summary>
-<p>The first matching heading in the document is used.</p>
+
+The first matching heading in the document is used.
+
 </details>
 
 <details>
 <summary>How do I get only the prose under a heading, without its subsections?</summary>
-<p>Turn off "Include nested subsections." The section then ends at the first
-deeper heading, returning only the body directly under your target.</p>
+
+Turn off "Include nested subsections." The section then ends at the first
+deeper heading, returning only the body directly under your target.
+
 </details>
 
 <details>
 <summary>Does it work on a section that runs to the end of the document?</summary>
-<p>Yes. If there is no following heading at the same or a shallower level, the
-section continues to the end of the document.</p>
+
+Yes. If there is no following heading at the same or a shallower level, the
+section continues to the end of the document.
+
 </details>
 
 <details>
 <summary>What happens if the heading isn't found?</summary>
-<p>You get an error that lists the headings the tool did find, so you can check
-the exact spelling or switch to "contains" matching.</p>
+
+You get an error that lists the headings the tool did find, so you can check
+the exact spelling or switch to "contains" matching.
+
 </details>

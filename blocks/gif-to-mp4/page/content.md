@@ -20,8 +20,18 @@ browser with ffmpeg; the GIF is never uploaded.
 
 ### FAQ
 
-**Is my GIF uploaded?** No — ffmpeg runs in your browser tab; the file never
+<details>
+<summary>Is my GIF uploaded?</summary>
+
+No — ffmpeg runs in your browser tab; the file never
 leaves your device.
 
-**Which format is smaller?** WebM (VP9) is usually smaller; MP4 (H.264) plays
+</details>
+
+<details>
+<summary>Which format is smaller?</summary>
+
+WebM (VP9) is usually smaller; MP4 (H.264) plays
 everywhere. Try both.
+
+</details>

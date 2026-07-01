@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "strip-ansi-codes"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Remove ANSI escape & color codes from terminal output"

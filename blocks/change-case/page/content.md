@@ -51,16 +51,36 @@ Existing acronyms are handled too: `HTTPServer` → `http_server`,
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Does it handle accents and non-English letters?** Yes. Case conversion uses
+</details>
+
+<details>
+<summary>Does it handle accents and non-English letters?</summary>
+
+Yes. Case conversion uses
 full Unicode mapping, so `café` → `CAFÉ` and `straße` → `STRASSE`.
 
-**What's the difference between Title Case and Sentence case?** Title Case
+</details>
+
+<details>
+<summary>What's the difference between Title Case and Sentence case?</summary>
+
+Title Case
 capitalizes the first letter of *every* word; Sentence case capitalizes only the
 first letter of each sentence (after a `.`, `!`, or `?`).
 
-**Can it convert camelCase to snake_case?** Yes — pick **snake_case** and it will
+</details>
+
+<details>
+<summary>Can it convert camelCase to snake_case?</summary>
+
+Yes — pick **snake_case** and it will
 split an existing `camelCase` or `PascalCase` identifier into words first
 (`helloWorld` → `hello_world`).
+
+</details>

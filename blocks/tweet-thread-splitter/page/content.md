@@ -64,21 +64,46 @@ text.
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**Does it break words in the middle?** No. Whole words are kept together; the
+</details>
+
+<details>
+<summary>Does it break words in the middle?</summary>
+
+No. Whole words are kept together; the
 only thing ever split is a single "word" that is by itself longer than one whole
 tweet (like a long URL), so no content is lost.
 
-**Does the counter count toward the limit?** Yes. The numbering is included in the
+</details>
+
+<details>
+<summary>Does the counter count toward the limit?</summary>
+
+Yes. The numbering is included in the
 per-tweet count, so every emitted tweet — counter included — stays at or under your
 chosen limit.
 
-**Which numbering style should I use?** `parens` (`(1/5)`) is the most common
+</details>
+
+<details>
+<summary>Which numbering style should I use?</summary>
+
+`parens` (`(1/5)`) is the most common
 Twitter convention; `slash` (`1/5`) is the same without parentheses; `dotted`
 (`1.`) reads like a numbered list; `none` drops the counter entirely.
 
-**What limit should I use?** Leave it at **280** for standard X/Twitter posts. Use
+</details>
+
+<details>
+<summary>What limit should I use?</summary>
+
+Leave it at **280** for standard X/Twitter posts. Use
 a higher value if you post with X Premium's longer limit, or a lower value to keep
 each tweet short.
+
+</details>

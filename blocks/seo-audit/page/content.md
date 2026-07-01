@@ -24,11 +24,26 @@ into an overall score and letter grade.
 
 ### FAQ
 
-**Is my HTML uploaded?** No — the audit is compiled to WebAssembly and runs
+<details>
+<summary>Is my HTML uploaded?</summary>
+
+No — the audit is compiled to WebAssembly and runs
 entirely in your browser tab.
 
-**Does it crawl my site or fetch the live page?** No. It only analyses the HTML
+</details>
+
+<details>
+<summary>Does it crawl my site or fetch the live page?</summary>
+
+No. It only analyses the HTML
 you paste — view-source and paste, or paste your template.
 
-**What score is good?** 90+ (grade A) means all the basics are covered. Warnings
+</details>
+
+<details>
+<summary>What score is good?</summary>
+
+90+ (grade A) means all the basics are covered. Warnings
 are worth fixing but won't block indexing; failures usually should be addressed.
+
+</details>

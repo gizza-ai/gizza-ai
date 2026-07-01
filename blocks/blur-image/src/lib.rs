@@ -48,7 +48,7 @@ struct BlurImage;
     name = "gizza-ai/blur-image",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Blur an image with an adjustable Gaussian radius",
+    summary = "Apply a Gaussian blur of adjustable radius to an image.",
     requires = ["wafer-run/network"],
     skill(
         description = "Apply a Gaussian blur of adjustable radius to an entire image. radius is the blur strength in pixels (Gaussian standard deviation; default 5.0, higher = blurrier; 2-10 is typical). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",

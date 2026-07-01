@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "parse-websocket-frame"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Decode a WebSocket frame (RFC 6455) into FIN/RSV/opcode, mask flag, payload length, and the unmasked payload bytes."

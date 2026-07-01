@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "truncate-text"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Shorten text to a chosen number of characters or words."

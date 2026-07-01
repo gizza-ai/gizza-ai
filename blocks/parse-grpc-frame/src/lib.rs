@@ -50,7 +50,7 @@ struct ParseGrpcFrame;
     name = "gizza-ai/parse-grpc-frame",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "gRPC frame parser skill",
+    summary = "Parse gRPC length-prefixed framing and decode each embedded protobuf payload into a field tree.",
     skill(
         description = "Parse a gRPC length-prefixed message stream and decode each embedded protobuf payload into a field tree — no .proto schema needed. gRPC wraps every message as a 1-byte compressed flag (0=uncompressed, 1=compressed) + a 4-byte big-endian length + that many payload bytes, and several messages can be concatenated in one HTTP/2 DATA body. Give the bytes as base64 or hex in 'input' (encoding='auto' (default), 'base64', or 'hex'). For each frame the output reports its index, compressed flag, declared length, and — for uncompressed frames — the protobuf payload decoded by field number / wire type (varint / fixed32 / fixed64 / length_delimited), recursing into nested messages. Compressed frames are reported with a hint to decompress first; payloads that aren't valid protobuf report a decode_error but still surface the hex bytes. Use format='json' (default) for a structured tree or 'text' for a compact outline. Useful for reverse-engineering a captured gRPC call.",
         parameters = schema_json()

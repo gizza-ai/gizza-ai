@@ -60,21 +60,46 @@ docs/
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and the
 page keeps working offline once it has loaded.
 
-**What's the difference between the two modes?** Use **paths** when you have a
+</details>
+
+<details>
+<summary>What's the difference between the two modes?</summary>
+
+Use **paths** when you have a
 flat list of full paths (e.g. from `git ls-files` or a `find` command); the tool
 merges shared folders for you. Use **outline** when you'd rather sketch the
 structure by hand with indentation.
 
-**Can I mix tabs and spaces in outline mode?** Yes. A tab counts as 4 columns, so
+</details>
+
+<details>
+<summary>Can I mix tabs and spaces in outline mode?</summary>
+
+Yes. A tab counts as 4 columns, so
 a tab-indented line still nests correctly under a space-indented parent.
 
-**How do I mark an empty directory?** Give it a trailing slash (`build/`). In
+</details>
+
+<details>
+<summary>How do I mark an empty directory?</summary>
+
+Give it a trailing slash (`build/`). In
 paths mode any path segment before the last is treated as a directory
 automatically.
 
-**Why ASCII instead of Unicode?** Some terminals, fonts, or documentation
+</details>
+
+<details>
+<summary>Why ASCII instead of Unicode?</summary>
+
+Some terminals, fonts, or documentation
 pipelines don't render box-drawing characters cleanly — plain-ASCII connectors
 guarantee the tree looks right everywhere.
+
+</details>

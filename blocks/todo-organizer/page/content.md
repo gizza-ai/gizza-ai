@@ -32,8 +32,18 @@ one signal, the highest priority wins.
 
 ### FAQ
 
-**Is my text uploaded?** No — it's processed locally in your browser with
+<details>
+<summary>Is my text uploaded?</summary>
+
+No — it's processed locally in your browser with
 WebAssembly.
 
-**Does it invent due dates?** No. It only surfaces date words you actually
+</details>
+
+<details>
+<summary>Does it invent due dates?</summary>
+
+No. It only surfaces date words you actually
 wrote; it never guesses a calendar date.
+
+</details>

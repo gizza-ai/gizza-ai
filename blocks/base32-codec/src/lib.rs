@@ -78,7 +78,7 @@ struct Base32Codec;
     name = "gizza-ai/base32-codec",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Base32 encode/decode skill",
+    summary = "Encode text or bytes to Base32 (RFC 4648) and decode Base32 back.",
     skill(
         description = "Encode text or bytes to Base32, or decode a Base32 string back to the original data. Use mode='encode' (default) or mode='decode'. variant selects the alphabet: 'standard' (default) is RFC 4648 (A-Z 2-7, e.g. 'foobar' -> 'MZXW6YTBOI======'); 'hex' is RFC 4648 base32hex; 'crockford' (no I L O U, never padded); 'zbase32' (human-oriented, never padded). format='text' (default) treats the data as UTF-8; format='hex' reads/writes a hex byte string for binary data that isn't valid UTF-8. lowercase emits a lowercase standard/hex alphabet; padding (default true) adds '=' padding for standard/hex. Decoding is case-insensitive and accepts padded or unpadded input.",
         parameters = schema_json()

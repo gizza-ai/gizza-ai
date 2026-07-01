@@ -17,7 +17,17 @@ your browser; nothing is uploaded.
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally in your browser with
+<details>
+<summary>Is my data uploaded?</summary>
+
+No — it's processed locally in your browser with
 WebAssembly.
 
-**Need to convert to/from JSON instead?** Use the CSV ⇄ JSON converter.
+</details>
+
+<details>
+<summary>Need to convert to/from JSON instead?</summary>
+
+Use the CSV ⇄ JSON converter.
+
+</details>

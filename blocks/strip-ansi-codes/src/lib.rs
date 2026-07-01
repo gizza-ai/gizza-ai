@@ -42,7 +42,7 @@ struct StripAnsiCodes;
     name = "gizza-ai/strip-ansi-codes",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "strip-ansi-codes skill",
+    summary = "Remove ANSI escape & color codes from terminal output",
     skill(
         description = "Remove ANSI escape and color codes from terminal output, leaving clean readable text. Pass the captured terminal/log text as 'text'. scope='all' (default) strips every escape sequence — SGR colours/styles, cursor & erase control, and OSC strings like window titles and \x1b]8 hyperlinks. scope='color' strips only the colour/style SGR codes (e.g. \x1b[1;31m) and keeps cursor/erase positioning intact. Unicode (accents, emoji) and newlines are preserved.",
         parameters = schema_json()

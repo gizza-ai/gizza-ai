@@ -95,7 +95,7 @@ struct BibtexFormat;
     name = "gizza-ai/bibtex-format",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "BibTeX formatter skill",
+    summary = "BibTeX formatter",
     skill(
         description = "Validate, sort, and pretty-print BibTeX bibliography entries. Pass the raw .bib source in 'bibtex'; the tool parses @article/@book/etc. entries plus @string/@preamble/@comment, reports any syntax error (unbalanced braces, missing '='), then re-emits them cleanly with one field per indented line. Set sort='key' or 'type-key' to reorder entries, sort_fields=true to alphabetize fields within each entry, indent to control field indentation (0-16, default 2), align_values=true to line up the '=' signs, lowercase_type=false to keep the original @TYPE casing (field names are always lowercased), and check_duplicates=false to allow duplicate cite keys (by default a repeated key is an error). Field values keep their original {braces}/\"quotes\"/macro # concatenation.",
         parameters = schema_json()

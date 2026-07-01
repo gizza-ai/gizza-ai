@@ -61,7 +61,7 @@ struct Tool;
     name = "gizza-ai/head-lines",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Head Lines skill",
+    summary = "Output the first N lines of text (head -n).",
     skill(
         description = "Output the first N lines of text — the `head -n` / 'show the top rows' operation. Set count to how many leading lines to keep (default 10). Use skip to drop that many lines from the start before taking count (like `tail -n +K`, e.g. skip=1 to ignore a header row). Set number=true to prefix each kept line with its 1-based original line number and a tab (like `cat -n`). Lines split on newlines; a trailing newline and any Windows CRLF are preserved.",
         parameters = schema_json()

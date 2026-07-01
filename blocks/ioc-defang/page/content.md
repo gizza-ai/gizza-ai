@@ -52,19 +52,39 @@ cleanly:
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded. That matters when the text you're
 handling contains live malicious indicators.
 
-**Why neutralize the scheme and dots?** A bare `http://evil.com` becomes a
+</details>
+
+<details>
+<summary>Why neutralize the scheme and dots?</summary>
+
+A bare `http://evil.com` becomes a
 clickable link in most apps, and an accidental click can detonate a payload or
 leak that you visited an attacker's infrastructure. Replacing `http` with `hxxp`
 and `.` with `[.]` breaks the auto-linking while keeping the indicator readable.
 
-**Does it work on a whole paragraph?** Yes. It rewrites the indicator characters
+</details>
+
+<details>
+<summary>Does it work on a whole paragraph?</summary>
+
+Yes. It rewrites the indicator characters
 wherever they appear and leaves your surrounding prose untouched, so you can
 paste a full sentence or a list of IOCs at once.
 
-**Will refang restore every defanged format?** It handles the common
+</details>
+
+<details>
+<summary>Will refang restore every defanged format?</summary>
+
+It handles the common
 conventions — `[.]`, `(.)`, `{.}`, `[dot]`, `[at]`, `[://]`, and `hxxp`/`fxp`
 plus `meow://`. Exotic, hand-rolled obfuscations may need a manual touch-up.
+
+</details>

@@ -14,6 +14,16 @@ in your browser; nothing is uploaded.
 
 ### FAQ
 
-**Which duplicate is kept?** The first one in order; later duplicates are dropped.
+<details>
+<summary>Which duplicate is kept?</summary>
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+The first one in order; later duplicates are dropped.
+
+</details>
+
+<details>
+<summary>Is my data uploaded?</summary>
+
+No — it's processed locally with WebAssembly.
+
+</details>

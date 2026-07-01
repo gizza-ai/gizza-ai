@@ -83,7 +83,7 @@ struct TocGenerator;
     name = "gizza-ai/toc-generator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Table-of-contents generator skill",
+    summary = "Build a linked table of contents from the headings of a Markdown or HTML document.",
     skill(
         description = "Build a linked table of contents from the headings of a Markdown or HTML document. Reads ATX ('#'…'######') and setext Markdown headings or HTML <h1>…<h6> tags (input_format='auto' detects which, or force 'markdown'/'html'), and emits a nested list of links to GitHub-style heading anchors. output_format='markdown' (default) returns a nested [text](#anchor) bullet list; 'html' returns a nested <ul>/<ol> of <a href=\"#anchor\"> links. min_level/max_level (1-6) limit which heading levels appear; set ordered=true for a numbered list. HTML headings with an existing id keep that id as the anchor; duplicate headings get unique -1, -2 suffixes. Pass the document as `document`.",
         parameters = schema_json()

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "unix-timestamp-converter"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Convert between Unix timestamps and human-readable UTC dates."

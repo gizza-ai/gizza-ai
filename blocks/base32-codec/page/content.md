@@ -53,20 +53,45 @@ Switch to **hex** whenever your data is binary and not readable text.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Which variant do I want?** Use **standard** unless you have a reason not to —
+</details>
+
+<details>
+<summary>Which variant do I want?</summary>
+
+Use **standard** unless you have a reason not to —
 it's the RFC 4648 Base32 that most tools mean by "Base32". Choose **hex** for
 DNSSEC/NSEC3 and order-preserving keys, **crockford** for human-typed IDs, and
 **zbase32** when the string has to be read aloud.
 
-**My decoded output looks garbled.** The bytes probably aren't UTF-8 text.
+</details>
+
+<details>
+<summary>My decoded output looks garbled.</summary>
+
+The bytes probably aren't UTF-8 text.
 Switch the **Data format** to **hex** to see the raw bytes.
 
-**Does it handle TOTP / 2FA secrets?** Yes — those are standard RFC 4648 Base32.
+</details>
+
+<details>
+<summary>Does it handle TOTP / 2FA secrets?</summary>
+
+Yes — those are standard RFC 4648 Base32.
 Decode them with the **standard** variant.
 
-**Why does padding sometimes do nothing?** Padding only applies to the
+</details>
+
+<details>
+<summary>Why does padding sometimes do nothing?</summary>
+
+Padding only applies to the
 `standard` and `hex` variants. Crockford and z-base-32 are defined without
 padding, so the toggle is ignored for them.
+
+</details>

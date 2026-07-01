@@ -2,17 +2,36 @@
   "name": "gizza-ai/lz-string-compress",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "LZ-String compress / decompress skill",
+  "summary": "LZ-String compress / decompress",
   "role": "skill",
   "tool": {
     "description": "Compress or decompress text with LZ-String (pieroxy's lz-string). mode='compress' (default) or 'decompress'; format='base64' (default), 'uri' (URL-safe), or 'utf16'. Byte-compatible with the lz-string JavaScript library.",
     "parameters": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "properties": {
-        "text": { "type": "string" },
-        "mode": { "type": "string", "enum": ["compress", "decompress"], "default": "compress" },
-        "format": { "type": "string", "enum": ["base64", "uri", "utf16"], "default": "base64" }
+        "text": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "compress",
+            "decompress"
+          ],
+          "default": "compress"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "base64",
+            "uri",
+            "utf16"
+          ],
+          "default": "base64"
+        }
       },
       "additionalProperties": false
     }

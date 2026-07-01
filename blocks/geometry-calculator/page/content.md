@@ -58,12 +58,27 @@ rounded to six decimal places.
 
 ### FAQ
 
-**Which dimensions do I enter?** Only the ones the chosen shape uses — the rest
+<details>
+<summary>Which dimensions do I enter?</summary>
+
+Only the ones the chosen shape uses — the rest
 are ignored. The field labels list which shape each dimension belongs to.
 
-**Why is my triangle perimeter missing?** The perimeter needs all three sides
+</details>
+
+<details>
+<summary>Why is my triangle perimeter missing?</summary>
+
+The perimeter needs all three sides
 (`side_a`, `side_b`, `side_c`). With only `base` and `height` you still get the
 area.
 
-**Is it free and private?** Yes. Your input never leaves your device, and it
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes. Your input never leaves your device, and it
 works offline.
+
+</details>

@@ -18,8 +18,18 @@ Everything runs in your browser with ffmpeg; nothing is uploaded.
 
 ### FAQ
 
-**Is my video uploaded?** No — ffmpeg runs in your browser tab; the file never
+<details>
+<summary>Is my video uploaded?</summary>
+
+No — ffmpeg runs in your browser tab; the file never
 leaves your device.
 
-**Will the audio drift?** No — the audio tempo is scaled by the same factor as
+</details>
+
+<details>
+<summary>Will the audio drift?</summary>
+
+No — the audio tempo is scaled by the same factor as
 the video, so they stay in sync.
+
+</details>

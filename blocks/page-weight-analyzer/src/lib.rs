@@ -55,7 +55,7 @@ struct Tool;
     name = "gizza-ai/page-weight-analyzer",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Analyze pasted HTML for resource counts and page weight",
+    summary = "Parses pasted HTML and reports resource counts, render-blocking scripts/styles, and an estimated page-weight budget.",
     skill(
         description = "Parse pasted HTML and report a front-end performance snapshot. Pass the page's HTML source as 'html'. Returns: resource counts (scripts, stylesheets, images, iframes, audio/video, resource hints); how many external scripts are parser-blocking vs async/defer/module; how many inline scripts run synchronously; how many stylesheets are render-blocking (print-only and disabled sheets excluded); inline JS/CSS byte sizes; an estimated network request count; and an estimated transfer-weight budget. The HTML's own byte size is measured exactly; external sub-resource sizes are ESTIMATED from typical median file sizes (no network is used). Set output='json' for a structured object, or list_resources=true to also list every external resource URL. Use it to spot render-blocking resources, over-large pages, and too many requests.",
         parameters = schema_json()

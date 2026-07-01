@@ -61,36 +61,46 @@ checksum. On decode the correct variant is detected automatically.
 
 <details>
 <summary>Is this the same as generating a Bitcoin address?</summary>
-<p>Not quite. A full SegWit address prepends a witness-version symbol to the
+
+Not quite. A full SegWit address prepends a witness-version symbol to the
 program before Bech32-encoding it. This tool encodes the raw data you give it
 under the prefix you choose, which is the underlying primitive — handy for
-inspecting, learning, or building the address layer yourself.</p>
+inspecting, learning, or building the address layer yourself.
+
 </details>
 
 <details>
 <summary>Which variant should I use — Bech32 or Bech32m?</summary>
-<p>Use <strong>Bech32</strong> for SegWit v0 (legacy native SegWit) and
+
+Use <strong>Bech32</strong> for SegWit v0 (legacy native SegWit) and
 <strong>Bech32m</strong> for SegWit v1+ / Taproot and other newer schemes. When
 decoding you don't have to choose — the correct variant is detected from the
-checksum and reported back to you.</p>
+checksum and reported back to you.
+
 </details>
 
 <details>
 <summary>Why does decoding sometimes fail with a checksum error?</summary>
-<p>A single altered, inserted, or dropped character changes the BCH checksum, so
+
+A single altered, inserted, or dropped character changes the BCH checksum, so
 the string no longer validates. That is the whole point of Bech32: it catches
-typos before you send funds to a wrong address.</p>
+typos before you send funds to a wrong address.
+
 </details>
 
 <details>
 <summary>Can I decode a Nostr npub or a Lightning invoice?</summary>
-<p>Yes — paste it and decode. You'll get the prefix (e.g. <code>npub</code> or
+
+Yes — paste it and decode. You'll get the prefix (e.g. <code>npub</code> or
 <code>lnbc</code>), the variant, and the raw data bytes. Nostr keys use Bech32;
-switch the data format to <strong>hex</strong> to read the 32-byte key.</p>
+switch the data format to <strong>hex</strong> to read the 32-byte key.
+
 </details>
 
 <details>
 <summary>Does my data leave my device?</summary>
-<p>No. The encoder/decoder is compiled to WebAssembly and runs entirely in your
-browser. Nothing is uploaded to a server.</p>
+
+No. The encoder/decoder is compiled to WebAssembly and runs entirely in your
+browser. Nothing is uploaded to a server.
+
 </details>

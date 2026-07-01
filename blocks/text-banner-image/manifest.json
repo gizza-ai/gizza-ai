@@ -2,14 +2,76 @@
   "name": "gizza-ai/text-banner-image",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Render a headline into a stylized PNG banner (gradient, shadow, outline)",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Render a short headline into a wide, stylized banner image and return a PNG. Set text (the headline — use \\n for hard line breaks; it word-wraps and auto-shrinks to fit), the banner width/height in pixels (defaults 1200x400), bg_color / text_color / accent_color as #rgb or #rrggbb hex (the background is a subtle diagonal gradient from bg_color toward the accent, with a left accent stripe + underline), align (center/left/right), font_size (0 = auto-fit), and shadow / outline toggles for a drop shadow and a dark text outline. Returns an image. Runs locally — the text never leaves the device.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The headline / banner text to render (use \\n for hard line breaks; it word-wraps and auto-shrinks to fit)."
+        },
+        "width": {
+          "type": "integer",
+          "default": 1200,
+          "minimum": 200,
+          "maximum": 4000,
+          "description": "Banner width in pixels (200-4000; default 1200)."
+        },
+        "height": {
+          "type": "integer",
+          "default": 400,
+          "minimum": 100,
+          "maximum": 4000,
+          "description": "Banner height in pixels (100-4000; default 400)."
+        },
+        "bg_color": {
+          "type": "string",
+          "default": "#111827",
+          "description": "Background base colour as #rgb or #rrggbb hex (default #111827). The background is a subtle diagonal gradient from this colour toward the accent."
+        },
+        "text_color": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Headline text colour as #rgb or #rrggbb hex (default #ffffff)."
+        },
+        "accent_color": {
+          "type": "string",
+          "default": "#60a5fa",
+          "description": "Accent colour as #rgb or #rrggbb hex (default #60a5fa) — used for the left stripe, the gradient tint, and the underline."
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "center",
+            "left",
+            "right"
+          ],
+          "default": "center",
+          "description": "Horizontal text alignment: center, left, or right (default center)."
+        },
+        "font_size": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Font size in pixels, or 0 to auto-size to fit the banner (default 0). A fixed size still auto-shrinks if the text would overflow."
+        },
+        "shadow": {
+          "type": "boolean",
+          "default": true,
+          "description": "Draw a soft drop shadow behind the text (default true)."
+        },
+        "outline": {
+          "type": "boolean",
+          "default": false,
+          "description": "Draw a dark outline around the text for extra contrast (default false)."
+        }
+      },
+      "required": [
+        "text"
+      ],
       "additionalProperties": false
     }
   }

@@ -83,7 +83,7 @@ struct ImageCrop;
     name = "gizza-ai/image-crop",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Crop a rectangular region from an image fetched by URL or from a prior tool call ref",
+    summary = "Crop a rectangular region from an image fetched by URL.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
         description = "Crop a rectangular region from an image. Coordinates are in pixels with (0,0) at the top-left corner. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",

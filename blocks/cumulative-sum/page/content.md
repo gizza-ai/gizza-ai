@@ -61,20 +61,45 @@ value | cumulative_sum | running_avg | running_min | running_max
 
 ## FAQ
 
-**What is a cumulative sum?** It is the running total: each entry is the sum of
+<details>
+<summary>What is a cumulative sum?</summary>
+
+It is the running total: each entry is the sum of
 all the values up to and including that position. The last value of the
 cumulative sum equals the grand total of the whole list.
 
-**Is it free and private?** Yes — your numbers never leave your device, and the
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your numbers never leave your device, and the
 tool keeps working offline once the page has loaded.
 
-**Can I paste a column straight from a spreadsheet?** Yes — a spreadsheet column
+</details>
+
+<details>
+<summary>Can I paste a column straight from a spreadsheet?</summary>
+
+Yes — a spreadsheet column
 copies as one value per line, which is exactly the format this tool accepts.
 
-**Does it handle decimals and negatives?** Yes. Mix integers, decimals, and
+</details>
+
+<details>
+<summary>Does it handle decimals and negatives?</summary>
+
+Yes. Mix integers, decimals, and
 negative numbers freely. Negative values simply make the running total go down.
 
-**What's the difference between the running average and a plain average?** The
+</details>
+
+<details>
+<summary>What's the difference between the running average and a plain average?</summary>
+
+The
 running average at each row is the mean of just the values seen *so far*, so it
 changes row by row; the plain average is a single number for the whole list (the
 running average on the final row).
+
+</details>

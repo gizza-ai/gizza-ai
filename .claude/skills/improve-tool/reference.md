@@ -159,8 +159,11 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
   `/tools/<slug>/`, AND a `?<param>=<value>` deep-link assertion. Add a case per new capability.
 - **CLI** `cargo install --path cli --force` then `gizza tool <slug> "<args>"` — incl. a new
   case per new capability. (gpu tools: assert `unsupported_in_cli` + exit 3.)
+- **Hygiene gate** `python3 scripts/check-tool-hygiene.py <slug>` — MUST exit 0. Enforces the two
+  standards that silently regressed before: enum params synced into `manifest.json` (§Phase 4 select
+  rendering) and FAQ as `<details>` accordions (Usability Standard #8). CI runs it repo-wide.
 - Hard gates: pre-existing behavior tests GREEN; every new capability has a test; API/CLI/query
-  pass. ≤3 fix attempts per failure, else escalate.
+  pass; hygiene gate exits 0. ≤3 fix attempts per failure, else escalate.
 
 ### Known constraints (state in the PR when relevant)
 - **chat ffmpeg is non-functional** — the chat runtime is a Service Worker where `import()`/

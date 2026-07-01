@@ -49,7 +49,7 @@ struct Tool;
     name = "gizza-ai/timezone-convert",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Convert a date/time between timezones",
+    summary = "Convert a date/time between timezones, with DST handling.",
     skill(
         description = "Convert a wall-clock date/time from one IANA timezone to another, correctly handling daylight saving time (DST). Give 'datetime' as a plain ISO time like '2024-03-10 14:30' (interpreted in the 'from' zone, no trailing Z/offset), and 'from'/'to' as IANA zone names like 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Kolkata', or 'UTC'. Returns the converted time (ISO 8601 with offset) plus the offsets, the difference in hours/minutes, the target weekday, whether the target is in DST, and the Unix timestamp. A time that falls in a spring-forward DST gap (which never occurs) is rejected.",
         parameters = schema_json()

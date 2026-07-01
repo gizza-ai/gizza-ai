@@ -49,7 +49,7 @@ struct RakeKeywords;
     name = "gizza-ai/rake-keywords",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Extract keywords with RAKE",
+    summary = "Extract keywords/keyphrases from a document with the RAKE algorithm.",
     skill(
         description = "Extract the most relevant keywords and keyphrases from a document using the RAKE (Rapid Automatic Keyword Extraction) algorithm — no training data needed. Splits the text into candidate phrases at stopwords/punctuation, scores each word by degree/frequency, and ranks phrases by their summed word scores. Set top_n to limit results (0 = all) and max_words to cap phrase length (0 = no cap). Returns the ranked keyphrases with their RAKE scores. Runs locally.",
         parameters = schema_json()

@@ -69,16 +69,36 @@ validation.
 
 ## FAQ
 
-**Is it accessible?** Yes. Every input has a `<label for>` bound to its `id`,
+<details>
+<summary>Is it accessible?</summary>
+
+Yes. Every input has a `<label for>` bound to its `id`,
 radio/checkbox groups share a name and have a group label, and required fields
 carry the `required` attribute plus a visible `*` marker.
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Can I style it myself?** Turn off the `<style>` block to get plain markup with
+</details>
+
+<details>
+<summary>Can I style it myself?</summary>
+
+Turn off the `<style>` block to get plain markup with
 clean `name`/`id` attributes, then apply your own CSS.
 
-**Where does the form submit?** Wherever you set the **Action URL**. With no
+</details>
+
+<details>
+<summary>Where does the form submit?</summary>
+
+Wherever you set the **Action URL**. With no
 action, the browser submits back to the current page — wire it to your own
 endpoint or handler.
+
+</details>

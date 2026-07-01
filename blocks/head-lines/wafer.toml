@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "head-lines"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Output the first N lines of text (head -n)."

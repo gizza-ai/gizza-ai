@@ -2,14 +2,20 @@
   "name": "gizza-ai/parse-udp-header",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Decode a UDP datagram header from hex",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Decode a raw UDP datagram header (RFC 768) given as a hex string into structured fields: the source and destination ports (each annotated with its well-known service name when recognised — DNS, NTP, DHCP, SNMP, QUIC, etc.), the total datagram length in bytes (the 8-byte header plus data), the implied payload length (length - 8), the 16-bit checksum as 0xNNNN, and a flag indicating whether the checksum is disabled (0x0000, allowed over IPv4). Only the first 8 bytes are read, so trailing payload bytes are ignored. Input may contain spaces, colons, dashes, dots, or a 0x prefix. Returns JSON. Runs locally.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     }
   }

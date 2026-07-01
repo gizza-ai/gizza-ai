@@ -14,6 +14,16 @@ It runs in your browser; nothing is uploaded.
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+<details>
+<summary>Is my data uploaded?</summary>
 
-**Want per-row computed values instead of a constant?** Use the CSV formula tool.
+No — it's processed locally with WebAssembly.
+
+</details>
+
+<details>
+<summary>Want per-row computed values instead of a constant?</summary>
+
+Use the CSV formula tool.
+
+</details>

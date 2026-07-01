@@ -44,7 +44,7 @@ struct Tool;
     name = "gizza-ai/task-list-summarizer",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Task List Summarizer skill",
+    summary = "Summarize a Markdown task list into done/pending counts and filtered views.",
     skill(
         description = "Summarize a Markdown task list (GFM checklist) into done/pending counts and filtered views. Pass the list as 'text'; tasks are checklist items like '- [ ] todo', '- [x] done', '* [X] done', or numbered '1. [ ] todo' (other lines are ignored). mode='summary' (default) returns a one-line count of total/done/pending and percent complete; mode='done' lists only the completed task texts (one per line); mode='pending' lists only the remaining task texts; mode='json' returns a JSON object {total, done, pending, percent, done_items, pending_items}.",
         parameters = schema_json()

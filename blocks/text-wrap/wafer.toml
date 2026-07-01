@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "text-wrap"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Hard-wrap text to a column width"

@@ -16,6 +16,16 @@ in your browser; nothing is uploaded.
 
 ### FAQ
 
-**Is my data uploaded?** No — it's processed locally with WebAssembly.
+<details>
+<summary>Is my data uploaded?</summary>
 
-**Need a cross-tab/pivot?** Use the CSV pivot tool.
+No — it's processed locally with WebAssembly.
+
+</details>
+
+<details>
+<summary>Need a cross-tab/pivot?</summary>
+
+Use the CSV pivot tool.
+
+</details>

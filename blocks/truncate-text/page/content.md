@@ -40,17 +40,37 @@ characters or words, and tune the options.
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and it keeps
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and it keeps
 working offline once the page has loaded.
 
-**Does it count by characters or display width?** It counts Unicode characters
+</details>
+
+<details>
+<summary>Does it count by characters or display width?</summary>
+
+It counts Unicode characters
 (scalar values), which is exact for plain prose. Wide CJK glyphs and combining
 marks may render wider than their character count.
 
-**Can I truncate with no ellipsis at all?** On this page, clearing the ellipsis
+</details>
+
+<details>
+<summary>Can I truncate with no ellipsis at all?</summary>
+
+On this page, clearing the ellipsis
 field falls back to the default `…`. To cut with no marker, use the CLI or chat
 tool and pass an empty `ellipsis`.
 
-**Is this good for meta descriptions or previews?** Yes — set the limit to your
+</details>
+
+<details>
+<summary>Is this good for meta descriptions or previews?</summary>
+
+Yes — set the limit to your
 target length (for example 155–160 characters for a meta description) and the
 word-safe cut keeps the snippet readable.
+
+</details>

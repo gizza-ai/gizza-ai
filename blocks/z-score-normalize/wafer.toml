@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "z-score-normalize"
 version = "0.1.0"
 abi = 1
-summary = "Standardize a list of numbers (z-score or min-max)"
+summary = "Standardize a list of numbers (z-score, min-max, max-abs, robust)"

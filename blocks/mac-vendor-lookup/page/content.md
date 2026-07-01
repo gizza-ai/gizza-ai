@@ -42,14 +42,29 @@ table or a device inventory).
 
 ## FAQ
 
-**Why is my phone's Wi-Fi MAC not found?** Modern phones use *MAC randomization*
+<details>
+<summary>Why is my phone's Wi-Fi MAC not found?</summary>
+
+Modern phones use *MAC randomization*
 for privacy. A randomized MAC has the locally-administered bit set and is not an
 IEEE assignment, so there is no vendor to look up — the tool will say so.
 
-**Is it free and private?** Yes. The registry is bundled into the page, so your
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes. The registry is bundled into the page, so your
 input never leaves your device and it keeps working offline once loaded.
 
-**What's the difference between an OUI and a MAC address?** The OUI is the first
+</details>
+
+<details>
+<summary>What's the difference between an OUI and a MAC address?</summary>
+
+The OUI is the first
 24 bits (3 octets) of a 48-bit MAC address and identifies the manufacturer; the
 remaining bits identify the individual device. Only the OUI matters for a vendor
 lookup.
+
+</details>

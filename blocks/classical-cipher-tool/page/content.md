@@ -43,19 +43,44 @@ including spaces.
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and it keeps
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and it keeps
 working offline once the page has loaded.
 
-**Is ROT13 supported?** Yes — ROT13 is just a Caesar cipher with shift `13`. (And
+</details>
+
+<details>
+<summary>Is ROT13 supported?</summary>
+
+Yes — ROT13 is just a Caesar cipher with shift `13`. (And
 because the alphabet is 26 letters, encrypting and decrypting ROT13 are the same.)
 
-**The Vigenère key has spaces or numbers — does that matter?** No. Only the
+</details>
+
+<details>
+<summary>The Vigenère key has spaces or numbers — does that matter?</summary>
+
+No. Only the
 letters of the key are used; spaces, digits, and punctuation in the key are
 ignored. The key just needs at least one letter.
 
-**I have a Caesar message but don't know the shift.** Choose **brute-force** — it
+</details>
+
+<details>
+<summary>I have a Caesar message but don't know the shift.</summary>
+
+Choose **brute-force** — it
 prints all 26 shifts at once so you can read off the one that makes sense.
 
-**Are these secure?** No. Classical ciphers are trivially broken with modern tools
+</details>
+
+<details>
+<summary>Are these secure?</summary>
+
+No. Classical ciphers are trivially broken with modern tools
 (and the brute-force here demonstrates exactly that for Caesar). Use them for
 puzzles and learning, not real security.
+
+</details>

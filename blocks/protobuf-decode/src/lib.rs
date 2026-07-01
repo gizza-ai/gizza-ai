@@ -51,7 +51,7 @@ struct ProtobufDecode;
     name = "gizza-ai/protobuf-decode",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Protobuf wire decoder skill",
+    summary = "Decode raw protobuf wire bytes into a field/wire-type tree without a .proto schema.",
     skill(
         description = "Decode raw Protocol Buffers (protobuf) wire bytes into a field-number / wire-type tree WITHOUT a .proto schema. Give the wire bytes as base64 or hex in 'input' (set encoding='auto' (default), 'base64', or 'hex'). Each field is reported by its field number, raw wire type (varint / fixed32 / fixed64 / length_delimited) and every plausible interpretation, since the schemaless wire format is ambiguous: a varint is shown as uint/int/zigzag (and bool when 0/1); fixed32 as uint32/int32/float; fixed64 as uint64/int64/double; a length-delimited field is recursively parsed as a nested message when it parses cleanly, and also shown as a string (when valid text) and as hex bytes. Use format='json' (default) for a structured tree or 'text' for a compact outline. Useful for reverse-engineering an undocumented gRPC / protobuf payload.",
         parameters = schema_json()

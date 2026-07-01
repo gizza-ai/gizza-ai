@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "evp-derive"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Reproduce OpenSSL's legacy EVP_BytesToKey key/IV derivation"

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "hex-codec"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Encode text or bytes to a hexadecimal string and decode hex back to text."

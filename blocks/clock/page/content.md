@@ -11,7 +11,17 @@ local time, it does not change with daylight saving.
 
 ### FAQ
 
-**Why UTC?** It is unambiguous worldwide — useful for logs, scheduling across
+<details>
+<summary>Why UTC?</summary>
+
+It is unambiguous worldwide — useful for logs, scheduling across
 time zones, and coordination.
 
-**Is it accurate?** It is as accurate as your device's clock.
+</details>
+
+<details>
+<summary>Is it accurate?</summary>
+
+It is as accurate as your device's clock.
+
+</details>

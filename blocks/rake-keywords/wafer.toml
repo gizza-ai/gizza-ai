@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "rake-keywords"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Extract keywords/keyphrases from a document with the RAKE algorithm."

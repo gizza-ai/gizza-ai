@@ -20,5 +20,10 @@ computed locally in your browser — your credentials are never sent anywhere.
 
 ### FAQ
 
-**Are my credentials uploaded?** No — the header is built in your browser tab
+<details>
+<summary>Are my credentials uploaded?</summary>
+
+No — the header is built in your browser tab
 with WebAssembly; nothing is sent.
+
+</details>

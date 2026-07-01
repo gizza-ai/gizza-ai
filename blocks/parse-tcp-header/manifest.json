@@ -2,14 +2,20 @@
   "name": "gizza-ai/parse-tcp-header",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Decode a TCP segment header from hex",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Decode a raw TCP segment header given as a hex string into structured fields: source and destination ports, sequence and acknowledgement numbers (decimal and hex), data offset (header length in 32-bit words and bytes), the reserved bits, the control flags (NS, CWR, ECE, URG, ACK, PSH, RST, SYN, FIN) plus a space-separated list of the set flags, the receive window, the checksum, the urgent pointer, and any TCP options (named when known — MSS, Window Scale, SACK-Permitted, SACK, Timestamps — with their length and decoded value) when the data offset is greater than 5. Input may contain spaces, colons, dashes, dots, or a 0x prefix. Returns JSON. Runs locally.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     }
   }

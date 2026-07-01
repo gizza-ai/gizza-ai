@@ -15,17 +15,33 @@ Legacy fonts like Kruti Dev map Hindi characters directly onto standard English 
 
 ## Frequently Asked Questions
 
-### What is Kruti Dev?
+<details>
+<summary>What is Kruti Dev?</summary>
+
 Kruti Dev is one of the most widely used legacy non-Unicode fonts for typing Hindi. It uses the Remington typewriter keyboard layout. Since it was created before Unicode was standardized, it maps Devanagari visual glyphs to standard Latin keyboard keys.
 
-### Why should I convert Kruti Dev to Unicode?
+</details>
+
+<details>
+<summary>Why should I convert Kruti Dev to Unicode?</summary>
+
 Unicode Devanagari is the global standard for representing Hindi text digitally. When you convert Kruti Dev to Unicode:
 1. Your text becomes searchable on Google, Bing, and other search engines.
 2. The text can be read on any device (Android, iOS, Windows, Mac, Linux) without installing additional fonts.
 3. You can paste it into email, social media (Facebook, WhatsApp), and modern database systems.
 
-### Does this tool support Kruti Dev 011 and other versions?
+</details>
+
+<details>
+<summary>Does this tool support Kruti Dev 011 and other versions?</summary>
+
 Yes! The character mappings for Kruti Dev 010 and 011 are identical for standard Hindi typing, so this converter works perfectly for both.
 
-### How does the offline conversion work?
+</details>
+
+<details>
+<summary>How does the offline conversion work?</summary>
+
 The conversion logic runs locally inside your browser using compiled WebAssembly. There are no server requests or external dependencies, ensuring lightning-fast performance and total privacy.
+
+</details>

@@ -42,19 +42,44 @@ exactly where the byte boundaries fall.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Are offsets in bytes or characters?** Bytes. For ASCII text the two are the
+</details>
+
+<details>
+<summary>Are offsets in bytes or characters?</summary>
+
+Bytes. For ASCII text the two are the
 same, but a multi-byte character spans several bytes. Switch to **hex** input/output
 to work at the exact byte level.
 
-**What happens if my range goes past the end?** It's clamped — the tool removes
+</details>
+
+<details>
+<summary>What happens if my range goes past the end?</summary>
+
+It's clamped — the tool removes
 only the bytes that exist and never errors on an out-of-range length.
 
-**My output says the bytes aren't valid UTF-8.** Removing part of a multi-byte
+</details>
+
+<details>
+<summary>My output says the bytes aren't valid UTF-8.</summary>
+
+Removing part of a multi-byte
 character can leave bytes that don't form valid text. Switch the **Output format**
 to **hex** or **base64** to view the raw remaining bytes.
 
-**How do I remove from the end?** Use a negative **Start offset** — for example
+</details>
+
+<details>
+<summary>How do I remove from the end?</summary>
+
+Use a negative **Start offset** — for example
 `-4` with length `4` drops the last four bytes.
+
+</details>

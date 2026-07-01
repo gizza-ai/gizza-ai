@@ -56,7 +56,7 @@ struct ClassicalCipher;
     name = "gizza-ai/classical-cipher-tool",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Classical cipher (Caesar / Vigenère / Atbash / rail-fence) skill",
+    summary = "Classical cipher (Caesar / Vigenère / Atbash / rail-fence)",
     skill(
         description = "Encrypt or decrypt text with classic pre-computer ciphers. cipher='caesar' (default) shifts each letter by a fixed key (e.g. shift 3: 'Hello' -> 'Khoor'); cipher='vigenere' shifts by a repeating keyword (key='LEMON'); cipher='atbash' mirrors the alphabet A<->Z and needs no key; cipher='rail-fence' is a zig-zag transposition over `key` rails (2-64, default 3). operation='encrypt' (default) or 'decrypt'. operation='brute-force' works only for caesar and returns all 26 shifts so you can spot the readable plaintext. Letters are transformed with case preserved; digits/spaces/punctuation pass through (rail-fence transposes the whole string). Runs locally — these are educational/puzzle ciphers, NOT secure encryption.",
         parameters = schema_json()
