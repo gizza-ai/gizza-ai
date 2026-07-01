@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/bitwise-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bitwise AND/OR/XOR/NOT, shifts, rotates and popcount at 8/16/32/64-bit widths.",
+  "role": "skill",
+  "tool": {
+    "description": "Bitwise calculator for integers: AND, OR, XOR, NOT, logical left/right shifts (shl/shr), left/right rotates (rotl/rotr) and set-bit count (popcount) at a chosen bit width (8/16/32/64, default 32). Operands accept decimal, hex (0x…), binary (0b…) or octal (0o…) with optional _ separators; negative decimals are two's complement at the width. Returns the result rendered in binary (nibble-grouped), octal, decimal, hex and signed two's complement — e.g. a=87 op=and b=101 bits=8 → binary 0100 0101, decimal 69, hex 0x45.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "description": "First operand. Plain digits are decimal; prefix 0x for hex, 0b for binary, 0o for octal (e.g. 87, 0x57, 0b0101_0111). Underscores/spaces between digits are allowed; a leading '-' (e.g. -8) is read as two's complement at the chosen bit width.",
+          "type": "string"
+        },
+        "b": {
+          "description": "Second operand for and/or/xor (same formats as 'a'), or the shift/rotate count for shl/shr/rotl/rotr (a non-negative integer, e.g. 3). Ignored for not/popcount.",
+          "type": "string"
+        },
+        "bits": {
+          "default": "32",
+          "description": "Bit width of the operation: 8, 16, 32 or 64. Operands must fit the width; the result is masked to it and also shown as signed two's complement. Default 32.",
+          "enum": [
+            "8",
+            "16",
+            "32",
+            "64"
+          ],
+          "type": "string"
+        },
+        "op": {
+          "default": "and",
+          "description": "Operation. 'and'/'or'/'xor' combine a with b; 'not' inverts every bit of a; 'shl'/'shr' shift a left/right by b bits (logical, zero-fill); 'rotl'/'rotr' rotate a left/right by b bits (count wraps modulo the width); 'popcount' counts a's set bits. Default 'and'.",
+          "enum": [
+            "and",
+            "or",
+            "xor",
+            "not",
+            "shl",
+            "shr",
+            "rotl",
+            "rotr",
+            "popcount"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "a"
+      ],
+      "type": "object"
+    }
+  }
+}
