@@ -54,8 +54,8 @@ shared `site/tool.js` for these:
 ### ffmpeg (reference: blocks/image-resize)
 - `core/src/lib.rs`: `pub fn plan(<params>, in_name: &str) -> Result<(Vec<String>, String), String>` — builds the ffmpeg argv (NO leading "ffmpeg") + `out_name` (keep the input extension). + unit tests.
 - `web/src/lib.rs`: `build_argv(<f64 numeric params...>, in_name: &str)` → the shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` (scaffold default is `build_argv(in_name)`; add the real params). `f64` for numeric (0 = "unset").
-- `src/lib.rs`: `descriptor()` = `Input::Image`|`Video` + params (single-sources the `url`⊕`ref` oneOf + schema via `schema_json()`); `run()` = `resolve_source` → `dispatch_ffmpeg` → `build_media_envelope` (the scaffold wires this). Mirror `blocks/image-resize/src/lib.rs`.
-- `page/meta.toml`: `runtime="ffmpeg"`, `[[input]] source="file" accept="image/*"` first, then field inputs in `build_argv` param order, `format="image"`|"video".
+- `src/lib.rs`: `descriptor()` = `Input::Image`|`Video`|`Audio` + params (single-sources the `url`⊕`ref` oneOf + schema via `schema_json()`); `run()` = `resolve_source` (pass the matching `AssetKind::Image|Video|Audio`) → `dispatch_ffmpeg` → `build_media_envelope`. Mirror `blocks/image-resize/src/lib.rs`.
+- `page/meta.toml`: `runtime="ffmpeg"`, `[[input]] source="file" accept="image/*"` (or `"video/*"`/`"audio/*"` to match the Input kind) first, then field inputs in `build_argv` param order, `format="image"`|"video"|"audio".
 - FIELD ORDER in `meta.toml` MUST equal the web `build_argv` param order (`tool.js` passes the field values then `in_name`).
 
 ## Playwright spec template (`tests/tool-page-<slug>.spec.ts` — import from './fixtures'; the config serves ../pkg)
