@@ -23,6 +23,10 @@ to real regressions:
      macro (what chat/the runtime shows) — all mean scaffold placeholders shipped
      instead of real metadata/copy.
 
+  4. Summary drift. The wafer_block macro summary, `manifest.json` `summary`, and
+     `wafer.toml` `summary` must agree (a trailing period is ignored) and must not
+     carry the vestigial "… skill" scaffold suffix.
+
 Prose usability standards (see `.claude/skills/improve-tool/SKILL.md`) were being
 skipped silently because nothing failed the build. This turns the mechanically
 checkable ones into a gate.
@@ -50,6 +54,13 @@ BLOCKS = ROOT / "blocks"
 ENUMV_RE = re.compile(r'Param::enumv\(\s*"([^"]+)"\s*(?:,\s*(?:&?\[([^\]]*)\])?)?')
 STR_LIT_RE = re.compile(r'"([^"]*)"')
 FAQ_HEADING_RE = re.compile(r"^#{1,6}\s*(faq|frequently asked)", re.IGNORECASE | re.MULTILINE)
+MACRO_SUMMARY_RE = re.compile(r'wafer_block\((?:.|\n)*?\bsummary\s*=\s*"((?:\\.|[^"\\])*)"')
+WAFER_SUMMARY_RE = re.compile(r'^\s*summary\s*=\s*"((?:\\.|[^"\\])*)"', re.MULTILINE)
+
+
+def norm_summary(s: str) -> str:
+    """Normalize a summary for comparison — trailing period/whitespace is noise."""
+    return (s or "").strip().rstrip(".").strip()
 
 
 _RUST_ESCAPES = {"\\": "\\", '"': '"', "'": "'", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
@@ -161,6 +172,33 @@ def check_block(slug_dir: Path) -> list[str]:
     # Match the exact scaffold phrase so ordinary `// TODO` code comments don't trip.
     if src_lib.is_file() and "TODO: one-line summary." in src_lib.read_text(encoding="utf-8", errors="replace"):
         problems.append(f"{slug}: src/lib.rs wafer_block summary is still the scaffold placeholder — write a real one-line summary.")
+
+    # Summary consistency: the wafer_block macro summary (what chat/the runtime shows),
+    # manifest.json `summary`, and wafer.toml `summary` must agree (a trailing period is
+    # ignored) and must not carry the vestigial "… skill" scaffold suffix.
+    summaries: dict[str, str] = {}
+    if src_lib.is_file():
+        m = MACRO_SUMMARY_RE.search(src_lib.read_text(encoding="utf-8", errors="replace"))
+        if m:
+            summaries["src macro"] = unescape_rust(m.group(1))
+    if manifest.is_file():
+        try:
+            s = json.loads(manifest.read_text(encoding="utf-8")).get("summary")
+        except (OSError, json.JSONDecodeError):
+            s = None
+        if isinstance(s, str):
+            summaries["manifest.json"] = s
+    wafer = slug_dir / "wafer.toml"
+    if wafer.is_file():
+        m = WAFER_SUMMARY_RE.search(wafer.read_text(encoding="utf-8", errors="replace"))
+        if m:
+            summaries["wafer.toml"] = unescape_rust(m.group(1))
+    if summaries:
+        if len({norm_summary(v) for v in summaries.values()}) > 1:
+            detail = ", ".join(f"{k}={v!r}" for k, v in summaries.items())
+            problems.append(f"{slug}: summary differs across {detail} — keep the three in sync (a trailing period is fine).")
+        if any(norm_summary(v).endswith(" skill") for v in summaries.values()):
+            problems.append(f"{slug}: summary carries the vestigial '… skill' scaffold suffix — write a clean one-liner.")
 
     return problems
 

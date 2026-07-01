@@ -56,9 +56,13 @@ jobs:
               git fetch origin "$base_ref" --depth=1
               diff_base="origin/$base_ref"
             fi
+            # Only rebuild/re-test a block's wasm when a file that affects the
+            # compiled output changed (src/core/Cargo/wafer.toml). Doc/metadata
+            # edits — page/, manifest.json, tests/ — don't change the wasm or the
+            # block's cargo tests; they're covered by the repo-wide hygiene gate
+            # and the tool-page generator tests, so they don't warrant a rebuild.
             mapfile -t blocks < <(git diff --name-only "$diff_base...HEAD" \
-              | grep -v '^blocks/[^/]*/target/block\.wasm$' \
-              | grep -v '^blocks/[^/]*/web/pkg/' \
+              | grep -vE '^blocks/[^/]*/(target/block\.wasm$|web/pkg/|page/|tests/|manifest\.json$)' \
               | sed -n 's#^blocks/\([^/]*\)/.*#\1#p' \
               | sort -u)
           else

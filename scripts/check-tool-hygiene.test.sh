@@ -53,8 +53,9 @@ fn descriptor() {
     let _ = Param::enumv("mode", ["encode", "decode"]).default("encode");
 }
 EOF
+# manifest summary matches the macro summary (consistency check #4).
 cat > "$dir/manifest.json" <<'EOF'
-{ "summary": "A real one-line summary.", "tool": { "parameters": { "properties": {
+{ "summary": "Encode or decode data.", "tool": { "parameters": { "properties": {
   "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode" }
 } } } }
 EOF
@@ -72,5 +73,14 @@ EOF
 
 python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
   echo "FAIL: gate rejected a compliant block" >&2; exit 1; }
+
+# A summary that disagrees with the macro must fail (check #4).
+cat > "$dir/manifest.json" <<'EOF'
+{ "summary": "A completely different summary.", "tool": { "parameters": { "properties": {
+  "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode" }
+} } } }
+EOF
+out2="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
+grep -q 'summary differs' <<<"$out2" || { echo "FAIL: gate missed a summary inconsistency" >&2; exit 1; }
 
 echo "check-tool-hygiene.test.sh OK"
