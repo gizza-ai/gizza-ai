@@ -50,6 +50,12 @@ pub enum Control {
     Datalist {
         options: Vec<String>,
     },
+    /// A multi-value pill list (meta `kind = "tag-list"`): the real field is a
+    /// hidden comma-joined input; pills + a search box (optionally backed by a
+    /// vocabulary datalist) are wired generically by `site/tool.js`.
+    TagList {
+        options: Vec<String>,
+    },
 }
 
 /// One tool's param schema: param name → its JSON-schema property object.
@@ -91,9 +97,21 @@ impl ParamSchema {
             k @ ("date" | "time" | "datetime-local") => {
                 return Control::Picker { input_type: k.to_string() };
             }
+            "tag-list" => {
+                let options: Vec<String> = vocab::options(&input.options)
+                    .map(|opts| opts.iter().map(|s| s.to_string()).collect())
+                    .unwrap_or_default();
+                if !input.options.is_empty() && options.is_empty() {
+                    eprintln!(
+                        "warning: [[input]] \"{}\" tag-list names unknown options vocabulary \"{}\" — tags will be free-text",
+                        input.name, input.options
+                    );
+                }
+                return Control::TagList { options };
+            }
             other => {
                 eprintln!(
-                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local) — falling back to the schema control",
+                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|tag-list) — falling back to the schema control",
                     input.name
                 );
             }
@@ -252,6 +270,24 @@ mod tests {
             }
             other => panic!("expected Datalist, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn tag_list_kind_renders_a_tag_list_with_vocab_options() {
+        let s = schema(json!({ "to": { "type": "string" } }));
+        match s.control_for_input(&{
+            let mut f = field("to", "tag-list", "timezones");
+            f.multiline = false;
+            f
+        }) {
+            Control::TagList { options } => assert!(options.iter().any(|o| o == "UTC")),
+            other => panic!("expected TagList, got {other:?}"),
+        }
+        // free-text tag list (no vocabulary)
+        assert_eq!(
+            s.control_for_input(&field("to", "tag-list", "")),
+            Control::TagList { options: vec![] }
+        );
     }
 
     #[test]
