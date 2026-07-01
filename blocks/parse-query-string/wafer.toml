@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "parse-query-string"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Parse a URL query string into structured key/value data"

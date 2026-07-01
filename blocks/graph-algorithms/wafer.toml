@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "graph-algorithms"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Run BFS, DFS, shortest path, topological sort, and cycle detection on a user-supplied graph."

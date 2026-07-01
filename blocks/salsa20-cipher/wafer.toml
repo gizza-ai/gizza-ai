@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "salsa20-cipher"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Encrypt or decrypt data with the Salsa20 stream cipher (key + 8-byte nonce)"

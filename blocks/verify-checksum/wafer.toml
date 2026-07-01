@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "verify-checksum"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Verify that data matches an expected checksum (auto-detects the algorithm)"

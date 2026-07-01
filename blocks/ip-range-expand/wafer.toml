@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "ip-range-expand"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Expand a CIDR block or IP range into the full address list or a count."

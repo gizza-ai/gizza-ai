@@ -2,10 +2,10 @@
   "name": "gizza-ai/text-banner-image",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Render a headline into a stylized PNG banner (gradient, shadow, outline)",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Render a short headline into a wide, stylized banner image and return a PNG. Set text (the headline — use \\n for hard line breaks; it word-wraps and auto-shrinks to fit), the banner width/height in pixels (defaults 1200x400), bg_color / text_color / accent_color as #rgb or #rrggbb hex (the background is a subtle diagonal gradient from bg_color toward the accent, with a left accent stripe + underline), align (center/left/right), font_size (0 = auto-fit), and shadow / outline toggles for a drop shadow and a dark text outline. Returns an image. Runs locally — the text never leaves the device.",
     "parameters": {
       "type": "object",
       "properties": {

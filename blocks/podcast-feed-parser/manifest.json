@@ -2,10 +2,10 @@
   "name": "gizza-ai/podcast-feed-parser",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Parse a podcast RSS/XML feed into a clean episode list",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Parse a pasted podcast RSS/XML feed into a clean, structured episode list. Accepts RSS 2.0 feeds (including the iTunes podcast namespace) and Atom 1.0 feeds. Returns the channel-level metadata (title, description, author, link, cover image, language) plus an `episodes` array where each entry carries the title, publish date (normalised to RFC 3339 in `published`, with the original kept in `published_raw`), duration (normalised `HH:MM:SS` in `duration` plus whole seconds in `duration_seconds`), the audio enclosure URL/MIME-type/byte-size (`audio_url`, `audio_type`, `audio_length_bytes`), GUID, episode page link, season/episode numbers, and explicit flag. Empty/optional fields are omitted. Use `limit` to cap the number of episodes (0 = all), `order` to sort by publish date ('feed' keeps original order, 'newest', or 'oldest'), and `include_descriptions` to add each episode's plain-text summary. Fully local and deterministic — no network fetch, no AI model: paste the feed XML you already have.",
     "parameters": {
       "type": "object",
       "properties": {

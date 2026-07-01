@@ -2,10 +2,10 @@
   "name": "gizza-ai/remove-whitespace",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Trim, collapse, or strip whitespace from text",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Clean up whitespace in text. mode='trim' (default) strips leading/trailing whitespace from each line and drops leading/trailing blank lines; mode='collapse' also squashes runs of inline spaces/tabs to a single space; mode='strip' removes every whitespace character (including Unicode spaces like NBSP) to produce one dense string. collapse_blank_lines collapses runs of blank lines. Runs locally — the text never leaves the device.",
     "parameters": {
       "type": "object",
       "properties": {

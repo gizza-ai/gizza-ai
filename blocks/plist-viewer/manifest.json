@@ -2,10 +2,10 @@
   "name": "gizza-ai/plist-viewer",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "View Apple plist files as JSON or a key/value tree",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Parse an Apple property list (XML plist text or Base64-encoded binary bplist data) and render it as readable JSON or a plutil-style key/value tree. Options: format=json|tree, indent spaces, sort_keys, data_encoding=base64|hex for <data> blobs. Runs locally.",
     "parameters": {
       "type": "object",
       "properties": {

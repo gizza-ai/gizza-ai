@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "base62-codec"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Encode text, hex bytes, or numbers to Base62 (0-9A-Za-z) and decode Base62 back."

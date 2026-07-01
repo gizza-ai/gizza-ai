@@ -2,10 +2,10 @@
   "name": "gizza-ai/random-token-generator",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Generate cryptographically random tokens",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Generate one or more cryptographically random tokens locally with a CSPRNG. Each token is `length` characters drawn uniformly (no modulo bias) from a `charset` preset — 'hex' (default), 'hex-upper', 'base64url', 'alphanumeric' (base62), 'alphabetic', 'numeric', or 'safe' (alphanumeric without look-alike characters) — or from `custom_chars` when provided. `count` returns a batch. Returns the tokens, their per-token entropy in bits, and the alphabet size.",
     "parameters": {
       "type": "object",
       "properties": {

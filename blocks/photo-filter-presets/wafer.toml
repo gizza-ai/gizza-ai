@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "photo-filter-presets"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Apply a photo filter preset (sepia, vintage, warm, cool, noir, and more) to an image."

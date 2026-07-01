@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "extract-mac-addresses"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Find MAC addresses in text and normalize them"

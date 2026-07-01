@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "add-line-numbers"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Prefix every line with a sequential line number"

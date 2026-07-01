@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "structured-data-validator"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Validate JSON-LD, microdata and RDFa structured data in HTML."

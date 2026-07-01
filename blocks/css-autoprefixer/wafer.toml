@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "css-autoprefixer"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS."

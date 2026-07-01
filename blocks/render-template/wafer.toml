@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "render-template"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Render a Handlebars/Mustache template against JSON data"

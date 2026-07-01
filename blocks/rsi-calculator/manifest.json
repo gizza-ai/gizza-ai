@@ -2,14 +2,20 @@
   "name": "gizza-ai/rsi-calculator",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Computes the Relative Strength Index (RSI) from a price series",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Compute the Relative Strength Index (RSI) — Wilder's momentum oscillator — over a numeric price series (separated by spaces, commas, semicolons, or newlines, oldest first). For each look-back window (default period 14) it splits the period-over-period price changes into average gains and average losses using Wilder's smoothing, then reports RSI = 100 - 100/(1 + avgGain/avgLoss) on a 0-100 scale. RSI is 100 when the window has no losses and 0 when it has no gains. Returns the count, the period and overbought/oversold thresholds used, the RSI value and Wilder-smoothed average gain/loss at each point (null during the warm-up before period+1 points are available), the latest RSI, and a latest-signal classification (overbought/oversold/neutral). The period (1-10000) and the overbought (default 70) and oversold (default 30) thresholds are configurable. Runs locally — the data never leaves the device.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     }
   }
