@@ -61,7 +61,7 @@ struct Tool;
     name = "gizza-ai/byte-take",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Extract a byte range from text/hex/base64",
+    summary = "Extract a byte range (start offset + length) from text, hex, or Base64 and return that slice.",
     skill(
         description = "Extract a contiguous range of bytes from data and return that slice. Decodes 'input' per format ('text' UTF-8, 'hex' byte string, or 'base64'), then keeps 'length' bytes starting at byte offset 'start' (0-based, inclusive). start may be negative to count from the end (-1 is the last byte); start and length are clamped to the buffer, and length=0 extracts nothing. The extracted bytes are rendered per 'output' ('text', 'hex', or 'base64'). Offsets and lengths are raw bytes, not characters. Runs locally.",
         parameters = schema_json()

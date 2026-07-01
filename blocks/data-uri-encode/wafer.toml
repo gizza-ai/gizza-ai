@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "data-uri-encode"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Build a data: URI from text with a chosen MIME type and Base64 or percent encoding."

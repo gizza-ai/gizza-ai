@@ -68,7 +68,7 @@ struct Tool;
     name = "gizza-ai/graph-algorithms",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Graph Algorithms skill",
+    summary = "Run BFS, DFS, shortest path, topological sort, and cycle detection on a user-supplied graph.",
     skill(
         description = "Run a classic graph algorithm on a user-supplied edge list. Provide `edges` (one edge per line, e.g. `a -> b`, `a - b`, `a,b`, or weighted `a -> b : 3`), choose `algorithm` = bfs | dfs | shortest-path | topological-sort | cycle-detection, and set `directed`/`weighted` as needed. bfs/dfs/shortest-path need a `start` node; shortest-path also needs `end`. Returns a human-readable report (visit order, shortest path + distance, topological order, or an example cycle).",
         parameters = schema_json()

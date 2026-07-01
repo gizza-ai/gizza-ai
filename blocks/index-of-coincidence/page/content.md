@@ -55,16 +55,36 @@ per-letter frequency table** to see the count and percentage of each letter.
 
 ## FAQ
 
-**Is it free and private?** Yes. Your text never leaves your device, and the page
+<details>
+<summary>Is it free and private?</summary>
+
+Yes. Your text never leaves your device, and the page
 keeps working offline once it has loaded.
 
-**Why two numbers?** The raw IC is the literal probability (≈ 0.0667 for
+</details>
+
+<details>
+<summary>Why two numbers?</summary>
+
+The raw IC is the literal probability (≈ 0.0667 for
 English). Many references quote the normalized form (raw × 26 ≈ 1.73) because it
 is easy to compare against 1.0 for random text. Both describe the same thing.
 
-**How much text do I need?** A few hundred letters give a reliable IC; key-length
+</details>
+
+<details>
+<summary>How much text do I need?</summary>
+
+A few hundred letters give a reliable IC; key-length
 estimation wants more, ideally several times the key length per column.
 
-**Does it break the cipher?** No — the IC and the period estimate tell you the
+</details>
+
+<details>
+<summary>Does it break the cipher?</summary>
+
+No — the IC and the period estimate tell you the
 *kind* of cipher and the likely key length. You still recover the key and
 plaintext separately (e.g. with frequency analysis on each column).
+
+</details>

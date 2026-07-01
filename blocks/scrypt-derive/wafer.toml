@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "scrypt-derive"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Derive or verify a key from a password with scrypt"

@@ -61,7 +61,7 @@ struct Tool;
     name = "gizza-ai/byte-drop",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Remove a byte range from text/hex/base64",
+    summary = "Remove a byte range (start offset + length) from text, hex, or Base64 and return the remainder.",
     skill(
         description = "Remove a contiguous range of bytes from data and return the remainder. Decodes 'input' per format ('text' UTF-8, 'hex' byte string, or 'base64'), then deletes 'length' bytes starting at byte offset 'start' (0-based, inclusive). start may be negative to count from the end (-1 is the last byte); start and length are clamped to the buffer, and length=0 removes nothing. The remaining bytes are rendered per 'output' ('text', 'hex', or 'base64'). Offsets and lengths are raw bytes, not characters. Runs locally.",
         parameters = schema_json()

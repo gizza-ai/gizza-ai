@@ -50,18 +50,43 @@ Anything else after a backslash is kept as-is (so `\d` splits on a literal
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**How do I split a comma-separated list into lines?** Leave the delimiter as `,`
+</details>
+
+<details>
+<summary>How do I split a comma-separated list into lines?</summary>
+
+Leave the delimiter as `,`
 and turn on **Trim each item** to drop the spaces after each comma.
 
-**How do I split on tabs (from a spreadsheet)?** Type `\t` as the delimiter in
+</details>
+
+<details>
+<summary>How do I split on tabs (from a spreadsheet)?</summary>
+
+Type `\t` as the delimiter in
 **literal** mode, or just use **whitespace** mode if any whitespace should split.
 
-**How do I count or list every character?** Use **chars** mode — each Unicode
+</details>
+
+<details>
+<summary>How do I count or list every character?</summary>
+
+Use **chars** mode — each Unicode
 character (including emoji and accented letters) goes on its own line.
 
-**My list has blank lines — how do I remove them?** Turn on **Remove empty
+</details>
+
+<details>
+<summary>My list has blank lines — how do I remove them?</summary>
+
+Turn on **Remove empty
 items**; add **Trim each item** as well if some "blank" lines actually contain
 spaces.
+
+</details>

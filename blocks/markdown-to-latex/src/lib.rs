@@ -54,7 +54,7 @@ struct Tool;
     name = "gizza-ai/markdown-to-latex",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Markdown to LaTeX skill",
+    summary = "Convert a Markdown document into LaTeX source.",
     skill(
         description = "Convert a Markdown document into LaTeX source. Supports ATX and setext headings (mapped to \\section/\\subsection/...), ordered/unordered and nested lists, GitHub task lists, fenced and indented code blocks (via the listings/verbatim environments), blockquotes, GitHub pipe tables (tabular with booktabs rules and column alignment), thematic breaks, links and images (hyperref/graphicx), autolinks, inline bold/italic/code, strikethrough (~~text~~ via ulem \\sout), and footnotes ([^id] references with [^id]: definitions). The ten LaTeX special characters in prose are escaped automatically, and inline/display math ($...$ and $$...$$) is passed through verbatim. Set full_document=true to wrap the body in a compilable standalone document, or heading_offset=N (0-5) to demote headings when pasting into an existing document.",
         parameters = schema_json()

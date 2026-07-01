@@ -2,14 +2,45 @@
   "name": "gizza-ai/random-token-generator",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "TODO: one-line summary.",
+  "summary": "Generate cryptographically random tokens",
   "role": "skill",
   "tool": {
-    "description": "TODO: describe what this tool does and its inputs.",
+    "description": "Generate one or more cryptographically random tokens locally with a CSPRNG. Each token is `length` characters drawn uniformly (no modulo bias) from a `charset` preset — 'hex' (default), 'hex-upper', 'base64url', 'alphanumeric' (base62), 'alphabetic', 'numeric', or 'safe' (alphanumeric without look-alike characters) — or from `custom_chars` when provided. `count` returns a batch. Returns the tokens, their per-token entropy in bits, and the alphabet size.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "properties": {
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096,
+          "description": "Token length in characters (default 32)."
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "How many tokens to generate (default 1)."
+        },
+        "charset": {
+          "type": "string",
+          "enum": [
+            "hex",
+            "hex-upper",
+            "base64url",
+            "alphanumeric",
+            "alphabetic",
+            "numeric",
+            "safe"
+          ],
+          "default": "hex",
+          "description": "Character set: 'hex' (default), 'hex-upper', 'base64url', 'alphanumeric' (base62), 'alphabetic', 'numeric', or 'safe' (alphanumeric minus look-alike 0/O/1/l/I). Ignored when custom_chars is set."
+        },
+        "custom_chars": {
+          "type": "string",
+          "default": "",
+          "description": "Optional custom alphabet: when non-empty, tokens are drawn from these characters (duplicates removed, min 2 distinct) instead of the charset preset."
+        }
+      },
       "additionalProperties": false
     }
   }

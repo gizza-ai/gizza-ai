@@ -21,8 +21,18 @@ The video is re-encoded right in your browser with ffmpeg; nothing is uploaded.
 
 ### FAQ
 
-**Is my video uploaded?** No — the ffmpeg engine runs in your browser tab; the
+<details>
+<summary>Is my video uploaded?</summary>
+
+No — the ffmpeg engine runs in your browser tab; the
 file never leaves your device.
 
-**What if my crop is bigger than the video?** ffmpeg will reject an out-of-bounds
+</details>
+
+<details>
+<summary>What if my crop is bigger than the video?</summary>
+
+ffmpeg will reject an out-of-bounds
 crop; pick a width/height/offset that fits within the source dimensions.
+
+</details>

@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "slugify"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Convert a title or phrase into a clean URL-safe slug."

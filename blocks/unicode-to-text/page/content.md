@@ -31,25 +31,35 @@ It is the inverse of an escaping / **Text to Unicode** tool. Everything runs loc
 
 <details>
 <summary>Does it handle emoji and other astral (non-BMP) characters?</summary>
-<p>Yes. <code>\u{1F600}</code>, <code>\U0001F600</code>, <code>U+1F600</code>, the surrogate pair <code>😀</code> and the HTML reference <code>&amp;#128512;</code> all decode to 😀.</p>
+
+Yes. <code>\u{1F600}</code>, <code>\U0001F600</code>, <code>U+1F600</code>, the surrogate pair <code>😀</code> and the HTML reference <code>&amp;#128512;</code> all decode to 😀.
+
 </details>
 
 <details>
 <summary>Do I have to pick which notation my text uses?</summary>
-<p>No. The decoder auto-detects all supported notations in one pass, so a string that mixes several of them decodes correctly without any configuration.</p>
+
+No. The decoder auto-detects all supported notations in one pass, so a string that mixes several of them decodes correctly without any configuration.
+
 </details>
 
 <details>
 <summary>What happens to text that isn't an escape sequence?</summary>
-<p>It is passed through unchanged. Plain characters, and even incomplete-looking fragments like a stray <code>\u</code> with no hex digits, are left exactly as you typed them.</p>
+
+It is passed through unchanged. Plain characters, and even incomplete-looking fragments like a stray <code>\u</code> with no hex digits, are left exactly as you typed them.
+
 </details>
 
 <details>
 <summary>Will it touch string escapes like <code>\n</code> or <code>\t</code>?</summary>
-<p>No. This tool only decodes Unicode code-point notations. Whitespace/string escapes such as <code>\n</code>, <code>\t</code> and <code>\\</code> are left alone for a dedicated string-unescape tool.</p>
+
+No. This tool only decodes Unicode code-point notations. Whitespace/string escapes such as <code>\n</code>, <code>\t</code> and <code>\\</code> are left alone for a dedicated string-unescape tool.
+
 </details>
 
 <details>
 <summary>What does U+FFFD in the output mean?</summary>
-<p>That is the Unicode replacement character. It appears when an escape names a value that is not a valid Unicode scalar (for example a lone UTF-16 surrogate like <code>\uD83D</code> on its own).</p>
+
+That is the Unicode replacement character. It appears when an escape names a value that is not a valid Unicode scalar (for example a lone UTF-16 surrogate like <code>\uD83D</code> on its own).
+
 </details>

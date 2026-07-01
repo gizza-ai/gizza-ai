@@ -68,22 +68,47 @@ hour later — perfect for appending part 2 after a one-hour part 1.
 
 ## FAQ
 
-**How do I separate the files?** Put a line that contains only `===` (three or
+<details>
+<summary>How do I separate the files?</summary>
+
+Put a line that contains only `===` (three or
 more equals signs) between each file. Everything between separators is treated as
 one subtitle file.
 
-**Can I merge an SRT and a VTT together?** Yes. Each file's format is detected
+</details>
+
+<details>
+<summary>Can I merge an SRT and a VTT together?</summary>
+
+Yes. Each file's format is detected
 independently, and the combined result is written in whichever output format you
 pick (or the first file's format on `auto`).
 
-**My two parts both start at 00:00 — how do I join them end to end?** Use the
+</details>
+
+<details>
+<summary>My two parts both start at 00:00 — how do I join them end to end?</summary>
+
+Use the
 per-file shift: enter the length of the first part in milliseconds. File 2 is
 moved by that amount, file 3 by twice it, and so on.
 
-**Will it keep multi-line dialogue and styling?** Multi-line cue text is kept as
+</details>
+
+<details>
+<summary>Will it keep multi-line dialogue and styling?</summary>
+
+Multi-line cue text is kept as
 written. WebVTT cue settings (positioning/alignment after the timestamp) are
 dropped when they have no SubRip equivalent.
 
-**Is my file uploaded anywhere?** No. The merge happens locally in your browser,
+</details>
+
+<details>
+<summary>Is my file uploaded anywhere?</summary>
+
+No. The merge happens locally in your browser,
 so your subtitles never leave your device, and it keeps working offline once the
 page has loaded.
+
+</details>

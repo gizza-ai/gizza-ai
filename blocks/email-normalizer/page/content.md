@@ -47,15 +47,35 @@ plus addressing is the de-facto standard. Other providers keep their dots.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Does removing dots affect non-Gmail addresses?** No. Only Gmail ignores dots
+</details>
+
+<details>
+<summary>Does removing dots affect non-Gmail addresses?</summary>
+
+No. Only Gmail ignores dots
 in the local part, so dots are preserved for every other provider.
 
-**What about the `+tag` part — is that mail lost?** No. A message to
+</details>
+
+<details>
+<summary>What about the <code>+tag</code> part — is that mail lost?</summary>
+
+No. A message to
 `you+anything@…` is delivered to `you@…`; the tag is just a filtering label, so
 the canonical address still reaches the same inbox.
 
-**Can I keep the local part's capitalization?** Yes — untick *Lowercase the
+</details>
+
+<details>
+<summary>Can I keep the local part's capitalization?</summary>
+
+Yes — untick *Lowercase the
 local part*. The domain is always lowercased because DNS is case-insensitive.
+
+</details>

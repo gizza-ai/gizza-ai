@@ -98,7 +98,7 @@ struct Tool;
     name = "gizza-ai/truncate-text",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Truncate Text skill",
+    summary = "Shorten text to a chosen number of characters or words.",
     skill(
         description = "Shorten text to a maximum number of characters or words, appending an ellipsis only when the text is actually cut (text that already fits is returned unchanged). Set length (default 100) to the limit and unit to \"characters\" (default) or \"words\". For character truncation, break_words=false (default) backs the cut up to the last whitespace so a word is never split, and count_ellipsis=true (default) keeps the whole result — ellipsis included — within length. ellipsis is the marker appended when cut (default \"…\"; set empty for a hard cut). Useful for building previews, snippets, meta descriptions, table cells, or summaries of a fixed length.",
         parameters = schema_json()

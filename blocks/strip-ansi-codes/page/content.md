@@ -48,20 +48,45 @@ program that still relies on the positioning codes.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Does it keep my Unicode and line breaks?** Yes. Only the ANSI escape sequences
+</details>
+
+<details>
+<summary>Does it keep my Unicode and line breaks?</summary>
+
+Yes. Only the ANSI escape sequences
 are removed; accents, emoji, tabs, and newlines are preserved exactly.
 
-**What's the difference between "all" and "color"?** **all** removes every escape
+</details>
+
+<details>
+<summary>What's the difference between "all" and "color"?</summary>
+
+**all** removes every escape
 sequence for fully clean text. **color** removes only the SGR color/style codes
 and leaves cursor-movement and screen-erase sequences in place.
 
-**Does it handle OSC hyperlinks and window titles?** Yes — in **all** mode, OSC
+</details>
+
+<details>
+<summary>Does it handle OSC hyperlinks and window titles?</summary>
+
+Yes — in **all** mode, OSC
 strings (terminated by BEL or ST) such as `\x1b]8` hyperlinks and `\x1b]0` window
 titles are removed, leaving just the visible link text.
 
-**Why are there still odd characters left?** This tool removes ANSI/VT escape
+</details>
+
+<details>
+<summary>Why are there still odd characters left?</summary>
+
+This tool removes ANSI/VT escape
 sequences. Truly raw control bytes that aren't part of an escape sequence (for
 example a stray backspace used for overstrike) are left as-is.
+
+</details>

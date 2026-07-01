@@ -50,23 +50,53 @@ example a raw public-key hash or a transaction ID.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**What's the difference from Base64?** Base58 drops the easily-confused
+</details>
+
+<details>
+<summary>What's the difference from Base64?</summary>
+
+Base58 drops the easily-confused
 characters (`0 O I l`) and the `+ /` symbols, so the strings are safe to copy by
 hand, double-click-select, and embed in URLs. It's slightly less compact than
 Base64 in exchange.
 
-**Which alphabet do I want?** Use **bitcoin** unless you have a reason not to —
+</details>
+
+<details>
+<summary>Which alphabet do I want?</summary>
+
+Use **bitcoin** unless you have a reason not to —
 it's the alphabet used by Bitcoin, IPFS, and most tooling. Pick **ripple** for
 XRP Ledger data and **flickr** for Flickr short URLs.
 
-**My decoded output looks garbled.** The bytes probably aren't UTF-8 text.
+</details>
+
+<details>
+<summary>My decoded output looks garbled.</summary>
+
+The bytes probably aren't UTF-8 text.
 Switch the **Data format** to **hex** to see the raw bytes.
 
-**Does it do Base58Check?** Not yet — this tool is plain Base58 (no version byte
+</details>
+
+<details>
+<summary>Does it do Base58Check?</summary>
+
+Not yet — this tool is plain Base58 (no version byte
 or checksum). For a Bitcoin address you'd add the Base58Check checksum on top.
 
-**Why is there no padding option?** Base58 is defined without padding. Leading
+</details>
+
+<details>
+<summary>Why is there no padding option?</summary>
+
+Base58 is defined without padding. Leading
 zero bytes are preserved as leading `1`s instead.
+
+</details>

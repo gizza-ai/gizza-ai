@@ -62,20 +62,45 @@ Project
 
 ## FAQ
 
-**Is it free and private?** Yes — your outline never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your outline never leaves your device, and the
 page keeps working offline once it has loaded.
 
-**Can I mix tabs and spaces?** Yes. A tab counts as **Tab width** columns
+</details>
+
+<details>
+<summary>Can I mix tabs and spaces?</summary>
+
+Yes. A tab counts as **Tab width** columns
 (default 4), so a tab-indented child still nests correctly under a
 space-indented parent.
 
-**What if my indentation isn't a consistent number of spaces?** That's fine —
+</details>
+
+<details>
+<summary>What if my indentation isn't a consistent number of spaces?</summary>
+
+That's fine —
 only the *relative* indentation between lines matters. A line that is more
 indented than its predecessor becomes a child no matter the exact step size.
 
-**Which output shape should I pick?** Use **children** when order or repeated
+</details>
+
+<details>
+<summary>Which output shape should I pick?</summary>
+
+Use **children** when order or repeated
 labels matter, or when you want explicit `text`/`children` fields. Use
 **nested** for a compact object tree you can look up by name.
 
-**Why did I get an error?** The first line must not be indented (it's the root),
+</details>
+
+<details>
+<summary>Why did I get an error?</summary>
+
+The first line must not be indented (it's the root),
 and the outline must contain at least one non-blank line.
+
+</details>

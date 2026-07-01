@@ -65,7 +65,7 @@ struct OutlineToJson;
     name = "gizza-ai/outline-to-json",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Outline to JSON skill",
+    summary = "Convert an indented text outline into nested JSON.",
     skill(
         description = "Convert an indented text outline into nested JSON. Each non-blank line becomes a node and its leading whitespace (spaces or tabs) sets the nesting: a more-indented line is a child of the nearest preceding less-indented line. format='children' (default) returns an array of {\"text\":…,\"children\":[…]} node objects, preserving order; format='nested' returns an object keyed by node text like {\"a\":{\"b\":{}}}. tab_size sets how many columns a tab counts for (default 4) so tabs and spaces can be mixed. Blank lines are ignored and the first line must be unindented. Set pretty=false for compact output.",
         parameters = schema_json()

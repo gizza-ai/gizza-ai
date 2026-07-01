@@ -2,20 +2,61 @@
   "name": "gizza-ai/binary-codec",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Binary encode/decode skill",
+  "summary": "Binary encode/decode",
   "role": "skill",
   "tool": {
     "description": "Encode text or bytes to a per-byte binary bit string (eight 0/1 bits per byte), or decode a binary string back to text. Use mode='encode' (default, e.g. 'Hi' -> '01001000 01101001') or mode='decode' (e.g. '01001000 01101001' -> 'Hi'). delimiter sets the separator between bytes when encoding ('space' default, 'none', 'colon', 'dash', 'comma', 'newline'); prefix adds '0b' before each byte. On decode, format='text' (default) renders UTF-8 (errors on non-UTF-8 bytes) and format='bytes' shows the raw bytes as a plain hex string. Decoding ignores whitespace, the common delimiters (: - ,), and the 0b prefix, so any encoded form round-trips back.",
     "parameters": {
       "type": "object",
       "properties": {
-        "input": { "type": "string", "description": "The text to encode (read as UTF-8), or the binary bit string to decode." },
-        "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) turns text into a binary bit string, 'decode' turns binary back into text." },
-        "format": { "type": "string", "enum": ["text", "bytes"], "default": "text", "description": "On decode, how to render the recovered bytes: 'text' (default) is UTF-8 and errors if the bytes aren't valid UTF-8; 'bytes' shows them as a plain lowercase hex byte string (use for binary data). Ignored on encode." },
-        "delimiter": { "type": "string", "enum": ["none", "space", "colon", "dash", "comma", "newline"], "default": "space", "description": "Separator placed between bytes when encoding: 'space' (default), 'none', 'colon' (:), 'dash' (-), 'comma', or 'newline'. Decoding ignores any of these." },
-        "prefix": { "type": "string", "enum": ["none", "0b"], "default": "none", "description": "Marker placed before each byte when encoding: 'none' (default) or '0b' (e.g. 0b01001000). Decoding strips 0b automatically." }
+        "input": {
+          "type": "string",
+          "description": "The text to encode (read as UTF-8), or the binary bit string to decode."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "encode",
+            "decode"
+          ],
+          "default": "encode",
+          "description": "Direction: 'encode' (default) turns text into a binary bit string, 'decode' turns binary back into text."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "text",
+            "bytes"
+          ],
+          "default": "text",
+          "description": "On decode, how to render the recovered bytes: 'text' (default) is UTF-8 and errors if the bytes aren't valid UTF-8; 'bytes' shows them as a plain lowercase hex byte string (use for binary data). Ignored on encode."
+        },
+        "delimiter": {
+          "type": "string",
+          "enum": [
+            "none",
+            "space",
+            "colon",
+            "dash",
+            "comma",
+            "newline"
+          ],
+          "default": "space",
+          "description": "Separator placed between bytes when encoding: 'space' (default), 'none', 'colon' (:), 'dash' (-), 'comma', or 'newline'. Decoding ignores any of these."
+        },
+        "prefix": {
+          "type": "string",
+          "enum": [
+            "none",
+            "0b"
+          ],
+          "default": "none",
+          "description": "Marker placed before each byte when encoding: 'none' (default) or '0b' (e.g. 0b01001000). Decoding strips 0b automatically."
+        }
       },
-      "required": ["input"],
+      "required": [
+        "input"
+      ],
       "additionalProperties": false
     }
   }

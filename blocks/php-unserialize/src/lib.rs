@@ -37,7 +37,7 @@ struct PhpUnserialize;
     name = "gizza-ai/php-unserialize",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "PHP serialize() decoder to JSON",
+    summary = "Decode a PHP serialize() string into JSON.",
     skill(
         description = "Decode a PHP serialize() string (as produced by PHP's serialize(), or read from a PHP session, cache, or WordPress wp_options row) into readable JSON. Mapping: 'N;' -> null, 'b:1;'/'b:0;' -> true/false, 'i:N;' -> integer, 'd:N;' -> number, 's:<byte-len>:\"...\";' -> string (length is in bytes), 'a:<count>:{...}' -> a JSON array when keyed by the sequential integers 0..n, otherwise a JSON object, and 'O:<len>:\"Class\":<count>:{...}' (a serialized object) -> a JSON object with the class name under a '__class' field. Output is pretty-printed JSON. Use this to inspect PHP-serialized data from a non-PHP system; the inverse of php-serialize.",
         parameters = schema_json()

@@ -59,20 +59,45 @@ PHP's serialized format is compact and type-tagged. Each value carries its type:
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and the
 page keeps working offline once it has loaded.
 
-**Where does this serialized string come from?** Anywhere PHP's `serialize()` is
+</details>
+
+<details>
+<summary>Where does this serialized string come from?</summary>
+
+Anywhere PHP's `serialize()` is
 used: `$_SESSION` files, object caches, queue payloads, and WordPress options and
 post meta are common sources.
 
-**Why does my string length look "too big"?** Because PHP counts string length in
+</details>
+
+<details>
+<summary>Why does my string length look "too big"?</summary>
+
+Because PHP counts string length in
 bytes, not characters — accented and non-Latin text takes more than one byte per
 character. The byte count is what the format requires.
 
-**What is the `__class` field?** When the serialized value is a PHP object
+</details>
+
+<details>
+<summary>What is the <code>__class</code> field?</summary>
+
+When the serialized value is a PHP object
 (`O:…`), the original class name is preserved under `"__class"` so you can tell
 which class produced the data. Plain arrays do not get this field.
 
-**Does it handle nested arrays and objects?** Yes, to any depth — nested values
+</details>
+
+<details>
+<summary>Does it handle nested arrays and objects?</summary>
+
+Yes, to any depth — nested values
 are decoded recursively.
+
+</details>

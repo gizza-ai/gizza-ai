@@ -57,21 +57,46 @@ BFS, DFS, and shortest path need a **Start** node; shortest path also needs an
 
 ## FAQ
 
-**Is it free and private?** Yes — your graph never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your graph never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**Directed or undirected?** Use **Directed** for one-way relationships (task
+</details>
+
+<details>
+<summary>Directed or undirected?</summary>
+
+Use **Directed** for one-way relationships (task
 dependencies, web links, follower graphs). Leave it off for symmetric
 relationships (roads, friendships). Topological sort only makes sense on a
 directed graph.
 
-**What does “weighted” do?** It tells the parser to read a trailing number on
+</details>
+
+<details>
+<summary>What does “weighted” do?</summary>
+
+It tells the parser to read a trailing number on
 each edge as a distance/cost. Shortest path then uses Dijkstra’s algorithm.
 Weights must be non-negative.
 
-**Why does shortest path not take the direct edge?** Dijkstra finds the *cheapest*
+</details>
+
+<details>
+<summary>Why does shortest path not take the direct edge?</summary>
+
+Dijkstra finds the *cheapest*
 route by total weight — a longer chain of small edges can beat one expensive
 direct edge.
 
-**What if a node can’t be reached?** BFS/DFS report how many nodes they reached;
+</details>
+
+<details>
+<summary>What if a node can’t be reached?</summary>
+
+BFS/DFS report how many nodes they reached;
 shortest path says no path exists when the end node is unreachable from the start.
+
+</details>

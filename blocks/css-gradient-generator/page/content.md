@@ -67,17 +67,37 @@ for example `#000 0px, #fff 10px` makes a striped pattern.
 
 ## FAQ
 
-**Is it free and private?** Yes — your colors never leave your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your colors never leave your device, and the
 tool keeps working offline once the page has loaded.
 
-**How do I use the output?** Copy the `background-image: …;` line into a CSS rule
+</details>
+
+<details>
+<summary>How do I use the output?</summary>
+
+Copy the `background-image: …;` line into a CSS rule
 for any element. You can also drop the inner `…-gradient(...)` part anywhere a
 CSS `<image>` value is allowed.
 
-**Can I mix automatic and manual positions?** If any stop has an explicit
+</details>
+
+<details>
+<summary>Can I mix automatic and manual positions?</summary>
+
+If any stop has an explicit
 position, the rest are left exactly as you wrote them. Only when *no* stop has a
 position are even percentages filled in for all of them.
 
-**Which color formats work?** Hex (`#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`),
+</details>
+
+<details>
+<summary>Which color formats work?</summary>
+
+Hex (`#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`),
 named colors, `rgb()/rgba()`, and `hsl()/hsla()` — anything a browser accepts as
 a CSS color.
+
+</details>

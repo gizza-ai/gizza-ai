@@ -32,7 +32,7 @@ struct Tool;
     name = "gizza-ai/hash-identifier",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "hash-identifier skill",
+    summary = "Identify the likely hash/MAC scheme of a digest string.",
     skill(
         description = "Identify the likely hash or MAC scheme that produced a given digest string. Recognition is structural: prefixed formats (bcrypt '$2b$...', Argon2 '$argon2id$...', sha512crypt '$6$...', PHPass/WordPress '$P$...', Apache apr1, Cisco type 8/9, LDAP {SSHA}, MySQL '*...', NetNTLM) are matched by their unambiguous prefix and reported with high confidence; a bare fixed-width hex digest can match a whole family of same-width algorithms (e.g. a 32-hex string is MD5 OR NTLM OR MD4) so all plausible candidates are listed, best-confidence first. Pass the single hash string in 'input'. This does NOT crack hashes or recover the original value; it only classifies the format.",
         parameters = schema_json()

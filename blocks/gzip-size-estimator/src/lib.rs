@@ -53,7 +53,7 @@ struct Tool;
     name = "gizza-ai/gzip-size-estimator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "gzip size estimator skill",
+    summary = "Estimate the raw and gzipped byte size of code or text.",
     skill(
         description = "Report the raw, gzipped, and brotli byte size of pasted code or text to estimate its over-the-wire transfer weight (e.g. a JS/CSS bundle served with gzip or brotli Content-Encoding). Returns the raw size, the gzipped size, bytes saved, the percent reduction, the compression ratio, and a brotli (Content-Encoding: br) comparison. Set level (0-9, default 6) to match a server's gzip level.",
         parameters = schema_json()

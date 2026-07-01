@@ -70,7 +70,7 @@ struct Tool;
     name = "gizza-ai/markdown-section-extractor",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Extract a Markdown section by heading",
+    summary = "Extracts a single subsection from a Markdown document by its heading.",
     skill(
         description = "Extract a single subsection from a Markdown document by its heading. Give the full document as 'markdown' and the heading text as 'heading' (e.g. 'Installation', without the '#'). Returns the heading and everything beneath it up to the next heading at the same or a shallower level — by default including all deeper nested subsections. Set include_subsections=false to return only the body directly under the heading (stopping at the first deeper heading). Set include_heading=false to omit the heading line. match_mode controls how the heading is found: 'exact' (default, case-insensitive), 'exact_case' (case-sensitive), or 'contains' (substring). Recognizes ATX (#, ##, …) and setext (===/---) headings and skips '#' lines inside fenced code blocks.",
         parameters = schema_json()

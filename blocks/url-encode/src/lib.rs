@@ -71,7 +71,7 @@ struct UrlEncode;
     name = "gizza-ai/url-encode",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "URL Encode skill",
+    summary = "Percent-encode or decode text and URLs.",
     skill(
         description = "Percent-encode or percent-decode text and URLs. Use mode='encode' (default) to make text URL-safe or mode='decode' to reverse it. When encoding, target='component' (default) escapes everything for a single query value or path segment (e.g. 'São Paulo' -> 'S%C3%A3o%20Paulo'); target='uri' encodes a whole URL while preserving its delimiters (: / ? # & = etc.); target='form' is application/x-www-form-urlencoded, where a space becomes '+' (and decodes back). Set per_line=true to convert each line of a batch list independently. Set repeat>1 (up to 16) to un-nest multiply-encoded input when decoding, or to double-encode.",
         parameters = schema_json()

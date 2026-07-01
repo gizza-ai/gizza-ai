@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "hash-text"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Hash text with a selectable algorithm (MD5/SHA-1/SHA-2/SHA-3/BLAKE)"

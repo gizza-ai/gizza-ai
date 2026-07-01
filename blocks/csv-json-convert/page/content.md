@@ -32,10 +32,25 @@ a row is missing a key.
 
 ### FAQ
 
-**Is my data uploaded anywhere?** No. The converter is compiled to WebAssembly
+<details>
+<summary>Is my data uploaded anywhere?</summary>
+
+No. The converter is compiled to WebAssembly
 and runs entirely in your browser tab.
 
-**Does it support TSV?** Yes — set the delimiter to `tab`.
+</details>
 
-**Why did my number stay a string?** Values with leading zeros or a leading `+`
+<details>
+<summary>Does it support TSV?</summary>
+
+Yes — set the delimiter to `tab`.
+
+</details>
+
+<details>
+<summary>Why did my number stay a string?</summary>
+
+Values with leading zeros or a leading `+`
 are kept as text so they survive the round trip unchanged.
+
+</details>

@@ -7,6 +7,7 @@ never uploaded to a server.
 
 <details>
 <summary>How the rectangle works</summary>
+
 <div>
 <p>The origin <code>(0, 0)</code> is the top-left corner of the image.</p>
 <ul>
@@ -16,14 +17,17 @@ never uploaded to a server.
 <li><strong>Height</strong> — how tall the kept rectangle is, in pixels.</li>
 </ul>
 </div>
+
 </details>
 
 <details>
 <summary>Tips</summary>
+
 <div>
 <ul>
 <li>Keep the rectangle inside the image's dimensions, or ffmpeg will reject it.</li>
 <li>Works offline once the page has loaded.</li>
 </ul>
 </div>
+
 </details>

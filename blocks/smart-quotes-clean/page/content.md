@@ -46,21 +46,46 @@ does not transliterate or strip accents.
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**What are "smart quotes"?** They're the curly, directional quotation marks
+</details>
+
+<details>
+<summary>What are "smart quotes"?</summary>
+
+They're the curly, directional quotation marks
 (`“ ” ‘ ’`) that word processors substitute for the straight ASCII quotes
 (`" '`). They look nice in print but break code, regexes, CSVs, and JSON.
 
-**Why does my pasted text have invisible characters?** Copying from the web or a
+</details>
+
+<details>
+<summary>Why does my pasted text have invisible characters?</summary>
+
+Copying from the web or a
 PDF often brings along non-breaking spaces and zero-width characters that look
 like normal spaces but aren't — they cause mysterious "string doesn't match"
 bugs. Leaving **Normalize spaces** on replaces or removes them.
 
-**Does it change accented or non-Latin letters?** No. Unlike a slug or
+</details>
+
+<details>
+<summary>Does it change accented or non-Latin letters?</summary>
+
+No. Unlike a slug or
 transliteration tool, this cleaner only touches typographic punctuation and
 whitespace — `é`, `ñ`, `北京`, and emoji pass through unchanged.
 
-**Can I keep em dashes as a single hyphen?** Yes — set **Em dash becomes** to `-`
+</details>
+
+<details>
+<summary>Can I keep em dashes as a single hyphen?</summary>
+
+Yes — set **Em dash becomes** to `-`
 (or ` - ` for a spaced hyphen) instead of the default `--`.
+
+</details>

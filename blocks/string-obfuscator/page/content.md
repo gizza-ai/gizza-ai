@@ -34,16 +34,36 @@ a server: it runs locally, works offline, and needs no sign-up.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Is masking reversible?** No. `mask` permanently removes the hidden characters,
+</details>
+
+<details>
+<summary>Is masking reversible?</summary>
+
+No. `mask` permanently removes the hidden characters,
 which is exactly what you want for redaction. `rot` is reversible (ROT13 twice
 returns the original); `leetspeak` and `homoglyph` are not cleanly reversible.
 
-**What is a homoglyph?** A character that looks identical to another but has a
+</details>
+
+<details>
+<summary>What is a homoglyph?</summary>
+
+A character that looks identical to another but has a
 different Unicode codepoint — e.g. the Latin `a` (U+0061) versus the Cyrillic
 `а` (U+0430). They render the same but are different bytes.
 
-**Can I use ROT13 to secure data?** No — ROT13 is a toy cipher with no key. It
+</details>
+
+<details>
+<summary>Can I use ROT13 to secure data?</summary>
+
+No — ROT13 is a toy cipher with no key. It
 hides text from a casual glance only; never use it for real secrets.
+
+</details>

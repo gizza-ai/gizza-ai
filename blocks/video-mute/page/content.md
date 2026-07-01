@@ -12,8 +12,18 @@ uploaded.
 
 ### FAQ
 
-**Is my video uploaded?** No — ffmpeg runs in your browser tab; the file never
+<details>
+<summary>Is my video uploaded?</summary>
+
+No — ffmpeg runs in your browser tab; the file never
 leaves your device.
 
-**Will the quality change?** No — the video is copied without re-encoding; only
+</details>
+
+<details>
+<summary>Will the quality change?</summary>
+
+No — the video is copied without re-encoding; only
 the audio is removed.
+
+</details>

@@ -44,17 +44,37 @@ or switch the Output to **Count**.
 
 ## FAQ
 
-**Does a CIDR include the network and broadcast addresses?** Yes — this tool
+<details>
+<summary>Does a CIDR include the network and broadcast addresses?</summary>
+
+Yes — this tool
 lists the entire block. `10.0.0.0/30` gives all four addresses, including
 `10.0.0.0` (network) and `10.0.0.3` (broadcast).
 
-**Does it support IPv6?** Yes. Give an IPv6 CIDR (`2001:db8::/126`) or an IPv6
+</details>
+
+<details>
+<summary>Does it support IPv6?</summary>
+
+Yes. Give an IPv6 CIDR (`2001:db8::/126`) or an IPv6
 range (`2001:db8::1-2001:db8::5`). Because IPv6 blocks can be astronomically
 large, use **Count** for anything wider than a small prefix.
 
-**What if my range is huge?** **List** mode caps the number of addresses (so
+</details>
+
+<details>
+<summary>What if my range is huge?</summary>
+
+**List** mode caps the number of addresses (so
 your browser doesn't try to render millions of lines). Use **Count** for the
 exact total of any size, or raise the limit for a slightly larger list.
 
-**Is it free and private?** Yes — your input never leaves your device, and the
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and the
 page keeps working offline once it has loaded.
+
+</details>

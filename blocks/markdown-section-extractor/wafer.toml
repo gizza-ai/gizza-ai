@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "markdown-section-extractor"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Extracts a single subsection from a Markdown document by its heading."

@@ -60,7 +60,7 @@ struct MorseCode;
     name = "gizza-ai/morse-code",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Morse code converter skill",
+    summary = "Converts text to Morse code and Morse code back to text.",
     skill(
         description = "Convert text to International Morse code and Morse code back to text. Use direction='encode' (default) to turn plain text into Morse (e.g. 'SOS' -> '... --- ...'), or direction='decode' to turn Morse back into text. Supports the standard International Morse alphabet: A-Z, 0-9, and common punctuation (. , ? ' ! / ( ) & : ; = + - _ \" $ @). Encoding is case-insensitive; unknown characters become the code for '?'. Letters are separated by letter_sep (default a single space) and words by word_sep (default ' / '); set them to match any convention.",
         parameters = schema_json()

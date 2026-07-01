@@ -75,7 +75,7 @@ struct Tool;
     name = "gizza-ai/html-form-generator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Generate accessible HTML form markup",
+    summary = "Generate accessible HTML form markup from a plain list of fields.",
     skill(
         description = "Generate accessible, ready-to-paste HTML <form> markup from a plain-text description of fields. Describe one field per line as 'Label | type | options': end a label with '*' to make it required; type (default text) is one of text, email, password, number, tel, url, date, time, textarea, select, radio, checkbox, checkboxes; for select/radio/checkboxes give a comma-separated option list, otherwise the third part is a placeholder. Each field gets a slugified name/id, a properly bound <label for>, validation attributes (required, type=email/url/number/...), and unique names; output can include a small <style> block. Set method (post/get), action URL, and the submit button label.",
         parameters = schema_json()

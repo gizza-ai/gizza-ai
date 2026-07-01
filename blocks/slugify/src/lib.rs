@@ -73,7 +73,7 @@ struct Slugify;
     name = "gizza-ai/slugify",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Slugify skill",
+    summary = "Convert a title or phrase into a clean URL-safe slug.",
     skill(
         description = "Convert a title or phrase into a clean, URL-safe slug: Unicode is transliterated to ASCII (e.g. 'Crème Brûlée' -> 'creme-brulee', '北京' -> 'bei-jing'), apostrophes are dropped so contractions join ('Bob's' -> 'bobs'), the text is lowercased, and every run of spaces and punctuation is collapsed to a single separator with no leading/trailing separators. Set separator to '_' (or another non-alphanumeric string) to change the word separator, lowercase=false to keep the original case, max_length>0 to truncate on a word boundary, or per_line=true to slugify a batch list of titles line by line.",
         parameters = schema_json()

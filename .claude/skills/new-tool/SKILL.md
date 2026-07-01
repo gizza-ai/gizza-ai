@@ -42,14 +42,29 @@ the build/test/PR commands. Follow these steps in order:
    - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning the
      shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` — already wired by the scaffold).
    - `page/meta.toml` + `page/content.md` — real title/desc/tags/inputs (field ORDER must
-     match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures.
+     match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures. Write
+     the FAQ in `content.md` as `<details>`/`<summary>` accordions (the scaffold seeds one),
+     NOT plain `## FAQ` markdown — keep a BLANK LINE inside each `<details>` so the answer's
+     markdown renders and wraps in `<p>` (see `blocks/age-calculator`). Plain-markdown FAQ is
+     a hard-fail in the hygiene gate.
    - `manifest.json` — the scaffold generates it (build.rs needs it; `wafer build` does
      NOT). Update `summary` + the `tool.description`/`tool.parameters` to match your
-     `src/lib.rs` skill() schema (the runtime reads schemas from the macro/`info()`, so
-     this is informational, but keep it consistent).
+     `src/lib.rs` skill() schema. **`tool.parameters` is LOAD-BEARING for the page**, not
+     just informational: the page form (`tools/generator/src/control.rs`) reads the
+     MANIFEST (not the live descriptor) to pick each field's control — a param renders as a
+     `<select>` only if its manifest property carries the `enum`, as a checkbox/number for
+     `boolean`/`integer`, else a text box. Leave `tool.parameters` as the scaffold stub and
+     EVERY field renders as plain text. Keep it byte-for-byte in sync with `schema_json()`.
+     **Summaries:** write ONE clean one-line summary and use it in all three places — the
+     `#[wafer_block(summary = "…")]` macro (what chat/the runtime shows), `wafer.toml`
+     `summary`, and `manifest.json` `summary`. Fill every scaffold `TODO` (title, h1, hero,
+     descriptions, summaries); do NOT leave the vestigial `"… skill"` suffix the old
+     scaffold seeded. The gate fails on any leftover `TODO`.
 7. **Build:** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace` (from
    `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
-   `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`. Fix
+   `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`; and
+   `python3 scripts/check-tool-hygiene.py <slug>` (the hard gate CI enforces — fails on a
+   drifted manifest or a plain-markdown FAQ). Fix
    compile/test failures (≤3 attempts) before escalating. (No SKILL.md to regenerate —
    the root SKILL.md is static and points agents at `gizza list`/`gizza describe`.)
 8. **Test (type-aware)** — see reference.md:

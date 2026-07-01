@@ -35,7 +35,7 @@ struct EmailValidator;
     name = "gizza-ai/email-validator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Validate an email address.",
+    summary = "Validate an email address against RFC 5321/5322 syntax and flag common typos.",
     skill(
         description = "Validate an email address against RFC 5321/5322 syntax rules and flag common typos and formatting issues. This is syntax-only and never touches the network (no DNS/MX or SMTP checks). It parses local@domain; reports whether the address is syntactically valid; lists hard errors (missing or duplicated '@', empty/over-long local part or domain, leading/trailing or consecutive dots, illegal characters, a domain with no dot or bad labels); and lists soft warnings for likely mistakes (a misspelled popular domain such as gmial.com, a misspelled TLD such as '.con', an all-numeric TLD, surrounding whitespace, a quoted local part, an IP-address literal). When a typo is detected it returns a best-guess corrected address. Unwraps a 'Name <addr>' / 'mailto:addr' wrapper before validating.",
         parameters = schema_json()

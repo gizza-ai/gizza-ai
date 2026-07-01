@@ -72,21 +72,27 @@ independently.
 
 <details>
 <summary>Is this the same as a protobuf decoder?</summary>
-<p>No — a protobuf decoder expects a single bare message. gRPC adds the
+
+No — a protobuf decoder expects a single bare message. gRPC adds the
 length-prefixed framing layer (compressed flag + 4-byte length) on top, and a
 stream can hold many messages. This tool peels off that framing first, then hands
-each uncompressed payload to the protobuf decoder.</p>
+each uncompressed payload to the protobuf decoder.
+
 </details>
 
 <details>
 <summary>Why are there multiple interpretations per field?</summary>
-<p>Without the original <code>.proto</code> schema the wire bytes are ambiguous: a
+
+Without the original <code>.proto</code> schema the wire bytes are ambiguous: a
 varint could be an integer, a signed zig-zag value, an enum, or a bool. The
-decoder shows every reading so you can pick the one that matches your API.</p>
+decoder shows every reading so you can pick the one that matches your API.
+
 </details>
 
 <details>
 <summary>Does anything get uploaded?</summary>
-<p>No. The parser is compiled to WebAssembly and runs entirely in your browser —
-the bytes you paste never leave your device.</p>
+
+No. The parser is compiled to WebAssembly and runs entirely in your browser —
+the bytes you paste never leave your device.
+
 </details>

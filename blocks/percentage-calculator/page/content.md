@@ -40,12 +40,27 @@ Standard arithmetic is used throughout — `percent_of` is `percent/100 · base`
 
 ### FAQ
 
-**Which numbers do I enter?** Only the ones the chosen question uses — the rest
+<details>
+<summary>Which numbers do I enter?</summary>
+
+Only the ones the chosen question uses — the rest
 are ignored. The field labels list which question each number belongs to.
 
-**Can I use negative numbers?** Yes. A negative `percent` in `apply_change`
+</details>
+
+<details>
+<summary>Can I use negative numbers?</summary>
+
+Yes. A negative `percent` in `apply_change`
 decreases the base, and negative values are allowed anywhere except as a
 divisor.
 
-**Is it free and private?** Yes. Your input never leaves your device, and it
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes. Your input never leaves your device, and it
 works offline.
+
+</details>

@@ -48,7 +48,7 @@ struct XpathQuery;
     name = "gizza-ai/xpath-query",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Evaluate an XPath 1.0 expression against XML",
+    summary = "Evaluate an XPath 1.0 expression against XML or XHTML",
     skill(
         description = "Evaluate an XPath 1.0 expression against an XML or XHTML document and return the matching nodes or values, using a pure-Rust engine (sxd-xpath). Supports location paths (//book/title), attributes (//a/@href), predicates and filters (//book[price < 10]), axes (ancestor/following-sibling/…), and the XPath function library (count(), name(), text(), contains(), substring(), …). A node-set query returns one result per matched node (in document order) — set output='value' for each node's text content or output='xml' for its serialized outer XML. A scalar expression (count(//x), name(/*), //a > 1) returns a single value. Example: '//book[@category=\"fiction\"]/title'.",
         parameters = schema_json()

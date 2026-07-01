@@ -61,7 +61,7 @@ struct Tool;
     name = "gizza-ai/tail-lines",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Tail Lines skill",
+    summary = "Output the last N lines of text (tail -n).",
     skill(
         description = "Output the last N lines of text — the `tail -n` / 'show the bottom rows' operation. Set count to how many trailing lines to keep (default 10). Use skip to drop that many lines from the end before taking count (e.g. skip=1 to ignore a footer/total row). Set number=true to prefix each kept line with its 1-based original line number and a tab (like `cat -n`), so the numbers reflect each line's real position near the end. Lines split on newlines; a trailing newline and any Windows CRLF are preserved.",
         parameters = schema_json()

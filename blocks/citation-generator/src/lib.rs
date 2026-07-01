@@ -106,7 +106,7 @@ struct CitationGenerator;
     name = "gizza-ai/citation-generator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Citation generator skill",
+    summary = "Citation generator",
     skill(
         description = "Format a single reference into APA 7th, MLA 9th, Chicago 17th, or Harvard style from structured fields. Set style='apa' (default), 'mla', 'chicago', or 'harvard'. Provide whatever fields you have: 'title', 'authors' (separate several with ';' or ' and '; write each 'Family, Given' or 'Given Family'; a single token like 'UNESCO' is treated as an organization), 'year', 'container' (journal/website/book name), 'publisher', 'volume', 'issue', 'pages', 'url', 'doi', and 'accessed'. Blank fields are omitted. With a 'container' the title is formatted as a part of a larger work (quoted in MLA/Chicago); without one it is treated as a standalone work. A DOI is preferred over a URL. Returns one ready-to-paste reference-list / works-cited / bibliography entry as plain text (italics that the styles call for cannot be rendered in plain text). At least a title or an author is required.",
         parameters = schema_json()

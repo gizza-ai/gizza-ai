@@ -2,22 +2,58 @@
   "name": "gizza-ai/bibtex-format",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "BibTeX formatter skill",
+  "summary": "BibTeX formatter",
   "role": "skill",
   "tool": {
     "description": "Validate, sort, and pretty-print BibTeX bibliography entries. Pass the raw .bib source in 'bibtex'; the tool parses @article/@book/etc. entries plus @string/@preamble/@comment, reports any syntax error, then re-emits them cleanly with one field per indented line.",
     "parameters": {
       "type": "object",
       "properties": {
-        "bibtex": { "type": "string", "description": "The BibTeX bibliography source to validate and pretty-print." },
-        "sort": { "type": "string", "enum": ["none", "key", "type-key"], "default": "none", "description": "Reorder entries: 'none' (default) keeps source order; 'key' sorts case-insensitively by cite key; 'type-key' sorts by entry type then key. @string/@preamble/@comment items stay at the front." },
-        "sort_fields": { "type": "boolean", "default": false, "description": "When true, sort the fields within each entry alphabetically by name. Default false (keep source order)." },
-        "indent": { "type": "integer", "minimum": 0, "maximum": 16, "default": 2, "description": "Spaces to indent each field line, 0-16. Default 2." },
-        "align_values": { "type": "boolean", "default": false, "description": "When true, pad field names so all '=' signs in an entry line up. Default false (a single space before '=')." },
-        "lowercase_type": { "type": "boolean", "default": true, "description": "When true (default), lowercase the entry type and the @string/@preamble/@comment keyword. Field names are always lowercased." },
-        "check_duplicates": { "type": "boolean", "default": true, "description": "When true (default), error if two entries share a cite key (case-insensitive) — BibTeX silently keeps only the first, so a duplicate key is a real bug. Set false to format anyway." }
+        "bibtex": {
+          "type": "string",
+          "description": "The BibTeX bibliography source to validate and pretty-print."
+        },
+        "sort": {
+          "type": "string",
+          "enum": [
+            "none",
+            "key",
+            "type-key"
+          ],
+          "default": "none",
+          "description": "Reorder entries: 'none' (default) keeps source order; 'key' sorts case-insensitively by cite key; 'type-key' sorts by entry type then key. @string/@preamble/@comment items stay at the front."
+        },
+        "sort_fields": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, sort the fields within each entry alphabetically by name. Default false (keep source order)."
+        },
+        "indent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16,
+          "default": 2,
+          "description": "Spaces to indent each field line, 0-16. Default 2."
+        },
+        "align_values": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, pad field names so all '=' signs in an entry line up. Default false (a single space before '=')."
+        },
+        "lowercase_type": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true (default), lowercase the entry type and the @string/@preamble/@comment keyword. Field names are always lowercased."
+        },
+        "check_duplicates": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true (default), error if two entries share a cite key (case-insensitive) — BibTeX silently keeps only the first, so a duplicate key is a real bug. Set false to format anyway."
+        }
       },
-      "required": ["bibtex"],
+      "required": [
+        "bibtex"
+      ],
       "additionalProperties": false
     }
   }

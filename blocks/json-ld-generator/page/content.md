@@ -72,17 +72,37 @@ Output:
 
 ## FAQ
 
-**Where do I paste the output?** Inside a `<script type="application/ld+json">`
+<details>
+<summary>Where do I paste the output?</summary>
+
+Inside a `<script type="application/ld+json">`
 tag in your page's `<head>` (tick *Wrap in script tag* to get the whole block).
 
-**Will this pass Google's Rich Results Test?** The output is valid schema.org
+</details>
+
+<details>
+<summary>Will this pass Google's Rich Results Test?</summary>
+
+The output is valid schema.org
 JSON-LD for the chosen type. You still need to supply the properties Google
 requires for that type (e.g. a Product usually needs `name` plus `offers` or
 `aggregateRating`) — this tool builds the markup, it doesn't invent your data.
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+</details>
+
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**How do I add a nested object?** Use a dotted field name, e.g.
+</details>
+
+<details>
+<summary>How do I add a nested object?</summary>
+
+Use a dotted field name, e.g.
 `author.name = Jane Doe` produces a nested `Person`. Add more dotted lines with
 the same prefix to add more properties to that object.
+
+</details>

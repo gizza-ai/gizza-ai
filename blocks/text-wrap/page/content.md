@@ -33,13 +33,28 @@ set a **Line width**, and optionally toggle **Preserve indentation** or
 
 ## FAQ
 
-**Is it free and private?** Yes — your text never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your text never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Does it count by characters or display width?** It counts Unicode characters
+</details>
+
+<details>
+<summary>Does it count by characters or display width?</summary>
+
+It counts Unicode characters
 (scalar values), which is exact for plain prose. Wide CJK glyphs and combining
 marks may render wider than their character count.
 
-**Will it merge my paragraphs?** No. Blank lines and existing line breaks are
+</details>
+
+<details>
+<summary>Will it merge my paragraphs?</summary>
+
+No. Blank lines and existing line breaks are
 preserved — only the text within each line is reflowed. To remove hard breaks
 inside paragraphs first, use the Unwrap Text tool, then wrap.
+
+</details>

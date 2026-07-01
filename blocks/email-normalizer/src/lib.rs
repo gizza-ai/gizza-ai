@@ -49,7 +49,7 @@ struct EmailNormalizer;
     name = "gizza-ai/email-normalizer",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Canonicalize an email address.",
+    summary = "Canonicalize an email address to its deliverable form.",
     skill(
         description = "Canonicalize an email address to its deliverable form. Lowercases the domain (and, by default, the local part); for Gmail/Googlemail it strips all dots from the local part and folds googlemail.com to gmail.com; for Gmail, Outlook/Hotmail/Live, Yahoo, iCloud, Fastmail, Proton and other plus-tag providers it drops the '+tag' sub-address. Unwraps a 'Name <addr>' / 'mailto:addr' wrapper. Reports the canonical address, local part, domain, recognised provider, the stripped sub-address tag (if any), and whether dots were removed. Returns an error for a syntactically invalid address.",
         parameters = schema_json()

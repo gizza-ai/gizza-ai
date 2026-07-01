@@ -26,8 +26,18 @@ the output is safe to embed in another page.
 
 ### FAQ
 
-**Is my Markdown uploaded?** No — the renderer is compiled to WebAssembly and runs
+<details>
+<summary>Is my Markdown uploaded?</summary>
+
+No — the renderer is compiled to WebAssembly and runs
 entirely in your browser tab.
 
-**Which flavor of Markdown is this?** CommonMark plus the common GitHub-flavored
+</details>
+
+<details>
+<summary>Which flavor of Markdown is this?</summary>
+
+CommonMark plus the common GitHub-flavored
 extensions: tables, task lists, strikethrough, and footnotes.
+
+</details>

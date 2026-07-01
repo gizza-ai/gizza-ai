@@ -49,14 +49,34 @@ rather than producing infinity.
 
 ## FAQ
 
-**Is it free and private?** Yes — your numbers never leave your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your numbers never leave your device, and the
 tool keeps working offline once the page has loaded.
 
-**What if the two columns are different lengths?** You will get an error telling
+</details>
+
+<details>
+<summary>What if the two columns are different lengths?</summary>
+
+You will get an error telling
 you how many values each column has, so you can line them up.
 
-**Can I paste a column straight from a spreadsheet?** Yes — a spreadsheet column
+</details>
+
+<details>
+<summary>Can I paste a column straight from a spreadsheet?</summary>
+
+Yes — a spreadsheet column
 copies as one value per line, which is exactly the format this tool accepts.
 
-**Does it handle decimals and negatives?** Yes. Mix integers, decimals, and
+</details>
+
+<details>
+<summary>Does it handle decimals and negatives?</summary>
+
+Yes. Mix integers, decimals, and
 negative numbers freely in either column.
+
+</details>

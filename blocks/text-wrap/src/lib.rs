@@ -71,7 +71,7 @@ struct Tool;
     name = "gizza-ai/text-wrap",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Text Wrap skill",
+    summary = "Hard-wrap text to a column width",
     skill(
         description = "Hard-wrap (reflow) text to a fixed column width so no line exceeds the given number of characters. Set width (default 80) to the target column. Existing hard line breaks and blank lines are kept, so paragraph structure survives, and each line is reflowed independently using greedy word wrap (runs of whitespace between words collapse to a single space). preserve_indent (default true) re-applies each source line's leading indentation to its continuation lines so indented blocks and list items stay aligned. break_long_words (default true) hard-splits a word that is longer than the width; set it false to leave such a word intact on its own over-length line. Useful for fitting prose to a terminal/email column, formatting commit messages, or normalizing paragraph width.",
         parameters = schema_json()

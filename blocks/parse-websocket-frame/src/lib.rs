@@ -49,7 +49,7 @@ struct ParseWebsocketFrame;
     name = "gizza-ai/parse-websocket-frame",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "WebSocket frame parser skill",
+    summary = "Decode a WebSocket frame (RFC 6455) into FIN/RSV/opcode, mask flag, payload length, and the unmasked payload bytes.",
     skill(
         description = "Decode a WebSocket frame (RFC 6455) into its FIN bit, RSV1/RSV2/RSV3 reserved bits, opcode (numeric + human name: continuation/text/binary/close/ping/pong), the MASK flag, the payload length, the 4-byte masking key (when present), and the unmasked payload bytes. Give the frame bytes as base64 or hex in 'input' (encoding='auto' (default), 'base64', or 'hex'). byte0 carries FIN (0x80) + RSV (0x40/0x20/0x10) + opcode (low nibble); byte1 carries MASK (0x80) + a 7-bit length where 126 means the real length is the next 2 bytes (big-endian) and 127 means the next 8 bytes; a masked frame then has a 4-byte key and the payload is XOR-unmasked with key[i%4]. The output reports payload_hex always, payload_text (UTF-8) for text frames, and a {code, reason} object for close frames. Use format='json' (default) for a structured object or 'text' for a compact summary. Truncated/too-short frames return a clear error. Useful for debugging a WebSocket handshake or a captured ws:// byte dump.",
         parameters = schema_json()

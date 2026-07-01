@@ -32,15 +32,30 @@ leap year counts that extra day correctly.
 
 ### FAQ
 
-**Does it handle time zones?** Dates are compared as wall-clock values. If you
+<details>
+<summary>Does it handle time zones?</summary>
+
+Dates are compared as wall-clock values. If you
 paste a timestamp with an offset (`Z` or `+02:00`), the offset is dropped and the
 local clock value is kept — so compare two timestamps in the same zone.
 
-**Why is the order-independent?** If you put the later date first, the magnitude
+</details>
+
+<details>
+<summary>Why is the order-independent?</summary>
+
+If you put the later date first, the magnitude
 is still reported as a positive duration, and the result is flagged so you know
 the end was before the start.
 
-**What's the difference between the breakdown and the totals?** The breakdown
+</details>
+
+<details>
+<summary>What's the difference between the breakdown and the totals?</summary>
+
+The breakdown
 mixes units (years + months + days …); the totals each express the entire span in
 one unit. For example 8 days is "1 week and 1 day" in the breakdown, but "8" total
 days and "1" total week in the totals.
+
+</details>

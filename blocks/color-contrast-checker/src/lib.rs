@@ -56,7 +56,7 @@ struct Tool;
     name = "gizza-ai/color-contrast-checker",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Color Contrast Checker skill",
+    summary = "Color Contrast Checker",
     skill(
         description = "Compute the WCAG 2.x contrast ratio between a foreground (text) colour and a background colour and report whether it passes WCAG AA and AAA for normal text (>= 4.5 / >= 7), large text (>= 3 / >= 4.5), and UI components/graphics (>= 3). Each colour is a hex code (#1a2b3c, #fff, bare 1a2b3c), an rgb triple (rgb(26,43,60)), an hsl triple (hsl(210,40%,17%)), or a CSS colour name (navy, tomato). Set format='json' for a machine-readable result; set format='suggest' (with target='aa'|'aaa'|'large') to also get the nearest accessible foreground that passes.",
         parameters = schema_json()

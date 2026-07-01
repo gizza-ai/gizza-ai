@@ -83,7 +83,7 @@ struct Tool;
     name = "gizza-ai/fake-data-generator",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Generate fake test records as CSV or JSON",
+    summary = "Generate fake test records (names, emails, phones, addresses, IDs) as CSV, JSON, SQL, or XML",
     skill(
         description = "Generate rows of realistic-looking but entirely fake test/sample data — names, emails, phone numbers, postal addresses, usernames, companies, job titles, birthdates, UUIDs, IP/MAC addresses, colors, booleans, credit-card-style numbers, lorem sentences, and more — as CSV, JSON, SQL INSERT statements, or XML. Set count for the number of rows (1-1000), format='csv'|'json'|'sql'|'xml', and fields to a comma-separated subset of columns (id, uuid, first_name, last_name, full_name, username, email, phone, street, city, state, zip, country, latitude, longitude, company, job_title, birthdate, domain, ipv4, ipv6, mac, color, boolean, credit_card, sentence) or 'all'. header toggles the CSV header row; table sets the SQL table name. All data is synthetic placeholder data for testing/mocking, not real people; credit_card numbers are Luhn-valid test placeholders, not real accounts. Pass a non-zero seed to reproduce the exact same dataset.",
         parameters = schema_json()

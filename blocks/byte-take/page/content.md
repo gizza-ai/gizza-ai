@@ -41,23 +41,53 @@ exactly where the byte boundaries fall.
 
 ## FAQ
 
-**Is it free and private?** Yes — your input never leaves your device, and it
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your input never leaves your device, and it
 keeps working offline once the page has loaded.
 
-**Are offsets in bytes or characters?** Bytes. For ASCII text the two are the
+</details>
+
+<details>
+<summary>Are offsets in bytes or characters?</summary>
+
+Bytes. For ASCII text the two are the
 same, but a multi-byte character spans several bytes. Switch to **hex** input/output
 to work at the exact byte level.
 
-**What happens if my range goes past the end?** It's clamped — the tool extracts
+</details>
+
+<details>
+<summary>What happens if my range goes past the end?</summary>
+
+It's clamped — the tool extracts
 only the bytes that exist and never errors on an out-of-range length.
 
-**My output says the bytes aren't valid UTF-8.** Slicing through the middle of a
+</details>
+
+<details>
+<summary>My output says the bytes aren't valid UTF-8.</summary>
+
+Slicing through the middle of a
 multi-byte character can leave bytes that don't form valid text. Switch the
 **Output format** to **hex** or **base64** to view the raw extracted bytes.
 
-**How do I grab the last few bytes?** Use a negative **Start offset** — for
+</details>
+
+<details>
+<summary>How do I grab the last few bytes?</summary>
+
+Use a negative **Start offset** — for
 example `-4` with length `4` takes the last four bytes.
 
-**How is this different from byte drop?** Byte Take keeps the selected range and
+</details>
+
+<details>
+<summary>How is this different from byte drop?</summary>
+
+Byte Take keeps the selected range and
 discards the rest; Byte Drop does the opposite — it removes the selected range
 and keeps the rest.
+
+</details>

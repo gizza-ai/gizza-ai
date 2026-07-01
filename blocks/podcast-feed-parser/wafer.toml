@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "podcast-feed-parser"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Parse a podcast RSS/XML feed into a clean episode list"

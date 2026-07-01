@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "rsi-calculator"
 version = "0.1.0"
 abi = 1
-summary = "TODO: one-line summary."
+summary = "Computes the Relative Strength Index (RSI) from a price series"

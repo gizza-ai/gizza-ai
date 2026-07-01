@@ -61,16 +61,36 @@ sent to a server — it works locally, offline, and needs no sign-up.
 
 ## FAQ
 
-**Is it free and private?** Yes — your graph never leaves your device, and the
+<details>
+<summary>Is it free and private?</summary>
+
+Yes — your graph never leaves your device, and the
 tool keeps working offline once the page has loaded.
 
-**How are matrices laid out?** Tab-separated, with the vertex labels in the first
+</details>
+
+<details>
+<summary>How are matrices laid out?</summary>
+
+Tab-separated, with the vertex labels in the first
 row and first column so you can paste the result straight into a spreadsheet.
 
-**What sign convention does the directed incidence matrix use?** The edge's tail
+</details>
+
+<details>
+<summary>What sign convention does the directed incidence matrix use?</summary>
+
+The edge's tail
 (source) is `-1` (or `-weight`) and its head (target) is `+1` (or `+weight`),
 matching the standard oriented incidence matrix used for the graph Laplacian.
 
-**Can I round-trip?** Yes — convert edges → adjacency → edges and you get the same
+</details>
+
+<details>
+<summary>Can I round-trip?</summary>
+
+Yes — convert edges → adjacency → edges and you get the same
 graph back. Isolated vertices survive because they are written as a single-token
 line in the edge-list output.
+
+</details>

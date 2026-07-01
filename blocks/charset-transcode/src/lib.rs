@@ -61,7 +61,7 @@ struct CharsetTranscode;
     name = "gizza-ai/charset-transcode",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Charset transcode (fix mojibake) skill",
+    summary = "Re-decode garbled text from a legacy charset into clean UTF-8 (fix mojibake).",
     skill(
         description = "Re-decode garbled text ('mojibake') from a legacy charset into clean UTF-8. Leave 'from' as 'auto' (default) to detect the charset automatically, or set it to the charset the text was wrongly decoded as (WHATWG label, e.g. 'windows-1252', 'iso-8859-1'/'latin1', 'shift_jis'/'sjis', 'euc-jp', 'euc-kr', 'gbk', 'big5', 'windows-1251', 'koi8-r'). The tool re-encodes the input under that charset and decodes the bytes as UTF-8. Use this to fix text where 'é' shows as 'Ã©' or '“' shows as 'â€œ'. Set 'passes'>1 to un-nest double-encoded mojibake. The 'errors' option is 'replace' (default — undecodable bytes become U+FFFD) or 'strict' (fail instead).",
         parameters = schema_json()
