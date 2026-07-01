@@ -7,6 +7,9 @@
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders pkg/tools/<slug>/
 - `solobase build` — rebuild app + all blocks into pkg/
 - `cargo install --path cli --force` then `gizza tool <slug> <args>` — CLI test
+- `python3 scripts/check-tool-hygiene.py <slug>` — hard gate (CI runs it repo-wide): fails on a
+  manifest whose `tool.parameters` drifted from the descriptor (page renders text not `<select>`) or a
+  `page/content.md` FAQ written as plain markdown instead of `<details>` accordions.
 
 ## Per-type file checklist (fill the scaffold's TODO/stub files)
 
@@ -15,8 +18,8 @@
 - `src/lib.rs`: edit `descriptor()` to the real params — it single-sources the chat schema (`parameters = schema_json()` is pre-wired; do NOT hand-write inline JSON) — plus the `skill(description=...)` and `Args` fields; the scaffold delegates via `block_utils::run_skill`. Param API: `Param::string|integer|number|enumv|boolean|string_map(...)` + `.required()/.default(v)/.min(n)/.max(n)/.describe(s)`; `Input::None` for pure. Mirror `blocks/url-encode`.
 - `web/src/lib.rs`: `#[wasm_bindgen] pub fn <export>(...) -> Result<T, JsValue>` — the `<export>` name MUST match `page/meta.toml`'s `export`.
 - `page/meta.toml`: real slug/title/description/tags/h1/hero_subtitle; `format` = "number"|"text"; one `[[input]] source="field"` per arg — input NAMES + ORDER must equal the web fn's params.
-- `page/content.md`: real SEO copy.
-- `manifest.json` + `wafer.toml`: scaffold-generated. Update the `summary` in both, and `manifest.json`'s `tool.description`/`tool.parameters` to match your `src/lib.rs` skill() schema (runtime reads schemas from the macro/`info()`; these are kept consistent for build.rs + hygiene).
+- `page/content.md`: real SEO copy. FAQ as `<details>`/`<summary>` accordions (blank line inside each), never plain `## FAQ` markdown.
+- `manifest.json` + `wafer.toml`: scaffold-generated. Update the `summary` in both, and `manifest.json`'s `tool.description`/`tool.parameters` to match your `src/lib.rs` skill() schema. **`tool.parameters` drives the page form** — `control.rs` reads it (not the descriptor) to render `<select>`/checkbox/number/text, so leaving it as the scaffold stub makes every field a text box. Keep it in sync with `schema_json()`.
 - `tests/*.json`: wafer fixtures (recipe below).
 
 ### ffmpeg (reference: blocks/image-resize)

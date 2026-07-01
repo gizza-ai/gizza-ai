@@ -193,6 +193,21 @@ cat > "$dir/page/content.md" <<EOF
 ## About this tool
 
 TODO: SEO copy.
+
+## FAQ
+
+<!-- FAQ MUST be <details>/<summary> accordions: site/tool.css styles them and
+     scripts/check-tool-hygiene.py fails the build on a plain-markdown FAQ. Keep
+     the blank line inside each <details> so the answer's markdown (inline
+     \`code\`, **bold**, lists) renders and gets wrapped in <p>. One <details> per
+     question; write real Q&A, not these TODOs. -->
+
+<details>
+<summary>TODO: a real question users ask about this tool?</summary>
+
+TODO: the answer in plain sentences.
+
+</details>
 EOF
 
 if [[ "$type" == ffmpeg ]]; then

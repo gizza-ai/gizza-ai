@@ -72,6 +72,11 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
+      - name: Tool hygiene gate
+        working-directory: gizza-ai
+        shell: bash
+        run: python3 scripts/check-tool-hygiene.py
+
       - name: Read solobase pin
         id: pin
         run: echo "solobase_sha=$(cat gizza-ai/solobase-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"

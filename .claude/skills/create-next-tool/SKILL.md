@@ -303,7 +303,14 @@ BUILDER PROMPT (self-contained — the sub-agent has a fresh context, so it must
 > `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — run heavy builds in background +
 > poll), `cargo install --path cli`, `cargo run --manifest-path tools/generator/Cargo.toml -- .`, verify all
 > applicable surfaces (CLI `gizza tool <slug>`; page Playwright `cd tests && xvfb-run npx playwright test
-> tool-page-<slug>.spec.ts`). (3) Write `docs/checks/<today>-improve-<slug>-competitor-analysis.md`.
+> tool-page-<slug>.spec.ts`). (2b) Apply the /improve-tool usability standards to the page: model every
+> fixed-choice param as `Param::enumv` (the page renders it as a <select>); write the FAQ as
+> `<details>`/`<summary>` accordions with a BLANK LINE inside each (so the answer markdown renders + wraps
+> in <p> — plain `## FAQ` markdown is a hard-fail); and SYNC `manifest.json` `tool.parameters` to the
+> descriptor schema — the page form reads the MANIFEST, not the live descriptor, so a stub/`{input:string}`
+> manifest renders EVERY field as a plain text box. Then run `python3 scripts/check-tool-hygiene.py <slug>`
+> and fix any violation before continuing (it is the same gate CI enforces). (3) Write
+> `docs/checks/<today>-improve-<slug>-competitor-analysis.md`.
 > (4) If it's a semantic dup of an existing block, instead append `<slug>  # reason` to
 > `docs/tool-skiplist.txt`, commit that, and re-pick. (5) Honesty gate: if it can't be built+verified in
 > ≤3 fix attempts, `git clean -fd blocks/<slug>`, skiplist or report, do NOT commit broken. (6) Clean
