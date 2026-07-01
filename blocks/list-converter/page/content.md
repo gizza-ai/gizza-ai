@@ -25,28 +25,28 @@ Convert, sort, deduplicate, and transform lists instantly in your browser. This 
 
 <details>
 <summary>Where is my list data sent?</summary>
-<p>
+
 Your data never leaves your computer. The splitting, cleaning, and formatting logic runs entirely inside your browser using WebAssembly. There are no backend database calls, analytical trackers, or server-side logging.
-</p>
+
 </details>
 
 <details>
 <summary>How does the SQL IN layout handle quotes?</summary>
-<p>
+
 The SQL output format wraps each list item in single quotes (`'item'`) and automatically escapes any internal single quotes as double single-quotes (`''`), which is standard SQL syntax. It then wraps the final list in parentheses `(...)`.
-</p>
+
 </details>
 
 <details>
 <summary>What does the 'Auto' input separator do?</summary>
-<p>
+
 'Auto' scans the input list and splits by the first matching priority separator: first looking for newlines, then commas, then semicolons, pipes, and tabs. If none are found, it falls back to parsing as a single-item list.
-</p>
+
 </details>
 
 <details>
 <summary>How does the Deduplicate feature work?</summary>
-<p>
+
 Deduplication is case-sensitive and preserves the first occurrence of each unique item in the list, removing any subsequent duplicates without altering the remaining order of your list.
-</p>
+
 </details>

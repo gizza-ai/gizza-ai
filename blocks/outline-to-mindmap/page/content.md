@@ -46,30 +46,38 @@ slide — it stays crisp at any size because it's vector, not a bitmap.
 
 <details>
 <summary>What indentation should I use?</summary>
-<p>Anything consistent works — two spaces, four spaces, or tabs. Deeper
+
+Anything consistent works — two spaces, four spaces, or tabs. Deeper
 indentation simply means deeper nesting; the tool measures each line's leading
 whitespace (tabs count as up to four columns) and builds the tree from that, so
-mixed or irregular indents are handled gracefully.</p>
+mixed or irregular indents are handled gracefully.
+
 </details>
 
 <details>
 <summary>Can I paste a bullet list?</summary>
-<p>Yes. Leading <code>-</code>, <code>*</code>, <code>+</code>, <code>•</code>
+
+Yes. Leading <code>-</code>, <code>*</code>, <code>+</code>, <code>•</code>
 bullets and numbered markers like <code>1.</code> are removed automatically, so
-a Markdown or to-do list maps cleanly.</p>
+a Markdown or to-do list maps cleanly.
+
 </details>
 
 <details>
 <summary>Is my outline uploaded anywhere?</summary>
-<p>No. Parsing, layout, and SVG rendering all run locally in your browser. Your
-text never leaves the device.</p>
+
+No. Parsing, layout, and SVG rendering all run locally in your browser. Your
+text never leaves the device.
+
 </details>
 
 <details>
 <summary>What can I do with the SVG?</summary>
-<p>Because it's a vector image, you can scale it to any size without blur, embed
+
+Because it's a vector image, you can scale it to any size without blur, embed
 it in a web page or README, open it in a vector editor, or convert it to PNG or
-PDF with the other gizza tools.</p>
+PDF with the other gizza tools.
+
 </details>
 
 ## Privacy

@@ -74,20 +74,26 @@ has the MASK bit set, masking key `37 fa 21 3d`, and unmasks back to **"Hello"**
 
 <details>
 <summary>Why is the client payload masked?</summary>
-<p>RFC 6455 requires every client→server frame to be masked with a random 4-byte key
+
+RFC 6455 requires every client→server frame to be masked with a random 4-byte key
 to defend intermediary proxies against cache-poisoning attacks. Server→client frames
-are never masked. This tool detects the MASK bit and unmasks the payload for you.</p>
+are never masked. This tool detects the MASK bit and unmasks the payload for you.
+
 </details>
 
 <details>
 <summary>What do payload lengths 126 and 127 mean?</summary>
-<p>The 7-bit length field only reaches 125. The value 126 is a marker that the real
+
+The 7-bit length field only reaches 125. The value 126 is a marker that the real
 length follows as a 2-byte big-endian integer; 127 means it follows as an 8-byte
-big-endian integer. The tool reads the extended length automatically.</p>
+big-endian integer. The tool reads the extended length automatically.
+
 </details>
 
 <details>
 <summary>Does anything get uploaded?</summary>
-<p>No. The parser is compiled to WebAssembly and runs entirely in your browser — the
-bytes you paste never leave your device.</p>
+
+No. The parser is compiled to WebAssembly and runs entirely in your browser — the
+bytes you paste never leave your device.
+
 </details>

@@ -10,15 +10,19 @@ to a server, and no account or network lookup is required.
 
 <details>
 <summary>What can I paste?</summary>
-<p>Paste a full <code>-----BEGIN PGP PUBLIC KEY BLOCK-----</code> or
+
+Paste a full <code>-----BEGIN PGP PUBLIC KEY BLOCK-----</code> or
 <code>-----BEGIN PGP PRIVATE KEY BLOCK-----</code>. For private keys, the tool only
 derives and displays public metadata; it does not decrypt or export secret
-material.</p>
+material.
+
 </details>
 
 <details>
 <summary>Why check the fingerprint?</summary>
-<p>The full fingerprint is the safest compact identifier for an OpenPGP key. Use
+
+The full fingerprint is the safest compact identifier for an OpenPGP key. Use
 it when comparing a key against an independently published fingerprint or when
-checking that a signing/encryption key is the one you expected.</p>
+checking that a signing/encryption key is the one you expected.
+
 </details>
