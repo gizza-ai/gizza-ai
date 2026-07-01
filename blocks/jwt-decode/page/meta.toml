@@ -9,6 +9,7 @@ export        = "run"
 live          = false
 output_label  = "Decoded Token"
 format        = "text"
+wide          = true
 
 [[input]]
 name        = "token"
