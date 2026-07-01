@@ -1,6 +1,6 @@
 slug          = "markdown-section-extractor"
 title         = "Markdown Section Extractor — Pull One Section by Heading | gizza.ai"
-description   = "Extract a single section from a Markdown document by its heading. Keep or drop nested subsections, include or omit the heading line, and match exactly or by substring. Handles ATX and setext headings and skips code blocks. Free, private, runs in your browser."
+description   = "Extract one section from a Markdown document by heading — keep or drop subsections, exact or substring match, ATX and setext. Free, in your browser."
 tags          = ["markdown", "section extractor", "heading", "extract section", "markdown parser", "split markdown", "subsection", "documentation", "readme"]
 h1            = "Markdown Section Extractor"
 hero_subtitle = "Pull a single section out of a Markdown document by its heading — keep or drop nested subsections. Runs entirely in your browser, no server, no sign-up."

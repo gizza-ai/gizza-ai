@@ -1,6 +1,6 @@
 slug          = "byte-drop"
 title         = "Byte Drop — Remove a Byte Range from Text, Hex or Base64 — gizza.ai"
-description   = "Delete a contiguous range of bytes from text, hex, or Base64 by start offset and length, and view the remainder as text, hex, or Base64. Runs entirely in your browser. Free, private, no sign-up."
+description   = "Delete a range of bytes from text, hex, or Base64 by start offset and length, and view the remainder in any format. Free, private, runs in your browser."
 tags          = ["byte drop", "remove bytes", "delete byte range", "byte editor", "hex", "base64", "trim bytes", "byte splice", "binary editor", "offset length"]
 h1            = "Byte Drop — Remove a Byte Range"
 hero_subtitle = "Delete a contiguous range of bytes from text, hex, or Base64 data by start offset and length, then view the remaining bytes as text, hex, or Base64. Runs entirely in your browser, no server, no sign-up."
@@ -22,11 +22,13 @@ multiline   = true
 [[input]]
 name        = "start"
 label       = "Start offset (byte, 0-based; negative counts from the end)"
+placeholder = "5"
 source      = "field"
 
 [[input]]
 name        = "length"
 label       = "Length (bytes to remove)"
+placeholder = "7"
 source      = "field"
 
 [[input]]

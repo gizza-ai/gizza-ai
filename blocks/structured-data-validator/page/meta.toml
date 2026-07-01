@@ -1,6 +1,6 @@
 slug          = "structured-data-validator"
 title         = "Structured Data Validator — JSON-LD, Microdata & RDFa | gizza.ai"
-description   = "Validate schema.org structured data from pasted HTML. Extract JSON-LD, microdata, and RDFa, list detected entity types and properties, and flag common markup errors locally in your browser."
+description   = "Validate schema.org structured data from pasted HTML — extract JSON-LD, microdata and RDFa and flag markup errors, locally in your browser."
 tags          = ["structured data validator", "json ld validator", "schema.org", "microdata", "rdfa", "seo", "rich results", "html validator", "json-ld", "schema markup"]
 h1            = "Structured Data Validator"
 hero_subtitle = "Paste HTML and check JSON-LD, microdata, and RDFa schema markup. See detected entities, properties, warnings, and errors — all locally in your browser."

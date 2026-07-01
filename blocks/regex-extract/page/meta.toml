@@ -1,6 +1,6 @@
 slug          = "regex-extract"
 title         = "Regex Extract — Pull Every Match from Text — gizza.ai"
-description   = "Run a regular expression over any text and extract every match — with case-insensitive, multiline, dot-all, capture-group and dedupe options. Runs in your browser; nothing is uploaded."
+description   = "Run a regular expression over text and extract every match — case-insensitive, multiline, dot-all, capture groups, dedupe. Free, in your browser."
 tags          = ["regex extract", "regex tester", "regex match", "extract matches", "regular expression", "capture group", "find all matches"]
 h1            = "Regex Extract"
 hero_subtitle = "Paste your text, type a regular expression, and pull out every match. Toggle case-insensitive, multiline and dot-all modes, extract a specific capture group, or deduplicate the results. Runs in your browser; nothing is uploaded."

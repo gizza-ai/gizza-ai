@@ -46,3 +46,45 @@ not interchangeable.
   different backup standard.
 - For the original Keccak (Keccak-256 / Keccak-512) used by Ethereum, use the
   Keccak Hash Generator tool instead.
+
+## FAQ
+
+<details>
+<summary>Why doesn't my SHA3-256 match a Keccak-256 tool?</summary>
+
+Because they aren't the same algorithm. This tool implements **FIPS-202
+SHA-3**, which uses `0x06` multi-rate padding; the original **Keccak** (what
+Ethereum uses) uses `0x01` padding. The differing padding means the two
+produce completely different digests for identical input — use the Keccak Hash
+Generator when you need the Ethereum-compatible value.
+
+</details>
+
+<details>
+<summary>Can I hash raw bytes instead of a text string?</summary>
+
+Yes. Set **Interpret input as** to **hex** or **base64** and the tool decodes
+the input to raw bytes before hashing — handy for hashing a key, a file's
+contents or another digest. A leading `0x` on hex input is accepted; invalid
+hex or base64 is reported as an error rather than hashed literally.
+
+</details>
+
+<details>
+<summary>What's the difference between the three variants?</summary>
+
+Digest size: **SHA3-256** produces 32 bytes, **SHA3-384** 48 bytes and
+**SHA3-512** 64 bytes. Larger digests give a wider security margin at slightly
+more output length; SHA3-256 is the default and the most common choice for
+checksums and fingerprints.
+
+</details>
+
+<details>
+<summary>Does the uppercase option change the hash itself?</summary>
+
+No — it only affects how the same digest is displayed as **hex** (base64
+output ignores it). `A1B2...` and `a1b2...` are the identical SHA-3 hash. All
+hashing runs in your browser, so the text you enter is never uploaded.
+
+</details>

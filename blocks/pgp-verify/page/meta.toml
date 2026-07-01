@@ -1,6 +1,6 @@
 slug          = "pgp-verify"
 title         = "PGP Verify — Check an OpenPGP signature in your browser — gizza.ai"
-description   = "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Supports detached and clearsigned signatures, reports validity and the signer key ID. Your message and keys never leave your device."
+description   = "Verify a PGP signature online — detached or clearsigned — against a message and public key; reports validity and signer key ID. Runs in your browser."
 tags          = ["pgp verify", "gpg verify", "openpgp signature", "verify pgp signature", "detached signature", "clearsign", "check signature", "pgp signature validator"]
 h1            = "PGP verify"
 hero_subtitle = "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Detached or clearsigned, validity plus the signer's key ID and fingerprint — runs entirely in your browser."

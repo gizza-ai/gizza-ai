@@ -1,6 +1,6 @@
 slug          = "hkdf-derive"
 title         = "HKDF Key Derivation — extract-and-expand (RFC 5869) — gizza.ai"
-description   = "Derive keys with HKDF (HMAC-based extract-and-expand, RFC 5869). Pick the hash, salt, info/context label, length and hex/base64 output — all in your browser. Nothing is uploaded."
+description   = "Derive keys with HKDF, the HMAC-based extract-and-expand KDF from RFC 5869 — choose hash, salt, info label, length and hex/base64 output, all in your browser."
 tags          = ["hkdf", "key derivation", "kdf", "rfc 5869", "extract and expand", "hmac", "hkdf-sha256", "derive key", "hkdf-expand", "info context"]
 h1            = "HKDF key derivation"
 hero_subtitle = "Derive one or more keys from input key material using HKDF — the HMAC-based extract-and-expand KDF from RFC 5869. Choose the hash, salt, info label and output length. It runs in your browser, so your secret never leaves your device."

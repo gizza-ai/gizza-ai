@@ -1,6 +1,6 @@
 slug          = "url-encode"
 title         = "URL Encoder & Decoder — gizza.ai"
-description   = "Percent-encode or decode text and URLs instantly in your browser. Component, whole-URL, or form (application/x-www-form-urlencoded) mode, batch per-line conversion, and recursive decode for double-encoded input. Full Unicode, free, private, no sign-up."
+description   = "Percent-encode or decode text and URLs in your browser — component, whole-URL, or form mode, batch per-line, and recursive decode. Free, private, no sign-up."
 tags          = ["url encode", "url decode", "percent encoding", "uri", "query string", "form urlencoded", "plus encoding", "batch", "double decode"]
 h1            = "URL Encoder / Decoder"
 hero_subtitle = "Percent-encode or decode any text or URL — component, whole-URL, or form mode, batch and recursive options. Runs entirely in your browser, no server, no sign-up."

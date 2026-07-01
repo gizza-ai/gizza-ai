@@ -47,3 +47,45 @@ mailbox that vanished minutes later, and your deliverability and list quality
 suffer. Catching a throwaway domain at the point of sign-up — instantly,
 privately, and right in the browser — lets you nudge the user for a permanent
 address before the bad data ever lands in your database.
+
+## FAQ
+
+<details>
+<summary>Does it verify that the mailbox actually exists?</summary>
+
+No. The detector is lookup-only: it never performs a DNS, MX, or SMTP query.
+It answers "is this domain a known burner provider?", so a **Disposable: no**
+result means the domain is not on the built-in list — not that the mailbox is
+real or deliverable. Layer a DNS/MX check or double opt-in on top when you
+need a hard guarantee.
+
+</details>
+
+<details>
+<summary>Can I check a bare domain, or does it need a full address?</summary>
+
+Both work. You can paste `yopmail.com` on its own, a full address like
+`user@mailinator.com`, or wrapped forms — `Name <addr@domain.tld>` and
+`mailto:addr@domain.tld` are unwrapped automatically before the domain is
+extracted and checked.
+
+</details>
+
+<details>
+<summary>Are subdomains and alias domains detected too?</summary>
+
+Yes. `inbox.mailinator.com` matches the parent `mailinator.com` entry, and the
+list includes popular alias domains such as `sharklasers.com`, `grr.la`, and
+`spam4.me` (all Guerrilla Mail). There is also a conservative keyword
+heuristic that only fires when an entire domain label *is* a throwaway keyword
+— so `tempmail.example.io` is flagged, but `contemporary-art.org` is not.
+
+</details>
+
+<details>
+<summary>Is the address I paste sent to a server?</summary>
+
+Never. The check runs entirely in your browser against a built-in domain list,
+works offline, and no address, domain, or result leaves your machine.
+
+</details>

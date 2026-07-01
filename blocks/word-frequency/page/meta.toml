@@ -1,6 +1,6 @@
 slug          = "word-frequency"
 title         = "Word Frequency Counter — Rank the most-used words — gizza.ai"
-description   = "Count how often each word appears in your text and rank them most to least frequent, in your browser. Skip short words, drop stop words, keep the top N. Nothing is uploaded."
+description   = "Count how often each word appears in your text and rank them by frequency, right in your browser. Skip short words, drop stop words, keep the top N. Free, private."
 tags          = ["word frequency", "word counter", "most common words", "term frequency", "keyword density", "word tally"]
 h1            = "Word frequency counter"
 hero_subtitle = "Count how often each word appears and rank them from most to least frequent. Skip short words or common stop words, and keep just the top N. Runs in your browser; nothing is uploaded."

@@ -1,6 +1,6 @@
 slug          = "strip-udp-header"
 title         = "UDP Header Stripper — remove the 8-byte UDP header and get the payload — gizza.ai"
-description   = "Paste a raw UDP datagram in hex and strip the fixed 8-byte UDP header to get the encapsulated application payload as hex — plus the source/destination ports, length, and checksum — in your browser. Nothing is uploaded."
+description   = "Strip the 8-byte UDP header from a hex datagram to get the payload, plus source/destination ports, length and checksum — free, in your browser."
 tags          = ["strip udp header", "remove udp header", "udp payload", "udp datagram payload", "decapsulate udp", "extract udp payload", "udp source port", "udp destination port", "udp length field", "udp checksum"]
 h1            = "UDP Header Stripper"
 hero_subtitle = "Paste a raw UDP datagram as hex and strip the fixed 8-byte UDP header to get the encapsulated application payload as hex, plus the source and destination ports, the length and checksum fields. The UDP Length field is honored to drop trailing padding. Spaces, colons, dashes, dots, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."

@@ -53,3 +53,47 @@ spaces, colons, dashes, dots, commas, or a leading `0x`; they are all ignored.
   and ALPN protocols without re-opening the capture.
 - Confirm the **selected** cipher suite and TLS version from a ServerHello.
 - Read a TLS **alert** to find out why a handshake failed.
+
+## FAQ
+
+<details>
+<summary>Why does a TLS 1.3 handshake show "TLS 1.2" in the header?</summary>
+
+That's the protocol working as designed. TLS 1.3 keeps the record-layer version
+and the hello's `legacy_version` pinned at `0x0303` (TLS 1.2) for middlebox
+compatibility. The *real* negotiated version is carried in the
+`supported_versions` extension — which this tool decodes, so check there for
+`TLS 1.3`.
+
+</details>
+
+<details>
+<summary>Can I paste several records at once?</summary>
+
+Yes. Wire captures are usually multiple records back-to-back (say, a
+ServerHello record followed by a Certificate record). The parser walks the
+byte stream record by record and labels each one — paste the whole hex stream
+in one go.
+
+</details>
+
+<details>
+<summary>What happens if my capture is cut off mid-record?</summary>
+
+You still get a best-effort decode. The output reports both the *declared*
+payload length and how many bytes are actually present, and truncation or
+partially-decodable handshake messages are surfaced as notes instead of
+failing the whole parse — useful when a copy from Wireshark grabbed less than
+the full record.
+
+</details>
+
+<details>
+<summary>Can it show me the plaintext inside application_data records?</summary>
+
+No — `application_data` payloads are encrypted with the session keys, which a
+parser can't recover from the bytes alone. For those records only the 5-byte
+header (type, version, length) is meaningful. The unencrypted parts of the
+handshake — hellos, alerts — are where all the decodable detail lives.
+
+</details>

@@ -35,3 +35,43 @@ paste is never sent to a server.
 
 This is the same parser exposed to the gizza chat assistant and the `gizza`
 command-line tool, so you get identical results across all three surfaces.
+
+## FAQ
+
+<details>
+<summary>Can I parse a relative URL that has no scheme or host?</summary>
+
+Yes. A relative reference like `/search?q=rust&page=2` parses fine — the
+result just has no scheme, host, or port, while the path, query pairs, and
+fragment are extracted as usual. The only input that's rejected is an empty
+one.
+
+</details>
+
+<details>
+<summary>How are query parameters decoded?</summary>
+
+Each pair is percent-decoded, a `+` becomes a space, and `;` is accepted as a
+separator alongside `&`. Duplicate keys are kept in their original order (not
+merged), and a bare key such as `?flag` is reported with no value — so the
+breakdown mirrors exactly what a server would receive.
+
+</details>
+
+<details>
+<summary>What about mailto: links and IPv6 hosts?</summary>
+
+Schemes without a `//` authority, like `mailto:alice@example.com`, keep the
+remainder in the path with no host. IPv6 literals stay in their brackets
+(`https://[2001:db8::1]:8080/` reports host `[2001:db8::1]` and port `8080`).
+
+</details>
+
+<details>
+<summary>Is the URL I paste sent anywhere?</summary>
+
+No — parsing happens in WebAssembly inside your browser tab. That matters
+here, since URLs often embed tokens, session IDs, or credentials in userinfo
+and query strings.
+
+</details>

@@ -38,3 +38,48 @@ It's intentionally **safe**:
 
 Everything runs **locally in your browser** via WebAssembly — your SVG is never
 uploaded.
+
+## FAQ
+
+<details>
+<summary>Do I have to write the color exactly as it appears in the file?</summary>
+
+No. Colors are compared by their canonical RGB(A) value, so a map entry of
+`#ffffff => #000000` also rewrites occurrences written as `#fff`, `#FFFFFF`,
+`#ffffffff` or `rgb(255, 255, 255)`. Named colors work too — the tool knows the
+16 basic SVG/HTML names plus common extras like `orange`, `gold`, `indigo` and
+`violet`; an unrecognized name is treated as a non-color and left alone.
+
+</details>
+
+<details>
+<summary>What separators does the color map accept?</summary>
+
+Each pair can use `=>`, `->`, `:` or `=` between the source and target color,
+and pairs can be separated by newlines, commas or semicolons — so
+`#000=>#fff, red -> #00ff00` and one-pair-per-line both parse. An entry with a
+missing separator or an unparseable color on either side is reported as an
+error instead of being silently skipped.
+
+</details>
+
+<details>
+<summary>Why didn't monochrome mode recolor every part of my icon?</summary>
+
+Monochrome replaces every *real* color, but `none`, `transparent` and
+`currentColor` are keywords, not colors, so they're preserved — an element with
+`fill="none"` stays unfilled. References like `fill="url(#gradient)"` are also
+left in place, though the gradient's own `stop-color` values *are* recolored.
+Note the monochrome field overrides the color map whenever it's non-empty.
+
+</details>
+
+<details>
+<summary>Will the output change anything besides colors?</summary>
+
+Only matched color values are rewritten (in canonical lowercase hex like
+`#ff0000`). Path data, geometry, structure, whitespace and every other
+attribute pass through byte-for-byte, and the whole rewrite happens locally in
+your browser — the SVG never leaves your machine.
+
+</details>

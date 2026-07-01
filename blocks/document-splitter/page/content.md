@@ -21,3 +21,44 @@ never uploaded.
 - Break a book chapter, spec, or README into per-section pages for a static site.
 - Turn one long Markdown export into individual notes.
 - Chunk documentation ahead of importing it into a wiki or CMS.
+
+## FAQ
+
+<details>
+<summary>How does the tool decide which heading level to split on?</summary>
+
+It scans the whole document and splits at the **smallest heading level
+actually present**. A document with `#` headings splits on every `#`; a
+document that only ever uses `###` splits on every `###`. HTML works the same
+way with `<h1>`–`<h6>` tags. You can't force a deeper split level directly —
+but you can run a single extracted section back through the tool.
+
+</details>
+
+<details>
+<summary>What happens to content before the first heading?</summary>
+
+It isn't dropped: any preamble becomes its own section titled `intro`, with a
+filename like `01-intro.md`, so the split output always reassembles into the
+full original document.
+
+</details>
+
+<details>
+<summary>Can two sections with the same title overwrite each other?</summary>
+
+No. Filenames are built as `NN-slug.ext` (numbered in document order), and if
+two sections would still slugify to the same name the later one gets a numeric
+suffix — so every section is guaranteed a unique filename.
+
+</details>
+
+<details>
+<summary>Does it understand headings inside code blocks?</summary>
+
+Not specially — a line starting with `# ` inside a fenced code block (say a
+shell comment) is treated like any other Markdown heading and will start a new
+section. If your document contains such code, split it as HTML after
+rendering, or adjust the comment lines first.
+
+</details>

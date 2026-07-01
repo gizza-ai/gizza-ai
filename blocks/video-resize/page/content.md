@@ -29,3 +29,22 @@ To keep the aspect ratio —
 the other dimension is computed for you.
 
 </details>
+
+<details>
+<summary>What codec and quality does the resized video use?</summary>
+
+The video stream is re-encoded with H.264 (libx264) at CRF 23 with the `medium`
+preset — a sensible quality/size balance that plays everywhere. The container
+extension stays the same as your input file.
+
+</details>
+
+<details>
+<summary>Why did my requested size get nudged by one pixel?</summary>
+
+H.264 with the standard yuv420p pixel format requires **even** width and height.
+When a dimension is computed automatically it is always rounded to an even
+number, so a request like width 641 can come out as 640×360 rather than failing
+in the encoder.
+
+</details>

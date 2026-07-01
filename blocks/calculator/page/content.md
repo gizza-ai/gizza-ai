@@ -32,3 +32,22 @@ Yes — and private. Your input never leaves your device.
 Yes, once the page has loaded.
 
 </details>
+
+<details>
+<summary>What happens if I divide by zero?</summary>
+
+You get an error, not `Infinity`. Any expression whose result is non-finite —
+`1/0`, huge overflows, `sqrt(-1)` — is rejected with a clear message instead of
+returning a misleading number.
+
+</details>
+
+<details>
+<summary>Which functions and constants can I use?</summary>
+
+Beyond `+ - * /`, `^` for powers and parentheses, you can call `sqrt`, `abs`,
+`exp`, `ln`, the trig family (`sin`, `cos`, `tan` and their inverses), `floor`,
+`ceil`, `round`, `min` and `max`, and use the constants `pi` and `e` — for
+example `sin(pi/2)` or `e^2`.
+
+</details>

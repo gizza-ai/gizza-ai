@@ -45,3 +45,45 @@ structure, the parser recurses into them and marks the node `[encapsulated]`.
 
 Everything runs **in your browser** via WebAssembly — your data is **never
 uploaded** to a server. Also available from the [gizza CLI](/) and in chat.
+
+## FAQ
+
+<details>
+<summary>Can I paste a PEM certificate directly?</summary>
+
+Not yet — the parser expects **DER as hex**. Strip the `-----BEGIN/END-----`
+armor, base64-decode the body (e.g. `openssl base64 -d | xxd -p`), and paste the
+resulting hex. Spaces, colons, newlines and a leading `0x` in the hex are all
+ignored, so output copied from `xxd`, OpenSSL or a hex editor works as-is.
+
+</details>
+
+<details>
+<summary>Why does my data fail with an "indefinite length" error?</summary>
+
+You've pasted **BER**, not DER. BER allows an indefinite-length encoding
+(length byte `0x80` with an end-of-contents marker); DER forbids it, and this
+parser follows DER strictly, so indefinite lengths are reported as an error
+rather than guessed at.
+
+</details>
+
+<details>
+<summary>What does the [encapsulated] marker on a node mean?</summary>
+
+`BIT STRING` and `OCTET STRING` values often wrap a complete nested DER
+structure — a certificate's subject public key or an extension value, for
+example. When the contents parse cleanly as DER, the tool recurses into them
+and tags the node `[encapsulated]`. If they don't parse, the raw bytes are
+shown instead. Nesting is capped at 64 levels to guard against malformed input.
+
+</details>
+
+<details>
+<summary>Is it safe to paste private keys or internal certificates?</summary>
+
+Yes — parsing happens entirely in your browser via WebAssembly. Nothing is
+uploaded, logged or stored on a server, so DER from private keys, CSRs or
+internal PKI never leaves your device.
+
+</details>

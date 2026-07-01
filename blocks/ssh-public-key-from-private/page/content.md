@@ -45,3 +45,46 @@ ssh-keygen -p -m PEM -f id_key
 
 Everything runs in WebAssembly inside your browser. The private key you paste
 is never uploaded to any server.
+
+## FAQ
+
+<details>
+<summary>My key starts with "BEGIN OPENSSH PRIVATE KEY" — why won't it parse?</summary>
+
+That's the modern OpenSSH-proprietary container, which this tool doesn't read.
+Convert the key to PEM in place first — `ssh-keygen -p -m PEM -f id_key`
+(re-enter your passphrase, or press Enter twice for none) — then paste the
+resulting `BEGIN RSA/EC PRIVATE KEY` block. Ed25519 keys converted this way work
+too.
+
+</details>
+
+<details>
+<summary>Which algorithms and formats does it accept?</summary>
+
+RSA (PKCS#8 or PKCS#1 PEM) → `ssh-rsa`; ECDSA on P-256/P-384 (PKCS#8 or SEC1
+PEM) → `ecdsa-sha2-nistp256/384`; Ed25519 (PKCS#8) → `ssh-ed25519`. You can
+also paste the key's raw DER bytes as hex or base64 — set the key type
+explicitly (`rsa`/`ec`/`ed25519`) if `auto` can't tell from raw DER.
+
+</details>
+
+<details>
+<summary>How do I get the "user@host" part on the end of the line?</summary>
+
+Fill in the **comment** field — it's appended verbatim after the base64 blob,
+exactly like the comment `ssh-keygen` embeds. It's purely a label: servers
+ignore it, so leaving it blank produces an equally valid `authorized_keys`
+line.
+
+</details>
+
+<details>
+<summary>Can I safely paste a private key into a web page?</summary>
+
+The derivation runs entirely inside your browser via WebAssembly — the key is
+never transmitted, and only the public line is output. For production or
+high-value keys, though, prefer the offline equivalent `ssh-keygen -y -f
+id_key`; use this page when a terminal isn't handy or for dev/test keys.
+
+</details>

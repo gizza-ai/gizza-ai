@@ -1,6 +1,6 @@
 slug          = "flask-session-decode"
 title         = "Flask Session Cookie Decoder — Decode itsdangerous Sessions — gizza.ai"
-description   = "Decode a Flask session cookie (itsdangerous) into readable JSON without the secret key. Handles base64url, zlib-compressed payloads, and the signature timestamp. Runs entirely in your browser — free, private, no sign-up."
+description   = "Decode a Flask session cookie (itsdangerous) into readable JSON without the secret key — base64url, zlib payloads, signature timestamp. Free, in your browser."
 tags          = ["flask session decoder", "itsdangerous", "session cookie", "decode flask cookie", "flask cookie decoder", "base64url", "session debugging", "python flask"]
 h1            = "Flask Session Cookie Decoder"
 hero_subtitle = "Decode a Flask / itsdangerous session cookie into readable JSON — no secret key needed. Handles base64url, zlib-compressed payloads, and the signed timestamp. Runs entirely in your browser, no server, no sign-up."

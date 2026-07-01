@@ -47,3 +47,23 @@ No. It only surfaces date words you actually
 wrote; it never guesses a calendar date.
 
 </details>
+
+<details>
+<summary>Why did a task I consider urgent end up in Medium?</summary>
+
+Priority is inferred purely from keywords in the line — *urgent*, *asap*,
+*today*, *p0* and friends push a task to High; without any signal it defaults to
+Medium. Add an urgency word to the line (or a `p0`–`p4` tag) and re-run, and it
+will be ranked accordingly. When a line carries several signals, the highest one
+wins.
+
+</details>
+
+<details>
+<summary>Can I paste a list that already has bullets or numbers?</summary>
+
+Yes — existing `-`, `*`, checkbox, and `1.`-style prefixes are stripped before
+processing, so re-organizing an old list won't produce doubled-up bullets. Each
+non-empty line becomes exactly one task.
+
+</details>

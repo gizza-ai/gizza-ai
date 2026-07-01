@@ -1,6 +1,6 @@
 slug          = "http-header-analyzer"
 title         = "HTTP Header Analyzer — explain response headers & spot missing security headers — gizza.ai"
-description   = "Paste a server's HTTP response headers and get a plain-English explanation of each one — caching, compression, content type, cookies, CORS, server hints — plus a checklist of the recommended security headers that are missing. Runs in your browser; nothing is uploaded."
+description   = "Paste HTTP response headers for a plain-English explanation of each, an A+–F security grade, and missing security headers. Free, private, in your browser."
 tags          = ["http header analyzer", "http response headers", "security headers checker", "cache-control explained", "content-encoding", "missing security headers", "hsts", "content-security-policy", "header inspector"]
 h1            = "HTTP Header Analyzer"
 hero_subtitle = "Paste a set of HTTP response headers and get each one explained in plain English — caching, compression, content negotiation, cookies, CORS, and server hints — plus a checklist of the recommended security headers (HSTS, CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy) that are missing. Runs in your browser; nothing is uploaded."

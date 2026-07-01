@@ -26,3 +26,29 @@ No — it's processed locally in your browser with
 WebAssembly.
 
 </details>
+
+<details>
+<summary>Does the masked output reveal how long the censored word was?</summary>
+
+Yes — each character of a match is replaced one-for-one with the mask
+character, so `damn` becomes `****`. That keeps the text readable, but it does
+preserve word length; if that matters, edit the result before sharing.
+
+</details>
+
+<details>
+<summary>Can I censor multi-word phrases?</summary>
+
+Yes. Entries in the word list are separated by commas, so an entry can contain
+spaces — e.g. `credit card, John Smith` masks the whole phrase wherever it
+appears (case-insensitively).
+
+</details>
+
+<details>
+<summary>What if I enter more than one mask character?</summary>
+
+Only the first character is used. Typing `##` or `#x` still masks with `#`;
+leaving the field blank falls back to the default `*`.
+
+</details>

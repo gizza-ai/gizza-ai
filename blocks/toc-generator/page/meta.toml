@@ -1,6 +1,6 @@
 slug          = "toc-generator"
 title         = "Table of Contents Generator — gizza.ai"
-description   = "Generate a linked table of contents from the headings of any Markdown or HTML document. Pick the heading levels, bullet or numbered list, and Markdown or HTML output. Free, private, runs entirely in your browser — no sign-up."
+description   = "Generate a linked table of contents from Markdown or HTML headings — pick levels, bullets or numbers, Markdown or HTML output — free in your browser."
 tags          = ["table of contents generator", "markdown toc", "toc generator", "html table of contents", "markdown table of contents", "heading links", "github anchors", "readme toc"]
 h1            = "Table of Contents Generator"
 hero_subtitle = "Paste a Markdown or HTML document and get a linked table of contents from its headings — choose the levels, bullet or numbered, Markdown or HTML. Runs entirely in your browser, no server, no sign-up."

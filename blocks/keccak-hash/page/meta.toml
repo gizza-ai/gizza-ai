@@ -1,6 +1,6 @@
 slug          = "keccak-hash"
 title         = "Keccak-256 Hash Generator (Ethereum) — Keccak-256 / Keccak-512 | gizza.ai"
-description   = "Compute the original Keccak-256 or Keccak-512 hash of any text in your browser — the exact hash Ethereum uses, not FIPS SHA-3. Hex or base64 output, hex/base64 input. Free, private, no sign-up — nothing is uploaded."
+description   = "Compute the original Keccak-256 or Keccak-512 hash of any text in your browser — the exact hash Ethereum uses, not FIPS SHA-3. Free and private."
 tags          = ["keccak", "keccak-256", "keccak256", "keccak-512", "ethereum", "evm", "sha3", "hash", "digest", "hex", "base64", "cryptography"]
 h1            = "Keccak-256 Hash Generator"
 hero_subtitle = "Compute the original Keccak hash (Keccak-256 or Keccak-512) of any text — the exact algorithm Ethereum uses, which differs from FIPS SHA-3. Runs entirely in your browser, no server, no sign-up."

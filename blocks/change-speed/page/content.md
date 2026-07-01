@@ -33,3 +33,21 @@ No — the audio tempo is scaled by the same factor as
 the video, so they stay in sync.
 
 </details>
+
+<details>
+<summary>What speed factors are allowed, and why does 4x still sound normal?</summary>
+
+The factor must be between **0.25 and 4**. ffmpeg's `atempo` filter only
+accepts 0.5–2 per pass, so factors outside that band are applied as a chain
+(4x runs `atempo=2` twice, 0.25x runs `atempo=0.5` twice) — the pitch is
+preserved instead of chipmunking.
+
+</details>
+
+<details>
+<summary>Is there a file size limit?</summary>
+
+Yes — the input video and the re-encoded output are each capped at **25 MB**.
+For a bigger file, trim or compress it first, then change the speed.
+
+</details>

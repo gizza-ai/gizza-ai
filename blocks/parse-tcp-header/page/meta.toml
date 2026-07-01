@@ -1,6 +1,6 @@
 slug          = "parse-tcp-header"
 title         = "TCP Header Parser — decode a raw TCP segment header from hex — gizza.ai"
-description   = "Paste a TCP segment header in hex and decode the source/destination ports, sequence and acknowledgement numbers, data offset, control flags (SYN/ACK/FIN/RST/PSH/URG/ECE/CWR/NS), window, checksum, urgent pointer, and TCP options — in your browser. Nothing is uploaded."
+description   = "Decode a raw TCP header from hex in your browser: ports, sequence/ack numbers, SYN/ACK/FIN flags, window, checksum and TCP options. Nothing is uploaded."
 tags          = ["tcp header parser", "decode tcp header", "tcp segment header", "tcp flags", "syn ack fin", "tcp options", "mss", "window scale", "sequence number", "tcp port"]
 h1            = "TCP Header Parser"
 hero_subtitle = "Paste a raw TCP segment header as hex and decode every field: source and destination ports, sequence and acknowledgement numbers, data offset, control flags (NS/CWR/ECE/URG/ACK/PSH/RST/SYN/FIN), window size, checksum, urgent pointer, and any TCP options (MSS, Window Scale, SACK, Timestamps). Spaces, colons, dashes, dots, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."

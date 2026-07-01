@@ -44,3 +44,43 @@ a random salt and nonce, [text encrypt](/tools/text-encrypt/).
 - The integrity check is what makes unwrap safe: a wrong KEK or a flipped bit yields an error,
   not a wrong key.
 - This is a low-level primitive. The KEK must itself be a strong, randomly generated key.
+
+## FAQ
+
+<details>
+<summary>Why does KW reject my key material?</summary>
+
+KW (RFC 3394) only accepts key material that is a non-empty multiple of 8 bytes and at
+least 16 bytes long — it was designed to wrap AES-sized keys. If your input is, say, 10
+or 33 bytes, switch the algorithm to **kwp** (RFC 5649), which pads internally and
+accepts any length from 1 byte up.
+
+</details>
+
+<details>
+<summary>Why do I get the exact same wrapped blob every time?</summary>
+
+That's by design. AES Key Wrap is deterministic — there is no IV or nonce, so wrapping
+the same key material under the same KEK always produces the same output. This is
+normal for key wrapping and does not weaken it, because key material is (or should be)
+high-entropy random bytes, unlike ordinary plaintext.
+
+</details>
+
+<details>
+<summary>What does "integrity check failed" mean when unwrapping?</summary>
+
+The 8-byte integrity check built into the wrapped blob didn't verify. That means the
+KEK is wrong, the algorithm doesn't match the one used to wrap (kw vs kwp), the
+encoding is set incorrectly (hex vs base64), or the blob was corrupted. The tool never
+returns a "best guess" key — a failed check is always an error.
+
+</details>
+
+<details>
+<summary>Do my keys leave my machine?</summary>
+
+No. The wrap and unwrap operations run entirely in your browser via WebAssembly. The
+KEK, the key material, and the wrapped output never touch a server.
+
+</details>

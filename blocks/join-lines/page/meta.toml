@@ -1,6 +1,6 @@
 slug          = "join-lines"
 title         = "Join Lines — merge multiple lines into one with any separator — gizza.ai"
-description   = "Join lines of text into a single line using a comma, space, tab or any custom separator. Trim lines, drop blanks, and wrap each line with a prefix/suffix. Runs in your browser — nothing is uploaded."
+description   = "Join lines of text into one line with any separator — comma, space, tab or custom. Trim, drop blanks, add a prefix/suffix. Free, runs in your browser."
 tags          = ["join lines", "combine lines", "merge lines", "lines to one line", "comma separated list", "text join", "lines to csv"]
 h1            = "Join Lines"
 hero_subtitle = "Merge a list of lines into a single line with any separator — comma, space, tab or your own. Optionally trim each line, drop blanks, and wrap lines with a prefix/suffix. Everything runs in your browser."
@@ -20,6 +20,7 @@ multiline   = true
 [[input]]
 name        = "separator"
 label       = "Separator (use \\t for tab, \\n for newline, blank to concatenate)"
+placeholder = ", "
 source      = "field"
 
 [[input]]
@@ -35,9 +36,11 @@ source      = "field"
 [[input]]
 name        = "prefix"
 label       = "Prefix each line"
+placeholder = "'"
 source      = "field"
 
 [[input]]
 name        = "suffix"
 label       = "Suffix each line"
+placeholder = "'"
 source      = "field"

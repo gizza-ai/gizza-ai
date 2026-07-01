@@ -27,3 +27,45 @@ message are never uploaded to a server. You can also run it from the
   the same input — that's expected and secure.
 - Decrypt with any standard RSA library using the **same padding and hash** and
   the matching private key. Need a key pair? See the RSA key-pair generator tool.
+
+## FAQ
+
+<details>
+<summary>Why do I get "message too long for this key/padding"?</summary>
+
+RSA encrypts only a single block. With a 2048-bit key that's about **190
+bytes** using OAEP-SHA256 or **245 bytes** with PKCS#1 v1.5 — larger OAEP
+hashes leave even less room. For anything bigger, use hybrid encryption:
+encrypt a random AES key with RSA and encrypt the actual data with that AES
+key.
+
+</details>
+
+<details>
+<summary>Which key formats and paddings are supported?</summary>
+
+Public keys in PEM — either SPKI (`-----BEGIN PUBLIC KEY-----`) or PKCS#1
+(`-----BEGIN RSA PUBLIC KEY-----`); both are auto-detected. Padding is **OAEP**
+(recommended, with a SHA-256/384/512 hash for MGF1) or legacy **PKCS#1 v1.5**.
+The hash choice is ignored when you pick PKCS#1 v1.5.
+
+</details>
+
+<details>
+<summary>Why is the ciphertext different every time I encrypt the same message?</summary>
+
+Both OAEP and PKCS#1 v1.5 are **randomized** — they mix in fresh random bytes
+on each run — so identical plaintext produces different base64 output every
+time. That's expected and is what keeps RSA encryption secure; any correct
+private key still decrypts it back to the same message.
+
+</details>
+
+<details>
+<summary>Is the public key or message sent to a server?</summary>
+
+No. Encryption runs entirely in your browser via WebAssembly, so the public
+key and plaintext never leave your device. To decrypt, use any standard RSA
+library with the matching private key and the same padding and hash.
+
+</details>

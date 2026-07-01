@@ -1,6 +1,6 @@
 slug          = "binary-codec"
 title         = "Binary Encoder & Decoder — Text to Binary & Binary to Text — gizza.ai"
-description   = "Encode text to a binary bit string and decode binary back to text, instantly in your browser. Choose byte delimiters (space, colon, dash), a 0b prefix, and view raw bytes as hex; tolerant decoding round-trips any format. Free, private, no sign-up."
+description   = "Convert text to binary and decode binary back to text instantly — byte delimiters, 0b prefix, hex byte view. Free, private, runs entirely in your browser."
 tags          = ["binary", "binary encode", "binary decode", "text to binary", "binary to text", "binary translator", "encoder", "decoder", "binary converter", "bits"]
 h1            = "Binary Encoder / Decoder"
 hero_subtitle = "Convert text to a binary bit string, or decode binary back to text — with byte delimiters and an optional 0b prefix. Decoding ignores spacing and prefixes, so any format round-trips. Runs entirely in your browser, no server, no sign-up."

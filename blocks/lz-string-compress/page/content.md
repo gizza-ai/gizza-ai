@@ -34,3 +34,49 @@ versa.
    may not shrink.
 
 Everything happens in your browser — your text is never uploaded.
+
+## FAQ
+
+<details>
+<summary>Can my JavaScript app decompress payloads made here (and vice versa)?</summary>
+
+Yes. Each format is byte-compatible with pieroxy's `lz-string`: **Base64**
+matches `compressToBase64` (including `=` padding to a multiple of 4),
+**URL-safe** matches `compressToEncodedURIComponent`, and **UTF-16** matches
+`compressToUTF16`. The library's raw `compress()` format is deliberately not
+offered — its unbalanced UTF-16 code units don't survive URLs or storage.
+
+</details>
+
+<details>
+<summary>Why does decompressing say the input isn't a valid payload?</summary>
+
+Almost always a format mismatch: a payload must be decompressed with the same
+format it was compressed with (a `compressToEncodedURIComponent` string won't
+decode as Base64). The tool also rejects input containing characters outside
+the chosen format's alphabet up front, so a corrupted or truncated payload
+fails loudly instead of silently decoding to an empty string.
+
+</details>
+
+<details>
+<summary>Which format gives the smallest result?</summary>
+
+For `localStorage`/`sessionStorage`, **UTF-16** — it packs 15 bits into every
+stored character, while Base64 text wastes roughly a third of UTF-16 storage.
+For URLs use **URL-safe**, which needs no further `encodeURIComponent`. For
+JSON, headers, or anywhere plain ASCII is expected, **Base64** is the safe
+default.
+
+</details>
+
+<details>
+<summary>Why did my text get bigger after compressing?</summary>
+
+LZ-String is a dictionary (LZW-style) compressor: it wins on repetitive,
+structured text like JSON, logs, and config. A very short string or
+already-random data has little for the dictionary to reuse, and the encoding
+overhead can make the output longer than the input — that's expected, not a
+bug.
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "ja4-server-fingerprint"
 title         = "JA4S Fingerprint Calculator — compute the JA4S TLS server hash from a ServerHello — gizza.ai"
-description   = "Paste a TLS ServerHello in hex and compute its JA4S server fingerprint — the JA4+ server-response hash (transport, TLS version, extension count, ALPN, chosen cipher, and a SHA256 of the extension list) — in your browser. Nothing is uploaded."
+description   = "Compute a JA4S server fingerprint from a TLS ServerHello in hex — the JA4+ server hash of version, ALPN, cipher, and extensions. Nothing is uploaded."
 tags          = ["ja4s fingerprint", "ja4s calculator", "ja4 server fingerprint", "ja4+ tls", "serverhello fingerprint", "tls server fingerprint", "ja4s hash", "foxio ja4", "tls fingerprinting", "threat intelligence"]
 h1            = "JA4S Fingerprint Calculator"
 hero_subtitle = "Paste a TLS ServerHello as hex and compute its JA4S fingerprint — the JA4+ server-response hash. JA4S combines the transport (t for TCP, q for QUIC), the negotiated TLS version, the extension count, the chosen ALPN protocol, the single selected cipher suite, and a truncated SHA256 of the ServerHello extension list (GREASE kept, in wire order). Input may start at the TLS record header (16 03 ...), the handshake header (02 ...), or the ServerHello body; spaces, colons, dashes, dots, commas, and a 0x prefix are ignored. Runs in your browser; nothing is uploaded."

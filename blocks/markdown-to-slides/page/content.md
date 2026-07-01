@@ -34,3 +34,33 @@ safe to share.
 
 Everything runs locally in your browser via WebAssembly. Your Markdown is never
 uploaded to a server.
+
+## FAQ
+
+<details>
+<summary>What starts a new slide?</summary>
+
+A thematic-break line — `---`, `***`, or `___` on its own line. Consecutive separators don't create empty slides (blank chunks are dropped), and a document with no separators becomes a one-slide deck. Note that a `---` directly under a line of text is Markdown for a heading, so leave a blank line before it.
+
+</details>
+
+<details>
+<summary>Can I embed raw HTML, scripts, or iframes in a slide?</summary>
+
+No — slide content is sanitized (via an HTML sanitizer) before it's embedded, so `<script>`, event handlers, and other active content are stripped. Standard Markdown — including tables, task lists, fenced code blocks, and images — comes through fine.
+
+</details>
+
+<details>
+<summary>How do I get a PDF of the deck?</summary>
+
+Save the generated HTML (e.g. as `deck.html`), open it, and use the browser's print dialog — the deck's print stylesheet lays out one slide per page, so "Save as PDF" gives you a shareable handout.
+
+</details>
+
+<details>
+<summary>Does the deck need internet access or reveal.js to run?</summary>
+
+Neither. The output is one self-contained HTML file with its CSS and a small vanilla-JS navigator embedded — no CDN fonts, no framework download, works offline and survives being emailed as an attachment.
+
+</details>

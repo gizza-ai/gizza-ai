@@ -37,3 +37,42 @@ content, and deriving identifiers.
   original text.
 - To hash an entire **file** (and get MD5, SHA-1, SHA-256, SHA-512, and CRC-32
   at once), use the file-hash tool instead.
+
+## FAQ
+
+<details>
+<summary>Why doesn't my digest match what sha256sum prints?</summary>
+
+Almost always a trailing newline. `echo "abc" | sha256sum` hashes `abc\n`
+(four bytes), while this tool hashes exactly the characters you typed —
+`abc` — with no newline appended. Use `printf '%s' "abc" | sha256sum` to
+compare like-for-like.
+
+</details>
+
+<details>
+<summary>Can I hash raw bytes instead of text?</summary>
+
+Yes. Set **Interpret input as** to `hex` or `base64` and the tool decodes
+your input to bytes before hashing — handy for hashing a key, a ciphertext,
+or another digest. The default `text` mode hashes the input as UTF-8.
+
+</details>
+
+<details>
+<summary>Does the algorithm name have to be written exactly?</summary>
+
+No — names are normalized, so `SHA-256`, `sha_256` and `sha256` are all the
+same algorithm, and `blake2b` is accepted as shorthand for BLAKE2b-512.
+Leaving the algorithm blank falls back to the default, SHA-256.
+
+</details>
+
+<details>
+<summary>Can I get the original text back from a hash?</summary>
+
+No. All of these are one-way functions — the digest can verify or fingerprint
+data but cannot be reversed. If you need something reversible, you want
+encryption (e.g. the aes-cipher tool), not a hash.
+
+</details>

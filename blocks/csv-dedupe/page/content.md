@@ -22,6 +22,25 @@ The first one in order; later duplicates are dropped.
 </details>
 
 <details>
+<summary>Can I dedupe on more than one column?</summary>
+
+Yes — list the key columns comma-separated, as header names (`email,company`)
+or 1-based indices (`1,3`). A row only counts as a duplicate when **all** key
+columns match an earlier row; mixing names and indices in one list works too.
+
+</details>
+
+<details>
+<summary>Is the duplicate check case-sensitive?</summary>
+
+Yes. Values are compared exactly as they appear, so `Alice` and `alice` are
+different, and a stray leading space makes a row unique. Normalize the data
+first (trim whitespace, lower-case a key column) if you need fuzzy matching.
+Rows with fewer fields than the key columns treat the missing fields as empty.
+
+</details>
+
+<details>
 <summary>Is my data uploaded?</summary>
 
 No — it's processed locally with WebAssembly.

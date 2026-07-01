@@ -18,6 +18,26 @@ your browser; nothing is uploaded.
 ### FAQ
 
 <details>
+<summary>Can the separator be more than one character?</summary>
+
+No — each separator must be a single character, or one of the named words
+`comma`, `tab`, `semicolon`, `pipe`. Something like `||` or `::` is rejected with
+an error. The defaults are `,` for **from** and `tab` for **to**, so running with
+no options is a straight CSV → TSV conversion.
+
+</details>
+
+<details>
+<summary>What happens when a field contains the new separator?</summary>
+
+It gets wrapped in double quotes automatically, per RFC 4180 — so `x;y` stays one
+field after switching to semicolons. The reverse also happens: fields that were
+quoted only because they contained the *old* separator lose their now-unneeded
+quotes. Embedded quotes and newlines inside fields survive the conversion.
+
+</details>
+
+<details>
 <summary>Is my data uploaded?</summary>
 
 No — it's processed locally in your browser with

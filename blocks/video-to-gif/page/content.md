@@ -31,3 +31,45 @@ naive fixed-256-colour conversion most converters use.
 - Works offline once the page has loaded.
 - Very large or very long videos can be slow or memory-heavy in the browser —
   trim to the section you need and pick a sensible width.
+
+## FAQ
+
+<details>
+<summary>Is there a size limit on the video?</summary>
+
+Yes — the converter caps both the input video and the resulting GIF at
+**25 MB**. If your source is bigger, trim it first or convert just a section
+using **start** and **duration**; a shorter window is also far faster to
+process in the browser.
+
+</details>
+
+<details>
+<summary>How do I convert only part of the video?</summary>
+
+Set **start** (seconds into the video) and **duration** (clip length in
+seconds). Leaving duration at 0 converts from the start point to the end. The
+seek happens on the input side (`-ss` before `-i`), so jumping deep into a
+long video is fast — frames before the start point are never decoded.
+
+</details>
+
+<details>
+<summary>What are the frame-rate and width limits?</summary>
+
+Frame rate accepts up to **60 fps** (default 12), and width up to **4096 px**
+(0 keeps the source size). Height is computed automatically to preserve the
+aspect ratio and rounded to an even number, and the resize uses high-quality
+Lanczos scaling — so you only ever pick the width.
+
+</details>
+
+<details>
+<summary>Does the GIF loop, and can I stop it looping?</summary>
+
+The output is written with `loop=0`, the GIF convention for "repeat forever",
+which is what chat apps and social sites expect. There's no play-once option
+here — if you need a non-looping animation, a short MP4/WebM is usually the
+better format anyway.
+
+</details>

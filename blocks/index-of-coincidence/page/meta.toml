@@ -1,6 +1,6 @@
 slug          = "index-of-coincidence"
 title         = "Index of Coincidence Calculator — gizza.ai"
-description   = "Calculate the Index of Coincidence (IC) of any text to tell monoalphabetic ciphers from polyalphabetic ones and estimate a Vigenère key length. Normalized and raw IC, letter frequencies, and period analysis. Free, private, runs in your browser."
+description   = "Calculate the Index of Coincidence (IC) of any text — spot monoalphabetic vs polyalphabetic ciphers and estimate a Vigenère key length. Free, in your browser."
 tags          = ["index of coincidence", "ic calculator", "cryptanalysis", "vigenere", "key length", "kasiski", "frequency analysis", "monoalphabetic", "polyalphabetic", "cipher"]
 h1            = "Index of Coincidence Calculator"
 hero_subtitle = "Measure how uneven a text's letter distribution is — tell a monoalphabetic cipher from a polyalphabetic one and estimate a Vigenère key length. Runs entirely in your browser, no server, no sign-up."

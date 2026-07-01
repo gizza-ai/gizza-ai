@@ -1,6 +1,6 @@
 slug          = "scrypt-derive"
 title         = "scrypt Key Derivation — derive a key from a password — gizza.ai"
-description   = "Derive a key from a password with the scrypt memory-hard KDF (RFC 7914). Pick the N, r, p cost parameters, salt, length and hex/base64 output — all in your browser. Nothing is uploaded."
+description   = "Derive a key from a password with the scrypt memory-hard KDF (RFC 7914). Set N, r, p, salt and hex/base64 output — free and fully in-browser."
 tags          = ["scrypt", "key derivation", "kdf", "memory-hard", "derive key from password", "rfc 7914", "password based key derivation", "scrypt online"]
 h1            = "scrypt key derivation"
 hero_subtitle = "Derive a cryptographic key from a password using scrypt, the memory-hard KDF. Choose the N, r and p cost parameters, salt and output length — it runs in your browser, so the password never leaves your device."

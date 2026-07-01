@@ -1,6 +1,6 @@
 slug          = "list-converter"
 title         = "List Converter — Reformat, Clean, and Sort Lists — gizza.ai"
-description   = "Split, join, and clean lists online. Convert between comma-separated, columns, SQL IN, JSON, XML, or custom delimiters. Add prefixes, suffixes, change case, sort, and dedupe instantly in your browser."
+description   = "Convert, clean and sort lists online — comma-separated to lines, SQL IN, JSON, XML or custom delimiters, with prefix, dedupe and case options. Free, in-browser."
 tags          = ["list converter", "comma to lines", "sql list formatter", "json list maker", "dedupe list", "sort list", "add prefix to list"]
 h1            = "List Converter"
 hero_subtitle = "Format, transform, and clean any text list. Convert between commas, newlines, tabs, SQL, or custom delimiters. Prepend prefixes, change case, sort, and remove duplicates locally and securely."
@@ -27,7 +27,7 @@ source      = "field"
 [[input]]
 name        = "custom_input_separator"
 label       = "Custom Split Separator"
-placeholder = ""
+placeholder = " | "
 source      = "field"
 
 [[input]]
@@ -39,7 +39,7 @@ source      = "field"
 [[input]]
 name        = "custom_output_separator"
 label       = "Custom Join Separator"
-placeholder = ""
+placeholder = "; "
 source      = "field"
 
 [[input]]
@@ -62,13 +62,13 @@ source      = "field"
 [[input]]
 name        = "prefix"
 label       = "Add Prefix"
-placeholder = ""
+placeholder = "img_"
 source      = "field"
 
 [[input]]
 name        = "suffix"
 label       = "Add Suffix"
-placeholder = ""
+placeholder = ".png"
 source      = "field"
 
 [[input]]

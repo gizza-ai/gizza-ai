@@ -31,3 +31,43 @@ handy when matching or verifying those values.
   non-adversarial integrity checks and matching legacy values.
 - To hash an entire **file** (and also get MD5, SHA-256, SHA-512, and CRC-32),
   use the file-hash tool instead.
+
+## FAQ
+
+<details>
+<summary>Why does my digest differ from `echo "text" | sha1sum`?</summary>
+
+`echo` appends a newline, so the shell hashes `text\n` while this tool hashes
+exactly the characters you typed. Use `printf '%s' "text" | sha1sum` to
+compare like for like — a single extra byte changes the whole digest.
+
+</details>
+
+<details>
+<summary>Why doesn't my hash match a Git object ID for the same content?</summary>
+
+Git doesn't hash the raw content — it hashes `blob <length>\0` followed by the
+content. To reproduce a Git blob ID here, prepend that header yourself (or use
+`git hash-object`); hashing the bare text will always give a different digest.
+
+</details>
+
+<details>
+<summary>How do I hash raw bytes, like a key or ciphertext?</summary>
+
+Set **Interpret input as** to `hex` or `base64`. The input is then decoded to
+its raw bytes before hashing, so the digest matches what you'd get hashing
+the original binary — not the textual encoding of it.
+
+</details>
+
+<details>
+<summary>Is SHA-1 still okay to use?</summary>
+
+Not for security: practical collision attacks have existed since the 2017
+SHAttered result, so avoid it for signatures, certificates, or anything
+adversarial (use SHA-256). It remains fine for matching legacy values — Git
+IDs, old checksums, TLS fingerprints — where you just need the same 40-hex
+digest another system produced.
+
+</details>

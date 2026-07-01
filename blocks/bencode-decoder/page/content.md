@@ -35,3 +35,43 @@ encoded — use integers (`0`/`1`) instead.
 
 Everything runs **in your browser** via WebAssembly — your data is **never
 uploaded** to a server. Also available from the [gizza CLI](/) and in chat.
+
+## FAQ
+
+<details>
+<summary>What is the <code>_bencode_bytes_hex</code> object in my decoded JSON?</summary>
+
+It marks a byte string that isn't valid UTF-8 — most commonly a torrent's `pieces`
+field, which is a run of raw 20-byte SHA-1 hashes. The bytes are shown as hex inside
+`{ "_bencode_bytes_hex": "…" }`. The encoder recognizes the same sentinel, so
+decoding and re-encoding reproduces the original bytes exactly.
+
+</details>
+
+<details>
+<summary>Why do I get "trailing data after top-level bencode value"?</summary>
+
+Bencode input must be exactly one top-level value. If anything follows it — a second
+value, stray whitespace, or leftover bytes — the decoder rejects it and reports how
+many bytes were parsed. The parser is strict in other ways too: `i-0e`, integers
+with leading zeros, and byte-string lengths with leading zeros are all invalid.
+
+</details>
+
+<details>
+<summary>Why won't my JSON encode to bencode?</summary>
+
+Bencode has only four types: integers, byte strings, lists, and dictionaries. JSON
+`true`, `false`, and `null` have no bencode equivalent, so encoding them fails —
+replace booleans with `0`/`1` and drop or substitute nulls first.
+
+</details>
+
+<details>
+<summary>Does encoding preserve my dictionary key order?</summary>
+
+No — encode mode always emits **canonical** bencode, with dictionary keys re-sorted
+by raw byte value, exactly as the BitTorrent spec requires. That's what makes the
+output suitable for computing a stable info-hash.
+
+</details>

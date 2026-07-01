@@ -1,6 +1,6 @@
 slug          = "css-autoprefixer"
 title         = "CSS Autoprefixer — Add Vendor Prefixes Online — gizza.ai"
-description   = "Paste CSS and instantly add the vendor prefixes (-webkit-, -moz-, -ms-, -o-) that modern browsers still need — user-select, appearance, backdrop-filter, clip-path, mask, display:flex, position:sticky, tab-size and more. Idempotent, comment- and string-safe, runs entirely in your browser. Free, private, no sign-up."
+description   = "Free online CSS autoprefixer — paste CSS and add the -webkit-, -moz-, -ms-, -o- vendor prefixes browsers still need. Runs entirely in your browser."
 tags          = ["css autoprefixer", "vendor prefixes", "-webkit-", "-moz-", "-ms-", "browser compatibility", "user-select", "flexbox prefixes", "position sticky", "css tool"]
 h1            = "CSS Autoprefixer"
 hero_subtitle = "Paste your CSS and add the vendor prefixes (-webkit-, -moz-, -ms-, -o-) that current browsers still need. Comment- and string-safe, idempotent, and runs entirely in your browser — no server, no sign-up."

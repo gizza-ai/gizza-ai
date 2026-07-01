@@ -38,3 +38,34 @@ It's returned unchanged — only recognized
 wrappers are unwrapped.
 
 </details>
+
+<details>
+<summary>How many layers of nesting does it follow?</summary>
+
+Up to 8. Each pass unwraps one layer (say a SafeLink whose target is a Google
+redirect whose target is the real page) and stops as soon as the result is no
+longer a recognized wrapper — so even multiply-forwarded corporate mail links
+resolve in one click.
+
+</details>
+
+<details>
+<summary>How are the two Proofpoint URLDefense versions handled?</summary>
+
+**v2** links carry the destination in a `?u=` parameter with a substitution
+cipher — `-` stands for `%` and `_` for `/` — which is reversed before
+percent-decoding. **v3** links embed the URL literally between `/v3/__` and
+`__;` (followed by an encoded checksum), so it's extracted from there. Both are
+detected automatically from the link shape.
+
+</details>
+
+<details>
+<summary>Can I decode a whole list of links at once?</summary>
+
+Yes — paste one link per line and enable **Unwrap each line separately
+(batch)**. Every non-empty line is decoded independently and blank lines are
+preserved, so the output lines up 1:1 with your input for pasting back into a
+spreadsheet or report.
+
+</details>

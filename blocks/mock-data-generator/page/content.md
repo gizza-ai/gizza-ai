@@ -51,3 +51,51 @@ to get fresh data on each run.
 
 Everything runs locally in your browser via WebAssembly — your schema and the
 generated data never leave your device.
+
+## FAQ
+
+<details>
+<summary>How many records can I generate at once?</summary>
+
+Up to **1000** per run (the **Records** field). Asking for more returns an
+error rather than a partial result. With Records at `1` you get a single JSON
+object; anything higher wraps the output in a JSON array.
+
+</details>
+
+<details>
+<summary>How do I get the exact same data every time?</summary>
+
+Set **Seed** to any non-zero number — the generator is fully deterministic for
+a given schema + seed, so fixtures stay stable across runs and machines. Seed
+`0` (the default) produces fresh data on every run.
+
+</details>
+
+<details>
+<summary>What happens if I misspell a type in the schema?</summary>
+
+You get an error that names the unknown type and lists every valid one — the
+tool never silently guesses. Other schema mistakes are caught the same way:
+an empty `enum()`, a field with no type, unbalanced `{` braces, or missing
+`int(lo..hi)` bounds each produce a specific message.
+
+</details>
+
+<details>
+<summary>How deeply can I nest objects?</summary>
+
+Sub-schemas in braces (e.g. `user:{ profile:{ city:city } }`) can nest up to
+**8 levels** deep, and `{...}[n]` makes an array of objects at any level.
+Deeper nesting is rejected with an error.
+
+</details>
+
+<details>
+<summary>Is any of the generated data real?</summary>
+
+No — every name, email, address, and phone number is synthetic placeholder
+data assembled from word lists, never sampled from real people. Generation
+happens in your browser, so nothing you type is uploaded.
+
+</details>

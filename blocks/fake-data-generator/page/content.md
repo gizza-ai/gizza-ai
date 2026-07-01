@@ -45,3 +45,43 @@ get fresh data on each run.
 
 Everything runs locally in your browser via WebAssembly — your inputs never
 leave your device.
+
+## FAQ
+
+<details>
+<summary>How many rows can I generate at once?</summary>
+
+Between 1 and 1000 rows per run (the default is 10). Asking for more than 1000
+returns an error rather than a partial dataset — for bigger fixtures, run the tool
+a few times with different seeds, or script it via the gizza CLI.
+
+</details>
+
+<details>
+<summary>Could the generated emails or credit-card numbers belong to real people?</summary>
+
+No. Emails are only ever placed on reserved fake domains like `example.com` and
+`test.org`, phone numbers are formatted placeholders, and the credit_card column
+produces a 16-digit number that passes the Luhn check but is assembled from
+random digits — it validates in forms without being a real account.
+
+</details>
+
+<details>
+<summary>How do I regenerate the exact same dataset?</summary>
+
+Set the **seed** to any non-zero number: the same seed + columns + row count
+always produces byte-identical output, which makes test fixtures reviewable and
+diffs stable. Seed `0` (the default) draws fresh random data every run.
+
+</details>
+
+<details>
+<summary>What happens if I leave the columns box blank or misspell a column?</summary>
+
+Blank gives you a sensible default set (full_name, email, phone, street, city,
+state, zip). A column name that isn't in the supported list produces an error
+listing what went wrong, instead of silently skipping the field — use `all` to
+get every available column.
+
+</details>
