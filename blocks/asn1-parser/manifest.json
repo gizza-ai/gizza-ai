@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/asn1-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an ASN.1/DER hex string into a readable tree",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an ASN.1 / DER byte stream (given as hex) into a readable tree of tags, lengths, OIDs and decoded primitive values. format=tree (default) renders an indented text tree; format=json returns structured JSON.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "The ASN.1/DER structure as a hex string. Spaces, colons, newlines and a leading 0x are ignored." },
+        "format": { "type": "string", "enum": ["tree", "json"], "default": "tree", "description": "tree (default) renders an indented text tree; json returns the parse tree as structured JSON." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

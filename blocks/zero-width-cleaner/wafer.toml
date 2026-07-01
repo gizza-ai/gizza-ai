@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "zero-width-cleaner"
+version = "0.1.0"
+abi = 1
+summary = "Detect and strip invisible zero-width spaces, joiners, BOMs and other non-printing characters from text"

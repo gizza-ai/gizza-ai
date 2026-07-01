@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/bech32-codec",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode and decode Bech32 / Bech32m strings",
+  "role": "skill",
+  "tool": {
+    "description": "Encode a human-readable prefix (HRP) plus data into a checksummed Bech32 (BIP 173) or Bech32m (BIP 350) string, or decode/validate a Bech32 string back to its HRP, variant, and data. Bech32 is the encoding behind SegWit Bitcoin addresses, Lightning invoices, Nostr npub/nsec keys, and Cosmos addresses. Use mode='encode' (default) with an 'hrp' (e.g. bc, tb, lnbc) and a data payload, choosing variant='bech32' or 'bech32m'; the tool computes the base-32 data part and the 6-character BCH checksum. Use mode='decode' to validate a string and get back its prefix, detected variant, and data (variant is auto-detected). Use format='hex' (default) for binary payloads or format='text' for UTF-8. Data bytes are converted to/from 5-bit groups per the BIP 173 convertbits algorithm. Runs locally and never uploads data.",
+    "parameters": {
+      "type": "object",
+      "required": ["input"],
+      "properties": {
+        "input": { "type": "string", "description": "On encode: the data payload (hex bytes or UTF-8 text per 'format'). On decode: the Bech32/Bech32m string to validate and unpack." },
+        "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) builds a checksummed Bech32 string from an HRP + data; 'decode' validates a Bech32 string and returns its HRP, variant, and data." },
+        "hrp": { "type": "string", "description": "Encode only: the human-readable prefix, e.g. 'bc' (Bitcoin mainnet), 'tb' (testnet), 'lnbc' (Lightning), 'npub' (Nostr). Lower-cased in output. Ignored on decode (read from the string)." },
+        "variant": { "type": "string", "enum": ["bech32", "bech32m"], "default": "bech32", "description": "Checksum variant to write on encode: 'bech32' (BIP 173, SegWit v0) or 'bech32m' (BIP 350, Taproot/v1+). On decode the variant is auto-detected and reported." },
+        "format": { "type": "string", "enum": ["hex", "text"], "default": "hex", "description": "How to read the payload on encode, or render it on decode. 'hex' (default) is a hex byte string for binary data; 'text' is UTF-8." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

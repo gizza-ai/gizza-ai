@@ -1,0 +1,30 @@
+slug          = "z-score-normalize"
+title         = "Z-Score Normalize — Z-Score, Min-Max, Max-Abs & Robust Scaling — gizza.ai"
+description   = "Standardize a list of numbers with z-score, min-max, max-abs, or robust median/IQR scaling. Population or sample standard deviation, private and browser-local."
+tags          = ["z-score", "z-score normalization", "standardize", "standardization", "standard score", "min-max scaling", "max-abs scaling", "robust scaling", "median", "interquartile range", "feature scaling", "normalize numbers", "standard deviation", "rescale", "statistics", "machine learning"]
+h1            = "Z-Score Normalize"
+hero_subtitle = "Standardize a list of numbers to z-scores, rescale to 0–1, preserve signs with max-abs scaling, or use robust median/IQR scaling for outlier-heavy data — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_z_score_normalize_web"
+export        = "run"
+live          = false
+output_label  = "Normalized values"
+format        = "text"
+
+[[input]]
+name        = "numbers"
+label       = "Numbers"
+placeholder = "2, 4, 4, 4, 5, 5, 7, 9"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "method"
+label       = "Method"
+placeholder = ""
+source      = "field"
+
+[[input]]
+name        = "sample"
+label       = "Use sample standard deviation (÷N−1)"
+placeholder = ""
+source      = "field"

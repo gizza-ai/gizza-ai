@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [".", "core", "web"]
+
+[package]
+name = "gizza-ai-add-line-numbers-block"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
+gizza-ai-add-line-numbers-core = { path = "core" }
+gizza-ai-block-utils = { path = "../../block-utils" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

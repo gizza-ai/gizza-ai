@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/z-score-normalize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Standardize a list of numbers (z-score, min-max, max-abs, robust)",
+  "role": "skill",
+  "tool": {
+    "description": "Normalize a list of numbers (separated by spaces, commas, semicolons, or newlines). method='z-score' (default) standardizes each value to mean 0 and standard deviation 1 by subtracting the mean and dividing by the standard deviation (population ÷N by default, or sample ÷N−1 when sample=true); method='min-max' linearly rescales values into the 0–1 range; method='max-abs' divides by the largest absolute value, mapping into [−1, 1] while preserving sign; method='robust' subtracts the median and divides by the interquartile range (Q3−Q1) to resist outliers. Returns the transformed values plus the parameters used (mean/std dev, min/max, max abs, or median/IQR). Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "numbers": { "type": "string", "description": "The numbers to normalize, separated by spaces, commas, semicolons, or newlines." },
+        "method": { "type": "string", "enum": ["z-score", "min-max", "max-abs", "robust"], "default": "z-score", "description": "'z-score' (default) standardizes to mean 0 and standard deviation 1; 'min-max' rescales linearly into the 0–1 range; 'max-abs' divides by the largest absolute value, mapping into [−1, 1] while preserving sign; 'robust' subtracts the median and divides by the interquartile range (Q3−Q1), resisting outliers." },
+        "sample": { "type": "boolean", "default": false, "description": "z-score only: when true use the sample standard deviation (÷N−1); default false uses the population standard deviation (÷N), matching scikit-learn StandardScaler. Ignored for the other methods." }
+      },
+      "required": ["numbers"],
+      "additionalProperties": false
+    }
+  }
+}

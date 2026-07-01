@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "binary-codec"
+version = "0.1.0"
+abi = 1
+summary = "Encode text to a binary bit string and decode binary back to text."

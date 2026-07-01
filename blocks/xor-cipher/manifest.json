@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/xor-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "XOR text, hex, or Base64 data against a repeating key; output hex, Base64, or UTF-8",
+  "role": "skill",
+  "tool": {
+    "description": "Repeating-key XOR cipher: XOR `data` against a repeating `key`, byte by byte. XOR is symmetric — the same operation encrypts and decrypts. Use it for CTFs, obfuscation, interop, and learning only; it is not secure encryption.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key"],
+      "properties": {
+        "data": { "type": "string", "description": "The data to XOR. Read as UTF-8 text by default, or decoded from hex/base64 when input=hex/base64." },
+        "input": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to read data: text, hex, or base64." },
+        "key": { "type": "string", "description": "The non-empty repeating XOR key, read according to key_format." },
+        "key_format": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to read the key: text, hex, or base64." },
+        "output": { "type": "string", "enum": ["hex", "base64", "utf8"], "default": "hex", "description": "How to encode the XOR result: hex, base64, or utf8." }
+      },
+      "additionalProperties": false
+    }
+  }
+}
