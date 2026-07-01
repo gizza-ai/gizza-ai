@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bitwise-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Bitwise AND/OR/XOR/NOT, shifts, rotates and popcount at 8/16/32/64-bit widths."

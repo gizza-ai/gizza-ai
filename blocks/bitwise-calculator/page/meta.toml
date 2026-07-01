@@ -1,0 +1,60 @@
+slug          = "bitwise-calculator"
+title         = "Bitwise Calculator — AND, OR, XOR, NOT, Shifts, Rotates & Popcount — gizza.ai"
+description   = "Bitwise calculator: AND, OR, XOR, NOT, shifts, rotates and popcount on 8–64-bit integers in binary, hex, octal or decimal. Free, private, in your browser."
+tags          = ["bitwise calculator", "bitwise and", "bitwise or", "xor calculator", "bitwise not", "bit shift calculator", "rotate bits", "popcount", "set bits", "twos complement", "binary calculator", "hex calculator", "bitmask"]
+h1            = "Bitwise Calculator"
+hero_subtitle = "AND, OR, XOR, NOT, shifts, rotates and popcount on 8–64-bit integers — enter values in binary, hex, octal or decimal and read the result in every base, unsigned and signed. Runs entirely in your browser."
+wasm          = "gizza_ai_bitwise_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "a"
+label       = "Operand A"
+placeholder = "87, 0x57, 0b0101_0111, or -8"
+source      = "field"
+
+# op and bits render as <select> — control type + options come from the
+# descriptor's schema (manifest.json), so the option lists are NOT duplicated here.
+[[input]]
+name        = "op"
+label       = "Operation"
+source      = "field"
+
+[[input]]
+name        = "b"
+label       = "Operand B (or shift/rotate count)"
+placeholder = "101, 0x65 — or a count like 3 for shifts"
+source      = "field"
+
+[[input]]
+name        = "bits"
+label       = "Bit width"
+source      = "field"
+
+[[example]]
+label  = "87 AND 101 (8-bit)"
+params = { a = "87", op = "and", b = "101", bits = "8" }
+
+[[example]]
+label  = "Set a flag with OR"
+params = { a = "0b1000_0001", op = "or", b = "0b0001_0000", bits = "8" }
+
+[[example]]
+label  = "NOT 0x0F"
+params = { a = "0x0F", op = "not", bits = "8" }
+
+[[example]]
+label  = "Build a mask: 1 SHL 4"
+params = { a = "1", op = "shl", b = "4", bits = "8" }
+
+[[example]]
+label  = "Rotate left by 1"
+params = { a = "0b1000_0001", op = "rotl", b = "1", bits = "8" }
+
+[[example]]
+label  = "Popcount of 0xDEADBEEF"
+params = { a = "0xDEADBEEF", op = "popcount", bits = "32" }
