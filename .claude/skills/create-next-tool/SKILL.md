@@ -108,8 +108,10 @@ renders every field as a text box — enums included. After editing `descriptor(
 `manifest.json` `tool.parameters` to `schema_json()`. Write FAQ as `<details>` accordions with a
 blank line inside each (plain `## FAQ` renders as bare headings). Fill every scaffold `TODO` and
 write one clean `summary` across the wafer_block macro + `wafer.toml` + `manifest.json` (no
-`"… skill"` suffix). `python3 scripts/check-tool-hygiene.py <slug>` enforces all of this and CI
-runs it repo-wide — run it before committing.
+`"… skill"` suffix). `python3 scripts/check-tool-hygiene.py <slug>` enforces the manifest/enum
+sync, the FAQ-accordion presence, the no-scaffold-TODO rule, and summary consistency (the
+blank-line-inside-`<details>` convention is advisory, not gated); CI runs it repo-wide — run it
+before committing.
 
 **Page input field types (meta.toml `[[input]]`):** the generator renders each field by the
 descriptor's Param type, NOT the meta — so Playwright must match: `Param::enumv` → `<select>`

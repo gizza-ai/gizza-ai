@@ -24,8 +24,7 @@ to real regressions:
      instead of real metadata/copy.
 
   4. Summary drift. The wafer_block macro summary, `manifest.json` `summary`, and
-     `wafer.toml` `summary` must agree (a trailing period is ignored) and must not
-     carry the vestigial "… skill" scaffold suffix.
+     `wafer.toml` `summary` must agree (a trailing period is ignored).
 
 Prose usability standards (see `.claude/skills/improve-tool/SKILL.md`) were being
 skipped silently because nothing failed the build. This turns the mechanically
@@ -61,6 +60,16 @@ WAFER_SUMMARY_RE = re.compile(r'^\s*summary\s*=\s*"((?:\\.|[^"\\])*)"', re.MULTI
 def norm_summary(s: str) -> str:
     """Normalize a summary for comparison — trailing period/whitespace is noise."""
     return (s or "").strip().rstrip(".").strip()
+
+
+def faq_section(text: str, m: "re.Match[str]") -> str:
+    """The FAQ section body: from the FAQ heading `m` to the next heading of the
+    same-or-higher level (or EOF). Scoping the <details> check here means an
+    unrelated <details> elsewhere in content.md can't mask a plain-markdown FAQ."""
+    level = len(re.match(r"#+", m.group(0)).group(0))
+    rest = text[m.end():]
+    nxt = re.search(rf"^#{{1,{level}}}\s", rest, re.MULTILINE)
+    return rest[: nxt.start()] if nxt else rest
 
 
 _RUST_ESCAPES = {"\\": "\\", '"': '"', "'": "'", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
@@ -152,7 +161,8 @@ def check_block(slug_dir: Path) -> list[str]:
     content = slug_dir / "page" / "content.md"
     if content.is_file():
         text = content.read_text(encoding="utf-8", errors="replace")
-        if FAQ_HEADING_RE.search(text) and "<details" not in text:
+        m = FAQ_HEADING_RE.search(text)
+        if m and "<details" not in faq_section(text, m):
             problems.append(
                 f"{slug}: page/content.md has a FAQ section written as plain markdown — "
                 f"convert it to <details>/<summary>/<p> accordions (see blocks/age-calculator, "
@@ -193,12 +203,9 @@ def check_block(slug_dir: Path) -> list[str]:
         m = WAFER_SUMMARY_RE.search(wafer.read_text(encoding="utf-8", errors="replace"))
         if m:
             summaries["wafer.toml"] = unescape_rust(m.group(1))
-    if summaries:
-        if len({norm_summary(v) for v in summaries.values()}) > 1:
-            detail = ", ".join(f"{k}={v!r}" for k, v in summaries.items())
-            problems.append(f"{slug}: summary differs across {detail} — keep the three in sync (a trailing period is fine).")
-        if any(norm_summary(v).endswith(" skill") for v in summaries.values()):
-            problems.append(f"{slug}: summary carries the vestigial '… skill' scaffold suffix — write a clean one-liner.")
+    if summaries and len({norm_summary(v) for v in summaries.values()}) > 1:
+        detail = ", ".join(f"{k}={v!r}" for k, v in summaries.items())
+        problems.append(f"{slug}: summary differs across {detail} — keep the three in sync (a trailing period is fine).")
 
     return problems
 

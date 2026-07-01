@@ -6,7 +6,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 slug="zzhygiene-scratch"
 dir="$root/blocks/$slug"
 cleanup() { rm -rf "$dir"; }
-trap cleanup EXIT
+trap cleanup EXIT INT TERM
 rm -rf "$dir"
 mkdir -p "$dir/src" "$dir/page"
 

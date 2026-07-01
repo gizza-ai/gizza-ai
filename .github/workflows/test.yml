@@ -57,12 +57,14 @@ jobs:
               diff_base="origin/$base_ref"
             fi
             # Only rebuild/re-test a block's wasm when a file that affects the
-            # compiled output changed (src/core/Cargo/wafer.toml). Doc/metadata
-            # edits — page/, manifest.json, tests/ — don't change the wasm or the
-            # block's cargo tests; they're covered by the repo-wide hygiene gate
-            # and the tool-page generator tests, so they don't warrant a rebuild.
+            # compiled output or its cargo tests changed. Doc/metadata edits —
+            # page/ (rendered by tools/generator) and manifest.json (consumed by
+            # the parent build.rs) — don't change the wasm or the block's cargo
+            # tests and are validated by the always-on hygiene gate + generator
+            # tests, so they don't warrant a per-block rebuild. tests/ is NOT
+            # excluded: a future tests/*.rs integration test must still run.
             mapfile -t blocks < <(git diff --name-only "$diff_base...HEAD" \
-              | grep -vE '^blocks/[^/]*/(target/block\.wasm$|web/pkg/|page/|tests/|manifest\.json$)' \
+              | grep -vE '^blocks/[^/]*/(target/block\.wasm$|web/pkg/|page/|manifest\.json$)' \
               | sed -n 's#^blocks/\([^/]*\)/.*#\1#p' \
               | sort -u)
           else
@@ -211,6 +213,10 @@ jobs:
       - name: SEO generator tests
         working-directory: gizza-ai
         run: bash scripts/gen-seo.test.sh
+
+      - name: Tool hygiene gate self-test
+        working-directory: gizza-ai
+        run: bash scripts/check-tool-hygiene.test.sh
 
       - name: Chrome crate tests
         if: github.event_name != 'pull_request'
