@@ -8,8 +8,34 @@
     "description": "TODO: describe what this tool does and its inputs.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "properties": {
+        "seconds": {
+          "type": "number",
+          "description": "The number of seconds to convert. May be fractional (e.g. 90.5) or negative."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "hms",
+            "dhms",
+            "auto",
+            "iso",
+            "words"
+          ],
+          "default": "hms",
+          "description": "Output layout. 'hms' (default) is HH:MM:SS with the hours field accumulating past 24 (e.g. 90061 -> 25:01:01); 'dhms' splits days out as D:HH:MM:SS (e.g. 1:01:01:01); 'auto' is the shortest clock form, dropping leading zero days/hours (MM:SS, HH:MM:SS, or D:HH:MM:SS); 'iso' is an ISO-8601 duration (e.g. P1DT1H1M1S, zero -> PT0S); 'words' is human-readable (e.g. '1 hour, 1 minute, 1 second')."
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9,
+          "default": 0,
+          "description": "Fractional-second digits to append, 0-9. E.g. 90.5 with decimals=1 shows '...30.5'. Default 0 (whole seconds)."
+        }
+      },
+      "required": [
+        "seconds"
+      ],
       "additionalProperties": false
     }
   }

@@ -8,8 +8,39 @@
     "description": "TODO: describe what this tool does and its inputs.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "properties": {
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096,
+          "description": "Token length in characters (default 32)."
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "How many tokens to generate (default 1)."
+        },
+        "charset": {
+          "type": "string",
+          "enum": [
+            "hex",
+            "hex-upper",
+            "base64url",
+            "alphanumeric",
+            "alphabetic",
+            "numeric",
+            "safe"
+          ],
+          "default": "hex",
+          "description": "Character set: 'hex' (default), 'hex-upper', 'base64url', 'alphanumeric' (base62), 'alphabetic', 'numeric', or 'safe' (alphanumeric minus look-alike 0/O/1/l/I). Ignored when custom_chars is set."
+        },
+        "custom_chars": {
+          "type": "string",
+          "default": "",
+          "description": "Optional custom alphabet: when non-empty, tokens are drawn from these characters (duplicates removed, min 2 distinct) instead of the charset preset."
+        }
+      },
       "additionalProperties": false
     }
   }

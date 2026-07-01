@@ -8,8 +8,30 @@
     "description": "TODO: describe what this tool does and its inputs.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The text whose whitespace should be cleaned up."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "trim",
+            "collapse",
+            "strip"
+          ],
+          "default": "trim",
+          "description": "How to clean whitespace: 'trim' (default) strips leading/trailing whitespace from each line and removes leading/trailing blank lines while keeping internal spacing; 'collapse' also squashes runs of inline whitespace to a single space; 'strip' removes every whitespace character to produce one dense string."
+        },
+        "collapse_blank_lines": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, collapse runs of 2+ blank lines down to a single blank line. Ignored when mode is 'strip'."
+        }
+      },
+      "required": [
+        "text"
+      ],
       "additionalProperties": false
     }
   }

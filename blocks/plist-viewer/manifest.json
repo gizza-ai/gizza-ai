@@ -8,8 +8,43 @@
     "description": "TODO: describe what this tool does and its inputs.",
     "parameters": {
       "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string" } },
+      "properties": {
+        "input": {
+          "type": "string",
+          "description": "XML plist text, or Base64-encoded binary bplist data."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "json",
+            "tree"
+          ],
+          "default": "json",
+          "description": "Output format: pretty JSON (default) or a plutil-style tree."
+        },
+        "indent": {
+          "type": "integer",
+          "default": 2,
+          "description": "Spaces per indent level, clamped from 0 to 8. Default 2."
+        },
+        "sort_keys": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sort dictionary keys alphabetically instead of preserving plist order."
+        },
+        "data_encoding": {
+          "type": "string",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "default": "base64",
+          "description": "How plist <data> byte blobs are rendered in JSON/tree output."
+        }
+      },
+      "required": [
+        "input"
+      ],
       "additionalProperties": false
     }
   }
