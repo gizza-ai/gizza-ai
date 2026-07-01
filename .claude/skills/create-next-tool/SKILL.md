@@ -102,6 +102,15 @@ distinct tools (`age-calculator` is not a dup of `calculator`), so dups stay han
 
 Reusable facts discovered while building ~20 tools. Trust these to skip dead ends.
 
+**Hygiene gate — sync the descriptor to everything it feeds (2026-07-01).** The page form
+reads `manifest.json` `tool.parameters` (NOT the live descriptor), so a stub/unsynced manifest
+renders every field as a text box — enums included. After editing `descriptor()`, re-sync
+`manifest.json` `tool.parameters` to `schema_json()`. Write FAQ as `<details>` accordions with a
+blank line inside each (plain `## FAQ` renders as bare headings). Fill every scaffold `TODO` and
+write one clean `summary` across the wafer_block macro + `wafer.toml` + `manifest.json` (no
+`"… skill"` suffix). `python3 scripts/check-tool-hygiene.py <slug>` enforces all of this and CI
+runs it repo-wide — run it before committing.
+
 **Page input field types (meta.toml `[[input]]`):** the generator renders each field by the
 descriptor's Param type, NOT the meta — so Playwright must match: `Param::enumv` → `<select>`
 (`page.selectOption('#in-<name>', value)`); `Param::boolean` → `<input type=checkbox>` (use

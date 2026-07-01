@@ -10,8 +10,9 @@ trap cleanup EXIT
 rm -rf "$dir"
 mkdir -p "$dir/src" "$dir/page"
 
-# A real (non-comment) enum param.
+# A real (non-comment) enum param, plus an unfilled scaffold macro summary.
 cat > "$dir/src/lib.rs" <<'EOF'
+#[wafer_block(summary = "TODO: one-line summary.")]
 fn descriptor() {
     let _ = Param::enumv("mode", ["encode", "decode"]).default("encode");
 }
@@ -43,8 +44,15 @@ out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
 grep -q 'TEXT BOX' <<<"$out" || { echo "FAIL: missing enum-drift violation" >&2; exit 1; }
 grep -q 'FAQ section written as plain markdown' <<<"$out" || { echo "FAIL: missing FAQ violation" >&2; exit 1; }
 grep -q "scaffold 'TODO' placeholder" <<<"$out" || { echo "FAIL: missing TODO violation" >&2; exit 1; }
+grep -q "wafer_block summary is still the scaffold placeholder" <<<"$out" || { echo "FAIL: missing macro-summary violation" >&2; exit 1; }
 
 # FIX all and expect a clean pass.
+cat > "$dir/src/lib.rs" <<'EOF'
+#[wafer_block(summary = "Encode or decode data.")]
+fn descriptor() {
+    let _ = Param::enumv("mode", ["encode", "decode"]).default("encode");
+}
+EOF
 cat > "$dir/manifest.json" <<'EOF'
 { "summary": "A real one-line summary.", "tool": { "parameters": { "properties": {
   "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode" }

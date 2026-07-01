@@ -116,7 +116,7 @@ struct Tool;
     name = "gizza-ai/$slug",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "$slug skill",
+    summary = "TODO: one-line summary.",
     skill(
         description = "TODO: describe what this tool does and its inputs.",
         parameters = schema_json()
@@ -280,7 +280,7 @@ struct Tool;
     name = "gizza-ai/$slug",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "$slug skill",
+    summary = "TODO: one-line summary.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(description = "TODO: describe the tool.", parameters = schema_json()),
 )]

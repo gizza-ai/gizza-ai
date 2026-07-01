@@ -55,6 +55,11 @@ the build/test/PR commands. Follow these steps in order:
      `<select>` only if its manifest property carries the `enum`, as a checkbox/number for
      `boolean`/`integer`, else a text box. Leave `tool.parameters` as the scaffold stub and
      EVERY field renders as plain text. Keep it byte-for-byte in sync with `schema_json()`.
+     **Summaries:** write ONE clean one-line summary and use it in all three places — the
+     `#[wafer_block(summary = "…")]` macro (what chat/the runtime shows), `wafer.toml`
+     `summary`, and `manifest.json` `summary`. Fill every scaffold `TODO` (title, h1, hero,
+     descriptions, summaries); do NOT leave the vestigial `"… skill"` suffix the old
+     scaffold seeded. The gate fails on any leftover `TODO`.
 7. **Build:** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace` (from
    `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
    `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`; and

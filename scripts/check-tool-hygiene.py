@@ -18,8 +18,10 @@ to real regressions:
      `<details>` accordions.
 
   3. Unfinished scaffold. A committed `TODO` in `manifest.json`/`wafer.toml`/
-     `page/meta.toml`, or the `TODO: SEO copy` stub in `page/content.md`, means
-     the tool shipped with scaffold placeholders instead of real metadata/copy.
+     `page/meta.toml`, the `TODO: SEO copy` stub in `page/content.md`, or the
+     scaffold `TODO: one-line summary.` left in the `src/lib.rs` wafer_block
+     macro (what chat/the runtime shows) — all mean scaffold placeholders shipped
+     instead of real metadata/copy.
 
 Prose usability standards (see `.claude/skills/improve-tool/SKILL.md`) were being
 skipped silently because nothing failed the build. This turns the mechanically
@@ -154,6 +156,11 @@ def check_block(slug_dir: Path) -> list[str]:
         fp = slug_dir / rel
         if fp.is_file() and "TODO" in fp.read_text(encoding="utf-8", errors="replace"):
             problems.append(f"{slug}: {rel} still contains a scaffold 'TODO' placeholder — fill it in.")
+
+    # The #[wafer_block(summary=...)] macro summary is what the runtime/chat shows.
+    # Match the exact scaffold phrase so ordinary `// TODO` code comments don't trip.
+    if src_lib.is_file() and "TODO: one-line summary." in src_lib.read_text(encoding="utf-8", errors="replace"):
+        problems.append(f"{slug}: src/lib.rs wafer_block summary is still the scaffold placeholder — write a real one-line summary.")
 
     return problems
 
