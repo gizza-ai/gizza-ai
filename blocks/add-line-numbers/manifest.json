@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/add-line-numbers",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Prefix every line with a sequential line number",
+  "role": "skill",
+  "tool": {
+    "description": "Prefix every line of text with a sequential line number, like `nl` or `cat -n`. Set start to the first line's number (default 1) and step to the increment between numbers (default 1). separator is placed between the number and the line content (default a tab). pad aligns numbers to a common width: spaces (right-align, default), zeros (zero-pad), or none. Set number_nonblank=true to skip blank lines (they keep no number and don't consume one, like `cat -b`). Returns the numbered text plus total/numbered line counts. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The text whose lines should be numbered (split on newlines)." },
+        "start": { "type": "integer", "default": 1, "description": "The number given to the first line. Default 1." },
+        "step": { "type": "integer", "minimum": 1, "default": 1, "description": "The increment between consecutive line numbers. Default 1." },
+        "separator": { "type": "string", "default": "\t", "description": "The string inserted between each number and the line content. Default a tab." },
+        "pad": { "type": "string", "enum": ["none", "spaces", "zeros"], "default": "spaces", "description": "Align numbers to a common width: spaces (right-align), zeros (zero-pad), or none." },
+        "number_nonblank": { "type": "boolean", "default": false, "description": "When true, blank (whitespace-only) lines keep no number and don't consume one (like `cat -b`)." }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    }
+  }
+}
