@@ -14,6 +14,10 @@ pub enum Input {
     None,
     Image,
     Video,
+    /// An audio file/stream (`audio/*`). Unlocks the audio-only ffmpeg family
+    /// (trim/convert/normalize/waveform, …) — pair with [`AssetKind::Audio`]
+    /// in `resolve_source` and `accept = "audio/*"` on the page file input.
+    Audio,
     Document,
     File,
 }
@@ -167,6 +171,7 @@ impl ToolDescriptor {
         let media_label = match self.input {
             Input::Image => Some("Image"),
             Input::Video => Some("Video"),
+            Input::Audio => Some("Audio"),
             Input::Document => Some("Document"),
             Input::File => Some("File"),
             Input::None => None,
@@ -336,6 +341,18 @@ mod tests {
             "schemas reject unknown params"
         );
         assert!(v.get("oneOf").is_none(), "no url/ref oneOf for Input::None");
+    }
+
+    #[test]
+    fn audio_input_renders_url_ref_oneof_with_audio_label() {
+        let d = ToolDescriptor::new(Input::Audio);
+        let schema: serde_json::Value = serde_json::from_str(&d.to_schema_json()).unwrap();
+        assert_eq!(
+            schema["properties"]["url"]["description"],
+            "Audio URL (HTTP/HTTPS). Use either url or ref."
+        );
+        assert!(schema["properties"]["ref"].is_object());
+        assert!(schema["oneOf"].is_array(), "url⊕ref oneOf present");
     }
 
     #[test]

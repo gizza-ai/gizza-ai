@@ -39,8 +39,16 @@ with a download link) or anything else as `text`. Audio output (`format = "audio
 controls>`) works — **video→audio** ffmpeg tools are fully supported (set the page `format = "audio"`,
 give the block an `audio/*` mime via the core `Format::mime()`, and use `build_media_envelope`;
 CLI-test with a video that actually has an audio track — many small test clips are silent and fail
-with "nothing to encode"). Still missing: audio-**input** tools (audio-convert/normalize/…) need an
-`AssetKind::Audio` + `accept="audio/*"` page input, which is unbuilt — keep those skiplisted.
+with "nothing to encode").
+
+**Audio-INPUT tools are supported too (since 2026-07-02):** the descriptor takes `Input::Audio`
+(url⊕ref chat/CLI schema with the "Audio URL" wording), `resolve_source` takes
+`AssetKind::Audio` (accepts the `audio/*` MIME class), and the page file input uses
+`[[input]] source="file" accept="audio/*"` with `runtime="ffmpeg"`. Output formats map via
+`format_to_mime_and_ext(AssetKind::Audio, "mp3"|"wav"|"ogg"|"flac"|"m4a")`. This unlocked the
+plain-ffmpeg audio family (trim-audio, audio-convert, audio-normalize, waveform-image, …) — see
+the 2026-07-02 skiplist sweep. Tools needing an ML model (transcribe, stem-split, autotune) stay
+skiplisted. CLI-test with a real public audio URL (SSRF guard applies — see ops.md).
 
 **Multi-input ffmpeg (e.g. video-concat) is effectively un-buildable here:** the page file-input is a
 single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.

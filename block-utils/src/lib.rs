@@ -285,6 +285,8 @@ pub fn filename_with_suffix(input: &str, suffix: &str, new_ext: &str) -> String 
 /// Supported:
 /// - `AssetKind::Image`: `"jpeg"` → `("image/jpeg", "jpg")`, `"png"`, `"webp"`
 /// - `AssetKind::Video`: `"mp4"` → `("video/mp4", "mp4")`, `"webm"`
+/// - `AssetKind::Audio`: `"mp3"` → `("audio/mpeg", "mp3")`, `"wav"`, `"ogg"`,
+///   `"flac"`, `"m4a"` (`audio/mp4`)
 pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static str, &'static str)> {
     match (kind, fmt) {
         (AssetKind::Image, "jpeg") => Some(("image/jpeg", "jpg")),
@@ -292,6 +294,11 @@ pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static st
         (AssetKind::Image, "webp") => Some(("image/webp", "webp")),
         (AssetKind::Video, "mp4") => Some(("video/mp4", "mp4")),
         (AssetKind::Video, "webm") => Some(("video/webm", "webm")),
+        (AssetKind::Audio, "mp3") => Some(("audio/mpeg", "mp3")),
+        (AssetKind::Audio, "wav") => Some(("audio/wav", "wav")),
+        (AssetKind::Audio, "ogg") => Some(("audio/ogg", "ogg")),
+        (AssetKind::Audio, "flac") => Some(("audio/flac", "flac")),
+        (AssetKind::Audio, "m4a") => Some(("audio/mp4", "m4a")),
         _ => None,
     }
 }
@@ -316,6 +323,9 @@ pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static st
 pub enum AssetKind {
     Image,
     Video,
+    /// An audio file — accepts the `audio/*` MIME class. Pairs with
+    /// [`crate::descriptor::Input::Audio`] for the audio-only ffmpeg family.
+    Audio,
     /// A binary document — accepts the `application/*` MIME class (PDF, OOXML
     /// `.xlsx`/`.docx`, legacy `.xls`, OpenDocument `.ods`, `application/zip`
     /// containers, and the generic `application/octet-stream` many static hosts
@@ -339,6 +349,7 @@ impl AssetKind {
         match self {
             Self::Image => mime.starts_with("image/"),
             Self::Video => mime.starts_with("video/"),
+            Self::Audio => mime.starts_with("audio/"),
             Self::Document => mime.starts_with("application/"),
             Self::Any => true,
         }
@@ -348,6 +359,7 @@ impl AssetKind {
         match self {
             Self::Image => "image/*",
             Self::Video => "video/*",
+            Self::Audio => "audio/*",
             Self::Document => "application/*",
             Self::Any => "any",
         }
@@ -357,6 +369,7 @@ impl AssetKind {
         match self {
             Self::Image => "image/* attachment",
             Self::Video => "video/* attachment",
+            Self::Audio => "audio/* attachment",
             Self::Document => "application/* attachment",
             Self::Any => "any attachment",
         }
@@ -366,6 +379,7 @@ impl AssetKind {
         match self {
             Self::Image => "input image",
             Self::Video => "input video",
+            Self::Audio => "input audio",
             Self::Document => "input document",
             Self::Any => "input file",
         }
@@ -375,6 +389,7 @@ impl AssetKind {
         match self {
             Self::Image => "image",
             Self::Video => "video",
+            Self::Audio => "audio",
             Self::Document => "document",
             Self::Any => "file",
         }
@@ -494,13 +509,15 @@ pub fn load_from_attachment(
 // ---------------------------------------------------------------------------
 
 /// Map a top-level MIME class to a default display filename: `image/*` →
-/// `"image"`, `video/*` → `"video"`, everything else → `"file"`. Used when
-/// a user upload arrives without a filename of its own.
+/// `"image"`, `video/*` → `"video"`, `audio/*` → `"audio"`, everything else →
+/// `"file"`. Used when a user upload arrives without a filename of its own.
 pub fn default_filename_for_mime(mime: &str) -> &'static str {
     if mime.starts_with("image/") {
         "image"
     } else if mime.starts_with("video/") {
         "video"
+    } else if mime.starts_with("audio/") {
+        "audio"
     } else {
         "file"
     }
@@ -1051,6 +1068,37 @@ mod tests {
         assert_eq!(k.expected_attachment_label(), "application/* attachment");
         assert_eq!(k.too_large_label(), "input document");
         assert_eq!(k.default_filename(), "document");
+    }
+
+    #[test]
+    fn asset_kind_audio_accepts_audio_class() {
+        let k = AssetKind::Audio;
+        assert!(k.accepts_mime("audio/mpeg"));
+        assert!(k.accepts_mime("audio/wav"));
+        assert!(k.accepts_mime("audio/ogg"));
+        assert!(!k.accepts_mime("video/mp4"));
+        assert!(!k.accepts_mime("application/octet-stream"));
+        assert_eq!(k.expected_url_label(), "audio/*");
+        assert_eq!(k.expected_attachment_label(), "audio/* attachment");
+        assert_eq!(k.too_large_label(), "input audio");
+        assert_eq!(k.default_filename(), "audio");
+    }
+
+    #[test]
+    fn audio_formats_map_to_mime_and_ext() {
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Audio, "mp3"),
+            Some(("audio/mpeg", "mp3"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Audio, "wav"),
+            Some(("audio/wav", "wav"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Audio, "m4a"),
+            Some(("audio/mp4", "m4a"))
+        );
+        assert_eq!(format_to_mime_and_ext(AssetKind::Audio, "bogus"), None);
     }
 
     #[test]
