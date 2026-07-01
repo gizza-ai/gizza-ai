@@ -5,16 +5,50 @@
   "summary": "Resize an image fetched by URL.",
   "role": "skill",
   "tool": {
-    "description": "Resize an image at the given URL. Provide width and/or height in pixels. Use this when the user asks to make an image smaller or larger, or to fit it to specific dimensions.",
+    "description": "Resize an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
     "parameters": {
-      "type": "object",
-      "required": ["url"],
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
       "properties": {
-        "url":    { "type": "string",  "description": "Absolute http(s) URL to an image (PNG, JPEG, or WebP)." },
-        "width":  { "type": "integer", "description": "Output width in pixels. Optional if height is given." },
-        "height": { "type": "integer", "description": "Output height in pixels. Optional if width is given." },
-        "fit":    { "type": "string",  "enum": ["contain", "cover", "stretch"], "description": "How to fit the image into the requested box. Default: contain (preserve aspect ratio, fit inside)." }
-      }
+        "fit": {
+          "description": "Resize mode (default: contain).",
+          "enum": [
+            "contain",
+            "cover",
+            "stretch"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "description": "Target height in pixels.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS).",
+          "type": "string"
+        },
+        "width": {
+          "description": "Target width in pixels.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
     }
   }
 }
