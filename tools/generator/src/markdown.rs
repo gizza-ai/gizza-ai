@@ -92,7 +92,7 @@ pub(crate) fn example_deeplink(meta: &ToolMeta, schema: &ParamSchema) -> String 
         if i.source == "file" {
             pairs.push("url=https://example.com/input".to_string());
         } else if i.source == "field" {
-            let sample = sample_value(&schema.control_for(&i.name, i.multiline), &i.placeholder);
+            let sample = sample_value(&schema.control_for_input(i), &i.placeholder);
             pairs.push(format!("{}={}", i.name, urlencode(&sample)));
         }
     }
@@ -112,6 +112,17 @@ fn sample_value(control: &Control, placeholder: &str) -> String {
             .or_else(|| default.map(fmt_num))
             .or_else(|| min.map(fmt_num))
             .unwrap_or_else(|| "1".to_string()),
+        Control::Picker { input_type } => ph.unwrap_or_else(|| {
+            match input_type.as_str() {
+                "time" => "09:30",
+                "datetime-local" => "2000-01-31T09:30",
+                _ => "2000-01-31", // "date"
+            }
+            .to_string()
+        }),
+        Control::Datalist { options } => ph
+            .or_else(|| options.first().cloned())
+            .unwrap_or_else(|| "value".to_string()),
         Control::Text | Control::Textarea => ph.unwrap_or_else(|| "value".to_string()),
     }
 }

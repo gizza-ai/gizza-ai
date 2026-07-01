@@ -41,11 +41,9 @@ function showResult(value) {
 }
 
 function showError(message) {
-  const widget = document.querySelector(".tool-widget");
-  if (widget && cfg.slug !== "timezone-convert" && cfg.slug !== "age-calculator" && cfg.slug !== "jwt-decode" && cfg.slug !== "list-converter") {
-    widget.style.maxWidth = "380px";
-  }
-
+  // Layout stability: never resize the widget on errors/keystrokes — nothing
+  // may jump under the user's cursor. Wide layouts are the tool-widget--wide
+  // class (meta.toml `wide = true`), not a JS width override.
   if (cfg.slug === "list-converter") {
     const inInput = document.getElementById("in-input");
     const outputTextarea = document.getElementById("list-conv-output-area");
@@ -245,6 +243,113 @@ function applyField(el, value) {
   }
 }
 
+// ---- Declarative widget behaviors (defaults / example chips / reset / copy) ----
+// Driven by window.GIZZA_TOOL, which the generator bakes from page/meta.toml —
+// every page gets these with ZERO per-tool JS. Do not add cfg.slug branches here;
+// extend the meta/generator instead (workspace fix-at-root-cause rule).
+
+// Resolve a meta `default` spec: "today"/"now" → the user's local date(-time),
+// "local-timezone" → their IANA zone, anything else literal.
+function resolveDefault(spec) {
+  const pad = (n) => String(n).padStart(2, "0");
+  const now = new Date();
+  if (spec === "today") {
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  }
+  if (spec === "now") {
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+  if (spec === "local-timezone") {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch (e) {
+      return "UTC";
+    }
+  }
+  return spec;
+}
+
+// Apply meta-declared defaults to empty fields. URL-prefilled or already-filled
+// fields are left alone unless `force` (the Reset path).
+function applyMetaDefaults(force = false) {
+  const params = new URLSearchParams(location.search);
+  for (const inp of cfg.inputs) {
+    if (inp.source !== "field" || !inp.default) continue;
+    const el = document.getElementById(inp.elementId);
+    if (!el) continue;
+    if (!force && (params.has(inp.name) || el.value)) continue;
+    applyField(el, resolveDefault(inp.default));
+  }
+}
+
+// Wire the example chips + Reset + Copy-result chrome the template renders.
+// `rerun` recomputes after programmatic input changes (compute for pure tools;
+// for ffmpeg tools it is the run fn, a no-op until a file is chosen).
+function wireWidgetChrome(rerun) {
+  for (const btn of document.querySelectorAll(".tool-example-chip")) {
+    btn.addEventListener("click", () => {
+      const ex = (cfg.examples || [])[Number(btn.dataset.example)];
+      if (!ex) return;
+      for (const [name, value] of Object.entries(ex.params || {})) {
+        const inp = cfg.inputs.find((i) => i.name === name);
+        if (inp) applyField(document.getElementById(inp.elementId), value);
+      }
+      rerun();
+    });
+  }
+
+  const reset = document.getElementById("tool-reset");
+  if (reset) {
+    reset.addEventListener("click", () => {
+      for (const inp of cfg.inputs) {
+        const el = document.getElementById(inp.elementId);
+        if (!el) continue;
+        if (inp.source === "file") {
+          el.value = "";
+          continue;
+        }
+        if (inp.source !== "field") continue;
+        // defaultValue/defaultChecked restore the server-rendered state (the
+        // select's default option, the checkbox default, a number's default).
+        if (el.type === "checkbox") {
+          el.checked = el.defaultChecked;
+        } else if (el.tagName === "SELECT") {
+          for (const o of el.options) o.selected = o.defaultSelected;
+        } else {
+          el.value = el.defaultValue;
+        }
+      }
+      applyMetaDefaults(true);
+      const media = document.getElementById("tool-output-media");
+      const dl = document.getElementById("tool-output-download");
+      if (media) media.hidden = true;
+      if (dl) dl.hidden = true;
+      history.replaceState({}, document.title, location.pathname);
+      rerun();
+    });
+  }
+
+  const copy = document.getElementById("tool-copy-output");
+  if (copy) {
+    copy.addEventListener("click", async () => {
+      const text = (out.textContent || "").trim();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        copy.classList.add("copied");
+        const prev = copy.textContent;
+        copy.textContent = "Copied!";
+        setTimeout(() => {
+          copy.classList.remove("copied");
+          copy.textContent = prev;
+        }, 1500);
+      } catch (e) {
+        // Clipboard unavailable (e.g. non-secure context) — button is best-effort.
+      }
+    });
+  }
+}
+
 // Collect call args in declared order. "field" → input value; "clock" → now (s).
 function gatherArgs() {
   return cfg.inputs.map((inp) => {
@@ -323,6 +428,8 @@ async function main() {
     for (const f of qpFields) {
       applyField(document.getElementById(f.elementId), f.value);
     }
+    applyMetaDefaults();
+    wireWidgetChrome(run);
     async function loadUrlIntoFile(url) {
       try {
         const resp = await fetch(url);
@@ -369,8 +476,6 @@ async function main() {
 
   if (cfg.slug === "timezone-convert") {
     setupTimezoneConvertDefaults();
-  } else if (cfg.slug === "age-calculator") {
-    setupAgeCalculatorDefaults();
   } else if (cfg.slug === "jwt-decode") {
     setupJwtDecodeDefaults();
   }
@@ -387,10 +492,6 @@ async function main() {
       const hasField = cfg.inputs.some((i) => i.source === "field");
       const empty = hasField && gatherArgs().every((a) => a === "" || a == null);
       if (empty) {
-        const widget = document.querySelector(".tool-widget");
-        if (widget && cfg.slug !== "timezone-convert" && cfg.slug !== "age-calculator" && cfg.slug !== "jwt-decode") {
-          widget.style.maxWidth = "380px";
-        }
         out.classList.remove("error");
         out.textContent = "";
       } else {
@@ -404,6 +505,8 @@ async function main() {
   for (const f of queryPrefill(cfg.inputs, location.search).fields) {
     applyField(document.getElementById(f.elementId), f.value);
   }
+  applyMetaDefaults();
+  wireWidgetChrome(compute);
 
   // Wire field inputs to live recompute.
   for (const inp of cfg.inputs) {
@@ -425,6 +528,11 @@ async function main() {
 }
 
 function setupTimezoneConvertDefaults() {
+  // Legacy custom UI: it ships its own Reset, and its dashboard output makes the
+  // generic Copy-result copy a text soup — drop the generic chrome until this
+  // tool is migrated to the declarative meta.toml controls.
+  document.getElementById("tool-reset")?.remove();
+  document.getElementById("tool-copy-output")?.remove();
   const widget = document.querySelector(".tool-widget");
   if (widget) {
     widget.style.maxWidth = "760px";
@@ -684,78 +792,6 @@ function setupTimezoneConvertDefaults() {
   }
 }
 
-function setupAgeCalculatorDefaults() {
-  const widget = document.querySelector(".tool-widget");
-  if (widget) {
-    widget.style.maxWidth = "760px";
-  }
-
-  const birthInput = document.getElementById("in-birthdate");
-  const asOfInput = document.getElementById("in-as_of");
-
-  const birthLabel = document.querySelector('label[for="in-birthdate"]');
-  const asOfLabel = document.querySelector('label[for="in-as_of"]');
-
-  if (birthInput) {
-    birthInput.type = "date";
-  }
-  if (asOfInput) {
-    asOfInput.type = "date";
-  }
-
-  // Format current local date: YYYY-MM-DD
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  const localDateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-
-  const params = new URLSearchParams(location.search);
-  if (asOfInput && !asOfInput.value && !params.has("as_of")) {
-    asOfInput.value = localDateStr;
-  }
-
-  if (widget && birthInput && asOfInput) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "age-inputs-wrapper";
-
-    const col1 = document.createElement("div");
-    col1.className = "age-inputs-col";
-    if (birthLabel) col1.appendChild(birthLabel);
-    col1.appendChild(birthInput);
-
-    const col2 = document.createElement("div");
-    col2.className = "age-inputs-col";
-    if (asOfLabel) col2.appendChild(asOfLabel);
-    col2.appendChild(asOfInput);
-
-    const col3 = document.createElement("div");
-    col3.className = "age-inputs-col";
-    
-    const resetBtn = document.createElement("button");
-    resetBtn.type = "button";
-    resetBtn.className = "age-reset-btn";
-    resetBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Reset`;
-    col3.appendChild(resetBtn);
-
-    wrapper.appendChild(col1);
-    wrapper.appendChild(col2);
-    wrapper.appendChild(col3);
-
-    widget.insertBefore(wrapper, widget.firstChild);
-
-    resetBtn.addEventListener("click", () => {
-      birthInput.value = "";
-      asOfInput.value = localDateStr;
-      
-      // Clear URL params on reset
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-
-      birthInput.dispatchEvent(new Event("input"));
-      asOfInput.dispatchEvent(new Event("input"));
-    });
-  }
-}
-
 function renderAgeCalculator(data) {
   out.innerHTML = "";
   out.className = "age-active-container";
@@ -890,6 +926,10 @@ function renderAgeCalculator(data) {
 }
 
 function renderKrutidevUnicode(mod) {
+  // Legacy dual-pane UI with its own copy/clear buttons — drop the generic
+  // chrome until this tool is migrated to the declarative controls.
+  document.getElementById("tool-reset")?.remove();
+  document.getElementById("tool-copy-output")?.remove();
   const widget = document.querySelector(".tool-widget");
   if (widget) {
     widget.style.maxWidth = "960px";
@@ -1570,6 +1610,10 @@ function countListItems(text, sepType, customSep) {
 }
 
 function setupJwtDecodeDefaults() {
+  // Legacy custom dashboard output — the generic Copy-result would copy its
+  // concatenated labels; drop it until this tool is migrated. Reset stays (the
+  // token field is a normal input).
+  document.getElementById("tool-copy-output")?.remove();
   const widget = document.querySelector(".tool-widget");
   if (widget) {
     widget.style.maxWidth = "880px";
