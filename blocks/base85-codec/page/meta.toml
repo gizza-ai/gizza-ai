@@ -1,0 +1,38 @@
+slug          = "base85-codec"
+title         = "Base85 Encoder & Decoder (Ascii85, Z85, RFC 1924) — gizza.ai"
+description   = "Encode text or hex bytes to Base85 and decode Base85 back. Supports Ascii85, ZeroMQ Z85, and RFC 1924 variants with optional Adobe framing. Free, private, browser-local."
+tags          = ["base85", "ascii85", "z85", "rfc1924", "base85 encoder", "base85 decoder", "adobe ascii85", "zeromq z85", "binary encoder", "url safe"]
+h1            = "Base85 Encoder / Decoder"
+hero_subtitle = "Convert text or hex bytes with Ascii85, ZeroMQ Z85, or RFC 1924 Base85. Decode back to text or hex locally in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_base85_codec_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input"
+placeholder = "Hello World!"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "variant"
+label       = "Variant"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Data format"
+source      = "field"
+
+[[input]]
+name        = "adobe_frame"
+label       = "Wrap Ascii85 output in <~ ~>"
+source      = "field"

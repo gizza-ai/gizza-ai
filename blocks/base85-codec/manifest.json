@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/base85-codec",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode and decode Ascii85, Z85, and RFC 1924 Base85",
+  "role": "skill",
+  "tool": {
+    "description": "Encode text or hex bytes to Base85, or decode Base85 back to text or hex. Supports Ascii85 (Adobe/btoa with z shortcut and optional framing), Z85 (ZeroMQ), and RFC 1924 variants.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The text or hex bytes to encode, or the Base85 string to decode." },
+        "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode", "description": "Direction: 'encode' (default) turns data into Base85, 'decode' reverses it." },
+        "variant": { "type": "string", "enum": ["ascii85", "z85", "rfc1924"], "default": "ascii85", "description": "Base85 flavour. 'ascii85' is Adobe/btoa with the z zero shortcut and optional <~ ~> framing; 'z85' is ZeroMQ Z85 and requires byte lengths divisible by 4; 'rfc1924' uses the RFC 1924 alphabet." },
+        "format": { "type": "string", "enum": ["text", "hex"], "default": "text", "description": "How to read input when encoding, or render decoded output. 'text' (default) is UTF-8; 'hex' is a hex byte string for binary data." },
+        "adobe_frame": { "type": "boolean", "default": false, "description": "Ascii85 encode only: wrap output in Adobe <~ and ~> delimiters. Ignored for Z85/RFC 1924; decode strips Ascii85 framing automatically." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}
