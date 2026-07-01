@@ -35,7 +35,9 @@ the build/test/PR commands. Follow these steps in order:
      scaffold already delegates: `run_skill` (pure/no-page) or `resolve_source` →
      `dispatch_ffmpeg` → `build_media_envelope` (ffmpeg). Param API:
      `Param::string|integer|number|enumv|boolean|string_map(...)` +
-     `.required()/.default(v)/.min(n)/.max(n)/.describe(s)`; `Input::None` for
+     `.required()/.default(v)/.min(n)/.max(n)/.describe(s)` — give EVERY param a
+     `.describe()` that tells an LLM/CLI user what to pass (values, units, default,
+     an example); `Input::None` for
      pure/param-only, `Input::Image|Video|Document|File` for a `url`⊕`ref` media input,
      `source_list` for an array of sources. Exemplars: `blocks/url-encode` (pure),
      `blocks/image-resize` (ffmpeg page), `blocks/web-fetch` (no-page, flat output).
@@ -48,30 +50,40 @@ the build/test/PR commands. Follow these steps in order:
      markdown renders and wraps in `<p>` (see `blocks/age-calculator`). Plain-markdown FAQ is
      a hard-fail in the hygiene gate.
    - `manifest.json` — the scaffold generates it (build.rs needs it; `wafer build` does
-     NOT). Update `summary` + the `tool.description`/`tool.parameters` to match your
-     `src/lib.rs` skill() schema. **`tool.parameters` is LOAD-BEARING for the page**, not
-     just informational: the page form (`tools/generator/src/control.rs`) reads the
-     MANIFEST (not the live descriptor) to pick each field's control — a param renders as a
-     `<select>` only if its manifest property carries the `enum`, as a checkbox/number for
-     `boolean`/`integer`, else a text box. Leave `tool.parameters` as the scaffold stub and
-     EVERY field renders as plain text. Keep it byte-for-byte in sync with `schema_json()`.
-     **Summaries:** write ONE clean one-line summary and use it in all three places — the
-     `#[wafer_block(summary = "…")]` macro (what chat/the runtime shows), `wafer.toml`
-     `summary`, and `manifest.json` `summary`. Fill every scaffold `TODO` (title, h1, hero,
-     descriptions, summaries); do NOT leave the vestigial `"… skill"` suffix the old
-     scaffold seeded. The gate fails on any leftover `TODO`.
-7. **Build:** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace` (from
-   `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
-   `cargo run --manifest-path tools/generator/Cargo.toml -- .`; `solobase build`; and
-   `python3 scripts/check-tool-hygiene.py <slug>` (the hard gate CI enforces — fails on a
-   drifted manifest or a plain-markdown FAQ). Fix
+     NOT). **`tool.parameters` is LOAD-BEARING for the page**: the page form
+     (`tools/generator/src/control.rs`) reads the MANIFEST (not the live descriptor) to pick
+     each field's control — a param renders as a `<select>` only if its manifest property
+     carries the `enum`, as a checkbox/number for `boolean`/`integer`, else a text box.
+     **Do NOT hand-write `tool.*`** — it is generated: after `cargo install --path cli`
+     (step 7), `python3 scripts/sync-tool-manifest.py <slug>` regenerates
+     `tool.parameters`/`tool.description` from the live descriptor and propagates the
+     `#[wafer_block(summary = "…")]` macro summary into `manifest.json` + `wafer.toml`.
+     **Summaries:** write ONE clean one-line summary in the macro (no vestigial `"… skill"`
+     suffix) — the sync script owns the other two copies. Fill every scaffold `TODO` (title,
+     h1, hero, descriptions); the gate fails on any leftover `TODO`.
+7. **Build (in this order):** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace`
+   (from `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
+   `cargo install --path cli --force`; `python3 scripts/sync-tool-manifest.py <slug>` (regenerates
+   manifest `tool.*` + summaries from the live descriptor — required BEFORE the generator, which
+   reads the manifest); `cargo run --manifest-path tools/generator/Cargo.toml -- .`;
+   `solobase build`; and `python3 scripts/check-tool-hygiene.py <slug>` (the hard gate CI
+   enforces — per-slug mode is strict: drifted manifest, plain-markdown FAQ, scaffold TODOs,
+   summary drift, missing placeholders, <3 FAQs, bad meta description length). Fix
    compile/test failures (≤3 attempts) before escalating. (No SKILL.md to regenerate —
    the root SKILL.md is static and points agents at `gizza list`/`gizza describe`.)
 8. **Test (type-aware)** — see reference.md:
    - unit (always) + wafer fixtures (always);
-   - **Playwright** the page (pure + ffmpeg): add a spec in `tests/` driving `/tools/<slug>/`;
-   - **CLI** (pure/ffmpeg/network): `cargo install --path cli --force` then `gizza tool <slug> …`;
+   - **Playwright** the page (pure + ffmpeg): add a spec in `tests/` driving `/tools/<slug>/`.
+     The spec MUST assert real output correctness — exact text for pure tools; for media,
+     decode the result and assert dimensions/pixels (reference.md §media correctness) — plus
+     one `?param=` deep-link case;
+   - **CLI** (pure/ffmpeg/network): `gizza tool <slug> …` incl. one exact-output case;
      gpu: assert `unsupported_in_cli` + exit 3.
+8b. **User-QA rubric (before ship)** — load `/tools/<slug>/` once more and check as a USER:
+   every text/number field has a meaningful placeholder; the page copy shows ≥1 worked example
+   (input AND output); the FAQ answers ≥3 real questions; known limits (max sizes, formats,
+   depth caps) are stated on the page, not only in code; error messages say what was expected;
+   every descriptor param has a `.describe()` an LLM could act on. Fix gaps before committing.
 9. **Ship:** commit, `git push -u origin feat/tool-<slug>`, `gh pr create` with a body that
    states: the tool type, the derived assumptions, what was tested + results, and any
    limitation (e.g. "gpu: no page, no headless verification"; "ffmpeg: chat path is
