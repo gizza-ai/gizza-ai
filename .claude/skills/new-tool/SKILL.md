@@ -38,7 +38,7 @@ the build/test/PR commands. Follow these steps in order:
      `.required()/.default(v)/.min(n)/.max(n)/.describe(s)` — give EVERY param a
      `.describe()` that tells an LLM/CLI user what to pass (values, units, default,
      an example); `Input::None` for
-     pure/param-only, `Input::Image|Video|Document|File` for a `url`⊕`ref` media input,
+     pure/param-only, `Input::Image|Video|Audio|Document|File` for a `url`⊕`ref` media input,
      `source_list` for an array of sources. Exemplars: `blocks/url-encode` (pure),
      `blocks/image-resize` (ffmpeg page), `blocks/web-fetch` (no-page, flat output).
    - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning the
