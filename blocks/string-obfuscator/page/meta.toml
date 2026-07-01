@@ -1,6 +1,6 @@
 slug          = "string-obfuscator"
 title         = "String Obfuscator — Mask, ROT13, Leetspeak & Homoglyph — gizza.ai"
-description   = "Mask secrets and PII, or transform text with ROT13, leetspeak, and Unicode homoglyphs — instantly in your browser. Keep the first/last characters visible, pick a mask character, and obfuscate for screenshots and demos. Free, private, no sign-up."
+description   = "Mask secrets and PII or transform text with ROT13, leetspeak, and Unicode homoglyphs in your browser — keep first/last chars visible. Free, private."
 tags          = ["string obfuscator", "mask string", "redact text", "rot13", "caesar cipher", "leetspeak", "homoglyph", "unicode confusable", "hide api key", "screenshot redaction"]
 h1            = "String Obfuscator"
 hero_subtitle = "Mask secrets and PII, or transform text with ROT13, leetspeak, and Unicode homoglyphs. Runs entirely in your browser — no server, no sign-up."

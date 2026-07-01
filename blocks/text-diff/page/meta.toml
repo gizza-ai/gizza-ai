@@ -42,4 +42,5 @@ source      = "field"
 [[input]]
 name        = "context"
 label       = "Context lines"
+placeholder = "3"
 source      = "field"

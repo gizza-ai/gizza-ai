@@ -42,3 +42,47 @@ Always check the fingerprint against one you obtained from a trusted channel.
   that were signed — even a trailing newline difference will make it fail.
 - This tool verifies signatures; to create one use the **PGP sign** tool, and to
   generate a key use **Generate PGP key pair**.
+
+## FAQ
+
+<details>
+<summary>Do I have to tell the tool whether my signature is detached or clearsigned?</summary>
+
+No — the shape is auto-detected from the armor. A
+`-----BEGIN PGP SIGNATURE-----` block is treated as detached (so the message
+field must hold the original text), while a
+`-----BEGIN PGP SIGNED MESSAGE-----` block carries its own text and the
+message field is ignored. Anything else is rejected with a "no PGP signature
+found" error.
+
+</details>
+
+<details>
+<summary>Why does verification fail when my message looks identical to the signed one?</summary>
+
+A detached signature covers the **exact bytes** that were signed. A trailing
+newline you didn't notice, CRLF vs LF line endings, or an editor stripping
+whitespace is enough to flip `valid` to `false` even though the text *looks*
+the same. Copy the original file's contents unmodified.
+
+</details>
+
+<details>
+<summary>The message was signed with a signing subkey — will it still verify?</summary>
+
+Yes. Verification is attempted against the public key's primary key **and
+every subkey**, so the common GPG setup of certify-only primary + signing
+subkey works without any extra steps. The result tells you which key ID and
+fingerprint actually produced the signature.
+
+</details>
+
+<details>
+<summary>Does valid: true mean I can trust the sender?</summary>
+
+Not by itself. It proves the message was signed by the holder of *that key*
+and wasn't altered since. Whether the key really belongs to the person you
+think it does is a separate question — compare the reported fingerprint
+against one you obtained through a trusted channel.
+
+</details>

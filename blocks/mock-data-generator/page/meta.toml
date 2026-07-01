@@ -1,6 +1,6 @@
 slug          = "mock-data-generator"
 title         = "Mock Data Generator — Realistic Mock JSON from a Schema — gizza.ai"
-description   = "Generate realistic mock JSON from a compact shorthand schema. Define your own field names and types (string, int, email, uuid, name, date, enum, ranges and more), with array counts and nested objects. Pick a row count, use a seed to reproduce. Runs entirely in your browser, free, private, no sign-up."
+description   = "Generate realistic mock JSON from a shorthand schema — your own fields, 30+ types, nested objects, arrays, and a seed to reproduce. Free, in-browser."
 tags          = ["mock data", "mock json", "test data generator", "json generator", "fake json", "sample data", "schema", "api mocking", "seed data", "dummy data"]
 h1            = "Mock Data Generator"
 hero_subtitle = "Turn a compact shorthand schema into realistic mock JSON. Name your own fields, pick a type for each (with array counts and nested objects), choose how many records, and use a seed to reproduce. Runs entirely in your browser, no server, no sign-up."

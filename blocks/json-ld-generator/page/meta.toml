@@ -1,6 +1,6 @@
 slug          = "json-ld-generator"
 title         = "JSON-LD Schema Markup Generator — gizza.ai"
-description   = "Generate schema.org JSON-LD structured data for Article, Product, FAQ, Organization, LocalBusiness, Event, Recipe and more — from simple field inputs. Nested objects, ratings, and a ready-to-paste script tag. Free, private, runs in your browser, no sign-up."
+description   = "Generate schema.org JSON-LD structured data for Article, Product, FAQ, Organization, Event, Recipe and more — a ready-to-paste script tag, free in your browser."
 tags          = ["json-ld", "schema.org", "structured data", "rich results", "seo", "faq schema", "product schema", "article schema", "google rich snippets"]
 h1            = "JSON-LD Schema Markup Generator"
 hero_subtitle = "Build valid schema.org JSON-LD for Articles, Products, FAQs, Organizations and more from plain field inputs. Runs entirely in your browser — no server, no sign-up."

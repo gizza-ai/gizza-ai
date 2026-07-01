@@ -1,6 +1,6 @@
 slug          = "sha1-hash"
 title         = "SHA-1 Hash Generator — gizza.ai"
-description   = "Generate a SHA-1 hash of any text instantly in your browser. Hex or base64 output, uppercase option, and hex/base64 input decoding. Free, private, no sign-up — nothing is uploaded."
+description   = "Generate a SHA-1 hash of any text in your browser — hex or base64 output, uppercase option, hex/base64 input decoding. Free, private, nothing uploaded."
 tags          = ["sha1", "sha-1", "hash", "checksum", "digest", "hex", "base64", "cryptography"]
 h1            = "SHA-1 Hash Generator"
 hero_subtitle = "Compute the SHA-1 digest of any text — hex or base64 output, uppercase option, and hex/base64 input decoding. Runs entirely in your browser, no server, no sign-up."

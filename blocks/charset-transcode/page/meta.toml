@@ -1,6 +1,6 @@
 slug          = "charset-transcode"
 title         = "Mojibake Fixer & Charset Transcoder — gizza.ai"
-description   = "Fix garbled mojibake text and re-decode it from a legacy charset (Windows-1252, ISO-8859-1/Latin-1, Shift_JIS, EUC-JP/KR, GBK, Big5, Windows-1251, KOI8-R) into clean UTF-8. Runs entirely in your browser — free, private, no sign-up."
+description   = "Fix mojibake and re-decode legacy charsets (Windows-1252, Latin-1, Shift_JIS, GBK, Big5, KOI8-R) into clean UTF-8 — free, private, in your browser."
 tags          = ["mojibake", "charset", "encoding", "utf-8", "windows-1252", "iso-8859-1", "latin1", "shift_jis", "transcode", "fix garbled text"]
 h1            = "Mojibake Fixer / Charset Transcoder"
 hero_subtitle = "Re-decode garbled text from a legacy charset into clean UTF-8 — fix 'cafÃ©' back to 'café'. Runs entirely in your browser, no server, no sign-up."

@@ -37,3 +37,46 @@ text, and a flag marking relative links. Everything runs locally in your browser
   (`#section`), protocol-relative (`//cdn…`), and scheme-bearing (`https:`,
   `mailto:`) destinations are reported as written and counted as absolute.
 - URLs are reported verbatim — they are not resolved against a base URL.
+
+## FAQ
+
+<details>
+<summary>The auto-detection parsed my input as the wrong format — what do I do?</summary>
+
+Set **Parse as** to `html` or `markdown` explicitly instead of leaving it on
+`auto`. Mixed content (Markdown with embedded HTML tags) is the usual trigger for
+a wrong guess. If you're not sure which parser ran, the JSON output's `source`
+field tells you which one auto-detection actually picked.
+
+</details>
+
+<details>
+<summary>How do I turn relative links like <code>/docs/page</code> into full URLs?</summary>
+
+Fill in the **Base URL** field with an absolute URL such as
+`https://example.com/docs/`. Every relative link is then resolved against it and
+its `relative` flag is cleared. Links that are already absolute — including
+fragment-only (`#section`), protocol-relative (`//cdn…`), and `mailto:`
+destinations — are left exactly as written.
+
+</details>
+
+<details>
+<summary>What counts as an "anchor" in the results?</summary>
+
+Anything a same-document `#name` link can jump to: HTML `id="…"` attributes,
+legacy `<a name="…">` anchors, and — in Markdown — GitHub-style heading slugs, so
+`## Big Section` is reported as the anchor `big-section`. Anchors are listed
+separately from hyperlinks with their own count.
+
+</details>
+
+<details>
+<summary>Does "remove duplicate links" merge links with different text?</summary>
+
+It collapses by **destination URL**: when several links point at the same final
+URL, only the first occurrence is kept, whatever its text. It's off by default,
+so an unfiltered run shows every `<a>` tag — handy when you're auditing anchor
+text rather than collecting URLs.
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "ioc-defang"
 title         = "Defang & Refang IOCs — Neutralize URLs, IPs, Domains & Emails — gizza.ai"
-description   = "Defang or refang indicators of compromise (IOCs) instantly in your browser. Turn http://evil.com into hxxp[://]evil[.]com so URLs, IPs, domains and emails are safe to paste in reports, tickets and email — and refang them back. Free, private, no sign-up."
+description   = "Defang or refang IOCs in your browser: turn http://evil.com into hxxp[://]evil[.]com so URLs, IPs, domains and emails are safe to share. Free, private."
 tags          = ["defang", "refang", "ioc", "indicators of compromise", "defang url", "defang ip", "threat intelligence", "cti", "soc", "malware analysis", "neutralize url", "hxxp"]
 h1            = "Defang / Refang IOCs"
 hero_subtitle = "Neutralize URLs, IP addresses, domains and email addresses so they're safe to share in a report, ticket or email — or refang a defanged blob back to the real indicator. Runs entirely in your browser, no server, no sign-up."

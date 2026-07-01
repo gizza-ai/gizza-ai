@@ -42,3 +42,40 @@ needs no Windows API and works on any platform.
 - Hex input is forgiving: whitespace and an optional `0x` prefix are ignored.
 - If decompression fails, double-check that the blob is genuinely LZNT1 (not raw
   GZIP/zlib/LZ4) and that you copied the *entire* compressed buffer.
+
+## FAQ
+
+<details>
+<summary>What input formats are accepted?</summary>
+
+Hex (the default) or Base64. Hex is forgiving — whitespace, line breaks, and an optional `0x` prefix are ignored, and case doesn't matter. Base64 works with or without `=` padding. Output can be hex, UTF-8 text, or Base64.
+
+</details>
+
+<details>
+<summary>Why do I get a "truncated LZNT1 stream/chunk" error?</summary>
+
+The chunk header declares how many body bytes follow; if fewer remain (or a back-reference token is missing its second byte), the blob was cut short. Usually you copied only part of the buffer — grab the entire compressed region and try again.
+
+</details>
+
+<details>
+<summary>Can it decompress LZNT1 data that Windows stored uncompressed?</summary>
+
+Yes. `RtlCompressBuffer` emits verbatim (stored) chunks when compression wouldn't help; the chunk header's top bit marks those, and the tool copies them through unchanged. A stream mixing compressed and stored chunks decodes correctly.
+
+</details>
+
+<details>
+<summary>Does this handle Xpress or Xpress Huffman blobs?</summary>
+
+No — only `COMPRESSION_FORMAT_LZNT1`. Newer Windows features (Win10 memory compression, some hibernation formats) use LZ77/Xpress or Xpress Huffman, which are different wire formats; an LZNT1 decoder will error on them.
+
+</details>
+
+<details>
+<summary>Is my blob uploaded anywhere?</summary>
+
+No — decoding is pure Rust compiled to WebAssembly and runs entirely in the page, which matters when the blob comes from a sensitive forensic image or malware sample.
+
+</details>

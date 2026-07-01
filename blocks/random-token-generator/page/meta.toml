@@ -31,5 +31,5 @@ source      = "field"
 [[input]]
 name        = "custom_chars"
 label       = "Custom alphabet (optional — overrides the preset)"
-placeholder = ""
+placeholder = "BCDFGHJKMNPQRSTVWXYZ23456789"
 source      = "field"

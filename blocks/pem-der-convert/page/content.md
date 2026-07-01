@@ -29,3 +29,46 @@ certificates are **never uploaded** anywhere.
 - For `DER → PEM`, you can paste a full `-----BEGIN ...-----` line as the label
   and it will be extracted automatically; a blank label defaults to
   `CERTIFICATE`.
+
+## FAQ
+
+<details>
+<summary>Can I convert a whole certificate chain in one go?</summary>
+
+Yes. In PEM → DER mode the tool parses **every** `-----BEGIN ...-----` block
+in the input, so a full chain (leaf + intermediates + root) comes back as one
+DER result per block, each with its detected label and byte length.
+
+</details>
+
+<details>
+<summary>How does the "auto" direction decide which way to convert?</summary>
+
+It checks for a `-----BEGIN` header: if one is present the input is treated as
+PEM and converted to DER; otherwise the input is decoded as DER bytes (hex or
+base64, per the DER format setting) and wrapped into PEM. If your input is
+ambiguous, pick `pem-to-der` or `der-to-pem` explicitly.
+
+</details>
+
+<details>
+<summary>Does converting validate that my key or certificate is well-formed?</summary>
+
+No. This is deliberately a generic re-encoder — it decodes the base64/hex and
+re-wraps it without parsing the inner ASN.1. That is what lets it handle any
+object type (keys, certs, CSRs, CRLs), but it also means a corrupted DER blob
+will convert "successfully". Use `openssl asn1parse` if you need structural
+validation.
+
+</details>
+
+<details>
+<summary>What label goes into the -----BEGIN line for DER → PEM?</summary>
+
+Whatever you type in the label field, uppercased — common ones are
+`CERTIFICATE`, `PRIVATE KEY`, `EC PRIVATE KEY`, and `CERTIFICATE REQUEST`.
+Pasting a full `-----BEGIN X-----` line works too (the armor is stripped), and
+leaving it blank falls back to `CERTIFICATE`. Output is wrapped at the
+standard 64 columns.
+
+</details>

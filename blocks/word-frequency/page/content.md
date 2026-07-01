@@ -29,3 +29,43 @@ non-Latin letters are counted too.
 
 Everything runs locally in your browser using WebAssembly. Your text is never
 uploaded to a server.
+
+## FAQ
+
+<details>
+<summary>Is "don't" counted as one word or two?</summary>
+
+One. An apostrophe *between* two word characters — straight `'` or curly `’` —
+is kept inside the token, so *don't*, *it's*, and *o'clock* each count as a
+single word. A leading or trailing apostrophe (as in `'quoted'`) is treated as
+punctuation and stripped.
+
+</details>
+
+<details>
+<summary>Does it work on text that isn't English?</summary>
+
+Counting does — tokenization is Unicode-aware, so accented and non-Latin words
+(café, naïve, 東京) are tallied correctly. The **stop-word list is English
+only**, though: turning on *Ignore common stop words* won't drop *le*, *der*,
+or *и*, so for other languages combine it with *Minimum word length* instead.
+
+</details>
+
+<details>
+<summary>Two words have the same count — which comes first?</summary>
+
+The one that appeared first in your text. Ties always keep first-seen order,
+so running the same input twice gives byte-identical output — handy when you
+diff results.
+
+</details>
+
+<details>
+<summary>Which casing is shown when "Case sensitive" is off?</summary>
+
+The first casing that occurs in the text. If your document starts a sentence
+with `The`, the merged row for the/The/THE displays as `The` — the counts and
+percentages are unaffected, only the label.
+
+</details>

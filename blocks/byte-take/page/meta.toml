@@ -1,6 +1,6 @@
 slug          = "byte-take"
 title         = "Byte Take — Extract a Byte Range from Text, Hex or Base64 — gizza.ai"
-description   = "Extract a contiguous slice of bytes from text, hex, or Base64 by start offset and length, and view the result as text, hex, or Base64. Runs entirely in your browser. Free, private, no sign-up."
+description   = "Extract a byte range from text, hex, or Base64 by start offset and length, output as text, hex, or Base64 — free byte slice tool, runs in your browser."
 tags          = ["byte take", "extract bytes", "byte slice", "byte range", "byte substring", "hex", "base64", "slice bytes", "binary slice", "offset length"]
 h1            = "Byte Take — Extract a Byte Range"
 hero_subtitle = "Extract a contiguous slice of bytes from text, hex, or Base64 data by start offset and length, then view the result as text, hex, or Base64. Runs entirely in your browser, no server, no sign-up."
@@ -22,11 +22,13 @@ multiline   = true
 [[input]]
 name        = "start"
 label       = "Start offset (byte, 0-based; negative counts from the end)"
+placeholder = "7"
 source      = "field"
 
 [[input]]
 name        = "length"
 label       = "Length (bytes to extract)"
+placeholder = "5"
 source      = "field"
 
 [[input]]

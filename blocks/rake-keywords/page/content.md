@@ -28,3 +28,46 @@ so it runs instantly and entirely in your browser. Nothing you paste is uploaded
 - Summarising articles, papers and reports into a handful of key terms.
 - Auto-tagging content and generating SEO keywords.
 - Quickly seeing what a long document is *about* without reading all of it.
+
+## FAQ
+
+<details>
+<summary>Does it work on languages other than English?</summary>
+
+Partially. The RAKE algorithm itself is language-agnostic, but the built-in
+stopword list is English (the NLTK-style list RAKE was published with). On
+other languages phrases still get split at punctuation and scored, but common
+function words won't be filtered out, so expect noisier, longer candidate
+phrases.
+
+</details>
+
+<details>
+<summary>Why do long phrases dominate the top of the list?</summary>
+
+That's inherent to RAKE: a phrase's score is the *sum* of its member word
+scores, and each word's score (degree ÷ frequency) grows when it appears in
+longer phrases. If you want short, tag-like keywords, set **Max words per
+phrase** to 2 or 3 — longer candidates are dropped before scoring.
+
+</details>
+
+<details>
+<summary>What does the score actually mean? Can I compare it across documents?</summary>
+
+The score is the sum of degree÷frequency values for the words in the phrase —
+a purely *relative* ranking signal within one document. A score of 9 in one
+article and 9 in another don't mean the same thing, so use the ordering (and
+gaps between scores), not the absolute numbers.
+
+</details>
+
+<details>
+<summary>Why are the extracted phrases all lowercase?</summary>
+
+The text is lower-cased and whitespace-normalized during tokenization so that
+"Machine Learning" and "machine learning" count as the same phrase. Words keep
+internal apostrophes and hyphens (`don't`, `state-of-the-art`), while any other
+punctuation acts as a hard phrase boundary.
+
+</details>

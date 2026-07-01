@@ -55,3 +55,46 @@ download checksums — selecting it explicitly is faster and unambiguous.
 - To simply compute a hash of some text, use the **Text Hash Generator**.
 - Set **Interpret input as** to `hex` or `base64` when your data is itself an
   encoded blob rather than plain text.
+
+## FAQ
+
+<details>
+<summary>How does auto mode choose between SHA-256, SHA3-256 and BLAKE3?</summary>
+
+It can't tell them apart from the checksum alone — all of them produce a 32-byte
+digest. So auto mode simply computes *every* algorithm of that width against
+your data and reports MATCH with whichever one agreed. If none match, you get a
+MISMATCH with all the candidates' digests. When you already know the algorithm,
+selecting it explicitly is both faster and unambiguous.
+
+</details>
+
+<details>
+<summary>Why do I get MISMATCH when I'm sure the data is right?</summary>
+
+The comparison is byte-exact, so the usual culprits are an invisible trailing
+newline or spaces picked up when copying, Windows CRLF line endings versus LF,
+or data that is actually an encoded blob — in that case set **Interpret input
+as** to `hex` or `base64` so the raw bytes are hashed instead of the encoded
+characters. The tool shows both digests so you can compare them directly.
+
+</details>
+
+<details>
+<summary>Can the expected checksum be base64 instead of hex?</summary>
+
+Yes. Both are accepted automatically: hexadecimal (any case, an optional `0x`
+prefix, surrounding whitespace ignored) and standard base64 — handy for
+`Content-MD5` headers or subresource-integrity-style values.
+
+</details>
+
+<details>
+<summary>Is an MD5 or SHA-1 match still meaningful?</summary>
+
+For *accidental* corruption, yes — a matching MD5 still proves the bytes came
+through intact. But both algorithms are cryptographically broken, so a match is
+no defense against deliberate tampering; for that, insist on a SHA-256 (or
+stronger) checksum from the publisher.
+
+</details>

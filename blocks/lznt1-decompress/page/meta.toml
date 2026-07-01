@@ -1,6 +1,6 @@
 slug          = "lznt1-decompress"
 title         = "LZNT1 Decompress — Decode RtlCompressBuffer Blobs — gizza.ai"
-description   = "Decompress LZNT1 blobs from Windows RtlCompressBuffer — registry hives, hibernation files, and malware config data. Paste hex or Base64, view the recovered bytes as hex, text, or Base64. Runs entirely in your browser. Free, private, no sign-up."
+description   = "Decompress LZNT1 (Windows RtlCompressBuffer) blobs from hex or Base64 in your browser — registry hives, hiberfil, malware configs. Free, private, no sign-up."
 tags          = ["lznt1", "lznt1 decompress", "rtldecompressbuffer", "rtlcompressbuffer", "ntfs compression", "registry hive", "hibernation file", "malware analysis", "forensics", "compression_format_lznt1"]
 h1            = "LZNT1 Decompress"
 hero_subtitle = "Decode LZNT1-compressed blobs from Windows RtlCompressBuffer — NTFS files, registry hives, hibernation pages, and malware configs. Paste hex or Base64 and recover the original bytes. Runs entirely in your browser, no server, no sign-up."

@@ -58,3 +58,44 @@ distinct **info** label per derived key when you need several keys from one secr
 
 This tool matches the published HKDF test vectors in RFC 5869 Appendix A (SHA-256 and
 SHA-1 cases), so its output is interoperable with standard libraries.
+
+## FAQ
+
+<details>
+<summary>What's the difference between the derive and extract modes?</summary>
+
+`derive` (the default) runs the full HKDF pipeline — extract, then expand — and
+returns the number of output bytes you asked for. `extract` stops after the
+first step and returns only the intermediate pseudorandom key (PRK), which is
+useful for inspecting the intermediate value or expanding it yourself later.
+
+</details>
+
+<details>
+<summary>Is it OK to leave the salt field empty?</summary>
+
+Yes — per RFC 5869, an empty salt is replaced by a string of zero bytes the
+same length as the hash output, so derivation still works and matches other
+HKDF implementations. A random, non-secret salt is still recommended whenever
+you can store one.
+
+</details>
+
+<details>
+<summary>How many bytes can I derive at once?</summary>
+
+The default is 32 bytes (256 bits), and the maximum is 255 × the hash output
+size — 8,160 bytes with SHA-256. Ask for more and HKDF-Expand rejects the
+request by design, not as a tool limitation.
+
+</details>
+
+<details>
+<summary>Can I use this to hash a user's password?</summary>
+
+No. HKDF adds no work factor or memory hardness, so it does nothing to slow
+down guessing attacks on low-entropy input. Run passwords through PBKDF2,
+scrypt, or Argon2 first; HKDF is for stretching secrets that are already
+strong (random keys, DH/ECDH shared secrets).
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "email-obfuscator"
 title         = "Email Obfuscator — Hide Your Email From Spam Bots (HTML Entities, JS, CSS) — gizza.ai"
-description   = "Encode an email address into scraper-resistant HTML — numeric character entities, a JavaScript char-code writer, a CSS bidi reversal, or a ROT13 mailto link. Paste it into your page to defeat address-harvesting bots while keeping the address clickable. Free, private, no sign-up."
+description   = "Email obfuscator — encode your address as HTML entities, a JavaScript writer, CSS reversal, or a ROT13 mailto so spam bots can't harvest it. Free, in-browser."
 tags          = ["email obfuscator", "hide email from bots", "anti spam email", "email entity encoder", "mailto obfuscation", "html entity email", "scraper protection", "email harvester block", "rot13 email", "css email obfuscation"]
 h1            = "Email Obfuscator"
 hero_subtitle = "Turn your email address into scraper-resistant HTML — entities, JavaScript, CSS reversal, or a ROT13 mailto — that bots can't harvest but people can still click. Runs entirely in your browser."

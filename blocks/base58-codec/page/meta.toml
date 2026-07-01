@@ -1,6 +1,6 @@
 slug          = "base58-codec"
 title         = "Base58 Encoder & Decoder (Bitcoin / IPFS) — gizza.ai"
-description   = "Encode text or bytes to Base58 and decode Base58 back, instantly in your browser. Bitcoin/IPFS, Ripple (XRP), and Flickr alphabets, hex byte I/O, leading-zero preserving. Free, private, no sign-up."
+description   = "Encode text or bytes to Base58 and decode Base58 back in your browser — Bitcoin/IPFS, Ripple (XRP) and Flickr alphabets, hex I/O. Free, private, no sign-up."
 tags          = ["base58", "base58 encode", "base58 decode", "bitcoin base58", "ipfs base58", "ripple base58", "xrp", "flickr base58", "encoder", "decoder", "hex"]
 h1            = "Base58 Encoder / Decoder"
 hero_subtitle = "Encode text or bytes to Base58, or decode Base58 back — Bitcoin/IPFS, Ripple (XRP), and Flickr alphabets, with hex byte I/O and leading-zero preservation. Runs entirely in your browser, no server, no sign-up."

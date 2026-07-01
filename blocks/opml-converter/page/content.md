@@ -43,3 +43,45 @@ tree of `<outline>` elements: each feed carries attributes like `text`, `type`,
   app.
 - **Nothing is uploaded** — the conversion happens entirely in your browser, so
   it works offline and keeps your subscription list private.
+
+## FAQ
+
+<details>
+<summary>Why does my CSV have fewer rows than my OPML has outlines?</summary>
+
+CSV rows are the *feeds* — outlines with a non-empty `xmlUrl` attribute. Folder
+outlines (categories) don't get their own rows; they show up as the slash-joined
+path in each feed's `category` column instead, and are rebuilt as nested
+`<outline>` folders when you convert back.
+
+</details>
+
+<details>
+<summary>Do nested folders survive an OPML → CSV → OPML round-trip?</summary>
+
+Yes — the `category` column stores the full folder path joined with <code>&nbsp;/&nbsp;</code>,
+and the CSV parser splits on that separator to rebuild the tree. The one caveat:
+a folder whose *name* itself contains <code>&nbsp;/&nbsp;</code> will be split into two levels on
+the way back.
+
+</details>
+
+<details>
+<summary>Which OPML version does the tool read and write?</summary>
+
+It reads any OPML-ish XML that contains `<outline>` elements — attribute names are
+matched case-insensitively (`xmlUrl` vs `xmlurl`) and namespace prefixes are
+ignored, so exports from different apps parse fine. Output is always written as
+OPML 2.0 with an UTF-8 XML declaration and your `<head><title>` preserved.
+
+</details>
+
+<details>
+<summary>What happens if I paste something that isn't valid OPML?</summary>
+
+You get a specific error rather than empty output: malformed XML reports the
+parser's message, and well-formed XML with no `<opml>`/`<outline>` elements is
+rejected as "not an OPML document". JSON input must be an object with an
+`"outlines"` array.
+
+</details>

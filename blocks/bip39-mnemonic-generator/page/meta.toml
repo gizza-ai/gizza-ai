@@ -1,6 +1,6 @@
 slug          = "bip39-mnemonic-generator"
 title         = "BIP39 Mnemonic Seed Phrase Generator — gizza.ai"
-description   = "Generate a BIP39 mnemonic seed phrase (12, 15, 18, 21, or 24 words) from secure entropy, with the correct checksum and the derived 512-bit BIP39 seed. Optional passphrase and deterministic recovery from your own entropy. Runs entirely in your browser, free, private, no sign-up."
+description   = "Generate a BIP39 mnemonic seed phrase (12–24 words) with checksum and derived 512-bit seed, entirely in your browser. Optional passphrase. Free and private."
 tags          = ["bip39", "mnemonic", "seed phrase", "recovery phrase", "crypto wallet", "bitcoin", "hd wallet", "bip32", "bip44", "entropy"]
 h1            = "BIP39 Mnemonic Seed Phrase Generator"
 hero_subtitle = "Generate a 12–24 word BIP39 recovery phrase from cryptographically secure entropy, with the checksum word and the derived 512-bit seed. Runs entirely in your browser — nothing is sent to a server."
@@ -25,5 +25,5 @@ source      = "field"
 [[input]]
 name        = "passphrase"
 label       = "Passphrase (optional 25th word)"
-placeholder = ""
+placeholder = "correct horse battery staple"
 source      = "field"

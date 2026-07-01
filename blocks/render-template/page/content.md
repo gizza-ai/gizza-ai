@@ -40,3 +40,43 @@ Hello Ada!
 - apples
 - bananas
 ```
+
+## FAQ
+
+<details>
+<summary>Why isn't the output HTML-escaped?</summary>
+
+Escaping is deliberately disabled for both engines, so `{{var}}` emits the
+value verbatim — that's what you want when generating emails, config files, or
+code. If you're producing HTML from untrusted data, escape the values yourself
+before putting them in the JSON.
+
+</details>
+
+<details>
+<summary>What happens when the template references a variable my data doesn't have?</summary>
+
+By default it renders as an empty string, so `[{{missing}}]` becomes `[]`.
+Turn on **Strict** to make any missing variable a hard error instead — useful
+for catching typos in field names.
+
+</details>
+
+<details>
+<summary>Are partials and custom helpers supported?</summary>
+
+No — `{{> partial}}` includes and user-defined helpers aren't available. The
+supported feature set is variable substitution, nested paths like
+`{{user.profile.email}}`, `{{#each}}` loops (with `{{this}}`), and
+`{{#if}}…{{else}}…{{/if}}` conditionals.
+
+</details>
+
+<details>
+<summary>Can I leave the data field empty?</summary>
+
+Yes — empty data is treated as `{}`, which renders fine in lenient mode.
+Anything non-empty must be valid JSON (an object or array), otherwise you get
+a parse error rather than a silent blank result.
+
+</details>

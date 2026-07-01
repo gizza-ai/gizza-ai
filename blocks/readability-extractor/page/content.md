@@ -29,6 +29,28 @@ tool first if you need to retrieve a page, then pass its HTML here.)
 </details>
 
 <details>
+<summary>Why do I get "no article content found in the HTML"?</summary>
+
+The Readability scoring couldn't find a dense, article-like block to keep. That
+happens on landing pages, search/index pages, and — most often — on JavaScript
+apps whose raw source is mostly `<script>` tags with no rendered text. For a
+JS-rendered page, copy the *rendered* DOM instead (dev-tools → right-click
+`<html>` → Copy → Copy outerHTML) and paste that.
+
+</details>
+
+<details>
+<summary>Should I pick text or html output?</summary>
+
+**text** (the default) gives clean plain text with the article title on the first
+line — ideal for feeding into a summarizer or word counter. **html** keeps the
+cleaned article markup: the title as an `<h1>` plus the surviving headings,
+paragraphs, links, and images — better when you want to re-publish or restyle the
+article.
+
+</details>
+
+<details>
 <summary>Is anything uploaded?</summary>
 
 No. The extractor is compiled to WebAssembly and runs

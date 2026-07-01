@@ -46,3 +46,46 @@ highest iteration count your latency budget allows.
 
 This tool matches the published PBKDF2 test vectors (RFC 6070 for HMAC-SHA1 and
 RFC 7914 for HMAC-SHA256), so its output is interoperable with standard libraries.
+
+## FAQ
+
+<details>
+<summary>My key doesn't match another library — what's different?</summary>
+
+PBKDF2 output depends on **every** parameter: password, salt (and how the salt
+bytes are decoded), iteration count, HMAC hash and key length. A mismatch is
+almost always one of these — most often the salt encoding (this tool defaults
+to treating the salt as UTF-8 text; set it to hex or base64 if the other side
+used raw bytes) or a different iteration count.
+
+</details>
+
+<details>
+<summary>How do I verify a password against an existing key?</summary>
+
+Switch **Mode** to `verify` and paste the existing key (hex or base64,
+auto-detected) into **Expected key**. The tool derives with your password and
+parameters and compares — the expected key's byte length automatically sets
+the derived length, so you don't have to enter it. Everything runs locally.
+
+</details>
+
+<details>
+<summary>What limits are there on iterations and key length?</summary>
+
+Iterations must be at least 1 (there's no upper cap — very high counts just
+take longer, since the work runs in your browser), and the derived key length
+is 1 to 1024 bytes. The default is 100,000 iterations and a 32-byte
+(256-bit) key; OWASP currently suggests ~600,000 for PBKDF2-HMAC-SHA256.
+
+</details>
+
+<details>
+<summary>Should I use PBKDF2 or Argon2 for new password storage?</summary>
+
+PBKDF2 is widely supported and FIPS-approved, but it isn't memory-hard, so it's
+weaker against GPU/ASIC cracking. For a brand-new design prefer a memory-hard
+function like Argon2id or scrypt. Whatever you pick, always use a unique random
+salt and the highest iteration count your latency budget allows.
+
+</details>

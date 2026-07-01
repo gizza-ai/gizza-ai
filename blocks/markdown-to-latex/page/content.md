@@ -48,3 +48,47 @@ constructs need.
 
 Like every gizza tool, the conversion happens locally in your browser. Nothing
 is sent to a server, so it works offline and your documents stay yours.
+
+## FAQ
+
+<details>
+<summary>Which LaTeX packages does the output need?</summary>
+
+In fragment mode you're responsible for the preamble: converted constructs use
+`hyperref` (links), `graphicx` (images), `listings` (fenced code), `booktabs` +
+`array` (tables), and `ulem` (strikethrough). Turn on **Wrap in a full
+document** and the generated `\documentclass{article}` preamble loads all of
+them for you, so the file compiles as-is.
+
+</details>
+
+<details>
+<summary>Are my equations rewritten or escaped?</summary>
+
+Neither — inline `$…$` and display `$$…$$` math is passed through **verbatim**,
+character for character. Escaping only applies to prose (the ten TeX specials
+like `%`, `&`, `_`) and never to math or code blocks, so `100%` in a sentence
+is escaped but `x_1^2` inside `$…$` is untouched.
+
+</details>
+
+<details>
+<summary>What does the heading offset actually do?</summary>
+
+It demotes every heading by 1–5 levels: with offset 1, `#` becomes
+`\subsection` instead of `\section`, `##` becomes `\subsubsection`, and so on.
+That's the right knob when you're pasting the converted fragment into an
+existing chapter. Levels that would fall past `\subparagraph` stay at
+`\subparagraph` rather than breaking.
+
+</details>
+
+<details>
+<summary>Can the conversion fail on messy Markdown?</summary>
+
+No — the converter never errors on content. Anything it can't recognize as a
+block or inline construct degrades gracefully to escaped literal text, the
+same forgiving behavior a Markdown renderer has, so you always get compilable
+output to clean up rather than an error message.
+
+</details>

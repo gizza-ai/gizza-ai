@@ -42,3 +42,45 @@ a value against several candidates side by side.
   original text.
 - To compute a single chosen algorithm use the hash-text tool; to hash an entire
   **file** use the file-hash tool instead.
+
+## FAQ
+
+<details>
+<summary>Can I hash raw bytes (a key, ciphertext) instead of plain text?</summary>
+
+Yes — set **Interpret input as** to **hex** or **base64** and the tool decodes
+your input to raw bytes before hashing. Invalid hex or base64 is rejected with
+a clear error rather than silently hashed as text. The default (**utf8**)
+hashes the characters exactly as you typed them.
+
+</details>
+
+<details>
+<summary>Why does my SHA-256 differ from what another tool prints?</summary>
+
+The bytes being hashed differ. The usual culprits: a trailing newline or space
+(this tool hashes your input exactly, with no trimming), a different input
+interpretation (utf8 vs hex/base64), or comparing a base64-rendered digest
+against a hex one. Digest case never matters for hex — use the **Uppercase
+hex** toggle if you need to match a shouting-case reference.
+
+</details>
+
+<details>
+<summary>Which of these algorithms are still safe for security purposes?</summary>
+
+SHA-2 (SHA-256/384/512), SHA-3, BLAKE2, and BLAKE3 are all considered
+cryptographically strong. **MD5 and SHA-1 are broken** — collisions are
+practical — so treat them as integrity checksums for legacy systems only, and
+**CRC-32** is purely an error-detection code, never a security primitive.
+
+</details>
+
+<details>
+<summary>Does it work on files too?</summary>
+
+This page hashes text (or hex/base64-encoded bytes) you paste in. For hashing a
+whole file, use the dedicated file-hash tool; for computing just one chosen
+algorithm, the hash-text tool is quicker.
+
+</details>

@@ -1,6 +1,6 @@
 slug          = "fernet-token"
 title         = "Fernet Token Generator — create & decrypt Fernet tokens online — gizza.ai"
-description   = "Create and read Fernet tokens (AES-128-CBC + HMAC-SHA256) in your browser. Generate a key, encrypt text into a url-safe token, decrypt with optional TTL. Nothing is uploaded."
+description   = "Create and read Fernet tokens (AES-128-CBC + HMAC-SHA256) in your browser: generate a key, encrypt to a url-safe token, decrypt with optional TTL. No upload."
 tags          = ["fernet", "fernet token", "symmetric encryption", "aes-128-cbc", "hmac-sha256", "token", "ttl", "privacy"]
 h1            = "Fernet token tool"
 hero_subtitle = "Create or read Fernet tokens (AES-128-CBC + HMAC-SHA256) with an embedded timestamp. Leave the key blank to generate one. Everything runs in your browser; text and keys never leave your device."

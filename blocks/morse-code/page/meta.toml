@@ -1,6 +1,6 @@
 slug          = "morse-code"
 title         = "Morse Code Translator — Text to Morse & Back — gizza.ai"
-description   = "Translate text to International Morse code and decode Morse back to text instantly in your browser. Full A-Z, 0-9, and punctuation, case-insensitive, with configurable letter and word separators. Free, private, no sign-up."
+description   = "Translate text to International Morse code and decode Morse back to text in your browser — A-Z, 0-9, punctuation, custom separators. Free and private."
 tags          = ["morse code", "morse translator", "text to morse", "morse to text", "morse decoder", "morse encoder", "international morse", "sos", "cw", "dot dash"]
 h1            = "Morse Code Translator"
 hero_subtitle = "Convert text to Morse code or decode Morse back to text — full International Morse alphabet, digits, and punctuation, with adjustable separators. Runs entirely in your browser, no server, no sign-up."
@@ -28,7 +28,7 @@ source      = "field"
 [[input]]
 name        = "letter_sep"
 label       = "Letter separator (blank = space)"
-placeholder = " "
+placeholder = "| → e.g. ...|---|..."
 source      = "field"
 
 [[input]]

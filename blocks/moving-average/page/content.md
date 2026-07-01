@@ -33,3 +33,44 @@ window — the value is reported as `null`.
 
 Everything runs locally in your browser via WebAssembly. Your data is never
 uploaded to a server.
+
+## FAQ
+
+<details>
+<summary>Why do the arrays start with null values?</summary>
+
+A moving average needs a full window before it can produce a value, so the
+first `period − 1` entries are `null` for all three averages. The EMA's first
+real value (at index `period − 1`) is seeded with the simple mean of that
+first window, then advanced with the EMA recurrence from there.
+
+</details>
+
+<details>
+<summary>SMA, EMA, or WMA — which one should I look at?</summary>
+
+SMA weighs every point in the window equally, so it's the smoothest but the
+slowest to react. EMA (smoothing factor `k = 2/(period + 1)`) responds faster
+to recent moves — it's the usual choice in trading. WMA sits in between,
+weighting the window linearly `1, 2, …, period` so the newest value counts
+most. The tool returns all three so you can compare directly.
+
+</details>
+
+<details>
+<summary>What are the size limits?</summary>
+
+Up to 100,000 data points and a period of up to 10,000. The period must also
+be no larger than the number of points you paste — a 20-point average of a
+10-value series is rejected with an error rather than padded.
+
+</details>
+
+<details>
+<summary>How precise are the results?</summary>
+
+Each value is rounded to 6 decimal places before it's returned. That's enough
+for price and sensor data while keeping the output readable; the underlying
+computation itself runs in full 64-bit floating point.
+
+</details>

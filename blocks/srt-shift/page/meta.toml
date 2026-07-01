@@ -1,6 +1,6 @@
 slug          = "srt-shift"
 title         = "SRT Subtitle Shifter — Resync .srt Timings | gizza.ai"
-description   = "Shift every timestamp in a SubRip (.srt) subtitle file forward or backward by a fixed offset to resync subtitles that run early or late. Seconds or milliseconds, negative offsets, full Unicode. Free, private, runs in your browser — no upload, no sign-up."
+description   = "Shift SRT subtitle timestamps forward or backward to resync subtitles that run early or late — seconds or milliseconds. Free, private, runs in your browser."
 tags          = ["srt", "subtitle", "subtitle sync", "srt shift", "resync subtitles", "subtitle delay", "subrip", "subtitle timing", "subtitle offset"]
 h1            = "SRT Subtitle Shifter"
 hero_subtitle = "Resync subtitles that run early or late: shift every timestamp in a .srt file forward or backward by a fixed offset. Runs entirely in your browser — nothing is uploaded."

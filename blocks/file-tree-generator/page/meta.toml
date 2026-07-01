@@ -1,6 +1,6 @@
 slug          = "file-tree-generator"
 title         = "File Tree Generator — ASCII Directory Tree | gizza.ai"
-description   = "Turn a list of file paths or an indented outline into an ASCII tree diagram for your README or docs. Unicode or plain-ASCII connectors, optional sorting. Free, private, runs in your browser, no sign-up."
+description   = "Turn a list of file paths or an indented outline into an ASCII tree for READMEs and docs. Unicode or ASCII connectors, optional sorting. Free, in-browser."
 tags          = ["file tree generator", "ascii tree", "directory tree", "folder structure diagram", "tree command", "readme tree", "ascii folder structure", "project structure generator"]
 h1            = "File Tree Generator"
 hero_subtitle = "Paste a list of file paths or an indented outline and get a clean ASCII directory tree for your README or docs. Unicode or plain-ASCII connectors. Runs entirely in your browser, no server, no sign-up."

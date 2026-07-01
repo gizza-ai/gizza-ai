@@ -1,6 +1,6 @@
 slug          = "js-beautify"
 title         = "JavaScript Beautifier — format & re-indent minified JS — gizza.ai"
-description   = "Re-indent and pretty-print minified or obfuscated JavaScript into clean, readable source. Strings, regex and comments are preserved. Runs in your browser; nothing is uploaded."
+description   = "Re-indent minified or obfuscated JavaScript into clean, readable source — strings, regex and comments preserved. Free, in your browser; nothing uploaded."
 tags          = ["javascript beautifier", "js beautifier", "format javascript", "unminify javascript", "pretty print javascript", "js formatter"]
 h1            = "JavaScript Beautifier"
 hero_subtitle = "Turn minified or obfuscated JavaScript back into clean, readable code — one statement per line, with the indentation you choose. Strings, regex and comments are preserved. Runs in your browser; nothing is uploaded."

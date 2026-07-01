@@ -28,3 +28,46 @@ to a server. You can also run it from the [gizza CLI](/) or inside a gizza chat.
 - Clean log or terminal output that contains escape/bell/backspace characters.
 - Sanitize input before importing into a database, spreadsheet, or CSV.
 - Strip invisible characters that break search, diffing, or string comparisons.
+
+## FAQ
+
+<details>
+<summary>Exactly which characters get removed?</summary>
+
+Everything in Unicode category **Cc**: the C0 controls U+0000–U+001F (null,
+bell, backspace, escape, form feed, …) plus DEL and the C1 range U+007F–U+009F.
+Tab, line feed, and carriage return are technically in that set but are kept by
+default because they're meaningful whitespace — untick *Keep tabs* / *Keep
+newlines* to strip them as well.
+
+</details>
+
+<details>
+<summary>Does it remove zero-width spaces and other invisible Unicode?</summary>
+
+No — and that's deliberate. Characters like the zero-width space (U+200B),
+byte-order mark (U+FEFF), and soft hyphen are Unicode *format* (Cf) characters,
+not control (Cc) characters, so this tool leaves them alone. If an invisible
+character survives cleaning, it's likely one of those rather than a control
+character.
+
+</details>
+
+<details>
+<summary>Can I replace control characters with a space instead of deleting them?</summary>
+
+Yes — put a space (or any string) in the **Replacement** field and every
+removed control character is substituted with it. Leaving it empty deletes
+them outright. The replacement can even be multiple characters, e.g. `?` or
+`[CTRL]` if you want the removals to be visible.
+
+</details>
+
+<details>
+<summary>Will emoji, accents, or my line endings be affected?</summary>
+
+No. Printable Unicode — emoji, accented letters, CJK, punctuation — is never
+touched, and with *Keep newlines* on (the default) both `\n` and `\r` pass
+through, so Windows CRLF line endings survive intact.
+
+</details>

@@ -30,3 +30,47 @@ It's intentionally **safe**:
 
 Everything runs **locally in your browser** via WebAssembly — your SVG is never
 uploaded.
+
+## FAQ
+
+<details>
+<summary>Will optimizing change how my icon looks?</summary>
+
+No. This is a **lossless** cleaner: path `d` data, coordinates and numbers are
+never rewritten or rounded, so the rendered image is byte-for-byte identical
+in appearance. It only strips safe-to-remove cruft like comments, editor
+metadata and structural whitespace.
+
+</details>
+
+<details>
+<summary>Why are id/class and width/height left in by default?</summary>
+
+Both removals can break real usage, so they're **off by default**. Deleting
+`id`/`class` breaks any CSS, JavaScript or `<use xlink:href="#…">` that
+references them. Removing the root `width`/`height` only happens when a
+`viewBox` is present (so the graphic still scales), but some layouts rely on
+the intrinsic size — enable each only when you know it's safe.
+
+</details>
+
+<details>
+<summary>Does it touch my inline &lt;style&gt;, &lt;script&gt; or &lt;text&gt;?</summary>
+
+No — the contents of `<style>`, `<script>` and `<text>` are kept **verbatim**.
+Whitespace inside `<text>` can be visually significant, and collapsing CSS or
+JS could break it, so those elements are passed through untouched. Attribute
+values everywhere are also left alone.
+
+</details>
+
+<details>
+<summary>What exactly gets stripped as "editor metadata"?</summary>
+
+With **Remove editor metadata** on (the default), `<metadata>`, RDF blocks and
+Inkscape/Sodipodi elements are dropped, along with their attributes
+(`inkscape:*`, `sodipodi:*`) and the now-unused `xmlns:inkscape`,
+`xmlns:sodipodi`, `xmlns:rdf`, `xmlns:cc`, `xmlns:dc` declarations. The core
+`xmlns` needed to render the SVG is always kept.
+
+</details>

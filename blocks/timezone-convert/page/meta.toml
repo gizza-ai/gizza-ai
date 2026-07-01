@@ -1,6 +1,6 @@
 slug          = "timezone-convert"
 title         = "Timezone Converter — Convert Time Between Time Zones | gizza.ai"
-description   = "Convert any date and time from one timezone to multiple other timezones, with correct daylight saving (DST) handling and a 24-hour meeting planner grid. Uses the full IANA timezone database. Free, private, no sign-up, runs in your browser."
+description   = "Convert a date and time across multiple timezones with correct DST handling and a 24-hour meeting planner grid. Full IANA database — free, private, in-browser."
 tags          = ["timezone converter", "time zone convert", "utc converter", "dst", "iana timezone", "world clock", "meeting planner", "convert time", "multi timezone"]
 h1            = "Timezone Converter & Meeting Planner"
 hero_subtitle = "Convert a date and time from one timezone to multiple target zones, with correct daylight-saving handling and a synchronized 24-hour meeting planner grid. Runs entirely in your browser."

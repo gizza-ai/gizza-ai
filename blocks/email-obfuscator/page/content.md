@@ -40,3 +40,47 @@ to a server.
   encoding, so typos are caught early.
 - All four modes leave the address usable by humans — entities and CSS render
   normally, and the JS/ROT13 modes degrade to an entity-encoded fallback.
+
+## FAQ
+
+<details>
+<summary>Which obfuscation mode should I pick?</summary>
+
+**Entities** (the default) is the safest all-rounder — it needs no JavaScript and
+keeps the mailto link clickable. **JavaScript** is the strongest against scrapers
+because the address never appears as a literal in the served HTML, but it depends
+on JS (a `<noscript>` entity fallback is included). **CSS reversal** is great for
+display-only addresses, and **ROT13 mailto** is the classic trick when you mainly
+care about protecting the `href`.
+
+</details>
+
+<details>
+<summary>Why doesn't the CSS mode give me a clickable link?</summary>
+
+Because the trick works by printing the address backwards and flipping it visually
+with `unicode-bidi: bidi-override` — a reversed `mailto:` href wouldn't work when
+clicked. CSS mode therefore always emits display text only; use entities, JS, or
+ROT13 mode if you need a working link.
+
+</details>
+
+<details>
+<summary>Does this actually stop spam?</summary>
+
+It defeats the regex-based harvesters that account for most address scraping, but
+it is obfuscation, not encryption — a bot that executes JavaScript or decodes
+entities can still recover the address. For a high-value inbox, combine it with a
+contact form or a server-side relay.
+
+</details>
+
+<details>
+<summary>Why does it say my email address is invalid?</summary>
+
+The address is checked as `local@domain` with a dotted domain (e.g.
+`you@example.com`) before encoding, so a missing `@` or a bare domain like
+`you@localhost` is rejected — better to catch the typo here than to publish
+obfuscated HTML of a broken address.
+
+</details>

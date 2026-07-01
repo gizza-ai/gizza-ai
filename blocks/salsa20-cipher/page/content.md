@@ -32,3 +32,33 @@ real files behind a password use the authenticated **aes-cipher** or
 
 Everything runs **in your browser** via WebAssembly — your key, nonce and data
 never leave the device. Also available from the [gizza CLI](/) and in chat.
+
+### FAQ
+
+<details>
+<summary>Why does it complain about my key or nonce length?</summary>
+
+Salsa20 is strict: the key must be exactly **16 or 32 bytes** and the nonce exactly **8 bytes**. In text mode that's 16/32 (or 8) *characters of UTF-8 bytes*; in encoded mode it's the decoded byte count — e.g. a 64-hex-digit string for a 256-bit key. There's no padding or key stretching.
+
+</details>
+
+<details>
+<summary>Is this XSalsa20 or ChaCha20?</summary>
+
+Neither — it's the original 20-round **Salsa20/20** with an 8-byte nonce. XSalsa20 (24-byte nonce, used by NaCl/libsodium `secretbox`) and ChaCha20 (a later variant) generate different keystreams, so ciphertexts are not interchangeable between the three.
+
+</details>
+
+<details>
+<summary>What is the block counter for?</summary>
+
+It's the 64-bit starting block index of the keystream (one block = 64 bytes). Leave it at `0` normally; set it to N to encrypt/decrypt as if you were starting 64×N bytes into the stream — useful for seeking into a long message. It must match on both encrypt and decrypt.
+
+</details>
+
+<details>
+<summary>Why must I never reuse a key + nonce pair?</summary>
+
+Salsa20 XORs your data with a keystream derived only from key, nonce, and counter. Two messages under the same pair share the keystream, so XORing the ciphertexts cancels it and leaks both plaintexts. Use a fresh random nonce per message — and for real data prefer an authenticated tool, since raw Salsa20 has no MAC.
+
+</details>

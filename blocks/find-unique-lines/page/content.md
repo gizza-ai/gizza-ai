@@ -25,3 +25,40 @@ uploaded.
 > Want to *count* how often each line repeats, or list the duplicates instead?
 > Use a duplicate-finder tool; this one keeps **only the lines that appear
 > once**.
+
+## FAQ
+
+<details>
+<summary>How is this different from removing duplicates?</summary>
+
+Deduplication keeps one copy of every line; this tool (like `uniq -u`) keeps
+only lines that occur **exactly once** and drops every repeated line entirely.
+If a value appears twice, it won't be in the output at all.
+
+</details>
+
+<details>
+<summary>Is the comparison case-sensitive?</summary>
+
+By default, yes — `Foo` and `foo` are different lines, so if each appears once
+they are both kept. Turn on **Ignore case** to treat them as the same line, in
+which case the pair counts as a repeat and both are dropped.
+
+</details>
+
+<details>
+<summary>A line looks unique in my text but was dropped — why?</summary>
+
+Check the normalization options: with **Trim whitespace** on, `  item` and
+`item` compare equal, and with **Ignore case** on, `NYC` and `nyc` do too. A
+line that repeats only under normalization is excluded as a duplicate.
+
+</details>
+
+<details>
+<summary>What order do the results come out in?</summary>
+
+The order the unique lines first appeared in your input — nothing is sorted.
+The result also reports the total line count and the number of distinct lines.
+
+</details>

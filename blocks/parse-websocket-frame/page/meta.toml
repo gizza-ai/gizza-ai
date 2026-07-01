@@ -1,6 +1,6 @@
 slug          = "parse-websocket-frame"
 title         = "WebSocket Frame Parser — Decode RFC 6455 Frames (FIN, Opcode, Mask, Payload) | gizza.ai"
-description   = "Paste a WebSocket frame as base64 or hex and decode it into FIN, RSV1/2/3, opcode, mask flag, payload length, masking key, and the unmasked payload (hex + UTF-8 text). RFC 6455. Free, private, runs entirely in your browser."
+description   = "Decode a WebSocket frame (RFC 6455) from base64 or hex — FIN, RSV bits, opcode, mask flag, payload length, masking key, unmasked payload — in your browser."
 tags          = ["websocket", "websocket frame", "rfc 6455", "ws frame", "frame decoder", "opcode", "masking key", "unmask payload", "web sockets"]
 h1            = "WebSocket Frame Parser"
 hero_subtitle = "Paste a WebSocket frame as base64 or hex and decode it field by field — FIN, the RSV bits, the opcode (text/binary/close/ping/pong), the mask flag and key, the payload length, and the unmasked payload as hex and UTF-8 text. RFC 6455. Runs entirely in your browser, no server, no sign-up."

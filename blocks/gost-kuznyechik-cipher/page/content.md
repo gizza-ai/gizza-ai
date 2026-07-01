@@ -25,3 +25,45 @@ If you just want to **protect a message with a passphrase** (and have the salt,
 key derivation and nonce handled safely for you), use the **text-encrypt** tool
 instead — `gost-kuznyechik-cipher` is for when you already have a specific raw
 key, IV and mode.
+
+## FAQ
+
+<details>
+<summary>What key and IV sizes does Kuznyechik require here?</summary>
+
+The key must be exactly 32 bytes (256 bits) and the IV exactly 16 bytes — both
+supplied in the encoding you pick (`base64` by default, or `hex`). CBC, CTR,
+CFB and OFB all need the IV; ECB takes none. Anything else is rejected with an
+error rather than silently truncated.
+
+</details>
+
+<details>
+<summary>Can I type a password instead of a raw key?</summary>
+
+No — this is a low-level cipher tool, so the key field expects the raw 256-bit
+key itself, base64- or hex-encoded, not a passphrase. If you want
+passphrase-based encryption with salt, key derivation and nonce handled for
+you, use the text-encrypt tool instead.
+
+</details>
+
+<details>
+<summary>Which modes pad the plaintext, and which don't?</summary>
+
+CBC and ECB are block modes and apply PKCS7 padding, so the ciphertext is
+rounded up to a multiple of the 16-byte block. CTR, CFB and OFB are stream
+modes — no padding, and the ciphertext is exactly as long as the UTF-8
+plaintext.
+
+</details>
+
+<details>
+<summary>Why is ECB mode listed if it's insecure?</summary>
+
+For completeness and interop testing against the GOST R 34.12-2015 / RFC 7801
+spec. ECB encrypts each 16-byte block independently, so identical blocks
+produce identical ciphertext and patterns leak. For anything real, prefer CBC
+or CTR with a fresh random IV.
+
+</details>
