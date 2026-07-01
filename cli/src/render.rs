@@ -107,6 +107,12 @@ fn trim_number(v: &Value) -> String {
         }
         return format!("{f}");
     }
+    // A string result prints as its raw text — Value::to_string would JSON-encode
+    // it (surrounding quotes + \n escapes), which turned every multi-line text
+    // tool's output into one escaped line (`"operation: …\nbinary   : …"`).
+    if let Some(s) = v.as_str() {
+        return s.to_string();
+    }
     v.to_string()
 }
 
@@ -139,6 +145,20 @@ mod tests {
     fn envelope_for_llm() {
         let r = render(br#"{"_for_llm":"resized cat to 64x64","_for_ui":{}}"#, false);
         assert_eq!(r.stdout, "resized cat to 64x64");
+    }
+
+    #[test]
+    fn multiline_string_result_prints_raw_text() {
+        // NOT the JSON encoding ("line one\nline two") — real newlines, no quotes.
+        let r = render(br#"{"result":"line one\nline two"}"#, false);
+        assert_eq!(r.stdout, "line one\nline two");
+        assert_eq!(r.exit_code, 0);
+    }
+
+    #[test]
+    fn non_string_result_still_renders_as_json() {
+        let r = render(br#"{"result":{"items":[1,2]}}"#, false);
+        assert_eq!(r.stdout, r#"{"items":[1,2]}"#);
     }
 
     #[test]
