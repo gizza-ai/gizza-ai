@@ -1,6 +1,6 @@
 slug          = "rabbit-cipher"
 title         = "Rabbit Cipher — Encrypt/decrypt with the Rabbit stream cipher — gizza.ai"
-description   = "Encrypt or decrypt text with the Rabbit stream cipher (RFC 4503 / eSTREAM) — 128-bit key, optional 64-bit IV, text or encoded keys, hex/base64 I/O — in your browser. Nothing is uploaded."
+description   = "Encrypt or decrypt text with the Rabbit stream cipher (RFC 4503 / eSTREAM) — 128-bit key, optional 64-bit IV, hex or base64. Free, in-browser, no upload."
 tags          = ["rabbit", "rabbit cipher", "rabbit encrypt", "rabbit decrypt", "estream", "rfc 4503", "stream cipher"]
 h1            = "Rabbit cipher"
 hero_subtitle = "Encrypt or decrypt text with the Rabbit stream cipher (RFC 4503) — 128-bit key, optional 64-bit IV, text or encoded keys, hex or base64. Runs in your browser; nothing is uploaded."

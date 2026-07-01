@@ -48,3 +48,46 @@ Because Flask sessions are signed but not encrypted, never store secrets (passwo
 tokens, private data) in a session cookie — treat anything you can decode here as
 readable to the user. To make sessions tamper-proof *and* unreadable, use a
 server-side session store instead of the default client-side cookie.
+
+## FAQ
+
+<details>
+<summary>How can this decode the cookie without the SECRET_KEY?</summary>
+
+Because Flask's default session cookie is **signed, not encrypted**. The payload
+segment is just the session dictionary as base64url-encoded JSON — the
+`SECRET_KEY` is only used for the HMAC signature that prevents *tampering*, not
+for hiding the contents. That's also why `signature_verified` is always `false`
+in the output: verifying the HMAC would require the key, which this tool never
+asks for.
+
+</details>
+
+<details>
+<summary>Can I paste the whole Set-Cookie header instead of the bare value?</summary>
+
+Yes. A leading `session=`, surrounding quotes, and trailing attributes like
+`; Path=/; HttpOnly; SameSite=Lax` are stripped automatically, so a fragment
+copied straight from dev-tools or a `Set-Cookie:` header works as-is.
+
+</details>
+
+<details>
+<summary>My cookie starts with a dot — is it corrupted?</summary>
+
+No — that leading `.` is itsdangerous's **zlib-compression marker**. Whenever
+compressing makes the value shorter, the payload is deflated before encoding.
+The decoder detects the marker, inflates the stream transparently, and sets
+`compressed: true` in the output.
+
+</details>
+
+<details>
+<summary>What does the timestamp in the output represent?</summary>
+
+It's when the cookie was signed — stored by itsdangerous as seconds since its own
+epoch of **2011-01-01**, not the Unix epoch. The tool converts it for you and
+reports both a normal Unix timestamp and an ISO-8601 UTC string, which is useful
+for judging whether a captured session is stale.
+
+</details>

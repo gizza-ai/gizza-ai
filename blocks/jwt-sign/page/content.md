@@ -33,3 +33,33 @@ and claims are never uploaded to a server. You can also run it from the
 - Verify the token with any standard JWT library using the **same algorithm** and
   the secret (HS*) or the matching **public** key (RS*/ES*). Need a key pair? See
   the RSA / ECDSA key-pair generator tools.
+
+### FAQ
+
+<details>
+<summary>Can I add extra header fields like "kid"?</summary>
+
+Yes — paste a JSON object into the header field (e.g. `{"kid":"2024-key-1"}`) and it's merged in. Two fields are managed for you: `alg` is always overwritten with the algorithm you selected, and `typ` defaults to `JWT` unless your header sets its own value.
+
+</details>
+
+<details>
+<summary>What key format do RS256 and ES256 expect?</summary>
+
+A PEM private key pasted into the secret field. RSA accepts both PKCS#8 (`BEGIN PRIVATE KEY`) and PKCS#1 (`BEGIN RSA PRIVATE KEY`); ECDSA requires PKCS#8 with a P-256 key for ES256 or P-384 for ES384. Verification is done elsewhere with the matching *public* key.
+
+</details>
+
+<details>
+<summary>Does the tool add exp or iat claims automatically?</summary>
+
+No — the payload is signed exactly as you wrote it. If you want an expiry, add `"exp"` yourself as seconds since the Unix epoch (e.g. `{"sub":"alice","exp":1767225600}`). That keeps the tool predictable for testing tokens with any claim combination.
+
+</details>
+
+<details>
+<summary>Why does my token verify differently than in some other library?</summary>
+
+Check three things: the algorithm must match exactly (HS256 vs HS512 tokens are incompatible), the HS* secret is taken as raw UTF-8 bytes (not base64-decoded — some libraries offer a "secret is base64" toggle), and ES* signatures use the JWS raw `r‖s` format, not DER.
+
+</details>

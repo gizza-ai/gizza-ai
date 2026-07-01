@@ -44,3 +44,46 @@ or **base64**. The output tag is always 16 bytes (128 bits) regardless of varian
   4493 example key is `bb1d6929e95937287fa37d129b756746`.
 - For a **hash-based** keyed MAC (HMAC-SHA256, etc.), use the HMAC generator
   instead. For an **unkeyed** hash, use the text hash generator.
+
+## FAQ
+
+<details>
+<summary>How do I choose between AES-128, AES-192, and AES-256 CMAC?</summary>
+
+You don't pick it directly — the AES variant follows the **key length**: a 16-byte
+key gives AES-128-CMAC, 24 bytes gives AES-192, 32 bytes gives AES-256. Any other
+key length is rejected with an error. A plain-text key is measured in raw UTF-8
+bytes; for a binary key, set **Interpret key as** to hex (32/48/64 hex chars) or
+base64.
+
+</details>
+
+<details>
+<summary>Why is the tag always 32 hex characters, even with AES-256?</summary>
+
+The CMAC tag is one AES block — 16 bytes (128 bits) — regardless of key size, so
+hex output is always 32 characters. Some protocols (e.g. AES-CMAC-96) truncate the
+tag; if your target expects a shorter value, compare against the leading bytes of
+the full tag.
+
+</details>
+
+<details>
+<summary>Can I use this to verify a CMAC I received?</summary>
+
+Yes — recompute the tag over the same message with the same key and the same
+encodings, then compare it to the tag you were given. There's no separate verify
+mode because verification *is* recomputation; in production code, do the comparison
+constant-time.
+
+</details>
+
+<details>
+<summary>Is an empty message allowed?</summary>
+
+Yes. CMAC of the empty message is well-defined (the padding subkey handles it), and
+it's actually the first RFC 4493 test vector: with key
+`2b7e151628aed2a6abf7158809cf4f3c` the tag is `bb1d6929e95937287fa37d129b756746`.
+Pasting that key with an empty message is an easy way to sanity-check the tool.
+
+</details>

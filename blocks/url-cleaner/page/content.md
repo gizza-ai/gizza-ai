@@ -43,3 +43,32 @@ No — only known tracking parameters (and any you list)
 are removed; the path and remaining query stay exactly as they were.
 
 </details>
+
+<details>
+<summary>Does it re-encode or reorder anything?</summary>
+
+No. Kept query parameters stay in their original order with their exact
+percent-encoding — values are never decoded and re-encoded. The `#fragment`
+survives too. If every parameter turns out to be tracking, the dangling `?` is
+removed; a URL with no query string at all is returned untouched.
+
+</details>
+
+<details>
+<summary>How do I remove a parameter the built-in list doesn't know?</summary>
+
+Type its name into **Extra params to strip** — comma-separated for several,
+e.g. `sid,ref,partner`. Names are matched case-insensitively against each
+parameter, and your extras are applied on top of the built-in exact names and
+prefix families (`utm_*`, `pk_*`, `mtm_*`, …).
+
+</details>
+
+<details>
+<summary>Can I clean many links in one go?</summary>
+
+Yes — switch on **Clean each line separately (batch)** and paste one URL per
+line. Each non-empty line is cleaned independently and blank lines are kept,
+so the output stays line-for-line aligned with your input.
+
+</details>

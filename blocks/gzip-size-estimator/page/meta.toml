@@ -1,6 +1,6 @@
 slug          = "gzip-size-estimator"
 title         = "Gzip & Brotli Size Estimator — Measure Compressed Transfer Size | gizza.ai"
-description   = "Paste code or text to see its raw, gzipped, and brotli byte size, bytes saved, percent reduction, and compression ratio. Estimate the over-the-wire weight of a bundle served with gzip or brotli. Free, private, runs in your browser, no sign-up."
+description   = "See the gzip and brotli compressed size of any code or text — raw bytes, bytes saved, percent reduction and ratio. Free, private, runs in your browser."
 tags          = ["gzip size", "brotli size", "compressed size", "transfer size", "bundle size", "gzip estimator", "compression ratio", "minify", "page weight", "content-encoding"]
 h1            = "Gzip & Brotli Size Estimator"
 hero_subtitle = "Paste code or text to see its raw, gzipped, and brotli byte size, bytes saved, and compression ratio — the size it would weigh over the wire. Runs entirely in your browser, no server, no sign-up."

@@ -31,3 +31,44 @@ never uploaded to a server.
 </div>
 
 </details>
+
+## FAQ
+
+<details>
+<summary>Which image formats can I crop?</summary>
+
+The common web formats — PNG, JPEG, WebP, BMP, GIF — anything the bundled
+ffmpeg build can decode. The cropped copy keeps the same format as the
+original: crop a `.jpg` and you download a `.jpg`, crop a `.png` and you get
+a `.png`.
+
+</details>
+
+<details>
+<summary>What if my crop rectangle sticks out past the edge?</summary>
+
+The crop fails: ffmpeg rejects a rectangle that isn't fully inside the image
+rather than silently clamping it. Make sure `X + width` stays within the image
+width and `Y + height` within the height. Width and height must both be at
+least 1 pixel.
+
+</details>
+
+<details>
+<summary>Does cropping reduce image quality?</summary>
+
+The pixels you keep are copied 1:1 — no scaling happens — but the file is
+re-encoded on save. For lossless formats like PNG that's a perfect copy; for
+JPEG the re-encode introduces one generation of compression, as any JPEG
+editor does.
+
+</details>
+
+<details>
+<summary>Is my photo uploaded to a server?</summary>
+
+No. The crop runs in your browser with ffmpeg compiled to WebAssembly, so the
+image never leaves your device — it even works offline once the page has
+loaded.
+
+</details>

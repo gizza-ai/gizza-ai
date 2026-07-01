@@ -1,6 +1,6 @@
 slug          = "regex-tester"
 title         = "Regex Tester — Debug Patterns & Inspect Capture Groups — gizza.ai"
-description   = "Test a regular expression against your text and see every match with its position, plus the value and span of every numbered and named capture group. Toggle case-insensitive, multiline and dot-all modes. Runs in your browser; nothing is uploaded."
+description   = "Test regular expressions online — see every match with positions plus the value and span of each numbered and named capture group. Free, in-browser, no upload."
 tags          = ["regex tester", "test regex", "regular expression", "capture group", "regex debugger", "named groups", "regex match positions"]
 h1            = "Regex Tester"
 hero_subtitle = "Paste your text, type a regular expression, and inspect every match — its character positions and the value and span of every capture group, both numbered and named. Toggle case-insensitive, multiline and dot-all modes. Runs in your browser; nothing is uploaded."

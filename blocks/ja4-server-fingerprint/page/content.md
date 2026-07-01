@@ -76,3 +76,47 @@ JA4S is a heuristic, not a cryptographic identifier — different servers can
 produce the same JA4S, and a server's response can vary with the client's
 offer. Treat a JA4S match as a signal, not proof. Everything runs locally in
 your browser; the ServerHello bytes are never uploaded.
+
+## FAQ
+
+<details>
+<summary>What exactly do I paste — the whole packet or just part of it?</summary>
+
+Any of three shapes works: the full TLS record (hex starting `16 03 …`), the
+handshake message (starting `02 …`), or the bare ServerHello body. The parser
+figures out which one it has. Spaces, colons, dashes, dots, commas, and a leading
+`0x` are stripped, so a Wireshark "Copy as Hex Stream" or a colon-separated dump
+pastes straight in. An odd number of hex digits is rejected.
+
+</details>
+
+<details>
+<summary>Why doesn't my JA4S match the JA3S I computed for the same server?</summary>
+
+They're different algorithms, not different spellings. JA3S is an MD5 over a
+sorted, GREASE-stripped field list; JA4S keeps GREASE extensions, hashes the
+extension types **in wire order** with SHA256 (truncated to 12 hex chars), and
+encodes version/ALPN/cipher into a readable `a_b_c` prefix. The two values are
+not comparable — match JA4S against JA4S feeds only.
+
+</details>
+
+<details>
+<summary>When should I tick the QUIC handshake box?</summary>
+
+When the ServerHello was carried inside a QUIC handshake (e.g. HTTP/3) rather
+than TLS over TCP. The transport letter — `t` or `q` — is the one component that
+isn't present in the ServerHello bytes themselves, so it's the only thing you
+have to tell the tool. Getting it wrong shifts the whole fingerprint.
+
+</details>
+
+<details>
+<summary>My fingerprint ends in <code>000000000000</code> — is that an error?</summary>
+
+No — it means the ServerHello contained **no extensions**, so the extension-hash
+part is defined as twelve zeros. Similarly, `00` in the ALPN position means the
+server didn't negotiate an ALPN protocol. Both are common with older TLS 1.2
+servers.
+
+</details>

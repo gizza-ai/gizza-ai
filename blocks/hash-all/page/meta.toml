@@ -1,6 +1,6 @@
 slug          = "hash-all"
 title         = "Hash All — MD5, SHA, SHA-3, RIPEMD, BLAKE3, Whirlpool, CRC-32 | gizza.ai"
-description   = "Compute every common digest of any text at once — CRC-32, MD5, SHA-1, SHA-224/256/384/512, SHA3-256/512, RIPEMD-160, BLAKE2b/2s, BLAKE3 and Whirlpool — in one labeled table. Hex or base64 output. Free, private, no sign-up — nothing is uploaded."
+description   = "Hash text with every common algorithm at once — MD5, SHA-1, SHA-256/512, SHA-3, BLAKE3, RIPEMD-160, CRC-32 and more — free and private in your browser."
 tags          = ["hash", "md5", "sha1", "sha256", "sha512", "sha3", "ripemd", "blake2", "blake3", "whirlpool", "crc32", "checksum", "digest", "hex", "base64", "cryptography"]
 h1            = "Hash All Generator"
 hero_subtitle = "Compute every common digest of any text at once — CRC-32, MD5, SHA-1, the SHA-2 family, SHA-3, RIPEMD-160, BLAKE2, BLAKE3 and Whirlpool — in one labeled table. Runs entirely in your browser, no server, no sign-up."

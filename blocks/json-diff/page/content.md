@@ -34,3 +34,33 @@ your browser** via WebAssembly — your data is never uploaded.
 - Reviewing changes between two API responses or config versions.
 - Spotting unexpected additions or removals in a JSON file.
 - Generating a machine-readable change report for tests or audits.
+
+### FAQ
+
+<details>
+<summary>Does the order of object keys matter?</summary>
+
+No. `{"a":1,"b":2}` and `{"b":2,"a":1}` compare as equal — objects are matched key by key, not by position. Only the *report* follows the left document's key order (removed/changed first, then added keys).
+
+</details>
+
+<details>
+<summary>How are arrays compared if an item was inserted in the middle?</summary>
+
+Arrays are compared strictly index by index, so inserting one element near the front shifts everything after it and each shifted index is reported as "changed", plus one "added" at the end. It's a positional diff, not a move-detecting diff.
+
+</details>
+
+<details>
+<summary>What does a type change (e.g. string to number) look like?</summary>
+
+It's reported as a single "changed" entry at that path with the old and new values — e.g. `"1"` → `1`. The value's type is part of the comparison, so a string `"1"` never equals the number `1`.
+
+</details>
+
+<details>
+<summary>Why do I get "the first (left) JSON is invalid"?</summary>
+
+Both inputs must be well-formed JSON documents; the error tells you which side failed and where. Common culprits: trailing commas, single quotes, or unquoted keys — those are JavaScript-isms, not JSON.
+
+</details>

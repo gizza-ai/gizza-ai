@@ -1,6 +1,6 @@
 slug          = "ioc-extract"
 title         = "IOC Extractor — Pull IPs, URLs, Domains, Emails & Hashes from Text — gizza.ai"
-description   = "Extract indicators of compromise (IOCs) from any text instantly in your browser. Pull out IPv4/IPv6 addresses, URLs, domains, emails and MD5/SHA-1/SHA-256/SHA-512 hashes — de-duplicated, sorted and grouped by type. Handles defanged input and can re-defang the output. Free, private, no sign-up."
+description   = "Extract IOCs from threat reports in your browser — IPs, URLs, domains, emails, MD5/SHA hashes — with defanged (hxxp, [.]) input support. Free, private, no sign-up."
 tags          = ["ioc", "ioc extractor", "indicators of compromise", "extract ip", "extract url", "extract domain", "extract hash", "threat intelligence", "cti", "soc", "malware analysis", "defang", "ioc parser"]
 h1            = "IOC Extractor"
 hero_subtitle = "Paste a log line, email, alert or threat report and pull out every indicator of compromise — IPv4/IPv6 addresses, URLs, domains, emails and MD5/SHA-1/SHA-256/SHA-512 hashes — de-duplicated, sorted and grouped by type. Defanged input is recognized automatically, and you can re-defang the output. Runs entirely in your browser, no server, no sign-up."

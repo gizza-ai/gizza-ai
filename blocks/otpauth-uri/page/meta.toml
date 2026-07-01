@@ -1,6 +1,6 @@
 slug          = "otpauth-uri"
 title         = "otpauth:// URI Generator — authenticator setup QR — gizza.ai"
-description   = "Build a standard otpauth:// provisioning URI from an issuer, account, and base32 secret to set up an authenticator app. Runs in your browser — the secret never leaves your device."
+description   = "Build an otpauth:// provisioning URI (TOTP/HOTP) from an issuer, account, and base32 secret to set up any authenticator app. The secret stays in your browser."
 tags          = ["otpauth", "totp", "hotp", "2fa", "authenticator", "qr code", "otp", "two-factor", "provisioning uri"]
 h1            = "otpauth:// URI generator"
 hero_subtitle = "Build a standard otpauth:// provisioning URI from an issuer, account, and base32 secret — encode it as a QR code to set up any authenticator app. Runs in your browser; the secret never leaves your device."

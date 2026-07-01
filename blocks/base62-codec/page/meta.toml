@@ -1,6 +1,6 @@
 slug          = "base62-codec"
 title         = "Base62 Encoder & Decoder (Short IDs / URL Slugs) — gizza.ai"
-description   = "Encode text, hex bytes, or numbers to Base62 (0-9A-Za-z) and decode Base62 back, instantly in your browser. No padding, URL-safe, standard and inverted alphabets, arbitrary-precision numbers. Free, private, no sign-up."
+description   = "Encode text, hex bytes, or numbers to Base62 (0-9A-Za-z) and decode back — URL-safe, no padding, arbitrary-precision numbers. Free, private, in your browser."
 tags          = ["base62", "base62 encode", "base62 decode", "base62 encoder", "base62 decoder", "short id", "url slug", "number to base62", "base62 converter", "hex", "encoder", "decoder"]
 h1            = "Base62 Encoder / Decoder"
 hero_subtitle = "Encode text, hex bytes, or a decimal number to Base62 (0-9A-Za-z), or decode Base62 back — compact, URL-safe, no padding. Standard and inverted alphabets, arbitrary-precision numbers. Runs entirely in your browser, no server, no sign-up."

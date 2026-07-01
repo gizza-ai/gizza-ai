@@ -29,3 +29,46 @@ configure separately.
 
 The browser version runs locally in WebAssembly, so your XML document and XPath
 expression stay on your device.
+
+## FAQ
+
+<details>
+<summary>Can I query a real-world HTML page with this?</summary>
+
+Only if it's well-formed. The evaluator parses strict XML/XHTML — it is not a
+forgiving HTML parser, so typical scraped HTML (unclosed `<li>`, bare `<br>`,
+unquoted attributes) fails to parse. Run the page through an HTML tidier, or
+use the html-to-markdown tool if you just want the content.
+
+</details>
+
+<details>
+<summary>What's the difference between the "value" and "xml" output modes?</summary>
+
+`value` (the default) prints each matched node's string value — the
+concatenated text content, which for an attribute is just its value. `xml`
+serializes the whole matching node as outer XML, including its tag and
+attributes, with text properly re-escaped; an empty element comes out
+self-closing.
+
+</details>
+
+<details>
+<summary>Which XPath version and functions are supported?</summary>
+
+XPath **1.0** — node-set paths with predicates, plus the 1.0 function library
+(`count()`, `name()`, `string()`, comparisons returning booleans, and so on).
+Scalar expressions return a single number, string, or boolean; XPath 2.0+
+features such as `matches()` or sequences aren't available.
+
+</details>
+
+<details>
+<summary>Why does my query return nothing on a namespaced document?</summary>
+
+In XPath 1.0, an unprefixed name only matches elements in **no** namespace —
+so `//svg` won't match `<svg xmlns="http://www.w3.org/2000/svg">`. The page
+UI doesn't currently let you register namespace prefixes; a common workaround
+is matching by local name, e.g. `//*[local-name()='svg']`.
+
+</details>

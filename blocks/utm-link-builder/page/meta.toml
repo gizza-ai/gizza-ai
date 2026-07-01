@@ -1,6 +1,6 @@
 slug          = "utm-link-builder"
 title         = "UTM Link Builder — Campaign URL Tagger | gizza.ai"
-description   = "Build campaign-tracking URLs by adding UTM parameters (source, medium, campaign, term, content). Auto-encodes values, preserves existing query params, replaces old utm_* tags. Free, private, runs in your browser, no sign-up."
+description   = "Free UTM link builder — add utm_source, utm_medium and utm_campaign tags plus GA4 fields to any URL, correctly encoded, right in your browser."
 tags          = ["utm builder", "utm link", "campaign url builder", "utm parameters", "url tagging", "google analytics", "utm_source", "utm_medium", "utm_campaign", "marketing"]
 h1            = "UTM Link Builder"
 hero_subtitle = "Add UTM campaign parameters to any URL for analytics tracking. Source, medium, campaign, term and content — encoded correctly and ready to share. Runs entirely in your browser."

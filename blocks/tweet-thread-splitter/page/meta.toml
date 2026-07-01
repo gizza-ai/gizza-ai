@@ -1,6 +1,6 @@
 slug          = "tweet-thread-splitter"
 title         = "Tweet Thread Splitter — Split Text into Numbered Tweets — gizza.ai"
-description   = "Split long text into numbered, character-limit-safe tweets that never break mid-word. Custom limit (default 280), choice of (i/N) / i/N / numbered-list counters, sentence-aware breaks, and chars-or-UTF-16 counting. Free, private, runs in your browser, no sign-up."
+description   = "Split long text into a numbered tweet thread that never breaks mid-word — custom character limit, (i/N) counters, sentence-aware breaks. Free, in your browser."
 tags          = ["tweet thread", "twitter thread", "x thread", "thread maker", "tweet splitter", "280 characters", "character counter", "split text", "thread numbering"]
 h1            = "Tweet Thread Splitter"
 hero_subtitle = "Paste a long post and split it into a numbered Twitter/X thread of character-limit-safe tweets that never break a word in half. Runs entirely in your browser, no server, no sign-up."

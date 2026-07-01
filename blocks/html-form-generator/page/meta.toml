@@ -1,6 +1,6 @@
 slug          = "html-form-generator"
 title         = "HTML Form Generator — Build Accessible Form Markup — gizza.ai"
-description   = "Generate clean, accessible HTML form markup from a plain list of fields. Labeled inputs, required + type validation (email, number, url, tel, date), selects, radios, checkboxes, textareas, and optional styling. Free, private, runs in your browser, no sign-up."
+description   = "Generate clean, accessible HTML form markup from a plain field list — labels, validation, selects, radios and textareas. Free, private, in-browser."
 tags          = ["html form generator", "form builder", "html form code", "accessible form", "contact form generator", "form markup", "input validation", "label for", "select radio checkbox"]
 h1            = "HTML Form Generator"
 hero_subtitle = "Describe your fields, one per line, and get clean, accessible HTML form markup — labeled inputs, validation attributes, selects, radios and checkboxes. Runs entirely in your browser, no server, no sign-up."

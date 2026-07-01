@@ -27,3 +27,22 @@ No — the video is copied without re-encoding; only
 the audio is removed.
 
 </details>
+
+<details>
+<summary>Which video formats can I mute, and what do I get back?</summary>
+
+Anything ffmpeg can read — mp4, webm, mov and mkv are the common cases. The
+output stays in the same container as the input (an mp4 in gives an mp4 out)
+and is named after the original with a `-muted` suffix, e.g.
+`holiday.mp4` → `holiday-muted.mp4`.
+
+</details>
+
+<details>
+<summary>Is there a file size limit?</summary>
+
+Yes — the input video can be up to 25 MB, and the muted output is capped at
+25 MB too. Since muting only drops the audio track, the output is always a bit
+smaller than the input, so in practice only the input limit matters.
+
+</details>

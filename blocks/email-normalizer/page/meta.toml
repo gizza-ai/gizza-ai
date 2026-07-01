@@ -1,6 +1,6 @@
 slug          = "email-normalizer"
 title         = "Email Normalizer — Canonicalize Email Addresses | gizza.ai"
-description   = "Canonicalize an email address in your browser: lowercase, strip Gmail dots and +tag sub-addresses, fold googlemail.com, and report the deliverable form. Recognizes Gmail, Outlook, Yahoo, iCloud, Fastmail and Proton. Free, private, no sign-up."
+description   = "Normalize email addresses to canonical form — strip Gmail dots and +tags, fold googlemail.com, dedupe-ready output, free and private in your browser."
 tags          = ["email normalizer", "canonical email", "gmail dots", "plus addressing", "sub-address", "email deduplication", "normalize email", "googlemail"]
 h1            = "Email Normalizer"
 hero_subtitle = "Canonicalize any email address to its deliverable form — lowercase, strip Gmail dots and +tag sub-addresses, fold googlemail.com to gmail.com. Runs entirely in your browser, no server, no sign-up."

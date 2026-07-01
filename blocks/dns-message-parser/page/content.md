@@ -57,3 +57,44 @@ colons, dashes, dots, commas, or a leading `0x`; base64url is auto-detected.
   re-opening the capture.
 - Inspect a **DNS-over-HTTPS** `?dns=` value to see exactly what was asked.
 - Confirm the **flags** (RD/RA/AA) and **EDNS0** options a resolver negotiated.
+
+## FAQ
+
+<details>
+<summary>What input formats does the parser accept?</summary>
+
+Hex or base64url, auto-detected. Hex may be separated by spaces, colons, dashes,
+dots, or commas and may carry a leading `0x` — so a Wireshark "Copy as Hex Stream"
+or a colon-separated dump both paste straight in. Base64url is the exact form used
+in a DNS-over-HTTPS GET `?dns=` parameter.
+
+</details>
+
+<details>
+<summary>What if a record type isn't recognized?</summary>
+
+Well-known types (A, AAAA, NS, CNAME, PTR, DNAME, MX, TXT, SPF, SOA, SRV, CAA,
+OPT/EDNS0) are decoded to readable values. Any other type falls back to a raw hex
+dump of its RDATA, so unusual or private-use records are still fully visible
+instead of being dropped.
+
+</details>
+
+<details>
+<summary>How are truncated or corrupt messages handled?</summary>
+
+The parser reports a precise error — e.g. a name or RDATA that "runs past end of
+message", an invalid hex digit, or a compression pointer that targets beyond the
+message. Compression-pointer loops are detected by capping the label count, so a
+malicious message can't hang the tool.
+
+</details>
+
+<details>
+<summary>Does it follow DNS name compression?</summary>
+
+Yes. The `0xC0…` compression pointers that DNS uses to avoid repeating a domain
+suffix are followed back to their target, so every name in the output is shown in
+full rather than as a pointer offset.
+
+</details>

@@ -39,3 +39,46 @@ key material.
 - Raw DER hex input accepts `0x` prefixes and `:` / `-` / whitespace
   separators.
 - Only the public half is exposed — this tool never emits any private material.
+
+## FAQ
+
+<details>
+<summary>Which private-key formats can I paste?</summary>
+
+RSA in PKCS#8 (`BEGIN PRIVATE KEY`) or PKCS#1 (`BEGIN RSA PRIVATE KEY`), EC
+P-256/P-384 in PKCS#8 or SEC1 (`BEGIN EC PRIVATE KEY`), and Ed25519 in PKCS#8.
+You can also paste raw DER bytes as hex (with `0x`, `:`, `-`, or whitespace
+separators) or base64 — set the key type explicitly if auto-detection can't tell
+which algorithm raw DER belongs to.
+
+</details>
+
+<details>
+<summary>Why does my EC key give "only these NIST curves are supported"?</summary>
+
+The EC path tries P-256 and P-384 only. Keys on other curves — P-521,
+secp256k1 (Bitcoin/Ethereum), brainpool — will not parse. For those, derive the
+public key with your usual library or `openssl pkey -pubout` instead.
+
+</details>
+
+<details>
+<summary>Does it work on passphrase-protected private keys?</summary>
+
+No — an encrypted PEM (`ENCRYPTED PRIVATE KEY`, or a legacy `Proc-Type:
+4,ENCRYPTED` block) can't be parsed without the passphrase and is rejected.
+Decrypt it locally first (`openssl pkey -in enc.pem -out plain.pem`), then paste
+the decrypted key.
+
+</details>
+
+<details>
+<summary>Is pasting a private key into a web page really safe?</summary>
+
+This page performs the derivation entirely inside your browser via WebAssembly —
+the key is never transmitted, and only the public half is ever printed. That
+said, the standing advice for high-value keys applies: prefer an offline
+terminal (`openssl pkey -pubout`) for production secrets, and treat this tool as
+the convenient equivalent for dev and test keys.
+
+</details>

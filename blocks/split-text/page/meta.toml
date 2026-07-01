@@ -1,6 +1,6 @@
 slug          = "split-text"
 title         = "Split Text by Delimiter — One Item Per Line — gizza.ai"
-description   = "Split text on any delimiter into one item per line. Comma, tab, custom delimiter, by whitespace, or into characters; optionally trim each item and drop blanks. Runs entirely in your browser, free, private, no sign-up."
+description   = "Split text on any delimiter into one item per line — comma, tab, custom, whitespace, or characters, with trim and drop-blanks options. Free, in-browser."
 tags          = ["split text", "text splitter", "delimiter", "comma to lines", "one per line", "split by whitespace", "split into characters", "csv to list"]
 h1            = "Split Text by Delimiter"
 hero_subtitle = "Split text on a comma, tab, or any delimiter into one item per line. Split by whitespace or into characters, trim each item, and drop blanks. Runs entirely in your browser, no server, no sign-up."

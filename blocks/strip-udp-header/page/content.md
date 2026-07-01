@@ -39,3 +39,44 @@ datagram with source port 53 and destination port 41394.
   protocol decoder (DNS, DHCP, RTP, QUIC, …).
 - Strip UDP framing and padding to isolate the exact payload bytes.
 - Read the source/destination ports and length by hand from raw bytes.
+
+## FAQ
+
+<details>
+<summary>Can I paste a whole Ethernet or IP packet?</summary>
+
+No — the input must start at the first byte of the **UDP header**. If you paste a
+full frame, the Ethernet/IP header bytes would be misread as ports and length.
+From a capture, copy the bytes starting at the UDP layer (in Wireshark:
+right-click the UDP layer → Copy → "…as a Hex Stream").
+
+</details>
+
+<details>
+<summary>Why is the payload shorter than the bytes I pasted?</summary>
+
+The UDP **Length** field (header + data) is honored when it's consistent with the
+input: anything beyond it is treated as trailing link-layer padding and dropped.
+Ethernet pads small frames to 60 bytes, so captured datagrams often carry a few
+padding bytes that are not part of the payload.
+
+</details>
+
+<details>
+<summary>What does a checksum of 0x0000 mean?</summary>
+
+That the sender didn't compute one. Over IPv4 the UDP checksum is optional and
+`0x0000` explicitly means "not computed" (RFC 768) — the tool reports it as such
+rather than flagging an error.
+
+</details>
+
+<details>
+<summary>What hex formats are accepted?</summary>
+
+Pretty much anything a capture tool exports: spaces, colons, dashes, dots, and a
+leading `0x` are all ignored, so `00 35 a1 b2 …`, `00:35:a1:b2:…` and
+`0x0035a1b2…` parse identically. The datagram must be at least 8 bytes (the fixed
+UDP header size).
+
+</details>

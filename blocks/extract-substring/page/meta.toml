@@ -32,7 +32,7 @@ source      = "field"
 [[input]]
 name        = "end"
 label       = "End index (index mode, optional)"
-placeholder = ""
+placeholder = "5"
 source      = "field"
 
 [[input]]

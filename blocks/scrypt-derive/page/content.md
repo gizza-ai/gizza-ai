@@ -59,3 +59,42 @@ parameters your latency and memory budget allow.
 This tool matches the published scrypt test vectors in RFC 7914 §12 (for example
 N=16, r=1, p=1 over empty password and salt), so its output is interoperable with
 standard libraries.
+
+## FAQ
+
+<details>
+<summary>Why does the tool say my N or r values are too large?</summary>
+
+scrypt needs roughly 128 × N × r bytes of RAM, and this tool caps that at 1 GiB so
+the browser tab cannot run out of memory. N must also be a power of two greater
+than 1, log2(N) must be less than r × 16, and r × p must stay below 2³⁰. If you
+hit the cap, lower N or r.
+
+</details>
+
+<details>
+<summary>How does verify mode know what key length to use?</summary>
+
+You don't set a length in verify mode. Paste the expected key as hex or base64
+(auto-detected: an even-length string of only hex digits is read as hex) and its
+byte length determines how many bytes are derived before the comparison.
+
+</details>
+
+<details>
+<summary>Will the derived key match OpenSSL, Node or Python scrypt output?</summary>
+
+Yes — the output is deterministic and matches the RFC 7914 test vectors, so with
+identical password, salt, N, r, p and length you get the same bytes as Python's
+`hashlib.scrypt`, Node's `crypto.scrypt`, Go's `x/crypto/scrypt` or OpenSSL
+`-scrypt`.
+
+</details>
+
+<details>
+<summary>Is my password sent to a server?</summary>
+
+No. The scrypt computation runs as compiled WebAssembly in your browser; the
+password, salt and derived key never leave your device.
+
+</details>

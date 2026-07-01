@@ -34,3 +34,33 @@ This decodes to source port 50130, destination port 53 (DNS), length 40 bytes
 - Read a UDP header captured in Wireshark/tcpdump without re-opening the capture.
 - Confirm the ports of a DNS, NTP, DHCP, QUIC, or SNMP exchange.
 - Check the datagram length and whether the UDP checksum is present or disabled.
+
+### FAQ
+
+<details>
+<summary>Can I paste the whole packet, or just the first 8 bytes?</summary>
+
+Paste as much as you like — only the first 8 bytes are decoded, so a full datagram (or a whole hex dump line) works and the payload bytes are simply ignored. Spaces, colons, dashes, dots, and a leading `0x` are all stripped automatically.
+
+</details>
+
+<details>
+<summary>What does "checksum disabled" mean?</summary>
+
+A checksum field of `0x0000` means the sender skipped checksumming, which RFC 768 permits over IPv4 (over IPv6 the checksum is mandatory). The tool flags this case explicitly; note it reports the *stored* value — it can't verify the checksum, since that requires the IP pseudo-header and payload.
+
+</details>
+
+<details>
+<summary>Which ports get a service name?</summary>
+
+A curated set of well-known UDP services: DNS (53), DHCP (67/68), TFTP (69), NTP (123), NetBIOS (137/138), SNMP (161/162), QUIC/HTTP-3 (443), IKE (500), syslog (514), OpenVPN (1194), RADIUS (1812/1813), SSDP (1900), mDNS (5353), WireGuard (51820), and a few more. Unrecognised ports just show the number.
+
+</details>
+
+<details>
+<summary>Why does it report both "length" and "payload length"?</summary>
+
+The header's length field counts the 8-byte header **plus** the data, which trips people up — so the tool also shows the implied payload size (length − 8). A length below 8 is invalid and reported as such.
+
+</details>

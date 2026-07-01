@@ -48,3 +48,33 @@ When both day-of-month and day-of-week are restricted, a time matches if **eithe
 - **After** — leave blank to start from now, or give an ISO-8601 / RFC-3339 UTC timestamp (or a Unix epoch second) to preview the schedule from any point in time.
 - **How many runs** — 1 to 100 upcoming times (default 5).
 - **Output format** — **text** for an aligned, readable list, or **json** for a machine-readable object (`{ iso, epoch, weekday }` per run) you can pipe into other tooling.
+
+## FAQ
+
+<details>
+<summary>Why don't the times match my server's cron?</summary>
+
+All run times here are computed in **UTC**. If your server's crontab runs in a local timezone (or a container sets `TZ`), shift the results by that offset — the schedule pattern itself is identical.
+
+</details>
+
+<details>
+<summary>My expression restricts both day-of-month and day-of-week — why so many runs?</summary>
+
+That's classic Vixie-cron behavior, which this tool reproduces: when *both* fields are restricted, a time fires if **either** one matches. So `0 0 13 * FRI` runs every Friday *and* every 13th, not only on Friday the 13th.
+
+</details>
+
+<details>
+<summary>Can I preview more than a handful of upcoming runs?</summary>
+
+Yes — set **How many runs** anywhere from 1 to 100 (the default is 5). To look at a different time window, put an ISO-8601 timestamp or Unix epoch second in the **After** field and the list starts from there instead of now.
+
+</details>
+
+<details>
+<summary>Does it support seconds or Quartz-style expressions?</summary>
+
+A leading **seconds** field is supported (6 fields, e.g. `*/30 * * * * *`), plus `@daily`-style shortcuts, ranges, steps, lists, and JAN-DEC / SUN-SAT names. Quartz-specific tokens like `?`, `L`, `W` and `#` are not recognized.
+
+</details>

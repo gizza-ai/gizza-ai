@@ -35,3 +35,45 @@ form), or add the **urn:uuid:** prefix (RFC 4122 URN form).
 
 UUIDs are generated client-side with a cryptographically secure random source;
 nothing is uploaded.
+
+## FAQ
+
+<details>
+<summary>Should I use v4 or v7 for database primary keys?</summary>
+
+Prefer **v7** for new systems: its leading 48-bit Unix-millisecond timestamp means
+values sort chronologically as plain strings, giving much better index locality
+than fully random v4 keys. v4 remains the right default when you only need a
+collision-resistant opaque identifier and ordering doesn't matter.
+
+</details>
+
+<details>
+<summary>Why do v5 and v3 always give me the same UUID?</summary>
+
+That's by design — they hash a namespace plus a name (SHA-1 for v5, MD5 for v3),
+so the same inputs always yield the same UUID. Use them to derive a stable id from
+a string. Pick `dns`, `url`, `oid`, `x500`, or any UUID as the namespace, and
+paste several names separated by commas or newlines to get one UUID per name.
+
+</details>
+
+<details>
+<summary>Does generating a v1 UUID expose my MAC address?</summary>
+
+No. Classic v1 embeds a node identifier that historically was the machine's MAC
+address, but this tool always randomizes the node and sets the multicast bit (the
+RFC-sanctioned way to mark a random node), so no hardware address ever appears in
+the output.
+
+</details>
+
+<details>
+<summary>Is there a limit on how many UUIDs I can generate?</summary>
+
+Yes — 1 to 1000 per run; a count outside that range is rejected with an error.
+Formatting options (uppercase, no hyphens, {braces}, urn:uuid: prefix) apply to
+the whole batch, and everything is generated locally with a cryptographically
+secure RNG.
+
+</details>

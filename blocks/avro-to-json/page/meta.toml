@@ -1,6 +1,6 @@
 slug          = "avro-to-json"
 title         = "Avro to JSON — Decode Apache Avro (.avro / OCF) to JSON | gizza.ai"
-description   = "Decode Apache Avro Object Container Files (.avro / OCF) to readable JSON — paste base64 or hex bytes, get a JSON array, NDJSON, or the embedded schema. No .avsc needed. Free, private, runs entirely in your browser."
+description   = "Decode Apache Avro Object Container Files (.avro / OCF) to JSON, NDJSON, or the embedded schema — no .avsc needed, free and private in your browser."
 tags          = ["avro", "avro to json", "apache avro", "avro decoder", "ocf", "avro container file", "deserialize avro", "avro viewer"]
 h1            = "Avro to JSON Converter"
 hero_subtitle = "Paste an Apache Avro Object Container File (.avro) as base64 or hex and read it as JSON. The schema is embedded in the file, so nothing else is needed. Choose a JSON array, NDJSON, or a full view with the writer schema. Runs entirely in your browser — no server, no sign-up."

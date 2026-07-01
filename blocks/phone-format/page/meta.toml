@@ -1,6 +1,6 @@
 slug          = "phone-format"
 title         = "Phone Number Formatter & Validator — gizza.ai"
-description   = "Parse, validate, and format any international phone number. Get its E.164, national & international formats, country/region, and number type — free, instant, runs entirely in your browser."
+description   = "Parse, validate and format any international phone number — E.164, national and international formats, country and line type. Free, in-browser."
 tags          = ["phone number", "validation", "E.164", "formatter"]
 h1            = "Phone Number Formatter & Validator"
 hero_subtitle = "Enter a phone number to check if it's valid and see its E.164, national, and international formats — no server, no sign-up."

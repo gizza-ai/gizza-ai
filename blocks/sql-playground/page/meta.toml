@@ -1,6 +1,6 @@
 slug          = "sql-playground"
 title         = "SQL Playground — Run SQL in your browser, no setup"
-description   = "Run SQL against a fresh in-memory database right in your browser. CREATE TABLE, INSERT, SELECT, JOIN, GROUP BY — output as a table, CSV, or JSON. Free, private, no upload, no signup."
+description   = "Run SQL in your browser against a fresh in-memory database — CREATE TABLE, INSERT, SELECT, JOIN — with table, CSV, or JSON output. Free and private."
 tags          = ["sql playground", "online sql", "run sql", "sql sandbox", "in-memory sql", "sql tester"]
 h1            = "SQL Playground"
 hero_subtitle = "Write SQL and run it against a fresh in-memory database — CREATE, INSERT, SELECT, JOIN, GROUP BY. Results as a table, CSV, or JSON. Runs entirely in your browser, nothing is uploaded."

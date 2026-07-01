@@ -1,6 +1,6 @@
 slug          = "parse-http-message"
 title         = "HTTP Message Parser — decode a raw HTTP request or response — gizza.ai"
-description   = "Paste a raw HTTP/1.x request or response and decode the method, target, status, HTTP version, all headers (duplicates kept), Content-Type / Content-Length, and the body — in your browser. Nothing is uploaded."
+description   = "Parse a raw HTTP/1.x request or response — decode the method, target, status, version, all headers and the body, in your browser. Free, nothing uploaded."
 tags          = ["http message parser", "parse http request", "parse http response", "http header parser", "raw http", "http/1.1", "request line", "status line", "header decoder"]
 h1            = "HTTP Message Parser"
 hero_subtitle = "Paste a raw HTTP/1.x request or response and decode the start line (method/target or status/reason), the HTTP version, every header in order (duplicates preserved), Content-Type / Content-Length, and the body. Request vs response is detected automatically. Runs in your browser; nothing is uploaded."

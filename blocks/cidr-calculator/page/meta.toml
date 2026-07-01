@@ -1,6 +1,6 @@
 slug          = "cidr-calculator"
 title         = "CIDR Calculator — Subnet, Netmask, Broadcast & Host Range (IPv4 & IPv6) | gizza.ai"
-description   = "Calculate the network address, broadcast, netmask, wildcard mask, usable host range and host count for any IPv4 or IPv6 CIDR. Free, private, runs in your browser, no sign-up."
+description   = "CIDR calculator: get network address, broadcast, netmask, wildcard, usable host range and host count for any IPv4 or IPv6 prefix. Free, private, in-browser."
 tags          = ["cidr calculator", "subnet calculator", "ip subnet calculator", "netmask calculator", "broadcast address", "wildcard mask", "host range", "ipv4", "ipv6", "cidr to netmask"]
 h1            = "CIDR Calculator"
 hero_subtitle = "Enter a CIDR like 192.168.1.0/24 or 2001:db8::/48 and get the network address, broadcast, netmask, wildcard mask, usable host range and host counts. Runs entirely in your browser, no server, no sign-up."

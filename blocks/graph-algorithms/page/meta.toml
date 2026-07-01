@@ -1,6 +1,6 @@
 slug          = "graph-algorithms"
 title         = "Graph Algorithms — BFS, DFS, Shortest Path, Topological Sort & Cycle Detection — gizza.ai"
-description   = "Run BFS, DFS, Dijkstra shortest path, topological sort, and cycle detection on your own graph. Paste an edge list, pick an algorithm, and get the result instantly in your browser. Directed or undirected, weighted or unweighted. Free, private, no sign-up."
+description   = "Run graph algorithms on your own edge list — BFS, DFS, Dijkstra shortest path, topological sort, and cycle detection. Free, private, in your browser."
 tags          = ["graph algorithms", "bfs", "dfs", "shortest path", "dijkstra", "topological sort", "cycle detection", "edge list", "directed graph", "weighted graph"]
 h1            = "Graph Algorithms"
 hero_subtitle = "Run BFS, DFS, shortest path, topological sort, or cycle detection on a graph you paste in. Directed or undirected, weighted or unweighted. Runs entirely in your browser — no server, no sign-up."

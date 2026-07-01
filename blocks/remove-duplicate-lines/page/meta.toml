@@ -1,6 +1,6 @@
 slug          = "remove-duplicate-lines"
 title         = "Remove Duplicate Lines — online deduplicator — gizza.ai"
-description   = "Remove duplicate lines from pasted text in your browser. Keep the first or last occurrence, match case-insensitively, trim whitespace, collapse only consecutive duplicates, and drop blank lines. Nothing is uploaded."
+description   = "Remove duplicate lines from text in your browser — keep first or last occurrence, ignore case or whitespace, uniq-style consecutive mode. Free, private."
 tags          = ["remove duplicate lines", "delete duplicate lines", "deduplicate text", "dedupe lines", "unique lines"]
 h1            = "Remove Duplicate Lines"
 hero_subtitle = "Paste text and get it back with duplicate lines removed — order preserved. Optional case-insensitive matching, whitespace trim, keep-first or keep-last, consecutive-only (uniq) mode, and blank-line removal. Runs in your browser; nothing is uploaded."

@@ -67,3 +67,33 @@ is explained header-by-header, and the analysis flags that **CSP**,
 A leading status line (e.g. `HTTP/2 200`) is optional, and both `CRLF` and
 bare-`LF` line endings are accepted, so you can paste headers straight from a
 log or a terminal.
+
+### FAQ
+
+<details>
+<summary>Do I have to strip the "HTTP/2 200" line before pasting?</summary>
+
+No — a leading status line is detected and reported separately, and both CRLF and bare-LF line endings work, so `curl -I` output or a DevTools copy pastes straight in unchanged.
+
+</details>
+
+<details>
+<summary>How is the A+–F security grade calculated?</summary>
+
+It starts from how many of the six recommended security headers (HSTS, CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy) are present, then deducts for weak values — a CSP with `unsafe-inline`/`unsafe-eval`, an HSTS `max-age` too short to preload, a weak Referrer-Policy, or the deprecated `X-XSS-Protection` header.
+
+</details>
+
+<details>
+<summary>Can I analyze request headers with it?</summary>
+
+The explanations target **response** headers — what a server sends back. Request headers will mostly parse but get generic or no commentary, and the security checklist only makes sense for responses.
+
+</details>
+
+<details>
+<summary>Does the tool contact the website being analyzed?</summary>
+
+No. It never fetches the URL — you paste headers you already have, and the analysis runs entirely in your browser via WebAssembly. That also means it can't check things only observable live, like certificate details.
+
+</details>

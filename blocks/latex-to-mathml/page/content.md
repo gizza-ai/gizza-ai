@@ -29,3 +29,46 @@ Write the expression in math mode with **no surrounding `$`** — for example
 
 Everything runs locally in your browser via WebAssembly — your expressions are
 never uploaded.
+
+## FAQ
+
+<details>
+<summary>Do I include the $ … $ (or \[ … \]) delimiters?</summary>
+
+No — paste only the math-mode content itself, e.g. `\frac{a}{b}` rather than
+`$\frac{a}{b}$`. Whether the equation is standalone or in-text is controlled
+by the **Display mode** option instead of delimiters.
+
+</details>
+
+<details>
+<summary>What's the difference between block and inline mode?</summary>
+
+`block` (the default) emits `<math display="block">` — a centred, standalone
+equation with large operator limits. `inline` emits `<math display="inline">`,
+sized to flow inside a line of text. It changes only the `display` attribute
+and rendering style; the expression markup is the same.
+
+</details>
+
+<details>
+<summary>Is every LaTeX command supported?</summary>
+
+Math mode is covered well — fractions, `\binom`, roots with indices,
+sub/superscripts, Greek letters, font styles like `\mathbb`, big operators
+with limits, `\left…\right` delimiters, and matrix/align environments. Custom
+`\newcommand` macros and text-mode LaTeX (sections, itemize, …) are out of
+scope, and an unrecognized command is reported as a conversion error rather
+than silently dropped.
+
+</details>
+
+<details>
+<summary>When should I turn on pretty-print?</summary>
+
+Turn it on when the MathML will be read or diffed by humans — it indents the
+output with one element per line. Leave it off (the default) when embedding in
+a page, where the compact single-line form keeps payloads smaller. The two
+forms are semantically identical.
+
+</details>

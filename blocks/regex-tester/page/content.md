@@ -34,3 +34,45 @@ pattern are never uploaded.
 If you just want the list of matches (or a single capture group) rather than the
 full positional breakdown, use the companion [Regex Extract](/tools/regex-extract/)
 tool.
+
+## FAQ
+
+<details>
+<summary>Why is my lookahead or backreference rejected?</summary>
+
+The engine is the Rust `regex` flavour, which deliberately has **no
+lookahead/lookbehind and no backreferences** — that's what guarantees
+linear-time matching with no catastrophic backtracking. Patterns using
+`(?=…)`, `(?!…)` or `\1` fail with a syntax error; usually you can
+restructure with alternation or capture groups instead.
+
+</details>
+
+<details>
+<summary>Are the match positions byte offsets or character offsets?</summary>
+
+0-based **character** offsets, Unicode-aware — `é` or a CJK character counts
+as one position, not two or three bytes. That means the numbers line up with
+what you'd get from JavaScript's `String.prototype.slice` on most text, not
+with raw UTF-8 byte indices.
+
+</details>
+
+<details>
+<summary>What does “(no match)” next to a capture group mean?</summary>
+
+The group is optional (e.g. `(\d+)?` or one arm of an alternation) and did
+not participate in that particular match. It's reported explicitly instead of
+being silently dropped, so group numbering stays stable across matches.
+
+</details>
+
+<details>
+<summary>How do the three flag checkboxes map to regex flags?</summary>
+
+**Ignore case** is `i`; **Multiline** is `m`, making `^`/`$` anchor at every
+line instead of just the whole text; **Dot matches newline** is `s`, letting
+`.` cross line breaks. They can be combined freely, and an empty pattern is
+rejected rather than matching everywhere.
+
+</details>

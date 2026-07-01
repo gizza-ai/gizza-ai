@@ -18,3 +18,43 @@ It's built to be safe:
 
 Everything runs **locally in your browser** via WebAssembly — your HTML is never
 uploaded. The reverse tool is **HTML Formatter** (pretty-print).
+
+## FAQ
+
+<details>
+<summary>Will minifying make words run together?</summary>
+
+No. A run of whitespace inside text collapses to a **single space**, never to
+nothing, and a meaningful space between inline elements — like
+`<b>bold</b> <i>italic</i>` — survives. Only the purely structural whitespace
+(indentation and newlines between block tags) is removed outright.
+
+</details>
+
+<details>
+<summary>Does it also minify the JavaScript and CSS inside my page?</summary>
+
+Deliberately not. `<script>` and `<style>` contents are passed through
+**verbatim**, because whitespace-collapsing rules that are safe for HTML can
+break string literals, template literals or CSS `calc()` expressions. Run the
+extracted code through a dedicated JS/CSS minifier if you need that too.
+
+</details>
+
+<details>
+<summary>What happens to &lt;pre&gt; blocks and attribute values?</summary>
+
+`<pre>` and `<textarea>` keep their exact original whitespace, so code samples
+and form defaults render unchanged. Attribute **values** are never modified
+either — only the extra spaces *between* attributes inside a tag are collapsed.
+
+</details>
+
+<details>
+<summary>Can I keep my HTML comments?</summary>
+
+Yes — untick **Remove comments**. That preserves every `<!-- … -->` block,
+which you'll want if your page relies on comment-based markers (build-tool
+injection points, IE conditional comments, license headers).
+
+</details>

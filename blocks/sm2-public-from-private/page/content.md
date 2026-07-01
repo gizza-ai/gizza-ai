@@ -27,3 +27,46 @@ Also available from the [gizza CLI](/) and in chat.
 If you don't already have a private key, use the **sm2-keypair-generate** tool to
 create a fresh SM2 key pair (private + public, PEM + hex) with a secure random
 number generator.
+
+## FAQ
+
+<details>
+<summary>What exactly can I paste as the private key?</summary>
+
+Either a raw 32-byte scalar as **exactly 64 hex characters** (a leading `0x`
+is fine — anything else in length is rejected), or a **PKCS#8 PEM** block
+starting with `-----BEGIN PRIVATE KEY-----`. With the input format on
+**auto** the tool detects which one you pasted; set it to `hex` or `pem` to
+force the interpretation.
+
+</details>
+
+<details>
+<summary>Compressed or uncompressed — which output should I use?</summary>
+
+They encode the same point: uncompressed SEC1 is `04 ‖ x ‖ y` (130 hex
+chars), compressed is `02`/`03` `‖ x` (66 hex chars, the prefix records y's
+parity). Use whichever your target system expects — many GM/T toolchains
+default to uncompressed — or pick **all** to get both plus the SPKI PEM and
+the raw x/y coordinates.
+
+</details>
+
+<details>
+<summary>Can I feed in a NIST P-256 private key?</summary>
+
+A 32-byte P-256 scalar will be *accepted* (it's just a number in range), but
+the point is computed on **sm2p256v1**, SM2's own curve — so the result is a
+valid SM2 public key, **not** your P-256 public key. The two curves are
+different; use an SM2 key with this tool.
+
+</details>
+
+<details>
+<summary>Is my private key ever exposed?</summary>
+
+No. Derivation runs entirely in your browser via WebAssembly, and the tool
+only returns **public** key material — the private scalar is used for the
+single `Q = d·G` multiplication and never echoed back or transmitted.
+
+</details>

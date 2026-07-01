@@ -1,6 +1,6 @@
 slug          = "link-extractor"
 title         = "Link Extractor — Pull Hyperlinks & Anchors from HTML or Markdown — gizza.ai"
-description   = "Paste HTML or Markdown and extract every hyperlink (URL + link text) and in-page anchor (jump target). Auto-detects the format, flags relative links, outputs text or JSON. Runs in your browser, nothing uploaded, free."
+description   = "Extract every hyperlink and in-page anchor from pasted HTML or Markdown — URL, link text, relative-link flags, text or JSON output. Free, in your browser."
 tags          = ["link extractor", "extract links from html", "extract links from markdown", "list all hyperlinks", "anchor extractor"]
 h1            = "Link Extractor"
 hero_subtitle = "Paste HTML or Markdown and pull out every hyperlink and in-page anchor — with link text and a relative-link flag. Runs entirely in your browser, no upload, no sign-up."
