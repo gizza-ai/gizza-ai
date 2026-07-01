@@ -17,9 +17,10 @@ fn descriptor() {
 }
 EOF
 
-# BAD manifest: `mode` present but with NO enum (the drift that renders a text box).
+# BAD manifest: `mode` present but with NO enum (the drift that renders a text box),
+# plus a leftover scaffold TODO.
 cat > "$dir/manifest.json" <<'EOF'
-{ "tool": { "parameters": { "properties": {
+{ "summary": "TODO: one-line summary.", "tool": { "parameters": { "properties": {
   "mode": { "type": "string", "default": "encode" }
 } } } }
 EOF
@@ -41,10 +42,11 @@ fi
 out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
 grep -q 'TEXT BOX' <<<"$out" || { echo "FAIL: missing enum-drift violation" >&2; exit 1; }
 grep -q 'FAQ section written as plain markdown' <<<"$out" || { echo "FAIL: missing FAQ violation" >&2; exit 1; }
+grep -q "scaffold 'TODO' placeholder" <<<"$out" || { echo "FAIL: missing TODO violation" >&2; exit 1; }
 
-# FIX both and expect a clean pass.
+# FIX all and expect a clean pass.
 cat > "$dir/manifest.json" <<'EOF'
-{ "tool": { "parameters": { "properties": {
+{ "summary": "A real one-line summary.", "tool": { "parameters": { "properties": {
   "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode" }
 } } } }
 EOF

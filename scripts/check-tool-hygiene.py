@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Tool-hygiene gate — hard-fails when a block ships a defect the page renderer
-can't fix on its own. Two checks, both traced to real regressions:
+can't fix on its own, or an unfinished scaffold placeholder. Checks, all traced
+to real regressions:
 
   1. enum→manifest drift. The page form (`tools/generator/src/control.rs`) reads
      `manifest.json` → `tool.parameters.properties`, NOT the live descriptor, and
@@ -16,8 +17,12 @@ can't fix on its own. Two checks, both traced to real regressions:
      as bare headings. This gate requires any content.md with a FAQ section to use
      `<details>` accordions.
 
+  3. Unfinished scaffold. A committed `TODO` in `manifest.json`/`wafer.toml`/
+     `page/meta.toml`, or the `TODO: SEO copy` stub in `page/content.md`, means
+     the tool shipped with scaffold placeholders instead of real metadata/copy.
+
 Prose usability standards (see `.claude/skills/improve-tool/SKILL.md`) were being
-skipped silently because nothing failed the build. This turns the two mechanically
+skipped silently because nothing failed the build. This turns the mechanically
 checkable ones into a gate.
 
 Usage:
@@ -140,6 +145,15 @@ def check_block(slug_dir: Path) -> list[str]:
                 f"convert it to <details>/<summary>/<p> accordions (see blocks/age-calculator, "
                 f"improve-tool usability standard #8) so site/tool.css styles it."
             )
+        if "TODO: SEO copy" in text:
+            problems.append(f"{slug}: page/content.md still has the scaffold 'TODO: SEO copy' stub — write real copy.")
+
+    # scaffold-TODO leftovers in metadata files (a `TODO` is never legitimate here,
+    # unlike prose): a shipped placeholder means the tool wasn't finished.
+    for rel in ("manifest.json", "wafer.toml", "page/meta.toml"):
+        fp = slug_dir / rel
+        if fp.is_file() and "TODO" in fp.read_text(encoding="utf-8", errors="replace"):
+            problems.append(f"{slug}: {rel} still contains a scaffold 'TODO' placeholder — fill it in.")
 
     return problems
 
