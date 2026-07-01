@@ -30,9 +30,22 @@ Prose usability standards (see `.claude/skills/improve-tool/SKILL.md`) were bein
 skipped silently because nothing failed the build. This turns the mechanically
 checkable ones into a gate.
 
+STRICT checks (5-7) — hard-fail ONLY in per-slug mode (how the build/improve skills
+run it, so every NEW/improved tool meets them); repo-wide they are printed as an
+aggregated advisory so CI stays green until the corpus is backfilled:
+
+  5. Placeholders. Every page/meta.toml `[[input]]` that renders as a text/number
+     field (i.e. not an enum <select> or boolean checkbox per the manifest) must
+     have a non-empty `placeholder` — the placeholder is the page's worked example.
+
+  6. FAQ depth. A tool page must answer ≥3 real questions as `<details>` accordions.
+
+  7. Meta description length. page/meta.toml `description` is the SERP snippet —
+     require 50-170 chars (truncation starts ~160; shorter than 50 wastes the slot).
+
 Usage:
-  scripts/check-tool-hygiene.py                 # check every blocks/<slug>/
-  scripts/check-tool-hygiene.py <slug> [<slug>] # check only these tools
+  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4 gate, 5-7 advisory
+  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-7 all gate
 
 Exit code 0 = clean, 1 = violations found (prints each), 2 = usage error.
 """
@@ -41,6 +54,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -210,6 +224,58 @@ def check_block(slug_dir: Path) -> list[str]:
     return problems
 
 
+def strict_checks(slug_dir: Path) -> list[tuple[str, str]]:
+    """Checks 5-7 (placeholders / FAQ depth / description length) as
+    (category, message) pairs. Gate per-slug; advisory repo-wide — see header."""
+    slug = slug_dir.name
+    out: list[tuple[str, str]] = []
+
+    meta_path = slug_dir / "page" / "meta.toml"
+    meta = None
+    if meta_path.is_file():
+        try:
+            meta = tomllib.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+        except tomllib.TOMLDecodeError as e:
+            out.append(("meta", f"{slug}: page/meta.toml does not parse as TOML: {e}"))
+
+    if meta is not None:
+        desc = str(meta.get("description", ""))
+        if not 50 <= len(desc) <= 170:
+            out.append((
+                "description",
+                f"{slug}: page/meta.toml description is {len(desc)} chars — keep it 50-170 "
+                f"(it is the SERP snippet; ~160 is where truncation starts).",
+            ))
+        props = manifest_props(slug_dir / "manifest.json") or {}
+        for inp in meta.get("input", []):
+            if inp.get("source") != "field":
+                continue
+            name = str(inp.get("name", "?"))
+            prop = props.get(name)
+            if isinstance(prop, dict) and (prop.get("enum") or prop.get("type") == "boolean"):
+                continue  # renders as a <select>/checkbox — no placeholder slot
+            if not str(inp.get("placeholder", "")).strip():
+                out.append((
+                    "placeholder",
+                    f"{slug}: page/meta.toml [[input]] \"{name}\" renders as a text/number field "
+                    f"but has NO placeholder — the placeholder is the page's worked example.",
+                ))
+
+    content = slug_dir / "page" / "content.md"
+    if content.is_file():
+        text = content.read_text(encoding="utf-8", errors="replace")
+        m = FAQ_HEADING_RE.search(text)
+        n = faq_section(text, m).count("<details") if m else text.count("<details")
+        if n < 3:
+            out.append((
+                "faq",
+                f"{slug}: page FAQ has {n} <details> entries — answer ≥3 real user questions "
+                f"(predictable confusion points, limits, privacy).",
+            ))
+
+    return out
+
+
 def main(argv: list[str]) -> int:
     if argv:
         dirs = []
@@ -221,10 +287,31 @@ def main(argv: list[str]) -> int:
             dirs.append(d)
     else:
         dirs = sorted(p for p in BLOCKS.iterdir() if p.is_dir())
+    per_slug = bool(argv)
 
     all_problems: list[str] = []
+    advisory: list[tuple[str, str]] = []
     for d in dirs:
         all_problems.extend(check_block(d))
+        strict = strict_checks(d)
+        if per_slug:
+            all_problems.extend(msg for _, msg in strict)
+        else:
+            advisory.extend(strict)
+
+    if advisory:
+        by_cat: dict[str, list[str]] = {}
+        for cat, msg in advisory:
+            by_cat.setdefault(cat, []).append(msg)
+        counts = ", ".join(f"{cat}: {len(msgs)}" for cat, msgs in sorted(by_cat.items()))
+        print(f"tool-hygiene: {len(advisory)} ADVISORY finding(s) repo-wide ({counts}) — these")
+        print("gate per-slug runs (new/improved tools) but not the repo-wide sweep. Samples:")
+        for cat, msgs in sorted(by_cat.items()):
+            for msg in msgs[:3]:
+                print(f"  ⚠ {msg}")
+            if len(msgs) > 3:
+                print(f"  ⚠ … and {len(msgs) - 3} more \"{cat}\" findings")
+        print()
 
     if all_problems:
         print(f"tool-hygiene: {len(all_problems)} violation(s) across {len(dirs)} tool(s):\n")
