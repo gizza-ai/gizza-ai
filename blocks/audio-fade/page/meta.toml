@@ -1,0 +1,34 @@
+slug          = "audio-fade"
+title         = "Add Fade In & Fade Out to Audio Online — gizza.ai"
+description   = "Add a smooth fade-in and fade-out to any audio file right in your browser — pick the lengths in seconds. Nothing is uploaded, free."
+tags          = ["audio", "fade", "fade-in", "fade-out", "smooth", "intro", "outro"]
+h1            = "Fade an Audio File In and Out"
+hero_subtitle = "Pick an audio file and fade lengths — the fades are added in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_fade_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Faded audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "fade_in"
+source      = "field"
+label       = "Fade-in (seconds)"
+placeholder = "3"
+
+[[input]]
+name        = "fade_out"
+source      = "field"
+label       = "Fade-out (seconds)"
+placeholder = "3"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"

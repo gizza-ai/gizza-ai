@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-audio-fade-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde-wasm-bindgen = "0.6"
+gizza-ai-block-utils = { path = "../../../block-utils" }
+gizza-ai-audio-fade-core = { path = "../core" }
