@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-loop"
+version = "0.1.0"
+abi = 1
+summary = "Loop a sound to a target duration or number of plays"
