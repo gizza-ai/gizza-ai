@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/trim-audio",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Keep or remove a [start, end] range of an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds. Output is re-encoded to mp3 (192 kbps), wav, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "end": {
+          "description": "End of the selection in seconds; must be greater than start.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade": {
+          "default": false,
+          "description": "Apply a short fade-in/out (up to 0.5s) at the selection edges to avoid clicks. Keep mode only.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "keep",
+          "description": "keep extracts just the [start, end] selection; remove deletes that range and joins the rest. Default keep.",
+          "enum": [
+            "keep",
+            "remove"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Start of the selection in seconds.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "type": "object"
+    }
+  }
+}
