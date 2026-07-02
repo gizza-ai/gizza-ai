@@ -68,6 +68,18 @@ export function createWaveform(container, opts = {}) {
   const tOf = (x) =>
     Math.max(0, Math.min(duration, (x / Math.max(1, wave.clientWidth)) * duration));
 
+  // Clamp a raw bounds pair to [0, duration]; empty/undefined/non-finite end
+  // means "to the end". A whole-track result yields NO selection (null) so
+  // drag-to-select always works at bound-field defaults.
+  function normalizeSel(start, end) {
+    const s = Math.max(0, Math.min(duration, Number(start) || 0));
+    const eRaw = end == null || end === "" ? NaN : Number(end);
+    const e = Number.isFinite(eRaw)
+      ? Math.max(s + MIN_SEL_S, Math.min(duration, eRaw))
+      : duration;
+    return s > MIN_SEL_S || e < duration - MIN_SEL_S ? { start: s, end: e } : null;
+  }
+
   function computePeaks(width) {
     const chans = [];
     for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
@@ -245,7 +257,7 @@ export function createWaveform(container, opts = {}) {
     const wasDrag = ptr.moved;
     const mode = ptr.mode;
     ptr = null;
-    if (!wasDrag) {
+    if (!wasDrag || mode === "seek") {
       // Click. Audition-only tools: clicking outside the selection clears it.
       const t = tOf(e.offsetX);
       if (!binding && interactive && sel && (t < sel.start || t > sel.end) && mode === "create") {
@@ -295,11 +307,7 @@ export function createWaveform(container, opts = {}) {
       sel = null;
       if (binding) {
         const b = binding.getBounds();
-        const s = Math.max(0, Math.min(duration, b.start || 0));
-        const e = b.end == null || !Number.isFinite(b.end)
-          ? duration
-          : Math.max(s + MIN_SEL_S, Math.min(duration, b.end));
-        sel = s > MIN_SEL_S || e < duration - MIN_SEL_S ? { start: s, end: e } : null;
+        sel = normalizeSel(b.start, b.end);
       }
       container.hidden = false;
       resize();
@@ -308,11 +316,7 @@ export function createWaveform(container, opts = {}) {
     },
     setSelection(start, end) {
       if (!audioBuffer) return;
-      const s = Math.max(0, Math.min(duration, Number(start) || 0));
-      const e = end == null || end === "" || !Number.isFinite(Number(end))
-        ? duration
-        : Math.max(s + MIN_SEL_S, Math.min(duration, Number(end)));
-      sel = s > MIN_SEL_S || e < duration - MIN_SEL_S ? { start: s, end: e } : null;
+      sel = normalizeSel(start, end);
       draw();
       updateBar();
     },
