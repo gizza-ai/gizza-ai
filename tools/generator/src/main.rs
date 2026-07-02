@@ -82,6 +82,7 @@ fn run() -> Result<(), String> {
         if m.runtime == "ffmpeg" {
             copy_file(&root.join("js/ffmpeg.js"), &out.join("ffmpeg.js"))?;
             copy_file(&root.join("site/tool-ffmpeg.js"), &out.join("tool-ffmpeg.js"))?;
+            copy_file(&root.join("site/tool-audio.js"), &out.join("tool-audio.js"))?;
         }
         eprintln!("rendered tools/{}/", m.slug);
     }

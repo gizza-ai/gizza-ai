@@ -46,6 +46,17 @@ pub struct Example {
     pub params: std::collections::BTreeMap<String, String>,
 }
 
+/// Optional shared-waveform behavior. `waveform = false` disables the audio
+/// waveform player on this page; `[waveform] start/end` names the two field
+/// inputs the selection is two-way bound to (seconds). Absent = player
+/// enabled, selection audition-only.
+#[derive(Debug, Deserialize, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum WaveformSpec {
+    Enabled(bool),
+    Binding { start: String, end: String },
+}
+
 /// Full metadata for a single tool page.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct ToolMeta {
@@ -80,6 +91,9 @@ pub struct ToolMeta {
     /// `tool-widget--wide` class instead of a per-tool JS width hack.
     #[serde(default)]
     pub wide: bool,
+    /// See [`WaveformSpec`]. Only audio-input ffmpeg tools consult this.
+    #[serde(default)]
+    pub waveform: Option<WaveformSpec>,
 }
 
 fn default_runtime() -> String {
@@ -112,6 +126,13 @@ impl ToolMeta {
             .iter()
             .map(|e| serde_json::json!({ "label": e.label, "params": e.params }))
             .collect();
+        let waveform = match &self.waveform {
+            None => serde_json::Value::Null,
+            Some(WaveformSpec::Enabled(b)) => serde_json::json!(b),
+            Some(WaveformSpec::Binding { start, end }) => {
+                serde_json::json!({ "start": start, "end": end })
+            }
+        };
         serde_json::json!({
             "slug": self.slug,
             "module": format!("./{}.js", self.wasm),
@@ -123,6 +144,7 @@ impl ToolMeta {
             "output": { "label": self.output_label, "elementId": "tool-output" },
             "format": self.format,
             "runtime": self.runtime,
+            "waveform": waveform,
         })
     }
 }
@@ -265,5 +287,56 @@ format = "number"
 "#;
         let m = ToolMeta::from_toml(text).unwrap();
         assert_eq!(m.runtime, "wasm");
+    }
+
+    #[test]
+    fn parses_waveform_binding_table() {
+        let text = r#"
+slug = "trim-audio"
+title = "t"
+description = "d"
+h1 = "h"
+hero_subtitle = "s"
+wasm = "w"
+export = "build_argv"
+output_label = "o"
+format = "audio"
+runtime = "ffmpeg"
+
+[waveform]
+start = "start"
+end = "end"
+"#;
+        let m = ToolMeta::from_toml(text).unwrap();
+        assert_eq!(
+            m.waveform,
+            Some(WaveformSpec::Binding { start: "start".into(), end: "end".into() })
+        );
+        let cfg = m.client_config();
+        assert_eq!(cfg["waveform"]["start"], "start");
+        assert_eq!(cfg["waveform"]["end"], "end");
+    }
+
+    #[test]
+    fn parses_waveform_opt_out_and_default() {
+        let base = r#"
+slug = "x"
+title = "t"
+description = "d"
+h1 = "h"
+hero_subtitle = "s"
+wasm = "w"
+export = "run"
+output_label = "o"
+format = "audio"
+"#;
+        let off = format!("{base}waveform = false\n");
+        let m = ToolMeta::from_toml(&off).unwrap();
+        assert_eq!(m.waveform, Some(WaveformSpec::Enabled(false)));
+        assert_eq!(m.client_config()["waveform"], serde_json::json!(false));
+
+        let m = ToolMeta::from_toml(base).unwrap();
+        assert_eq!(m.waveform, None);
+        assert_eq!(m.client_config()["waveform"], serde_json::Value::Null);
     }
 }
