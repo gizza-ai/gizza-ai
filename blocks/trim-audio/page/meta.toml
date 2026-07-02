@@ -42,3 +42,7 @@ label  = "Format"
 name   = "fade"
 source = "field"
 label  = "Fade edges (keep mode)"
+
+[waveform]
+start = "start"
+end   = "end"
