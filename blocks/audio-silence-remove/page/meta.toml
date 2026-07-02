@@ -1,0 +1,34 @@
+slug          = "audio-silence-remove"
+title         = "Remove Silence from Audio Online — gizza.ai"
+description   = "Strip dead air and long pauses out of any recording right in your browser — set a silence threshold and minimum gap. Runs locally, nothing is uploaded, free."
+tags          = ["audio", "silence", "remove", "dead air", "podcast", "trim", "pauses", "gaps"]
+h1            = "Remove Silence from Audio"
+hero_subtitle = "Pick a recording — long silent gaps are stripped in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_silence_remove_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "De-silenced audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "threshold_db"
+source      = "field"
+label       = "Silence threshold (dB)"
+placeholder = "-30"
+
+[[input]]
+name        = "min_silence"
+source      = "field"
+label       = "Min gap to trim (seconds)"
+placeholder = "0.5"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
