@@ -36,6 +36,29 @@ test('trim-audio page keeps a 1s selection of an uploaded mp3', async ({ page })
   expect(duration).toBeLessThan(1.2);
 });
 
+test('trim-audio empty end trims from start to the end of the track', async ({ page }) => {
+  await page.goto('/tools/trim-audio/');
+  await page.waitForSelector('#in-audio');
+  await page.fill('#in-start', '1'); // end left empty = to end of the 3.03 s tone
+  await page.setInputFiles('#in-audio', FIXTURE);
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const src = await media.getAttribute('src');
+  expect(src).toMatch(/^data:audio\//);
+  const duration = await decodeDuration(page, src!);
+  expect(duration).toBeGreaterThan(1.85); // 3.03 - 1 ≈ 2.03 (mp3 pads a little)
+  expect(duration).toBeLessThan(2.25);
+});
+
+test('trim-audio bare upload gets the guiding whole-file error, not a cryptic one', async ({ page }) => {
+  await page.goto('/tools/trim-audio/');
+  await page.waitForSelector('#in-audio');
+  await page.setInputFiles('#in-audio', FIXTURE); // start 0, end empty
+  const out = page.locator('#tool-output');
+  await expect(out).toContainText('selects the whole file', { timeout: 90_000 });
+  await expect(out).toContainText('set start');
+});
+
 test('trim-audio deep link prefills fields and trims to wav', async ({ page }) => {
   await page.goto('/tools/trim-audio/?start=1&end=2&format=wav');
   await page.waitForSelector('#in-audio');

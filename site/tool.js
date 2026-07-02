@@ -346,10 +346,15 @@ async function main() {
         const selection =
           startEl && endEl
             ? {
-                getBounds: () => ({
-                  start: parseFloat(startEl.value) || 0,
-                  end: endEl.value === "" ? null : parseFloat(endEl.value),
-                }),
+                getBounds: () => {
+                  const e = parseFloat(endEl.value);
+                  return {
+                    start: parseFloat(startEl.value) || 0,
+                    // Empty, 0 or invalid end = unbounded ("to the end of the
+                    // track" — the value the bound tools give end=0).
+                    end: Number.isFinite(e) && e > 0 ? e : null,
+                  };
+                },
                 onDrag: (s, e) => {
                   // live field mirror — programmatic writes fire no events
                   startEl.value = s.toFixed(1);

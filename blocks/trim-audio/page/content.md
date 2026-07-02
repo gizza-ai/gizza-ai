@@ -3,8 +3,10 @@
 Pick an audio file, set a start and end time in seconds, and choose what to do
 with that selection: **keep** extracts just the selection (the classic
 ringtone cut), **remove** deletes it and joins what's left (drop an ad break or
-a cough from a recording). The trim runs entirely in your browser with ffmpeg
-compiled to WebAssembly, so your audio is never uploaded to a server.
+a cough from a recording). Leave **End** empty to trim to the end of the track
+— set only **Start** to `15` and you've dropped the first 15 seconds. The trim
+runs entirely in your browser with ffmpeg compiled to WebAssembly, so your
+audio is never uploaded to a server.
 
 ### Worked example
 
@@ -13,7 +15,8 @@ Cut a 30-second ringtone out of a song: upload the song, set **Start** to `15`,
 **Fade edges** so the clip doesn't start or end with a click. The result is a
 30-second `mp3` (192 kbps) named like the original with a `-trimmed.mp3`
 suffix. To instead delete seconds 15–45 from the song and keep the rest,
-switch **Mode** to `remove`.
+switch **Mode** to `remove`. To cut a rambling intro off a recording, set
+**Start** to where the good part begins and leave **End** empty.
 
 ### Modes
 
@@ -38,11 +41,17 @@ switch **Mode** to `remove`.
   the same format still writes a fresh 192 kbps mp3 rather than a bit-exact
   copy.
 - **Fade edges** applies up to a 0.5 s fade-in and fade-out inside the kept
-  selection (shorter on clips under 2 s so the fades never overlap). It only
-  works with `keep` mode — in `remove` mode the output length isn't known up
-  front, so the option reports an error instead of silently doing nothing.
-- `end` must be greater than `start`; times beyond the file's real length are
-  clamped by ffmpeg to the end of the audio.
+  selection (shorter on clips under 2 s so the fades never overlap; a flat
+  0.5 s each way when **End** is empty, since the length isn't known up
+  front). It only works with `keep` mode — in `remove` mode the output length
+  isn't known up front, so the option reports an error instead of silently
+  doing nothing.
+- **End** empty (or 0) means "to the end of the track"; otherwise `end` must
+  be greater than `start`. Times beyond the file's real length are clamped by
+  ffmpeg to the end of the audio.
+- Start `0` with an empty **End** selects the whole file — that's nothing to
+  trim, so the tool asks you to set a start and/or end instead of silently
+  re-encoding.
 
 ## FAQ
 
@@ -52,6 +61,16 @@ switch **Mode** to `remove`.
 Set **Mode** to `remove`. The selection between your start and end times is
 deleted and the audio before and after it is joined together — handy for
 removing an ad break, a long pause, or a cough.
+
+</details>
+
+<details>
+<summary>How do I cut off just the intro (or outro)?</summary>
+
+For an intro: set **Start** to where the good part begins and leave **End**
+empty — everything from start to the end of the track is kept. For an outro:
+switch **Mode** to `remove`, set **Start** to where the ending begins, and
+leave **End** empty — everything from there to the end is deleted.
 
 </details>
 

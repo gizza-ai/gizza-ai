@@ -7,6 +7,13 @@
 //! the rest via `aselect='not(between(t,start,end))'` + `asetpts` — frame
 //! granular (~20-40 ms), which is fine for audio edits. Filters always
 //! re-encode, so the output codec follows the chosen [`Format`].
+//!
+//! `end == 0.0` is the "to the end of the track" sentinel (the page sends 0
+//! for an empty field; chat/CLI may omit the param): keep drops `atrim`'s
+//! `end`, remove keeps `[0, start]` via `atrim=end=start`, and a to-end fade
+//! uses the duration-free `areverse,afade,areverse` trick because the track
+//! length is unknown at argv-build time. A whole-file request (start 0 with
+//! no end) is rejected with a guiding error rather than run as a no-op.
 
 /// Output audio formats trim-audio can write. All five encoders are present in
 /// both the native ffmpeg runtime (chat/CLI) and the browser @ffmpeg/core
@@ -107,23 +114,42 @@ pub const FADE_SECS: f64 = 0.5;
 
 /// Build the `-af` filtergraph for a trim. The `aselect` expression is quoted
 /// so its commas survive ffmpeg's filtergraph parser (argv is passed directly,
-/// no shell involved).
+/// no shell involved). `end == 0.0` means "to the end of the track".
 pub fn build_filter(mode: Mode, start: f64, end: f64, fade: bool) -> String {
+    let to_end = end == 0.0;
     match mode {
         Mode::Keep => {
-            let mut f = format!("atrim=start={start}:end={end},asetpts=N/SR/TB");
+            let mut f = if to_end {
+                format!("atrim=start={start},asetpts=N/SR/TB")
+            } else {
+                format!("atrim=start={start}:end={end},asetpts=N/SR/TB")
+            };
             if fade {
-                let dur = end - start;
-                let fd = FADE_SECS.min(dur / 4.0);
-                let out_st = dur - fd;
-                f.push_str(&format!(
-                    ",afade=t=in:st=0:d={fd},afade=t=out:st={out_st}:d={fd}"
-                ));
+                if to_end {
+                    // Selection length is unknown, so fades are a flat 0.5 s
+                    // and the out-fade uses the duration-free areverse trick
+                    // (fading-in a reversed stream needs no end time).
+                    f.push_str(&format!(
+                        ",afade=t=in:st=0:d={FADE_SECS},areverse,afade=t=in:st=0:d={FADE_SECS},areverse"
+                    ));
+                } else {
+                    let dur = end - start;
+                    let fd = FADE_SECS.min(dur / 4.0);
+                    let out_st = dur - fd;
+                    f.push_str(&format!(
+                        ",afade=t=in:st=0:d={fd},afade=t=out:st={out_st}:d={fd}"
+                    ));
+                }
             }
             f
         }
         Mode::Remove => {
-            format!("aselect='not(between(t,{start},{end}))',asetpts=N/SR/TB")
+            if to_end {
+                // Removing [start, EOF] == keeping [0, start], sample-accurate.
+                format!("atrim=end={start},asetpts=N/SR/TB")
+            } else {
+                format!("aselect='not(between(t,{start},{end}))',asetpts=N/SR/TB")
+            }
         }
     }
 }
@@ -167,12 +193,30 @@ pub fn plan_trim_audio(
     if !start.is_finite() || start < 0.0 {
         return Err(format!("start must be >= 0 and finite, got {start}"));
     }
-    if !end.is_finite() || end <= start {
+    if !end.is_finite() || end < 0.0 {
         return Err(format!(
-            "end must be greater than start (start={start}, got end={end})"
+            "end must be >= 0 and finite (0 or empty = end of track), got {end}"
+        ));
+    }
+    let to_end = end == 0.0;
+    if !to_end && end <= start {
+        return Err(format!(
+            "end must be greater than start, or 0/empty for \"to the end of the track\" \
+             (start={start}, got end={end})"
         ));
     }
     let mode = parse_mode(mode)?;
+    if to_end && start == 0.0 {
+        return Err(match mode {
+            Mode::Keep => "start 0 with no end selects the whole file — nothing to trim; \
+                           set start (e.g. 2 drops the first two seconds) and/or end \
+                           (e.g. 30 cuts everything after 0:30)"
+                .to_string(),
+            Mode::Remove => "removing from 0 with no end would delete the whole file — \
+                             set a later start or an explicit end"
+                .to_string(),
+        });
+    }
     let fmt = parse_format(format)?;
     if fade && mode == Mode::Remove {
         return Err(
@@ -272,6 +316,49 @@ mod tests {
         assert!(plan_trim_audio("a.mp3", 2.0, 2.0, "keep", "mp3", false).is_err());
         assert!(plan_trim_audio("a.mp3", 2.0, 1.0, "keep", "mp3", false).is_err());
         assert!(plan_trim_audio("a.mp3", 0.0, f64::INFINITY, "keep", "mp3", false).is_err());
+        assert!(plan_trim_audio("a.mp3", 0.0, -1.0, "keep", "mp3", false).is_err());
+        // The bad-end error teaches the to-end escape hatch.
+        let err = plan_trim_audio("a.mp3", 2.0, 1.0, "keep", "mp3", false).unwrap_err();
+        assert!(err.contains("to the end of the track"), "{err}");
+    }
+
+    #[test]
+    fn end_zero_means_to_end_of_track() {
+        // keep: atrim without an end bound.
+        let (argv, _) = plan_trim_audio("in.mp3", 1.0, 0.0, "keep", "mp3", false).unwrap();
+        assert!(
+            argv.iter().any(|a| a == "atrim=start=1,asetpts=N/SR/TB"),
+            "{argv:?}"
+        );
+        // remove: removing [start, EOF] keeps [0, start].
+        let f = build_filter(Mode::Remove, 1.5, 0.0, false);
+        assert_eq!(f, "atrim=end=1.5,asetpts=N/SR/TB");
+    }
+
+    #[test]
+    fn to_end_fade_uses_duration_free_areverse_trick() {
+        let f = build_filter(Mode::Keep, 1.0, 0.0, true);
+        assert_eq!(
+            f,
+            "atrim=start=1,asetpts=N/SR/TB,afade=t=in:st=0:d=0.5,areverse,afade=t=in:st=0:d=0.5,areverse"
+        );
+        // No t=out / st=<offset> term may appear — the duration is unknown.
+        assert!(!f.contains("t=out"), "{f}");
+    }
+
+    #[test]
+    fn whole_file_requests_get_guiding_errors() {
+        let err = plan_trim_audio("a.mp3", 0.0, 0.0, "keep", "mp3", false).unwrap_err();
+        assert!(err.contains("whole file"), "{err}");
+        assert!(err.contains("set start"), "{err}");
+        let err = plan_trim_audio("a.mp3", 0.0, 0.0, "remove", "mp3", false).unwrap_err();
+        assert!(err.contains("delete the whole file"), "{err}");
+    }
+
+    #[test]
+    fn to_end_fade_still_rejected_in_remove_mode() {
+        let err = plan_trim_audio("a.mp3", 1.0, 0.0, "remove", "mp3", true).unwrap_err();
+        assert!(err.contains("keep mode"), "{err}");
     }
 
     #[test]
