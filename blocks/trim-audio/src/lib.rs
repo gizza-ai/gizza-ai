@@ -34,7 +34,8 @@ struct Args {
     #[serde(flatten)]
     source: SourceFields,
     start: f64,
-    end: f64,
+    #[serde(default)]
+    end: Option<f64>,
     #[serde(default)]
     mode: Option<String>,
     #[serde(default)]
@@ -55,9 +56,8 @@ fn descriptor() -> ToolDescriptor {
         )
         .param(
             Param::number("end")
-                .required()
                 .min(0.0)
-                .describe("End of the selection in seconds; must be greater than start."),
+                .describe("End of the selection in seconds. 0 or omitted means the end of the track; otherwise must be greater than start."),
         )
         .param(
             Param::enumv("mode", ["keep", "remove"])
@@ -94,7 +94,7 @@ struct TrimAudio;
     summary = "Keep or remove a [start, end] range of an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
-        description = "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
+        description = "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds; end 0 or omitted means the end of the track (so start=15 alone drops the first 15 seconds). Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
         parameters = schema_json()
     ),
 )]
@@ -122,8 +122,9 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     // 3. Build ffmpeg argv (shared pure core — validates start/end/mode/format/fade).
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp3");
     let ffmpeg_in = format!("in.{in_ext}");
+    let end = args.end.unwrap_or(0.0); // 0/omitted = to the end of the track
     let (argv, ffmpeg_out) =
-        plan_trim_audio(&ffmpeg_in, args.start, args.end, mode, format, fade)
+        plan_trim_audio(&ffmpeg_in, args.start, end, mode, format, fade)
             .map_err(SkillError::InvalidArgs)?;
 
     // 4. Dispatch to ffmpeg-runtime.
@@ -134,10 +135,14 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = output.len();
     let filename = filename_with_suffix(&in_filename, "-trimmed", fmt.ext());
     let action = if mode == "remove" { "removed" } else { "kept" };
+    let end_desc = if end == 0.0 {
+        "end of track".to_string()
+    } else {
+        format!("{end}s")
+    };
     let for_llm = format!(
-        "{action} [{}s, {}s] of {in_filename} ({output_size} bytes {})",
+        "{action} [{}s, {end_desc}] of {in_filename} ({output_size} bytes {})",
         args.start,
-        args.end,
         fmt.ext()
     );
     build_media_envelope(&output, fmt.mime(), filename, for_llm, MAX_OUTPUT_BYTES)
@@ -160,13 +165,13 @@ mod tests {
                     "url":    { "type": "string", "description": "Audio URL (HTTP/HTTPS). Use either url or ref." },
                     "ref":    { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
                     "start":  { "type": "number", "minimum": 0, "description": "Start of the selection in seconds." },
-                    "end":    { "type": "number", "minimum": 0, "description": "End of the selection in seconds; must be greater than start." },
+                    "end":    { "type": "number", "minimum": 0, "description": "End of the selection in seconds. 0 or omitted means the end of the track; otherwise must be greater than start." },
                     "mode":   { "type": "string", "enum": ["keep", "remove"], "default": "keep", "description": "keep extracts just the [start, end] selection; remove deletes that range and joins the rest. Default keep." },
                     "format": { "type": "string", "enum": ["mp3", "wav", "ogg", "flac", "m4a"], "default": "mp3", "description": "Output audio format. Default mp3 (192 kbps)." },
                     "fade":   { "type": "boolean", "default": false, "description": "Apply a short fade-in/out (up to 0.5s) at the selection edges to avoid clicks. Keep mode only." }
                 },
                 "additionalProperties": false,
-                "required": ["start", "end"],
+                "required": ["start"],
                 "oneOf": [
                     { "required": ["url"] },
                     { "required": ["ref"] }
