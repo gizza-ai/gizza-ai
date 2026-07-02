@@ -339,4 +339,31 @@ format = "audio"
         assert_eq!(m.waveform, None);
         assert_eq!(m.client_config()["waveform"], serde_json::Value::Null);
     }
+
+    #[test]
+    fn parses_waveform_true_and_partial_table_errors() {
+        let base = r#"
+slug = "x"
+title = "t"
+description = "d"
+h1 = "h"
+hero_subtitle = "s"
+wasm = "w"
+export = "run"
+output_label = "o"
+format = "audio"
+"#;
+        let on = format!("{base}waveform = true\n");
+        let m = ToolMeta::from_toml(&on).unwrap();
+        assert_eq!(m.waveform, Some(WaveformSpec::Enabled(true)));
+        assert_eq!(m.client_config()["waveform"], serde_json::json!(true));
+
+        // A partial [waveform] table (start without end) matches neither
+        // untagged variant and must fail at parse time, not silently bind.
+        let partial = format!("{base}\n[waveform]\nstart = \"start\"\n");
+        assert!(
+            ToolMeta::from_toml(&partial).is_err(),
+            "partial [waveform] table must be a parse error"
+        );
+    }
 }
