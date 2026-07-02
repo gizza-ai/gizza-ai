@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-compress"
+version = "0.1.0"
+abi = 1
+summary = "Shrink an audio file by re-encoding at a lower bitrate"

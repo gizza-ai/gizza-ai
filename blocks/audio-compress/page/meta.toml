@@ -1,0 +1,28 @@
+slug          = "audio-compress"
+title         = "Compress Audio Online — gizza.ai"
+description   = "Shrink MP3, WAV, M4A or any audio file right in your browser — pick a target bitrate (96 kbps default) and format. Nothing is uploaded, free."
+tags          = ["audio", "compress", "shrink", "mp3", "bitrate", "smaller", "reduce", "size"]
+h1            = "Compress an Audio File"
+hero_subtitle = "Pick an audio file and a target bitrate — it's shrunk in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_compress_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Compressed audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "bitrate"
+source      = "field"
+label       = "Target bitrate (kbps)"
+placeholder = "96"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
