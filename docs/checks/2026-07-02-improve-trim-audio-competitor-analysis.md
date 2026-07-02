@@ -11,7 +11,7 @@ Pi7 audio-cutter, onlineconverter cut-mp3, soundtools.io audio-trimmer.
 | Start/end time entry in seconds | all (ezgif, onlineconverter enter times; others drag handles) | in-model | `start` + `end` number params (seconds) |
 | Keep selection vs delete selection | Clideo, mp3cut (extract vs remove modes) | in-model | `mode` enum `keep\|remove`, default `keep` |
 | Fade in/out at cut edges | mp3cut, audiotrimmer | in-model (keep mode) | `fade` boolean, default off; keep mode only (remove-mode output duration is unknown at argv-build time, so fade-out start can't be computed) |
-| Output format choice | ezgif (mp3/wav/flac/m4a/ogg), Pi7 | in-model | `format` enum `mp3\|wav\|flac\|m4a`, default `mp3`. OGG dropped: libvorbis isn't guaranteed in the browser @ffmpeg/core build; the native vorbis encoder is experimental. |
+| Output format choice | ezgif (mp3/wav/flac/m4a/ogg), Pi7 | in-model | `format` enum `mp3\|wav\|flac\|m4a`, default `mp3`. OGG dropped at design time on libvorbis uncertainty — later DISPROVEN by audio-convert's in-browser ogg test (2026-07-02), so adding ogg here is a cheap follow-up. |
 | Wide input-format support (mp3/wav/flac/aac/ogg/m4a/opus + video containers) | Pi7, mp3cut (300+ formats) | in-model | ffmpeg decodes; `Input::Audio` accepts the `audio/*` MIME class |
 | Waveform visualizer with drag handles + live preview | Clideo, mp3cut, audiotrimmer, soundtools | out-of-model | page framework renders plain fields; listed, not built |
 | "Use current position" from a player | ezgif | out-of-model | no player in the page framework |

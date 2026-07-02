@@ -8,15 +8,15 @@
 //! granular (~20-40 ms), which is fine for audio edits. Filters always
 //! re-encode, so the output codec follows the chosen [`Format`].
 
-/// Output audio formats trim-audio can write. All four encoders are present in
+/// Output audio formats trim-audio can write. All five encoders are present in
 /// both the native ffmpeg runtime (chat/CLI) and the browser @ffmpeg/core
-/// build: libmp3lame, pcm_s16le, flac and aac. OGG is deliberately absent —
-/// libvorbis isn't guaranteed in the browser build and ffmpeg's built-in
-/// vorbis encoder is experimental.
+/// build: libmp3lame, pcm_s16le, libvorbis, flac and aac (the audio-convert
+/// Playwright ogg test proved libvorbis is present in-browser).
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Format {
     Mp3,
     Wav,
+    Ogg,
     Flac,
     M4a,
 }
@@ -27,6 +27,7 @@ impl Format {
         match self {
             Format::Mp3 => "mp3",
             Format::Wav => "wav",
+            Format::Ogg => "ogg",
             Format::Flac => "flac",
             Format::M4a => "m4a",
         }
@@ -37,6 +38,7 @@ impl Format {
         match self {
             Format::Mp3 => "audio/mpeg",
             Format::Wav => "audio/wav",
+            Format::Ogg => "audio/ogg",
             Format::Flac => "audio/flac",
             Format::M4a => "audio/mp4",
         }
@@ -54,6 +56,12 @@ impl Format {
                 "192k".into(),
             ],
             Format::Wav => vec!["-c:a".into(), "pcm_s16le".into()],
+            Format::Ogg => vec![
+                "-c:a".into(),
+                "libvorbis".into(),
+                "-b:a".into(),
+                "192k".into(),
+            ],
             Format::Flac => vec!["-c:a".into(), "flac".into()],
             Format::M4a => vec!["-c:a".into(), "aac".into()],
         }
@@ -66,9 +74,12 @@ pub fn parse_format(s: &str) -> Result<Format, String> {
     match s.trim().to_ascii_lowercase().as_str() {
         "" | "mp3" => Ok(Format::Mp3),
         "wav" => Ok(Format::Wav),
+        "ogg" => Ok(Format::Ogg),
         "flac" => Ok(Format::Flac),
         "m4a" => Ok(Format::M4a),
-        other => Err(format!("format {other:?} not supported (mp3|wav|flac|m4a)")),
+        other => Err(format!(
+            "format {other:?} not supported (mp3|wav|ogg|flac|m4a)"
+        )),
     }
 }
 
@@ -128,9 +139,12 @@ pub fn build_argv(
     fade: bool,
     format: Format,
 ) -> Vec<String> {
+    // -vn drops any video stream: audio files with embedded album art carry an
+    // attached-picture (video) stream that breaks audio-only muxers like wav.
     let mut argv = vec![
         "-i".to_string(),
         in_name.to_string(),
+        "-vn".to_string(),
         "-af".to_string(),
         build_filter(mode, start, end, fade),
     ];
@@ -186,6 +200,7 @@ mod tests {
             vec![
                 "-i",
                 "in.mp3",
+                "-vn",
                 "-af",
                 "atrim=start=0.5:end=1.5,asetpts=N/SR/TB",
                 "-c:a",
@@ -234,6 +249,9 @@ mod tests {
         let (argv, out) = plan_trim_audio("in.mp3", 0.0, 2.0, "keep", "m4a", false).unwrap();
         assert_eq!(out, "out.m4a");
         assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "aac"));
+        let (argv, out) = plan_trim_audio("in.mp3", 0.0, 2.0, "keep", "ogg", false).unwrap();
+        assert_eq!(out, "out.ogg");
+        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "libvorbis"));
     }
 
     #[test]
@@ -265,13 +283,14 @@ mod tests {
     #[test]
     fn rejects_unknown_mode_and_format() {
         assert!(plan_trim_audio("a.mp3", 0.0, 1.0, "shuffle", "mp3", false).is_err());
-        assert!(plan_trim_audio("a.mp3", 0.0, 1.0, "keep", "ogg", false).is_err());
+        assert!(plan_trim_audio("a.mp3", 0.0, 1.0, "keep", "aiff", false).is_err());
     }
 
     #[test]
     fn format_ext_and_mime_pairs() {
         assert_eq!(Format::Mp3.mime(), "audio/mpeg");
         assert_eq!(Format::Wav.mime(), "audio/wav");
+        assert_eq!(Format::Ogg.mime(), "audio/ogg");
         assert_eq!(Format::Flac.mime(), "audio/flac");
         assert_eq!(Format::M4a.mime(), "audio/mp4");
         assert_eq!(Format::M4a.ext(), "m4a");

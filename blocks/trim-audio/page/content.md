@@ -26,6 +26,7 @@ switch **Mode** to `remove`.
 
 - **MP3** — lossy at 192 kbps; small and playable everywhere (the default).
 - **WAV** — lossless 16-bit PCM; largest, ideal for further editing.
+- **OGG** — lossy Vorbis at 192 kbps; open format, good quality per byte.
 - **FLAC** — lossless and compressed; smaller than WAV, still a perfect copy.
 - **M4A** — AAC in an mp4 container; good quality at small sizes.
 
