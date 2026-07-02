@@ -4,7 +4,7 @@
  * `start`/`end` are the selection bounds in seconds (empty page fields arrive
  * as `0.0` — start=0 means "from the beginning", end=0/empty means "to the
  * end of the track"; both at once is the guiding whole-file error). `mode` is
- * `keep|remove` (empty → keep), `format` is `mp3|wav|flac|m4a` (empty → mp3),
+ * `keep|remove` (empty → keep), `format` is `mp3|wav|ogg|flac|m4a` (empty → mp3),
  * and `fade` is the checkbox value string (positive truthy). Returns
  * `{ argv, out_name }` or throws.
  * @param {number} start

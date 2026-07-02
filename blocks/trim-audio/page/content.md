@@ -21,9 +21,10 @@ switch **Mode** to `remove`. To cut a rambling intro off a recording, set
 ### Modes
 
 - **keep** — output is exactly the `[start, end]` selection, sample-accurate.
-- **remove** — output is everything *except* the selection. The cut lands on
-  the nearest audio frame (roughly 20–40 ms), which is inaudible for most
-  edits.
+- **remove** — output is everything *except* the selection. With an explicit
+  end, the cut lands on the nearest audio frame (roughly 20–40 ms), which is
+  inaudible for most edits; with **End** empty (delete-to-the-end), the cut
+  is sample-accurate.
 
 ### Formats
 
@@ -41,9 +42,11 @@ switch **Mode** to `remove`. To cut a rambling intro off a recording, set
   the same format still writes a fresh 192 kbps mp3 rather than a bit-exact
   copy.
 - **Fade edges** applies up to a 0.5 s fade-in and fade-out inside the kept
-  selection (shorter on clips under 2 s so the fades never overlap; a flat
-  0.5 s each way when **End** is empty, since the length isn't known up
-  front). It only works with `keep` mode — in `remove` mode the output length
+  selection (shorter on clips under 2 s so the fades never overlap). With
+  **End** empty the length isn't known up front, so both fades are a flat
+  0.15 s — enough to kill clicks, but a kept remainder shorter than ~0.3 s
+  will still come out strongly attenuated; give very short clips an explicit
+  end. Fade only works with `keep` mode — in `remove` mode the output length
   isn't known up front, so the option reports an error instead of silently
   doing nothing.
 - **End** empty (or 0) means "to the end of the track"; otherwise `end` must

@@ -57,6 +57,10 @@ test('trim-audio bare upload gets the guiding whole-file error, not a cryptic on
   const out = page.locator('#tool-output');
   await expect(out).toContainText('selects the whole file', { timeout: 90_000 });
   await expect(out).toContainText('set start');
+  // Reset must not leave the stale error on screen (rerun early-returns
+  // without a file, so the handler itself has to clear the output).
+  await page.click('#tool-reset');
+  await expect(out).toHaveText('');
 });
 
 test('trim-audio deep link prefills fields and trims to wav', async ({ page }) => {

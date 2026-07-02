@@ -22,7 +22,7 @@ use gizza_ai_block_utils::{
 };
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{dispatch_ffmpeg, resolve_source};
-use gizza_ai_trim_audio_core::{parse_format, plan_trim_audio};
+use gizza_ai_trim_audio_core::{is_to_end, parse_format, plan_trim_audio};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -122,7 +122,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     // 3. Build ffmpeg argv (shared pure core — validates start/end/mode/format/fade).
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp3");
     let ffmpeg_in = format!("in.{in_ext}");
-    let end = args.end.unwrap_or(0.0); // 0/omitted = to the end of the track
+    let end = args.end.unwrap_or(0.0); // is_to_end: 0/omitted = to the end of the track
     let (argv, ffmpeg_out) =
         plan_trim_audio(&ffmpeg_in, args.start, end, mode, format, fade)
             .map_err(SkillError::InvalidArgs)?;
@@ -135,7 +135,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = output.len();
     let filename = filename_with_suffix(&in_filename, "-trimmed", fmt.ext());
     let action = if mode == "remove" { "removed" } else { "kept" };
-    let end_desc = if end == 0.0 {
+    let end_desc = if is_to_end(end) {
         "end of track".to_string()
     } else {
         format!("{end}s")

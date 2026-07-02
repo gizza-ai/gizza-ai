@@ -92,38 +92,54 @@ pub(crate) fn example_deeplink(meta: &ToolMeta, schema: &ParamSchema) -> String 
         if i.source == "file" {
             pairs.push("url=https://example.com/input".to_string());
         } else if i.source == "field" {
-            let sample = sample_value(&schema.control_for_input(i), &i.placeholder);
-            pairs.push(format!("{}={}", i.name, urlencode(&sample)));
+            if let Some(sample) = sample_value(&schema.control_for_input(i), &i.placeholder) {
+                pairs.push(format!("{}={}", i.name, urlencode(&sample)));
+            }
         }
     }
     format!("{}/tools/{}/?{}", SITE, meta.slug, pairs.join("&"))
 }
 
-/// A realistic sample value for a field in the deep-link example.
-fn sample_value(control: &Control, placeholder: &str) -> String {
+/// A realistic sample value for a field in the deep-link example, or `None`
+/// to omit the param from the example entirely.
+fn sample_value(control: &Control, placeholder: &str) -> Option<String> {
     let ph = (!placeholder.is_empty()).then(|| placeholder.to_string());
     match control {
-        Control::Select { options, default } => default
-            .clone()
-            .or_else(|| options.first().cloned())
-            .unwrap_or_else(|| "value".to_string()),
-        Control::Checkbox { .. } => "true".to_string(),
-        Control::Number { default, min, .. } => ph
-            .or_else(|| default.map(fmt_num))
-            .or_else(|| min.map(fmt_num))
-            .unwrap_or_else(|| "1".to_string()),
-        Control::Picker { input_type } => ph.unwrap_or_else(|| {
+        Control::Select { options, default } => Some(
+            default
+                .clone()
+                .or_else(|| options.first().cloned())
+                .unwrap_or_else(|| "value".to_string()),
+        ),
+        Control::Checkbox { .. } => Some("true".to_string()),
+        Control::Number { default, min, .. } => {
+            // A non-numeric placeholder on a number field (e.g. trim-audio's
+            // end hint "to end") means EMPTY is the meaningful value — omit
+            // the param from the example instead of teaching a bogus value.
+            let numeric_ph = ph.as_ref().filter(|p| p.parse::<f64>().is_ok()).cloned();
+            if ph.is_some() && numeric_ph.is_none() {
+                return None;
+            }
+            Some(
+                numeric_ph
+                    .or_else(|| default.map(fmt_num))
+                    .or_else(|| min.map(fmt_num))
+                    .unwrap_or_else(|| "1".to_string()),
+            )
+        }
+        Control::Picker { input_type } => Some(ph.unwrap_or_else(|| {
             match input_type.as_str() {
                 "time" => "09:30",
                 "datetime-local" => "2000-01-31T09:30",
                 _ => "2000-01-31", // "date"
             }
             .to_string()
-        }),
-        Control::Datalist { options } | Control::TagList { options } => ph
-            .or_else(|| options.first().cloned())
-            .unwrap_or_else(|| "value".to_string()),
-        Control::Text | Control::Textarea => ph.unwrap_or_else(|| "value".to_string()),
+        })),
+        Control::Datalist { options } | Control::TagList { options } => Some(
+            ph.or_else(|| options.first().cloned())
+                .unwrap_or_else(|| "value".to_string()),
+        ),
+        Control::Text | Control::Textarea => Some(ph.unwrap_or_else(|| "value".to_string())),
     }
 }
 
@@ -168,6 +184,17 @@ source      = "field"
 "#,
         )
         .unwrap()
+    }
+
+    #[test]
+    fn number_sample_omits_non_numeric_placeholder() {
+        // A non-numeric placeholder on a number control (trim-audio's end
+        // "to end") signals that EMPTY is meaningful — the example must omit
+        // the param rather than teach a bogus value.
+        let num = Control::Number { min: Some(0.0), max: None, default: None };
+        assert_eq!(sample_value(&num, "to end"), None);
+        assert_eq!(sample_value(&num, "15"), Some("15".to_string()));
+        assert_eq!(sample_value(&num, ""), Some("0".to_string())); // min fallback
     }
 
     fn file_tool() -> ToolMeta {
