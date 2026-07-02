@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-volume-adjust"
+version = "0.1.0"
+abi = 1
+summary = "Boost or cut audio volume by dB or a factor"
