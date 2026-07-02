@@ -537,7 +537,7 @@ pub fn validate_quality_1_100(quality: Option<u8>, block: &str) -> Result<(), Sk
 }
 
 /// Map a MIME type to a file extension for ffmpeg's virtual filesystem.
-/// Knows the image and video formats every gizza-ai block accepts.
+/// Knows the image, video, and audio formats every gizza-ai block accepts.
 pub fn mime_to_ext(mime: &str) -> Option<&'static str> {
     match mime {
         "image/png" => Some("png"),
@@ -547,6 +547,13 @@ pub fn mime_to_ext(mime: &str) -> Option<&'static str> {
         "video/webm" => Some("webm"),
         "video/quicktime" => Some("mov"),
         "video/x-matroska" => Some("mkv"),
+        "audio/mpeg" | "audio/mp3" => Some("mp3"),
+        "audio/wav" | "audio/x-wav" | "audio/wave" => Some("wav"),
+        "audio/ogg" => Some("ogg"),
+        "audio/flac" | "audio/x-flac" => Some("flac"),
+        "audio/mp4" | "audio/x-m4a" => Some("m4a"),
+        "audio/aac" => Some("aac"),
+        "audio/webm" => Some("weba"),
         _ => None,
     }
 }
