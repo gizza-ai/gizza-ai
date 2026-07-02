@@ -194,3 +194,52 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
   font-size: .9rem; font-weight: 600; padding: 0 16px; border-radius: 8px; cursor: pointer;
   transition: border-color .15s, background-color .15s; }
 .tool-tags-add-btn:hover { border-color: var(--tool-accent, #4f46e5); }
+
+/* ---- Shared audio waveform (tool-audio.js) ---- */
+.tool-wf {
+  margin: 0.75rem 0;
+}
+.tool-wf-wave {
+  position: relative;
+  height: 88px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none; /* pointer events own horizontal drags */
+}
+.tool-wf-wave:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+.tool-wf-canvas {
+  display: block;
+  width: 100%;
+  height: 88px;
+}
+.tool-wf-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  min-height: 28px;
+}
+.tool-wf-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+.tool-wf-btn:hover {
+  background: #f8fafc;
+}
+.tool-wf-time {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: #475569;
+  margin-left: auto;
+}
