@@ -151,6 +151,10 @@ function wireWidgetChrome(rerun) {
       const dl = document.getElementById("tool-output-download");
       if (media) media.hidden = true;
       if (dl) dl.hidden = true;
+      // A previous run's error/result must not survive Reset (rerun()
+      // early-returns without recomputing when e.g. no file is selected).
+      out.classList.remove("error");
+      out.textContent = "";
       history.replaceState({}, document.title, location.pathname);
       rerun();
     });
@@ -343,26 +347,35 @@ async function main() {
         const { createWaveform } = await import("./tool-audio.js");
         const startEl = wfBinding ? document.getElementById("in-" + wfBinding.start) : null;
         const endEl = wfBinding ? document.getElementById("in-" + wfBinding.end) : null;
+        // Round a dragged [s, e] outward to 0.1 s field granularity, keeping
+        // end at least one step above start.
+        const roundBounds = (s, e) => {
+          const fs = Math.max(0, Math.floor(s * 10) / 10);
+          const fe = Math.max(Math.ceil(e * 10) / 10, fs + 0.1);
+          return [fs.toFixed(1), fe.toFixed(1)];
+        };
         const selection =
           startEl && endEl
             ? {
-                getBounds: () => {
-                  const e = parseFloat(endEl.value);
-                  return {
-                    start: parseFloat(startEl.value) || 0,
-                    // Empty, 0 or invalid end = unbounded ("to the end of the
-                    // track" — the value the bound tools give end=0).
-                    end: Number.isFinite(e) && e > 0 ? e : null,
-                  };
-                },
+                // Raw field values; interpretation (0/empty/invalid end =
+                // unbounded) is normalizeSel's job in tool-audio.js.
+                getBounds: () => ({
+                  start: parseFloat(startEl.value) || 0,
+                  end: endEl.value === "" ? null : parseFloat(endEl.value),
+                }),
+                // Field mirror rounds OUTWARD to the fields' 0.1 s granularity
+                // and keeps end a step above start, so a micro-drag can never
+                // commit start==end (or 0/0, the whole-file sentinel).
                 onDrag: (s, e) => {
-                  // live field mirror — programmatic writes fire no events
-                  startEl.value = s.toFixed(1);
-                  endEl.value = e.toFixed(1);
+                  // live mirror — programmatic writes fire no events
+                  const [fs, fe] = roundBounds(s, e);
+                  startEl.value = fs;
+                  endEl.value = fe;
                 },
                 onCommit: (s, e) => {
-                  startEl.value = s.toFixed(1);
-                  endEl.value = e.toFixed(1);
+                  const [fs, fe] = roundBounds(s, e);
+                  startEl.value = fs;
+                  endEl.value = fe;
                   // exactly one change event → exactly one ffmpeg run
                   endEl.dispatchEvent(new Event("change"));
                 },
