@@ -65,7 +65,7 @@ fn descriptor() -> ToolDescriptor {
                 .describe("keep extracts just the [start, end] selection; remove deletes that range and joins the rest. Default keep."),
         )
         .param(
-            Param::enumv("format", ["mp3", "wav", "flac", "m4a"])
+            Param::enumv("format", ["mp3", "wav", "ogg", "flac", "m4a"])
                 .default("mp3")
                 .describe("Output audio format. Default mp3 (192 kbps)."),
         )
@@ -94,7 +94,7 @@ struct TrimAudio;
     summary = "Keep or remove a [start, end] range of an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
-        description = "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds. Output is re-encoded to mp3 (192 kbps), wav, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
+        description = "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
         parameters = schema_json()
     ),
 )]
@@ -162,7 +162,7 @@ mod tests {
                     "start":  { "type": "number", "minimum": 0, "description": "Start of the selection in seconds." },
                     "end":    { "type": "number", "minimum": 0, "description": "End of the selection in seconds; must be greater than start." },
                     "mode":   { "type": "string", "enum": ["keep", "remove"], "default": "keep", "description": "keep extracts just the [start, end] selection; remove deletes that range and joins the rest. Default keep." },
-                    "format": { "type": "string", "enum": ["mp3", "wav", "flac", "m4a"], "default": "mp3", "description": "Output audio format. Default mp3 (192 kbps)." },
+                    "format": { "type": "string", "enum": ["mp3", "wav", "ogg", "flac", "m4a"], "default": "mp3", "description": "Output audio format. Default mp3 (192 kbps)." },
                     "fade":   { "type": "boolean", "default": false, "description": "Apply a short fade-in/out (up to 0.5s) at the selection edges to avoid clicks. Keep mode only." }
                 },
                 "additionalProperties": false,

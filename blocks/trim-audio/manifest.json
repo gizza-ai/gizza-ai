@@ -5,7 +5,7 @@
   "summary": "Keep or remove a [start, end] range of an audio file",
   "role": "skill",
   "tool": {
-    "description": "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds. Output is re-encoded to mp3 (192 kbps), wav, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
+    "description": "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
     "parameters": {
       "additionalProperties": false,
       "oneOf": [
@@ -37,6 +37,7 @@
           "enum": [
             "mp3",
             "wav",
+            "ogg",
             "flac",
             "m4a"
           ],
