@@ -55,3 +55,56 @@ test('audio-convert waveform plays and dragging writes no fields', async ({ page
   );
   expect(t).not.toContain('0:00.0 /');
 });
+
+async function decodeDurationOfDataUrl(page: Page, src: string): Promise<number> {
+  return page.evaluate(async (dataUrl: string) => {
+    const res = await fetch(dataUrl);
+    const buf = await res.arrayBuffer();
+    const ctx = new AudioContext();
+    const decoded = await ctx.decodeAudioData(buf);
+    await ctx.close();
+    return decoded.duration;
+  }, src);
+}
+
+test('trim-audio drag-selection writes start/end and trims to the selection', async ({ page }) => {
+  await page.goto('/tools/trim-audio/');
+  await page.waitForSelector('#in-audio');
+  await page.setInputFiles('#in-audio', FIXTURE);
+  const wave = page.locator('.tool-wf-wave').first();
+  await expect(wave).toBeVisible({ timeout: 15_000 });
+
+  // Drag 25% → 50% of a 3.03 s tone ⇒ start ≈ 0.76, end ≈ 1.52.
+  const box = (await wave.boundingBox())!;
+  const y = box.y + box.height / 2;
+  await page.mouse.move(box.x + box.width * 0.25, y);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.5, y, { steps: 8 });
+  await page.mouse.up();
+
+  const start = parseFloat(await page.locator('#in-start').inputValue());
+  const end = parseFloat(await page.locator('#in-end').inputValue());
+  expect(start).toBeGreaterThan(0.55);
+  expect(start).toBeLessThan(0.95);
+  expect(end).toBeGreaterThan(1.3);
+  expect(end).toBeLessThan(1.75);
+
+  // The commit fired one run; the trimmed output matches the selection length.
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const src = await media.getAttribute('src');
+  expect(src).toMatch(/^data:audio\//);
+  const dur = await decodeDurationOfDataUrl(page, src!);
+  expect(Math.abs(dur - (end - start))).toBeLessThan(0.2);
+});
+
+test('trim-audio typing start/end moves the selection highlight', async ({ page }) => {
+  await page.goto('/tools/trim-audio/');
+  await page.waitForSelector('#in-audio');
+  await page.setInputFiles('#in-audio', FIXTURE);
+  await expect(page.locator('.tool-wf-wave').first()).toBeVisible({ timeout: 15_000 });
+  await page.locator('#in-start').fill('1');
+  await page.locator('#in-end').fill('2');
+  // The bar's selection readout mirrors the typed values (0:01.0–0:02.0 (1.0s)).
+  await expect(page.locator('.tool-wf-time').first()).toContainText('0:01.0–0:02.0');
+});
