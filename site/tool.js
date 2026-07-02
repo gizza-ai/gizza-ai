@@ -405,6 +405,7 @@ async function main() {
       out.classList.remove("error");
       media.hidden = true;
       dl.hidden = true;
+      if (outputWf) outputWf.clear();
       // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
       // marshal correctly; leave non-numeric (e.g. "contain") and empty strings
       // as strings — the WASM function handles empty via its own defaults.
@@ -421,6 +422,17 @@ async function main() {
         dl.href = r.dataUrl;
         dl.download = r.outName;
         dl.hidden = false;
+        // Visual result: decode the output into the read-only waveform. The
+        // native <audio controls> stays visible (accessible transport +
+        // decode-failure fallback); the waveform adds the before/after view.
+        if (outputWf && String(r.dataUrl).startsWith("data:audio/")) {
+          try {
+            const blob = await (await fetch(r.dataUrl)).blob();
+            await outputWf.load(blob);
+          } catch (e) {
+            outputWf.clear(); // fallback: native player alone, as today
+          }
+        }
       } else {
         showError(r.error);
       }

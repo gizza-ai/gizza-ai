@@ -108,3 +108,16 @@ test('trim-audio typing start/end moves the selection highlight', async ({ page 
   // The bar's selection readout mirrors the typed values (0:01.0–0:02.0 (1.0s)).
   await expect(page.locator('.tool-wf-time').first()).toContainText('0:01.0–0:02.0');
 });
+
+test('audio-convert result renders an output waveform above the native player', async ({ page }) => {
+  await page.goto('/tools/audio-convert/');
+  await page.waitForSelector('#in-audio');
+  await page.selectOption('#in-format', 'wav');
+  await page.setInputFiles('#in-audio', FIXTURE);
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  // Two waveforms now: input + output. Output one is the second .tool-wf.
+  const waves = page.locator('.tool-wf-wave');
+  await expect(waves).toHaveCount(2);
+  await expect(waves.nth(1)).toBeVisible();
+});
