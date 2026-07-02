@@ -1,0 +1,28 @@
+slug          = "audio-convert"
+title         = "Convert Audio Online — gizza.ai"
+description   = "Convert any audio file to MP3, WAV, OGG, FLAC or M4A right in your browser — pick a bitrate for lossy formats. Runs locally, nothing is uploaded, free."
+tags          = ["audio", "convert", "mp3", "wav", "ogg", "flac", "m4a", "bitrate"]
+h1            = "Convert an Audio File"
+hero_subtitle = "Pick an audio file and a target format — it's converted in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_convert_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Converted audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Target format"
+
+[[input]]
+name        = "bitrate"
+source      = "field"
+label       = "Bitrate (kbps, lossy only)"
+placeholder = "192"
