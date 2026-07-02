@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/audio-silence-remove",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip long silent gaps out of an audio recording",
+  "role": "skill",
+  "tool": {
+    "description": "Remove silent gaps from an audio recording (leading, middle and trailing) with ffmpeg's silenceremove filter. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Audio quieter than threshold_db (default -30) counts as silence; only gaps longer than min_silence seconds (default 0.5) are trimmed, and 0.25s of each gap is kept so speech keeps natural pauses. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "min_silence": {
+          "description": "Minimum silent-gap length in seconds to trim (default 0.5). Must be > 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "threshold_db": {
+          "description": "Silence threshold in dB (default -30). Audio quieter than this counts as silence.",
+          "maximum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
