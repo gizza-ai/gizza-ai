@@ -435,10 +435,10 @@ async function main() {
     applyMetaDefaults();
     wireTagLists();
     wireWidgetChrome(run);
-    await wireWaveforms();
     if (custom.setup && custom.setup({ ...customCtx, run, fileInput, fieldInputs }) === true) {
       return; // custom module owns all wiring for this tool
     }
+    await wireWaveforms();
     async function loadUrlIntoFile(url) {
       try {
         const resp = await fetch(url);
