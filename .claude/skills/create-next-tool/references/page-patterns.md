@@ -50,6 +50,14 @@ plain-ffmpeg audio family (trim-audio, audio-convert, audio-normalize, waveform-
 the 2026-07-02 skiplist sweep. Tools needing an ML model (transcribe, stem-split, autotune) stay
 skiplisted. CLI-test with a real public audio URL (SSRF guard applies — see ops.md).
 
+**Audio test fixtures: lavfi `sine` is ~1/8 amplitude, NOT full scale (2026-07-02).** A fixture
+made with `sine=frequency=440` has RMS ≈ -47.5 dB after `volume=0.05` (the source itself sits
+around -18 dB), so absolute RMS windows computed from "amplitude × gain" are ~18.7 dB off and
+fail mysteriously with correct-looking ratios. For gain-type tools (volume, fades), write
+Playwright assertions as OUTPUT-RMS ÷ INPUT-RMS ratios (decode both via WebAudio) — immune to
+fixture amplitude. Absolute windows are fine only for loudness-normalizing tools (loudnorm
+targets absolute output loudness regardless of input).
+
 **Multi-input ffmpeg (e.g. video-concat) is effectively un-buildable here:** the page file-input is a
 single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.
 (Multi-IMAGE pure-Rust tools ARE buildable as chat+CLI, no page — see the gif-from-images entry in

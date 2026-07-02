@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-silence-remove"
+version = "0.1.0"
+abi = 1
+summary = "Strip long silent gaps out of an audio recording"

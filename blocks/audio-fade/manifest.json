@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/audio-fade",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add a fade-in and fade-out to an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Add a smooth fade-in at the start and/or fade-out at the end of an audio file. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). fade_in and fade_out are lengths in seconds (0-30, both default 3); set one to 0 to fade only the other side — both at 0 is rejected. Fades longer than the track just fade across the whole file. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "fade_in": {
+          "default": 3.0,
+          "description": "Fade-in length in seconds at the start (0-30, default 3). 0 skips the fade-in.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade_out": {
+          "default": 3.0,
+          "description": "Fade-out length in seconds at the end (0-30, default 3). 0 skips the fade-out.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

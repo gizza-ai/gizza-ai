@@ -1,0 +1,44 @@
+slug          = "trim-audio"
+title         = "Trim Audio Online — gizza.ai"
+description   = "Trim any audio file in your browser — keep or remove a start–end range, add edge fades, save as MP3, WAV, FLAC or M4A. Runs locally, nothing is uploaded."
+tags          = ["audio", "trim", "cut", "clip", "mp3", "ringtone", "crop", "splice"]
+h1            = "Trim an Audio File"
+hero_subtitle = "Pick an audio file, set a start and end time — it's trimmed in your browser, nothing is uploaded."
+wasm          = "gizza_ai_trim_audio_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Trimmed audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "start"
+source      = "field"
+label       = "Start (seconds)"
+placeholder = "0"
+
+[[input]]
+name        = "end"
+source      = "field"
+label       = "End (seconds)"
+placeholder = "5"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Mode"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+
+[[input]]
+name   = "fade"
+source = "field"
+label  = "Fade edges (keep mode)"

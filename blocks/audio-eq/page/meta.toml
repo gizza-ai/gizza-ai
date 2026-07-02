@@ -1,0 +1,40 @@
+slug          = "audio-eq"
+title         = "Audio Equalizer Online — gizza.ai"
+description   = "Equalize any audio file right in your browser — boost or cut bass, mid and treble in dB, then save as MP3, WAV and more. Nothing is uploaded, free."
+tags          = ["audio", "equalizer", "eq", "bass", "treble", "mid", "boost", "tone"]
+h1            = "Equalize an Audio File"
+hero_subtitle = "Pick an audio file and set bass, mid or treble gains — it's equalized in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_eq_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Equalized audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "bass"
+source      = "field"
+label       = "Bass (dB)"
+placeholder = "0"
+
+[[input]]
+name        = "mid"
+source      = "field"
+label       = "Mid (dB)"
+placeholder = "0"
+
+[[input]]
+name        = "treble"
+source      = "field"
+label       = "Treble (dB)"
+placeholder = "0"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
