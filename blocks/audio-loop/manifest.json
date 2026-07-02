@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/audio-loop",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Loop a sound to a target duration or number of plays",
+  "role": "skill",
+  "tool": {
+    "description": "Repeat a short audio clip seamlessly. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). duration (seconds, default 30, max 3600) loops the clip and cuts the output to exactly that length — the usual way to turn a short sound into background audio; or set duration to 0 and count (2-100) to play the clip a whole number of times instead. The audio is re-encoded, so joins are sample-level (no container-copy clicks). Output format mp3 (192 kbps, default), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "count": {
+          "default": 0,
+          "description": "Total number of plays (2-100), used when duration is 0 — e.g. 3 plays the clip three times back-to-back with no cut at the end.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "duration": {
+          "default": 30.0,
+          "description": "Target output length in seconds (default 30, max 3600). The clip repeats and is cut to exactly this length; takes precedence when > 0. Set 0 to use count instead.",
+          "maximum": 3600,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

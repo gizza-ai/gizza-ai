@@ -1,0 +1,27 @@
+slug          = "audio-to-mono"
+title         = "Convert Stereo to Mono Online — gizza.ai"
+description   = "Downmix any stereo or surround audio file to mono right in your browser — blend all channels or keep just the left/right side. Nothing is uploaded, free."
+tags          = ["audio", "mono", "stereo", "downmix", "channel", "convert", "left", "right"]
+h1            = "Convert Audio to Mono"
+hero_subtitle = "Pick an audio file — it's downmixed to a single channel in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_to_mono_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Mono audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name   = "channel"
+source = "field"
+label  = "Channel"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"

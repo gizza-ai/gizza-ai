@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-to-mono"
+version = "0.1.0"
+abi = 1
+summary = "Downmix stereo or multi-channel audio to mono"

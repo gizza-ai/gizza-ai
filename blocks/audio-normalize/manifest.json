@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/audio-normalize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Normalize audio to a target loudness (LUFS)",
+  "role": "skill",
+  "tool": {
+    "description": "Level an audio file to a standard loudness using EBU R128 loudnorm (single pass, true peak -1.5 dBTP, loudness range 11 LU). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). lufs sets the target: -14 for Spotify/YouTube (default), -16 for podcasts, -23 for EU broadcast. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "lufs": {
+          "default": -14.0,
+          "description": "Target integrated loudness in LUFS: -14 for Spotify/YouTube (default), -16 for podcasts, -23 for EU broadcast.",
+          "maximum": -5,
+          "minimum": -70,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

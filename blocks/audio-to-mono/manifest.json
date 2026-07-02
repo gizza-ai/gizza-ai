@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/audio-to-mono",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Downmix stereo or multi-channel audio to mono",
+  "role": "skill",
+  "tool": {
+    "description": "Downmix an audio file to a single mono channel. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). channel=mix (default) blends all channels with ffmpeg's standard downmix — stereo and 5.1/7.1 alike; channel=left or right keeps just that side instead. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "channel": {
+          "default": "mix",
+          "description": "mix downmixes all channels (default); left/right keep just that side — useful when one side of a recording is the only usable one.",
+          "enum": [
+            "mix",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

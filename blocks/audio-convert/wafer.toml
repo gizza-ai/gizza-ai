@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert audio between mp3, wav, ogg, flac and m4a"

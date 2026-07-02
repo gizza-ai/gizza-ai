@@ -187,3 +187,31 @@ count.
 
 **Pacing / cache note.** `ScheduleWakeup ~3000s` is the fallback; the completion notification wakes
 you sooner. Don't poll for the builder — it's harness-tracked and re-invokes you on completion.
+
+**A dead builder can't be nudged — SendMessage queues forever (2026-07-02).** One builder died
+silently mid-build (~50 min in, no completion notification, no error). Confirmed truly idle (no
+cargo/rustc procs twice ~20 min apart, zero file writes for 70+ min), then tried
+`SendMessage(to: <agent-id>, "resume…")` before the stop-clean-redispatch path, hoping to preserve
+its partial work. The message only delivers "at its next tool round" — a dead agent never has one,
+so the nudge is a no-op. Don't spend a heartbeat on it: once truly-idle is confirmed, go straight
+to `TaskStop` → restore any modified shared files (`git checkout -- <file>`; builders may edit
+`block-utils/`) → remove the untracked scaffold/docs → redispatch. The TaskStop notification shows
+the builder's last step, which confirms where it died.
+
+**Liveness = transcript mtime via `stat -L`, NOT repo-file activity (2026-07-02).** A builder can
+legitimately go 50+ min with ZERO repo writes (long recipe-reading/research phase) while being
+perfectly healthy. The reliable liveness probe is its transcript:
+`stat -L -c 'size=%s mtime=%y' <session-tasks-dir>/<agent-id>.output` — growing size / recent
+mtime = alive (every LLM turn appends). CRITICAL: the `.output` path is a SYMLINK; plain `stat`
+returns the symlink's own size (~156 bytes, mtime = dispatch time) and reads as "died instantly" —
+a false positive that nearly caused a wrongful stop-clean-redispatch. Also fine to `tail -c 1500`
+the transcript for the current step — just never Read/cat the whole file (300KB+). Check the
+transcript FIRST, before any repo-activity heuristics. Frozen size+mtime across two heartbeats
+(~30 min) = dead, full stop — a live agent appends every turn. Two builders died silently this way
+in one evening (mid-Bash-call, no error notification — likely terminal API errors); the fix is
+just TaskStop → clean → redispatch, and the elapsed detection time already serves as the back-off.
+
+**Commit dispatcher SKILL.md edits BEFORE dispatching the next builder (2026-07-02).** Builders
+ship with `git add -A` at repo root — any uncommitted findings-log edit you've made gets silently
+swept into the next tool's commit. Self-update this file, then commit it immediately (own commit,
+`chore(skills): …`), then dispatch.
