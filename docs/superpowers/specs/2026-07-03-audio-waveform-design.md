@@ -106,6 +106,9 @@ initial appearance); responsive width.
   waveform hides, a quiet note is NOT shown (silence is fine), the tool runs exactly as
   today. The waveform must never block or delay `run()`.
 - Selection clamped to `[0, duration]`; handles can't cross (min 0.05 s).
+- Empty `end` field on trim-audio means "to the end". Bound fields at whole-track
+  defaults (start 0 / end empty) draw no highlight — the highlight appears once the
+  fields describe a proper sub-range, so drag-to-select always works on a fresh page.
 - trim-audio `mode=remove` uses the same single-selection visual; the page copy explains
   the shading is "the range the fields describe".
 - Long files: 10 MiB cap ⇒ ≤ ~7 min mp3; single-pass peak extraction is comfortably fast.

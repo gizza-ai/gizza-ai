@@ -299,7 +299,7 @@ export function createWaveform(container, opts = {}) {
         const e = b.end == null || !Number.isFinite(b.end)
           ? duration
           : Math.max(s + MIN_SEL_S, Math.min(duration, b.end));
-        sel = { start: s, end: e };
+        sel = s > MIN_SEL_S || e < duration - MIN_SEL_S ? { start: s, end: e } : null;
       }
       container.hidden = false;
       resize();
@@ -312,7 +312,7 @@ export function createWaveform(container, opts = {}) {
       const e = end == null || end === "" || !Number.isFinite(Number(end))
         ? duration
         : Math.max(s + MIN_SEL_S, Math.min(duration, Number(end)));
-      sel = { start: s, end: e };
+      sel = s > MIN_SEL_S || e < duration - MIN_SEL_S ? { start: s, end: e } : null;
       draw();
       updateBar();
     },
