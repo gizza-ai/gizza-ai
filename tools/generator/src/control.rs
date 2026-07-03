@@ -102,40 +102,71 @@ pub fn expand_hex(s: &str) -> Option<String> {
     Some(format!("#{}", full[..6].to_ascii_lowercase()))
 }
 
-/// One tool's param schema: param name → its JSON-schema property object.
-pub struct ParamSchema(HashMap<String, serde_json::Value>);
+/// One tool's param schema: param name → its JSON-schema property object,
+/// plus the schema's `required` param names (in declared order — the CLI maps
+/// bare positionals against exactly this list).
+pub struct ParamSchema {
+    props: HashMap<String, serde_json::Value>,
+    required: Vec<String>,
+}
 
 impl ParamSchema {
     /// An empty schema — every field falls back to text/textarea. Used by tests
     /// and as the graceful default when a manifest is missing/unreadable.
     pub fn empty() -> Self {
-        ParamSchema(HashMap::new())
+        ParamSchema { props: HashMap::new(), required: Vec::new() }
     }
 
     /// Build a schema from a JSON `properties` object — test-only constructor
     /// for sibling modules (the real path goes through `load`).
     #[cfg(test)]
     pub(crate) fn from_props_for_tests(props: serde_json::Value) -> Self {
-        ParamSchema(props.as_object().unwrap().clone().into_iter().collect())
+        ParamSchema {
+            props: props.as_object().unwrap().clone().into_iter().collect(),
+            required: Vec::new(),
+        }
     }
 
-    /// Read `<tool_dir>/manifest.json` and extract `tool.parameters.properties`.
-    /// A missing or unparseable manifest yields an empty schema (no panic, no
-    /// abort) so a tool with a stale manifest just keeps plain text inputs.
+    /// Mark params as required — test-only builder companion to
+    /// `from_props_for_tests`.
+    #[cfg(test)]
+    pub(crate) fn with_required_for_tests(mut self, names: &[&str]) -> Self {
+        self.required = names.iter().map(|s| s.to_string()).collect();
+        self
+    }
+
+    /// Read `<tool_dir>/manifest.json` and extract `tool.parameters`
+    /// (`properties` + `required`). A missing or unparseable manifest yields an
+    /// empty schema (no panic, no abort) so a tool with a stale manifest just
+    /// keeps plain text inputs.
     pub fn load(tool_dir: &Path) -> Self {
-        let props = std::fs::read_to_string(tool_dir.join("manifest.json"))
+        let params = std::fs::read_to_string(tool_dir.join("manifest.json"))
             .ok()
             .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
-            .and_then(|v| {
-                v.get("tool")?
-                    .get("parameters")?
-                    .get("properties")?
-                    .as_object()
-                    .cloned()
-            })
+            .and_then(|v| v.get("tool")?.get("parameters").cloned());
+        let props = params
+            .as_ref()
+            .and_then(|p| p.get("properties")?.as_object().cloned())
             .map(|m| m.into_iter().collect())
             .unwrap_or_default();
-        ParamSchema(props)
+        let required = params
+            .as_ref()
+            .and_then(|p| p.get("required")?.as_array().cloned())
+            .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+            .unwrap_or_default();
+        ParamSchema { props, required }
+    }
+
+    /// Whether `name` is a required param. False for the empty/stale-manifest
+    /// fallback schema (which doesn't know).
+    pub fn is_required(&self, name: &str) -> bool {
+        self.required.iter().any(|r| r == name)
+    }
+
+    /// Whether the schema knows any params at all (false → stale/missing
+    /// manifest fallback, where `is_required` answers are meaningless).
+    pub fn knows_params(&self) -> bool {
+        !self.props.is_empty()
     }
 
     /// Resolve the control for a `source="field"` input: meta-level overrides
@@ -152,7 +183,7 @@ impl ParamSchema {
                 // Text stays canonical (empty/alpha/lists work); the swatch
                 // is a mirror. The schema default (if any) seeds the swatch.
                 let default = self
-                    .0
+                    .props
                     .get(&input.name)
                     .and_then(|p| p.get("default"))
                     .and_then(|d| d.as_str())
@@ -221,7 +252,7 @@ impl ParamSchema {
                 Control::Text
             }
         };
-        let Some(p) = self.0.get(name) else {
+        let Some(p) = self.props.get(name) else {
             return text_or_area();
         };
         // An enum is a <select> regardless of its JSON "type" ("string").
@@ -258,7 +289,7 @@ mod tests {
     use serde_json::json;
 
     fn schema(props: serde_json::Value) -> ParamSchema {
-        ParamSchema(props.as_object().unwrap().clone().into_iter().collect())
+        ParamSchema::from_props_for_tests(props)
     }
 
     #[test]

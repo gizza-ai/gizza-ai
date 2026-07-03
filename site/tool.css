@@ -188,6 +188,10 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-widget-btn:hover, .tool-widget-btn:focus-visible { border-color: var(--tool-accent, #4f46e5);
   color: var(--tool-ink, #0f172a); }
 .tool-widget-btn.copied { border-color: #16a34a; color: #16a34a; }
+/* The Download link shares the button chrome; anchors need the underline
+   stripped and an explicit [hidden] rule (display would otherwise win). */
+a.tool-widget-btn { text-decoration: none; display: inline-block; }
+.tool-widget-btn[hidden] { display: none; }
 
 /* Generic tag-list control (meta kind="tag-list" — see tools/generator). */
 .tool-tags { margin: 6px 0 12px; }

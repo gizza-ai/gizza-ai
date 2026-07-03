@@ -238,6 +238,15 @@ pub fn render_page(
                                         button id="tool-copy-output" class="tool-widget-btn" type="button"
                                                title="Copy the result to the clipboard" { "Copy result" }
                                     }
+                                    // Text tools: download the current output as a file (every
+                                    // list/CSV/JSON competitor offers an export). tool.js keeps the
+                                    // blob URL in sync with the output; data-text-download marks it
+                                    // apart from the media download link (same id, one per page).
+                                    @if meta.format == "text" {
+                                        a id="tool-output-download" class="tool-widget-btn" data-text-download
+                                          download=(format!("{}-output.txt", meta.slug)) hidden
+                                          title="Download the result as a text file" { "Download" }
+                                    }
                                 }
                             }
                         }
@@ -657,6 +666,12 @@ params = { birthdate = "1990-04-15" }
         // standard chrome: reset + copy-result on every field/text tool
         assert!(html.contains(r#"id="tool-reset""#), "reset button rendered");
         assert!(html.contains(r#"id="tool-copy-output""#), "copy-result button rendered");
+        // text tools also get a Download link for the current output, hidden
+        // until tool.js fills it (competitor-standard export affordance)
+        assert!(
+            html.contains(r#"data-text-download download="age-calculator-output.txt""#),
+            "text-output download link rendered with slug-derived filename"
+        );
         // client config carries the declarative default + examples for tool.js
         assert!(html.contains(r#""default":"today""#), "input default in client config");
         assert!(html.contains(r#""examples":[{"label":"Born 1990-04-15""#), "examples in client config");
