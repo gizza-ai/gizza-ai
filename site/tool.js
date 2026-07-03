@@ -12,9 +12,9 @@ const out = document.getElementById(cfg.output.elementId);
 //   setup(ctx)                → one-time setup; return true to TAKE OVER wiring
 //   renderResult(value, ctx)  → return true if the result was rendered
 //   renderError(message, ctx) → return true if the error was rendered
-// Prefer the declarative meta.toml controls (kind/options/default/[[example]]/
-// wide); custom.js is only for layouts/renderers those can't express. Do NOT
-// add per-tool slug branches to this file.
+// Prefer the declarative meta.toml controls (kind incl. slider/options/default/
+// [[example]]/wide); custom.js is only for layouts/renderers those can't
+// express. Do NOT add per-tool slug branches to this file.
 let custom = {};
 let customCtx = null;
 
@@ -120,6 +120,7 @@ function wireWidgetChrome(rerun) {
         if (inp) applyField(document.getElementById(inp.elementId), value);
       }
       refreshTagLists();
+      refreshSliders();
       rerun();
     });
   }
@@ -147,6 +148,7 @@ function wireWidgetChrome(rerun) {
       }
       applyMetaDefaults(true);
       refreshTagLists();
+      refreshSliders();
       const media = document.getElementById("tool-output-media");
       const dl = document.getElementById("tool-output-download");
       if (media) media.hidden = true;
@@ -179,6 +181,52 @@ function wireWidgetChrome(rerun) {
       }
     });
   }
+}
+
+// ---- Generic slider mirror (meta kind="slider") ----
+// A range input (id "in-<name>-slider", data-for="in-<name>") mirrors the
+// canonical number box two-way. Dragging updates the number live WITHOUT
+// firing events; releasing dispatches ONE change on the number input — one
+// run per drag, the same commit discipline as the waveform selection. Pure
+// (non-ffmpeg) tools also recompute live during the drag, which is cheap.
+
+// Where the thumb rests when its number box is empty: the rendered value
+// attribute (the schema default) or the numeric midpoint (the range
+// element's own no-value default).
+function sliderRestValue(slider) {
+  if (slider.defaultValue !== "") return slider.defaultValue;
+  const min = Number(slider.min);
+  const max = Number(slider.max);
+  return String(min + (max - min) / 2);
+}
+
+// Re-sync every slider from its number box (after programmatic value writes:
+// meta defaults, example chips, reset, deep-links).
+function refreshSliders() {
+  for (const s of document.querySelectorAll(".tool-slider")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.value = el.value !== "" ? el.value : sliderRestValue(s);
+  }
+}
+
+function wireSliders() {
+  for (const s of document.querySelectorAll(".tool-slider")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.addEventListener("input", () => {
+      el.value = s.value; // live mirror — programmatic writes fire no events
+      if (cfg.runtime !== "ffmpeg") el.dispatchEvent(new Event("input"));
+    });
+    s.addEventListener("change", () => {
+      el.value = s.value;
+      el.dispatchEvent(new Event("change")); // exactly one run per drag-release
+    });
+    el.addEventListener("input", () => {
+      if (el.value !== "") s.value = el.value;
+    });
+  }
+  refreshSliders();
 }
 
 // ---- Generic tag-list widget (meta kind="tag-list") ----
@@ -473,6 +521,7 @@ async function main() {
     }
     applyMetaDefaults();
     wireTagLists();
+    wireSliders();
     wireWidgetChrome(run);
     if (custom.setup && custom.setup({ ...customCtx, run, fileInput, fieldInputs }) === true) {
       return; // custom module owns all wiring for this tool
@@ -542,6 +591,7 @@ async function main() {
   }
   applyMetaDefaults();
   wireTagLists();
+  wireSliders();
   wireWidgetChrome(compute);
   if (custom.setup && custom.setup({ ...customCtx, compute }) === true) {
     return; // custom module owns all wiring for this tool
