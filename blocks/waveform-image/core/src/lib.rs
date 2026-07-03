@@ -49,7 +49,7 @@ pub const SCALES: [&str; 4] = ["lin", "sqrt", "cbrt", "log"];
 pub const SAMPLINGS: [&str; 2] = ["average", "peak"];
 
 /// Most channels a `color` list may address. ffmpeg itself defaults to a
-/// 9-color cycle; 8 coves 7.1 audio and keeps the filtergraph bounded.
+/// 9-color cycle; 8 covers 7.1 audio and keeps the filtergraph bounded.
 pub const MAX_COLORS: usize = 8;
 
 /// Validate a strict hex color (`#RGB`/`#RGBA`/`#RRGGBB`/`#RRGGBBAA`,
