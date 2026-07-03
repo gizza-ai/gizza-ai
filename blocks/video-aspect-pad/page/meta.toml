@@ -1,9 +1,9 @@
 slug          = "video-aspect-pad"
 title         = "Pad a Video to an Aspect Ratio Online — Letterbox to 9:16, 1:1, 16:9 — gizza.ai"
-description   = "Letterbox or pillarbox a video to 9:16, 1:1, 16:9 or another aspect ratio with a chosen bar color — converted in your browser, nothing is uploaded, free."
-tags          = ["video aspect ratio", "letterbox", "pillarbox", "pad video", "9:16", "reels", "shorts", "ffmpeg"]
+description   = "Letterbox or pillarbox a video to 9:16, 1:1, 16:9 or any preset ratio with colored bars or a blurred background — free, in your browser, nothing is uploaded."
+tags          = ["video aspect ratio", "letterbox", "pillarbox", "pad video", "9:16", "reels", "shorts", "blur background", "ffmpeg"]
 h1            = "Pad a Video to an Aspect Ratio"
-hero_subtitle = "Pick a video, a target ratio and a bar color — the whole frame is kept and letterboxed in your browser, nothing is uploaded."
+hero_subtitle = "Pick a video, a target ratio and a bar style — solid color or blurred background. The whole frame is kept and letterboxed in your browser; nothing is uploaded."
 wasm          = "gizza_ai_video_aspect_pad_web"
 export        = "build_argv"
 runtime       = "ffmpeg"
@@ -16,10 +16,23 @@ source = "file"
 accept = "video/*"
 label  = "Video"
 
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# aspect, width, color, blur, quality.
 [[input]]
 name   = "aspect"
 source = "field"
 label  = "Target aspect ratio"
+
+[input.labels]
+"9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)"
+"1:1"  = "1:1 — square feed (1080×1080)"
+"16:9" = "16:9 — YouTube / landscape (1920×1080)"
+"4:5"  = "4:5 — Instagram portrait (1080×1350)"
+"3:4"  = "3:4 — portrait (1080×1440)"
+"4:3"  = "4:3 — classic TV (1440×1080)"
+"3:2"  = "3:2 — classic photo (1620×1080)"
+"2:3"  = "2:3 — Pinterest (1080×1620)"
+"21:9" = "21:9 — cinematic (2520×1080)"
 
 [[input]]
 name        = "width"
@@ -32,3 +45,39 @@ name        = "color"
 source      = "field"
 label       = "Bar color"
 placeholder = "black, white or #1A2B3C"
+kind        = "color"
+
+[[input]]
+name   = "blur"
+source = "field"
+label  = "Blurred background instead of solid bars"
+
+[[input]]
+name   = "quality"
+source = "field"
+label  = "Quality"
+
+[input.labels]
+"high"   = "high — CRF 18, bigger file"
+"medium" = "medium — CRF 23, balanced"
+"low"    = "low — CRF 28, smaller file"
+
+[[example]]
+label  = "Reels / Shorts 9:16"
+params = { aspect = "9:16", color = "black", blur = "false" }
+
+[[example]]
+label  = "Blurred background 9:16"
+params = { aspect = "9:16", blur = "true" }
+
+[[example]]
+label  = "Square 1:1, white bars"
+params = { aspect = "1:1", color = "white", blur = "false" }
+
+[[example]]
+label  = "Cinematic 21:9"
+params = { aspect = "21:9", color = "black", blur = "false" }
+
+[[example]]
+label  = "Pinterest 2:3"
+params = { aspect = "2:3", color = "black", blur = "false" }

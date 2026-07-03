@@ -4,17 +4,23 @@
  * @param {string} aspect
  * @param {number} width
  * @param {string} color
+ * @param {string} blur
+ * @param {string} quality
  * @param {string} in_name
  * @returns {any}
  */
-export function build_argv(aspect, width, color, in_name) {
+export function build_argv(aspect, width, color, blur, quality, in_name) {
     const ptr0 = passStringToWasm0(aspect, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
     const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passStringToWasm0(in_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const ptr2 = passStringToWasm0(blur, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len2 = WASM_VECTOR_LEN;
-    const ret = wasm.build_argv(ptr0, len0, width, ptr1, len1, ptr2, len2);
+    const ptr3 = passStringToWasm0(quality, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ptr4 = passStringToWasm0(in_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len4 = WASM_VECTOR_LEN;
+    const ret = wasm.build_argv(ptr0, len0, width, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
