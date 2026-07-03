@@ -36,6 +36,12 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-slider-row .tool-input { width: 92px; flex: 0 0 auto; }
 .tool-slider { flex: 1 1 auto; min-width: 0; margin: 6px 0 12px;
   accent-color: var(--tool-accent); cursor: pointer; }
+/* kind="color": native swatch + canonical hex text pair (tool.js mirrors). */
+.tool-color-row { display: flex; align-items: center; gap: 12px; }
+.tool-color-row .tool-input { flex: 1 1 auto; min-width: 0; }
+.tool-color-swatch { flex: 0 0 auto; width: 44px; height: 38px; padding: 2px;
+  margin: 6px 0 12px; background: #fff; border: 1px solid #cbd5e1;
+  border-radius: 8px; cursor: pointer; }
 /* pre-wrap: multi-line text results (bitwise-calculator, asn1-parser, …) render
    as real lines instead of collapsing into one wrapped paragraph; single-line
    results are unaffected. */

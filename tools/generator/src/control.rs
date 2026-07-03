@@ -62,6 +62,16 @@ pub enum Control {
     Picker {
         input_type: String,
     },
+    /// A hex-color text input paired with a native `<input type="color">`
+    /// swatch (meta `kind = "color"`). The TEXT input keeps the canonical
+    /// `in-<name>` id — it stays the source of truth so empty ("transparent"/
+    /// "use the default"), alpha hex (`#RRGGBBAA`) and multi-color lists stay
+    /// expressible, which a bare native picker can't do. The swatch mirrors it
+    /// two-way via `site/tool.js`. `default` is the schema default hex, shown
+    /// on the swatch at rest.
+    Color {
+        default: Option<String>,
+    },
     /// A text input backed by a `<datalist>` of a named vocabulary (meta `options`).
     Datalist {
         options: Vec<String>,
@@ -72,6 +82,24 @@ pub enum Control {
     TagList {
         options: Vec<String>,
     },
+}
+
+/// Validate a `#RGB`/`#RGBA`/`#RRGGBB`/`#RRGGBBAA` hex color and expand it to
+/// the 6-digit `#rrggbb` form a native `<input type="color">` accepts (alpha
+/// digits are dropped — the swatch can't show alpha). `None` when `s` isn't a
+/// single hex color (empty, named color, multi-color list, …).
+pub fn expand_hex(s: &str) -> Option<String> {
+    let v = s.trim();
+    let digits = v.strip_prefix('#')?;
+    if !matches!(digits.len(), 3 | 4 | 6 | 8) || !digits.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return None;
+    }
+    let full: String = if digits.len() <= 4 {
+        digits.chars().flat_map(|c| [c, c]).collect()
+    } else {
+        digits.to_string()
+    };
+    Some(format!("#{}", full[..6].to_ascii_lowercase()))
 }
 
 /// One tool's param schema: param name → its JSON-schema property object.
@@ -120,6 +148,17 @@ impl ParamSchema {
             k @ ("date" | "time" | "datetime-local") => {
                 return Control::Picker { input_type: k.to_string() };
             }
+            "color" => {
+                // Text stays canonical (empty/alpha/lists work); the swatch
+                // is a mirror. The schema default (if any) seeds the swatch.
+                let default = self
+                    .0
+                    .get(&input.name)
+                    .and_then(|p| p.get("default"))
+                    .and_then(|d| d.as_str())
+                    .map(String::from);
+                return Control::Color { default };
+            }
             "slider" => {
                 // A slider needs real bounds; only a numeric param with both
                 // min and max in the schema qualifies. Anything else falls back
@@ -151,7 +190,7 @@ impl ParamSchema {
             }
             other => {
                 eprintln!(
-                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|tag-list|slider) — falling back to the schema control",
+                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|color|tag-list|slider) — falling back to the schema control",
                     input.name
                 );
             }
@@ -393,8 +432,35 @@ mod tests {
     #[test]
     fn unknown_kind_and_vocab_fall_back_to_schema_control() {
         let s = schema(json!({ "x": { "type": "string" } }));
-        assert_eq!(s.control_for_input(&field("x", "color", "")), Control::Text);
+        assert_eq!(s.control_for_input(&field("x", "range", "")), Control::Text);
         assert_eq!(s.control_for_input(&field("x", "", "nope")), Control::Text);
+    }
+
+    #[test]
+    fn color_kind_pairs_swatch_with_text_and_takes_schema_default() {
+        let s = schema(json!({ "color": { "type": "string", "default": "#4f46e5" } }));
+        assert_eq!(
+            s.control_for_input(&field("color", "color", "")),
+            Control::Color { default: Some("#4f46e5".into()) }
+        );
+        // No schema default (e.g. "empty = transparent") → swatch has no rest value.
+        let s = schema(json!({ "background": { "type": "string" } }));
+        assert_eq!(
+            s.control_for_input(&field("background", "color", "")),
+            Control::Color { default: None }
+        );
+    }
+
+    #[test]
+    fn expand_hex_normalizes_short_and_alpha_forms_for_the_swatch() {
+        assert_eq!(expand_hex("#f00").as_deref(), Some("#ff0000"));
+        assert_eq!(expand_hex(" #ABC ").as_deref(), Some("#aabbcc"));
+        assert_eq!(expand_hex("#f008").as_deref(), Some("#ff0000")); // alpha dropped
+        assert_eq!(expand_hex("#4f46e5").as_deref(), Some("#4f46e5"));
+        assert_eq!(expand_hex("#00000080").as_deref(), Some("#000000"));
+        for bad in ["", "red", "#12345", "#ff0000,#0000ff", "4f46e5"] {
+            assert_eq!(expand_hex(bad), None, "{bad}");
+        }
     }
 
     #[test]

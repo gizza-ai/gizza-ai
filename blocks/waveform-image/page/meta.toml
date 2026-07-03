@@ -1,7 +1,7 @@
 slug          = "waveform-image"
 title         = "Audio Waveform Image Generator — gizza.ai"
-description   = "Turn any audio file into a waveform PNG in your browser — pick the size, wave color and background, or keep it transparent. Nothing is uploaded."
-tags          = ["audio", "waveform", "image", "png", "visualizer", "soundwave", "podcast", "banner"]
+description   = "Turn any audio file into a waveform PNG in your browser — pick the size, solid or gradient wave colors and background, or keep it transparent. Nothing is uploaded."
+tags          = ["audio", "waveform", "image", "png", "visualizer", "soundwave", "podcast", "banner", "gradient", "stereo", "transparent"]
 h1            = "Waveform Image from Audio"
 hero_subtitle = "Pick an audio file and get a shareable waveform PNG — rendered in your browser, nothing is uploaded."
 wasm          = "gizza_ai_waveform_image_web"
@@ -33,12 +33,21 @@ name        = "color"
 source      = "field"
 label       = "Wave color"
 placeholder = "#4f46e5"
+kind        = "color"
+
+[[input]]
+name        = "color2"
+source      = "field"
+label       = "Gradient end (optional)"
+placeholder = "empty = solid — or a hex like #ec4899"
+kind        = "color"
 
 [[input]]
 name        = "background"
 source      = "field"
 label       = "Background"
 placeholder = "transparent — or a hex like #0b1220"
+kind        = "color"
 
 [[input]]
 name   = "split_channels"
@@ -49,3 +58,32 @@ label  = "One lane per channel"
 name   = "scale"
 source = "field"
 label  = "Amplitude scale"
+
+[[input]]
+name   = "sampling"
+source = "field"
+label  = "Sampling"
+
+[[example]]
+label  = "Social banner (dark)"
+params = { width = "1200", height = "300", color = "#4f46e5", color2 = "", background = "#0b1220" }
+
+[[example]]
+label  = "Sunset gradient"
+params = { color = "#f97316", color2 = "#ec4899", background = "#0b1220" }
+
+[[example]]
+label  = "Transparent overlay"
+params = { color = "#4f46e5", color2 = "", background = "" }
+
+[[example]]
+label  = "Square post 1080×1080"
+params = { width = "1080", height = "1080" }
+
+[[example]]
+label  = "Stereo lanes"
+params = { color = "#4f46e5,#ec4899", color2 = "", split_channels = "true" }
+
+[[example]]
+label  = "Quiet voice boost"
+params = { scale = "log", sampling = "peak" }
