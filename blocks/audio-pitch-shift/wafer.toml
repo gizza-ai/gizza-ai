@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-pitch-shift"
+version = "0.1.0"
+abi = 1
+summary = "Shift audio pitch by semitones without changing tempo"

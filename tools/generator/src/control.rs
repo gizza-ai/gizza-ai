@@ -34,6 +34,22 @@ pub enum Control {
         min: Option<f64>,
         max: Option<f64>,
         default: Option<f64>,
+        /// True for JSON-schema `number` (fractional) params → `step="any"`,
+        /// so decimals like 0.5 don't trip the browser's step-mismatch
+        /// validation. Integer params keep the default whole-number stepper.
+        step_any: bool,
+    },
+    /// A range slider paired with the regular number box (meta `kind =
+    /// "slider"`), for bounded numeric params where dragging beats typing.
+    /// The number input keeps the canonical `in-<name>` id (deep-links, CLI
+    /// parity, reset all unchanged); the slider mirrors it via `site/tool.js`.
+    Slider {
+        min: f64,
+        max: f64,
+        default: Option<f64>,
+        /// Slider drag granularity (meta `step`, default 1). The paired
+        /// number box always accepts finer values (`step="any"`).
+        step: String,
     },
     Select {
         options: Vec<String>,
@@ -45,6 +61,16 @@ pub enum Control {
     /// A native picker: `<input type="date|time|datetime-local">` (meta `kind`).
     Picker {
         input_type: String,
+    },
+    /// A hex-color text input paired with a native `<input type="color">`
+    /// swatch (meta `kind = "color"`). The TEXT input keeps the canonical
+    /// `in-<name>` id — it stays the source of truth so empty ("transparent"/
+    /// "use the default"), alpha hex (`#RRGGBBAA`) and multi-color lists stay
+    /// expressible, which a bare native picker can't do. The swatch mirrors it
+    /// two-way via `site/tool.js`. `default` is the schema default hex, shown
+    /// on the swatch at rest.
+    Color {
+        default: Option<String>,
     },
     /// A text input backed by a `<datalist>` of a named vocabulary (meta `options`).
     Datalist {
@@ -58,33 +84,89 @@ pub enum Control {
     },
 }
 
-/// One tool's param schema: param name → its JSON-schema property object.
-pub struct ParamSchema(HashMap<String, serde_json::Value>);
+/// Validate a `#RGB`/`#RGBA`/`#RRGGBB`/`#RRGGBBAA` hex color and expand it to
+/// the 6-digit `#rrggbb` form a native `<input type="color">` accepts (alpha
+/// digits are dropped — the swatch can't show alpha). `None` when `s` isn't a
+/// single hex color (empty, named color, multi-color list, …).
+pub fn expand_hex(s: &str) -> Option<String> {
+    let v = s.trim();
+    let digits = v.strip_prefix('#')?;
+    if !matches!(digits.len(), 3 | 4 | 6 | 8) || !digits.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return None;
+    }
+    let full: String = if digits.len() <= 4 {
+        digits.chars().flat_map(|c| [c, c]).collect()
+    } else {
+        digits.to_string()
+    };
+    Some(format!("#{}", full[..6].to_ascii_lowercase()))
+}
+
+/// One tool's param schema: param name → its JSON-schema property object,
+/// plus the schema's `required` param names (in declared order — the CLI maps
+/// bare positionals against exactly this list).
+pub struct ParamSchema {
+    props: HashMap<String, serde_json::Value>,
+    required: Vec<String>,
+}
 
 impl ParamSchema {
     /// An empty schema — every field falls back to text/textarea. Used by tests
     /// and as the graceful default when a manifest is missing/unreadable.
     pub fn empty() -> Self {
-        ParamSchema(HashMap::new())
+        ParamSchema { props: HashMap::new(), required: Vec::new() }
     }
 
-    /// Read `<tool_dir>/manifest.json` and extract `tool.parameters.properties`.
-    /// A missing or unparseable manifest yields an empty schema (no panic, no
-    /// abort) so a tool with a stale manifest just keeps plain text inputs.
+    /// Build a schema from a JSON `properties` object — test-only constructor
+    /// for sibling modules (the real path goes through `load`).
+    #[cfg(test)]
+    pub(crate) fn from_props_for_tests(props: serde_json::Value) -> Self {
+        ParamSchema {
+            props: props.as_object().unwrap().clone().into_iter().collect(),
+            required: Vec::new(),
+        }
+    }
+
+    /// Mark params as required — test-only builder companion to
+    /// `from_props_for_tests`.
+    #[cfg(test)]
+    pub(crate) fn with_required_for_tests(mut self, names: &[&str]) -> Self {
+        self.required = names.iter().map(|s| s.to_string()).collect();
+        self
+    }
+
+    /// Read `<tool_dir>/manifest.json` and extract `tool.parameters`
+    /// (`properties` + `required`). A missing or unparseable manifest yields an
+    /// empty schema (no panic, no abort) so a tool with a stale manifest just
+    /// keeps plain text inputs.
     pub fn load(tool_dir: &Path) -> Self {
-        let props = std::fs::read_to_string(tool_dir.join("manifest.json"))
+        let params = std::fs::read_to_string(tool_dir.join("manifest.json"))
             .ok()
             .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
-            .and_then(|v| {
-                v.get("tool")?
-                    .get("parameters")?
-                    .get("properties")?
-                    .as_object()
-                    .cloned()
-            })
+            .and_then(|v| v.get("tool")?.get("parameters").cloned());
+        let props = params
+            .as_ref()
+            .and_then(|p| p.get("properties")?.as_object().cloned())
             .map(|m| m.into_iter().collect())
             .unwrap_or_default();
-        ParamSchema(props)
+        let required = params
+            .as_ref()
+            .and_then(|p| p.get("required")?.as_array().cloned())
+            .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+            .unwrap_or_default();
+        ParamSchema { props, required }
+    }
+
+    /// Whether `name` is a required param. False for the empty/stale-manifest
+    /// fallback schema (which doesn't know).
+    pub fn is_required(&self, name: &str) -> bool {
+        self.required.iter().any(|r| r == name)
+    }
+
+    /// Whether the schema knows any params at all (false → stale/missing
+    /// manifest fallback, where `is_required` answers are meaningless).
+    pub fn knows_params(&self) -> bool {
+        !self.props.is_empty()
     }
 
     /// Resolve the control for a `source="field"` input: meta-level overrides
@@ -96,6 +178,34 @@ impl ParamSchema {
             "" => {}
             k @ ("date" | "time" | "datetime-local") => {
                 return Control::Picker { input_type: k.to_string() };
+            }
+            "color" => {
+                // Text stays canonical (empty/alpha/lists work); the swatch
+                // is a mirror. The schema default (if any) seeds the swatch.
+                let default = self
+                    .props
+                    .get(&input.name)
+                    .and_then(|p| p.get("default"))
+                    .and_then(|d| d.as_str())
+                    .map(String::from);
+                return Control::Color { default };
+            }
+            "slider" => {
+                // A slider needs real bounds; only a numeric param with both
+                // min and max in the schema qualifies. Anything else falls back
+                // to the schema control (with a warning) rather than rendering
+                // an unbounded range input.
+                if let Control::Number { min: Some(min), max: Some(max), default, .. } =
+                    self.control_for(&input.name, false)
+                {
+                    let step = if input.step.is_empty() { "1".to_string() } else { input.step.clone() };
+                    return Control::Slider { min, max, default, step };
+                }
+                eprintln!(
+                    "warning: [[input]] \"{}\" kind=\"slider\" needs a numeric schema param with min+max — falling back to the schema control",
+                    input.name
+                );
+                return self.control_for(&input.name, input.multiline);
             }
             "tag-list" => {
                 let options: Vec<String> = vocab::options(&input.options)
@@ -111,7 +221,7 @@ impl ParamSchema {
             }
             other => {
                 eprintln!(
-                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|tag-list) — falling back to the schema control",
+                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|color|tag-list|slider) — falling back to the schema control",
                     input.name
                 );
             }
@@ -142,7 +252,7 @@ impl ParamSchema {
                 Control::Text
             }
         };
-        let Some(p) = self.0.get(name) else {
+        let Some(p) = self.props.get(name) else {
             return text_or_area();
         };
         // An enum is a <select> regardless of its JSON "type" ("string").
@@ -162,10 +272,11 @@ impl ParamSchema {
             Some("boolean") => Control::Checkbox {
                 default: p.get("default").and_then(|d| d.as_bool()).unwrap_or(false),
             },
-            Some("integer") | Some("number") => Control::Number {
+            Some(t @ ("integer" | "number")) => Control::Number {
                 min: p.get("minimum").and_then(|m| m.as_f64()),
                 max: p.get("maximum").and_then(|m| m.as_f64()),
                 default: p.get("default").and_then(|d| d.as_f64()),
+                step_any: t == "number",
             },
             _ => text_or_area(),
         }
@@ -178,7 +289,7 @@ mod tests {
     use serde_json::json;
 
     fn schema(props: serde_json::Value) -> ParamSchema {
-        ParamSchema(props.as_object().unwrap().clone().into_iter().collect())
+        ParamSchema::from_props_for_tests(props)
     }
 
     #[test]
@@ -215,8 +326,66 @@ mod tests {
                 min: Some(1.0),
                 max: Some(16.0),
                 default: Some(1.0),
+                step_any: false,
             }
         );
+    }
+
+    #[test]
+    fn fractional_number_param_gets_step_any() {
+        let s = schema(json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 }
+        }));
+        assert_eq!(
+            s.control_for("semitones", false),
+            Control::Number {
+                min: Some(-24.0),
+                max: Some(24.0),
+                default: None,
+                step_any: true,
+            }
+        );
+    }
+
+    #[test]
+    fn slider_kind_pairs_range_with_number_when_bounded() {
+        let s = schema(json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 }
+        }));
+        let mut f = field("semitones", "slider", "");
+        assert_eq!(
+            s.control_for_input(&f),
+            Control::Slider {
+                min: -24.0,
+                max: 24.0,
+                default: None,
+                step: "1".into(),
+            }
+        );
+        f.step = "0.5".into();
+        assert_eq!(
+            s.control_for_input(&f),
+            Control::Slider {
+                min: -24.0,
+                max: 24.0,
+                default: None,
+                step: "0.5".into(),
+            }
+        );
+    }
+
+    #[test]
+    fn slider_kind_without_bounds_falls_back_to_schema_control() {
+        // No min/max in the schema → an unbounded range input would be
+        // meaningless; fall back to the plain number box.
+        let s = schema(json!({ "gain": { "type": "number" } }));
+        assert_eq!(
+            s.control_for_input(&field("gain", "slider", "")),
+            Control::Number { min: None, max: None, default: None, step_any: true }
+        );
+        // Non-numeric param → schema control (text).
+        let s = schema(json!({ "mode": { "type": "string" } }));
+        assert_eq!(s.control_for_input(&field("mode", "slider", "")), Control::Text);
     }
 
     #[test]
@@ -243,7 +412,9 @@ mod tests {
             multiline: false,
             kind: kind.into(),
             options: options.into(),
+            step: String::new(),
             default: String::new(),
+            labels: Default::default(),
         }
     }
 
@@ -293,8 +464,35 @@ mod tests {
     #[test]
     fn unknown_kind_and_vocab_fall_back_to_schema_control() {
         let s = schema(json!({ "x": { "type": "string" } }));
-        assert_eq!(s.control_for_input(&field("x", "color", "")), Control::Text);
+        assert_eq!(s.control_for_input(&field("x", "range", "")), Control::Text);
         assert_eq!(s.control_for_input(&field("x", "", "nope")), Control::Text);
+    }
+
+    #[test]
+    fn color_kind_pairs_swatch_with_text_and_takes_schema_default() {
+        let s = schema(json!({ "color": { "type": "string", "default": "#4f46e5" } }));
+        assert_eq!(
+            s.control_for_input(&field("color", "color", "")),
+            Control::Color { default: Some("#4f46e5".into()) }
+        );
+        // No schema default (e.g. "empty = transparent") → swatch has no rest value.
+        let s = schema(json!({ "background": { "type": "string" } }));
+        assert_eq!(
+            s.control_for_input(&field("background", "color", "")),
+            Control::Color { default: None }
+        );
+    }
+
+    #[test]
+    fn expand_hex_normalizes_short_and_alpha_forms_for_the_swatch() {
+        assert_eq!(expand_hex("#f00").as_deref(), Some("#ff0000"));
+        assert_eq!(expand_hex(" #ABC ").as_deref(), Some("#aabbcc"));
+        assert_eq!(expand_hex("#f008").as_deref(), Some("#ff0000")); // alpha dropped
+        assert_eq!(expand_hex("#4f46e5").as_deref(), Some("#4f46e5"));
+        assert_eq!(expand_hex("#00000080").as_deref(), Some("#000000"));
+        for bad in ["", "red", "#12345", "#ff0000,#0000ff", "4f46e5"] {
+            assert_eq!(expand_hex(bad), None, "{bad}");
+        }
     }
 
     #[test]

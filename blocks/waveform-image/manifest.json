@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/waveform-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a static waveform PNG image from an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Render a static waveform PNG image from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). width x height set the image size in pixels (default 1200x300); color is the wave's hex color (default #4f46e5; alpha via #RRGGBBAA; a comma-separated list colors split channels); color2 turns the wave into a horizontal color->color2 gradient; background is an optional hex (empty = transparent PNG); split_channels draws one lane per channel instead of a single mono wave; scale (lin|sqrt|cbrt|log) boosts quiet audio's visibility; sampling=peak draws the loudest sample per column for a fuller wave. Output is always a PNG image.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "description": "Background color as hex: #RGB, #RRGGBB or #RRGGBBAA — e.g. #000000, or #00000080 for a see-through scrim. Empty or omitted keeps the background transparent (the PNG has an alpha channel).",
+          "type": "string"
+        },
+        "color": {
+          "default": "#4f46e5",
+          "description": "Waveform color as hex: #RGB, #RRGGBB or #RRGGBBAA (alpha), e.g. #4f46e5 or #f00. With split_channels, a comma-separated list colors each channel (e.g. #ff0000,#0000ff). Default #4f46e5.",
+          "type": "string"
+        },
+        "color2": {
+          "description": "Optional gradient end color (same hex forms). When set, the wave is filled with a horizontal left-to-right gradient from color to color2; color must then be a single value. Empty = solid color.",
+          "type": "string"
+        },
+        "height": {
+          "default": 300,
+          "description": "Output image height in pixels, 16-2048. Default 300. With split_channels the height is divided across the channel lanes.",
+          "maximum": 2048,
+          "minimum": 16,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sampling": {
+          "default": "average",
+          "description": "Per-pixel-column sampling. average (default) draws the mean amplitude; peak draws the loudest sample — a fuller wave that keeps short hits visible. Default average.",
+          "enum": [
+            "average",
+            "peak"
+          ],
+          "type": "string"
+        },
+        "scale": {
+          "default": "lin",
+          "description": "Amplitude scale. lin is the true waveform; sqrt, cbrt and log progressively boost quiet audio so it stays visible. Default lin.",
+          "enum": [
+            "lin",
+            "sqrt",
+            "cbrt",
+            "log"
+          ],
+          "type": "string"
+        },
+        "split_channels": {
+          "default": false,
+          "description": "Draw each audio channel in its own horizontal lane instead of downmixing to one mono wave. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 1200,
+          "description": "Output image width in pixels, 16-4096. Default 1200 (the common social-banner shape with the default height).",
+          "maximum": 4096,
+          "minimum": 16,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
