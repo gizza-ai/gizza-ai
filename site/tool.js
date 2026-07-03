@@ -540,6 +540,9 @@ async function main() {
       const fieldArgs = fieldInputs.map((i) => {
         const el = document.getElementById(i.elementId);
         const v = el ? readField(el) : "";
+        // A color field's value is never a number — a bare digits-only hex
+        // like "112233" must stay a string for the wasm &str param.
+        if (el && el.classList.contains("tool-color-value")) return v;
         return v !== "" && !isNaN(Number(v)) ? Number(v) : v;
       });
       const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
