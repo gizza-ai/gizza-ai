@@ -2,10 +2,10 @@
   "name": "gizza-ai/image-vignette",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Add a soft darkened or lightened vignette with adjustable strength around an image's edges.",
+  "summary": "Add a soft darkened, lightened, or colored vignette with adjustable strength around an image's edges.",
   "role": "skill",
   "tool": {
-    "description": "Add a soft darkened (or lightened) vignette around the edges of an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional strength 0-100 (default 40), mode darken|lighten (default darken), and center_x/center_y as percent of the image size (default 50/50, the middle).",
+    "description": "Add a soft darkened, lightened, or colored vignette around the edges of an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional strength 0-100 (default 40), mode darken|lighten (default darken), color (name or hex, darken mode only, default black), center_x/center_y as percent of the image size (default 50/50, the middle), and format keep|png|jpg|webp (default keep).",
     "parameters": {
       "additionalProperties": false,
       "oneOf": [
@@ -34,6 +34,22 @@
           "maximum": 100,
           "minimum": 0,
           "type": "number"
+        },
+        "color": {
+          "default": "black",
+          "description": "Vignette color for darken mode: a name (black, white, gray, sepia, navy, red, …) or hex like #1A2B3C / #A52. black (the default) is the classic look; try sepia for a vintage fade. Not combinable with mode=lighten.",
+          "type": "string"
+        },
+        "format": {
+          "default": "keep",
+          "description": "Output format: keep (default) preserves the input format (and any animation); png, jpg or webp convert — an animated GIF keeps only its first frame when converting.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
         },
         "mode": {
           "default": "darken",
