@@ -78,16 +78,23 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 > 3. **Read the recipes:** `.claude/skills/create-next-tool/SKILL.md` plus its `references/` files
 >    (wasm-safe crates, page patterns, ops gotchas) — they encode every dead end already hit.
 > 4. **Competitor scan (BEFORE implementing):** one WebSearch for the tool's function; skim the top
->    3 real competitor tools. List the table-stakes params, defaults, and worked examples ours must
->    match, tag each in-model/out-of-model, and design the descriptor to include the in-model ones
->    from the start. Record the scan + decisions in
+>    3 real competitor tools (an unreachable one → replace it, don't run with fewer). List the
+>    table-stakes params, defaults, worked examples, AND UX control patterns (sliders, color
+>    pickers, preset buttons) ours must match, tag each in-model/out-of-model, and design the
+>    descriptor to include the in-model ones from the start. Feasibility ≠ model fit: spike an
+>    ffmpeg filter chain / wasm crate for 5 min before tagging a capability out-of-model. Every
+>    table-stake ends in the descriptor OR the out-of-model list — never dropped silently. Record
+>    the scan + decisions in
 >    `docs/checks/<TODAY>-improve-<slug>-competitor-analysis.md` (paraphrase only — NEVER copy
 >    competitor copy, branding, or trademarks; out-of-model items are listed, not built).
 > 5. **Build:** classify type → `scripts/scaffold-tool.sh <slug> <type>` → implement core (≥1 happy
 >    + ≥1 error unit test), descriptor (every param has `.describe()`; every fixed-choice param is
 >    `Param::enumv`; drift-guard schema test), web export, page (`meta.toml` placeholders on every
 >    text/number field; `content.md` with ≥1 worked example, ≥3 real `<details>` FAQs with a blank
->    line inside each, and stated limits/edge cases). Fill EVERY scaffold TODO.
+>    line inside each, and stated limits/edge cases). Use the generator's CURRENT declarative
+>    control kinds (slider/color/tag-list/date/time, `[input.labels]`, `[[example]]` preset chips —
+>    see create-next-tool references/page-patterns.md) — the right control at build time, chips
+>    whenever competitors ship presets. Fill EVERY scaffold TODO.
 > 6. **Verify (all foreground):** `cargo test --workspace` (in blocks/<slug>/) → `wafer build` (in
 >    blocks/<slug>/) → `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` →
 >    `cargo install --path cli` → `python3 scripts/sync-tool-manifest.py <slug>` (generates
@@ -96,17 +103,22 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 >    exact-output case) → Playwright (`cd tests && xvfb-run npx playwright test
 >    tool-page-<slug>.spec.ts`). The page spec MUST assert real output — exact text for pure tools;
 >    for media decode the result and assert dimensions/pixels (new-tool/reference.md §media
->    correctness) — plus one `?param=` deep-link case.
+>    correctness) — plus one `?param=` deep-link case. Advertised-values matrix: one real run per
+>    enum choice / accepted value form (short-hex AND long-hex — `#f00` once drew a white wave
+>    while argv tests passed), ≥1 NON-default checkbox state, the exact cap boundary, ≥1 secondary
+>    input format for media tools. Copy-paste-run the page's generated CLI example VERBATIM (pure:
+>    succeeds; file tools: args parse + graceful fetch error).
 > 7. **Hygiene gate:** `python3 scripts/check-tool-hygiene.py <slug>` must exit 0 (per-slug strict
 >    mode also enforces placeholders, FAQ count, and meta description length).
 > 8. **Honesty gate:** can't build+verify in ≤3 fix attempts → `git clean -fd blocks/<slug>`,
 >    skiplist or report FAILED. NEVER commit broken.
 > 9. **Cleanup:** `for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name
 >    block.wasm -exec rm -rf {} + ; done`. NEVER delete any web/pkg.
-> 10. **Ship:** `git add -A && git commit && git push origin <BRANCH>`.
+> 10. **Ship:** ONE commit for the tool + wasm artifacts + spec (a separate commit for the
+>    competitor-analysis doc is fine); `git add -A && git commit && git push origin <BRANCH>`.
 >
-> Return ONE line only: `<slug>: built+pushed <short-sha>` OR `skiplisted <slug>: <reason>` OR
-> `FAILED <slug>: <reason>`.
+> Return ONE line only (no summary paragraphs): `<slug>: built+pushed <short-sha>` OR
+> `skiplisted <slug>: <reason>` OR `FAILED <slug>: <reason>`.
 
 Replace `<REPO>`, `<BRANCH>`, `<TODAY>` at every dispatch (the loop runs across midnight and
 across machines/branches — stale substitutions have pushed to wrong branches before).
@@ -215,3 +227,19 @@ just TaskStop → clean → redispatch, and the elapsed detection time already s
 ship with `git add -A` at repo root — any uncommitted findings-log edit you've made gets silently
 swept into the next tool's commit. Self-update this file, then commit it immediately (own commit,
 `chore(skills): …`), then dispatch.
+
+**Explicit-pick dispatches work; restate the one-liner rule when customizing (2026-07-03).** For
+curated variety (image/video/audio slots), replace BUILDER PROMPT steps 1–2 with the given
+slug/name/description/type plus targeted dup-check hints (name the suspect sibling blocks and any
+skiplist lines that point AT this slug, e.g. "audio-waveform → build waveform-image instead" is
+this build, not a dup). Two drift risks when customizing: builders return summary paragraphs
+unless the return-line rule says "(no summary paragraphs)", and they may split wasm artifacts
+into a fixup commit unless step 10 says ONE commit.
+
+**Stacked build→improve runs: merge platform pieces forward and ENUMERATE them (2026-07-03).**
+When improve passes land shared generator/site controls mid-run (slider, color kind,
+`[input.labels]`, example chips, download-for-text), merge each improve PR into the working
+branch before the next dispatch and list the now-available pieces in every subsequent prompt —
+otherwise later agents re-invent them or ship pages that ignore them (the vignette build missed
+the just-merged slider/labels kinds). Improve PRs based on the working branch (not main) keep
+their diffs reviewable; the working branch is still user-reviewed before main.

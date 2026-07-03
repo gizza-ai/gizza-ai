@@ -34,7 +34,9 @@ phase is tool-agnostic, just use whatever web research tools the session has.
 1. Search the tool's function (e.g. "url encoder online", "image resize online") with
    `firecrawl-search` **or** `WebSearch`. Pick the **top 5** real competitor *tools* (a usable,
    reachable tool page — not a listicle or a login wall). If fewer than 5 real ones exist, say so
-   and use what's real.
+   and use what's real. If a picked competitor turns out unreachable (403, login wall), REPLACE
+   it with the next real tool — don't run with 4 (a skipped competitor once hid two
+   table-stakes delimiters).
 2. Dispatch **5 read-only subagents in parallel** (one per competitor URL). Subagent prompt:
 
    > You are researching ONE competitor tool for a gizza tool-improvement pass. Visit `<url>`
@@ -55,6 +57,8 @@ phase is tool-agnostic, just use whatever web research tools the session has.
      "output_quality": "...",
      "ux_patterns": ["presets / drag-drop / live-preview / grouping / ..."],
      "seo_copy_angles": ["topics & examples they rank for — PARAPHRASED, not verbatim"],
+     "limits": ["max sizes / duration caps / rate limits they state"],
+     "free_vs_paid": "what's free vs gated — matters for positioning copy",
      "screenshots": ["optional/path.png"]
    }
    ```
@@ -112,6 +116,17 @@ silently passes a string where the wasm export wants a `bool`/`u32`:
   input (batch / per-line), set `multiline = true` on that `[[input]]` in `meta.toml` (renders a
   `<textarea>`); otherwise a pasted newline collapses to a space. `f64`/`u32` are fine as web
   `&str`-parsed; the wasm BigInt gotcha only applies if you (wrongly) type the export param as i64/u64.
+- **Page (ffmpeg tools) numeric-sniffing hazard:** the ffmpeg path coerces numeric-LOOKING field
+  strings to `Number` before calling `build_argv` — a digits-only value in a STRING param (bare hex
+  color "112233", a digits-only label) gets mangled. This bit twice (waveform-image, vignette);
+  `kind = "color"` fields are now exempted platform-wide in `site/tool.js`. When adding any other
+  string param whose values can look numeric, verify a digits-only value survives the page path
+  end-to-end, and fix in tool.js declaratively (by kind/schema type), never per-slug.
+- **ffmpeg checkboxes** marshal via `readField()` as `"true"`/`"false"` (an old bug sent a constant
+  `"on"`). Parse positive-truthy in the web crate and TEST one non-default checkbox state on the page.
+- **Boolean example values:** generated canonical examples use `sample_value = "true"` — if the
+  boolean's default is `false`, that example shows a non-default run; either fine, but say which in
+  the example copy rather than leaving it ambiguous.
 
 ### drift-guard — REGENERATE the authored schema
 
@@ -119,12 +134,25 @@ The block has a unit test pinning `derived == authored` (e.g. url-encode's
 `schema_json_matches_authored_chat_schema`), with `authored` as a hardcoded JSON literal. An
 `/improve-tool` schema change is INTENTIONAL, so:
 
-1. PRINT the new derived schema (more reliable than transcribing the `assert_eq!` Debug diff,
-   which shows `Value` debug, not JSON). Temporarily add `println!("DERIVED{}END", schema_json());`
-   at the top of the drift-guard test, then:
-   `cd blocks/<slug> && cargo test schema_json_matches -- --nocapture 2>&1 | grep -o 'DERIVED.*END' | sed 's/DERIVED//;s/END//' | python3 -m json.tool`.
-   Remove the `println!` after. (Schema key order doesn't matter — `serde_json::Value` equality is
-   order-insensitive; whole-number `min`/`max` render as JSON integers, e.g. `16` not `16.0`.)
+**Ordering (bit two runs):** after any descriptor change run, in this order, before trusting
+manifest state: (0) `cd blocks/<slug> && wafer build` — the sync script reads the descriptor
+embedded in the BUILT wasm/CLI, so syncing against stale wasm reports a silent "already in
+sync"; (1) `cargo install --path cli --force`; (2) `python3 scripts/sync-tool-manifest.py
+<slug>` **from the repo root** (it resolves paths relative to cwd). Those are the only three
+CLI-reinstall/sync points — Phase 1 baseline, post-descriptor-change, and Phase 5 re-test all
+reuse this same sequence.
+
+If a pass changes NO schema (copy/UX-only), that's a legitimate outcome: skip the regenerate,
+and write "schema unchanged" in the PR's schema-diff section instead of forcing a diff.
+
+1. Update the `authored` literal. Fast path that usually wins: hand-edit the literal to what
+   the new descriptor should emit and let the equality test catch any transcription slip.
+   If the Debug diff gets confusing, PRINT the derived schema instead: temporarily add
+   `println!("DERIVED{}END", schema_json());` at the top of the drift-guard test, then
+   `cd blocks/<slug> && cargo test schema_json_matches -- --nocapture 2>&1 | grep -o 'DERIVED.*END' | sed 's/DERIVED//;s/END//' | python3 -m json.tool`,
+   and remove the `println!` after. (Schema key order doesn't matter — `serde_json::Value`
+   equality is order-insensitive; whole-number `min`/`max` render as JSON integers, e.g. `16`
+   not `16.0`.)
 2. **Replace the `authored` JSON literal** in `src/lib.rs`'s test with the new derived schema
    (add the new property/enum/default exactly as `to_schema_json()` emits it —
    `additionalProperties: false`, property order as inserted).
@@ -138,15 +166,17 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
 ## Phase 5 — re-test matrix (run from the stated dir)
 
 - `cd blocks/<slug> && cargo test --workspace` — unit + drift-guard (regenerated) + core.
-- wafer fixtures — the `tests/*.json` invokes (add one per new capability).
+- wafer fixtures — the `tests/*.json` invokes (add one per new capability), IF the family has
+  them: pure families do; the ffmpeg family has NONE (family norm — note it, don't invent
+  fixtures that can't run ffmpeg).
   Recipe: `python3 -c "import json;print(list(json.dumps({'<param>':'<v>'}).encode()))"` →
   the byte list goes in `{"kind":"invoke","data":[…],"meta":[]}`.
 - `cd blocks/<slug> && wafer build` — wasm32 chat block (from INSIDE the dir; no path arg).
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` (from repo root).
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders `pkg/tools/<slug>/`.
-  GOTCHA: the generator renders ALL tools (slug order) and HARD-ABORTS on the first whose
-  `web/pkg/` is missing (a `wasm-pack`-not-yet-built tool) — so it may never reach `<slug>`. If it
-  aborts on another tool, `wasm-pack build blocks/<that>/web …` for each missing one, then re-run.
+  The generator WARNS AND SKIPS a tool whose `web/pkg/` is missing (as of 2026-07: it no longer
+  hard-aborts — three runs tripped on the stale hard-abort note here). Check the warning list:
+  if YOUR slug was skipped, `wasm-pack build blocks/<slug>/web …` and re-run.
 - `solobase build` — rebuild app + blocks into `pkg/`. GOTCHA: it iterates+validates EVERY block
   and aborts on the first that fails — which may be a PRE-EXISTING, unrelated broken block (e.g. a
   `wasi_snapshot_preview1::sched_yield` validation error), not your tool. Confirm with
@@ -157,6 +187,11 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
   `/tools/<slug>/`, AND a `?<param>=<value>` deep-link assertion. Add a case per new capability.
 - **CLI** `cargo install --path cli --force` then `gizza tool <slug> "<args>"` — incl. a new
   case per new capability. (gpu tools: assert `unsupported_in_cli` + exit 3.)
+  **File-input tools:** the SSRF guard blocks loopback URLs — feed the CLI a small PUBLIC
+  fixture URL (see create-next-tool references/ops.md for known-good ones). Also run the
+  page's GENERATED CLI example verbatim: for file tools its `example.com` URL can only fail
+  gracefully at the fetch — the pass criterion is "args parse, graceful fetch error", not
+  output. Pure tools' generated examples must succeed verbatim.
 - **Hygiene gate** `python3 scripts/check-tool-hygiene.py <slug>` — MUST exit 0. Enforces the
   standards that silently regressed before: enum params synced into `manifest.json` (run
   `scripts/sync-tool-manifest.py <slug>` after any descriptor change — never hand-sync), FAQ as
