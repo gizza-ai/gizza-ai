@@ -534,9 +534,12 @@ async function main() {
       // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
       // marshal correctly; leave non-numeric (e.g. "contain") and empty strings
       // as strings — the WASM function handles empty via its own defaults.
+      // readField (not .value) so a checkbox marshals its CHECKED state as
+      // "true"/"false" — a checkbox element's .value is the constant "on"
+      // regardless of state, which would read as always-on.
       const fieldArgs = fieldInputs.map((i) => {
         const el = document.getElementById(i.elementId);
-        const v = el ? el.value : "";
+        const v = el ? readField(el) : "";
         return v !== "" && !isNaN(Number(v)) ? Number(v) : v;
       });
       const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
@@ -600,6 +603,21 @@ async function main() {
 
     if (fileInput) {
       fileInput.addEventListener("change", run);
+      // Paste-to-upload: Ctrl/Cmd+V a copied media file anywhere on the page
+      // selects it and runs. Only a pasted FILE matching the input's accept
+      // class is claimed — pasting text (e.g. a hex color into a field) keeps
+      // the browser default.
+      document.addEventListener("paste", (e) => {
+        const files = Array.from((e.clipboardData && e.clipboardData.files) || []);
+        const kind = (((fileMeta && fileMeta.accept) || "").split("/")[0] || "");
+        const match = files.find((f) => !kind || (f.type || "").startsWith(kind + "/"));
+        if (!match) return;
+        e.preventDefault();
+        const dt = new DataTransfer();
+        dt.items.add(match);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event("change"));
+      });
     }
     for (const i of fieldInputs) {
       const el = document.getElementById(i.elementId);

@@ -3,12 +3,15 @@
 //!
 //! Letterboxes/pillarboxes a video onto a target-aspect canvas: the frame is
 //! scaled to FIT the canvas (`force_original_aspect_ratio=decrease`, never
-//! cropped or stretched) and centered with `pad`, the rest filled with a chosen
-//! bar color. The output is always EXACTLY the canvas size — either the
-//! platform-standard canvas for the chosen aspect (e.g. 1080×1920 for 9:16) or
-//! `width` × the ratio-derived height. `force_divisible_by=2` keeps the scaled
-//! content even so a rounding edge can never overflow the pad area, and
-//! `setsar=1` forces square pixels. Audio is stream-copied untouched.
+//! cropped or stretched) and centered, the rest filled with either a chosen
+//! solid bar color (`pad`) or a blurred, scaled-to-cover copy of the video
+//! itself (`split`/`boxblur`/`overlay` — the "blur background" look). The
+//! output is always EXACTLY the canvas size — either the platform-standard
+//! canvas for the chosen aspect (e.g. 1080×1920 for 9:16) or `width` × the
+//! ratio-derived height. `force_divisible_by=2` keeps the scaled content even
+//! so a rounding edge can never overflow the pad area, and `setsar=1` forces
+//! square pixels. Audio is stream-copied untouched; MP4/MOV outputs get
+//! `+faststart` so social players can start streaming before the download ends.
 
 /// Supported aspect presets: `(name, aspect_w, aspect_h, default_canvas_w,
 /// default_canvas_h)`. Every default canvas is exactly the stated ratio and
@@ -20,9 +23,16 @@ pub const ASPECTS: &[(&str, u32, u32, u32, u32)] = &[
     ("4:5", 4, 5, 1080, 1350),   // Instagram portrait
     ("3:4", 3, 4, 1080, 1440),
     ("4:3", 4, 3, 1440, 1080),
+    ("3:2", 3, 2, 1620, 1080),   // classic photo / camera
     ("2:3", 2, 3, 1080, 1620),   // Pinterest
     ("21:9", 21, 9, 2520, 1080), // cinematic letterbox
 ];
+
+/// Encoding-quality tiers: `(name, x264 CRF)`. The default is the family-wide
+/// `medium`/CRF 23; `high` trades a bigger file for near-transparent quality,
+/// `low` the reverse. Naming the exact CRF on the page is deliberate — it's a
+/// trust signal, not marketing tiers.
+pub const QUALITIES: &[(&str, &str)] = &[("high", "18"), ("medium", "23"), ("low", "28")];
 
 /// Smallest / largest accepted `width` override, in pixels.
 pub const MIN_WIDTH: u32 = 16;
@@ -123,8 +133,33 @@ pub fn normalize_color(color: &str) -> Result<String, String> {
     ))
 }
 
-/// The `-vf` chain: fit inside the canvas (never crop/stretch), center, fill
-/// the rest with `color`, square pixels.
+/// Resolve a quality tier name to its x264 CRF. Empty means the default
+/// `medium`; anything else must be a known tier (rejected with guidance).
+pub fn crf_for(quality: &str) -> Result<&'static str, String> {
+    let q = quality.trim().to_ascii_lowercase();
+    if q.is_empty() {
+        return Ok("23");
+    }
+    QUALITIES
+        .iter()
+        .find(|(name, _)| *name == q)
+        .map(|(_, crf)| *crf)
+        .ok_or_else(|| {
+            let names = QUALITIES.iter().map(|q| q.0).collect::<Vec<_>>().join("|");
+            format!("quality {quality:?} not supported ({names})")
+        })
+}
+
+/// Blur radius for the blurred-background fill, derived from the canvas so the
+/// look scales with resolution (1080-wide → 67). Clamped to ≥2 so tiny
+/// canvases still visibly blur; `min(w,h)/16` always satisfies boxblur's
+/// radius ≤ dimension/2 rule, including on half-size chroma planes.
+pub fn blur_radius(w: u32, h: u32) -> u32 {
+    (w.min(h) / 16).max(2)
+}
+
+/// The `-vf` chain for solid bars: fit inside the canvas (never crop/stretch),
+/// center, fill the rest with `color`, square pixels.
 pub fn build_filter(w: u32, h: u32, color: &str) -> String {
     format!(
         "scale=w={w}:h={h}:force_original_aspect_ratio=decrease:force_divisible_by=2,\
@@ -132,40 +167,90 @@ pub fn build_filter(w: u32, h: u32, color: &str) -> String {
     )
 }
 
-/// Build the ffmpeg argv (no leading `ffmpeg`). Video is re-encoded H.264
-/// (medium/CRF 23, the family default); audio is stream-copied untouched.
-pub fn build_argv(in_name: &str, out_name: &str, filter: &str) -> Vec<String> {
-    vec![
-        "-i".into(),
-        in_name.into(),
-        "-vf".into(),
-        filter.into(),
+/// The `-filter_complex` graph for the blurred-background fill: one copy of
+/// the frame is scaled to COVER the canvas, center-cropped and box-blurred
+/// (the backdrop); the other is scaled to FIT (never cropped/stretched) and
+/// centered on top. Output is labeled `[v]` for `-map`.
+pub fn build_blur_graph(w: u32, h: u32) -> String {
+    let r = blur_radius(w, h);
+    format!(
+        "[0:v]split=2[bg][fg];\
+         [bg]scale=w={w}:h={h}:force_original_aspect_ratio=increase:force_divisible_by=2,\
+         crop=w={w}:h={h},boxblur={r}:2[bgb];\
+         [fg]scale=w={w}:h={h}:force_original_aspect_ratio=decrease:force_divisible_by=2[fgs];\
+         [bgb][fgs]overlay=x=(W-w)/2:y=(H-h)/2,setsar=1[v]"
+    )
+}
+
+/// Shared encoder tail: H.264 at the tier's CRF (`medium` preset, the family
+/// default), audio stream-copied untouched, and `+faststart` on MP4/MOV so
+/// the moov atom leads and social players can stream immediately.
+fn encoder_args(out_name: &str, crf: &str) -> Vec<String> {
+    let mut args: Vec<String> = vec![
         "-c:v".into(),
         "libx264".into(),
         "-preset".into(),
         "medium".into(),
         "-crf".into(),
-        "23".into(),
+        crf.into(),
         "-c:a".into(),
         "copy".into(),
-        out_name.into(),
-    ]
+    ];
+    if out_name.ends_with(".mp4") || out_name.ends_with(".mov") {
+        args.push("-movflags".into());
+        args.push("+faststart".into());
+    }
+    args.push(out_name.into());
+    args
+}
+
+/// Build the ffmpeg argv (no leading `ffmpeg`) for the solid-bars path.
+pub fn build_argv(in_name: &str, out_name: &str, filter: &str, crf: &str) -> Vec<String> {
+    let mut argv: Vec<String> = vec!["-i".into(), in_name.into(), "-vf".into(), filter.into()];
+    argv.extend(encoder_args(out_name, crf));
+    argv
+}
+
+/// Build the ffmpeg argv for the blurred-background path: `-filter_complex`
+/// with the video mapped from the graph's `[v]` and audio (if any) copied.
+pub fn build_argv_blur(in_name: &str, out_name: &str, graph: &str, crf: &str) -> Vec<String> {
+    let mut argv: Vec<String> = vec![
+        "-i".into(),
+        in_name.into(),
+        "-filter_complex".into(),
+        graph.into(),
+        "-map".into(),
+        "[v]".into(),
+        "-map".into(),
+        "0:a?".into(),
+    ];
+    argv.extend(encoder_args(out_name, crf));
+    argv
 }
 
 /// Validate everything and return `(argv, out_name)` — the single entry point
 /// shared by the chat block (`src/lib.rs`) and the web page (`web/src/lib.rs`).
-/// `out_name` keeps the input container extension.
+/// `out_name` keeps the input container extension. `blur` fills the bars with
+/// a blurred cover-scaled copy of the video instead of the solid `color`
+/// (which is still validated, then unused).
 pub fn plan(
     in_name: &str,
     aspect: &str,
     width: Option<u32>,
     color: &str,
+    blur: bool,
+    quality: &str,
 ) -> Result<(Vec<String>, String), String> {
     let (w, h) = canvas(aspect, width)?;
     let color = normalize_color(color)?;
-    let filter = build_filter(w, h, &color);
+    let crf = crf_for(quality)?;
     let out_name = format!("out.{}", out_ext(in_name));
-    Ok((build_argv(in_name, &out_name, &filter), out_name))
+    let argv = if blur {
+        build_argv_blur(in_name, &out_name, &build_blur_graph(w, h), crf)
+    } else {
+        build_argv(in_name, &out_name, &build_filter(w, h, &color), crf)
+    };
+    Ok((argv, out_name))
 }
 
 #[cfg(test)]
@@ -179,7 +264,7 @@ mod tests {
 
     #[test]
     fn default_canvas_full_argv() {
-        let (argv, out) = plan("in.mp4", "9:16", None, "black").unwrap();
+        let (argv, out) = plan("in.mp4", "9:16", None, "black", false, "").unwrap();
         assert_eq!(out, "out.mp4");
         assert_eq!(
             argv,
@@ -197,12 +282,71 @@ mod tests {
                 "23",
                 "-c:a",
                 "copy",
+                "-movflags",
+                "+faststart",
                 "out.mp4",
             ]
             .into_iter()
             .map(String::from)
             .collect::<Vec<_>>()
         );
+    }
+
+    #[test]
+    fn quality_tiers_map_to_crf_and_bad_tier_rejected() {
+        assert_eq!(crf_for("").unwrap(), "23"); // empty → family default
+        assert_eq!(crf_for("high").unwrap(), "18");
+        assert_eq!(crf_for(" Medium ").unwrap(), "23");
+        assert_eq!(crf_for("low").unwrap(), "28");
+        let err = crf_for("ultra").unwrap_err();
+        assert!(err.contains("high|medium|low"), "{err}");
+        let (argv, _) = plan("in.mp4", "9:16", None, "black", false, "high").unwrap();
+        assert!(argv.windows(2).any(|w| w[0] == "-crf" && w[1] == "18"));
+    }
+
+    #[test]
+    fn blur_background_builds_cover_blur_overlay_graph() {
+        let (argv, out) = plan("in.mp4", "9:16", Some(90), "black", true, "").unwrap();
+        assert_eq!(out, "out.mp4");
+        let i = argv.iter().position(|a| a == "-filter_complex").unwrap();
+        let g = &argv[i + 1];
+        // backdrop: cover-scale, center-crop, blur (radius min(90,160)/16 → 5)
+        assert!(g.contains("force_original_aspect_ratio=increase"), "{g}");
+        assert!(g.contains("crop=w=90:h=160"), "{g}");
+        assert!(g.contains("boxblur=5:2"), "{g}");
+        // foreground: fit-scale, centered overlay, square pixels, labeled [v]
+        assert!(g.contains("force_original_aspect_ratio=decrease"), "{g}");
+        assert!(g.contains("overlay=x=(W-w)/2:y=(H-h)/2,setsar=1[v]"), "{g}");
+        // the graph's video is mapped; audio (if any) is copied
+        assert!(argv.windows(2).any(|w| w[0] == "-map" && w[1] == "[v]"), "{argv:?}");
+        assert!(argv.windows(2).any(|w| w[0] == "-map" && w[1] == "0:a?"), "{argv:?}");
+        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "copy"), "{argv:?}");
+        // no -vf in blur mode
+        assert!(!argv.iter().any(|a| a == "-vf"), "{argv:?}");
+    }
+
+    #[test]
+    fn blur_radius_scales_with_canvas_and_never_underflows() {
+        assert_eq!(blur_radius(1080, 1920), 67);
+        assert_eq!(blur_radius(90, 160), 5);
+        assert_eq!(blur_radius(16, 30), 2); // 16/16 = 1 → clamped to 2
+        // boxblur needs radius ≤ dimension/2, also on half-size chroma planes.
+        for &(_, _, _, w, h) in ASPECTS {
+            assert!(blur_radius(w, h) <= w.min(h) / 4);
+        }
+    }
+
+    #[test]
+    fn faststart_on_mp4_and_mov_only() {
+        let fast = |argv: &[String]| {
+            argv.windows(2).any(|w| w[0] == "-movflags" && w[1] == "+faststart")
+        };
+        let (argv, _) = plan("in.mp4", "1:1", None, "black", false, "").unwrap();
+        assert!(fast(&argv));
+        let (argv, _) = plan("in.mov", "1:1", None, "black", true, "").unwrap();
+        assert!(fast(&argv));
+        let (argv, _) = plan("in.webm", "1:1", None, "black", false, "").unwrap();
+        assert!(!fast(&argv));
     }
 
     #[test]
@@ -223,11 +367,14 @@ mod tests {
         assert_eq!(canvas("9:16", Some(100)).unwrap(), (100, 178));
         // 3:4: 122 × 4/3 = 162.67 → rounds to 163 → bumped to even 164.
         assert_eq!(canvas("3:4", Some(122)).unwrap(), (122, 164));
+        // 3:2 (new preset): default canvas and a width override.
+        assert_eq!(canvas("3:2", None).unwrap(), (1620, 1080));
+        assert_eq!(canvas("3:2", Some(300)).unwrap(), (300, 200));
     }
 
     #[test]
     fn bad_aspect_odd_or_out_of_range_width_rejected() {
-        let err = plan("in.mp4", "5:7", None, "black").unwrap_err();
+        let err = plan("in.mp4", "5:7", None, "black", false, "").unwrap_err();
         assert!(err.contains("not supported") && err.contains("9:16"), "{err}");
         let err = canvas("9:16", Some(91)).unwrap_err();
         assert!(err.contains("even"), "{err}");
@@ -259,7 +406,7 @@ mod tests {
 
     #[test]
     fn filter_fits_centers_and_squares_pixels() {
-        let (argv, _) = plan("clip.webm", "1:1", Some(320), "white").unwrap();
+        let (argv, _) = plan("clip.webm", "1:1", Some(320), "white", false, "").unwrap();
         let f = vf(&argv);
         assert!(f.contains("force_original_aspect_ratio=decrease"), "{f}");
         assert!(f.contains("force_divisible_by=2"), "{f}");
@@ -269,8 +416,16 @@ mod tests {
 
     #[test]
     fn keeps_container_extension_and_copies_audio() {
-        let (argv, out) = plan("clip.webm", "16:9", None, "black").unwrap();
+        let (argv, out) = plan("clip.webm", "16:9", None, "black", false, "").unwrap();
         assert_eq!(out, "out.webm");
         assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "copy"));
+    }
+
+    #[test]
+    fn blur_still_validates_color_and_quality() {
+        // A bad color is rejected even though blur ignores it — silently
+        // accepting garbage would teach users a value that breaks later.
+        assert!(plan("in.mp4", "9:16", None, "blurple", true, "").is_err());
+        assert!(plan("in.mp4", "9:16", None, "black", true, "ultra").is_err());
     }
 }

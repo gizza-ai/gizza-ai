@@ -99,7 +99,11 @@ pub fn render_page(
                                         Control::Select { options, default } => {
                                             select id=(id) class="tool-input tool-select" {
                                                 @for opt in &options {
-                                                    option value=(opt) selected[Some(opt) == default.as_ref()] { (opt) }
+                                                    // Value stays canonical (deep-links/chips/CLI);
+                                                    // meta `labels` only enriches the visible text.
+                                                    option value=(opt) selected[Some(opt) == default.as_ref()] {
+                                                        (input.labels.get(opt).unwrap_or(opt))
+                                                    }
                                                 }
                                             }
                                         }
@@ -773,6 +777,51 @@ kind        = "color"
             html.contains("gizza tool waveform-image 'url=https://example.com/input' 'color=#4f46e5'"),
             "CLI example is runnable: hex sample, placeholder-leak omitted"
         );
+    }
+
+    #[test]
+    fn select_labels_enrich_display_text_but_keep_canonical_values() {
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "video-aspect-pad"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+
+[[input]]
+name   = "aspect"
+source = "field"
+label  = "Target aspect ratio"
+labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:1 — square feed (1080×1080)" }
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "aspect": { "type": "string", "enum": ["9:16", "1:1", "16:9"], "default": "9:16" }
+        }));
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        // labeled options: canonical value attr + enriched visible text
+        assert!(
+            html.contains(r#"<option value="9:16" selected>9:16 — Reels / Shorts / TikTok (1080×1920)</option>"#),
+            "labeled default option keeps canonical value"
+        );
+        assert!(
+            html.contains(r#"<option value="1:1">1:1 — square feed (1080×1080)</option>"#),
+            "labeled non-default option"
+        );
+        // an unlabeled option falls back to its value as the text
+        assert!(html.contains(r#"<option value="16:9">16:9</option>"#), "unlabeled option unchanged");
     }
 
     #[test]

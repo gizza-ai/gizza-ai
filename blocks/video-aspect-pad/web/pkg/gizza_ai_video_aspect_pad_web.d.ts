@@ -1,13 +1,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export function build_argv(aspect: string, width: number, color: string, in_name: string): any;
+export function build_argv(aspect: string, width: number, color: string, blur: string, quality: string, in_name: string): any;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
     readonly memory: WebAssembly.Memory;
-    readonly build_argv: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number];
+    readonly build_argv: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number) => [number, number, number];
     readonly __wafer_alloc: (a: number) => number;
     readonly __wbindgen_malloc: (a: number, b: number) => number;
     readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
