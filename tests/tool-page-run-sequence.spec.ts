@@ -10,6 +10,16 @@ import path from 'node:path';
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.mp3');
 
+// The fixture page is shared across every test in the worker (fixtures.ts
+// reuses one persistent-context page), and page.route registrations OUTLIVE
+// the test that added them. Without this cleanup, alphabetically-later specs
+// (e.g. tool-page-trim-audio) load the gated stub instead of the real
+// ffmpeg.js — whose release gate belongs to a dead document — and hang at
+// "Processing…" until their 90 s expect timeout.
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 // Base64 payloads distinguish which run's output landed in media.src.
 const STALE_B64 = 'U1RBTEU='; // "STALE"
 const FRESH_B64 = 'RlJFU0g='; // "FRESH"
