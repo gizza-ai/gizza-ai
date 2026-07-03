@@ -9,8 +9,8 @@ The video is re-encoded right in your browser with ffmpeg; nothing is uploaded.
 - **Width / height** — the size of the rectangle to keep, in pixels.
 - **X / Y offset** — where the rectangle starts from the top-left. Leave both
   blank to center the crop.
-- The output keeps the original container format (mp4, webm, …) and is
-  re-encoded with H.264 video + AAC audio.
+- The output is re-encoded with H.264 video + AAC audio. An mp4, mov, m4v, or
+  mkv keeps its container; other inputs (webm, …) come out as MP4.
 
 ### Notes
 
@@ -34,8 +34,9 @@ you want the crop centered on the frame.
 <details>
 <summary>Does cropping change the video's format or quality?</summary>
 
-The output keeps your original container (an `.mp4` stays `.mp4`, a `.webm` stays
-`.webm`), but the streams are re-encoded to **H.264 video + AAC audio** — cropping
+An `.mp4`, `.mov`, `.m4v`, or `.mkv` keeps its container; anything else (a
+`.webm`, …) is converted to **MP4**, since those containers can't hold H.264/AAC.
+Either way the streams are re-encoded to **H.264 video + AAC audio** — cropping
 can't be done without re-encoding. Re-encoding introduces a small generational
 quality loss, so crop once from the original rather than repeatedly re-cropping
 outputs.

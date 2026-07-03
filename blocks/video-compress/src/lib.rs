@@ -1,5 +1,7 @@
 //! gizza-ai/video-compress — fetch a video URL or attachment ref, shrink its
-//! file size with a single-pass CRF re-encode (H.264/AAC), keep the container.
+//! file size with a single-pass CRF re-encode (H.264/AAC). The container is
+//! kept for inputs that can hold H.264/AAC (mp4/mov/m4v/mkv); anything else
+//! (e.g. webm) is converted to MP4 — see `h264_out_ext`.
 //!
 //! The chat schema is derived from `descriptor()` (single source — shared shape
 //! across chat + CLI + page); the handler delegates source-resolution, ffmpeg
@@ -63,10 +65,10 @@ struct VideoCompress;
     name = "gizza-ai/video-compress",
     version = "0.1.0",
     interface = "handler@v1",
-    summary = "Shrink a video's file size with a single-pass CRF re-encode, keeping the format",
+    summary = "Shrink a video's file size with a single-pass CRF re-encode to H.264/AAC",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
-        description = "Shrink a video's file size by re-encoding it at a chosen quality (CRF), keeping the container format. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Single-pass H.264/AAC re-encode — higher crf = smaller file / lower quality. This is a quality knob, not a target-size guarantee (true target-byte-size needs a 2-pass encode).",
+        description = "Shrink a video's file size by re-encoding it at a chosen quality (CRF). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Single-pass H.264/AAC re-encode — higher crf = smaller file / lower quality. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. This is a quality knob, not a target-size guarantee (true target-byte-size needs a 2-pass encode).",
         parameters = schema_json()
     ),
 )]
@@ -100,7 +102,8 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let (input_bytes, in_mime, in_filename) =
         resolve_source(args.source.into_inner(), AssetKind::Video, MAX_INPUT_BYTES)?;
 
-    // 3. Build ffmpeg argv (core keeps the input container extension).
+    // 3. Build ffmpeg argv (core keeps the input container when it can hold
+    //    H.264/AAC, otherwise switches to mp4 — see h264_out_ext).
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
     let (argv, ffmpeg_out) = build_argv(crf_req, &ffmpeg_in);
@@ -108,7 +111,8 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     // 4. Dispatch to ffmpeg-runtime.
     let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out.clone())?;
 
-    // 5. Envelope. Output mime follows the produced extension (== input ext).
+    // 5. Envelope. Output mime follows the produced extension (input's when
+    //    kept, else mp4).
     let out_ext = ffmpeg_out.rsplit_once('.').map(|(_, e)| e).unwrap_or("mp4");
     let out_mime = ext_to_video_mime(out_ext);
     let output_size = output.len();

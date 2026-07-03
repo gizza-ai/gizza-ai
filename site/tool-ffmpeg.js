@@ -20,7 +20,7 @@ export function dataUrlFor(mime, b64) {
 const EXT_MIME = {
   png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp",
   gif: "image/gif", bmp: "image/bmp", avif: "image/avif",
-  mp4: "video/mp4", webm: "video/webm", mov: "video/quicktime", mkv: "video/x-matroska",
+  mp4: "video/mp4", m4v: "video/mp4", webm: "video/webm", mov: "video/quicktime", mkv: "video/x-matroska",
   mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg", flac: "audio/flac",
   aac: "audio/aac", m4a: "audio/mp4", opus: "audio/opus",
 };

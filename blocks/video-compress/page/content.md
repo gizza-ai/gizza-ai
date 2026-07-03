@@ -7,8 +7,9 @@ quality level, and it's re-encoded locally — the file never leaves your device
 
 The tool runs a single-pass [CRF](https://trac.ffmpeg.org/wiki/Encode/H.264#crf)
 ("constant rate factor") re-encode with ffmpeg, compiled to WebAssembly. The
-video is encoded to **H.264** with **AAC** audio, keeping the original container
-format (mp4 stays mp4, webm stays webm, and so on).
+video is encoded to **H.264** with **AAC** audio. An `.mp4`, `.mov`, `.m4v`, or
+`.mkv` keeps its container; other inputs (`.webm`, `.ogv`, `.avi`, …) come out
+as **MP4**, since those containers can't hold H.264/AAC.
 
 CRF is a quality knob: **lower CRF means higher quality and a larger file;
 higher CRF means a smaller file with more visible compression**. The default of
@@ -50,9 +51,10 @@ still watchable, and 32–34 is for when size matters most. Values outside
 <details>
 <summary>Do the codecs or file format change?</summary>
 
-The container is preserved — an `.mp4` stays `.mp4`, a `.webm` stays `.webm` —
-but the streams inside are always re-encoded to H.264 video (libx264, medium
-preset) with AAC audio, whatever the original codecs were.
+An `.mp4`, `.mov`, `.m4v`, or `.mkv` keeps its container; anything else (`.webm`,
+`.ogv`, `.avi`, …) is converted to **MP4**, because those containers can't hold
+H.264/AAC. Either way the streams inside are always re-encoded to H.264 video
+(libx264, medium preset) with AAC audio, whatever the original codecs were.
 
 </details>
 
