@@ -89,12 +89,25 @@ function uint8ToB64(arr) {
 /**
  * Run ffmpeg with the given CLI args.
  *
+ * Calls are serialized FIFO: they share one FFmpeg instance and its virtual
+ * FS, and tools reuse fixed in/out filenames — interleaved
+ * writeFile/exec/readFile from overlapping calls would cross-wire inputs and
+ * outputs (e.g. an earlier call reading back a later call's output).
+ *
  * @param {string} argsJson    JSON-encoded array of strings, e.g. '["-i","in","out"]'
  * @param {string} inputsJson  JSON-encoded array of {name, bytes_b64}
  * @param {string} outputName  Filename to read back from ffmpeg's virtual FS
  * @returns {Promise<{exit_code:number, output_b64:string, log:string}>}
  */
-export async function ffmpegExec(argsJson, inputsJson, outputName) {
+let execChain = Promise.resolve();
+
+export function ffmpegExec(argsJson, inputsJson, outputName) {
+    const run = execChain.then(() => execOnce(argsJson, inputsJson, outputName));
+    execChain = run.then(() => {}, () => {});
+    return run;
+}
+
+async function execOnce(argsJson, inputsJson, outputName) {
     const args = JSON.parse(argsJson);
     const inputs = JSON.parse(inputsJson);
     const ffmpeg = await ensureFfmpeg();
