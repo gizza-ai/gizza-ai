@@ -150,6 +150,17 @@ fn sample_value(control: &Control, placeholder: &str) -> Option<String> {
                     .unwrap_or_else(|| fmt_num(*min)),
             )
         }
+        Control::Color { default } => {
+            // Same omit-rule as Number: a non-hex placeholder (e.g.
+            // "transparent — or a hex like #0b1220") means EMPTY is the
+            // meaningful value, so the param is left out of the example
+            // rather than teaching a value that would be rejected.
+            let hex_ph = ph.as_ref().and_then(|p| crate::control::expand_hex(p).map(|_| p.clone()));
+            if ph.is_some() && hex_ph.is_none() {
+                return None;
+            }
+            hex_ph.or_else(|| default.clone())
+        }
         Control::Picker { input_type } => Some(ph.unwrap_or_else(|| {
             match input_type.as_str() {
                 "time" => "09:30",
