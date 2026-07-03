@@ -556,19 +556,23 @@ async function main() {
       media.hidden = true;
       dl.hidden = true;
       if (outputWf) outputWf.clear();
-      // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
-      // marshal correctly; leave non-numeric (e.g. "contain") and empty strings
-      // as strings — the WASM function handles empty via its own defaults.
-      // readField (not .value) so a checkbox marshals its CHECKED state as
-      // "true"/"false" — a checkbox element's .value is the constant "on"
-      // regardless of state, which would read as always-on.
+      // Coerce a field value to Number ONLY when the param's DECLARED schema
+      // type is numeric (i.numeric, baked from manifest.json tool.parameters by
+      // the generator) — so wasm-bindgen f64 params marshal correctly, while a
+      // string param whose value happens to be digits (a bare hex color
+      // "112233", a numeric-looking label/code) stays a string. Empty and
+      // non-finite values pass through as the raw string; the WASM function
+      // applies its own defaults. readField (not .value) so a checkbox marshals
+      // its CHECKED state as "true"/"false" — a checkbox element's .value is the
+      // constant "on" regardless of state, which would read as always-on.
       const fieldArgs = fieldInputs.map((i) => {
         const el = document.getElementById(i.elementId);
         const v = el ? readField(el) : "";
-        // A color field's value is never a number — a bare digits-only hex
-        // like "112233" must stay a string for the wasm &str param.
-        if (el && el.classList.contains("tool-color-value")) return v;
-        return v !== "" && !isNaN(Number(v)) ? Number(v) : v;
+        if (i.numeric && v !== "") {
+          const n = Number(v);
+          if (Number.isFinite(n)) return n;
+        }
+        return v;
       });
       const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
       if (seq !== runSeq) return; // superseded while ffmpeg ran — drop the result

@@ -169,6 +169,28 @@ impl ParamSchema {
         !self.props.is_empty()
     }
 
+    /// Whether `name`'s declared JSON-schema type is numeric (`integer` or
+    /// `number`) — the page must marshal its field value as a JS `Number` for
+    /// the wasm `f64` param. False for `string`/`boolean` params, for `enum`
+    /// params (a `<select>` yields a canonical string value, even a
+    /// digits-looking one), and for the empty/stale fallback schema (unknown →
+    /// left a string). This is what lets `tool.js` coerce BY TYPE instead of
+    /// sniffing whether a string looks numeric.
+    pub fn is_numeric(&self, name: &str) -> bool {
+        let Some(p) = self.props.get(name) else {
+            return false;
+        };
+        // An enum is a string-valued <select> regardless of its JSON "type";
+        // its value must never be coerced to a Number.
+        if p.get("enum").is_some() {
+            return false;
+        }
+        matches!(
+            p.get("type").and_then(|t| t.as_str()),
+            Some("integer" | "number")
+        )
+    }
+
     /// Resolve the control for a `source="field"` input: meta-level overrides
     /// (`kind`, `options`) win over the schema-derived control, because the
     /// schema only knows JSON types ("string") while the meta knows the page
@@ -493,6 +515,25 @@ mod tests {
         for bad in ["", "red", "#12345", "#ff0000,#0000ff", "4f46e5"] {
             assert_eq!(expand_hex(bad), None, "{bad}");
         }
+    }
+
+    #[test]
+    fn is_numeric_is_true_only_for_integer_and_number_types() {
+        let s = schema(json!({
+            "width":    { "type": "integer" },
+            "semitones":{ "type": "number" },
+            "color":    { "type": "string" },
+            "flag":     { "type": "boolean" },
+            "mode":     { "type": "string", "enum": ["a", "b"] }
+        }));
+        assert!(s.is_numeric("width"), "integer param is numeric");
+        assert!(s.is_numeric("semitones"), "number param is numeric");
+        assert!(!s.is_numeric("color"), "string param is not numeric");
+        assert!(!s.is_numeric("flag"), "boolean param is not numeric");
+        assert!(!s.is_numeric("mode"), "enum <select> value stays a string");
+        // Unknown / stale-manifest fallback: never coerce.
+        assert!(!s.is_numeric("absent"), "unknown param is not numeric");
+        assert!(!ParamSchema::empty().is_numeric("width"), "empty schema is not numeric");
     }
 
     #[test]
