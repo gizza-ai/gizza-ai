@@ -323,6 +323,81 @@ async function main() {
     const fileInput = fileMeta ? document.getElementById("in-" + fileMeta.name) : null;
     const fieldInputs = cfg.inputs.filter((i) => i.source === "field");
 
+    // ---- Shared audio waveform (site/tool-audio.js) ----------------------
+    // Auto-enabled for audio-input tools (accept="audio/*") unless meta says
+    // `waveform = false`. Declarative binding (cfg.waveform = {start,end})
+    // two-way syncs the selection with those fields; commit runs ffmpeg once.
+    // Enhancement only: every failure path leaves the normal flow working.
+    let inputWf = null;
+    let outputWf = null;
+    const wfBinding =
+      cfg.waveform && typeof cfg.waveform === "object" ? cfg.waveform : null;
+    const wantWaveform =
+      cfg.waveform !== false &&
+      fileInput &&
+      ((fileMeta && fileMeta.accept) || "").startsWith("audio/");
+
+    async function wireWaveforms() {
+      if (!wantWaveform) return;
+      try {
+        const { createWaveform } = await import("./tool-audio.js");
+        const startEl = wfBinding ? document.getElementById("in-" + wfBinding.start) : null;
+        const endEl = wfBinding ? document.getElementById("in-" + wfBinding.end) : null;
+        const selection =
+          startEl && endEl
+            ? {
+                getBounds: () => ({
+                  start: parseFloat(startEl.value) || 0,
+                  end: endEl.value === "" ? null : parseFloat(endEl.value),
+                }),
+                onDrag: (s, e) => {
+                  // live field mirror — programmatic writes fire no events
+                  startEl.value = s.toFixed(1);
+                  endEl.value = e.toFixed(1);
+                },
+                onCommit: (s, e) => {
+                  startEl.value = s.toFixed(1);
+                  endEl.value = e.toFixed(1);
+                  // exactly one change event → exactly one ffmpeg run
+                  endEl.dispatchEvent(new Event("change"));
+                },
+              }
+            : null;
+        const inWrap = document.createElement("div");
+        inWrap.hidden = true;
+        fileInput.after(inWrap);
+        inputWf = createWaveform(inWrap, { selection });
+        if (selection) {
+          for (const el of [startEl, endEl]) {
+            el.addEventListener("input", () => {
+              const b = selection.getBounds();
+              inputWf.setSelection(b.start, b.end);
+            });
+          }
+        }
+        const outWrap = document.createElement("div");
+        outWrap.hidden = true;
+        media.before(outWrap);
+        outputWf = createWaveform(outWrap, { interactive: false });
+
+        fileInput.addEventListener("change", () => {
+          const f = fileInput.files && fileInput.files[0];
+          if (f) inputWf.load(f);
+          else inputWf.clear();
+        });
+        const reset = document.getElementById("tool-reset");
+        if (reset) {
+          reset.addEventListener("click", () => {
+            inputWf.clear();
+            outputWf.clear();
+          });
+        }
+      } catch (e) {
+        inputWf = null;
+        outputWf = null; // component failed to load — tool works as before
+      }
+    }
+
     async function run() {
       const file = fileInput && fileInput.files && fileInput.files[0];
       if (!file) return;
@@ -330,6 +405,7 @@ async function main() {
       out.classList.remove("error");
       media.hidden = true;
       dl.hidden = true;
+      if (outputWf) outputWf.clear();
       // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
       // marshal correctly; leave non-numeric (e.g. "contain") and empty strings
       // as strings — the WASM function handles empty via its own defaults.
@@ -346,6 +422,17 @@ async function main() {
         dl.href = r.dataUrl;
         dl.download = r.outName;
         dl.hidden = false;
+        // Visual result: decode the output into the read-only waveform. The
+        // native <audio controls> stays visible (accessible transport +
+        // decode-failure fallback); the waveform adds the before/after view.
+        if (outputWf && String(r.dataUrl).startsWith("data:audio/")) {
+          try {
+            const blob = await (await fetch(r.dataUrl)).blob();
+            await outputWf.load(blob);
+          } catch (e) {
+            outputWf.clear(); // fallback: native player alone, as today
+          }
+        }
       } else {
         showError(r.error);
       }
@@ -363,6 +450,7 @@ async function main() {
     if (custom.setup && custom.setup({ ...customCtx, run, fileInput, fieldInputs }) === true) {
       return; // custom module owns all wiring for this tool
     }
+    await wireWaveforms();
     async function loadUrlIntoFile(url) {
       try {
         const resp = await fetch(url);
@@ -394,7 +482,7 @@ async function main() {
     }
     if (qpUrl && fileInput) {
       loadUrlIntoFile(qpUrl).then((ok) => {
-        if (ok) run();
+        if (ok) fileInput.dispatchEvent(new Event("change"));
       });
     }
     return;
