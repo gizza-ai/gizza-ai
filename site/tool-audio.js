@@ -36,6 +36,13 @@ export function createWaveform(container, opts = {}) {
   const canvas = document.createElement("canvas");
   canvas.className = "tool-wf-canvas";
   wave.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  // The static gray waveform envelope depends only on `peaks` (recomputed
+  // solely in resize()). Rasterize it ONCE per resize into this offscreen
+  // canvas; draw() then blits the bitmap each frame (O(1)) instead of
+  // re-drawing ~clientWidth fillRects (O(width)) per animation frame.
+  const envelopeCanvas = document.createElement("canvas");
+  const envelopeCtx = envelopeCanvas.getContext("2d");
 
   const bar = document.createElement("div");
   bar.className = "tool-wf-bar";
@@ -68,10 +75,11 @@ export function createWaveform(container, opts = {}) {
   let sel = null;   // {start, end} seconds, or null
   let playScope = null; // "all" | "selection" while playing
   let rafId = 0;
+  let cssWidth = 0; // cached wave.clientWidth (CSS px); refreshed in resize()
 
-  const xOf = (t) => (duration ? (t / duration) * wave.clientWidth : 0);
+  const xOf = (t) => (duration ? (t / duration) * cssWidth : 0);
   const tOf = (x) =>
-    Math.max(0, Math.min(duration, (x / Math.max(1, wave.clientWidth)) * duration));
+    Math.max(0, Math.min(duration, (x / Math.max(1, cssWidth)) * duration));
 
   // Clamp a raw bounds pair to [0, duration]. THE bounds interpreter — call
   // sites hand over raw field values and must not pre-map them.
@@ -141,25 +149,45 @@ export function createWaveform(container, opts = {}) {
     return out;
   }
 
+  // Rasterize the static gray envelope into the offscreen canvas. Rendered
+  // with the SAME setTransform(dpr,…) + CSS-px coords the old inline loop
+  // used, so the cached bitmap is crisp at any DPR. Called once per resize().
+  function renderEnvelope(dpr, w, h) {
+    envelopeCanvas.width = w;
+    envelopeCanvas.height = h;
+    const g = envelopeCtx;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, cssWidth, HEIGHT);
+    g.fillStyle = "#64748b";
+    const mid = HEIGHT / 2;
+    for (let x = 0; x < cssWidth && x * 2 + 1 < peaks.length; x++) {
+      const y1 = mid + peaks[x * 2] * (mid - 2);
+      const y2 = mid + peaks[x * 2 + 1] * (mid - 2);
+      g.fillRect(x, Math.min(y1, y2), 1, Math.max(1, Math.abs(y2 - y1)));
+    }
+  }
+
   function draw() {
     if (!peaks) return;
     const dpr = window.devicePixelRatio || 1;
-    const w = wave.clientWidth;
+    const w = cssWidth;
     const h = HEIGHT;
-    const g = canvas.getContext("2d");
+    const g = ctx;
+    // The translucent selection fill sits BEHIND the bars (as in the original
+    // draw order), so paint it first in CSS coords, then blit the envelope
+    // over it: the envelope's opaque bars cover the tint while its transparent
+    // gaps let the tint show through — source-over is associative, so this is
+    // pixel-identical to the old fill→bars→markers→playhead sequence.
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, w, h);
     if (sel) {
       g.fillStyle = "rgba(37, 99, 235, 0.15)";
       g.fillRect(xOf(sel.start), 0, xOf(sel.end) - xOf(sel.start), h);
     }
-    g.fillStyle = "#64748b";
-    const mid = h / 2;
-    for (let x = 0; x < w && x * 2 + 1 < peaks.length; x++) {
-      const y1 = mid + peaks[x * 2] * (mid - 2);
-      const y2 = mid + peaks[x * 2 + 1] * (mid - 2);
-      g.fillRect(x, Math.min(y1, y2), 1, Math.max(1, Math.abs(y2 - y1)));
-    }
+    // Blit the pre-rasterized envelope at device px, 1:1 (identity transform).
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.drawImage(envelopeCanvas, 0, 0);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (sel) {
       g.fillStyle = "#2563eb";
       g.fillRect(xOf(sel.start) - 1.5, 0, 3, h);
@@ -169,14 +197,32 @@ export function createWaveform(container, opts = {}) {
     g.fillRect(xOf(audioEl.currentTime || 0) - 0.5, 0, 1, h);
   }
 
+  // updateBar runs every rAF (~60 fps) but the 0.1 s-resolution readout and
+  // the button states change ≤10×/s — track the last written values and only
+  // touch the DOM on a real change. `updateBar` is the sole writer of these
+  // three properties, so the cached values stay authoritative.
+  let lastBarText = null;
+  let lastPlayLabel = null;
+  let lastPlaySelHidden = null;
   function updateBar() {
     let t = `${fmtTime(audioEl.currentTime)} / ${fmtTime(duration)}`;
     if (sel) {
       t += ` · ${fmtTime(sel.start)}–${fmtTime(sel.end)} (${(sel.end - sel.start).toFixed(1)}s)`;
     }
-    timeEl.textContent = t;
-    playSelBtn.hidden = !sel;
-    playBtn.textContent = audioEl.paused ? "Play" : "Pause";
+    if (t !== lastBarText) {
+      timeEl.textContent = t;
+      lastBarText = t;
+    }
+    const playSelHidden = !sel;
+    if (playSelHidden !== lastPlaySelHidden) {
+      playSelBtn.hidden = playSelHidden;
+      lastPlaySelHidden = playSelHidden;
+    }
+    const playLabel = audioEl.paused ? "Play" : "Pause";
+    if (playLabel !== lastPlayLabel) {
+      playBtn.textContent = playLabel;
+      lastPlayLabel = playLabel;
+    }
   }
 
   let peaksFrom = null; // the basePeaks the current `peaks` were resampled from
@@ -189,10 +235,12 @@ export function createWaveform(container, opts = {}) {
     // explicit resize() call — skip the duplicate resample when nothing
     // changed. (The explicit call stays: a same-width reload never fires RO.)
     if (canvas.width === w && canvas.height === h && peaksFrom === basePeaks) return;
+    cssWidth = wave.clientWidth;
     canvas.width = w;
     canvas.height = h;
-    peaks = resamplePeaks(wave.clientWidth);
+    peaks = resamplePeaks(cssWidth);
     peaksFrom = basePeaks;
+    renderEnvelope(dpr, w, h);
     draw();
   }
   const ro = new ResizeObserver(resize);
