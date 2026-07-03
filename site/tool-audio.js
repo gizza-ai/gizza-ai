@@ -61,6 +61,7 @@ export function createWaveform(container, opts = {}) {
   // ~150 MB of PCM — prohibitive on mobile). load() reduces it once to a
   // fixed-resolution peak cache; resize only resamples that.
   let basePeaks = null; // Float32Array, [min,max] × BASE_COLS; null = no audio loaded
+  let loadSeq = 0; // load() generation — a newer load()/clear() invalidates in-flight loads
   let duration = 0;
   let objectUrl = null;
   let peaks = null; // Float32Array, [min,max] per canvas-css-px column
@@ -119,19 +120,23 @@ export function createWaveform(container, opts = {}) {
 
   // Resample the fixed-resolution cache to display width: min-of-mins /
   // max-of-maxes over each column's base range, so the envelope stays exact.
+  // For x < width: s ≤ cols-1 and e ≥ s+1 (the quotients are ≥ cols/width
+  // apart, far above float noise), and base pairs are always ordered
+  // (computePeaks writes 0,0 for empty windows) — every column folds at
+  // least one real pair, so no emptiness guards are needed here.
   function resamplePeaks(width) {
     const cols = basePeaks.length / 2;
     const out = new Float32Array(width * 2);
     for (let x = 0; x < width; x++) {
-      const s = Math.min(cols - 1, Math.floor((x * cols) / width));
-      const e = Math.max(s + 1, Math.min(cols, Math.ceil(((x + 1) * cols) / width)));
+      const s = Math.floor((x * cols) / width);
+      const e = Math.ceil(((x + 1) * cols) / width);
       let mn = 1, mx = -1;
       for (let i = s; i < e; i++) {
         if (basePeaks[i * 2] < mn) mn = basePeaks[i * 2];
         if (basePeaks[i * 2 + 1] > mx) mx = basePeaks[i * 2 + 1];
       }
-      out[x * 2] = mn > mx ? 0 : mn;
-      out[x * 2 + 1] = mn > mx ? 0 : mx;
+      out[x * 2] = mn;
+      out[x * 2 + 1] = mx;
     }
     return out;
   }
@@ -174,12 +179,20 @@ export function createWaveform(container, opts = {}) {
     playBtn.textContent = audioEl.paused ? "Play" : "Pause";
   }
 
+  let peaksFrom = null; // the basePeaks the current `peaks` were resampled from
   function resize() {
     if (!basePeaks || wave.clientWidth === 0) return;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round(wave.clientWidth * dpr);
-    canvas.height = Math.round(HEIGHT * dpr);
+    const w = Math.round(wave.clientWidth * dpr);
+    const h = Math.round(HEIGHT * dpr);
+    // Hidden→visible loads fire the ResizeObserver right after load()'s
+    // explicit resize() call — skip the duplicate resample when nothing
+    // changed. (The explicit call stays: a same-width reload never fires RO.)
+    if (canvas.width === w && canvas.height === h && peaksFrom === basePeaks) return;
+    canvas.width = w;
+    canvas.height = h;
     peaks = resamplePeaks(wave.clientWidth);
+    peaksFrom = basePeaks;
     draw();
   }
   const ro = new ResizeObserver(resize);
@@ -315,6 +328,11 @@ export function createWaveform(container, opts = {}) {
 
   return {
     async load(blob) {
+      // Callers fire-and-forget load() (file-input change handlers), so
+      // overlapping loads can decode out of order — only the newest may
+      // commit state, or a slow old file overwrites a fast new one and
+      // orphans its object URL.
+      const seq = ++loadSeq;
       audioEl.pause();
       revoke();
       let buffer;
@@ -323,12 +341,21 @@ export function createWaveform(container, opts = {}) {
         const Ctx = window.AudioContext || window.webkitAudioContext;
         const ctx = new Ctx();
         try {
-          // decodeAudioData detaches its buffer — hand it a copy.
-          buffer = await ctx.decodeAudioData(raw.slice(0));
+          // decodeAudioData detaches `raw`; fine — it has no later use.
+          buffer = await ctx.decodeAudioData(raw);
         } finally {
           ctx.close();
         }
       } catch (err) {
+        if (seq !== loadSeq) return false;
+        basePeaks = null;
+        container.hidden = true;
+        return false;
+      }
+      if (seq !== loadSeq) return false; // superseded by a newer load/clear
+      if (!buffer.length) {
+        // Zero PCM frames can decode "successfully" on some platforms —
+        // treat it as a failed load, not a loaded-but-empty widget.
         basePeaks = null;
         container.hidden = true;
         return false;
@@ -355,6 +382,7 @@ export function createWaveform(container, opts = {}) {
       updateBar();
     },
     clear() {
+      loadSeq++; // an in-flight load() must not resurrect a cleared widget
       audioEl.pause();
       revoke();
       basePeaks = null;
@@ -363,6 +391,7 @@ export function createWaveform(container, opts = {}) {
       container.hidden = true;
     },
     destroy() {
+      loadSeq++;
       cancelAnimationFrame(rafId);
       ro.disconnect();
       audioEl.pause();
