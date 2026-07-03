@@ -39,6 +39,13 @@ pub struct Input {
     /// else is used literally. Also what the Reset button restores.
     #[serde(default)]
     pub default: String,
+    /// For enum params (a `<select>`): optional display label per option VALUE
+    /// (e.g. `"9:16" = "9:16 — Reels / Shorts (1080×1920)"`). The option VALUE
+    /// stays the canonical schema string, so deep-links, chips, reset and the
+    /// CLI are untouched; only the visible text is enriched. Unlisted options
+    /// display their value.
+    #[serde(default)]
+    pub labels: std::collections::BTreeMap<String, String>,
 }
 
 /// A one-click example: a chip under the inputs that pre-fills `params` and runs.

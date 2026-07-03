@@ -383,6 +383,7 @@ mod tests {
             options: options.into(),
             step: String::new(),
             default: String::new(),
+            labels: Default::default(),
         }
     }
 
