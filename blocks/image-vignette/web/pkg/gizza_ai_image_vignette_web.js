@@ -3,22 +3,31 @@
 /**
  * `strength` is 0–100 (0 = unchanged image; the page prefills the descriptor
  * default 40 and a CLEARED field arrives as 0). `mode` is `darken|lighten`
- * (empty defaults to darken). `center_x`/`center_y` are percent of the image
- * size (50 = middle; a cleared field arrives as 0 = the left/top edge).
- * Returns `{ argv: string[], out_name }` or throws a JS error string.
+ * (empty defaults to darken). `color` is a name or hex (empty defaults to
+ * black — the classic vignette; non-black tints require darken mode).
+ * `center_x`/`center_y` are percent of the image size (50 = middle; a cleared
+ * field arrives as 0 = the left/top edge). `format` is `keep|png|jpg|webp`
+ * (empty defaults to keep). Returns `{ argv: string[], out_name }` or throws
+ * a JS error string.
  * @param {number} strength
  * @param {string} mode
+ * @param {string} color
  * @param {number} center_x
  * @param {number} center_y
+ * @param {string} format
  * @param {string} in_name
  * @returns {any}
  */
-export function build_argv(strength, mode, center_x, center_y, in_name) {
+export function build_argv(strength, mode, color, center_x, center_y, format, in_name) {
     const ptr0 = passStringToWasm0(mode, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(in_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.build_argv(strength, ptr0, len0, center_x, center_y, ptr1, len1);
+    const ptr2 = passStringToWasm0(format, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(in_name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.build_argv(strength, ptr0, len0, ptr1, len1, center_x, center_y, ptr2, len2, ptr3, len3);
     if (ret[2]) {
         throw takeFromExternrefTable0(ret[1]);
     }
