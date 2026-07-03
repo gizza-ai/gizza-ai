@@ -28,6 +28,17 @@ test('audio-convert page renders a non-blank waveform after upload', async ({ pa
     });
   expect(await paintedPixels()).toBeGreaterThan(500);
 
+  // The static envelope is now rasterized once into an offscreen canvas and
+  // blitted each frame. Prove the blit redraws the bars during playback (not
+  // just the moving playhead): with no selection, the only large painted
+  // region IS the envelope, so a broken transform/blit would collapse the
+  // count to the ~1px playhead. Start playback, sample the canvas mid-play,
+  // and confirm the bars survive.
+  await page.locator('.tool-wf-play').first().click();
+  await page.waitForTimeout(300);
+  expect(await paintedPixels()).toBeGreaterThan(500);
+  await page.locator('.tool-wf-play').first().click(); // pause before the resize check
+
   // Resizing re-resamples the peak cache at the new width (the decoded
   // AudioBuffer is not retained) — the redrawn canvas must not be blank.
   // Shrink the widget element itself: same ResizeObserver → resample → draw
