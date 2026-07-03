@@ -178,8 +178,10 @@ function wireWidgetChrome(rerun) {
       refreshColors();
       const media = document.getElementById("tool-output-media");
       const dl = document.getElementById("tool-output-download");
+      const copyImg = document.getElementById("tool-copy-image");
       if (media) media.hidden = true;
       if (dl) dl.hidden = true;
+      if (copyImg) copyImg.hidden = true;
       // A previous run's error/result must not survive Reset (rerun()
       // early-returns without recomputing when e.g. no file is selected).
       out.classList.remove("error");
@@ -205,6 +207,50 @@ function wireWidgetChrome(rerun) {
         }, 1500);
       } catch (e) {
         // Clipboard unavailable (e.g. non-secure context) — button is best-effort.
+      }
+    });
+  }
+
+  // Copy the current output IMAGE to the clipboard as PNG. Only image-output
+  // ffmpeg tools render #tool-copy-image (the generator gates it on
+  // format="image"); video/audio have no reliable ClipboardItem path. We draw
+  // the visible <img> onto an offscreen canvas and write a PNG blob — PNG
+  // regardless of the output's real jpg/webp/png, because ClipboardItem image
+  // support is reliably PNG-only. Best-effort like the text copy above: if the
+  // clipboard API is missing (non-secure context, older Firefox) or any step
+  // throws/rejects, catch and no-op. Never acts on a non-image output.
+  const copyImage = document.getElementById("tool-copy-image");
+  if (copyImage) {
+    copyImage.addEventListener("click", () => {
+      const img = document.getElementById("tool-output-media");
+      if (!img || img.hidden || !img.src || !String(img.src).startsWith("data:image/")) return;
+      if (!(navigator.clipboard && window.ClipboardItem && navigator.clipboard.write)) return;
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx || !canvas.width || !canvas.height) return;
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          navigator.clipboard
+            .write([new ClipboardItem({ "image/png": blob })])
+            .then(() => {
+              copyImage.classList.add("copied");
+              const prev = copyImage.textContent;
+              copyImage.textContent = "Copied!";
+              setTimeout(() => {
+                copyImage.classList.remove("copied");
+                copyImage.textContent = prev;
+              }, 1500);
+            })
+            .catch(() => {
+              // Write rejected (permissions / focus) — best-effort, no-op.
+            });
+        }, "image/png");
+      } catch (e) {
+        // Clipboard/canvas unavailable — best-effort, no-op.
       }
     });
   }
@@ -440,6 +486,9 @@ async function main() {
     const { ffmpegExec } = await import("./ffmpeg.js");
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
+    // Image-output pages only (the generator gates #tool-copy-image on
+    // format="image"); null for video/audio, where it stays absent.
+    const copyImage = document.getElementById("tool-copy-image");
     if (!media || !dl) {
       // ffmpeg runtime requires a media output (format "image"/"video"/"audio");
       // a misconfigured tool (e.g. runtime=ffmpeg + format=text) has no place to
@@ -555,6 +604,7 @@ async function main() {
       out.classList.remove("error");
       media.hidden = true;
       dl.hidden = true;
+      if (copyImage) copyImage.hidden = true;
       if (outputWf) outputWf.clear();
       // Coerce a field value to Number ONLY when the param's DECLARED schema
       // type is numeric (i.numeric, baked from manifest.json tool.parameters by
@@ -583,6 +633,10 @@ async function main() {
         dl.href = r.dataUrl;
         dl.download = r.outName;
         dl.hidden = false;
+        // Reveal "Copy image" only for image results — guard on the data URL so
+        // a misconfigured non-image never exposes it (video/audio never render
+        // the button at all).
+        if (copyImage) copyImage.hidden = !String(r.dataUrl).startsWith("data:image/");
         // Visual result: decode the output into the read-only waveform. The
         // native <audio controls> stays visible (accessible transport +
         // decode-failure fallback); the waveform adds the before/after view.

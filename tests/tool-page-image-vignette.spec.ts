@@ -234,3 +234,57 @@ test('image-vignette rejects a color combined with lighten mode, with guidance',
   await expect(out).toHaveClass(/error/, { timeout: 90_000 });
   await expect(out).toContainText('darken'); // the error names the fix
 });
+
+// The "Copy image" button (generator template + site/tool.js): image-output
+// tools get a declarative button next to Download that copies the CURRENT
+// output image to the clipboard as PNG (offscreen canvas → toBlob →
+// ClipboardItem, so jpg/webp/png all copy as PNG). It stays hidden until a
+// result renders and never appears on video/audio/text tools.
+test('copy-image button: hidden before a result, visible after, copies a PNG to the clipboard', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/tools/image-vignette/');
+  const copyBtn = page.locator('#tool-copy-image');
+  // Rendered, but hidden while there is no output.
+  await expect(copyBtn).toHaveCount(1);
+  await expect(copyBtn).toBeHidden();
+
+  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/white-64x64.png'));
+  // Revealed once the image result renders.
+  await expect(page.locator('#tool-output-media')).toBeVisible({ timeout: 90_000 });
+  await expect(copyBtn).toBeVisible();
+
+  // The output <img> must be decoded before it can be drawn to a canvas.
+  await page.waitForFunction(() => {
+    const img = document.getElementById('tool-output-media') as HTMLImageElement | null;
+    return !!img && img.complete && img.naturalWidth > 0;
+  });
+
+  await copyBtn.click();
+  // "Copied!" affordance proves the ClipboardItem write resolved without throwing.
+  await expect(copyBtn).toHaveClass(/copied/, { timeout: 10_000 });
+  await expect(copyBtn).toHaveText('Copied!');
+
+  // Permissions granted → read the clipboard back and assert a PNG is present.
+  const hasPng = await page.evaluate(async () => {
+    const items = await navigator.clipboard.read();
+    return items.some((it) => it.types.includes('image/png'));
+  });
+  expect(hasPng).toBe(true);
+
+  // Label restores after the affordance window; nothing threw on the page.
+  await expect(copyBtn).toHaveText('Copy image', { timeout: 5_000 });
+  expect(pageErrors).toEqual([]);
+});
+
+test('copy-image button never leaks onto text or video tool pages', async ({ page }) => {
+  await page.goto('/tools/url-encode/'); // text output
+  await expect(page.locator('#tool-copy-image')).toHaveCount(0);
+  await page.goto('/tools/video-mute/'); // video output
+  await expect(page.locator('#tool-copy-image')).toHaveCount(0);
+});
