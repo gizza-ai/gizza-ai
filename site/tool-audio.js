@@ -68,16 +68,21 @@ export function createWaveform(container, opts = {}) {
   const tOf = (x) =>
     Math.max(0, Math.min(duration, (x / Math.max(1, wave.clientWidth)) * duration));
 
-  // Clamp a raw bounds pair to [0, duration]; empty/undefined/non-finite end
-  // means "to the end". A whole-track result yields NO selection (null) so
-  // drag-to-select always works at bound-field defaults.
+  // Clamp a raw bounds pair to [0, duration]. THE bounds interpreter — call
+  // sites hand over raw field values and must not pre-map them.
   function normalizeSel(start, end) {
     const s = Math.max(0, Math.min(duration, Number(start) || 0));
+    // Empty, 0, negative or non-numeric end = unbounded ("to the end of the
+    // track" — matches the tools' end-sentinel semantics).
     const eRaw = end == null || end === "" ? NaN : Number(end);
-    const e = Number.isFinite(eRaw)
-      ? Math.max(s + MIN_SEL_S, Math.min(duration, eRaw))
-      : duration;
-    return s > MIN_SEL_S || e < duration - MIN_SEL_S ? { start: s, end: e } : null;
+    const e =
+      Number.isFinite(eRaw) && eRaw > 0
+        ? Math.max(s + MIN_SEL_S, Math.min(duration, eRaw))
+        : duration;
+    // Exactly-whole-track bounds mean "no selection" (so drag-to-select works
+    // at bound-field defaults). Float-noise epsilon only — a real 0.04 s inset
+    // selection must still draw its highlight.
+    return s > 1e-9 || e < duration - 1e-9 ? { start: s, end: e } : null;
   }
 
   function computePeaks(width) {
