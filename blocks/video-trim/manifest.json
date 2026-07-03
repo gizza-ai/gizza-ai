@@ -2,5 +2,48 @@
   "name": "gizza-ai/video-trim",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Trim a video to a [start, start+duration] window."
+  "summary": "Trim a video to a [start, start+duration] window",
+  "tool": {
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "duration": {
+          "description": "Duration in seconds.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Start time in seconds.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "duration"
+      ],
+      "type": "object"
+    },
+    "description": "Trim a video to a [start, start+duration] window using stream-copy (no re-encode). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). The output keeps the source container (mp4 stays mp4, webm stays webm, and so on); an unknown container falls back to mp4. Stream-copy preserves the source codecs and is fast and lossless."
+  }
 }

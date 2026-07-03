@@ -2,5 +2,42 @@
   "name": "gizza-ai/video-frame-extract",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Extract a single frame from a video at a given timestamp."
+  "summary": "Extract a single frame from a video at a given timestamp",
+  "tool": {
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "Timestamp in seconds.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "timestamp"
+      ],
+      "type": "object"
+    },
+    "description": "Extract a single frame from a video at the given timestamp (seconds), output as PNG. The PNG is naturally chainable into image-resize, image-crop, or image-convert via ref. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call)."
+  }
 }
