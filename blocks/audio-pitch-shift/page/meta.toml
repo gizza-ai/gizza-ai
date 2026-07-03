@@ -1,7 +1,7 @@
 slug          = "audio-pitch-shift"
 title         = "Change Audio Pitch Online — gizza.ai"
-description   = "Shift the pitch of any audio file up or down by semitones without changing its speed — transpose songs or voices free, right in your browser."
-tags          = ["audio", "pitch", "semitones", "transpose", "key", "shift", "voice", "chipmunk"]
+description   = "Free online pitch changer — shift any audio up or down by semitones without changing its speed. Transpose songs, fix tuning, deepen voices in your browser."
+tags          = ["audio", "pitch", "semitones", "transpose", "key", "shift", "changer", "voice", "chipmunk", "432 hz", "karaoke", "cents"]
 h1            = "Change Audio Pitch"
 hero_subtitle = "Pick an audio file and a semitone shift — the key changes, the speed doesn't, and nothing leaves your browser."
 wasm          = "gizza_ai_audio_pitch_shift_web"
@@ -21,8 +21,30 @@ name        = "semitones"
 source      = "field"
 label       = "Semitones (-24 to 24)"
 placeholder = "3"
+kind        = "slider"
+step        = "1"
 
 [[input]]
 name   = "format"
 source = "field"
 label  = "Format"
+
+[[example]]
+label  = "Octave up (+12)"
+params = { semitones = "12" }
+
+[[example]]
+label  = "Octave down (−12)"
+params = { semitones = "-12" }
+
+[[example]]
+label  = "Half step up (+1)"
+params = { semitones = "1" }
+
+[[example]]
+label  = "Half step down (−1)"
+params = { semitones = "-1" }
+
+[[example]]
+label  = "440 → 432 Hz (−0.32)"
+params = { semitones = "-0.32" }

@@ -16,7 +16,7 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) ->
     s.push_str(&format!("{}\n\n", meta.description));
 
     s.push_str("## Run it\n\n");
-    s.push_str(&format!("- **CLI:** `{}`\n", cli_example(meta)));
+    s.push_str(&format!("- **CLI:** `{}`\n", cli_example(meta, schema)));
     s.push_str(&format!("- **Web:** {}/tools/{}/\n\n", SITE, meta.slug));
 
     s.push_str("## Inputs\n\n");
@@ -66,15 +66,25 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) ->
     s
 }
 
-/// The example CLI invocation: field tools use the first field input's
-/// placeholder as the example arg; file tools take a path; auto-only tools
-/// (e.g. clock) take no args.
-fn cli_example(meta: &ToolMeta) -> String {
-    if let Some(field) = meta.inputs.iter().find(|i| i.source == "field") {
+/// The example CLI invocation, copy-paste-runnable. File tools take
+/// `url=…` plus a `key=value` sample for EVERY field input (derived from the
+/// same schema samples as the deep-link example — a file tool's fields are
+/// often required, so an example without them would just error). Pure field
+/// tools use the first field's placeholder as the bare positional (mapped to
+/// the first required scalar); auto-only tools (e.g. clock) take no args.
+/// `pub(crate)` so `template.rs` renders the identical example on the page.
+pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
+    if meta.inputs.iter().any(|i| i.source == "file") {
+        let mut args = vec!["'url=https://example.com/input'".to_string()];
+        for i in meta.inputs.iter().filter(|i| i.source == "field") {
+            if let Some(sample) = sample_value(&schema.control_for_input(i), &i.placeholder) {
+                args.push(format!("'{}={}'", i.name, sample));
+            }
+        }
+        format!("gizza tool {} {}", meta.slug, args.join(" "))
+    } else if let Some(field) = meta.inputs.iter().find(|i| i.source == "field") {
         let arg = if field.placeholder.is_empty() { "..." } else { field.placeholder.as_str() };
         format!("gizza tool {} \"{}\"", meta.slug, arg)
-    } else if meta.inputs.iter().any(|i| i.source == "file") {
-        format!("gizza tool {} <path>", meta.slug)
     } else {
         format!("gizza tool {}", meta.slug)
     }
@@ -125,6 +135,19 @@ fn sample_value(control: &Control, placeholder: &str) -> Option<String> {
                     .or_else(|| default.map(fmt_num))
                     .or_else(|| min.map(fmt_num))
                     .unwrap_or_else(|| "1".to_string()),
+            )
+        }
+        Control::Slider { default, min, .. } => {
+            // Same numeric-sample rules as Number; a slider always has bounds,
+            // so min is the last-resort sample.
+            let numeric_ph = ph.as_ref().filter(|p| p.parse::<f64>().is_ok()).cloned();
+            if ph.is_some() && numeric_ph.is_none() {
+                return None;
+            }
+            Some(
+                numeric_ph
+                    .or_else(|| default.map(fmt_num))
+                    .unwrap_or_else(|| fmt_num(*min)),
             )
         }
         Control::Picker { input_type } => Some(ph.unwrap_or_else(|| {
@@ -191,7 +214,7 @@ source      = "field"
         // A non-numeric placeholder on a number control (trim-audio's end
         // "to end") signals that EMPTY is meaningful — the example must omit
         // the param rather than teach a bogus value.
-        let num = Control::Number { min: Some(0.0), max: None, default: None };
+        let num = Control::Number { min: Some(0.0), max: None, default: None, step_any: false };
         assert_eq!(sample_value(&num, "to end"), None);
         assert_eq!(sample_value(&num, "15"), Some("15".to_string()));
         assert_eq!(sample_value(&num, ""), Some("0".to_string())); // min fallback
@@ -256,10 +279,57 @@ source = "clock"
     }
 
     #[test]
-    fn file_tool_uses_path_example_and_accept() {
+    fn file_tool_uses_url_example_and_accept() {
         let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty());
-        assert!(md.contains("`gizza tool image-grayscale <path>`"), "path CLI example");
+        assert!(
+            md.contains("`gizza tool image-grayscale 'url=https://example.com/input'`"),
+            "url= CLI example"
+        );
         assert!(md.contains("`file` — Image _(file; accept: image/*)_"), "accept shown");
+    }
+
+    #[test]
+    fn file_tool_cli_example_includes_field_samples() {
+        // A file tool's field params are often REQUIRED — a copy-pasted
+        // example without them would just error. Samples come from the same
+        // schema-derived values as the deep-link example.
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "audio-pitch-shift"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+output_label  = "o"
+format        = "audio"
+runtime       = "ffmpeg"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "semitones"
+source      = "field"
+placeholder = "3"
+
+[[input]]
+name   = "format"
+source = "field"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
+            "format": { "type": "string", "enum": ["mp3", "wav"], "default": "mp3" }
+        }));
+        assert_eq!(
+            cli_example(&meta, &schema),
+            "gizza tool audio-pitch-shift 'url=https://example.com/input' 'semitones=3' 'format=mp3'"
+        );
     }
 
     #[test]

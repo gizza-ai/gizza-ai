@@ -31,6 +31,11 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
   background-repeat: no-repeat; background-position: right 12px center; }
 .tool-checkbox { width: 18px; height: 18px; margin: 6px 0 14px; accent-color: var(--tool-accent);
   vertical-align: middle; cursor: pointer; display: block; }
+/* kind="slider": range + number pair (the number box keeps the canonical id). */
+.tool-slider-row { display: flex; align-items: center; gap: 12px; }
+.tool-slider-row .tool-input { width: 92px; flex: 0 0 auto; }
+.tool-slider { flex: 1 1 auto; min-width: 0; margin: 6px 0 12px;
+  accent-color: var(--tool-accent); cursor: pointer; }
 /* pre-wrap: multi-line text results (bitwise-calculator, asn1-parser, …) render
    as real lines instead of collapsing into one wrapped paragraph; single-line
    results are unaffected. */
