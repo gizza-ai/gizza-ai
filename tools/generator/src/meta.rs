@@ -117,19 +117,29 @@ impl ToolMeta {
         toml::from_str(text).map_err(|e| format!("meta.toml parse error: {e}"))
     }
 
-    /// Build the `window.GIZZA_TOOL` config object consumed by `tool.js`.
-    pub fn client_config(&self) -> serde_json::Value {
+    /// Build the `window.GIZZA_TOOL` config object consumed by `tool.js`. The
+    /// tool's declared param `schema` is threaded in so each `source="field"`
+    /// input carries its JSON-schema numeric-ness (`"numeric": true` for
+    /// `integer`/`number` params) — `tool.js` coerces field values to `Number`
+    /// BY TYPE instead of sniffing whether a string looks numeric, so a
+    /// digits-only string param (a bare hex color, a numeric-looking label)
+    /// stays a string.
+    pub fn client_config(&self, schema: &crate::control::ParamSchema) -> serde_json::Value {
         let inputs: Vec<serde_json::Value> = self
             .inputs
             .iter()
             .map(|i| {
-                serde_json::json!({
+                let mut obj = serde_json::json!({
                     "name": i.name,
                     "source": i.source,
                     "elementId": format!("in-{}", i.name),
                     "accept": i.accept,
                     "default": i.default,
-                })
+                });
+                if i.source == "field" && schema.is_numeric(&i.name) {
+                    obj["numeric"] = serde_json::json!(true);
+                }
+                obj
             })
             .collect();
         let examples: Vec<serde_json::Value> = self
@@ -238,7 +248,7 @@ placeholder = "2 + 2 * 3"
 source      = "field"
 "#;
         let m = ToolMeta::from_toml(text).unwrap();
-        let cfg = m.client_config();
+        let cfg = m.client_config(&crate::control::ParamSchema::empty());
         assert_eq!(cfg["slug"], "calculator");
         assert_eq!(cfg["module"], "./gizza_ai_calculator_web.js");
         assert_eq!(cfg["export"], "evaluate");
@@ -277,10 +287,69 @@ label  = "Width (px)"
         assert_eq!(m.runtime, "ffmpeg");
         assert_eq!(m.inputs[0].source, "file");
         assert_eq!(m.inputs[0].accept, "image/*");
-        let cfg = m.client_config();
+        let cfg = m.client_config(&crate::control::ParamSchema::empty());
         assert_eq!(cfg["runtime"], "ffmpeg");
         assert_eq!(cfg["inputs"][0]["accept"], "image/*");
         assert_eq!(cfg["format"], "image");
+    }
+
+    #[test]
+    fn client_config_bakes_numeric_flag_by_schema_type() {
+        // A number/integer field must carry "numeric":true; a string field and a
+        // color-kind field (still a schema "string") must not — so tool.js
+        // coerces by declared type, not by sniffing digit-looking strings.
+        let text = r##"
+slug          = "waveform-image"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "image"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height"
+
+[[input]]
+name        = "label"
+source      = "field"
+label       = "Label"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Background"
+kind        = "color"
+"##;
+        let m = ToolMeta::from_toml(text).unwrap();
+        let schema = crate::control::ParamSchema::from_props_for_tests(serde_json::json!({
+            "height": { "type": "integer", "minimum": 1 },
+            "label": { "type": "string" },
+            "background": { "type": "string" }
+        }));
+        let cfg = m.client_config(&schema);
+        let inputs = cfg["inputs"].as_array().unwrap();
+        let by_name = |n: &str| inputs.iter().find(|i| i["name"] == n).unwrap();
+        // file input never numeric
+        assert!(!by_name("audio")["numeric"].as_bool().unwrap_or(false));
+        // integer field → numeric:true
+        assert_eq!(by_name("height")["numeric"], serde_json::json!(true));
+        // string field → flag absent (falsy)
+        assert!(by_name("label").get("numeric").is_none());
+        assert!(!by_name("label")["numeric"].as_bool().unwrap_or(false));
+        // color-kind field is a schema string → not numeric (stays a string,
+        // so a bare hex like "112233" survives coercion)
+        assert!(by_name("background").get("numeric").is_none());
     }
 
     #[test]
@@ -323,7 +392,7 @@ end = "end"
             m.waveform,
             Some(WaveformSpec::Binding { start: "start".into(), end: "end".into() })
         );
-        let cfg = m.client_config();
+        let cfg = m.client_config(&crate::control::ParamSchema::empty());
         assert_eq!(cfg["waveform"]["start"], "start");
         assert_eq!(cfg["waveform"]["end"], "end");
     }
@@ -344,11 +413,11 @@ format = "audio"
         let off = format!("{base}waveform = false\n");
         let m = ToolMeta::from_toml(&off).unwrap();
         assert_eq!(m.waveform, Some(WaveformSpec::Enabled(false)));
-        assert_eq!(m.client_config()["waveform"], serde_json::json!(false));
+        assert_eq!(m.client_config(&crate::control::ParamSchema::empty())["waveform"], serde_json::json!(false));
 
         let m = ToolMeta::from_toml(base).unwrap();
         assert_eq!(m.waveform, None);
-        assert_eq!(m.client_config()["waveform"], serde_json::Value::Null);
+        assert_eq!(m.client_config(&crate::control::ParamSchema::empty())["waveform"], serde_json::Value::Null);
     }
 
     #[test]
@@ -367,7 +436,7 @@ format = "audio"
         let on = format!("{base}waveform = true\n");
         let m = ToolMeta::from_toml(&on).unwrap();
         assert_eq!(m.waveform, Some(WaveformSpec::Enabled(true)));
-        assert_eq!(m.client_config()["waveform"], serde_json::json!(true));
+        assert_eq!(m.client_config(&crate::control::ParamSchema::empty())["waveform"], serde_json::json!(true));
 
         // A partial [waveform] table (start without end) matches neither
         // untagged variant and must fail at parse time, not silently bind.

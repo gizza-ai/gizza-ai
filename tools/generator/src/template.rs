@@ -24,7 +24,7 @@ pub fn render_page(
     // literal "</script>" in any value would break out of the element. serde_json
     // does not escape '/', so we neutralize the closing-tag sequence. Values are
     // repo-authored today; this is defense-in-depth against a future meta.toml.
-    let mut client_cfg_json = meta.client_config();
+    let mut client_cfg_json = meta.client_config(schema);
     client_cfg_json["custom"] = serde_json::json!(custom_js);
     let client_cfg = client_cfg_json.to_string().replace("</", "<\\/");
     let json_ld = serde_json::json!({
