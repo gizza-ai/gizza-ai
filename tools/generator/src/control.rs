@@ -34,6 +34,22 @@ pub enum Control {
         min: Option<f64>,
         max: Option<f64>,
         default: Option<f64>,
+        /// True for JSON-schema `number` (fractional) params → `step="any"`,
+        /// so decimals like 0.5 don't trip the browser's step-mismatch
+        /// validation. Integer params keep the default whole-number stepper.
+        step_any: bool,
+    },
+    /// A range slider paired with the regular number box (meta `kind =
+    /// "slider"`), for bounded numeric params where dragging beats typing.
+    /// The number input keeps the canonical `in-<name>` id (deep-links, CLI
+    /// parity, reset all unchanged); the slider mirrors it via `site/tool.js`.
+    Slider {
+        min: f64,
+        max: f64,
+        default: Option<f64>,
+        /// Slider drag granularity (meta `step`, default 1). The paired
+        /// number box always accepts finer values (`step="any"`).
+        step: String,
     },
     Select {
         options: Vec<String>,
@@ -68,6 +84,13 @@ impl ParamSchema {
         ParamSchema(HashMap::new())
     }
 
+    /// Build a schema from a JSON `properties` object — test-only constructor
+    /// for sibling modules (the real path goes through `load`).
+    #[cfg(test)]
+    pub(crate) fn from_props_for_tests(props: serde_json::Value) -> Self {
+        ParamSchema(props.as_object().unwrap().clone().into_iter().collect())
+    }
+
     /// Read `<tool_dir>/manifest.json` and extract `tool.parameters.properties`.
     /// A missing or unparseable manifest yields an empty schema (no panic, no
     /// abort) so a tool with a stale manifest just keeps plain text inputs.
@@ -97,6 +120,23 @@ impl ParamSchema {
             k @ ("date" | "time" | "datetime-local") => {
                 return Control::Picker { input_type: k.to_string() };
             }
+            "slider" => {
+                // A slider needs real bounds; only a numeric param with both
+                // min and max in the schema qualifies. Anything else falls back
+                // to the schema control (with a warning) rather than rendering
+                // an unbounded range input.
+                if let Control::Number { min: Some(min), max: Some(max), default, .. } =
+                    self.control_for(&input.name, false)
+                {
+                    let step = if input.step.is_empty() { "1".to_string() } else { input.step.clone() };
+                    return Control::Slider { min, max, default, step };
+                }
+                eprintln!(
+                    "warning: [[input]] \"{}\" kind=\"slider\" needs a numeric schema param with min+max — falling back to the schema control",
+                    input.name
+                );
+                return self.control_for(&input.name, input.multiline);
+            }
             "tag-list" => {
                 let options: Vec<String> = vocab::options(&input.options)
                     .map(|opts| opts.iter().map(|s| s.to_string()).collect())
@@ -111,7 +151,7 @@ impl ParamSchema {
             }
             other => {
                 eprintln!(
-                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|tag-list) — falling back to the schema control",
+                    "warning: [[input]] \"{}\" has unknown kind \"{other}\" (want date|time|datetime-local|tag-list|slider) — falling back to the schema control",
                     input.name
                 );
             }
@@ -162,10 +202,11 @@ impl ParamSchema {
             Some("boolean") => Control::Checkbox {
                 default: p.get("default").and_then(|d| d.as_bool()).unwrap_or(false),
             },
-            Some("integer") | Some("number") => Control::Number {
+            Some(t @ ("integer" | "number")) => Control::Number {
                 min: p.get("minimum").and_then(|m| m.as_f64()),
                 max: p.get("maximum").and_then(|m| m.as_f64()),
                 default: p.get("default").and_then(|d| d.as_f64()),
+                step_any: t == "number",
             },
             _ => text_or_area(),
         }
@@ -215,8 +256,66 @@ mod tests {
                 min: Some(1.0),
                 max: Some(16.0),
                 default: Some(1.0),
+                step_any: false,
             }
         );
+    }
+
+    #[test]
+    fn fractional_number_param_gets_step_any() {
+        let s = schema(json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 }
+        }));
+        assert_eq!(
+            s.control_for("semitones", false),
+            Control::Number {
+                min: Some(-24.0),
+                max: Some(24.0),
+                default: None,
+                step_any: true,
+            }
+        );
+    }
+
+    #[test]
+    fn slider_kind_pairs_range_with_number_when_bounded() {
+        let s = schema(json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 }
+        }));
+        let mut f = field("semitones", "slider", "");
+        assert_eq!(
+            s.control_for_input(&f),
+            Control::Slider {
+                min: -24.0,
+                max: 24.0,
+                default: None,
+                step: "1".into(),
+            }
+        );
+        f.step = "0.5".into();
+        assert_eq!(
+            s.control_for_input(&f),
+            Control::Slider {
+                min: -24.0,
+                max: 24.0,
+                default: None,
+                step: "0.5".into(),
+            }
+        );
+    }
+
+    #[test]
+    fn slider_kind_without_bounds_falls_back_to_schema_control() {
+        // No min/max in the schema → an unbounded range input would be
+        // meaningless; fall back to the plain number box.
+        let s = schema(json!({ "gain": { "type": "number" } }));
+        assert_eq!(
+            s.control_for_input(&field("gain", "slider", "")),
+            Control::Number { min: None, max: None, default: None, step_any: true }
+        );
+        // Non-numeric param → schema control (text).
+        let s = schema(json!({ "mode": { "type": "string" } }));
+        assert_eq!(s.control_for_input(&field("mode", "slider", "")), Control::Text);
     }
 
     #[test]
@@ -243,6 +342,7 @@ mod tests {
             multiline: false,
             kind: kind.into(),
             options: options.into(),
+            step: String::new(),
             default: String::new(),
         }
     }

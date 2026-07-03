@@ -2,7 +2,7 @@
 //! with SEO `<head>` tags and JSON-LD.
 
 use crate::control::{fmt_num, Control, ParamSchema};
-use crate::markdown::example_deeplink;
+use crate::markdown::{cli_example as shared_cli_example, example_deeplink};
 use crate::meta::ToolMeta;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, PreEscaped, DOCTYPE};
@@ -41,17 +41,10 @@ pub fn render_page(
     .to_string()
     .replace("</", "<\\/");
 
-    // How to run THIS tool headlessly via the gizza CLI — derived from the
-    // tool's own inputs (first field's placeholder, or a url= for file tools).
-    let cli_example = match meta.inputs.first() {
-        Some(inp) if inp.source == "file" => {
-            format!("gizza tool {} 'url=https://example.com/input'", meta.slug)
-        }
-        Some(inp) if !inp.placeholder.is_empty() => {
-            format!("gizza tool {} '{}'", meta.slug, inp.placeholder)
-        }
-        _ => format!("gizza tool {}", meta.slug),
-    };
+    // How to run THIS tool headlessly via the gizza CLI — the same
+    // copy-paste-runnable example as the markdown twin (file tools include a
+    // sample for every field, since those are often required).
+    let cli_example = shared_cli_example(meta, schema);
 
     let markup = html! {
         (DOCTYPE)
@@ -113,14 +106,33 @@ pub fn render_page(
                                         Control::Checkbox { default } => {
                                             input id=(id) class="tool-checkbox" type="checkbox" checked[default];
                                         }
-                                        Control::Number { min, max, default } => {
+                                        Control::Number { min, max, default, step_any } => {
                                             @let min_s = min.map(fmt_num);
                                             @let max_s = max.map(fmt_num);
                                             @let val_s = default.map(fmt_num);
                                             input id=(id) class="tool-input" type="number"
                                                   placeholder=(input.placeholder)
                                                   min=[min_s.as_deref()] max=[max_s.as_deref()] value=[val_s.as_deref()]
+                                                  step=[step_any.then_some("any")]
                                                   autocomplete="off" autocapitalize="off" spellcheck="false";
+                                        }
+                                        Control::Slider { min, max, default, step } => {
+                                            // Range + number pair. The number input keeps the
+                                            // canonical in-<name> id so deep-links, reset, chips
+                                            // and gatherArgs are untouched; tool.js mirrors the
+                                            // slider generically via data-for (no slug branches).
+                                            @let min_s = fmt_num(min);
+                                            @let max_s = fmt_num(max);
+                                            @let val_s = default.map(fmt_num);
+                                            div class="tool-slider-row" {
+                                                input id=(format!("{id}-slider")) class="tool-slider" type="range"
+                                                      data-for=(id) min=(min_s) max=(max_s) step=(step)
+                                                      value=[val_s.as_deref()] aria-label=(input.label);
+                                                input id=(id) class="tool-input tool-slider-value" type="number"
+                                                      placeholder=(input.placeholder)
+                                                      min=(min_s) max=(max_s) value=[val_s.as_deref()] step="any"
+                                                      autocomplete="off" autocapitalize="off" spellcheck="false";
+                                            }
                                         }
                                         Control::Picker { input_type } => {
                                             input id=(id) class="tool-input" type=(input_type)
@@ -628,6 +640,64 @@ params = { birthdate = "1990-04-15" }
         // client config carries the declarative default + examples for tool.js
         assert!(html.contains(r#""default":"today""#), "input default in client config");
         assert!(html.contains(r#""examples":[{"label":"Born 1990-04-15""#), "examples in client config");
+    }
+
+    #[test]
+    fn renders_slider_kind_and_step_any_number() {
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "audio-pitch-shift"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "semitones"
+source      = "field"
+label       = "Semitones"
+placeholder = "3"
+kind        = "slider"
+
+[[input]]
+name        = "gain"
+source      = "field"
+label       = "Gain"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
+            "gain": { "type": "number", "minimum": -60, "maximum": 60 }
+        }));
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        // kind="slider" → a range input mirroring the canonical number box
+        assert!(html.contains(r#"id="in-semitones-slider""#), "slider rendered");
+        assert!(html.contains(r#"data-for="in-semitones""#), "slider targets its number box");
+        assert!(
+            html.contains(r#"min="-24" max="24" step="1""#),
+            "slider carries schema bounds and default step"
+        );
+        assert!(html.contains(r#"id="in-semitones""#), "canonical number input kept");
+        // number-typed params accept fractions without step-mismatch warnings
+        assert!(html.contains(r#"step="any""#), "fractional step on number inputs");
+        // the plain number field (no kind) has no slider
+        assert!(!html.contains(r#"id="in-gain-slider""#), "no slider without kind=slider");
+        // copy-paste-runnable CLI example includes the field samples
+        assert!(
+            html.contains("gizza tool audio-pitch-shift 'url=https://example.com/input' 'semitones=3'"),
+            "CLI example includes required field sample"
+        );
     }
 
     #[test]
