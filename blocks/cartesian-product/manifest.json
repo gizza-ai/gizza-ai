@@ -5,7 +5,7 @@
   "summary": "Generate every combination (tuple) across two to four input lists.",
   "role": "skill",
   "tool": {
-    "description": "Generate the cartesian product of two to four lists — every combination that takes one item from each list (e.g. sizes x colors x materials). Items inside each list are split by newline/comma/semicolon/pipe (auto-detected via item_separator), trimmed, blanks dropped, optionally deduped. Output one combination per line joined by join_separator (space/none/comma/dash/underscore/pipe/tab/custom) with optional prefix/suffix, or as CSV rows or a JSON array of arrays. The rightmost list varies fastest. max_combinations (default 10000, cap 100000) guards against exploding output.",
+    "description": "Generate the cartesian product of two to four lists — every combination that takes one item from each list (e.g. sizes x colors x materials). Items inside each list are split by tab/newline/comma/semicolon/pipe (auto-detected via item_separator; slash on request), trimmed, blanks dropped, optionally deduped. Output one combination per line joined by join_separator (space/none/comma/dash/underscore/pipe/tab/newline/custom) with optional prefix/suffix, as CSV rows, a JSON array of arrays, or just the count ('2 x 3 = 6', exempt from the cap). The rightmost list varies fastest. max_combinations (default 10000, cap 100000) guards against exploding output.",
     "parameters": {
       "additionalProperties": false,
       "properties": {
@@ -21,19 +21,21 @@
         },
         "item_separator": {
           "default": "auto",
-          "description": "How items inside each list are split. 'auto' (default) tries newline, then comma, semicolon, pipe. Items are trimmed and blanks dropped.",
+          "description": "How items inside each list are split. 'auto' (default) tries tab, then newline, comma, semicolon, pipe. 'tab' also splits on line breaks (paste spreadsheet cells directly). 'slash' is never auto-detected (URLs/dates keep their slashes). Items are trimmed and blanks dropped.",
           "enum": [
             "auto",
             "comma",
             "newline",
             "semicolon",
-            "pipe"
+            "pipe",
+            "tab",
+            "slash"
           ],
           "type": "string"
         },
         "join_separator": {
           "default": "space",
-          "description": "What joins the items of each combination in 'lines' output: space ' ', none '', comma ', ', dash '-', underscore '_', pipe '|', tab, or 'custom' (see custom_join_separator). Ignored for csv/json.",
+          "description": "What joins the items of each combination in 'lines' output: space ' ', none '', comma ', ', dash '-', underscore '_', pipe '|', tab, newline, or 'custom' (see custom_join_separator). Ignored for csv/json/count.",
           "enum": [
             "space",
             "none",
@@ -42,6 +44,7 @@
             "underscore",
             "pipe",
             "tab",
+            "newline",
             "custom"
           ],
           "type": "string"
@@ -73,11 +76,12 @@
         },
         "output_format": {
           "default": "lines",
-          "description": "'lines' (default): one combination per line, items joined by join_separator. 'csv': one quoted CSV row per combination. 'json': JSON array of per-combination arrays.",
+          "description": "'lines' (default): one combination per line, items joined by join_separator. 'csv': one quoted CSV row per combination. 'json': JSON array of per-combination arrays. 'count': only the combination count, e.g. '2 x 3 = 6' — never generates, so it is exempt from max_combinations.",
           "enum": [
             "lines",
             "csv",
-            "json"
+            "json",
+            "count"
           ],
           "type": "string"
         },
