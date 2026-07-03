@@ -134,6 +134,27 @@ test('image-vignette bare digits-only hex color stays a color (never a number)',
   expect(p.center.r).toBeGreaterThan(230);
 });
 
+test('image-vignette leading-zero all-digit hex keeps every hex digit (no Number coercion)', async ({
+  page,
+}) => {
+  // Regression for the schema-typed coercion fix: "011733" is all decimal
+  // digits, so the old sniff (and any relapse to numeric coercion) would turn
+  // it into the Number 11733 → "11733", a FIVE-digit string parse_color
+  // rejects → no output. A string color param must pass it through verbatim as
+  // the 6-digit hex #011733 → corners (1, 23, 51). The leading zero is the
+  // tell: it only survives if the value was never a JS number.
+  await page.goto('/tools/image-vignette/');
+  await page.fill('#in-strength', '100');
+  await page.fill('#in-color', '011733');
+  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/white-64x64.png'));
+
+  const p = await samplePixels(page, await outputSrc(page));
+  expect(Math.abs(p.topLeft.r - 1)).toBeLessThan(30); // 0x01
+  expect(Math.abs(p.topLeft.g - 23)).toBeLessThan(30); // 0x17
+  expect(Math.abs(p.topLeft.b - 51)).toBeLessThan(30); // 0x33
+  expect(p.center.r).toBeGreaterThan(230);
+});
+
 test('image-vignette format=jpg converts the output to JPEG', async ({ page }) => {
   await page.goto('/tools/image-vignette/');
   await page.selectOption('#in-format', 'jpg');
