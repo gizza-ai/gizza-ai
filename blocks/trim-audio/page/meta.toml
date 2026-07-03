@@ -20,13 +20,13 @@ label  = "Audio"
 name        = "start"
 source      = "field"
 label       = "Start (seconds)"
-placeholder = "0"
+placeholder = "15"
 
 [[input]]
 name        = "end"
 source      = "field"
 label       = "End (seconds)"
-placeholder = "5"
+placeholder = "to end"
 
 [[input]]
 name   = "mode"
