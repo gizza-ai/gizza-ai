@@ -20,6 +20,49 @@ use wafer_block::{
 };
 
 // ---------------------------------------------------------------------------
+// Output-container selection for H.264 re-encodes
+// ---------------------------------------------------------------------------
+
+/// Containers a video tool keeps when re-encoding to H.264 + AAC: they can
+/// hold those codecs and the tool pages/blocks know their ext→MIME mapping.
+/// Everything else switches to mp4 — webm/ogv/gif cannot hold H.264 at all
+/// (ffmpeg hard-fails: WebM only allows VP8/VP9/AV1 + Vorbis/Opus), and the
+/// rest (avi/ts/flv/…) won't play from a `data:` URL in a browser `<video>`.
+const H264_AAC_CONTAINERS: &[&str] = &["mp4", "mov", "m4v", "mkv"];
+
+/// Choose the output container for a tool that re-encodes video to H.264
+/// (`-c:v libx264`), based on the *input* filename.
+///
+/// Returns `(out_ext, transcode_audio)`:
+///
+/// * `out_ext` — extension for `out.<ext>`. The input's container is kept
+///   (canonical lowercase; matched case-insensitively) when it is one of
+///   [`H264_AAC_CONTAINERS`]; any other — or a missing/empty — extension
+///   becomes `"mp4"`.
+/// * `transcode_audio` — `true` when the container was switched (or unknown):
+///   the source's audio codec is then not guaranteed valid in the new
+///   container (webm's Opus/Vorbis stream-copied into mp4 is broken, or
+///   unplayable in Safari), so `-c:a copy` must become an AAC encode.
+///   `false` when the input container is kept — whatever audio the input
+///   carried is already valid there, so stream-copy stays safe.
+pub fn h264_out_ext(in_name: &str) -> (&'static str, bool) {
+    let ext = in_name
+        .rsplit_once('.')
+        .map(|(_, e)| e)
+        .filter(|e| !e.is_empty());
+    match ext {
+        Some(e) => match H264_AAC_CONTAINERS.iter().copied().find(|c| c.eq_ignore_ascii_case(e)) {
+            Some(kept) => (kept, false),
+            None => ("mp4", true),
+        },
+        // No usable extension → the source container is unknown; picking mp4
+        // and copying an unknown audio codec into it would be the same gamble
+        // as the webm case, so re-encode the audio too.
+        None => ("mp4", true),
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Wire types
 // ---------------------------------------------------------------------------
 
@@ -120,5 +163,47 @@ impl Block for FfmpegBlock {
                 format!("ffmpeg exec failed: {e}"),
             )),
         }
+    }
+}
+
+#[cfg(test)]
+mod h264_out_ext_tests {
+    use super::h264_out_ext;
+
+    #[test]
+    fn h264_capable_containers_are_kept_and_audio_stays_copyable() {
+        for ext in ["mp4", "mov", "m4v", "mkv"] {
+            assert_eq!(h264_out_ext(&format!("clip.{ext}")), (ext, false), "{ext}");
+        }
+    }
+
+    #[test]
+    fn extensions_match_case_insensitively_and_normalize_to_lowercase() {
+        assert_eq!(h264_out_ext("CLIP.MP4"), ("mp4", false));
+        assert_eq!(h264_out_ext("clip.MoV"), ("mov", false));
+        assert_eq!(h264_out_ext("clip.MKV"), ("mkv", false));
+        assert_eq!(h264_out_ext("clip.WEBM"), ("mp4", true));
+    }
+
+    #[test]
+    fn incompatible_containers_switch_to_mp4_and_reencode_audio() {
+        // webm/ogv/gif can't hold H.264 at all; avi/ts/flv won't play from a
+        // data: URL in a browser <video> — all switch to mp4 + AAC.
+        for name in ["clip.webm", "clip.ogv", "clip.gif", "clip.avi", "clip.ts", "clip.flv"] {
+            assert_eq!(h264_out_ext(name), ("mp4", true), "{name}");
+        }
+    }
+
+    #[test]
+    fn missing_or_empty_extension_is_mp4_with_audio_reencode() {
+        assert_eq!(h264_out_ext("noext"), ("mp4", true));
+        assert_eq!(h264_out_ext("trailing."), ("mp4", true));
+        assert_eq!(h264_out_ext(""), ("mp4", true));
+    }
+
+    #[test]
+    fn only_the_last_extension_counts() {
+        assert_eq!(h264_out_ext("archive.tar.mp4"), ("mp4", false));
+        assert_eq!(h264_out_ext("clip.mp4.webm"), ("mp4", true));
     }
 }

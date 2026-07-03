@@ -9,7 +9,7 @@ use gizza_ai_block_utils::{
 };
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{dispatch_ffmpeg, resolve_source};
-use gizza_ai_video_resize_core::build_argv;
+use gizza_ai_video_resize_core::plan;
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -78,8 +78,10 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         resolve_source(args.source.into_inner(), AssetKind::Video, MAX_INPUT_BYTES)?;
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
-    let ffmpeg_out = format!("out.{in_ext}");
-    let argv = build_argv(&ffmpeg_in, &ffmpeg_out, args.width, args.height);
+    // plan() picks out.<ext> — the input container when it can hold H.264+AAC,
+    // otherwise mp4 with the audio re-encoded to AAC (e.g. webm input).
+    let (argv, ffmpeg_out) =
+        plan(&ffmpeg_in, args.width, args.height).map_err(SkillError::InvalidArgs)?;
     let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out.clone())?;
 
     let out_ext = ffmpeg_out.rsplit_once('.').map(|(_, e)| e).unwrap_or("mp4");

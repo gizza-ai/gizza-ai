@@ -72,16 +72,13 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
         resolve_source(args.source.into_inner(), AssetKind::Video, MAX_INPUT_BYTES)?;
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
-    // plan() validates rotate/flip and that at least one is active.
-    let (mut argv, ffmpeg_out) = plan(&ffmpeg_in, args.rotate, &args.flip).map_err(SkillError::InvalidArgs)?;
-    // plan() emits out.<ext>; ensure the dispatch out_name matches.
-    let ffmpeg_out2 = format!("out.{in_ext}");
-    if ffmpeg_out != ffmpeg_out2 {
-        if let Some(last) = argv.last_mut() { *last = ffmpeg_out2.clone(); }
-    }
-    let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out2.clone())?;
+    // plan() validates rotate/flip and that at least one is active, and picks
+    // out.<ext> — the input container when it can hold H.264+AAC, otherwise
+    // mp4 with the audio re-encoded to AAC (e.g. webm input).
+    let (argv, ffmpeg_out) = plan(&ffmpeg_in, args.rotate, &args.flip).map_err(SkillError::InvalidArgs)?;
+    let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out.clone())?;
 
-    let out_ext = ffmpeg_out2.rsplit_once('.').map(|(_, e)| e).unwrap_or("mp4");
+    let out_ext = ffmpeg_out.rsplit_once('.').map(|(_, e)| e).unwrap_or("mp4");
     let out_mime = ext_to_video_mime(out_ext);
     let output_size = output.len();
     let filename = filename_with_suffix(&in_filename, "-rotated", out_ext);
