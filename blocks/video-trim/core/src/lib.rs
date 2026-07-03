@@ -2,13 +2,13 @@
 //! skill block and the standalone web page. No wafer/wasm-bindgen deps.
 //!
 //! Trim a video to a `[start, start+duration]` window using stream-copy
-//! (`-c copy`, no re-encode), writing mp4. Stream-copy preserves the source
-//! codecs and is fast — but requires the source streams be mp4-compatible
-//! (h264/aac); otherwise ffmpeg fails with a clear error. Placing `-ss` before
-//! `-i` makes it an input-seek (fast, keyframe-accurate).
+//! (`-c copy`, no re-encode). A stream copy is always valid back into the
+//! source's OWN container, so the output keeps the input container (webm →
+//! out.webm, mp4 → out.mp4, …) — see
+//! `gizza_ai_block_utils::ffmpeg::copy_out_ext`. This is lossless and fast;
+//! placing `-ss` before `-i` makes it an input-seek (fast, keyframe-accurate).
 
-/// Output container — stream-copy always writes mp4.
-pub const OUT_NAME: &str = "out.mp4";
+use gizza_ai_block_utils::ffmpeg::copy_out_ext;
 
 /// Build the ffmpeg argv (no leading `ffmpeg`) for a stream-copy trim.
 ///
@@ -29,9 +29,10 @@ pub fn build_argv(in_name: &str, out_name: &str, start: f64, duration: f64) -> V
 }
 
 /// Validate `start`/`duration` and return `(argv, out_name)` for an input file.
-/// `out_name` is always `out.mp4` (stream-copy keeps the source codecs but the
-/// container is mp4). Single source shared by the chat block (`src/lib.rs`) and
-/// the web page (`web/src/lib.rs`).
+/// `out_name` keeps the input container (a stream copy is always valid in its
+/// own container); an unknown/missing input extension falls back to `out.mp4`
+/// so the page still resolves a MIME. Single source shared by the chat block
+/// (`src/lib.rs`) and the web page (`web/src/lib.rs`).
 pub fn plan_trim(in_name: &str, start: f64, duration: f64) -> Result<(Vec<String>, String), String> {
     if !start.is_finite() || start < 0.0 {
         return Err(format!(
@@ -43,7 +44,7 @@ pub fn plan_trim(in_name: &str, start: f64, duration: f64) -> Result<(Vec<String
             "duration must be > 0 and finite, got {duration}"
         ));
     }
-    let out_name = OUT_NAME.to_string();
+    let out_name = format!("out.{}", copy_out_ext(in_name));
     Ok((build_argv(in_name, &out_name, start, duration), out_name))
 }
 
@@ -66,21 +67,41 @@ mod tests {
     }
 
     #[test]
-    fn argv_uses_stream_copy_and_mp4_out() {
-        let argv = build_argv("in.webm", "out.mp4", 0.0, 2.0);
+    fn argv_uses_stream_copy() {
+        let argv = build_argv("in.webm", "out.webm", 0.0, 2.0);
         assert!(argv.windows(2).any(|w| w[0] == "-c" && w[1] == "copy"));
         assert_eq!(argv.first().map(String::as_str), Some("-ss"));
-        assert_eq!(argv.last().map(String::as_str), Some("out.mp4"));
+        assert_eq!(argv.last().map(String::as_str), Some("out.webm"));
     }
 
     #[test]
-    fn plan_trim_returns_mp4_and_valid_argv() {
+    fn plan_trim_returns_valid_argv() {
         let (argv, out) = plan_trim("clip.mov", 5.0, 10.0).unwrap();
-        assert_eq!(out, "out.mp4");
+        assert_eq!(out, "out.mov");
         let i = argv.iter().position(|a| a == "-ss").unwrap();
         assert_eq!(argv[i + 1], "5");
         let i = argv.iter().position(|a| a == "-t").unwrap();
         assert_eq!(argv[i + 1], "10");
+    }
+
+    #[test]
+    fn plan_trim_keeps_the_source_container() {
+        // A stream copy is valid in its own container — webm stays webm (VP8/
+        // Vorbis into mp4 hard-fails), mp4/mov/mkv/m4v keep theirs.
+        for ext in ["mp4", "mov", "mkv", "m4v", "webm"] {
+            let (argv, out) = plan_trim(&format!("in.{ext}"), 0.0, 1.0).unwrap();
+            assert_eq!(out, format!("out.{ext}"), "{ext}");
+            assert_eq!(argv.last().map(String::as_str), Some(out.as_str()));
+        }
+    }
+
+    #[test]
+    fn plan_trim_falls_back_to_mp4_for_unknown_container() {
+        // Unknown/missing extension → out.mp4 so the page still resolves a MIME.
+        let (_, out) = plan_trim("clip.avi", 0.0, 1.0).unwrap();
+        assert_eq!(out, "out.mp4");
+        let (_, out) = plan_trim("noext", 0.0, 1.0).unwrap();
+        assert_eq!(out, "out.mp4");
     }
 
     #[test]

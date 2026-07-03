@@ -37,8 +37,10 @@ instead of a flat color.
   medium = CRF 23 (the default), low = CRF 28 (smaller file). No hidden
   "premium" tiers; the numbers are the whole story.
 - Videos up to **25 MB** are supported. Video re-encodes as H.264 with the
-  `medium` preset; **audio is copied untouched**. MP4/MOV outputs are written
-  with `+faststart`, so players can start streaming before the file finishes
+  `medium` preset. **Audio is stream-copied** when the input keeps its
+  container (mp4/mov/m4v/mkv); other inputs (webm, …) are converted to MP4 and
+  the audio is re-encoded to AAC. MP4/MOV outputs are written with
+  `+faststart`, so players can start streaming before the file finishes
   downloading.
 - A small clip is scaled **up** to the standard canvas — set a smaller width
   if you want to keep the original pixel size.

@@ -10,8 +10,13 @@
 //! canvas for the chosen aspect (e.g. 1080×1920 for 9:16) or `width` × the
 //! ratio-derived height. `force_divisible_by=2` keeps the scaled content even
 //! so a rounding edge can never overflow the pad area, and `setsar=1` forces
-//! square pixels. Audio is stream-copied untouched; MP4/MOV outputs get
+//! square pixels. The input container is kept (audio stream-copied untouched)
+//! when it can hold H.264 + AAC (mp4/mov/m4v/mkv); anything else (webm, …)
+//! switches to mp4 and the audio is re-encoded to AAC — see
+//! `gizza_ai_block_utils::ffmpeg::h264_out_ext`. MP4/MOV outputs get
 //! `+faststart` so social players can start streaming before the download ends.
+
+use gizza_ai_block_utils::ffmpeg::h264_out_ext;
 
 /// Supported aspect presets: `(name, aspect_w, aspect_h, default_canvas_w,
 /// default_canvas_h)`. Every default canvas is exactly the stated ratio and
@@ -68,14 +73,6 @@ const COLOR_NAMES: &[&str] = &[
 
 fn aspect_list() -> String {
     ASPECTS.iter().map(|a| a.0).collect::<Vec<_>>().join("|")
-}
-
-fn out_ext(in_name: &str) -> &str {
-    in_name
-        .rsplit_once('.')
-        .map(|(_, e)| e)
-        .filter(|e| !e.is_empty())
-        .unwrap_or("mp4")
 }
 
 /// Resolve the output canvas `(width, height)` for an aspect preset and an
@@ -183,9 +180,12 @@ pub fn build_blur_graph(w: u32, h: u32) -> String {
 }
 
 /// Shared encoder tail: H.264 at the tier's CRF (`medium` preset, the family
-/// default), audio stream-copied untouched, and `+faststart` on MP4/MOV so
-/// the moov atom leads and social players can stream immediately.
-fn encoder_args(out_name: &str, crf: &str) -> Vec<String> {
+/// default), audio stream-copied untouched — or re-encoded to AAC when
+/// `transcode_audio` is set (the output container differs from the input's,
+/// so a copied Opus/Vorbis track would be invalid or unplayable in mp4) —
+/// and `+faststart` on MP4/MOV so the moov atom leads and social players can
+/// stream immediately.
+fn encoder_args(out_name: &str, crf: &str, transcode_audio: bool) -> Vec<String> {
     let mut args: Vec<String> = vec![
         "-c:v".into(),
         "libx264".into(),
@@ -194,7 +194,7 @@ fn encoder_args(out_name: &str, crf: &str) -> Vec<String> {
         "-crf".into(),
         crf.into(),
         "-c:a".into(),
-        "copy".into(),
+        if transcode_audio { "aac".into() } else { "copy".into() },
     ];
     if out_name.ends_with(".mp4") || out_name.ends_with(".mov") {
         args.push("-movflags".into());
@@ -205,15 +205,16 @@ fn encoder_args(out_name: &str, crf: &str) -> Vec<String> {
 }
 
 /// Build the ffmpeg argv (no leading `ffmpeg`) for the solid-bars path.
-pub fn build_argv(in_name: &str, out_name: &str, filter: &str, crf: &str) -> Vec<String> {
+pub fn build_argv(in_name: &str, out_name: &str, filter: &str, crf: &str, transcode_audio: bool) -> Vec<String> {
     let mut argv: Vec<String> = vec!["-i".into(), in_name.into(), "-vf".into(), filter.into()];
-    argv.extend(encoder_args(out_name, crf));
+    argv.extend(encoder_args(out_name, crf, transcode_audio));
     argv
 }
 
 /// Build the ffmpeg argv for the blurred-background path: `-filter_complex`
-/// with the video mapped from the graph's `[v]` and audio (if any) copied.
-pub fn build_argv_blur(in_name: &str, out_name: &str, graph: &str, crf: &str) -> Vec<String> {
+/// with the video mapped from the graph's `[v]` and audio (if any) copied —
+/// or AAC-encoded when `transcode_audio` is set.
+pub fn build_argv_blur(in_name: &str, out_name: &str, graph: &str, crf: &str, transcode_audio: bool) -> Vec<String> {
     let mut argv: Vec<String> = vec![
         "-i".into(),
         in_name.into(),
@@ -224,15 +225,16 @@ pub fn build_argv_blur(in_name: &str, out_name: &str, graph: &str, crf: &str) ->
         "-map".into(),
         "0:a?".into(),
     ];
-    argv.extend(encoder_args(out_name, crf));
+    argv.extend(encoder_args(out_name, crf, transcode_audio));
     argv
 }
 
 /// Validate everything and return `(argv, out_name)` — the single entry point
 /// shared by the chat block (`src/lib.rs`) and the web page (`web/src/lib.rs`).
-/// `out_name` keeps the input container extension. `blur` fills the bars with
-/// a blurred cover-scaled copy of the video instead of the solid `color`
-/// (which is still validated, then unused).
+/// `out_name` keeps the input container when it can hold H.264 + AAC;
+/// otherwise it is `out.mp4` and the audio is re-encoded to AAC. `blur` fills
+/// the bars with a blurred cover-scaled copy of the video instead of the solid
+/// `color` (which is still validated, then unused).
 pub fn plan(
     in_name: &str,
     aspect: &str,
@@ -244,11 +246,12 @@ pub fn plan(
     let (w, h) = canvas(aspect, width)?;
     let color = normalize_color(color)?;
     let crf = crf_for(quality)?;
-    let out_name = format!("out.{}", out_ext(in_name));
+    let (ext, transcode_audio) = h264_out_ext(in_name);
+    let out_name = format!("out.{ext}");
     let argv = if blur {
-        build_argv_blur(in_name, &out_name, &build_blur_graph(w, h), crf)
+        build_argv_blur(in_name, &out_name, &build_blur_graph(w, h), crf, transcode_audio)
     } else {
-        build_argv(in_name, &out_name, &build_filter(w, h, &color), crf)
+        build_argv(in_name, &out_name, &build_filter(w, h, &color), crf, transcode_audio)
     };
     Ok((argv, out_name))
 }
@@ -345,7 +348,10 @@ mod tests {
         assert!(fast(&argv));
         let (argv, _) = plan("in.mov", "1:1", None, "black", true, "").unwrap();
         assert!(fast(&argv));
+        // webm input switches the container to mp4 → faststart applies there too.
         let (argv, _) = plan("in.webm", "1:1", None, "black", false, "").unwrap();
+        assert!(fast(&argv));
+        let (argv, _) = plan("in.mkv", "1:1", None, "black", false, "").unwrap();
         assert!(!fast(&argv));
     }
 
@@ -415,10 +421,25 @@ mod tests {
     }
 
     #[test]
-    fn keeps_container_extension_and_copies_audio() {
+    fn keeps_h264_capable_containers_and_copies_audio() {
+        for ext in ["mp4", "mov", "m4v", "mkv"] {
+            let (argv, out) = plan(&format!("clip.{ext}"), "16:9", None, "black", false, "").unwrap();
+            assert_eq!(out, format!("out.{ext}"));
+            assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "copy"), "{ext}");
+        }
+    }
+
+    #[test]
+    fn webm_input_switches_to_mp4_and_reencodes_audio() {
+        // WebM can't hold H.264, and its Opus/Vorbis audio can't be copied
+        // into mp4 — so: out.mp4 + AAC re-encode (both paths).
         let (argv, out) = plan("clip.webm", "16:9", None, "black", false, "").unwrap();
-        assert_eq!(out, "out.webm");
-        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "copy"));
+        assert_eq!(out, "out.mp4");
+        assert_eq!(argv.last().map(String::as_str), Some("out.mp4"));
+        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "aac"));
+        let (argv, out) = plan("clip.webm", "9:16", None, "black", true, "").unwrap();
+        assert_eq!(out, "out.mp4");
+        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "aac"));
     }
 
     #[test]
