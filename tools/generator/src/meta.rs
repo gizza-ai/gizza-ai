@@ -29,12 +29,23 @@ pub struct Input {
     /// e.g. "timezones") rendered as a `<datalist>` for searchable autocomplete.
     #[serde(default)]
     pub options: String,
+    /// For kind="slider": the slider's drag granularity (e.g. "1", "0.5").
+    /// Empty = 1. The paired number box always accepts finer typed values.
+    #[serde(default)]
+    pub step: String,
     /// For source="field": client-side default applied on load when the field is
     /// empty and not pre-filled from the URL. "today" → local YYYY-MM-DD, "now" →
     /// local YYYY-MM-DDTHH:MM, "local-timezone" → the user's IANA zone; anything
     /// else is used literally. Also what the Reset button restores.
     #[serde(default)]
     pub default: String,
+    /// For enum params (a `<select>`): optional display label per option VALUE
+    /// (e.g. `"9:16" = "9:16 — Reels / Shorts (1080×1920)"`). The option VALUE
+    /// stays the canonical schema string, so deep-links, chips, reset and the
+    /// CLI are untouched; only the visible text is enriched. Unlisted options
+    /// display their value.
+    #[serde(default)]
+    pub labels: std::collections::BTreeMap<String, String>,
 }
 
 /// A one-click example: a chip under the inputs that pre-fills `params` and runs.

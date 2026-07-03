@@ -1,0 +1,115 @@
+slug          = "cartesian-product"
+title         = "Cartesian Product Generator — Every Combination of 2–4 Lists — gizza.ai"
+description   = "Generate every combination across 2-4 lists (sizes x colors x materials) — or just count them. Paste spreadsheet cells, pick any separator, output lines, CSV, JSON."
+tags          = ["cartesian product", "combination generator", "combine lists", "all combinations", "product variants generator", "seo keyword combiner", "cross join lists", "tuple generator", "word combiner", "keyword mixer", "merge word lists", "combination counter"]
+h1            = "Cartesian Product Generator"
+hero_subtitle = "Combine two to four lists into every possible combination — one item from each list. Paste spreadsheet cells directly, join with spaces, dashes, or a custom separator, add a prefix or suffix, and output plain lines, CSV rows, JSON, or just the count. Runs entirely in your browser."
+wasm          = "gizza_ai_cartesian_product_web"
+export        = "run"
+live          = false
+output_label  = "Combinations"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "list1"
+label       = "List 1"
+placeholder = "red, blue, green"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "list2"
+label       = "List 2"
+placeholder = "S, M, L"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "list3"
+label       = "List 3 (optional)"
+placeholder = "cotton, linen"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "list4"
+label       = "List 4 (optional)"
+placeholder = "slim, regular"
+source      = "field"
+multiline   = true
+
+# item_separator / output_format / join_separator render as <select> — the
+# option lists come from the descriptor's schema via manifest.json; `labels`
+# only enriches the visible text (values stay canonical for deep-links/CLI).
+[[input]]
+name        = "item_separator"
+label       = "Item separator"
+source      = "field"
+labels      = { auto = "Auto-detect", comma = "Comma ( , )", newline = "One per line", semicolon = "Semicolon ( ; )", pipe = "Pipe ( | )", tab = "Tab — spreadsheet cells", slash = "Slash ( / )" }
+
+[[input]]
+name        = "dedupe"
+label       = "Deduplicate items in each list"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+labels      = { lines = "Lines — one combination per line", csv = "CSV rows", json = "JSON array of arrays", count = "Count only (never generates)" }
+
+[[input]]
+name        = "join_separator"
+label       = "Join items with"
+source      = "field"
+labels      = { space = "Space", none = "Nothing (concatenate)", comma = "Comma ( , )", dash = "Dash ( - )", underscore = "Underscore ( _ )", pipe = "Pipe ( | )", tab = "Tab", newline = "New line", custom = "Custom…" }
+
+[[input]]
+name        = "custom_join_separator"
+label       = "Custom join string"
+placeholder = " :: "
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Prefix"
+placeholder = "sku-"
+source      = "field"
+
+[[input]]
+name        = "suffix"
+label       = "Suffix"
+placeholder = "-2026"
+source      = "field"
+
+[[input]]
+name        = "max_combinations"
+label       = "Max combinations"
+placeholder = "10000"
+default     = "10000"
+source      = "field"
+
+[[example]]
+label  = "Colors × sizes"
+params = { list1 = "red, blue", list2 = "S, M, L" }
+
+[[example]]
+label  = "SEO keywords: modifier × service × city"
+params = { list1 = "best, affordable", list2 = "plumber, electrician", list3 = "Austin, Dallas" }
+
+[[example]]
+label  = "SKU codes with dash + prefix"
+params = { list1 = "tee, hoodie", list2 = "black, white", join_separator = "dash", prefix = "sku-" }
+
+[[example]]
+label  = "Variant matrix as CSV"
+params = { list1 = "red, blue", list2 = "S, M", list3 = "cotton, linen", output_format = "csv" }
+
+[[example]]
+label  = "Count first — is it too big?"
+params = { list1 = "red, blue", list2 = "S, M, L", list3 = "cotton, linen", output_format = "count" }
+
+[[example]]
+label  = "Quoted PPC keywords"
+params = { list1 = "best, affordable", list2 = "plumber, electrician", prefix = '"', suffix = '"' }

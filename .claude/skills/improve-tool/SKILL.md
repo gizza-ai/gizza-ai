@@ -27,7 +27,9 @@ Follow these phases in order:
 
 1. **Gather + branch.** Take the tool `slug` (+ optional focus). If no slug is supplied,
    ask for it (the ONLY question allowed). Confirm `blocks/<slug>/` exists (`gizza list`).
-   `git checkout -b feat/improve-<slug>` from `main`.
+   `git checkout -b feat/improve-<slug>` from `main` — UNLESS the tool isn't on main yet
+   (freshly built on a tool-loop branch): then branch from THAT branch and pass it as the
+   PR base (`gh pr create --base <branch>`) so the PR diff shows only the improvements.
 
 2. **Phase 1 — Verify the three surfaces, fix any breakage (known-good baseline).** The
    descriptor single-sources chat/CLI/page/query-params; verify all three live. See
@@ -51,6 +53,11 @@ Follow these phases in order:
 4. **Phase 3 — Diff + rank.** Synthesize the 5 profiles vs our tool (`descriptor()` params +
    `core` behavior + page) into a gap list across the 4 dimensions. Tag each gap **in-model**
    or **out-of-model**. All in-model gaps are slated for Phase 4 (comprehensive).
+   A third tag is allowed: **considered, rejected** — an in-model gap declined on judgment
+   (schema bloat, UX regression, family-invariant conflict). State the reason in the PR;
+   an honest rejection beats a forced feature (e.g. tag-list pills rejected for
+   comma-bearing, bulk-pasted list fields). Classify capabilities honestly: if a competitor
+   ships it as a FEATURE (e.g. a combination counter), it's a capability gap, not copy.
 
 5. **Phase 4 — Improve (every in-model gap).** Edit per dimension (reference.md §"Phase 4"):
    - **Capabilities:** `core/src/lib.rs` logic + `src/lib.rs` `descriptor()` params (new

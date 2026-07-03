@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/image-vignette",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add a soft darkened, lightened, or colored vignette with adjustable strength around an image's edges.",
+  "role": "skill",
+  "tool": {
+    "description": "Add a soft darkened, lightened, or colored vignette around the edges of an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional strength 0-100 (default 40), mode darken|lighten (default darken), color (name or hex, darken mode only, default black), center_x/center_y as percent of the image size (default 50/50, the middle), and format keep|png|jpg|webp (default keep).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "center_x": {
+          "default": 50.0,
+          "description": "Horizontal center of the vignette as a percent of the image width: 0 = left edge, 50 (default) = middle, 100 = right edge.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "center_y": {
+          "default": 50.0,
+          "description": "Vertical center of the vignette as a percent of the image height: 0 = top edge, 50 (default) = middle, 100 = bottom edge.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "color": {
+          "default": "black",
+          "description": "Vignette color for darken mode: a name (black, white, gray, sepia, navy, red, …) or hex like #1A2B3C / #A52. black (the default) is the classic look; try sepia for a vintage fade. Not combinable with mode=lighten.",
+          "type": "string"
+        },
+        "format": {
+          "default": "keep",
+          "description": "Output format: keep (default) preserves the input format (and any animation); png, jpg or webp convert — an animated GIF keeps only its first frame when converting.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "darken",
+          "description": "darken (default) darkens the edges like a classic lens vignette; lighten brightens them instead for a faded, hazy border.",
+          "enum": [
+            "darken",
+            "lighten"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strength": {
+          "default": 40.0,
+          "description": "Vignette strength, 0-100. 0 leaves the image unchanged, 40 (the default) is a classic soft vignette, 100 fades the corners fully to black (or white in lighten mode). Example: 80 for a dramatic look.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

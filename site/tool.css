@@ -31,6 +31,17 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
   background-repeat: no-repeat; background-position: right 12px center; }
 .tool-checkbox { width: 18px; height: 18px; margin: 6px 0 14px; accent-color: var(--tool-accent);
   vertical-align: middle; cursor: pointer; display: block; }
+/* kind="slider": range + number pair (the number box keeps the canonical id). */
+.tool-slider-row { display: flex; align-items: center; gap: 12px; }
+.tool-slider-row .tool-input { width: 92px; flex: 0 0 auto; }
+.tool-slider { flex: 1 1 auto; min-width: 0; margin: 6px 0 12px;
+  accent-color: var(--tool-accent); cursor: pointer; }
+/* kind="color": native swatch + canonical hex text pair (tool.js mirrors). */
+.tool-color-row { display: flex; align-items: center; gap: 12px; }
+.tool-color-row .tool-input { flex: 1 1 auto; min-width: 0; }
+.tool-color-swatch { flex: 0 0 auto; width: 44px; height: 38px; padding: 2px;
+  margin: 6px 0 12px; background: #fff; border: 1px solid #cbd5e1;
+  border-radius: 8px; cursor: pointer; }
 /* pre-wrap: multi-line text results (bitwise-calculator, asn1-parser, …) render
    as real lines instead of collapsing into one wrapped paragraph; single-line
    results are unaffected. */
@@ -177,6 +188,10 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-widget-btn:hover, .tool-widget-btn:focus-visible { border-color: var(--tool-accent, #4f46e5);
   color: var(--tool-ink, #0f172a); }
 .tool-widget-btn.copied { border-color: #16a34a; color: #16a34a; }
+/* The Download link shares the button chrome; anchors need the underline
+   stripped and an explicit [hidden] rule (display would otherwise win). */
+a.tool-widget-btn { text-decoration: none; display: inline-block; }
+.tool-widget-btn[hidden] { display: none; }
 
 /* Generic tag-list control (meta kind="tag-list" — see tools/generator). */
 .tool-tags { margin: 6px 0 12px; }

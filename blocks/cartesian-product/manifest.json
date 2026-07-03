@@ -1,0 +1,106 @@
+{
+  "name": "gizza-ai/cartesian-product",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate every combination (tuple) across two to four input lists.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate the cartesian product of two to four lists — every combination that takes one item from each list (e.g. sizes x colors x materials). Items inside each list are split by tab/newline/comma/semicolon/pipe (auto-detected via item_separator; slash on request), trimmed, blanks dropped, optionally deduped. Output one combination per line joined by join_separator (space/none/comma/dash/underscore/pipe/tab/newline/custom) with optional prefix/suffix, as CSV rows, a JSON array of arrays, or just the count ('2 x 3 = 6', exempt from the cap). The rightmost list varies fastest. max_combinations (default 10000, cap 100000) guards against exploding output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "custom_join_separator": {
+          "default": "",
+          "description": "Join string used when join_separator is 'custom', e.g. ' :: '.",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": false,
+          "description": "Remove duplicate items within each list before combining (keeps first occurrence).",
+          "type": "boolean"
+        },
+        "item_separator": {
+          "default": "auto",
+          "description": "How items inside each list are split. 'auto' (default) tries tab, then newline, comma, semicolon, pipe. 'tab' also splits on line breaks (paste spreadsheet cells directly). 'slash' is never auto-detected (URLs/dates keep their slashes). Items are trimmed and blanks dropped.",
+          "enum": [
+            "auto",
+            "comma",
+            "newline",
+            "semicolon",
+            "pipe",
+            "tab",
+            "slash"
+          ],
+          "type": "string"
+        },
+        "join_separator": {
+          "default": "space",
+          "description": "What joins the items of each combination in 'lines' output: space ' ', none '', comma ', ', dash '-', underscore '_', pipe '|', tab, newline, or 'custom' (see custom_join_separator). Ignored for csv/json/count.",
+          "enum": [
+            "space",
+            "none",
+            "comma",
+            "dash",
+            "underscore",
+            "pipe",
+            "tab",
+            "newline",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "list1": {
+          "description": "First list. Items separated by newline, comma, semicolon or pipe (auto-detected unless item_separator says otherwise), e.g. 'red, blue, green'.",
+          "type": "string"
+        },
+        "list2": {
+          "description": "Second list, same format as list1, e.g. 'S, M, L'.",
+          "type": "string"
+        },
+        "list3": {
+          "default": "",
+          "description": "Optional third list, e.g. 'cotton, linen'. Leave empty to combine only two lists.",
+          "type": "string"
+        },
+        "list4": {
+          "default": "",
+          "description": "Optional fourth list. Leave empty if unused.",
+          "type": "string"
+        },
+        "max_combinations": {
+          "default": 10000,
+          "description": "Safety cap on the number of generated combinations (list sizes multiplied). Exceeding it is an error that reports the exact count. Default 10000, hard cap 100000.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output_format": {
+          "default": "lines",
+          "description": "'lines' (default): one combination per line, items joined by join_separator. 'csv': one quoted CSV row per combination. 'json': JSON array of per-combination arrays. 'count': only the combination count, e.g. '2 x 3 = 6' — never generates, so it is exempt from max_combinations.",
+          "enum": [
+            "lines",
+            "csv",
+            "json",
+            "count"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "Text prepended to every combination line ('lines' output only), e.g. 'sku-'.",
+          "type": "string"
+        },
+        "suffix": {
+          "default": "",
+          "description": "Text appended to every combination line ('lines' output only), e.g. '-2026'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "list1",
+        "list2"
+      ],
+      "type": "object"
+    }
+  }
+}

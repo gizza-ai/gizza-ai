@@ -2,7 +2,7 @@
 //! with SEO `<head>` tags and JSON-LD.
 
 use crate::control::{fmt_num, Control, ParamSchema};
-use crate::markdown::example_deeplink;
+use crate::markdown::{cli_example as shared_cli_example, example_deeplink};
 use crate::meta::ToolMeta;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, PreEscaped, DOCTYPE};
@@ -41,17 +41,10 @@ pub fn render_page(
     .to_string()
     .replace("</", "<\\/");
 
-    // How to run THIS tool headlessly via the gizza CLI — derived from the
-    // tool's own inputs (first field's placeholder, or a url= for file tools).
-    let cli_example = match meta.inputs.first() {
-        Some(inp) if inp.source == "file" => {
-            format!("gizza tool {} 'url=https://example.com/input'", meta.slug)
-        }
-        Some(inp) if !inp.placeholder.is_empty() => {
-            format!("gizza tool {} '{}'", meta.slug, inp.placeholder)
-        }
-        _ => format!("gizza tool {}", meta.slug),
-    };
+    // How to run THIS tool headlessly via the gizza CLI — the same
+    // copy-paste-runnable example as the markdown twin (file tools include a
+    // sample for every field, since those are often required).
+    let cli_example = shared_cli_example(meta, schema);
 
     let markup = html! {
         (DOCTYPE)
@@ -106,25 +99,64 @@ pub fn render_page(
                                         Control::Select { options, default } => {
                                             select id=(id) class="tool-input tool-select" {
                                                 @for opt in &options {
-                                                    option value=(opt) selected[Some(opt) == default.as_ref()] { (opt) }
+                                                    // Value stays canonical (deep-links/chips/CLI);
+                                                    // meta `labels` only enriches the visible text.
+                                                    option value=(opt) selected[Some(opt) == default.as_ref()] {
+                                                        (input.labels.get(opt).unwrap_or(opt))
+                                                    }
                                                 }
                                             }
                                         }
                                         Control::Checkbox { default } => {
                                             input id=(id) class="tool-checkbox" type="checkbox" checked[default];
                                         }
-                                        Control::Number { min, max, default } => {
+                                        Control::Number { min, max, default, step_any } => {
                                             @let min_s = min.map(fmt_num);
                                             @let max_s = max.map(fmt_num);
                                             @let val_s = default.map(fmt_num);
                                             input id=(id) class="tool-input" type="number"
                                                   placeholder=(input.placeholder)
                                                   min=[min_s.as_deref()] max=[max_s.as_deref()] value=[val_s.as_deref()]
+                                                  step=[step_any.then_some("any")]
                                                   autocomplete="off" autocapitalize="off" spellcheck="false";
+                                        }
+                                        Control::Slider { min, max, default, step } => {
+                                            // Range + number pair. The number input keeps the
+                                            // canonical in-<name> id so deep-links, reset, chips
+                                            // and gatherArgs are untouched; tool.js mirrors the
+                                            // slider generically via data-for (no slug branches).
+                                            @let min_s = fmt_num(min);
+                                            @let max_s = fmt_num(max);
+                                            @let val_s = default.map(fmt_num);
+                                            div class="tool-slider-row" {
+                                                input id=(format!("{id}-slider")) class="tool-slider" type="range"
+                                                      data-for=(id) min=(min_s) max=(max_s) step=(step)
+                                                      value=[val_s.as_deref()] aria-label=(input.label);
+                                                input id=(id) class="tool-input tool-slider-value" type="number"
+                                                      placeholder=(input.placeholder)
+                                                      min=(min_s) max=(max_s) value=[val_s.as_deref()] step="any"
+                                                      autocomplete="off" autocapitalize="off" spellcheck="false";
+                                            }
                                         }
                                         Control::Picker { input_type } => {
                                             input id=(id) class="tool-input" type=(input_type)
                                                   placeholder=(input.placeholder) autocomplete="off";
+                                        }
+                                        Control::Color { default } => {
+                                            // Swatch + text pair. The TEXT input keeps the
+                                            // canonical in-<name> id (deep-links, reset, chips,
+                                            // gatherArgs untouched) and stays the source of
+                                            // truth — empty ("transparent"/default), alpha hex
+                                            // and color lists all live there; tool.js mirrors
+                                            // the native swatch generically via data-for.
+                                            @let swatch = default.as_deref().and_then(crate::control::expand_hex);
+                                            div class="tool-color-row" {
+                                                input id=(format!("{id}-swatch")) class="tool-color-swatch" type="color"
+                                                      data-for=(id) value=[swatch.as_deref()] aria-label=(input.label);
+                                                input id=(id) class="tool-input tool-color-value" type="text"
+                                                      placeholder=(input.placeholder)
+                                                      autocomplete="off" autocapitalize="off" spellcheck="false";
+                                            }
                                         }
                                         Control::Datalist { options } => {
                                             @let list_id = format!("dl-{}", input.name);
@@ -205,6 +237,15 @@ pub fn render_page(
                                     @if !is_media {
                                         button id="tool-copy-output" class="tool-widget-btn" type="button"
                                                title="Copy the result to the clipboard" { "Copy result" }
+                                    }
+                                    // Text tools: download the current output as a file (every
+                                    // list/CSV/JSON competitor offers an export). tool.js keeps the
+                                    // blob URL in sync with the output; data-text-download marks it
+                                    // apart from the media download link (same id, one per page).
+                                    @if meta.format == "text" {
+                                        a id="tool-output-download" class="tool-widget-btn" data-text-download
+                                          download=(format!("{}-output.txt", meta.slug)) hidden
+                                          title="Download the result as a text file" { "Download" }
                                     }
                                 }
                             }
@@ -625,9 +666,177 @@ params = { birthdate = "1990-04-15" }
         // standard chrome: reset + copy-result on every field/text tool
         assert!(html.contains(r#"id="tool-reset""#), "reset button rendered");
         assert!(html.contains(r#"id="tool-copy-output""#), "copy-result button rendered");
+        // text tools also get a Download link for the current output, hidden
+        // until tool.js fills it (competitor-standard export affordance)
+        assert!(
+            html.contains(r#"data-text-download download="age-calculator-output.txt""#),
+            "text-output download link rendered with slug-derived filename"
+        );
         // client config carries the declarative default + examples for tool.js
         assert!(html.contains(r#""default":"today""#), "input default in client config");
         assert!(html.contains(r#""examples":[{"label":"Born 1990-04-15""#), "examples in client config");
+    }
+
+    #[test]
+    fn renders_slider_kind_and_step_any_number() {
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "audio-pitch-shift"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "semitones"
+source      = "field"
+label       = "Semitones"
+placeholder = "3"
+kind        = "slider"
+
+[[input]]
+name        = "gain"
+source      = "field"
+label       = "Gain"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
+            "gain": { "type": "number", "minimum": -60, "maximum": 60 }
+        }));
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        // kind="slider" → a range input mirroring the canonical number box
+        assert!(html.contains(r#"id="in-semitones-slider""#), "slider rendered");
+        assert!(html.contains(r#"data-for="in-semitones""#), "slider targets its number box");
+        assert!(
+            html.contains(r#"min="-24" max="24" step="1""#),
+            "slider carries schema bounds and default step"
+        );
+        assert!(html.contains(r#"id="in-semitones""#), "canonical number input kept");
+        // number-typed params accept fractions without step-mismatch warnings
+        assert!(html.contains(r#"step="any""#), "fractional step on number inputs");
+        // the plain number field (no kind) has no slider
+        assert!(!html.contains(r#"id="in-gain-slider""#), "no slider without kind=slider");
+        // copy-paste-runnable CLI example includes the field samples
+        assert!(
+            html.contains("gizza tool audio-pitch-shift 'url=https://example.com/input' 'semitones=3'"),
+            "CLI example includes required field sample"
+        );
+    }
+
+    #[test]
+    fn renders_color_kind_as_swatch_plus_canonical_text() {
+        let meta = ToolMeta::from_toml(
+            r##"
+slug          = "waveform-image"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "image"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Wave color"
+placeholder = "#4f46e5"
+kind        = "color"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Background"
+placeholder = "transparent — or a hex like #0b1220"
+kind        = "color"
+"##,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "color": { "type": "string", "default": "#4f46e5" },
+            "background": { "type": "string" }
+        }));
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        // kind="color" → a native swatch mirroring the canonical TEXT input
+        assert!(html.contains(r##"id="in-color-swatch""##), "swatch rendered");
+        assert!(html.contains(r##"data-for="in-color""##), "swatch targets its text input");
+        assert!(
+            html.contains(r##"id="in-color" class="tool-input tool-color-value" type="text""##),
+            "canonical text input kept (empty/alpha/lists stay expressible)"
+        );
+        // schema default seeds the swatch; a default-less color has no value attr
+        assert!(html.contains(r##"id="in-color-swatch" class="tool-color-swatch" type="color" data-for="in-color" value="#4f46e5""##), "swatch seeded with schema default");
+        assert!(!html.contains(r##"data-for="in-background" value="##), "no swatch value without a schema default");
+        // the CLI example uses the hex sample for color and OMITS background
+        // (its non-hex placeholder means "empty = transparent" is the example)
+        assert!(
+            html.contains("gizza tool waveform-image 'url=https://example.com/input' 'color=#4f46e5'"),
+            "CLI example is runnable: hex sample, placeholder-leak omitted"
+        );
+    }
+
+    #[test]
+    fn select_labels_enrich_display_text_but_keep_canonical_values() {
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "video-aspect-pad"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+
+[[input]]
+name   = "aspect"
+source = "field"
+label  = "Target aspect ratio"
+labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:1 — square feed (1080×1080)" }
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "aspect": { "type": "string", "enum": ["9:16", "1:1", "16:9"], "default": "9:16" }
+        }));
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        // labeled options: canonical value attr + enriched visible text
+        assert!(
+            html.contains(r#"<option value="9:16" selected>9:16 — Reels / Shorts / TikTok (1080×1920)</option>"#),
+            "labeled default option keeps canonical value"
+        );
+        assert!(
+            html.contains(r#"<option value="1:1">1:1 — square feed (1080×1080)</option>"#),
+            "labeled non-default option"
+        );
+        // an unlabeled option falls back to its value as the text
+        assert!(html.contains(r#"<option value="16:9">16:9</option>"#), "unlabeled option unchanged");
     }
 
     #[test]

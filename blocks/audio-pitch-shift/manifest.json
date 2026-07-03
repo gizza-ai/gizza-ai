@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/audio-pitch-shift",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shift audio pitch by semitones without changing tempo",
+  "role": "skill",
+  "tool": {
+    "description": "Shift the pitch of an audio file up or down by semitones without changing its speed or duration (transpose a song to another key, deepen a voice, make a chipmunk effect). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). semitones may be fractional: 12 = one octave up, -12 = one octave down, range -24 to 24 (0 is rejected as a no-op). Tempo is preserved via a resample + atempo chain; output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "semitones": {
+          "description": "How far to shift the pitch, in semitones (fractional values allowed, e.g. 0.5 = 50 cents). Positive raises the pitch, negative lowers it: 12 = one octave up, -12 = one octave down. Range -24 to 24; 0 is rejected as a no-op.",
+          "maximum": 24,
+          "minimum": -24,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "semitones"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -16,7 +16,7 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) ->
     s.push_str(&format!("{}\n\n", meta.description));
 
     s.push_str("## Run it\n\n");
-    s.push_str(&format!("- **CLI:** `{}`\n", cli_example(meta)));
+    s.push_str(&format!("- **CLI:** `{}`\n", cli_example(meta, schema)));
     s.push_str(&format!("- **Web:** {}/tools/{}/\n\n", SITE, meta.slug));
 
     s.push_str("## Inputs\n\n");
@@ -66,15 +66,43 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) ->
     s
 }
 
-/// The example CLI invocation: field tools use the first field input's
-/// placeholder as the example arg; file tools take a path; auto-only tools
-/// (e.g. clock) take no args.
-fn cli_example(meta: &ToolMeta) -> String {
-    if let Some(field) = meta.inputs.iter().find(|i| i.source == "field") {
+/// The example CLI invocation, copy-paste-runnable. File tools take
+/// `url=…` plus a `key=value` sample for EVERY field input (derived from the
+/// same schema samples as the deep-link example — a file tool's fields are
+/// often required, so an example without them would just error). Pure field
+/// tools use the first field's placeholder as the bare positional (the CLI
+/// maps bare positionals against the schema's `required` list) — plus a
+/// `key=value` sample for every OTHER required field, because an example
+/// missing any required param errors verbatim ("missing required arg").
+/// Auto-only tools (e.g. clock) take no args.
+/// `pub(crate)` so `template.rs` renders the identical example on the page.
+pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
+    if meta.inputs.iter().any(|i| i.source == "file") {
+        let mut args = vec!["'url=https://example.com/input'".to_string()];
+        for i in meta.inputs.iter().filter(|i| i.source == "field") {
+            if let Some(sample) = sample_value(&schema.control_for_input(i), &i.placeholder) {
+                args.push(format!("'{}={}'", i.name, sample));
+            }
+        }
+        format!("gizza tool {} {}", meta.slug, args.join(" "))
+    } else if let Some(field) = meta.inputs.iter().find(|i| i.source == "field") {
         let arg = if field.placeholder.is_empty() { "..." } else { field.placeholder.as_str() };
-        format!("gizza tool {} \"{}\"", meta.slug, arg)
-    } else if meta.inputs.iter().any(|i| i.source == "file") {
-        format!("gizza tool {} <path>", meta.slug)
+        let mut cmd = format!("gizza tool {} \"{}\"", meta.slug, arg);
+        // The bare positional only covers the FIRST required scalar param.
+        // Every other required field needs an explicit key=value or the
+        // copy-pasted example fails. (With a stale/missing manifest the schema
+        // knows nothing — keep the legacy single-positional form.)
+        if schema.knows_params() && schema.is_required(&field.name) {
+            for i in meta.inputs.iter().filter(|i| i.source == "field").skip(1) {
+                if !schema.is_required(&i.name) {
+                    continue;
+                }
+                if let Some(sample) = sample_value(&schema.control_for_input(i), &i.placeholder) {
+                    cmd.push_str(&format!(" '{}={}'", i.name, sample));
+                }
+            }
+        }
+        cmd
     } else {
         format!("gizza tool {}", meta.slug)
     }
@@ -126,6 +154,30 @@ fn sample_value(control: &Control, placeholder: &str) -> Option<String> {
                     .or_else(|| min.map(fmt_num))
                     .unwrap_or_else(|| "1".to_string()),
             )
+        }
+        Control::Slider { default, min, .. } => {
+            // Same numeric-sample rules as Number; a slider always has bounds,
+            // so min is the last-resort sample.
+            let numeric_ph = ph.as_ref().filter(|p| p.parse::<f64>().is_ok()).cloned();
+            if ph.is_some() && numeric_ph.is_none() {
+                return None;
+            }
+            Some(
+                numeric_ph
+                    .or_else(|| default.map(fmt_num))
+                    .unwrap_or_else(|| fmt_num(*min)),
+            )
+        }
+        Control::Color { default } => {
+            // Same omit-rule as Number: a non-hex placeholder (e.g.
+            // "transparent — or a hex like #0b1220") means EMPTY is the
+            // meaningful value, so the param is left out of the example
+            // rather than teaching a value that would be rejected.
+            let hex_ph = ph.as_ref().and_then(|p| crate::control::expand_hex(p).map(|_| p.clone()));
+            if ph.is_some() && hex_ph.is_none() {
+                return None;
+            }
+            hex_ph.or_else(|| default.clone())
         }
         Control::Picker { input_type } => Some(ph.unwrap_or_else(|| {
             match input_type.as_str() {
@@ -191,7 +243,7 @@ source      = "field"
         // A non-numeric placeholder on a number control (trim-audio's end
         // "to end") signals that EMPTY is meaningful — the example must omit
         // the param rather than teach a bogus value.
-        let num = Control::Number { min: Some(0.0), max: None, default: None };
+        let num = Control::Number { min: Some(0.0), max: None, default: None, step_any: false };
         assert_eq!(sample_value(&num, "to end"), None);
         assert_eq!(sample_value(&num, "15"), Some("15".to_string()));
         assert_eq!(sample_value(&num, ""), Some("0".to_string())); // min fallback
@@ -256,10 +308,104 @@ source = "clock"
     }
 
     #[test]
-    fn file_tool_uses_path_example_and_accept() {
+    fn file_tool_uses_url_example_and_accept() {
         let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty());
-        assert!(md.contains("`gizza tool image-grayscale <path>`"), "path CLI example");
+        assert!(
+            md.contains("`gizza tool image-grayscale 'url=https://example.com/input'`"),
+            "url= CLI example"
+        );
         assert!(md.contains("`file` — Image _(file; accept: image/*)_"), "accept shown");
+    }
+
+    #[test]
+    fn file_tool_cli_example_includes_field_samples() {
+        // A file tool's field params are often REQUIRED — a copy-pasted
+        // example without them would just error. Samples come from the same
+        // schema-derived values as the deep-link example.
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "audio-pitch-shift"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+output_label  = "o"
+format        = "audio"
+runtime       = "ffmpeg"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "semitones"
+source      = "field"
+placeholder = "3"
+
+[[input]]
+name   = "format"
+source = "field"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
+            "format": { "type": "string", "enum": ["mp3", "wav"], "default": "mp3" }
+        }));
+        assert_eq!(
+            cli_example(&meta, &schema),
+            "gizza tool audio-pitch-shift 'url=https://example.com/input' 'semitones=3' 'format=mp3'"
+        );
+    }
+
+    #[test]
+    fn pure_tool_cli_example_covers_every_required_param() {
+        // A pure tool with TWO required params: the bare positional only maps
+        // to the first, so the example must pass the second as key=value —
+        // otherwise the copy-pasted example errors ("missing required arg").
+        // Optional params stay out of the example.
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "cartesian-product"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "run"
+output_label  = "o"
+format        = "text"
+
+[[input]]
+name        = "list1"
+source      = "field"
+placeholder = "red, blue, green"
+
+[[input]]
+name        = "list2"
+source      = "field"
+placeholder = "S, M, L"
+
+[[input]]
+name        = "list3"
+source      = "field"
+placeholder = "cotton, linen"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "list1": { "type": "string" },
+            "list2": { "type": "string" },
+            "list3": { "type": "string", "default": "" }
+        }))
+        .with_required_for_tests(&["list1", "list2"]);
+        assert_eq!(
+            cli_example(&meta, &schema),
+            "gizza tool cartesian-product \"red, blue, green\" 'list2=S, M, L'"
+        );
     }
 
     #[test]

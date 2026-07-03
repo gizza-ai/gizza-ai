@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-aspect-pad"
+version = "0.1.0"
+abi = 1
+summary = "Letterbox or pillarbox a video to a target aspect ratio"

@@ -12,9 +12,9 @@ const out = document.getElementById(cfg.output.elementId);
 //   setup(ctx)                → one-time setup; return true to TAKE OVER wiring
 //   renderResult(value, ctx)  → return true if the result was rendered
 //   renderError(message, ctx) → return true if the error was rendered
-// Prefer the declarative meta.toml controls (kind/options/default/[[example]]/
-// wide); custom.js is only for layouts/renderers those can't express. Do NOT
-// add per-tool slug branches to this file.
+// Prefer the declarative meta.toml controls (kind incl. slider/color/options/
+// default/[[example]]/wide); custom.js is only for layouts/renderers those
+// can't express. Do NOT add per-tool slug branches to this file.
 let custom = {};
 let customCtx = null;
 
@@ -24,6 +24,7 @@ function showResult(value) {
     return;
   }
   out.textContent = cfg.format === "number" ? formatNumber(value) : String(value);
+  syncTextDownload();
 }
 
 function showError(message) {
@@ -35,6 +36,30 @@ function showError(message) {
   }
   out.classList.add("error");
   out.textContent = message;
+  syncTextDownload();
+}
+
+// ---- Text-output download (generator renders the anchor for format="text") ----
+// Keeps the "Download" link's blob URL in sync with the visible output: hidden
+// while there is no result (or an error is showing), else a fresh text/plain
+// blob of exactly what's on screen. data-text-download distinguishes it from
+// the media download link, which the ffmpeg path manages itself.
+let textDownloadUrl = null;
+function syncTextDownload() {
+  const a = document.querySelector("a[data-text-download]");
+  if (!a) return;
+  if (textDownloadUrl) {
+    URL.revokeObjectURL(textDownloadUrl);
+    textDownloadUrl = null;
+  }
+  const text = out.textContent;
+  if (!text || out.classList.contains("error")) {
+    a.hidden = true;
+    return;
+  }
+  textDownloadUrl = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  a.href = textDownloadUrl;
+  a.hidden = false;
 }
 
 
@@ -120,6 +145,8 @@ function wireWidgetChrome(rerun) {
         if (inp) applyField(document.getElementById(inp.elementId), value);
       }
       refreshTagLists();
+      refreshSliders();
+      refreshColors();
       rerun();
     });
   }
@@ -147,6 +174,8 @@ function wireWidgetChrome(rerun) {
       }
       applyMetaDefaults(true);
       refreshTagLists();
+      refreshSliders();
+      refreshColors();
       const media = document.getElementById("tool-output-media");
       const dl = document.getElementById("tool-output-download");
       if (media) media.hidden = true;
@@ -179,6 +208,101 @@ function wireWidgetChrome(rerun) {
       }
     });
   }
+}
+
+// ---- Generic slider mirror (meta kind="slider") ----
+// A range input (id "in-<name>-slider", data-for="in-<name>") mirrors the
+// canonical number box two-way. Dragging updates the number live WITHOUT
+// firing events; releasing dispatches ONE change on the number input — one
+// run per drag, the same commit discipline as the waveform selection. Pure
+// (non-ffmpeg) tools also recompute live during the drag, which is cheap.
+
+// Where the thumb rests when its number box is empty: the rendered value
+// attribute (the schema default) or the numeric midpoint (the range
+// element's own no-value default).
+function sliderRestValue(slider) {
+  if (slider.defaultValue !== "") return slider.defaultValue;
+  const min = Number(slider.min);
+  const max = Number(slider.max);
+  return String(min + (max - min) / 2);
+}
+
+// Re-sync every slider from its number box (after programmatic value writes:
+// meta defaults, example chips, reset, deep-links).
+function refreshSliders() {
+  for (const s of document.querySelectorAll(".tool-slider")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.value = el.value !== "" ? el.value : sliderRestValue(s);
+  }
+}
+
+function wireSliders() {
+  for (const s of document.querySelectorAll(".tool-slider")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.addEventListener("input", () => {
+      el.value = s.value; // live mirror — programmatic writes fire no events
+      if (cfg.runtime !== "ffmpeg") el.dispatchEvent(new Event("input"));
+    });
+    s.addEventListener("change", () => {
+      el.value = s.value;
+      el.dispatchEvent(new Event("change")); // exactly one run per drag-release
+    });
+    el.addEventListener("input", () => {
+      if (el.value !== "") s.value = el.value;
+    });
+  }
+  refreshSliders();
+}
+
+// ---- Generic color mirror (meta kind="color") ----
+// A native color swatch (id "in-<name>-swatch", data-for="in-<name>") mirrors
+// the canonical hex TEXT input two-way. The text stays the source of truth:
+// empty (transparent / tool default), alpha hex (#RRGGBBAA) and comma lists
+// are all valid there but inexpressible in a native picker. Same commit
+// discipline as sliders: picking mirrors live without events; closing the
+// picker dispatches ONE change on the text input.
+
+// Normalize #RGB/#RGBA/#RRGGBB/#RRGGBBAA to the #rrggbb form the native
+// picker accepts (alpha dropped), or null when not a single hex color.
+function expandHex(v) {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(String(v).trim());
+  if (!m) return null;
+  let h = m[1];
+  if (h.length <= 4) h = [...h].map((c) => c + c).join("");
+  return "#" + h.slice(0, 6).toLowerCase();
+}
+
+// Re-sync every swatch from its text input (after programmatic value writes:
+// example chips, reset, deep-links). An empty/non-hex text falls back to the
+// rendered value attribute (the schema default) or the element's own black.
+function refreshColors() {
+  for (const s of document.querySelectorAll(".tool-color-swatch")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.value = expandHex(el.value) || expandHex(s.defaultValue) || "#000000";
+  }
+}
+
+function wireColors() {
+  for (const s of document.querySelectorAll(".tool-color-swatch")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.addEventListener("input", () => {
+      el.value = s.value; // live mirror — programmatic writes fire no events
+      if (cfg.runtime !== "ffmpeg") el.dispatchEvent(new Event("input"));
+    });
+    s.addEventListener("change", () => {
+      el.value = s.value;
+      el.dispatchEvent(new Event("change")); // exactly one run per pick
+    });
+    el.addEventListener("input", () => {
+      const hex = expandHex(el.value);
+      if (hex) s.value = hex;
+    });
+  }
+  refreshColors();
 }
 
 // ---- Generic tag-list widget (meta kind="tag-list") ----
@@ -435,9 +559,15 @@ async function main() {
       // Coerce numeric-looking field values to Number so wasm-bindgen f64 params
       // marshal correctly; leave non-numeric (e.g. "contain") and empty strings
       // as strings — the WASM function handles empty via its own defaults.
+      // readField (not .value) so a checkbox marshals its CHECKED state as
+      // "true"/"false" — a checkbox element's .value is the constant "on"
+      // regardless of state, which would read as always-on.
       const fieldArgs = fieldInputs.map((i) => {
         const el = document.getElementById(i.elementId);
-        const v = el ? el.value : "";
+        const v = el ? readField(el) : "";
+        // A color field's value is never a number — a bare digits-only hex
+        // like "112233" must stay a string for the wasm &str param.
+        if (el && el.classList.contains("tool-color-value")) return v;
         return v !== "" && !isNaN(Number(v)) ? Number(v) : v;
       });
       const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
@@ -473,6 +603,8 @@ async function main() {
     }
     applyMetaDefaults();
     wireTagLists();
+    wireSliders();
+    wireColors();
     wireWidgetChrome(run);
     if (custom.setup && custom.setup({ ...customCtx, run, fileInput, fieldInputs }) === true) {
       return; // custom module owns all wiring for this tool
@@ -499,6 +631,21 @@ async function main() {
 
     if (fileInput) {
       fileInput.addEventListener("change", run);
+      // Paste-to-upload: Ctrl/Cmd+V a copied media file anywhere on the page
+      // selects it and runs. Only a pasted FILE matching the input's accept
+      // class is claimed — pasting text (e.g. a hex color into a field) keeps
+      // the browser default.
+      document.addEventListener("paste", (e) => {
+        const files = Array.from((e.clipboardData && e.clipboardData.files) || []);
+        const kind = (((fileMeta && fileMeta.accept) || "").split("/")[0] || "");
+        const match = files.find((f) => !kind || (f.type || "").startsWith(kind + "/"));
+        if (!match) return;
+        e.preventDefault();
+        const dt = new DataTransfer();
+        dt.items.add(match);
+        fileInput.files = dt.files;
+        fileInput.dispatchEvent(new Event("change"));
+      });
     }
     for (const i of fieldInputs) {
       const el = document.getElementById(i.elementId);
@@ -529,6 +676,7 @@ async function main() {
       if (empty) {
         out.classList.remove("error");
         out.textContent = "";
+        syncTextDownload();
       } else {
         showError(msg);
       }
@@ -542,6 +690,8 @@ async function main() {
   }
   applyMetaDefaults();
   wireTagLists();
+  wireSliders();
+  wireColors();
   wireWidgetChrome(compute);
   if (custom.setup && custom.setup({ ...customCtx, compute }) === true) {
     return; // custom module owns all wiring for this tool

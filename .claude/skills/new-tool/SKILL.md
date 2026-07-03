@@ -24,6 +24,11 @@ the build/test/PR commands. Follow these steps in order:
      build a page (no headless GPU); CLI is expected to be `unsupported_in_cli`.
 4. **Derive + record assumptions:** the input schema (param names + JSON-Schema types),
    the output, the behavior. These go verbatim into the PR body.
+   **Feasibility ≠ model fit:** before tagging a wanted capability "out-of-model", spend a
+   5-minute spike probing it (an ffmpeg filter chain, a wasm-safe crate) — improve passes
+   keep finding "out-of-model" features that were one filtergraph away (vignette tint,
+   blur-pad). Every table-stake from the competitor scan must land in the descriptor OR the
+   out-of-model list — never dropped silently.
 5. **Scaffold:** `scripts/scaffold-tool.sh <slug> <pure|ffmpeg>` (for network/gpu, copy
    `blocks/web-fetch`/`blocks/imagine` as the reference instead — they have no page).
 6. **Implement** (replace the `TODO`/`not implemented` stubs):
@@ -44,7 +49,14 @@ the build/test/PR commands. Follow these steps in order:
    - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning the
      shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` — already wired by the scaffold).
    - `page/meta.toml` + `page/content.md` — real title/desc/tags/inputs (field ORDER must
-     match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures. Write
+     match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures.
+     **Right control for the data, at build time:** check the generator's CURRENT declarative
+     kinds (`tools/generator/src/control.rs` + create-next-tool references/page-patterns.md) —
+     `kind = "slider"` for bounded numeric ranges, `kind = "color"` for color params (hybrid
+     swatch + text; still accepts named colors/transparent), `kind = "tag-list"`,
+     date/time pickers, `[input.labels]` for friendly `<select>` labels, `multiline` for
+     paste-able text. Add `[[example]]` preset chips whenever competitors ship presets
+     (octave ±12, 9:16 story, banner sizes…) — chips are the declarative preset answer. Write
      the FAQ in `content.md` as `<details>`/`<summary>` accordions (the scaffold seeds one),
      NOT plain `## FAQ` markdown — keep a BLANK LINE inside each `<details>` so the answer's
      markdown renders and wraps in `<p>` (see `blocks/age-calculator`). Plain-markdown FAQ is
@@ -79,13 +91,24 @@ the build/test/PR commands. Follow these steps in order:
      The spec MUST assert real output correctness — exact text for pure tools; for media,
      decode the result and assert dimensions/pixels (reference.md §media correctness) — plus
      one `?param=` deep-link case;
+   - **Advertised-values matrix:** exercise every advertised input value FORM end-to-end,
+     not just argv/unit shape — one real run per enum choice and per accepted value form
+     (e.g. short-hex AND long-hex colors: `#f00` passed argv tests but rendered a WHITE wave
+     in ffmpeg), ≥1 NON-default checkbox state (a marshaling bug once sent every checkbox as
+     `"on"`), the exact cap boundary (at and one-over), and for media-input tools ≥1
+     secondary input format (png AND jpeg; mp4 AND webm — if a format can't work, error
+     gracefully and say so on the page);
    - **CLI** (pure/ffmpeg/network): `gizza tool <slug> …` incl. one exact-output case;
      gpu: assert `unsupported_in_cli` + exit 3.
 8b. **User-QA rubric (before ship)** — load `/tools/<slug>/` once more and check as a USER:
    every text/number field has a meaningful placeholder; the page copy shows ≥1 worked example
    (input AND output); the FAQ answers ≥3 real questions; known limits (max sizes, formats,
    depth caps) are stated on the page, not only in code; error messages say what was expected;
-   every descriptor param has a `.describe()` an LLM could act on. Fix gaps before committing.
+   every descriptor param has a `.describe()` an LLM could act on. **Copy-paste-run the page's
+   generated CLI example VERBATIM** — pure tools must succeed; file tools (example.com URL)
+   must fail gracefully at the fetch with args parsed (two shipped pages had un-runnable
+   examples: a missing required param and a leaked prose placeholder). Fix gaps before
+   committing.
 9. **Ship:** commit, `git push -u origin feat/tool-<slug>`, `gh pr create` with a body that
    states: the tool type, the derived assumptions, what was tested + results, and any
    limitation (e.g. "gpu: no page, no headless verification"; "ffmpeg: chat path is
