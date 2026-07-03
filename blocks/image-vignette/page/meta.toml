@@ -1,9 +1,9 @@
 slug          = "image-vignette"
-title         = "Add a Vignette to an Image Online — gizza.ai"
-description   = "Add a soft darkened or lightened vignette around the edges of a photo, right in your browser — adjustable strength and center. Nothing is uploaded, free."
-tags          = ["image", "vignette", "photo", "effects", "darken", "lighten", "edges", "filter"]
+title         = "Add a Vignette to an Image Online — Dark, Light or Colored Edges — gizza.ai"
+description   = "Add a dark, light or colored vignette around the edges of a photo, right in your browser — adjustable strength, center and output format. Nothing is uploaded, free."
+tags          = ["image", "vignette", "photo", "effects", "darken", "lighten", "edges", "filter", "vignette color", "white vignette", "sepia", "png", "jpg", "webp"]
 h1            = "Add a Vignette to an Image"
-hero_subtitle = "Pick an image and a strength — the vignette is applied in your browser, nothing is uploaded."
+hero_subtitle = "Pick an image and a strength — dark, light or colored edges are applied in your browser, nothing is uploaded."
 wasm          = "gizza_ai_image_vignette_web"
 export        = "build_argv"
 runtime       = "ffmpeg"
@@ -16,25 +16,79 @@ source = "file"
 accept = "image/*"
 label  = "Image"
 
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# strength, mode, color, center_x, center_y, format.
 [[input]]
 name        = "strength"
 source      = "field"
 label       = "Strength (0–100)"
 placeholder = "40"
+kind        = "slider"
+step        = "1"
 
 [[input]]
 name   = "mode"
 source = "field"
 label  = "Mode"
 
+[input.labels]
+"darken"  = "darken — classic dark edges"
+"lighten" = "lighten — faded, hazy border"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Vignette color (darken mode)"
+placeholder = "black, sepia or #1A2B3C"
+kind        = "color"
+
 [[input]]
 name        = "center_x"
 source      = "field"
 label       = "Center X (% of width)"
 placeholder = "50"
+kind        = "slider"
+step        = "1"
 
 [[input]]
 name        = "center_y"
 source      = "field"
 label       = "Center Y (% of height)"
 placeholder = "50"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"keep" = "keep — same format as the input"
+"png"  = "png — lossless"
+"jpg"  = "jpg — small file, no transparency"
+"webp" = "webp — modern, small"
+
+[[example]]
+label  = "Subtle depth (20)"
+params = { strength = "20" }
+
+[[example]]
+label  = "Classic (40)"
+params = { strength = "40", mode = "darken", color = "black" }
+
+[[example]]
+label  = "Dramatic (80)"
+params = { strength = "80" }
+
+[[example]]
+label  = "Spotlight (100)"
+params = { strength = "100" }
+
+[[example]]
+label  = "Hazy light edges"
+params = { strength = "60", mode = "lighten", color = "black" }
+
+[[example]]
+label  = "Sepia fade"
+params = { strength = "70", mode = "darken", color = "sepia" }
