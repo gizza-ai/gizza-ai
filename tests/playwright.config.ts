@@ -16,7 +16,10 @@ export default defineConfig({
     // The pkg/ bundle is browser-WASM + SW-based.
   },
   webServer: {
-    command: 'python3 -m http.server --directory ../pkg 8001',
+    // serve_pkg.py sends Cache-Control: no-store — the persistent chromium
+    // profile otherwise disk-caches unhashed tool.js/tool-audio.js and tests
+    // run stale JS after a page regen.
+    command: 'python3 serve_pkg.py ../pkg 8001',
     port: 8001,
     timeout: 60_000,
     reuseExistingServer: true,
