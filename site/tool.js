@@ -416,7 +416,15 @@ async function main() {
       }
     }
 
+    // Overlapping runs race: ffmpeg run times vary, so a stale slow run can
+    // resolve after a newer one and overwrite its media.src and output
+    // waveform — or repaint output that Reset just cleared. Every run() call
+    // takes a ticket (including the no-file early return, so Reset's rerun
+    // invalidates an in-flight run); only the newest ticket may touch the DOM.
+    let runSeq = 0;
+
     async function run() {
+      const seq = ++runSeq;
       const file = fileInput && fileInput.files && fileInput.files[0];
       if (!file) return;
       out.textContent = "Processing…";
@@ -433,6 +441,7 @@ async function main() {
         return v !== "" && !isNaN(Number(v)) ? Number(v) : v;
       });
       const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
+      if (seq !== runSeq) return; // superseded while ffmpeg ran — drop the result
       if (r.ok) {
         out.textContent = "";
         media.src = r.dataUrl;
@@ -446,9 +455,9 @@ async function main() {
         if (outputWf && String(r.dataUrl).startsWith("data:audio/")) {
           try {
             const blob = await (await fetch(r.dataUrl)).blob();
-            await outputWf.load(blob);
+            if (seq === runSeq) await outputWf.load(blob);
           } catch (e) {
-            outputWf.clear(); // fallback: native player alone, as today
+            if (seq === runSeq) outputWf.clear(); // fallback: native player alone, as today
           }
         }
       } else {
