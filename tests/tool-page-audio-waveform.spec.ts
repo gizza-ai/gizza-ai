@@ -17,15 +17,39 @@ test('audio-convert page renders a non-blank waveform after upload', async ({ pa
   await page.setInputFiles('#in-audio', FIXTURE);
   await expect(page.locator('.tool-wf-wave').first()).toBeVisible({ timeout: 15_000 });
   // Canvas must actually contain drawn waveform pixels, not be blank.
-  const drawn = await page.evaluate(() => {
-    const c = document.querySelector('.tool-wf-canvas') as HTMLCanvasElement;
-    const g = c.getContext('2d')!;
-    const d = g.getImageData(0, 0, c.width, c.height).data;
-    let painted = 0;
-    for (let i = 3; i < d.length; i += 4) if (d[i] > 0) painted++;
-    return painted;
+  const paintedPixels = () =>
+    page.evaluate(() => {
+      const c = document.querySelector('.tool-wf-canvas') as HTMLCanvasElement;
+      const g = c.getContext('2d')!;
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      let painted = 0;
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 0) painted++;
+      return painted;
+    });
+  expect(await paintedPixels()).toBeGreaterThan(500);
+
+  // Resizing re-resamples the peak cache at the new width (the decoded
+  // AudioBuffer is not retained) — the redrawn canvas must not be blank.
+  // Shrink the widget element itself: same ResizeObserver → resample → draw
+  // path as a window resize, but independent of viewport/CSS layout, and the
+  // inline style dies with the next page.goto (nothing leaks to later tests).
+  const canvasWidth = () =>
+    page.evaluate(
+      () => (document.querySelector('.tool-wf-canvas') as HTMLCanvasElement).width
+    );
+  const w0 = await canvasWidth();
+  await page.evaluate(() => {
+    (document.querySelector('.tool-wf') as HTMLElement).style.width = '240px';
   });
-  expect(drawn).toBeGreaterThan(500);
+  await page.waitForFunction(
+    (prev) => {
+      const c = document.querySelector('.tool-wf-canvas') as HTMLCanvasElement;
+      return c.width > 0 && c.width !== prev;
+    },
+    w0,
+    { timeout: 15_000 } // fail fast, don't ride the 20-min test timeout
+  );
+  expect(await paintedPixels()).toBeGreaterThan(200);
 });
 
 test('audio-convert waveform plays and dragging writes no fields', async ({ page }) => {
@@ -96,6 +120,25 @@ test('trim-audio drag-selection writes start/end and trims to the selection', as
   expect(src).toMatch(/^data:audio\//);
   const dur = await decodeDurationOfDataUrl(page, src!);
   expect(Math.abs(dur - (end - start))).toBeLessThan(0.2);
+});
+
+test('play-selection pauses playback at the selection end', async ({ page }) => {
+  await page.goto('/tools/trim-audio/');
+  await page.waitForSelector('#in-audio');
+  await page.fill('#in-start', '0.5');
+  await page.fill('#in-end', '1.5');
+  await page.setInputFiles('#in-audio', FIXTURE);
+  const wf = page.locator('.tool-wf').first();
+  await expect(wf.locator('.tool-wf-wave')).toBeVisible({ timeout: 15_000 });
+
+  await wf.locator('.tool-wf-playsel').click();
+  // Assert only the terminal state — the transient 'Pause' label lasts ≤1 s
+  // and a starved main thread can skip painting it entirely (tick() pauses
+  // before updateBar()). If playback never started, the time stays 0:00.5
+  // and this fails; if it played through, tick() snapped currentTime to
+  // sel.end — the boundary, not the 3.03 s track end.
+  await expect(wf.locator('.tool-wf-time')).toContainText('0:01.5 /', { timeout: 15_000 });
+  await expect(wf.locator('.tool-wf-play')).toHaveText('Play');
 });
 
 test('trim-audio typing start/end moves the selection highlight', async ({ page }) => {
