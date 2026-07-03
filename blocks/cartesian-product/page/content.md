@@ -1,6 +1,6 @@
 ## Every Combination, One Item From Each List
 
-The cartesian product takes one item from every list and produces all possible tuples: 2 colors × 3 sizes = 6 combinations, add 2 materials and you get 12. Paste up to four lists (items separated by newlines, commas, semicolons, or pipes — auto-detected), and the generator writes out every combination instantly. Everything runs locally in your browser; your data never leaves your device.
+The cartesian product takes one item from every list and produces all possible tuples: 2 colors × 3 sizes = 6 combinations, add 2 materials and you get 12. Paste up to four lists (items separated by tabs, newlines, commas, semicolons, or pipes — auto-detected, so spreadsheet cells paste straight in), and the generator writes out every combination instantly. Everything runs locally in your browser; your data never leaves your device.
 
 ### Worked example
 
@@ -20,17 +20,18 @@ The count is always the product of the list sizes (here 2 × 3 = 6), and the rig
 ### Features
 
 - **2–4 lists**: List 1 and List 2 are required; List 3 and List 4 are optional and simply ignored when left empty.
-- **Flexible splitting**: items are split by newline, comma, semicolon, or pipe (auto-detected, or pick one), trimmed, and blank entries dropped. Optionally deduplicate each list first.
-- **Join your way**: space, nothing (concatenation), comma, dash, underscore, pipe, tab, or any custom string — plus an optional prefix/suffix on every line (handy for SKUs like `sku-tee-black`).
-- **Three output formats**: plain lines, CSV rows (cells quoted and escaped when needed), or a JSON array of per-combination arrays.
+- **Flexible splitting**: items are split by tab, newline, comma, semicolon, or pipe (auto-detected, or pick one — slash is available but never guessed, so URLs and dates stay whole), trimmed, and blank entries dropped. Optionally deduplicate each list first. Tab mode also splits on line breaks, so a rectangle of spreadsheet cells pastes in as one item per cell.
+- **Join your way**: space, nothing (concatenation), comma, dash, underscore, pipe, tab, newline, or any custom string — plus an optional prefix/suffix on every line. That covers SKUs (`sku-tee-black`), quoted PPC phrase-match keywords (prefix and suffix `"`), bracketed `[...]` variants, and `+broad +match` terms (custom join `" +"` with prefix `+`).
+- **Count before you generate**: the *Count only* output format reports the multiplication (`2 x 3 x 2 = 12`) without producing a single line — and it ignores the cap, so you can size up a product that would be too big to generate.
+- **Four output formats**: plain lines, CSV rows (cells quoted and escaped when needed), a JSON array of per-combination arrays, or the count alone. Copy the result or download it as a text file.
 - **Use cases**: product variant matrices, SEO keyword permutations (`best plumber Austin`), test-case grids, filename or SKU generation.
 
 ### Limits and edge cases
 
-- The combination count is capped by **Max combinations** (default 10,000, hard cap 100,000). Exceeding it never truncates — you get an error stating the exact count so you can shrink a list or raise the cap.
+- The combination count is capped by **Max combinations** (default 10,000, hard cap 100,000). Exceeding it never truncates — you get an error stating the exact count so you can shrink a list or raise the cap. The *Count only* format is exempt: counting `26 × 26 × 26 × 26 = 456,976` is instant and safe even though generating it would exceed the cap.
 - A required list with no items (empty, or only blanks/separators) is an error that names the list; empty optional lists are skipped.
-- Prefix, suffix, and the join separator apply to the *lines* format only — CSV and JSON own their structure (quoting/escaping) instead.
-- Items containing spaces (like `navy blue`) are fine: spaces never split items, only newlines/commas/semicolons/pipes do.
+- Prefix, suffix, and the join separator apply to the *lines* format only — CSV, JSON, and Count own their structure (quoting/escaping) instead.
+- Items containing spaces (like `navy blue`) are fine: spaces never split items, only tabs/newlines/commas/semicolons/pipes do. Numeric-looking items like `007` or `1.50` stay exactly as typed — nothing is reformatted as a number.
 
 ## FAQ
 
@@ -38,6 +39,20 @@ The count is always the product of the list sizes (here 2 × 3 = 6), and the rig
 <summary>What order are the combinations generated in?</summary>
 
 Odometer order: the first list varies slowest and the last list varies fastest, exactly like nested loops, Python's `itertools.product`, or a SQL `CROSS JOIN`. `red, blue` × `S, M` gives `red S`, `red M`, `blue S`, `blue M`. The input order of items within each list is preserved.
+
+</details>
+
+<details>
+<summary>Can I paste straight from a spreadsheet?</summary>
+
+Yes. A pasted column arrives newline-separated and a pasted row arrives tab-separated — auto-detection handles both, and tab mode also splits on line breaks, so even a rectangular block of cells becomes one item per cell. Numbers keep their exact formatting (`007` stays `007`).
+
+</details>
+
+<details>
+<summary>How do I know how many combinations I'll get before generating?</summary>
+
+Set **Output format** to *Count only*. It reports the multiplication — for example `2 x 3 x 2 = 12` — without generating anything, and it is exempt from the Max combinations cap, so you can safely size up products in the millions before deciding how to split the work.
 
 </details>
 
