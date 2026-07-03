@@ -32,6 +32,10 @@ struct Args {
     width: Option<u32>,
     #[serde(default)]
     color: Option<String>,
+    #[serde(default)]
+    blur: bool,
+    #[serde(default)]
+    quality: Option<String>,
 }
 
 /// Single-source param descriptor → chat schema (and CLI + page). The
@@ -39,9 +43,9 @@ struct Args {
 fn descriptor() -> ToolDescriptor {
     ToolDescriptor::new(Input::Video)
         .param(
-            Param::enumv("aspect", ["9:16", "1:1", "16:9", "4:5", "3:4", "4:3", "2:3", "21:9"])
+            Param::enumv("aspect", ["9:16", "1:1", "16:9", "4:5", "3:4", "4:3", "3:2", "2:3", "21:9"])
                 .default("9:16")
-                .describe("Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 2:3 Pinterest, 21:9 cinematic. Default 9:16."),
+                .describe("Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 3:2 classic photo, 2:3 Pinterest, 21:9 cinematic. Default 9:16."),
         )
         .param(
             Param::integer("width")
@@ -52,7 +56,17 @@ fn descriptor() -> ToolDescriptor {
         .param(
             Param::string("color")
                 .default("black")
-                .describe("Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C. Default black."),
+                .describe("Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C or #f0f. Default black. Ignored when blur=true."),
+        )
+        .param(
+            Param::boolean("blur")
+                .default(false)
+                .describe("Fill the bars with a blurred, zoomed copy of the video instead of a solid color (the TV-news portrait look). Default false."),
+        )
+        .param(
+            Param::enumv("quality", ["high", "medium", "low"])
+                .default("medium")
+                .describe("Encoding quality: high (CRF 18, bigger file), medium (CRF 23, balanced), low (CRF 28, smaller file). Default medium."),
         )
 }
 
@@ -81,7 +95,7 @@ struct VideoAspectPad;
     summary = "Letterbox or pillarbox a video to a target aspect ratio",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
-        description = "Letterbox or pillarbox a video to a target aspect ratio with colored bars — e.g. pad a landscape clip to 9:16 for Reels/Shorts/TikTok or to 1:1 for a feed post. The whole frame is kept (scaled to fit, never cropped or stretched) and centered on the target canvas; the rest is filled with the bar color. Output is exactly the platform-standard canvas for the chosen aspect (1080x1920 for 9:16, 1080x1080 for 1:1, 1920x1080 for 16:9, ...) unless width sets a custom size. Provide the video as either url (HTTP/HTTPS) or ref. Video re-encodes as H.264 (CRF 23); audio is copied untouched. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+        description = "Letterbox or pillarbox a video to a target aspect ratio — e.g. pad a landscape clip to 9:16 for Reels/Shorts/TikTok or to 1:1 for a feed post. The whole frame is kept (scaled to fit, never cropped or stretched) and centered on the target canvas; the rest is filled with a solid bar color, or with a blurred zoomed copy of the video itself (blur=true). Output is exactly the platform-standard canvas for the chosen aspect (1080x1920 for 9:16, 1080x1080 for 1:1, 1920x1080 for 16:9, ...) unless width sets a custom size. Provide the video as either url (HTTP/HTTPS) or ref. Video re-encodes as H.264 at the chosen quality tier (CRF 18/23/28); audio is copied untouched; MP4/MOV get +faststart for instant social streaming. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()
     ),
 )]
@@ -96,10 +110,11 @@ impl VideoAspectPad {
 
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
-    // 1. Parse args; aspect/width/color validation lives in core's plan.
+    // 1. Parse args; aspect/width/color/quality validation lives in core's plan.
     let args: Args = serde_json::from_slice(&body).invalid_args("video-aspect-pad")?;
     let aspect = args.aspect.as_deref().unwrap_or("9:16");
     let color = args.color.as_deref().unwrap_or("black");
+    let quality = args.quality.as_deref().unwrap_or("medium");
 
     // 2. Resolve source — URL fetch or attachment lookup (video/* MIME class).
     let (input_bytes, in_mime, in_filename) =
@@ -108,8 +123,8 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     // 3. Build ffmpeg argv (shared pure core — validates everything).
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
-    let (argv, ffmpeg_out) =
-        plan(&ffmpeg_in, aspect, args.width, color).map_err(SkillError::InvalidArgs)?;
+    let (argv, ffmpeg_out) = plan(&ffmpeg_in, aspect, args.width, color, args.blur, quality)
+        .map_err(SkillError::InvalidArgs)?;
 
     // 4. Dispatch to ffmpeg-runtime.
     let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out.clone())?;
@@ -121,8 +136,9 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let output_size = output.len();
     let suffix = format!("-pad-{}", aspect.replace(':', "x"));
     let filename = filename_with_suffix(&in_filename, &suffix, out_ext);
+    let bars = if args.blur { "blurred".to_string() } else { format!("{color} bars") };
     let for_llm = format!(
-        "padded {in_filename} to {aspect} ({w}x{h}, {color} bars, {output_size} bytes {out_mime})"
+        "padded {in_filename} to {aspect} ({w}x{h}, {bars}, {quality} quality, {output_size} bytes {out_mime})"
     );
     build_media_envelope(&output, out_mime, filename, for_llm, MAX_OUTPUT_BYTES)
 }
@@ -141,11 +157,13 @@ mod tests {
             r#"{
                 "type": "object",
                 "properties": {
-                    "url":    { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
-                    "ref":    { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
-                    "aspect": { "type": "string", "enum": ["9:16", "1:1", "16:9", "4:5", "3:4", "4:3", "2:3", "21:9"], "default": "9:16", "description": "Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 2:3 Pinterest, 21:9 cinematic. Default 9:16." },
-                    "width":  { "type": "integer", "minimum": 16, "maximum": 4096, "description": "Output width in pixels (even, 16-4096); height follows the aspect ratio. Omit for the platform-standard canvas (1080x1920 for 9:16, 1920x1080 for 16:9, ...)." },
-                    "color":  { "type": "string", "default": "black", "description": "Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C. Default black." }
+                    "url":     { "type": "string", "description": "Video URL (HTTP/HTTPS). Use either url or ref." },
+                    "ref":     { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+                    "aspect":  { "type": "string", "enum": ["9:16", "1:1", "16:9", "4:5", "3:4", "4:3", "3:2", "2:3", "21:9"], "default": "9:16", "description": "Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 3:2 classic photo, 2:3 Pinterest, 21:9 cinematic. Default 9:16." },
+                    "width":   { "type": "integer", "minimum": 16, "maximum": 4096, "description": "Output width in pixels (even, 16-4096); height follows the aspect ratio. Omit for the platform-standard canvas (1080x1920 for 9:16, 1920x1080 for 16:9, ...)." },
+                    "color":   { "type": "string", "default": "black", "description": "Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C or #f0f. Default black. Ignored when blur=true." },
+                    "blur":    { "type": "boolean", "default": false, "description": "Fill the bars with a blurred, zoomed copy of the video instead of a solid color (the TV-news portrait look). Default false." },
+                    "quality": { "type": "string", "enum": ["high", "medium", "low"], "default": "medium", "description": "Encoding quality: high (CRF 18, bigger file), medium (CRF 23, balanced), low (CRF 28, smaller file). Default medium." }
                 },
                 "additionalProperties": false,
                 "oneOf": [

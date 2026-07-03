@@ -5,7 +5,7 @@
   "summary": "Letterbox or pillarbox a video to a target aspect ratio",
   "role": "skill",
   "tool": {
-    "description": "Letterbox or pillarbox a video to a target aspect ratio with colored bars — e.g. pad a landscape clip to 9:16 for Reels/Shorts/TikTok or to 1:1 for a feed post. The whole frame is kept (scaled to fit, never cropped or stretched) and centered on the target canvas; the rest is filled with the bar color. Output is exactly the platform-standard canvas for the chosen aspect (1080x1920 for 9:16, 1080x1080 for 1:1, 1920x1080 for 16:9, ...) unless width sets a custom size. Provide the video as either url (HTTP/HTTPS) or ref. Video re-encodes as H.264 (CRF 23); audio is copied untouched. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "description": "Letterbox or pillarbox a video to a target aspect ratio — e.g. pad a landscape clip to 9:16 for Reels/Shorts/TikTok or to 1:1 for a feed post. The whole frame is kept (scaled to fit, never cropped or stretched) and centered on the target canvas; the rest is filled with a solid bar color, or with a blurred zoomed copy of the video itself (blur=true). Output is exactly the platform-standard canvas for the chosen aspect (1080x1920 for 9:16, 1080x1080 for 1:1, 1920x1080 for 16:9, ...) unless width sets a custom size. Provide the video as either url (HTTP/HTTPS) or ref. Video re-encodes as H.264 at the chosen quality tier (CRF 18/23/28); audio is copied untouched; MP4/MOV get +faststart for instant social streaming. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
     "parameters": {
       "additionalProperties": false,
       "oneOf": [
@@ -23,7 +23,7 @@
       "properties": {
         "aspect": {
           "default": "9:16",
-          "description": "Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 2:3 Pinterest, 21:9 cinematic. Default 9:16.",
+          "description": "Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 3:2 classic photo, 2:3 Pinterest, 21:9 cinematic. Default 9:16.",
           "enum": [
             "9:16",
             "1:1",
@@ -31,14 +31,30 @@
             "4:5",
             "3:4",
             "4:3",
+            "3:2",
             "2:3",
             "21:9"
           ],
           "type": "string"
         },
+        "blur": {
+          "default": false,
+          "description": "Fill the bars with a blurred, zoomed copy of the video instead of a solid color (the TV-news portrait look). Default false.",
+          "type": "boolean"
+        },
         "color": {
           "default": "black",
-          "description": "Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C. Default black.",
+          "description": "Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C or #f0f. Default black. Ignored when blur=true.",
+          "type": "string"
+        },
+        "quality": {
+          "default": "medium",
+          "description": "Encoding quality: high (CRF 18, bigger file), medium (CRF 23, balanced), low (CRF 28, smaller file). Default medium.",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
           "type": "string"
         },
         "ref": {
