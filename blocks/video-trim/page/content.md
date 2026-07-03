@@ -7,16 +7,17 @@ back — the file never leaves your device.
 ## How it works
 
 The tool runs ffmpeg, compiled to WebAssembly, with a **stream-copy** trim
-(`-c copy`): it seeks to the start time, keeps `duration` seconds, and writes an
-**mp4** — without re-encoding. That makes it fast and lossless: the original
-video and audio streams are copied through untouched.
+(`-c copy`): it seeks to the start time, keeps `duration` seconds, and writes
+the result in the **same container as your input** (an mp4 stays mp4, a webm
+stays webm) — without re-encoding. That makes it fast and lossless: the
+original video and audio streams are copied through untouched.
 
 ## Notes
 
-- **Stream-copy needs mp4-compatible streams.** Because nothing is re-encoded,
-  the source must already use mp4-friendly codecs (typically H.264 video / AAC
-  audio). If it doesn't, ffmpeg reports a clear error — re-encode first (for
-  example with the video-compress tool) and trim the result.
+- **Lossless — no re-encode.** The streams are copied byte-for-byte, so there's
+  no quality loss and it's fast. Because the output keeps your input's
+  container (mp4 → mp4, webm → webm, mov → mov, mkv → mkv), the copy is always
+  valid — there's no codec conversion to fail on.
 - **Keyframe seeking.** The start time snaps to the nearest preceding keyframe,
   so the cut may begin slightly before the exact second you asked for. This is
   the trade-off for a fast, lossless copy.
@@ -39,10 +40,12 @@ re-encoding the video.
 <details>
 <summary>The trim failed with a codec error — what's wrong?</summary>
 
-The output container is always mp4 and nothing is re-encoded, so the source
-streams must be mp4-compatible (typically H.264 video with AAC audio). A WebM
-with VP9/Opus, for example, can't be stream-copied into mp4 — convert or
-compress it first (the video-compress tool re-encodes), then trim the result.
+The output keeps your input's container, so a stream copy is normally always
+valid — an mp4 stays mp4, a webm stays webm, and their streams copy through
+untouched. A codec error only shows up for an unusual container the tool can't
+keep: it falls back to mp4, and streams that aren't mp4-compatible can't be
+copied into it. In that case re-encode or compress the clip first (the
+video-compress tool), then trim the result.
 
 </details>
 

@@ -1,13 +1,14 @@
 //! gizza-ai/video-rotate core — pure ffmpeg argv construction shared by the chat
-//! skill block and the standalone web page. No wafer/wasm-bindgen deps.
+//! skill block and the standalone web page. No wasm-bindgen deps.
 //!
 //! Rotates a video by 90/180/270 degrees clockwise and/or flips it horizontally
 //! or vertically, via ffmpeg `transpose`/`hflip`/`vflip` filters (re-encodes
-//! H.264, copies audio).
+//! H.264). The input container is kept (audio stream-copied) when it can hold
+//! H.264 + AAC (mp4/mov/m4v/mkv); anything else (webm, …) switches to mp4 and
+//! the audio is re-encoded to AAC — see
+//! `gizza_ai_block_utils::ffmpeg::h264_out_ext`.
 
-fn out_ext(in_name: &str) -> &str {
-    in_name.rsplit_once('.').map(|(_, e)| e).filter(|e| !e.is_empty()).unwrap_or("mp4")
-}
+use gizza_ai_block_utils::ffmpeg::h264_out_ext;
 
 /// Build the `-vf` filter chain for a clockwise `rotate` (0/90/180/270) and a
 /// `flip` ("none"/"horizontal"/"vertical"). Returns None if both are no-ops.
@@ -32,16 +33,20 @@ pub fn vf_chain(rotate: u32, flip: &str) -> Result<Option<String>, String> {
     Ok(Some(parts.join(",")))
 }
 
-/// Validate + build `(argv, out_name)`. Errors if both rotate and flip are no-ops.
+/// Validate + build `(argv, out_name)`. Errors if both rotate and flip are
+/// no-ops. `out_name` keeps the input container when it can hold H.264 + AAC
+/// (audio stream-copied); otherwise it is `out.mp4` and the audio is
+/// re-encoded to AAC.
 pub fn plan(in_name: &str, rotate: u32, flip: &str) -> Result<(Vec<String>, String), String> {
     let vf = vf_chain(rotate, flip)?
         .ok_or_else(|| "nothing to do: set rotate (90/180/270) and/or flip".to_string())?;
-    let out_name = format!("out.{}", out_ext(in_name));
+    let (ext, transcode_audio) = h264_out_ext(in_name);
+    let out_name = format!("out.{ext}");
     let argv = vec![
         "-i".into(), in_name.into(),
         "-vf".into(), vf,
         "-c:v".into(), "libx264".into(), "-preset".into(), "medium".into(), "-crf".into(), "23".into(),
-        "-c:a".into(), "copy".into(),
+        "-c:a".into(), if transcode_audio { "aac".into() } else { "copy".into() },
         out_name.clone(),
     ];
     Ok((argv, out_name))
@@ -83,9 +88,23 @@ mod tests {
         assert!(vf_chain(90, "sideways").is_err());
     }
     #[test]
-    fn plan_keeps_extension() {
+    fn plan_keeps_h264_capable_containers_and_copies_audio() {
+        for ext in ["mp4", "mov", "m4v", "mkv"] {
+            let (argv, out) = plan(&format!("clip.{ext}"), 90, "none").unwrap();
+            assert_eq!(out, format!("out.{ext}"));
+            assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "copy"), "{ext}");
+        }
+        assert_eq!(plan("CLIP.M4V", 90, "none").unwrap().1, "out.m4v");
+    }
+
+    #[test]
+    fn webm_input_switches_to_mp4_and_reencodes_audio() {
+        // WebM can't hold H.264, and its Opus/Vorbis audio can't be copied
+        // into mp4 — so: out.mp4 + AAC re-encode.
         let (argv, out) = plan("clip.webm", 90, "none").unwrap();
-        assert_eq!(out, "out.webm");
+        assert_eq!(out, "out.mp4");
+        assert_eq!(argv.last().map(String::as_str), Some("out.mp4"));
         assert!(argv.iter().any(|a| a == "transpose=1"));
+        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "aac"));
     }
 }

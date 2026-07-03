@@ -27,21 +27,21 @@ function __wbg_get_imports() {
             getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
             getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
         },
-        __wbg___wbindgen_throw_ea4887a5f8f9a9db: function(arg0, arg1) {
+        __wbg___wbindgen_throw_344f42d3211c4765: function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         },
-        __wbg_new_2e117a478906f062: function() {
-            const ret = new Object();
+        __wbg_new_32b398fb48b6d94a: function() {
+            const ret = new Array();
             return ret;
         },
-        __wbg_new_36e147a8ced3c6e0: function() {
-            const ret = new Array();
+        __wbg_new_da52cf8fe3429cb2: function() {
+            const ret = new Object();
             return ret;
         },
         __wbg_set_6be42768c690e380: function(arg0, arg1, arg2) {
             arg0[arg1] = arg2;
         },
-        __wbg_set_dc601f4a69da0bc2: function(arg0, arg1, arg2) {
+        __wbg_set_8a16b38e4805b298: function(arg0, arg1, arg2) {
             arg0[arg1 >>> 0] = arg2;
         },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {

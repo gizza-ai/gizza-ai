@@ -10,12 +10,14 @@ ffmpeg; nothing is uploaded.
   counter-clockwise, 180 = upside-down).
 - **Flip** mirrors the frame left↔right (horizontal) or top↔bottom (vertical).
 - You can combine a rotation with a flip. The video is re-encoded as H.264; the
-  audio is copied unchanged.
+  audio is stream-copied when the container is kept, and re-encoded to AAC only
+  when the output is converted to MP4.
 
 ### Notes
 
 - Great for fixing phone clips recorded sideways or upside-down.
-- The output keeps the original container format (mp4, webm, …).
+- An mp4, mov, m4v, or mkv keeps its container; other inputs (webm, …) come out
+  as MP4, since those containers can't hold H.264/AAC.
 
 ### FAQ
 
@@ -40,9 +42,10 @@ active, otherwise there's nothing to do.
 <summary>Does rotating lose quality?</summary>
 
 The video track is re-encoded with H.264 (CRF 23, medium preset), so there's
-a small generational loss — usually invisible for phone clips. The audio
-track is copied bit-for-bit, unchanged, and the output keeps your original
-container/extension.
+a small generational loss — usually invisible for phone clips. The audio track
+is stream-copied bit-for-bit when the container is kept (mp4/mov/m4v/mkv); for
+other inputs (webm, …) the output is converted to MP4 and the audio is
+re-encoded to AAC.
 
 </details>
 

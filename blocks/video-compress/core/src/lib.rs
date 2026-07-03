@@ -1,8 +1,11 @@
 //! gizza-ai/video-compress core — pure ffmpeg argv construction shared by the
-//! chat skill block and the standalone web page. No wafer/wasm-bindgen deps.
+//! chat skill block and the standalone web page. No wasm-bindgen deps.
 //!
-//! Single-pass CRF re-encode to shrink a video's file size while keeping the
-//! container format. Higher CRF = smaller file / lower quality. True
+//! Single-pass CRF re-encode to shrink a video's file size, keeping the
+//! container format when it can hold H.264 + AAC (mp4/mov/m4v/mkv; anything
+//! else, e.g. webm, switches to mp4 — see
+//! `gizza_ai_block_utils::ffmpeg::h264_out_ext`).
+//! Higher CRF = smaller file / lower quality. True
 //! target-byte-size compression needs a 2-pass encode (a follow-up — a single
 //! `build_argv → ffmpegExec` call can only do one pass), so this exposes a
 //! quality (CRF) knob instead.
@@ -26,25 +29,16 @@ pub fn clamp_crf(crf: f64) -> u32 {
     (crf as u32).clamp(MIN_CRF, MAX_CRF)
 }
 
-/// Pick the output container extension. Keep the input file's extension so the
-/// format is preserved; fall back to `mp4` when the input has no usable one.
-fn out_ext(in_name: &str) -> &str {
-    in_name
-        .rsplit_once('.')
-        .map(|(_, ext)| ext)
-        .filter(|ext| !ext.is_empty())
-        .unwrap_or("mp4")
-}
-
 /// Build the ffmpeg argv (no leading `ffmpeg`) and the output filename for a
 /// single-pass CRF re-encode. Shared verbatim by the web page (`build_argv`)
 /// and the chat block.
 ///
-/// H.264 video (`libx264`, `-preset medium`) + AAC audio, keeping the input
-/// container extension. `crf` is clamped via [`clamp_crf`].
+/// H.264 video (`libx264`, `-preset medium`) + AAC audio. The input container
+/// extension is kept when it can hold those codecs, otherwise the output is
+/// `out.mp4`. `crf` is clamped via [`clamp_crf`].
 pub fn build_argv(crf: f64, in_name: &str) -> (Vec<String>, String) {
     let crf = clamp_crf(crf);
-    let ext = out_ext(in_name);
+    let ext = gizza_ai_block_utils::ffmpeg::h264_out_ext(in_name).0;
     let out_name = format!("out.{ext}");
     let argv = vec![
         "-i".to_string(),
@@ -122,11 +116,22 @@ mod tests {
     }
 
     #[test]
-    fn keeps_input_container_extension() {
-        let (_, out) = build_argv(28.0, "clip.webm");
-        assert_eq!(out, "out.webm");
-        let (_, out) = build_argv(28.0, "clip.mov");
+    fn keeps_h264_capable_container_extensions() {
+        for ext in ["mp4", "mov", "m4v", "mkv"] {
+            let (_, out) = build_argv(28.0, &format!("clip.{ext}"));
+            assert_eq!(out, format!("out.{ext}"));
+        }
+        let (_, out) = build_argv(28.0, "CLIP.MOV");
         assert_eq!(out, "out.mov");
+    }
+
+    #[test]
+    fn webm_input_switches_container_to_mp4() {
+        // H.264+AAC can't be muxed into WebM — the container must switch.
+        let (argv, out) = build_argv(28.0, "clip.webm");
+        assert_eq!(out, "out.mp4");
+        assert_eq!(argv.last().map(String::as_str), Some("out.mp4"));
+        assert!(argv.windows(2).any(|w| w[0] == "-c:a" && w[1] == "aac"));
     }
 
     #[test]
