@@ -221,7 +221,18 @@ pub fn render_page(
                                 } @else {
                                     audio id="tool-output-media" class="tool-output-media" controls hidden {}
                                 }
-                                a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
+                                // Media-output actions row. Download is offered for
+                                // every media format; "Copy image" only for images —
+                                // video/audio have no reliable ClipboardItem path, so
+                                // the button is NOT rendered for them. Both start
+                                // hidden; tool.js reveals them once a result renders.
+                                div class="tool-media-actions" {
+                                    a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
+                                    @if meta.format == "image" {
+                                        button id="tool-copy-image" class="tool-widget-btn" type="button" hidden
+                                               title="Copy the image to the clipboard" { "Copy image" }
+                                    }
+                                }
                                 output id="tool-output" class="tool-output" { "" }
                             } @else {
                                 output id="tool-output" class="tool-output" { "" }
@@ -844,6 +855,84 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         assert!(html.contains(r#"id="tool-reset""#), "reset present (has fields)");
         assert!(!html.contains(r#"id="tool-copy-output""#), "no copy-result on media output");
+    }
+
+    #[test]
+    fn copy_image_button_only_on_image_output() {
+        // ffmpeg_sample() is format="image" → the Copy-image button is rendered
+        // (hidden, next to the download link), so a result can be copied to the
+        // clipboard as PNG by tool.js.
+        let image_html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        assert!(
+            image_html.contains(r#"id="tool-copy-image""#),
+            "image-output page renders the Copy-image button"
+        );
+        assert!(
+            image_html.contains(r#"button id="tool-copy-image" class="tool-widget-btn" type="button" hidden"#),
+            "Copy-image button is a hidden widget button until a result renders"
+        );
+
+        // Video output (select_labels_… sample is format="video") must NOT get it:
+        // there is no reliable ClipboardItem path for video.
+        let video_meta = ToolMeta::from_toml(
+            r#"
+slug          = "video-mute"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+"#,
+        )
+        .unwrap();
+        let video_html = render_page(&video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        assert!(
+            !video_html.contains(r#"id="tool-copy-image""#),
+            "video-output page must not render the Copy-image button"
+        );
+
+        // Audio output must NOT get it either.
+        let audio_meta = ToolMeta::from_toml(
+            r#"
+slug          = "audio-normalize"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+"#,
+        )
+        .unwrap();
+        let audio_html = render_page(&audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        assert!(
+            !audio_html.contains(r#"id="tool-copy-image""#),
+            "audio-output page must not render the Copy-image button"
+        );
+
+        // Text output (declarative_sample is format="text") must NOT get it.
+        let text_html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        assert!(
+            !text_html.contains(r#"id="tool-copy-image""#),
+            "text-output page must not render the Copy-image button"
+        );
     }
 
     #[test]
