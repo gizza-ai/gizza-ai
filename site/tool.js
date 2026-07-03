@@ -24,6 +24,7 @@ function showResult(value) {
     return;
   }
   out.textContent = cfg.format === "number" ? formatNumber(value) : String(value);
+  syncTextDownload();
 }
 
 function showError(message) {
@@ -35,6 +36,30 @@ function showError(message) {
   }
   out.classList.add("error");
   out.textContent = message;
+  syncTextDownload();
+}
+
+// ---- Text-output download (generator renders the anchor for format="text") ----
+// Keeps the "Download" link's blob URL in sync with the visible output: hidden
+// while there is no result (or an error is showing), else a fresh text/plain
+// blob of exactly what's on screen. data-text-download distinguishes it from
+// the media download link, which the ffmpeg path manages itself.
+let textDownloadUrl = null;
+function syncTextDownload() {
+  const a = document.querySelector("a[data-text-download]");
+  if (!a) return;
+  if (textDownloadUrl) {
+    URL.revokeObjectURL(textDownloadUrl);
+    textDownloadUrl = null;
+  }
+  const text = out.textContent;
+  if (!text || out.classList.contains("error")) {
+    a.hidden = true;
+    return;
+  }
+  textDownloadUrl = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+  a.href = textDownloadUrl;
+  a.hidden = false;
 }
 
 
@@ -651,6 +676,7 @@ async function main() {
       if (empty) {
         out.classList.remove("error");
         out.textContent = "";
+        syncTextDownload();
       } else {
         showError(msg);
       }
