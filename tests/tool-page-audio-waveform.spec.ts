@@ -17,15 +17,31 @@ test('audio-convert page renders a non-blank waveform after upload', async ({ pa
   await page.setInputFiles('#in-audio', FIXTURE);
   await expect(page.locator('.tool-wf-wave').first()).toBeVisible({ timeout: 15_000 });
   // Canvas must actually contain drawn waveform pixels, not be blank.
-  const drawn = await page.evaluate(() => {
+  const paintedPixels = () =>
+    page.evaluate(() => {
+      const c = document.querySelector('.tool-wf-canvas') as HTMLCanvasElement;
+      const g = c.getContext('2d')!;
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      let painted = 0;
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 0) painted++;
+      return painted;
+    });
+  expect(await paintedPixels()).toBeGreaterThan(500);
+
+  // Resizing re-resamples the peak cache at the new width (the decoded
+  // AudioBuffer is not retained) — the redrawn canvas must not be blank.
+  // Viewport must drop below .tool-widget's 380px max-width or the wave's
+  // layout width (and thus the canvas) never changes.
+  const w0 = await page.evaluate(
+    () => (document.querySelector('.tool-wf-canvas') as HTMLCanvasElement).width
+  );
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.waitForFunction((prev) => {
     const c = document.querySelector('.tool-wf-canvas') as HTMLCanvasElement;
-    const g = c.getContext('2d')!;
-    const d = g.getImageData(0, 0, c.width, c.height).data;
-    let painted = 0;
-    for (let i = 3; i < d.length; i += 4) if (d[i] > 0) painted++;
-    return painted;
-  });
-  expect(drawn).toBeGreaterThan(500);
+    return c.width > 0 && c.width !== prev;
+  }, w0);
+  expect(await paintedPixels()).toBeGreaterThan(300);
+  await page.setViewportSize({ width: 1280, height: 720 }); // fixture page is shared
 });
 
 test('audio-convert waveform plays and dragging writes no fields', async ({ page }) => {
@@ -96,6 +112,24 @@ test('trim-audio drag-selection writes start/end and trims to the selection', as
   expect(src).toMatch(/^data:audio\//);
   const dur = await decodeDurationOfDataUrl(page, src!);
   expect(Math.abs(dur - (end - start))).toBeLessThan(0.2);
+});
+
+test('play-selection pauses playback at the selection end', async ({ page }) => {
+  await page.goto('/tools/trim-audio/');
+  await page.waitForSelector('#in-audio');
+  await page.fill('#in-start', '0.5');
+  await page.fill('#in-end', '1.5');
+  await page.setInputFiles('#in-audio', FIXTURE);
+  const wf = page.locator('.tool-wf').first();
+  await expect(wf.locator('.tool-wf-wave')).toBeVisible({ timeout: 15_000 });
+
+  const playBtn = wf.locator('.tool-wf-play');
+  await wf.locator('.tool-wf-playsel').click();
+  await expect(playBtn).toHaveText('Pause'); // playing the 1 s selection…
+  await expect(playBtn).toHaveText('Play', { timeout: 15_000 }); // …then auto-paused
+  // Paused AT the selection boundary (tick() snaps currentTime to sel.end),
+  // not at the 3.03 s track end and not mid-selection.
+  await expect(wf.locator('.tool-wf-time')).toContainText('0:01.5 /');
 });
 
 test('trim-audio typing start/end moves the selection highlight', async ({ page }) => {

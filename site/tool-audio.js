@@ -8,6 +8,7 @@ const HEIGHT = 88;       // waveform lane height (CSS px, fixed — no layout ju
 const CLICK_PX = 4;      // movement under this = click (seek), not drag
 const HANDLE_PX = 8;     // hit zone around a selection edge
 const MIN_SEL_S = 0.05;  // selection edges can't cross closer than this
+const BASE_COLS = 4096;  // fixed-resolution peak cache (~32 KB per widget)
 
 function fmtTime(t) {
   if (!Number.isFinite(t) || t < 0) t = 0;
@@ -56,7 +57,10 @@ export function createWaveform(container, opts = {}) {
   const audioEl = new Audio();
   audioEl.preload = "metadata";
 
-  let audioBuffer = null;
+  // The decoded AudioBuffer is NOT retained (a 10 MiB mp3 decodes to
+  // ~150 MB of PCM — prohibitive on mobile). load() reduces it once to a
+  // fixed-resolution peak cache; resize only resamples that.
+  let basePeaks = null; // Float32Array, [min,max] × BASE_COLS; null = no audio loaded
   let duration = 0;
   let objectUrl = null;
   let peaks = null; // Float32Array, [min,max] per canvas-css-px column
@@ -85,17 +89,20 @@ export function createWaveform(container, opts = {}) {
     return s > 1e-9 || e < duration - 1e-9 ? { start: s, end: e } : null;
   }
 
-  function computePeaks(width) {
+  // One-time reduction of the decoded buffer to `width` [min,max] columns —
+  // the only code that touches PCM. Called once per load(); the buffer is
+  // dropped afterwards.
+  function computePeaks(buffer, width) {
     const chans = [];
-    for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
-      chans.push(audioBuffer.getChannelData(c));
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      chans.push(buffer.getChannelData(c));
     }
-    const per = audioBuffer.length / width;
+    const per = buffer.length / width;
     const out = new Float32Array(width * 2);
     for (let x = 0; x < width; x++) {
       let mn = 1, mx = -1;
       const s = Math.floor(x * per);
-      const e = Math.min(audioBuffer.length, Math.ceil((x + 1) * per));
+      const e = Math.min(buffer.length, Math.ceil((x + 1) * per));
       const step = Math.max(1, Math.floor((e - s) / 512));
       for (const data of chans) {
         for (let i = s; i < e; i += step) {
@@ -103,6 +110,25 @@ export function createWaveform(container, opts = {}) {
           if (v < mn) mn = v;
           if (v > mx) mx = v;
         }
+      }
+      out[x * 2] = mn > mx ? 0 : mn;
+      out[x * 2 + 1] = mn > mx ? 0 : mx;
+    }
+    return out;
+  }
+
+  // Resample the fixed-resolution cache to display width: min-of-mins /
+  // max-of-maxes over each column's base range, so the envelope stays exact.
+  function resamplePeaks(width) {
+    const cols = basePeaks.length / 2;
+    const out = new Float32Array(width * 2);
+    for (let x = 0; x < width; x++) {
+      const s = Math.min(cols - 1, Math.floor((x * cols) / width));
+      const e = Math.max(s + 1, Math.min(cols, Math.ceil(((x + 1) * cols) / width)));
+      let mn = 1, mx = -1;
+      for (let i = s; i < e; i++) {
+        if (basePeaks[i * 2] < mn) mn = basePeaks[i * 2];
+        if (basePeaks[i * 2 + 1] > mx) mx = basePeaks[i * 2 + 1];
       }
       out[x * 2] = mn > mx ? 0 : mn;
       out[x * 2 + 1] = mn > mx ? 0 : mx;
@@ -149,11 +175,11 @@ export function createWaveform(container, opts = {}) {
   }
 
   function resize() {
-    if (!audioBuffer || wave.clientWidth === 0) return;
+    if (!basePeaks || wave.clientWidth === 0) return;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(wave.clientWidth * dpr);
     canvas.height = Math.round(HEIGHT * dpr);
-    peaks = computePeaks(wave.clientWidth);
+    peaks = resamplePeaks(wave.clientWidth);
     draw();
   }
   const ro = new ResizeObserver(resize);
@@ -224,7 +250,7 @@ export function createWaveform(container, opts = {}) {
     return "create";
   }
   wave.addEventListener("pointerdown", (e) => {
-    if (!audioBuffer || e.button !== 0) return;
+    if (!basePeaks || e.button !== 0) return;
     wave.focus({ preventScroll: true });
     wave.setPointerCapture(e.pointerId);
     const x = e.offsetX;
@@ -291,22 +317,25 @@ export function createWaveform(container, opts = {}) {
     async load(blob) {
       audioEl.pause();
       revoke();
+      let buffer;
       try {
         const raw = await blob.arrayBuffer();
         const Ctx = window.AudioContext || window.webkitAudioContext;
         const ctx = new Ctx();
         try {
           // decodeAudioData detaches its buffer — hand it a copy.
-          audioBuffer = await ctx.decodeAudioData(raw.slice(0));
+          buffer = await ctx.decodeAudioData(raw.slice(0));
         } finally {
           ctx.close();
         }
       } catch (err) {
-        audioBuffer = null;
+        basePeaks = null;
         container.hidden = true;
         return false;
       }
-      duration = audioBuffer.duration;
+      duration = buffer.duration;
+      // Reduce to the peak cache and let the PCM go out of scope.
+      basePeaks = computePeaks(buffer, Math.min(BASE_COLS, buffer.length));
       objectUrl = URL.createObjectURL(blob);
       audioEl.src = objectUrl;
       sel = null;
@@ -320,7 +349,7 @@ export function createWaveform(container, opts = {}) {
       return true;
     },
     setSelection(start, end) {
-      if (!audioBuffer) return;
+      if (!basePeaks) return;
       sel = normalizeSel(start, end);
       draw();
       updateBar();
@@ -328,7 +357,7 @@ export function createWaveform(container, opts = {}) {
     clear() {
       audioEl.pause();
       revoke();
-      audioBuffer = null;
+      basePeaks = null;
       peaks = null;
       sel = null;
       container.hidden = true;
