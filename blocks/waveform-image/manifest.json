@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/waveform-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a static waveform PNG image from an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Render a static waveform PNG image from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). width x height set the image size in pixels (default 1200x300); color is the wave's #RRGGBB hex (default #4f46e5); background is an optional #RRGGBB hex (empty = transparent PNG); split_channels draws one lane per channel instead of a single mono wave; scale (lin|sqrt|cbrt|log) boosts quiet audio's visibility. Output is always a PNG image.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "description": "Background color as #RGB or #RRGGBB hex, e.g. #000000. Empty or omitted keeps the background transparent (the PNG has an alpha channel).",
+          "type": "string"
+        },
+        "color": {
+          "default": "#4f46e5",
+          "description": "Waveform color as #RGB or #RRGGBB hex, e.g. #4f46e5 or #f00. Default #4f46e5.",
+          "type": "string"
+        },
+        "height": {
+          "default": 300,
+          "description": "Output image height in pixels, 16-2048. Default 300. With split_channels the height is divided across the channel lanes.",
+          "maximum": 2048,
+          "minimum": 16,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "scale": {
+          "default": "lin",
+          "description": "Amplitude scale. lin is the true waveform; sqrt, cbrt and log progressively boost quiet audio so it stays visible. Default lin.",
+          "enum": [
+            "lin",
+            "sqrt",
+            "cbrt",
+            "log"
+          ],
+          "type": "string"
+        },
+        "split_channels": {
+          "default": false,
+          "description": "Draw each audio channel in its own horizontal lane instead of downmixing to one mono wave. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 1200,
+          "description": "Output image width in pixels, 16-4096. Default 1200 (the common social-banner shape with the default height).",
+          "maximum": 4096,
+          "minimum": 16,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
