@@ -58,6 +58,7 @@ test('audio-pitch-shift deep link prefills and shifts down an octave to ~220 Hz 
   await page.goto('/tools/audio-pitch-shift/?semitones=-12&format=wav');
   await page.waitForSelector('#in-audio');
   await expect(page.locator('#in-semitones')).toHaveValue('-12', { timeout: 15_000 });
+  await expect(page.locator('#in-semitones-slider')).toHaveValue('-12'); // slider mirrors the prefill
   await expect(page.locator('#in-format')).toHaveValue('wav');
   await page.setInputFiles('#in-audio', FIXTURE);
   const media = page.locator('#tool-output-media');
@@ -78,4 +79,46 @@ test('audio-pitch-shift bare upload gets the guiding no-op error', async ({ page
   const out = page.locator('#tool-output');
   await expect(out).toContainText('leaves the pitch unchanged', { timeout: 90_000 });
   await expect(out).toContainText('octave up');
+});
+
+test('audio-pitch-shift slider commit fills the number box and runs (+12 → ~880 Hz)', async ({ page }) => {
+  await page.goto('/tools/audio-pitch-shift/');
+  await page.waitForSelector('#in-semitones-slider');
+  // Slider rests at the midpoint (0) and drag-commits through the shared
+  // tool.js mirror: input mirrors the value silently, change runs once.
+  const slider = page.locator('#in-semitones-slider');
+  await expect(slider).toHaveValue('0');
+  await slider.evaluate((el) => {
+    const s = el as HTMLInputElement;
+    s.value = '12';
+    s.dispatchEvent(new Event('input', { bubbles: true }));
+    s.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await expect(page.locator('#in-semitones')).toHaveValue('12');
+  await page.setInputFiles('#in-audio', FIXTURE);
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const { freq, duration } = await freqAndDuration(page, (await media.getAttribute('src'))!);
+  expect(freq).toBeGreaterThan(850); // pre-measured 880.0 Hz with local ffmpeg
+  expect(freq).toBeLessThan(910);
+  expect(duration).toBeGreaterThan(2.7);
+  expect(duration).toBeLessThan(3.3);
+});
+
+test('audio-pitch-shift preset chip re-runs after an error (Octave down → ~220 Hz)', async ({ page }) => {
+  await page.goto('/tools/audio-pitch-shift/');
+  await page.waitForSelector('#in-audio');
+  await page.setInputFiles('#in-audio', FIXTURE); // empty semitones → guiding error
+  const out = page.locator('#tool-output');
+  await expect(out).toContainText('leaves the pitch unchanged', { timeout: 90_000 });
+  await page.getByRole('button', { name: 'Octave down (−12)' }).click();
+  await expect(page.locator('#in-semitones')).toHaveValue('-12');
+  await expect(page.locator('#in-semitones-slider')).toHaveValue('-12'); // chip re-syncs the slider
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const { freq, duration } = await freqAndDuration(page, (await media.getAttribute('src'))!);
+  expect(freq).toBeGreaterThan(205); // pre-measured 220.0 Hz with local ffmpeg
+  expect(freq).toBeLessThan(235);
+  expect(duration).toBeGreaterThan(2.7);
+  expect(duration).toBeLessThan(3.3);
 });
