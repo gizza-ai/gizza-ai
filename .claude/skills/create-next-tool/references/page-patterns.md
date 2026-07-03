@@ -1,5 +1,22 @@
 # Page / surface patterns (input rendering, defaults, drift, tool shapes)
 
+**Declarative control kinds (2026-07-03 sweep — USE THESE AT BUILD TIME):** beyond the
+schema-derived controls, meta.toml `[[input]]` supports `kind = "slider"` (range mirror onto the
+canonical number box; live drag mirrors value, ONE change event on release = one run; set `step`),
+`kind = "color"` (hybrid: native swatch two-way mirrored onto a hex TEXT field — named colors,
+`transparent`, alpha hex, and comma lists stay expressible; the text field is canonical),
+`kind = "tag-list"`, and `kind = "date"|"time"|"datetime-local"`. `[input.labels]` maps enum
+values → friendly `<select>` labels (values stay canonical). `[[example]]` chips prefill params
+in one click — add them whenever competitors ship presets. ffmpeg pages also get paste-to-upload
+generically, and `format = "text"` pages get a Download link. Generated CLI examples are
+schema-derived and runnable — never hand-write CLI examples in content.md that can drift.
+
+**ffmpeg-page field marshaling (2026-07-03):** checkboxes arrive at `build_argv` as
+`"true"`/`"false"` via `readField()` (an old bug sent constant `"on"` — parse positive-truthy and
+Playwright-test one NON-default checkbox state). The ffmpeg path numeric-coerces numeric-LOOKING
+strings before `build_argv` — `kind = "color"` fields are exempt platform-wide; any other string
+param whose values can look numeric (bare hex, digit codes) needs an end-to-end digits-only test.
+
 **Page input field types (meta.toml `[[input]]`):** the generator renders each field by the
 descriptor's Param type, NOT the meta — so Playwright must match: `Param::enumv` → `<select>`
 (`page.selectOption('#in-<name>', value)`); `Param::boolean` → `<input type=checkbox>` (use
