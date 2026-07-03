@@ -12,9 +12,9 @@ const out = document.getElementById(cfg.output.elementId);
 //   setup(ctx)                → one-time setup; return true to TAKE OVER wiring
 //   renderResult(value, ctx)  → return true if the result was rendered
 //   renderError(message, ctx) → return true if the error was rendered
-// Prefer the declarative meta.toml controls (kind incl. slider/options/default/
-// [[example]]/wide); custom.js is only for layouts/renderers those can't
-// express. Do NOT add per-tool slug branches to this file.
+// Prefer the declarative meta.toml controls (kind incl. slider/color/options/
+// default/[[example]]/wide); custom.js is only for layouts/renderers those
+// can't express. Do NOT add per-tool slug branches to this file.
 let custom = {};
 let customCtx = null;
 
@@ -121,6 +121,7 @@ function wireWidgetChrome(rerun) {
       }
       refreshTagLists();
       refreshSliders();
+      refreshColors();
       rerun();
     });
   }
@@ -149,6 +150,7 @@ function wireWidgetChrome(rerun) {
       applyMetaDefaults(true);
       refreshTagLists();
       refreshSliders();
+      refreshColors();
       const media = document.getElementById("tool-output-media");
       const dl = document.getElementById("tool-output-download");
       if (media) media.hidden = true;
@@ -227,6 +229,55 @@ function wireSliders() {
     });
   }
   refreshSliders();
+}
+
+// ---- Generic color mirror (meta kind="color") ----
+// A native color swatch (id "in-<name>-swatch", data-for="in-<name>") mirrors
+// the canonical hex TEXT input two-way. The text stays the source of truth:
+// empty (transparent / tool default), alpha hex (#RRGGBBAA) and comma lists
+// are all valid there but inexpressible in a native picker. Same commit
+// discipline as sliders: picking mirrors live without events; closing the
+// picker dispatches ONE change on the text input.
+
+// Normalize #RGB/#RGBA/#RRGGBB/#RRGGBBAA to the #rrggbb form the native
+// picker accepts (alpha dropped), or null when not a single hex color.
+function expandHex(v) {
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(String(v).trim());
+  if (!m) return null;
+  let h = m[1];
+  if (h.length <= 4) h = [...h].map((c) => c + c).join("");
+  return "#" + h.slice(0, 6).toLowerCase();
+}
+
+// Re-sync every swatch from its text input (after programmatic value writes:
+// example chips, reset, deep-links). An empty/non-hex text falls back to the
+// rendered value attribute (the schema default) or the element's own black.
+function refreshColors() {
+  for (const s of document.querySelectorAll(".tool-color-swatch")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.value = expandHex(el.value) || expandHex(s.defaultValue) || "#000000";
+  }
+}
+
+function wireColors() {
+  for (const s of document.querySelectorAll(".tool-color-swatch")) {
+    const el = document.getElementById(s.dataset.for);
+    if (!el) continue;
+    s.addEventListener("input", () => {
+      el.value = s.value; // live mirror — programmatic writes fire no events
+      if (cfg.runtime !== "ffmpeg") el.dispatchEvent(new Event("input"));
+    });
+    s.addEventListener("change", () => {
+      el.value = s.value;
+      el.dispatchEvent(new Event("change")); // exactly one run per pick
+    });
+    el.addEventListener("input", () => {
+      const hex = expandHex(el.value);
+      if (hex) s.value = hex;
+    });
+  }
+  refreshColors();
 }
 
 // ---- Generic tag-list widget (meta kind="tag-list") ----
@@ -522,6 +573,7 @@ async function main() {
     applyMetaDefaults();
     wireTagLists();
     wireSliders();
+    wireColors();
     wireWidgetChrome(run);
     if (custom.setup && custom.setup({ ...customCtx, run, fileInput, fieldInputs }) === true) {
       return; // custom module owns all wiring for this tool
@@ -592,6 +644,7 @@ async function main() {
   applyMetaDefaults();
   wireTagLists();
   wireSliders();
+  wireColors();
   wireWidgetChrome(compute);
   if (custom.setup && custom.setup({ ...customCtx, compute }) === true) {
     return; // custom module owns all wiring for this tool
