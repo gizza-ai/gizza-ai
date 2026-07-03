@@ -1,6 +1,6 @@
 slug          = "video-compress"
 title         = "Compress a Video Online — gizza.ai"
-description   = "Shrink a video's file size right in your browser — pick a quality (CRF), keep the format. Re-encodes locally with ffmpeg, nothing is uploaded, free."
+description   = "Shrink a video's file size right in your browser — pick a quality (CRF). Re-encodes locally with ffmpeg to H.264/AAC, nothing is uploaded, free."
 tags          = ["video", "compress", "shrink", "file size", "crf", "reencode", "smaller"]
 h1            = "Compress a Video"
 hero_subtitle = "Pick a video and a quality level — it's re-encoded smaller in your browser, nothing is uploaded."

@@ -62,6 +62,38 @@ pub fn h264_out_ext(in_name: &str) -> (&'static str, bool) {
     }
 }
 
+/// Containers a *stream-copy* tool (`-c copy`, no re-encode — e.g. video-trim)
+/// can emit and that a browser `<video>` can play from a `data:` URL (each has
+/// an EXT_MIME entry on the tool page). A stream copy is always valid in the
+/// source's OWN container, so these are kept as-is; anything else falls back to
+/// mp4 (see [`copy_out_ext`]).
+const COPY_CONTAINERS: &[&str] = &["mp4", "mov", "m4v", "mkv", "webm"];
+
+/// Choose the output container for a tool that *stream-copies* its input
+/// (`-c copy`, no re-encode), based on the *input* filename.
+///
+/// A stream copy is always valid back into the source's own container (a VP8/
+/// Vorbis WebM copies cleanly into WebM, but hard-fails into mp4), so the input
+/// extension is kept (canonical lowercase, matched case-insensitively) when it
+/// is one of [`COPY_CONTAINERS`]. Any other — or a missing/empty — extension
+/// falls back to `"mp4"` so the tool page still resolves a MIME and renders;
+/// if that fallback container can't hold the copied streams, ffmpeg surfaces a
+/// clear error (the same behavior the page had before this helper existed).
+pub fn copy_out_ext(in_name: &str) -> &'static str {
+    let ext = in_name
+        .rsplit_once('.')
+        .map(|(_, e)| e)
+        .filter(|e| !e.is_empty());
+    match ext {
+        Some(e) => COPY_CONTAINERS
+            .iter()
+            .copied()
+            .find(|c| c.eq_ignore_ascii_case(e))
+            .unwrap_or("mp4"),
+        None => "mp4",
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Wire types
 // ---------------------------------------------------------------------------
@@ -205,5 +237,39 @@ mod h264_out_ext_tests {
     fn only_the_last_extension_counts() {
         assert_eq!(h264_out_ext("archive.tar.mp4"), ("mp4", false));
         assert_eq!(h264_out_ext("clip.mp4.webm"), ("mp4", true));
+    }
+}
+
+#[cfg(test)]
+mod copy_out_ext_tests {
+    use super::copy_out_ext;
+
+    #[test]
+    fn stream_copy_keeps_the_source_container() {
+        // A stream copy is valid in its own container, so each is kept as-is —
+        // including webm (VP8/Vorbis → out.webm), the whole point of the fix.
+        for ext in ["mp4", "mov", "m4v", "mkv", "webm"] {
+            assert_eq!(copy_out_ext(&format!("clip.{ext}")), ext, "{ext}");
+        }
+    }
+
+    #[test]
+    fn extensions_match_case_insensitively_and_normalize_to_lowercase() {
+        assert_eq!(copy_out_ext("CLIP.WEBM"), "webm");
+        assert_eq!(copy_out_ext("clip.MP4"), "mp4");
+        assert_eq!(copy_out_ext("clip.MoV"), "mov");
+    }
+
+    #[test]
+    fn unknown_or_missing_extension_falls_back_to_mp4() {
+        for name in ["clip.avi", "clip.ogv", "clip.ts", "noext", "trailing.", ""] {
+            assert_eq!(copy_out_ext(name), "mp4", "{name}");
+        }
+    }
+
+    #[test]
+    fn only_the_last_extension_counts() {
+        assert_eq!(copy_out_ext("archive.tar.webm"), "webm");
+        assert_eq!(copy_out_ext("clip.webm.avi"), "mp4");
     }
 }

@@ -5,7 +5,8 @@
  * `start` is the trim start in seconds (>= 0); `duration` is the clip length in
  * seconds (> 0). Empty page fields arrive here as `0.0` — start=0 means "from
  * the beginning", but duration=0 is invalid and surfaces as a JS error string.
- * Returns `{ argv: string[], out_name }` (out is always `out.mp4`) or throws.
+ * Returns `{ argv: string[], out_name }` — `out_name` keeps the source
+ * container (webm → out.webm, mp4 → out.mp4, …) — or throws.
  */
 export function build_argv(start: number, duration: number, in_name: string): any;
 

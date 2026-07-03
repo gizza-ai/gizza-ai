@@ -14,7 +14,8 @@ use gizza_ai_video_trim_core::plan_trim;
 /// `start` is the trim start in seconds (>= 0); `duration` is the clip length in
 /// seconds (> 0). Empty page fields arrive here as `0.0` — start=0 means "from
 /// the beginning", but duration=0 is invalid and surfaces as a JS error string.
-/// Returns `{ argv: string[], out_name }` (out is always `out.mp4`) or throws.
+/// Returns `{ argv: string[], out_name }` — `out_name` keeps the source
+/// container (webm → out.webm, mp4 → out.mp4, …) — or throws.
 #[wasm_bindgen]
 pub fn build_argv(start: f64, duration: f64, in_name: &str) -> Result<JsValue, JsValue> {
     let (argv, out_name) =

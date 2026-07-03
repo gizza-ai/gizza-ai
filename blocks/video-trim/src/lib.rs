@@ -22,7 +22,7 @@ use gizza_ai_block_utils::{
 };
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{dispatch_ffmpeg, resolve_source};
-use gizza_ai_video_trim_core::{build_argv, OUT_NAME};
+use gizza_ai_video_trim_core::plan_trim;
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -73,7 +73,7 @@ struct VideoTrim;
     summary = "Trim a video to a [start, start+duration] window",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
-        description = "Trim a video to a [start, start+duration] window using stream-copy (no re-encode). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Output is mp4. Stream-copy preserves the source codecs and is fast — but requires the source streams be mp4-compatible (h264/aac); otherwise ffmpeg will fail with a clear error.",
+        description = "Trim a video to a [start, start+duration] window using stream-copy (no re-encode). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). The output keeps the source container (mp4 stays mp4, webm stays webm, and so on); an unknown container falls back to mp4. Stream-copy preserves the source codecs and is fast and lossless.",
         parameters = schema_json()
     ),
 )]
@@ -107,23 +107,39 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let (input_bytes, in_mime, in_filename) =
         resolve_source(args.source.into_inner(), AssetKind::Video, MAX_INPUT_BYTES)?;
 
-    // 3. Build ffmpeg argv (shared pure core). Output is always mp4 (stream-copy).
+    // 3. Build ffmpeg argv (shared pure core). plan_trim keeps the source
+    //    container (a stream copy is valid in its own container), falling back
+    //    to mp4 for an unknown/missing input extension.
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp4");
     let ffmpeg_in = format!("in.{in_ext}");
-    let ffmpeg_out = OUT_NAME.to_string();
-    let argv = build_argv(&ffmpeg_in, &ffmpeg_out, args.start, args.duration);
+    let (argv, ffmpeg_out) =
+        plan_trim(&ffmpeg_in, args.start, args.duration).map_err(SkillError::InvalidArgs)?;
 
     // 4. Dispatch to ffmpeg-runtime.
-    let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out)?;
+    let output = dispatch_ffmpeg(argv, ffmpeg_in, input_bytes, ffmpeg_out.clone())?;
 
-    // 5. Envelope. Output is mp4.
+    // 5. Envelope. Output mime follows the produced container extension.
+    let out_ext = ffmpeg_out.rsplit_once('.').map(|(_, e)| e).unwrap_or("mp4");
+    let out_mime = ext_to_video_mime(out_ext);
     let output_size = output.len();
-    let filename = filename_with_suffix(&in_filename, "-trimmed", "mp4");
+    let filename = filename_with_suffix(&in_filename, "-trimmed", out_ext);
     let for_llm = format!(
-        "trimmed {} to [{}s, {}s+{}s] ({} bytes mp4)",
-        in_filename, args.start, args.start, args.duration, output_size
+        "trimmed {} to [{}s, {}s+{}s] ({} bytes {})",
+        in_filename, args.start, args.start, args.duration, output_size, out_mime
     );
-    build_media_envelope(&output, "video/mp4", filename, for_llm, MAX_OUTPUT_BYTES)
+    build_media_envelope(&output, out_mime, filename, for_llm, MAX_OUTPUT_BYTES)
+}
+
+/// Map an output container extension to its video MIME (mirrors the H.264
+/// re-encode family blocks; `m4v` plays as mp4).
+#[cfg(target_arch = "wasm32")]
+fn ext_to_video_mime(ext: &str) -> &'static str {
+    match ext {
+        "webm" => "video/webm",
+        "mov" => "video/quicktime",
+        "mkv" => "video/x-matroska",
+        _ => "video/mp4",
+    }
 }
 
 #[cfg(test)]
@@ -167,9 +183,15 @@ mod tests {
     }
 
     #[test]
-    fn output_filename_uses_trimmed_suffix_and_mp4() {
+    fn output_filename_uses_trimmed_suffix_and_keeps_container() {
+        // Stream-copy keeps the source container, so the produced extension
+        // (from plan_trim's out_name) drives the download filename.
         assert_eq!(
-            filename_with_suffix("clip.webm", "-trimmed", "mp4"),
+            filename_with_suffix("clip.webm", "-trimmed", "webm"),
+            "clip-trimmed.webm"
+        );
+        assert_eq!(
+            filename_with_suffix("clip.mp4", "-trimmed", "mp4"),
             "clip-trimmed.mp4"
         );
     }

@@ -9,7 +9,8 @@ with ffmpeg; nothing is uploaded.
 
 - Give both width and height to force an exact size, or just one to scale
   proportionally.
-- The output keeps the original container (mp4, webm, …), re-encoded as H.264.
+- The output is re-encoded as H.264: an mp4, mov, m4v, or mkv keeps its
+  container; other inputs (webm, …) come out as MP4.
 - Downscaling shrinks the file; upscaling won't add real detail.
 
 ### FAQ
@@ -34,8 +35,9 @@ the other dimension is computed for you.
 <summary>What codec and quality does the resized video use?</summary>
 
 The video stream is re-encoded with H.264 (libx264) at CRF 23 with the `medium`
-preset — a sensible quality/size balance that plays everywhere. The container
-extension stays the same as your input file.
+preset — a sensible quality/size balance that plays everywhere. An mp4, mov,
+m4v, or mkv keeps its container; other inputs (webm, …) are converted to MP4,
+since those containers can't hold H.264/AAC.
 
 </details>
 
