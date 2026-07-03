@@ -138,6 +138,22 @@ pub fn render_page(
                                             input id=(id) class="tool-input" type=(input_type)
                                                   placeholder=(input.placeholder) autocomplete="off";
                                         }
+                                        Control::Color { default } => {
+                                            // Swatch + text pair. The TEXT input keeps the
+                                            // canonical in-<name> id (deep-links, reset, chips,
+                                            // gatherArgs untouched) and stays the source of
+                                            // truth — empty ("transparent"/default), alpha hex
+                                            // and color lists all live there; tool.js mirrors
+                                            // the native swatch generically via data-for.
+                                            @let swatch = default.as_deref().and_then(crate::control::expand_hex);
+                                            div class="tool-color-row" {
+                                                input id=(format!("{id}-swatch")) class="tool-color-swatch" type="color"
+                                                      data-for=(id) value=[swatch.as_deref()] aria-label=(input.label);
+                                                input id=(id) class="tool-input tool-color-value" type="text"
+                                                      placeholder=(input.placeholder)
+                                                      autocomplete="off" autocapitalize="off" spellcheck="false";
+                                            }
+                                        }
                                         Control::Datalist { options } => {
                                             @let list_id = format!("dl-{}", input.name);
                                             input id=(id) class="tool-input" type="text" list=(list_id)
@@ -697,6 +713,65 @@ label       = "Gain"
         assert!(
             html.contains("gizza tool audio-pitch-shift 'url=https://example.com/input' 'semitones=3'"),
             "CLI example includes required field sample"
+        );
+    }
+
+    #[test]
+    fn renders_color_kind_as_swatch_plus_canonical_text() {
+        let meta = ToolMeta::from_toml(
+            r##"
+slug          = "waveform-image"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "o"
+format        = "image"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Wave color"
+placeholder = "#4f46e5"
+kind        = "color"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Background"
+placeholder = "transparent — or a hex like #0b1220"
+kind        = "color"
+"##,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "color": { "type": "string", "default": "#4f46e5" },
+            "background": { "type": "string" }
+        }));
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        // kind="color" → a native swatch mirroring the canonical TEXT input
+        assert!(html.contains(r##"id="in-color-swatch""##), "swatch rendered");
+        assert!(html.contains(r##"data-for="in-color""##), "swatch targets its text input");
+        assert!(
+            html.contains(r##"id="in-color" class="tool-input tool-color-value" type="text""##),
+            "canonical text input kept (empty/alpha/lists stay expressible)"
+        );
+        // schema default seeds the swatch; a default-less color has no value attr
+        assert!(html.contains(r##"id="in-color-swatch" class="tool-color-swatch" type="color" data-for="in-color" value="#4f46e5""##), "swatch seeded with schema default");
+        assert!(!html.contains(r##"data-for="in-background" value="##), "no swatch value without a schema default");
+        // the CLI example uses the hex sample for color and OMITS background
+        // (its non-hex placeholder means "empty = transparent" is the example)
+        assert!(
+            html.contains("gizza tool waveform-image 'url=https://example.com/input' 'color=#4f46e5'"),
+            "CLI example is runnable: hex sample, placeholder-leak omitted"
         );
     }
 

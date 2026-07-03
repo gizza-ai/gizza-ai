@@ -39,11 +39,15 @@ struct Args {
     #[serde(default)]
     color: Option<String>,
     #[serde(default)]
+    color2: Option<String>,
+    #[serde(default)]
     background: Option<String>,
     #[serde(default)]
     split_channels: Option<bool>,
     #[serde(default)]
     scale: Option<String>,
+    #[serde(default)]
+    sampling: Option<String>,
 }
 
 /// Single-source param descriptor → chat schema (and CLI + page). The
@@ -67,11 +71,15 @@ fn descriptor() -> ToolDescriptor {
         .param(
             Param::string("color")
                 .default("#4f46e5")
-                .describe("Waveform color as #RGB or #RRGGBB hex, e.g. #4f46e5 or #f00. Default #4f46e5."),
+                .describe("Waveform color as hex: #RGB, #RRGGBB or #RRGGBBAA (alpha), e.g. #4f46e5 or #f00. With split_channels, a comma-separated list colors each channel (e.g. #ff0000,#0000ff). Default #4f46e5."),
+        )
+        .param(
+            Param::string("color2")
+                .describe("Optional gradient end color (same hex forms). When set, the wave is filled with a horizontal left-to-right gradient from color to color2; color must then be a single value. Empty = solid color."),
         )
         .param(
             Param::string("background")
-                .describe("Background color as #RGB or #RRGGBB hex, e.g. #000000. Empty or omitted keeps the background transparent (the PNG has an alpha channel)."),
+                .describe("Background color as hex: #RGB, #RRGGBB or #RRGGBBAA — e.g. #000000, or #00000080 for a see-through scrim. Empty or omitted keeps the background transparent (the PNG has an alpha channel)."),
         )
         .param(
             Param::boolean("split_channels")
@@ -82,6 +90,11 @@ fn descriptor() -> ToolDescriptor {
             Param::enumv("scale", ["lin", "sqrt", "cbrt", "log"])
                 .default("lin")
                 .describe("Amplitude scale. lin is the true waveform; sqrt, cbrt and log progressively boost quiet audio so it stays visible. Default lin."),
+        )
+        .param(
+            Param::enumv("sampling", ["average", "peak"])
+                .default("average")
+                .describe("Per-pixel-column sampling. average (default) draws the mean amplitude; peak draws the loudest sample — a fuller wave that keeps short hits visible. Default average."),
         )
 }
 
@@ -103,7 +116,7 @@ struct WaveformImage;
     summary = "Render a static waveform PNG image from an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
     skill(
-        description = "Render a static waveform PNG image from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). width x height set the image size in pixels (default 1200x300); color is the wave's #RRGGBB hex (default #4f46e5); background is an optional #RRGGBB hex (empty = transparent PNG); split_channels draws one lane per channel instead of a single mono wave; scale (lin|sqrt|cbrt|log) boosts quiet audio's visibility. Output is always a PNG image.",
+        description = "Render a static waveform PNG image from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). width x height set the image size in pixels (default 1200x300); color is the wave's hex color (default #4f46e5; alpha via #RRGGBBAA; a comma-separated list colors split channels); color2 turns the wave into a horizontal color->color2 gradient; background is an optional hex (empty = transparent PNG); split_channels draws one lane per channel instead of a single mono wave; scale (lin|sqrt|cbrt|log) boosts quiet audio's visibility; sampling=peak draws the loudest sample per column for a fuller wave. Output is always a PNG image.",
         parameters = schema_json()
     ),
 )]
@@ -123,9 +136,11 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let width = args.width.unwrap_or(0.0); // 0 = default (1200)
     let height = args.height.unwrap_or(0.0); // 0 = default (300)
     let color = args.color.as_deref().unwrap_or("");
+    let color2 = args.color2.as_deref().unwrap_or("");
     let background = args.background.as_deref().unwrap_or("");
     let split_channels = args.split_channels.unwrap_or(false);
     let scale = args.scale.as_deref().unwrap_or("");
+    let sampling = args.sampling.as_deref().unwrap_or("");
 
     // 2. Resolve source — URL fetch or attachment lookup (audio/* MIME class).
     let (input_bytes, in_mime, in_filename) =
@@ -135,7 +150,7 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let in_ext = mime_to_ext(&in_mime).unwrap_or("mp3");
     let ffmpeg_in = format!("in.{in_ext}");
     let (argv, ffmpeg_out) = plan_waveform_image(
-        &ffmpeg_in, width, height, color, background, split_channels, scale,
+        &ffmpeg_in, width, height, color, color2, background, split_channels, scale, sampling,
     )
     .map_err(SkillError::InvalidArgs)?;
 
@@ -169,10 +184,12 @@ mod tests {
                     "ref":            { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
                     "width":          { "type": "integer", "minimum": 16, "maximum": 4096, "default": 1200, "description": "Output image width in pixels, 16-4096. Default 1200 (the common social-banner shape with the default height)." },
                     "height":         { "type": "integer", "minimum": 16, "maximum": 2048, "default": 300, "description": "Output image height in pixels, 16-2048. Default 300. With split_channels the height is divided across the channel lanes." },
-                    "color":          { "type": "string", "default": "#4f46e5", "description": "Waveform color as #RGB or #RRGGBB hex, e.g. #4f46e5 or #f00. Default #4f46e5." },
-                    "background":     { "type": "string", "description": "Background color as #RGB or #RRGGBB hex, e.g. #000000. Empty or omitted keeps the background transparent (the PNG has an alpha channel)." },
+                    "color":          { "type": "string", "default": "#4f46e5", "description": "Waveform color as hex: #RGB, #RRGGBB or #RRGGBBAA (alpha), e.g. #4f46e5 or #f00. With split_channels, a comma-separated list colors each channel (e.g. #ff0000,#0000ff). Default #4f46e5." },
+                    "color2":         { "type": "string", "description": "Optional gradient end color (same hex forms). When set, the wave is filled with a horizontal left-to-right gradient from color to color2; color must then be a single value. Empty = solid color." },
+                    "background":     { "type": "string", "description": "Background color as hex: #RGB, #RRGGBB or #RRGGBBAA — e.g. #000000, or #00000080 for a see-through scrim. Empty or omitted keeps the background transparent (the PNG has an alpha channel)." },
                     "split_channels": { "type": "boolean", "default": false, "description": "Draw each audio channel in its own horizontal lane instead of downmixing to one mono wave. Default false." },
-                    "scale":          { "type": "string", "enum": ["lin", "sqrt", "cbrt", "log"], "default": "lin", "description": "Amplitude scale. lin is the true waveform; sqrt, cbrt and log progressively boost quiet audio so it stays visible. Default lin." }
+                    "scale":          { "type": "string", "enum": ["lin", "sqrt", "cbrt", "log"], "default": "lin", "description": "Amplitude scale. lin is the true waveform; sqrt, cbrt and log progressively boost quiet audio so it stays visible. Default lin." },
+                    "sampling":       { "type": "string", "enum": ["average", "peak"], "default": "average", "description": "Per-pixel-column sampling. average (default) draws the mean amplitude; peak draws the loudest sample — a fuller wave that keeps short hits visible. Default average." }
                 },
                 "additionalProperties": false,
                 "oneOf": [
