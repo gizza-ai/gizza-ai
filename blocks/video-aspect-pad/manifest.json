@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/video-aspect-pad",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Letterbox or pillarbox a video to a target aspect ratio",
+  "role": "skill",
+  "tool": {
+    "description": "Letterbox or pillarbox a video to a target aspect ratio with colored bars — e.g. pad a landscape clip to 9:16 for Reels/Shorts/TikTok or to 1:1 for a feed post. The whole frame is kept (scaled to fit, never cropped or stretched) and centered on the target canvas; the rest is filled with the bar color. Output is exactly the platform-standard canvas for the chosen aspect (1080x1920 for 9:16, 1080x1080 for 1:1, 1920x1080 for 16:9, ...) unless width sets a custom size. Provide the video as either url (HTTP/HTTPS) or ref. Video re-encodes as H.264 (CRF 23); audio is copied untouched. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "aspect": {
+          "default": "9:16",
+          "description": "Target aspect ratio (width:height). 9:16 Reels/Shorts/TikTok, 1:1 square feed, 16:9 YouTube, 4:5 Instagram portrait, 2:3 Pinterest, 21:9 cinematic. Default 9:16.",
+          "enum": [
+            "9:16",
+            "1:1",
+            "16:9",
+            "4:5",
+            "3:4",
+            "4:3",
+            "2:3",
+            "21:9"
+          ],
+          "type": "string"
+        },
+        "color": {
+          "default": "black",
+          "description": "Bar color: a CSS color name (black, white, navy, ...) or hex like #1A2B3C. Default black.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "description": "Output width in pixels (even, 16-4096); height follows the aspect ratio. Omit for the platform-standard canvas (1080x1920 for 9:16, 1920x1080 for 16:9, ...).",
+          "maximum": 4096,
+          "minimum": 16,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
