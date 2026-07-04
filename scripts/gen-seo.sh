@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # gen-seo.sh — gizza list-driven SEO file generator
-# Writes pkg/sitemap.xml, pkg/robots.txt, pkg/llms.txt, pkg/llms-full.txt
+# Writes pkg/sitemap.xml, pkg/robots.txt, pkg/feed.xml, pkg/llms.txt,
+# pkg/llms-full.txt and the IndexNow key file.
 # Run from repo root (or pass repo root as first argument).
 set -euo pipefail
 
@@ -57,6 +58,20 @@ git_lastmod() {
   git -C "$REPO_ROOT" log -1 --format=%cI -- "$1" 2>/dev/null || true
 }
 
+# First commit touching a path as "unixtime<TAB>iso8601" — used to order and
+# date the Atom feed entries. Empty when history is unavailable.
+git_first_commit() {
+  git -C "$REPO_ROOT" log --format='%ct%x09%cI' --reverse -- "$1" 2>/dev/null | head -n1 || true
+}
+
+# Escape text for XML content and attribute values (&, <, >, quotes).
+# sed, not ${var//…} — bash 5.2's patsub_replacement expands a bare `&` in
+# the replacement to the matched text, silently corrupting the entities.
+xml_escape() {
+  printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' \
+    -e 's/"/\&quot;/g' -e "s/'/\&apos;/g"
+}
+
 emit_url() {
   # $1 = loc, $2 = lastmod (may be empty)
   if [[ -n "$2" ]]; then
@@ -98,6 +113,79 @@ site_mod="$(git_lastmod site)"
   printf 'Sitemap: %s/sitemap.xml\n' "$BASE_URL"
 } > "$PKG_DIR/robots.txt"
 
+# --- feed.xml (Atom, the 50 newest tools by first commit of blocks/<slug>/page) ---
+# Ordering/dating needs git history; when it is unavailable (shallow clone,
+# no git) skip the feed with a warning rather than emitting undated entries.
+feed_rows=()
+for slug in "${page_slugs[@]}"; do
+  first="$(git_first_commit "blocks/$slug/page")"
+  [[ -z "$first" ]] && continue
+  feed_rows+=("$first"$'\t'"$slug")
+done
+feed_written=""
+if ((${#feed_rows[@]} == 0)); then
+  echo "gen-seo.sh: warning: no git history for blocks/*/page — skipping feed.xml" >&2
+else
+  # Newest first by first-commit unix time; the top 50 become entries.
+  mapfile -t feed_newest < <(printf '%s\n' "${feed_rows[@]}" | sort -t$'\t' -k1,1nr | head -n50)
+  # Resolve each entry's <updated> (last commit, like sitemap <lastmod>) and
+  # track the feed-level <updated> = max entry updated, compared by unix time
+  # (ISO strings with mixed UTC offsets don't sort lexically).
+  feed_entries=()
+  feed_updated=""
+  feed_updated_ts=0
+  for row in "${feed_newest[@]}"; do
+    IFS=$'\t' read -r _ published slug <<< "$row"
+    read -r updated_ts updated <<< "$(git -C "$REPO_ROOT" log -1 --format='%ct %cI' -- "blocks/$slug/page" 2>/dev/null || true)"
+    if [[ -z "$updated" ]]; then
+      updated="$published"
+      updated_ts=0
+    fi
+    if ((updated_ts > feed_updated_ts)); then
+      feed_updated_ts=$updated_ts
+      feed_updated="$updated"
+    fi
+    feed_entries+=("$published"$'\t'"$updated"$'\t'"$slug")
+  done
+  [[ -z "$feed_updated" ]] && feed_updated="${feed_entries[0]%%$'\t'*}"
+  {
+    printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+    printf '<feed xmlns="http://www.w3.org/2005/Atom">\n'
+    printf '  <title>New tools — gizza.ai</title>\n'
+    printf '  <id>%s/feed.xml</id>\n' "$BASE_URL"
+    printf '  <link href="%s/feed.xml" rel="self" type="application/atom+xml"/>\n' "$BASE_URL"
+    printf '  <link href="%s/tools/"/>\n' "$BASE_URL"
+    printf '  <updated>%s</updated>\n' "$feed_updated"
+    printf '  <author><name>gizza.ai</name></author>\n'
+    for row in "${feed_entries[@]}"; do
+      IFS=$'\t' read -r published updated slug <<< "$row"
+      meta="$REPO_ROOT/blocks/$slug/page/meta.toml"
+      title="$(meta_field "$meta" title)"
+      [[ -z "$title" ]] && title="$slug"
+      summary="$(meta_field "$meta" description)"
+      [[ -z "$summary" ]] && summary="$title"
+      url="$BASE_URL/tools/$slug/"
+      printf '  <entry>\n'
+      printf '    <id>%s</id>\n' "$url"
+      printf '    <title>%s</title>\n' "$(xml_escape "$title")"
+      printf '    <summary>%s</summary>\n' "$(xml_escape "$summary")"
+      printf '    <link href="%s"/>\n' "$url"
+      printf '    <published>%s</published>\n' "$published"
+      printf '    <updated>%s</updated>\n' "$updated"
+      printf '  </entry>\n'
+    done
+    printf '</feed>\n'
+  } > "$PKG_DIR/feed.xml"
+  feed_written=1
+fi
+
+# --- IndexNow key file (https://www.indexnow.org/) ---
+# The key is public by design: search engines fetch <site>/<key>.txt to verify
+# ownership before accepting pings. scripts/indexnow-ping.sh submits changed
+# URLs with this same key after each deploy.
+INDEXNOW_KEY="0d80c64b419d8ab46ad4b67e39d7d6c3"
+printf '%s' "$INDEXNOW_KEY" > "$PKG_DIR/$INDEXNOW_KEY.txt"
+
 # --- llms.txt (llmstxt.org format) ---
 {
   printf '# gizza.ai\n\n'
@@ -135,6 +223,7 @@ site_mod="$(git_lastmod site)"
   printf -- '- [Donate](https://github.com/sponsors/Jsuppers): support the project\n'
   printf -- '- [CLI README](https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md): gizza CLI reference\n'
   printf -- '- [SKILL.md](https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md): agent integration guide\n'
+  printf -- '- [Atom feed](%s/feed.xml): the 50 newest tools, for feed readers and crawlers\n' "$BASE_URL"
   printf -- '- [llms-full.txt](%s/llms-full.txt): every tool page'\''s full markdown documentation in one file\n\n' "$BASE_URL"
   printf 'For the authoritative machine-readable tool catalog, see `/tools/_index.json` or\n'
   printf 'run `gizza list --json-out`. The catalog is build-time static and always up to date.\n'
@@ -164,4 +253,4 @@ else
   } > "$PKG_DIR/llms-full.txt"
 fi
 
-echo "gen-seo.sh: wrote $PKG_DIR/sitemap.xml, $PKG_DIR/robots.txt, $PKG_DIR/llms.txt${index_mds[0]:+, $PKG_DIR/llms-full.txt}"
+echo "gen-seo.sh: wrote $PKG_DIR/sitemap.xml, $PKG_DIR/robots.txt${feed_written:+, $PKG_DIR/feed.xml}, $PKG_DIR/$INDEXNOW_KEY.txt, $PKG_DIR/llms.txt${index_mds[0]:+, $PKG_DIR/llms-full.txt}"

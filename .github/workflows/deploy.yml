@@ -175,3 +175,22 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: gizza-ai
           command: pages deploy pkg --project-name=gizza-ai --branch=main
+
+      - name: Ping IndexNow
+        # Tell IndexNow-capable search engines which URLs this push changed.
+        # `github.event.before` is all-zeros on a force-push / first push of a
+        # branch and empty on workflow_dispatch — skip gracefully then. The
+        # script itself never fails the job: an unresolvable range, an empty
+        # URL list, and network/HTTP errors all warn and exit 0.
+        working-directory: gizza-ai
+        env:
+          RANGE: ${{ github.event.before }}..${{ github.sha }}
+        run: |
+          case "$RANGE" in
+            ..* | 0000000000000000000000000000000000000000..*)
+              echo "No usable 'before' SHA in range '$RANGE' — skipping IndexNow ping."
+              ;;
+            *)
+              scripts/indexnow-ping.sh
+              ;;
+          esac
