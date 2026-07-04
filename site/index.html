@@ -317,6 +317,145 @@ solobase serve</code></pre>
     </div>
   </section>
 
+  <!-- Popular tools + category hubs — static, crawlable internal links only
+       (plain <a href>, no scripts). Curated slugs must exist in blocks/; the
+       category links mirror the generator's fixed taxonomy
+       (tools/generator/src/categories.rs). -->
+  <section class="tools-links" aria-labelledby="tools-links-heading">
+    <style>
+      .tools-links {
+        padding: 48px 20px 0;
+        max-width: 860px;
+        margin: 0 auto;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      .tools-links__heading {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0a0a0a;
+        margin: 0 0 8px;
+        text-align: center;
+      }
+      .tools-links__sub {
+        color: #525252;
+        text-align: center;
+        margin: 0 0 28px;
+        line-height: 1.55;
+      }
+      .tools-links__grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 14px;
+      }
+      .tools-links__grid a {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        height: 100%;
+        box-sizing: border-box;
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 14px 16px;
+        text-decoration: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,.05);
+        transition: border-color .15s ease, box-shadow .15s ease;
+      }
+      .tools-links__grid a:hover,
+      .tools-links__grid a:focus-visible {
+        border-color: #f54e00;
+        box-shadow: 0 4px 14px rgba(245,78,0,.15);
+      }
+      .tools-links__grid strong {
+        font-size: .95rem;
+        font-weight: 700;
+        color: #0a0a0a;
+      }
+      .tools-links__grid a:hover strong { color: #f54e00; }
+      .tools-links__grid span {
+        font-size: 13px;
+        color: #737373;
+        line-height: 1.45;
+      }
+      .tools-links__cats-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0a0a0a;
+        margin: 32px 0 12px;
+        text-align: center;
+      }
+      .tools-links__cats {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+      }
+      .tools-links__cats a {
+        display: inline-block;
+        padding: 6px 14px;
+        border: 1px solid #e5e5e5;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #0a0a0a;
+        font-size: .85rem;
+        text-decoration: none;
+        transition: border-color .15s ease, color .15s ease;
+      }
+      .tools-links__cats a:hover,
+      .tools-links__cats a:focus-visible {
+        border-color: #f54e00;
+        color: #f54e00;
+      }
+      .tools-links__cats a.tools-links__all {
+        border-color: #f54e00;
+        color: #f54e00;
+        font-weight: 600;
+      }
+    </style>
+
+    <h2 class="tools-links__heading" id="tools-links-heading">Popular tools</h2>
+    <p class="tools-links__sub">Free, browser-local tools — no sign-up, nothing leaves your device.</p>
+
+    <ul class="tools-links__grid">
+      <li><a href="/tools/calculator/"><strong>Calculator</strong><span>Evaluate any math expression instantly</span></a></li>
+      <li><a href="/tools/password-generator/"><strong>Password Generator</strong><span>Strong random passwords &amp; passphrases</span></a></li>
+      <li><a href="/tools/generate-uuid/"><strong>UUID Generator</strong><span>Generate v4 / v7 UUIDs in bulk</span></a></li>
+      <li><a href="/tools/json-beautify/"><strong>JSON Beautifier</strong><span>Format, validate &amp; minify JSON</span></a></li>
+      <li><a href="/tools/json-yaml-convert/"><strong>JSON ⇄ YAML ⇄ TOML</strong><span>Convert between config formats</span></a></li>
+      <li><a href="/tools/unix-timestamp-converter/"><strong>Unix Timestamp Converter</strong><span>Epoch ⇄ human-readable dates</span></a></li>
+      <li><a href="/tools/word-count/"><strong>Word Counter</strong><span>Words, characters &amp; reading time</span></a></li>
+      <li><a href="/tools/unit-converter/"><strong>Unit Converter</strong><span>Metric ⇄ imperial, data sizes &amp; more</span></a></li>
+      <li><a href="/tools/image-convert/"><strong>Image Converter</strong><span>JPEG, PNG, WebP — right in your browser</span></a></li>
+      <li><a href="/tools/audio-convert/"><strong>Audio Converter</strong><span>MP3, WAV, OGG, FLAC &amp; more</span></a></li>
+      <li><a href="/tools/video-compress/"><strong>Video Compressor</strong><span>Shrink file size, keep the quality</span></a></li>
+      <li><a href="/tools/html-to-markdown/"><strong>HTML to Markdown</strong><span>Clean Markdown from any HTML</span></a></li>
+    </ul>
+
+    <h3 class="tools-links__cats-heading">Browse by category</h3>
+    <ul class="tools-links__cats">
+      <li><a href="/tools/audio/">Audio</a></li>
+      <li><a href="/tools/video/">Video</a></li>
+      <li><a href="/tools/image/">Image &amp; design</a></li>
+      <li><a href="/tools/data/">Data</a></li>
+      <li><a href="/tools/documents/">Documents</a></li>
+      <li><a href="/tools/security/">Security &amp; crypto</a></li>
+      <li><a href="/tools/encoding/">Encoding</a></li>
+      <li><a href="/tools/network/">Network &amp; web</a></li>
+      <li><a href="/tools/time/">Date &amp; time</a></li>
+      <li><a href="/tools/math/">Math &amp; statistics</a></li>
+      <li><a href="/tools/text/">Text</a></li>
+      <li><a href="/tools/developer/">Developer</a></li>
+      <li><a href="/tools/utilities/">Utilities</a></li>
+      <li><a class="tools-links__all" href="/tools/">All tools →</a></li>
+    </ul>
+  </section>
+
   <footer class="site-footer">
     <div class="site-footer__brand">
       <a class="site-footer__logo" href="/" aria-label="gizza.ai home">gizza.ai</a>

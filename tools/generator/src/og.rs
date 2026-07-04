@@ -50,6 +50,15 @@ impl OgRenderer {
         ))
     }
 
+    /// Render the card for a category hub page (`/tools/<category>/`).
+    pub fn hub_card(&self, category: &crate::categories::Category) -> Result<Vec<u8>, String> {
+        self.render(&card_svg(
+            category.title,
+            category.blurb,
+            &format!("gizza.ai/tools/{}", category.slug),
+        ))
+    }
+
     /// Render the card for the `/tools/` landing page.
     pub fn index_card(&self, tool_count: usize) -> Result<Vec<u8>, String> {
         self.render(&card_svg(

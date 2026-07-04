@@ -1,5 +1,6 @@
 //! Build-time JSON index of all tool pages, consumed by the in-app tools modal.
 
+use crate::categories::Hub;
 use crate::meta::ToolMeta;
 use serde::Serialize;
 
@@ -23,6 +24,30 @@ pub fn tools_index_json(metas: &[ToolMeta]) -> String {
         })
         .collect();
     serde_json::to_string(&entries).expect("serialize tools index")
+}
+
+#[derive(Serialize)]
+struct HubIndexEntry<'a> {
+    slug: &'a str,
+    title: &'a str,
+    description: &'a str,
+    count: usize,
+}
+
+/// Serialize `[{slug,title,description,count}]` for every category hub —
+/// written to `tools/_hubs.json` and consumed by `scripts/gen-seo.sh` to add
+/// the hub URLs to the sitemap.
+pub fn hubs_json(hubs: &[Hub]) -> String {
+    let entries: Vec<HubIndexEntry> = hubs
+        .iter()
+        .map(|h| HubIndexEntry {
+            slug: h.category.slug,
+            title: h.category.title,
+            description: h.category.blurb,
+            count: h.members.len(),
+        })
+        .collect();
+    serde_json::to_string(&entries).expect("serialize hubs index")
 }
 
 /// Markdown catalog of every tool — the `text/markdown` twin of the `/tools/`
@@ -102,6 +127,20 @@ source      = "field"
     #[test]
     fn empty_metas_is_empty_array() {
         assert_eq!(tools_index_json(&[]), "[]");
+    }
+
+    #[test]
+    fn hubs_json_has_slug_title_description_count() {
+        let metas = vec![calc()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let v: serde_json::Value = serde_json::from_str(&hubs_json(&hubs)).unwrap();
+        assert!(v.is_array());
+        // calc() is tagged "math" → exactly one hub, the math category
+        assert_eq!(v.as_array().unwrap().len(), 1);
+        assert_eq!(v[0]["slug"], "math");
+        assert_eq!(v[0]["title"], "Math & statistics tools");
+        assert!(v[0]["description"].as_str().unwrap().contains("Calculators"));
+        assert_eq!(v[0]["count"], 1);
     }
 
     #[test]
