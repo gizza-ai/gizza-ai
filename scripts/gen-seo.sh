@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # gen-seo.sh — gizza list-driven SEO file generator
-# Writes pkg/sitemap.xml, pkg/robots.txt, pkg/llms.txt
+# Writes pkg/sitemap.xml, pkg/robots.txt, pkg/llms.txt, pkg/llms-full.txt
 # Run from repo root (or pass repo root as first argument).
 set -euo pipefail
 
@@ -134,9 +134,34 @@ site_mod="$(git_lastmod site)"
   printf -- '- [Discord](https://discord.com/invite/jKqMcbrVzm): community and support\n'
   printf -- '- [Donate](https://github.com/sponsors/Jsuppers): support the project\n'
   printf -- '- [CLI README](https://github.com/gizza-ai/gizza-ai/blob/main/cli/README.md): gizza CLI reference\n'
-  printf -- '- [SKILL.md](https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md): agent integration guide\n\n'
+  printf -- '- [SKILL.md](https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md): agent integration guide\n'
+  printf -- '- [llms-full.txt](%s/llms-full.txt): every tool page'\''s full markdown documentation in one file\n\n' "$BASE_URL"
   printf 'For the authoritative machine-readable tool catalog, see `/tools/_index.json` or\n'
   printf 'run `gizza list --json-out`. The catalog is build-time static and always up to date.\n'
+  printf "Every tool also serves a JSON Schema descriptor at \`/tools/<slug>/tool.json\`\n"
+  printf '(identity, URLs, CLI invocation and tool parameters).\n'
 } > "$PKG_DIR/llms.txt"
 
-echo "gen-seo.sh: wrote $PKG_DIR/sitemap.xml, $PKG_DIR/robots.txt, $PKG_DIR/llms.txt"
+# --- llms-full.txt (header + every pkg/tools/*/index.md, slug order) ---
+# The generator writes the per-tool index.md files before this script runs in
+# deploy; when they are absent (e.g. gen-seo.sh run standalone), skip with a
+# warning rather than emitting a header-only file.
+mapfile -t index_mds < <(
+  [[ -d "$PKG_DIR/tools" ]] &&
+    find "$PKG_DIR/tools" -mindepth 2 -maxdepth 2 -name index.md -type f | sort
+)
+if ((${#index_mds[@]} == 0)); then
+  echo "gen-seo.sh: warning: no pkg/tools/*/index.md files — skipping llms-full.txt (run the tool-page generator first)" >&2
+else
+  {
+    printf '# gizza.ai — full tool documentation'
+    for md in "${index_mds[@]}"; do
+      # $(<file) drops trailing newlines, so documents are separated by
+      # exactly one '---' block regardless of each file's final newline.
+      printf '\n\n---\n\n%s' "$(<"$md")"
+    done
+    printf '\n'
+  } > "$PKG_DIR/llms-full.txt"
+fi
+
+echo "gen-seo.sh: wrote $PKG_DIR/sitemap.xml, $PKG_DIR/robots.txt, $PKG_DIR/llms.txt${index_mds[0]:+, $PKG_DIR/llms-full.txt}"
