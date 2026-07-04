@@ -34,6 +34,12 @@ printf 'title = "Ghost Tool"\ndescription = "A tool only present on disk"\n' > "
 # Create pkg/ dir
 mkdir -p "$tmpdir/pkg"
 
+# Pair pages: the generator writes pkg/tools/_pairs.json; gen-seo.sh adds each
+# path to the sitemap. (calculator stands in for a converter parent here.)
+mkdir -p "$tmpdir/pkg/tools"
+printf '[{"path":"calculator/wav-to-mp3","title":"Convert WAV to MP3"}]\n' \
+  > "$tmpdir/pkg/tools/_pairs.json"
+
 # Run gen-seo.sh from the temp dir (as repo root)
 BASE_URL="https://example.test" \
 GIZZA="$tmpdir/bin/gizza" \
@@ -65,6 +71,11 @@ fi
 # it must still appear in the sitemap (derived directly from the filesystem)
 if ! grep -qF "https://example.test/tools/ghost-tool/" "$sitemap"; then
   echo "FAIL: sitemap missing ghost-tool page URL (page exists but not in gizza list)"
+  exit 1
+fi
+# conversion pair pages from pkg/tools/_pairs.json land in the sitemap
+if ! grep -qF "https://example.test/tools/calculator/wav-to-mp3/" "$sitemap"; then
+  echo "FAIL: sitemap missing pair page URL from _pairs.json"
   exit 1
 fi
 

@@ -103,6 +103,18 @@ site_mod="$(git_lastmod site)"
   for slug in "${page_slugs[@]}"; do
     emit_url "$BASE_URL/tools/$slug/" "$(git_lastmod "blocks/$slug/page")"
   done
+  # "X to Y" conversion pair pages (/tools/<parent>/<src>-to-<tgt>/) from the
+  # generator's _pairs.json. Skipped gracefully when the file is missing
+  # (generator not yet run); each pair page is generated from its parent
+  # converter's page sources, so it shares that parent's lastmod.
+  pairs_json="$PKG_DIR/tools/_pairs.json"
+  if [[ -f "$pairs_json" ]]; then
+    while IFS= read -r pair_path; do
+      [[ -z "$pair_path" ]] && continue
+      parent="${pair_path%%/*}"
+      emit_url "$BASE_URL/tools/$pair_path/" "$(git_lastmod "blocks/$parent/page")"
+    done < <(jq -r '.[].path' "$pairs_json")
+  fi
   printf '</urlset>\n'
 } > "$PKG_DIR/sitemap.xml"
 
