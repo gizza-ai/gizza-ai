@@ -50,6 +50,17 @@ impl OgRenderer {
         ))
     }
 
+    /// Render the card for a conversion pair page
+    /// (`/tools/<parent>/<src>-to-<tgt>/`).
+    pub fn pair_card(
+        &self,
+        title: &str,
+        tagline: &str,
+        footer: &str,
+    ) -> Result<Vec<u8>, String> {
+        self.render(&card_svg(title, tagline, footer))
+    }
+
     /// Render the card for a category hub page (`/tools/<category>/`).
     pub fn hub_card(&self, category: &crate::categories::Category) -> Result<Vec<u8>, String> {
         self.render(&card_svg(

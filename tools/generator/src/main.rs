@@ -9,10 +9,12 @@ mod categories;
 mod control;
 mod descriptor;
 mod faq;
+mod formats;
 mod index;
 mod markdown;
 mod meta;
 mod og;
+mod pairs;
 mod related;
 mod template;
 mod vocab;
@@ -48,6 +50,11 @@ fn run() -> Result<(), String> {
     let og_renderer = og::OgRenderer::new();
     let metas_only: Vec<ToolMeta> = metas.iter().map(|(_, m)| m.clone()).collect();
 
+    // "X to Y" conversion pair pages nested under the converter tools —
+    // enumerated once, linked from each parent's "Popular conversions"
+    // section and rendered below after the parent pages exist.
+    let pair_specs = pairs::all_pairs();
+
     for (tool_dir, m) in &metas {
         let out = pkg_tools.join(&m.slug);
         fs::create_dir_all(&out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
@@ -73,6 +80,9 @@ fn run() -> Result<(), String> {
         // Top-5 related tools by shared tags — internal links on the page and
         // its markdown twin.
         let related = related::related_tools(m, &metas_only);
+        // Converter tools get a crawlable "Popular conversions" section
+        // linking every pair page nested under them (empty for other tools).
+        let pair_links = pairs::pair_links_for_parent(&pair_specs, &m.slug);
         let html = template::render_page(
             m,
             &content_html,
@@ -80,6 +90,7 @@ fn run() -> Result<(), String> {
             has_custom_js,
             has_custom_css,
             &related,
+            &pair_links,
         );
         fs::write(out.join("index.html"), html)
             .map_err(|e| format!("write index.html: {e}"))?;
@@ -122,6 +133,57 @@ fn run() -> Result<(), String> {
         }
         eprintln!("rendered tools/{}/", m.slug);
     }
+
+    // "X to Y" pair pages: one landing page per (source, target) format pair,
+    // nested under its parent converter (pkg/tools/<parent>/<src>-to-<tgt>/).
+    // Rendered after the parent loop so the collision check below sees every
+    // file the parent page ships. Assets (tool.css, header.js, …) are linked
+    // from the parent directory — nothing is copied per pair.
+    let mut rendered_pairs: Vec<&pairs::PairSpec> = Vec::new();
+    for pair in &pair_specs {
+        let Some((_, parent)) = metas.iter().find(|(_, m)| m.slug == pair.parent) else {
+            eprintln!(
+                "warning: pair {} skipped (parent {} has no page)",
+                pair.slug(),
+                pair.parent
+            );
+            continue;
+        };
+        let out = pkg_tools.join(pair.parent).join(pair.slug());
+        // A pair directory must never shadow a file the parent ships
+        // (index.html, og.png, the wasm bundle, …) — fail loudly, not subtly.
+        if out.exists() && !out.is_dir() {
+            return Err(format!(
+                "pair page {} collides with an existing file in tools/{}/",
+                out.display(),
+                pair.parent
+            ));
+        }
+        fs::create_dir_all(&out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
+        fs::write(
+            out.join("index.html"),
+            pairs::render_pair_page(parent, pair, &pair_specs),
+        )
+        .map_err(|e| format!("write {}/index.html: {e}", pair.path()))?;
+        fs::write(out.join("index.md"), pairs::pair_markdown(parent, pair))
+            .map_err(|e| format!("write {}/index.md: {e}", pair.path()))?;
+        let card = og_renderer.pair_card(
+            &pair.h1(),
+            &pair.og_tagline(),
+            &format!("gizza.ai/tools/{}", pair.path()),
+        )?;
+        fs::write(out.join("og.png"), card)
+            .map_err(|e| format!("write {}/og.png: {e}", pair.path()))?;
+        rendered_pairs.push(pair);
+    }
+    // Machine-readable pair index — consumed by scripts/gen-seo.sh to add the
+    // pair URLs to the sitemap (same pattern as _hubs.json).
+    fs::write(
+        pkg_tools.join("_pairs.json"),
+        pairs::pairs_json(&rendered_pairs),
+    )
+    .map_err(|e| format!("write tools/_pairs.json: {e}"))?;
+    eprintln!("rendered {} conversion pair pages", rendered_pairs.len());
 
     // Static index for the in-app tools modal (fetched client-side; lives under
     // /tools/ so it is covered by the runtime SW's /tools/ bypass).
