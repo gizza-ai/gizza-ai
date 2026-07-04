@@ -5,12 +5,14 @@
 //! Assumes each tool's wasm-pack output already exists at
 //! `blocks/<tool>/web/pkg/`.
 
+mod categories;
 mod control;
 mod faq;
 mod index;
 mod markdown;
 mod meta;
 mod og;
+mod related;
 mod template;
 mod vocab;
 
@@ -37,7 +39,13 @@ fn run() -> Result<(), String> {
         eprintln!("no tool pages found (no blocks/*/page/meta.toml)");
     }
 
+    // Category hub pages share the /tools/<slug>/ namespace with tool pages —
+    // fail the build loudly if a block slug ever collides with a category.
+    let block_slugs = collect_block_slugs(&blocks)?;
+    categories::check_slug_collisions(block_slugs.iter().map(String::as_str))?;
+
     let og_renderer = og::OgRenderer::new();
+    let metas_only: Vec<ToolMeta> = metas.iter().map(|(_, m)| m.clone()).collect();
 
     for (tool_dir, m) in &metas {
         let out = pkg_tools.join(&m.slug);
@@ -61,11 +69,24 @@ fn run() -> Result<(), String> {
         if has_custom_css {
             copy_file(&custom_css, &out.join("custom.css"))?;
         }
-        let html = template::render_page(m, &content_html, &schema, has_custom_js, has_custom_css);
+        // Top-5 related tools by shared tags — internal links on the page and
+        // its markdown twin.
+        let related = related::related_tools(m, &metas_only);
+        let html = template::render_page(
+            m,
+            &content_html,
+            &schema,
+            has_custom_js,
+            has_custom_css,
+            &related,
+        );
         fs::write(out.join("index.html"), html)
             .map_err(|e| format!("write index.html: {e}"))?;
-        fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md, &schema))
-            .map_err(|e| format!("write index.md: {e}"))?;
+        fs::write(
+            out.join("index.md"),
+            markdown::tool_markdown(m, &content_md, &schema, &related),
+        )
+        .map_err(|e| format!("write index.md: {e}"))?;
         // Per-tool Open Graph card — the page's og:image/twitter:image target.
         fs::write(out.join("og.png"), og_renderer.tool_card(m)?)
             .map_err(|e| format!("write og.png: {e}"))?;
@@ -96,12 +117,15 @@ fn run() -> Result<(), String> {
 
     // Static index for the in-app tools modal (fetched client-side; lives under
     // /tools/ so it is covered by the runtime SW's /tools/ bypass).
-    let metas_only: Vec<ToolMeta> = metas.iter().map(|(_, m)| m.clone()).collect();
     fs::write(
         pkg_tools.join("_index.json"),
         index::tools_index_json(&metas_only),
     )
     .map_err(|e| format!("write tools/_index.json: {e}"))?;
+
+    // Category hubs: group the same metas by the fixed taxonomy. Rendered
+    // below as /tools/<category>/ pages and linked from the landing nav.
+    let hubs = categories::build_hubs(&metas_only);
 
     // `/tools/` landing page — a build-time card grid of every tool, rendered
     // from the same `metas` as the per-tool pages + `_index.json` (one source of
@@ -109,7 +133,7 @@ fn run() -> Result<(), String> {
     // etc. resolve when the page is served at `/tools/`.
     fs::write(
         pkg_tools.join("index.html"),
-        template::render_tools_index(&metas_only),
+        template::render_tools_index(&metas_only, &hubs),
     )
     .map_err(|e| format!("write tools/index.html: {e}"))?;
     // Markdown twin of the landing page (the "tools .md page") for LLMs/agents.
@@ -126,7 +150,52 @@ fn run() -> Result<(), String> {
         .map_err(|e| format!("write tools/og.png: {e}"))?;
     eprintln!("rendered tools/ (landing page, {} tools)", metas_only.len());
 
+    // Category hub pages at /tools/<category>/ — a member-card grid with its
+    // own SEO head, OG card and chrome assets (same relative-asset pattern as
+    // the landing page).
+    for hub in &hubs {
+        let out = pkg_tools.join(hub.category.slug);
+        fs::create_dir_all(&out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
+        fs::write(
+            out.join("index.html"),
+            template::render_category_hub(hub, &hubs),
+        )
+        .map_err(|e| format!("write tools/{}/index.html: {e}", hub.category.slug))?;
+        fs::write(out.join("og.png"), og_renderer.hub_card(hub.category)?)
+            .map_err(|e| format!("write tools/{}/og.png: {e}", hub.category.slug))?;
+        for asset in ["tool.css", "header.css", "header.js", "tools-index.js"] {
+            copy_file(&root.join("site").join(asset), &out.join(asset))?;
+        }
+        eprintln!(
+            "rendered tools/{}/ (hub, {} tools)",
+            hub.category.slug,
+            hub.members.len()
+        );
+    }
+    // Machine-readable hub index — consumed by scripts/gen-seo.sh to add the
+    // hub URLs to the sitemap.
+    fs::write(pkg_tools.join("_hubs.json"), index::hubs_json(&hubs))
+        .map_err(|e| format!("write tools/_hubs.json: {e}"))?;
+
     Ok(())
+}
+
+/// Every direct subdirectory name of `blocks/` — the full block-slug
+/// namespace, including blocks without a page (a future page would collide
+/// with a hub just the same).
+fn collect_block_slugs(blocks: &Path) -> Result<Vec<String>, String> {
+    let mut out = Vec::new();
+    if !blocks.is_dir() {
+        return Ok(out);
+    }
+    for entry in fs::read_dir(blocks).map_err(|e| format!("read blocks/: {e}"))? {
+        let entry = entry.map_err(|e| format!("blocks entry: {e}"))?;
+        if entry.path().is_dir() {
+            out.push(entry.file_name().to_string_lossy().into_owned());
+        }
+    }
+    out.sort();
+    Ok(out)
 }
 
 /// Find every `blocks/<tool>/page/meta.toml`, parse it, sorted by slug.

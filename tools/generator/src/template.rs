@@ -1,23 +1,36 @@
 //! Renders the option-C tool page: top nav + hero tool + SEO content + footer,
 //! with SEO `<head>` tags and JSON-LD.
 
+use crate::categories::Hub;
 use crate::control::{fmt_num, Control, ParamSchema};
 use crate::markdown::{cli_example as shared_cli_example, example_deeplink};
 use crate::meta::ToolMeta;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
-use maud::{html, PreEscaped, DOCTYPE};
+use maud::{html, Markup, PreEscaped, DOCTYPE};
+
+/// The shared header's brand block — identical on every generated page.
+fn brand_link() -> Markup {
+    html! {
+        a.tool-brand href="https://gizza.ai" {
+            img src="/logo.webp" alt="gizza.ai logo";
+            span { "gizza.ai" }
+        }
+    }
+}
 
 /// Render the full HTML document for a tool page. `content_html` is the
 /// markdown-rendered SEO section. `custom_js`/`custom_css` say whether the tool
 /// ships a `page/custom.js`/`page/custom.css` (copied next to the page by
 /// main.rs) — the escape hatch for bespoke UI that the declarative meta.toml
-/// controls can't express.
+/// controls can't express. `related` is the tag-ranked top-5 from
+/// `related::related_tools`, rendered as internal links.
 pub fn render_page(
     meta: &ToolMeta,
     content_html: &str,
     schema: &ParamSchema,
     custom_js: bool,
     custom_css: bool,
+    related: &[&ToolMeta],
 ) -> String {
     let canonical = format!("https://gizza.ai/tools/{}/", meta.slug);
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
@@ -100,6 +113,9 @@ pub fn render_page(
                 }
                 link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
                 style { (PreEscaped(TOOL_CLI_CSS)) }
+                @if !related.is_empty() {
+                    style { (PreEscaped(TOOL_RELATED_CSS)) }
+                }
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
                 script type="application/ld+json" { (PreEscaped(breadcrumbs_ld)) }
                 @if let Some(faq_ld) = &faq_ld {
@@ -108,15 +124,7 @@ pub fn render_page(
                 script type="module" src="./header.js" {}
             }
             body {
-                ({
-                    let brand = html! {
-                        a.tool-brand href="https://gizza.ai" {
-                            img src="/logo.webp" alt="gizza.ai logo";
-                            span { "gizza.ai" }
-                        }
-                    };
-                    chrome_header(brand, Active::Tool)
-                })
+                (chrome_header(brand_link(), Active::Tool))
                 main class="tool-main" {
                     section class="tool-hero" {
                         h1 { (meta.h1) }
@@ -297,6 +305,22 @@ pub fn render_page(
                     section class="tool-content" {
                         (PreEscaped(content_html))
                     }
+                    // Internal links to the tag-nearest tools — crawlable
+                    // `<a href>`s that spread link equity across the catalog
+                    // and give readers a next step.
+                    @if !related.is_empty() {
+                        section class="tool-related" {
+                            h2 { "Related tools" }
+                            ul class="tool-related-list" {
+                                @for r in related {
+                                    li class="tool-related-item" {
+                                        a class="tool-related-link" href=(format!("/tools/{}/", r.slug)) { (r.h1) }
+                                        p class="tool-related-desc" { (r.description) }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     section class="tool-dev-group" {
                         h2 { "Developer & Automation Access" }
                         div class="tool-dev-grid" {
@@ -392,6 +416,18 @@ const TOOL_CLI_CSS: &str = r#"
 .tool-cli-note { font-size: .85rem; margin: 12px 0 0; color: var(--tool-muted, #6b7280); margin-top: auto; padding-top: 10px; }
 "#;
 
+/// Inline styles for the per-tool "Related tools" section (same card idiom as
+/// the CLI block above; only emitted when the section renders).
+const TOOL_RELATED_CSS: &str = r#"
+.tool-related { max-width: 720px; margin: 48px auto 0; }
+.tool-related h2 { font-size: 1.3rem; margin: 0 0 12px; color: var(--tool-ink, #0f172a); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+.tool-related-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.tool-related-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.tool-related-link { font-weight: 650; color: var(--tool-accent, #4f46e5); text-decoration: none; }
+.tool-related-link:hover, .tool-related-link:focus-visible { text-decoration: underline; }
+.tool-related-desc { margin: 4px 0 0; font-size: .9rem; color: var(--tool-muted, #6b7280); line-height: 1.45; }
+"#;
+
 /// Inline styles for the `/tools/` landing grid (uses the `--tool-*` tokens
 /// from `tool.css`, with literal fallbacks matching them).
 const TOOLS_INDEX_CSS: &str = r#"
@@ -411,6 +447,14 @@ const TOOLS_INDEX_CSS: &str = r#"
 .tools-index__search input:focus { border-color: var(--tool-accent, #4f46e5); box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
 .tools-index__empty { text-align: center; color: var(--tool-muted, #6b7280); margin: 24px 0 8px; }
 .tools-grid li[hidden] { display: none; }
+.tools-cats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 0 0 28px; }
+.tools-cats__link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #e5e7eb; border-radius: 999px; background: #fff; text-decoration: none; color: var(--tool-ink, #0f172a); font-size: .88rem; transition: border-color .15s, color .15s; }
+.tools-cats__link:hover, .tools-cats__link:focus-visible { border-color: var(--tool-accent, #4f46e5); color: var(--tool-accent, #4f46e5); }
+.tools-cats__link[aria-current="page"] { border-color: var(--tool-accent, #4f46e5); background: rgba(79,70,229,.08); color: var(--tool-accent, #4f46e5); }
+.tools-cats__count { font-size: .75rem; color: var(--tool-muted, #6b7280); }
+.tools-breadcrumb { font-size: .85rem; color: var(--tool-muted, #6b7280); margin: 0 0 10px; }
+.tools-breadcrumb a { color: inherit; text-decoration: none; }
+.tools-breadcrumb a:hover { text-decoration: underline; }
 "#;
 
 /// Client-side filter for the `/tools/` grid — reuses `filterTools` from
@@ -441,19 +485,43 @@ async function apply() {
 input.addEventListener('input', apply);
 "#;
 
-/// Render the `/tools/` landing page: shared chrome + a responsive card grid of
-/// every tool that has a page. Built from the same `ToolMeta` slice as the
-/// per-tool pages and `_index.json` — one source of truth, no drift.
-pub fn render_tools_index(metas: &[ToolMeta]) -> String {
-    let canonical = "https://gizza.ai/tools/";
-    let title = "All Tools — gizza.ai";
-    let description = "Browse every gizza.ai tool — free, private, browser-local utilities. \
-        No sign-up, nothing leaves your device, works offline.";
-    // JSON-LD ItemList of the tools (SEO); `</`-neutralized like the other pages.
-    let item_list = serde_json::json!({
+/// The shared `<head>` SEO cluster for the `/tools/` landing and category hub
+/// pages: title/description/canonical, OG + twitter card tags and relative
+/// stylesheet/icon links (both pages get their chrome assets copied alongside).
+fn index_head_meta(title: &str, description: &str, canonical: &str, og_image: &str) -> Markup {
+    html! {
+        meta charset="utf-8";
+        meta name="viewport" content="width=device-width, initial-scale=1";
+        title { (title) }
+        meta name="description" content=(description);
+        link rel="canonical" href=(canonical);
+        meta property="og:type" content="website";
+        meta property="og:title" content=(title);
+        meta property="og:description" content=(description);
+        meta property="og:url" content=(canonical);
+        meta property="og:image" content=(og_image);
+        meta property="og:image:width" content="1200";
+        meta property="og:image:height" content="630";
+        meta property="og:image:alt" content=(title);
+        meta name="twitter:card" content="summary_large_image";
+        meta name="twitter:title" content=(title);
+        meta name="twitter:description" content=(description);
+        meta name="twitter:image" content=(og_image);
+        link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
+        link rel="stylesheet" href="./tool.css";
+        link rel="stylesheet" href="./header.css";
+        link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
+        style { (PreEscaped(TOOLS_INDEX_CSS)) }
+    }
+}
+
+/// ItemList JSON-LD for a set of tool cards, `</`-neutralized like the other
+/// JSON-LD blobs. Shared by the landing page and the category hubs.
+fn item_list_json_ld(name: &str, metas: &[&ToolMeta]) -> String {
+    serde_json::json!({
         "@context": "https://schema.org",
         "@type": "ItemList",
-        "name": "gizza.ai tools",
+        "name": name,
         "itemListElement": metas.iter().enumerate().map(|(i, m)| serde_json::json!({
             "@type": "ListItem",
             "position": i + 1,
@@ -462,34 +530,68 @@ pub fn render_tools_index(metas: &[ToolMeta]) -> String {
         })).collect::<Vec<_>>(),
     })
     .to_string()
-    .replace("</", "<\\/");
+    .replace("</", "<\\/")
+}
+
+/// The server-rendered tool-card grid (crawlable `<a href>` per tool) —
+/// shared by the `/tools/` landing and the category hub pages. `data-slug`
+/// is what the landing's client-side filter keys on.
+fn tools_grid(metas: &[&ToolMeta]) -> Markup {
+    html! {
+        ul #tools-grid class="tools-grid" {
+            @for m in metas {
+                li data-slug=(m.slug) {
+                    a class="tools-card" href=(format!("/tools/{}/", m.slug)) {
+                        h2 class="tools-card__title" { (m.h1) }
+                        p class="tools-card__desc" { (m.description) }
+                        @if !m.tags.is_empty() {
+                            div class="tools-card__tags" {
+                                @for t in m.tags.iter().take(3) {
+                                    span class="tools-card__tag" { (t) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Crawlable category-hub nav (title + tool count per hub), shared by the
+/// landing page and the hubs themselves; `current` marks the open hub.
+fn category_nav(hubs: &[Hub], current: Option<&str>) -> Markup {
+    html! {
+        nav class="tools-cats" aria-label="Tool categories" {
+            @for hub in hubs {
+                @let is_current = current == Some(hub.category.slug);
+                a class="tools-cats__link" href=(format!("/tools/{}/", hub.category.slug))
+                  aria-current=[is_current.then_some("page")] {
+                    (hub.category.title)
+                    span class="tools-cats__count" { (hub.members.len()) }
+                }
+            }
+        }
+    }
+}
+
+/// Render the `/tools/` landing page: shared chrome + a category nav + a
+/// responsive card grid of every tool that has a page. Built from the same
+/// `ToolMeta` slice as the per-tool pages and `_index.json` — one source of
+/// truth, no drift.
+pub fn render_tools_index(metas: &[ToolMeta], hubs: &[Hub]) -> String {
+    let canonical = "https://gizza.ai/tools/";
+    let title = "All Tools — gizza.ai";
+    let description = "Browse every gizza.ai tool — free, private, browser-local utilities. \
+        No sign-up, nothing leaves your device, works offline.";
+    let refs: Vec<&ToolMeta> = metas.iter().collect();
+    let item_list = item_list_json_ld("gizza.ai tools", &refs);
 
     let markup = html! {
         (DOCTYPE)
         html lang="en" {
             head {
-                meta charset="utf-8";
-                meta name="viewport" content="width=device-width, initial-scale=1";
-                title { (title) }
-                meta name="description" content=(description);
-                link rel="canonical" href=(canonical);
-                meta property="og:type" content="website";
-                meta property="og:title" content=(title);
-                meta property="og:description" content=(description);
-                meta property="og:url" content=(canonical);
-                meta property="og:image" content="https://gizza.ai/tools/og.png";
-                meta property="og:image:width" content="1200";
-                meta property="og:image:height" content="630";
-                meta property="og:image:alt" content=(title);
-                meta name="twitter:card" content="summary_large_image";
-                meta name="twitter:title" content=(title);
-                meta name="twitter:description" content=(description);
-                meta name="twitter:image" content="https://gizza.ai/tools/og.png";
-                link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
-                link rel="stylesheet" href="./tool.css";
-                link rel="stylesheet" href="./header.css";
-                link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
-                style { (PreEscaped(TOOLS_INDEX_CSS)) }
+                (index_head_meta(title, description, canonical, "https://gizza.ai/tools/og.png"))
                 script type="application/ld+json" { (PreEscaped(item_list)) }
                 script type="application/ld+json" {
                     (PreEscaped(breadcrumbs_json_ld(&[
@@ -500,15 +602,7 @@ pub fn render_tools_index(metas: &[ToolMeta]) -> String {
                 script type="module" src="./header.js" {}
             }
             body {
-                ({
-                    let brand = html! {
-                        a.tool-brand href="https://gizza.ai" {
-                            img src="/logo.webp" alt="gizza.ai logo";
-                            span { "gizza.ai" }
-                        }
-                    };
-                    chrome_header(brand, Active::Tool)
-                })
+                (chrome_header(brand_link(), Active::Tool))
                 main class="tools-index" {
                     section class="tools-index__hero" {
                         h1 { "All tools" }
@@ -522,29 +616,65 @@ pub fn render_tools_index(metas: &[ToolMeta]) -> String {
                                   aria-label="Search tools";
                         }
                     }
+                    // Category hubs — crawlable links with per-hub tool counts.
+                    (category_nav(hubs, None))
                     // Cards are server-rendered (crawlable for SEO); the filter
                     // below just shows/hides them client-side via filterTools.
-                    ul #tools-grid class="tools-grid" {
-                        @for m in metas {
-                            li data-slug=(m.slug) {
-                                a class="tools-card" href=(format!("/tools/{}/", m.slug)) {
-                                    h2 class="tools-card__title" { (m.h1) }
-                                    p class="tools-card__desc" { (m.description) }
-                                    @if !m.tags.is_empty() {
-                                        div class="tools-card__tags" {
-                                            @for t in m.tags.iter().take(3) {
-                                                span class="tools-card__tag" { (t) }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    (tools_grid(&refs))
                     p #tools-empty class="tools-index__empty" hidden { "No tools match your search." }
                 }
                 (chrome_footer())
                 script type="module" { (PreEscaped(TOOLS_FILTER_JS)) }
+            }
+        }
+    };
+    markup.into_string()
+}
+
+/// Render a category hub page at `/tools/<category>/`: the category's title,
+/// blurb and member-card grid, with its own canonical/OG/ItemList/breadcrumb
+/// SEO head, a visible breadcrumb back to `/tools/`, and the sibling-category
+/// nav. No client-side filter here — that stays a landing-page affordance
+/// (its `_index.json` fetch is relative to `/tools/`).
+pub fn render_category_hub(hub: &Hub, all_hubs: &[Hub]) -> String {
+    let cat = hub.category;
+    let canonical = format!("https://gizza.ai/tools/{}/", cat.slug);
+    let title = format!("{} — gizza.ai", cat.title);
+    let og_image = format!("https://gizza.ai/tools/{}/og.png", cat.slug);
+    let item_list = item_list_json_ld(cat.title, &hub.members);
+    let breadcrumbs = breadcrumbs_json_ld(&[
+        ("Home", "https://gizza.ai/"),
+        ("Tools", "https://gizza.ai/tools/"),
+        (cat.title, &canonical),
+    ]);
+
+    let markup = html! {
+        (DOCTYPE)
+        html lang="en" {
+            head {
+                (index_head_meta(&title, cat.blurb, &canonical, &og_image))
+                script type="application/ld+json" { (PreEscaped(item_list)) }
+                script type="application/ld+json" { (PreEscaped(breadcrumbs)) }
+                script type="module" src="./header.js" {}
+            }
+            body {
+                (chrome_header(brand_link(), Active::Tool))
+                main class="tools-index" {
+                    section class="tools-index__hero" {
+                        p class="tools-breadcrumb" {
+                            a href="/" { "Home" }
+                            " › "
+                            a href="/tools/" { "All tools" }
+                            " › "
+                            span { (cat.title) }
+                        }
+                        h1 { (cat.title) }
+                        p class="tools-index__sub" { (cat.blurb) }
+                    }
+                    (category_nav(all_hubs, Some(cat.slug)))
+                    (tools_grid(&hub.members))
+                }
+                (chrome_footer())
             }
         }
     };
@@ -582,7 +712,7 @@ source      = "field"
 
     #[test]
     fn includes_seo_head_and_widget() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(html.contains("<title>Free Online Calculator — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/calculator/">"#));
         assert!(
@@ -598,7 +728,7 @@ source      = "field"
 
     #[test]
     fn emits_per_tool_og_image_and_breadcrumbs() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(
             html.contains(r#"content="https://gizza.ai/tools/calculator/og.png""#),
             "og:image + twitter:image point at the per-tool card"
@@ -617,11 +747,11 @@ source      = "field"
     fn faq_json_ld_mirrors_content_faq_section() {
         let with_faq = "<h2>FAQ</h2>\
             <details><summary>Is it private?</summary><p>Yes — runs locally.</p></details>";
-        let html = render_page(&sample(), with_faq, &ParamSchema::empty(), false, false);
+        let html = render_page(&sample(), with_faq, &ParamSchema::empty(), false, false, &[]);
         assert!(html.contains(r#""@type":"FAQPage""#), "FAQPage JSON-LD present");
         assert!(html.contains(r#""name":"Is it private?""#));
 
-        let without = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let without = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(
             !without.contains("FAQPage"),
             "no FAQPage block when the page has no FAQ section"
@@ -630,7 +760,7 @@ source      = "field"
 
     #[test]
     fn page_documents_query_param_deep_link() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(html.contains("Open it by URL"), "deep-link section present");
         assert!(
             html.contains("https://gizza.ai/tools/calculator/?expr="),
@@ -640,7 +770,7 @@ source      = "field"
 
     #[test]
     fn includes_shared_chrome_header_and_footer() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         // Shared header markers from gizza-chrome
         assert!(
             html.contains(r#"id="explore-search""#),
@@ -664,7 +794,9 @@ source      = "field"
 
     #[test]
     fn tools_index_lists_all_tools_with_chrome() {
-        let html = render_tools_index(&[sample()]);
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_tools_index(&metas, &hubs);
         // landing-page SEO + shared chrome
         assert!(html.contains("<title>All Tools — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/">"#));
@@ -683,6 +815,105 @@ source      = "field"
         assert!(html.contains(r#"content="https://gizza.ai/tools/og.png""#));
         assert!(html.contains(r#"name="twitter:card" content="summary_large_image""#));
         assert!(html.contains(r#""@type":"BreadcrumbList""#));
+    }
+
+    #[test]
+    fn tools_index_renders_category_nav_with_counts() {
+        // sample() ("calculator", no tags) lands in math via its slug word.
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_tools_index(&metas, &hubs);
+        assert!(
+            html.contains(r#"<nav class="tools-cats" aria-label="Tool categories">"#),
+            "category nav present above the grid"
+        );
+        assert!(
+            html.contains(r#"<a class="tools-cats__link" href="/tools/math/""#),
+            "crawlable hub link"
+        );
+        assert!(
+            html.contains(r#"Math &amp; statistics tools<span class="tools-cats__count">1</span>"#),
+            "hub link shows the title and tool count"
+        );
+        // the nav renders BEFORE the card grid
+        let nav = html.find(r#"<nav class="tools-cats""#).unwrap();
+        let grid = html.find(r#"data-slug="calculator""#).unwrap();
+        assert!(nav < grid, "category nav sits above the grid");
+    }
+
+    #[test]
+    fn category_hub_page_has_seo_head_grid_and_nav() {
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let hub = &hubs[0];
+        assert_eq!(hub.category.slug, "math");
+        let html = render_category_hub(hub, &hubs);
+        // SEO head: canonical, description, per-hub og card
+        assert!(html.contains("<title>Math &amp; statistics tools — gizza.ai</title>"));
+        assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/math/">"#));
+        assert!(html.contains(r#"content="https://gizza.ai/tools/math/og.png""#), "per-hub og.png");
+        assert!(html.contains(r#"name="description" content="Calculators"#), "blurb as meta description");
+        // JSON-LD: member ItemList + Home › Tools › Category breadcrumbs
+        assert!(html.contains(r#""@type":"ItemList""#));
+        assert!(html.contains(r#""url":"https://gizza.ai/tools/calculator/""#), "member in ItemList");
+        assert!(html.contains(r#""@type":"BreadcrumbList""#));
+        // serde_json orders keys alphabetically: item precedes name
+        assert!(html.contains(r#""item":"https://gizza.ai/tools/math/","name":"Math & statistics tools""#));
+        // hero: h1 = category title + blurb, visible breadcrumb back to /tools/
+        assert!(html.contains("<h1>Math &amp; statistics tools</h1>"));
+        assert!(html.contains(r#"<a href="/tools/">All tools</a>"#), "links back to the landing");
+        // member card grid, crawlable
+        assert!(html.contains(r#"<a class="tools-card" href="/tools/calculator/""#));
+        assert!(html.contains("Free Online Calculator"));
+        // sibling nav marks the current hub
+        assert!(html.contains(r#"href="/tools/math/" aria-current="page""#));
+        // no client-side filter here — its _index.json fetch is landing-relative
+        assert!(!html.contains(r#"id="tools-filter""#), "no search filter on hub pages");
+        // shared chrome
+        assert!(html.contains(r#"id="explore-search""#), "shared header present");
+        assert!(html.contains("Resources"), "shared footer present");
+    }
+
+    #[test]
+    fn related_tools_section_renders_between_content_and_dev_access() {
+        let related_meta = ToolMeta::from_toml(
+            r#"
+slug          = "percentage-calculator"
+title         = "t"
+description   = "Work out percentages instantly."
+h1            = "Percentage Calculator"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "run"
+output_label  = "o"
+format        = "text"
+"#,
+        )
+        .unwrap();
+        let related = vec![&related_meta];
+        let html =
+            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &related);
+        assert!(html.contains(r#"<section class="tool-related">"#), "related section present");
+        assert!(html.contains("<h2>Related tools</h2>"));
+        assert!(
+            html.contains(r#"<a class="tool-related-link" href="/tools/percentage-calculator/">Percentage Calculator</a>"#),
+            "linked title"
+        );
+        assert!(
+            html.contains(r#"<p class="tool-related-desc">Work out percentages instantly.</p>"#),
+            "one-line description"
+        );
+        assert!(html.contains(".tool-related-list"), "related CSS emitted");
+        // placement: content → related → Developer & Automation Access
+        let content = html.find(r#"class="tool-content""#).unwrap();
+        let related_at = html.find(r#"class="tool-related""#).unwrap();
+        let dev = html.find("Developer &amp; Automation Access").unwrap();
+        assert!(content < related_at && related_at < dev, "related sits between content and dev access");
+
+        // no related tools → neither the section nor its CSS
+        let html =
+            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        assert!(!html.contains("tool-related"), "no empty related section");
     }
 
     fn ffmpeg_sample() -> ToolMeta {
@@ -758,7 +989,7 @@ params = { birthdate = "1990-04-15" }
 
     #[test]
     fn renders_declarative_controls_examples_and_widget_chrome() {
-        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         // meta kind="date" → native picker, no per-tool JS type-swapping
         assert!(html.contains(r#"id="in-birthdate" class="tool-input" type="date""#), "date picker rendered");
         // meta options="timezones" → datalist autocomplete
@@ -823,7 +1054,7 @@ label       = "Gain"
             "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
             "gain": { "type": "number", "minimum": -60, "maximum": 60 }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[]);
         // kind="slider" → a range input mirroring the canonical number box
         assert!(html.contains(r#"id="in-semitones-slider""#), "slider rendered");
         assert!(html.contains(r#"data-for="in-semitones""#), "slider targets its number box");
@@ -883,7 +1114,7 @@ kind        = "color"
             "color": { "type": "string", "default": "#4f46e5" },
             "background": { "type": "string" }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[]);
         // kind="color" → a native swatch mirroring the canonical TEXT input
         assert!(html.contains(r##"id="in-color-swatch""##), "swatch rendered");
         assert!(html.contains(r##"data-for="in-color""##), "swatch targets its text input");
@@ -933,7 +1164,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         let schema = ParamSchema::from_props_for_tests(serde_json::json!({
             "aspect": { "type": "string", "enum": ["9:16", "1:1", "16:9"], "default": "9:16" }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false);
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[]);
         // labeled options: canonical value attr + enriched visible text
         assert!(
             html.contains(r#"<option value="9:16" selected>9:16 — Reels / Shorts / TikTok (1080×1920)</option>"#),
@@ -949,7 +1180,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
 
     #[test]
     fn media_tools_get_reset_but_not_copy_result() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(html.contains(r#"id="tool-reset""#), "reset present (has fields)");
         assert!(!html.contains(r#"id="tool-copy-output""#), "no copy-result on media output");
     }
@@ -959,7 +1190,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         // ffmpeg_sample() is format="image" → the Copy-image button is rendered
         // (hidden, next to the download link), so a result can be copied to the
         // clipboard as PNG by tool.js.
-        let image_html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let image_html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(
             image_html.contains(r#"id="tool-copy-image""#),
             "image-output page renders the Copy-image button"
@@ -991,7 +1222,7 @@ accept = "video/*"
 "#,
         )
         .unwrap();
-        let video_html = render_page(&video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let video_html = render_page(&video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(
             !video_html.contains(r#"id="tool-copy-image""#),
             "video-output page must not render the Copy-image button"
@@ -1018,14 +1249,14 @@ accept = "audio/*"
 "#,
         )
         .unwrap();
-        let audio_html = render_page(&audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let audio_html = render_page(&audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(
             !audio_html.contains(r#"id="tool-copy-image""#),
             "audio-output page must not render the Copy-image button"
         );
 
         // Text output (declarative_sample is format="text") must NOT get it.
-        let text_html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let text_html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(
             !text_html.contains(r#"id="tool-copy-image""#),
             "text-output page must not render the Copy-image button"
@@ -1034,7 +1265,7 @@ accept = "audio/*"
 
     #[test]
     fn renders_file_input_and_media_output() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
         assert!(html.contains(r#"type="file""#), "file input present");
         assert!(html.contains(r#"id="in-image""#), "file input id");
         assert!(html.contains(r#"accept="image/*""#), "accept attr");

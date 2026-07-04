@@ -9,8 +9,14 @@ use crate::meta::{Input, ToolMeta};
 const SITE: &str = "https://gizza.ai";
 
 /// Render a tool's `index.md`: a generated header (description, run-it, inputs,
-/// output) followed by the tool's prose `content.md`, verbatim.
-pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) -> String {
+/// output) followed by the tool's prose `content.md`, verbatim, and a
+/// "Related tools" link list (same top-5 as the HTML page).
+pub fn tool_markdown(
+    meta: &ToolMeta,
+    content_md: &str,
+    schema: &ParamSchema,
+    related: &[&ToolMeta],
+) -> String {
     let mut s = String::new();
     s.push_str(&format!("# {}\n\n", meta.h1));
     s.push_str(&format!("{}\n\n", meta.description));
@@ -63,6 +69,16 @@ pub fn tool_markdown(meta: &ToolMeta, content_md: &str, schema: &ParamSchema) ->
     s.push_str("---\n\n");
     s.push_str(content_md.trim_end());
     s.push('\n');
+
+    if !related.is_empty() {
+        s.push_str("\n## Related tools\n\n");
+        for r in related {
+            s.push_str(&format!(
+                "- [{}]({}/tools/{}/): {}\n",
+                r.h1, SITE, r.slug, r.description
+            ));
+        }
+    }
     s
 }
 
@@ -298,7 +314,7 @@ source = "clock"
 
     #[test]
     fn field_tool_has_header_runit_inputs_output_prose() {
-        let md = tool_markdown(&field_tool(), "Some **prose** about the calculator.", &crate::control::ParamSchema::empty());
+        let md = tool_markdown(&field_tool(), "Some **prose** about the calculator.", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("# Free Online Calculator"));
         assert!(md.contains("`gizza tool calculator \"2 + 2 * 3\"`"), "CLI example");
         assert!(md.contains("https://gizza.ai/tools/calculator/"), "web URL");
@@ -309,7 +325,7 @@ source = "clock"
 
     #[test]
     fn file_tool_uses_url_example_and_accept() {
-        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty());
+        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(
             md.contains("`gizza tool image-grayscale 'url=https://example.com/input'`"),
             "url= CLI example"
@@ -410,14 +426,53 @@ placeholder = "cotton, linen"
 
     #[test]
     fn live_tool_takes_no_manual_arguments() {
-        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty());
+        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("`gizza tool clock`"), "no-arg CLI example");
         assert!(md.contains("_no manual inputs — runs automatically_"), "no manual inputs note");
     }
 
     #[test]
+    fn related_tools_appended_as_markdown_link_list() {
+        let percentage = ToolMeta::from_toml(
+            r#"
+slug          = "percentage-calculator"
+title         = "t"
+description   = "Work out percentages instantly."
+h1            = "Percentage Calculator"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "run"
+output_label  = "o"
+format        = "text"
+"#,
+        )
+        .unwrap();
+        let related = vec![&percentage];
+        let md = tool_markdown(
+            &field_tool(),
+            "prose",
+            &crate::control::ParamSchema::empty(),
+            &related,
+        );
+        assert!(md.contains("## Related tools"), "related section present");
+        assert!(
+            md.contains(
+                "- [Percentage Calculator](https://gizza.ai/tools/percentage-calculator/): \
+                 Work out percentages instantly."
+            ),
+            "related entry is an absolute markdown link with the description"
+        );
+        // the section comes AFTER the prose content
+        assert!(md.find("prose").unwrap() < md.find("## Related tools").unwrap());
+
+        // no related tools → no empty section
+        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        assert!(!md.contains("## Related tools"));
+    }
+
+    #[test]
     fn field_tool_documents_query_parameters_with_example() {
-        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty());
+        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("## Query parameters"), "query-params section present");
         assert!(md.contains("- `expr`"), "field param listed");
         assert!(
@@ -428,7 +483,7 @@ placeholder = "cotton, linen"
 
     #[test]
     fn file_tool_documents_url_query_parameter() {
-        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty());
+        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("## Query parameters"));
         assert!(md.contains("- `url`"), "media tools document ?url=");
     }
@@ -436,7 +491,7 @@ placeholder = "cotton, linen"
     #[test]
     fn live_tool_has_no_query_parameters_section() {
         // clock has only a "clock" input — nothing to deep-link.
-        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty());
+        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(!md.contains("## Query parameters"), "no query-params for auto-only tools");
     }
 }
