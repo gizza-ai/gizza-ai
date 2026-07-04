@@ -34,6 +34,12 @@ gizza tool image-resize url=https://…/cat.png width=640 --out cat.png
 `0` ok · `1` tool error · `2` usage / bad args · `3` unsupported in the CLI (e.g. GPU
 tools like `imagine`, which need a browser GPU).
 
+## MCP server
+
+`gizza mcp` serves the same tool set over the Model Context Protocol (stdio,
+newline-delimited JSON-RPC) — register it with an MCP client instead of shelling out:
+`claude mcp add gizza -- /path/to/gizza mcp`. See `cli/README.md` for details.
+
 ## Notes
 
 - Image/video tools shell out to the system `ffmpeg` binary — install it to use them.

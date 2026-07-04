@@ -25,7 +25,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 base64 = "0.22"
 clap = { version = "4", features = ["derive"] }
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+# io-std + io-util: async stdin line-reader for the `gizza mcp` stdio server.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-std", "io-util"] }
 anyhow = "1"
 tempfile = "3"
 async-trait = "0.1"
