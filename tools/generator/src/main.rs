@@ -6,9 +6,11 @@
 //! `blocks/<tool>/web/pkg/`.
 
 mod control;
+mod faq;
 mod index;
 mod markdown;
 mod meta;
+mod og;
 mod template;
 mod vocab;
 
@@ -34,6 +36,8 @@ fn run() -> Result<(), String> {
     if metas.is_empty() {
         eprintln!("no tool pages found (no blocks/*/page/meta.toml)");
     }
+
+    let og_renderer = og::OgRenderer::new();
 
     for (tool_dir, m) in &metas {
         let out = pkg_tools.join(&m.slug);
@@ -62,6 +66,9 @@ fn run() -> Result<(), String> {
             .map_err(|e| format!("write index.html: {e}"))?;
         fs::write(out.join("index.md"), markdown::tool_markdown(m, &content_md, &schema))
             .map_err(|e| format!("write index.md: {e}"))?;
+        // Per-tool Open Graph card — the page's og:image/twitter:image target.
+        fs::write(out.join("og.png"), og_renderer.tool_card(m)?)
+            .map_err(|e| format!("write og.png: {e}"))?;
 
         let web_pkg = tool_dir.join("web/pkg");
         let js_path = web_pkg.join(format!("{}.js", m.wasm));
@@ -115,6 +122,8 @@ fn run() -> Result<(), String> {
     copy_file(&root.join("site/header.css"), &pkg_tools.join("header.css"))?;
     copy_file(&root.join("site/header.js"), &pkg_tools.join("header.js"))?;
     copy_file(&root.join("site/tools-index.js"), &pkg_tools.join("tools-index.js"))?;
+    fs::write(pkg_tools.join("og.png"), og_renderer.index_card(metas_only.len())?)
+        .map_err(|e| format!("write tools/og.png: {e}"))?;
     eprintln!("rendered tools/ (landing page, {} tools)", metas_only.len());
 
     Ok(())

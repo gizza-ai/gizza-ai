@@ -37,6 +37,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: gizza-ai
+          # Full history: gen-seo.sh derives sitemap <lastmod> from git log.
+          fetch-depth: 0
 
       - name: Read solobase pin
         id: pin
