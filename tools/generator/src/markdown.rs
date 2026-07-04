@@ -23,7 +23,12 @@ pub fn tool_markdown(
 
     s.push_str("## Run it\n\n");
     s.push_str(&format!("- **CLI:** `{}`\n", cli_example(meta, schema)));
-    s.push_str(&format!("- **Web:** {}/tools/{}/\n\n", SITE, meta.slug));
+    s.push_str(&format!("- **Web:** {}/tools/{}/\n", SITE, meta.slug));
+    s.push_str(&format!(
+        "- **Agents:** machine-readable descriptor (parameters JSON Schema) at \
+         {}/tools/{}/tool.json\n\n",
+        SITE, meta.slug
+    ));
 
     s.push_str("## Inputs\n\n");
     let manual: Vec<&Input> = meta
@@ -321,6 +326,18 @@ source = "clock"
         assert!(md.contains("`expr` — Expression _(field)_"), "input listed");
         assert!(md.contains("Result (number)"), "output listed");
         assert!(md.contains("Some **prose** about the calculator."), "prose appended");
+    }
+
+    #[test]
+    fn run_it_mentions_the_machine_readable_descriptor() {
+        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        assert!(
+            md.contains(
+                "- **Agents:** machine-readable descriptor (parameters JSON Schema) at \
+                 https://gizza.ai/tools/calculator/tool.json"
+            ),
+            "Run it lists the tool.json descriptor"
+        );
     }
 
     #[test]
