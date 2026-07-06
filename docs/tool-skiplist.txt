@@ -160,3 +160,4 @@ phone-parser-formatter  # duplicate of blocks/phone-format: parses, validates, f
 ripemd160-hash  # duplicate of blocks/hash-all (already computes RIPEMD-160 for text, alongside other common digests; standalone text/file RIPEMD adds no distinct surface here)
 sql-beautify  # duplicate of blocks/sql-formatter (pretty-prints SQL with keyword_case upper/lower/preserve, configurable indent, and major clauses/select-items/AND-OR broken onto their own lines; same scope)
 temperature-converter  # duplicate of blocks/unit-converter (temperature category: celsius/fahrenheit/kelvin via affine to/from-base helpers)
+pdf-text-extractor  # duplicate of blocks/pdf-extract-text (extracts the selectable text layer from a PDF, per-page or all, preserving page boundaries/reading order as plain text; same scope as the pdf-to-text skip)
