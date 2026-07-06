@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "document-text-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract plain text from a PDF, DOCX, or EPUB document"
