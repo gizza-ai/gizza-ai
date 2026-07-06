@@ -165,8 +165,9 @@ jobs:
 
       - name: Deploy to Cloudflare Pages
         # workingDirectory is gizza-ai so wrangler finds the sibling `functions/`
-        # directory (the Pages Functions middleware that does the *.gizza.ai
-        # subdomain rewrite) next to the deployed `pkg/` assets.
+        # directory (the Pages Functions middleware that 301-redirects the
+        # gizza-ai.pages.dev project subdomain to the canonical gizza.ai
+        # domain) next to the deployed `pkg/` assets.
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
