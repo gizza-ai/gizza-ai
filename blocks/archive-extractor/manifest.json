@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/archive-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-detect and extract zip, tar, gzip, bzip2, xz, zstd, and lz4 archives",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Auto-detect and extract an archive, returning every file repacked as a single ZIP. The format is detected from the archive's bytes (no filename needed): zip, tar, gzip (.gz), bzip2 (.bz2), xz (.xz), zstd (.zst), and lz4, including the layered .tar.gz / .tar.bz2 / .tar.xz / .tar.zst / .tar.lz4 family. The response lists every member (files and directories). Provide the archive as either url (HTTP/HTTPS) or ref (id from a prior tool call). Paths are sanitized (no absolute paths or '..' traversal).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "File URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}
