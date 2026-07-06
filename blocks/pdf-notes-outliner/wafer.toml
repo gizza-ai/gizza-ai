@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-notes-outliner"
+version = "0.1.0"
+abi = 1
+summary = "Outline a PDF's headings with per-section summaries"
