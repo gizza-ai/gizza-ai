@@ -101,6 +101,7 @@ sfx-generator  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* 
 sound-classify  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 speaker-diarize  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 speech-to-text-transcriber  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
+multilingual-speech-to-text  # ML ASR: CSV feasibility is transformers-js Whisper (Xenova/whisper-base) on onnxruntime-web + audio-INPUT. No pure-Rust/ffmpeg transcription path (ffmpeg only decodes/resamples, it does not transcribe) and no AssetKind::Audio chat surface. Out of gizza pure+ffmpeg model. (Picker false-negative: feasibility says "ffmpeg handles audio decode" which trips the IN_MODEL regex and rescues a Whisper ASR row into in-model; core capability is ASR.)
 spoken-language-detect  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 stem-separator  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
 text-to-speech  # audio-INPUT (or ML) tool; no AssetKind::Audio + accept=audio/* page input and ffmpeg cannot run in chat -> no viable surface (deferred)
