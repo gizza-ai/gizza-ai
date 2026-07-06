@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-bg-replace"
+version = "0.1.0"
+abi = 1
+summary = "Chroma-key a photo's solid or green-screen background out and composite the subject onto a transparent, solid, or gradient background."
