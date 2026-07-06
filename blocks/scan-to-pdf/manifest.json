@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/scan-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn document photos into a cleaned, deskewed, high-contrast PDF scan.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Turn one or more phone photos of documents into a cleaned, deskewed, high-contrast multi-page PDF scan (one page per photo, in order). Each photo is a URL or a `ref` to an uploaded image (PNG/JPEG/WebP/GIF/BMP). Choose an enhancement mode (magic colour, grayscale, black & white, or plain colour), auto-straighten a small tilt, rotate for orientation, tune brightness/contrast, and pick the output page size (fit/A4/Letter). Note: does NOT do 4-corner auto-crop/perspective de-warp or OCR/searchable text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "brightness": {
+          "default": 0.0,
+          "description": "Brightness offset from -100 to 100 (0 = none). Positive brightens; in blackwhite mode it also keeps less ink (whiter background). Default 0.",
+          "maximum": 100,
+          "minimum": -100,
+          "type": "number"
+        },
+        "contrast": {
+          "default": 1.0,
+          "description": "Contrast multiplier around mid-grey (0.5–3.0, 1.0 = none). Applies in magic/grayscale/color modes; higher = punchier text. Default 1.0.",
+          "maximum": 3,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "deskew": {
+          "default": true,
+          "description": "Auto-straighten a small tilt (up to ±12°) by detecting the skew angle and rotating to undo it. Default true. Turn off to keep the photo's original angle.",
+          "type": "boolean"
+        },
+        "images": {
+          "description": "Ordered list of document-photo sources (PNG/JPEG/WebP/GIF/BMP). Each item has exactly one of `url` or `ref`. One cleaned page per photo, in order.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "mode": {
+          "default": "magic",
+          "description": "Enhancement filter. magic (default): whiten the paper, lift contrast + saturation for the everyday colour 'office scan'. grayscale: perception-weighted grey. blackwhite: adaptive local-mean threshold → crisp pure black-on-white, despeckled, for forms/contracts. color: keep colour, only apply brightness/contrast.",
+          "enum": [
+            "magic",
+            "grayscale",
+            "blackwhite",
+            "color"
+          ],
+          "type": "string"
+        },
+        "page_size": {
+          "default": "fit",
+          "description": "Output page size. fit (default): one page sized exactly to each photo. a4 / letter: scale each photo to fit a centred A4 (595×842 pt) or US Letter (612×792 pt) page.",
+          "enum": [
+            "fit",
+            "a4",
+            "letter"
+          ],
+          "type": "string"
+        },
+        "rotate": {
+          "default": "0",
+          "description": "Manual clockwise rotation in degrees for phone orientation, applied before deskew: 0 (default), 90, 180 or 270.",
+          "enum": [
+            "0",
+            "90",
+            "180",
+            "270"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}
