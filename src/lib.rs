@@ -22,12 +22,16 @@ use gizza_ai_block_utils::GIZZA_MAX_WASM_MEMORY_PAGES;
 #[cfg(target_arch = "wasm32")]
 use wafer_run::{FuelLimit, ResourceLimits};
 #[cfg(target_arch = "wasm32")]
+use wafer_block::types::BlockInfo;
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 pub mod blocks;
 #[cfg(target_arch = "wasm32")]
 pub mod config;
 pub mod ffmpeg;
+#[cfg(target_arch = "wasm32")]
+pub mod lazy_skill;
 pub mod skills;
 
 // ---------------------------------------------------------------------------
@@ -182,8 +186,10 @@ pub async fn initialize() -> Result<(), JsValue> {
 
     // 6b. Register the SW-side external-asset loader before start so any
     // block init that triggers an asset load sees the real loader (not
-    // the NoopAssetLoader default).
-    wafer.set_asset_loader(&solobase_browser::make_sw_asset_loader());
+    // the NoopAssetLoader default). The same loader is forwarded to each
+    // lazily-loaded skill block at load time (see step 6c / lazy_skill).
+    let asset_loader = solobase_browser::make_sw_asset_loader();
+    wafer.set_asset_loader(&asset_loader);
 
     // 6c. Register gizza-ai's native blocks (agent + ui) and every
     // embedded skill WASM from skills::SKILLS (produced by build.rs).
@@ -203,28 +209,36 @@ pub async fn initialize() -> Result<(), JsValue> {
         )
         .map_err(|e| JsValue::from_str(&format!("register gizza-ai/ffmpeg-runtime: {e}")))?;
 
-    for (name, bytes) in skills::SKILLS {
-        // gizza is a browser-local, single-user, trusted app: opt skill calls
-        // out of the default 100M fuel cap AND raise the 256-page / 16 MiB
-        // memory cap so heavy tools (e.g. the `phonenumber` crate, or the
-        // `syntect`+font `code-screenshot` render that needs ~24 MiB) run to
-        // completion instead of trapping with `all fuel consumed` (fuel) or
-        // `unreachable`/OOM (memory). The runtime here is built via
-        // `SolobaseBuilder` (which goes through `Wafer::new`, leaving the
-        // default metered/256-page caps), so we express the same policy
-        // explicitly at the load site — matching the CLI surface.
-        let wasmi = wafer_run::wasm::WasmiBlock::load_from_bytes_with_limits(
-            bytes,
-            ResourceLimits {
-                fuel: FuelLimit::Unmetered,
-                memory_pages: GIZZA_MAX_WASM_MEMORY_PAGES,
-            },
-        )
-        .map_err(|e| JsValue::from_str(&format!("loading skill {name}: {e}")))?;
+    // Register every skill as a lazy stub: its metadata (name, interface, tool
+    // spec, `requires`) comes from the embedded manifest.json, but the block
+    // wasm is fetched from `/blocks/<slug>.wasm` and instantiated only on the
+    // first invocation of that skill (see `lazy_skill`). Baking every block's
+    // wasm into the app cdylib grew `gizza_ai_bg.wasm` ~0.5 MiB per tool and
+    // blew past Cloudflare Pages' 25 MiB/file limit once ~47 blocks accumulated.
+    //
+    // gizza is a browser-local, single-user, trusted app: skill calls opt out
+    // of the default 100M fuel cap AND raise the 256-page / 16 MiB memory cap
+    // so heavy tools (e.g. the `phonenumber` crate, or the `syntect`+font
+    // `code-screenshot` render that needs ~24 MiB) run to completion instead of
+    // trapping with `all fuel consumed` (fuel) or `unreachable`/OOM (memory).
+    // The limits are applied when the wasm is instantiated in `lazy_skill`.
+    let skill_limits = ResourceLimits {
+        fuel: FuelLimit::Unmetered,
+        memory_pages: GIZZA_MAX_WASM_MEMORY_PAGES,
+    };
+    for &(slug, manifest_json) in skills::SKILLS {
+        let info: BlockInfo = serde_json::from_str(manifest_json)
+            .map_err(|e| JsValue::from_str(&format!("skill manifest {slug}: {e}")))?;
+        let name = info.name.clone();
+        let block = lazy_skill::LazySkillBlock::new(
+            info,
+            format!("/blocks/{slug}.wasm"),
+            skill_limits,
+            asset_loader.clone(),
+        );
         wafer
-            .register_block(*name, Arc::new(wasmi))
+            .register_block(&name, Arc::new(block))
             .map_err(|e| JsValue::from_str(&format!("registering skill {name}: {e}")))?;
-        web_sys::console::log_1(&format!("gizza-ai: skill '{name}' registered").into());
     }
 
     // 7. Seal the runtime.

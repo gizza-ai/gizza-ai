@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy_branch:
+        description: "Cloudflare Pages branch to deploy to. 'main' = production (gizza.ai); any other value deploys to a preview URL (<value>.gizza-ai.pages.dev) for testing without touching production."
+        required: false
+        default: main
 
 env:
   CARGO_HTTP_MULTIPLEXING: false
@@ -138,6 +143,25 @@ jobs:
           done
           cargo run --manifest-path tools/generator/Cargo.toml -- .
 
+      - name: Publish skill block wasm as static assets
+        # The chat app no longer embeds block wasm into gizza_ai_bg.wasm (see
+        # build.rs / src/lazy_skill.rs) — it fetches /blocks/<slug>.wasm on first
+        # use. Publish each committed block.wasm as a separate static asset so
+        # the app wasm stays small and under Cloudflare's 25 MiB/file limit
+        # regardless of how many tools accumulate.
+        working-directory: gizza-ai
+        run: |
+          set -euo pipefail
+          mkdir -p pkg/blocks
+          count=0
+          for wasm in blocks/*/target/block.wasm; do
+            [ -f "$wasm" ] || continue
+            slug="$(basename "$(dirname "$(dirname "$wasm")")")"
+            cp "$wasm" "pkg/blocks/$slug.wasm"
+            count=$((count + 1))
+          done
+          echo "Published $count skill block wasm assets to pkg/blocks/"
+
       - name: Build gizza CLI
         run: cargo install --path gizza-ai/cli
 
@@ -163,6 +187,23 @@ jobs:
             npx --yes wrangler@4.100.0 pages project create gizza-ai --production-branch=main
           fi
 
+      - name: Guard against oversized assets
+        # Cloudflare Pages rejects any single file > 25 MiB. Fail here with a
+        # clear message instead of cryptically at the wrangler upload — this is
+        # the failure mode that silently broke every deploy from 2026-07-03 on
+        # once the app wasm had embedded ~47 skill blocks (26 MiB).
+        working-directory: gizza-ai
+        run: |
+          set -euo pipefail
+          limit=$((25 * 1024 * 1024))
+          big="$(find pkg -type f -size +${limit}c -printf '%s\t%p\n' 2>/dev/null || true)"
+          if [ -n "$big" ]; then
+            echo "::error::Files exceed Cloudflare Pages' 25 MiB/file limit:"
+            echo "$big" | awk '{ printf "  %.1f MiB  %s\n", $1/1048576, $2 }'
+            exit 1
+          fi
+          echo "All pkg/ files are within Cloudflare Pages' 25 MiB/file limit."
+
       - name: Deploy to Cloudflare Pages
         # workingDirectory is gizza-ai so wrangler finds the sibling `functions/`
         # directory (the Pages Functions middleware that 301-redirects the
@@ -173,4 +214,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: gizza-ai
-          command: pages deploy pkg --project-name=gizza-ai --branch=main
+          command: pages deploy pkg --project-name=gizza-ai --branch=${{ github.event.inputs.deploy_branch || 'main' }}
