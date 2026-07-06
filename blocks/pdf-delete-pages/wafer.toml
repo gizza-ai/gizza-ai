@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-delete-pages"
+version = "0.1.0"
+abi = 1
+summary = "Remove specific pages from a PDF and keep the rest"
