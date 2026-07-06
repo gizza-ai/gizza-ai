@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-shrink-for-sharing"
+version = "0.1.0"
+abi = 1
+summary = "Downscale, strip metadata, and compress an image for sharing in one step."

@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/image-shrink-for-sharing",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Downscale, strip metadata, and compress an image for sharing in one step.",
+  "role": "skill",
+  "tool": {
+    "description": "Shrink an image for messaging or upload: downscale the longest side, strip EXIF/GPS metadata, and re-encode at a chosen quality (optionally converting format) in one pass. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Supports jpg/jpeg, png, webp.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "keep",
+          "description": "Output format: keep uses the input's format; jpeg and webp shrink photos most; png suits flat graphics/screenshots. Default keep.",
+          "enum": [
+            "keep",
+            "jpeg",
+            "png",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "max_dimension": {
+          "default": 1600,
+          "description": "Cap the longest side to this many pixels; aspect ratio is kept and the image is never upscaled. 0 keeps the original size. Default 1600.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "quality": {
+          "default": 80,
+          "description": "Re-encode quality from 1 (smallest file) to 100 (best looking). Default 80.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strip_metadata": {
+          "default": true,
+          "description": "Remove EXIF, GPS location and other metadata for privacy. Default true.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
