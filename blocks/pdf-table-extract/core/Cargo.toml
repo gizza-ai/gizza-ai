@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-pdf-table-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust PDF parser (no native libs). `default-features = false` drops
+# `rayon` (threads) and the `chrono`/`jiff`/`time` date crates, keeping the tree
+# thread-free so it links cleanly on wasm32-wasip1 (the `wafer build` target) —
+# same recipe pdf-extract-text uses. We read the content streams directly
+# (BT/Tf/Td/Tm/Tj) to recover per-run text coordinates, which lopdf's
+# convenience `extract_text` discards.
+lopdf = { version = "=0.36.0", default-features = false }
+# Emits the JSON output shape (array of per-page table objects).
+serde_json = "1"
