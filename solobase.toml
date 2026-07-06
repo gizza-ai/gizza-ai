@@ -13,7 +13,13 @@ opfs_wipe_on_recovery = true
 # (not prefix) because "/" can't be a startsWith prefix. Requires solobase
 # >= c67ba6f (extra_bypass_exact support).
 extra_bypass_exact = ["/", "/index.html"]
-extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/mascot.js", "/mascot.css", "/render.js", "/pending.js", "/gis.png", "/gis_no_eyes.png", "/gis_a_job_no_eyes.png", "/eye.png", "/gis_video_idle.mp4", "/gis_video_typing_loop.mp4", "/gis_video_typing_finish.mp4", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/logo.webp", "/model-picker.js", "/model-picker.css", "/tool.js", "/tool.css", "/tools/", "/tools-modal.js", "/tools-modal.css", "/ffmpeg-engine.js", "/ffmpeg.js", "/header.js", "/header.css", "/tools-index.js", "/sitemap.xml", "/robots.txt", "/llms.txt"]
+# `/blocks/` serves the per-skill wasm the chat app lazy-loads on first use
+# (see build.rs / src/lazy_skill.rs). Without this the SW routes /blocks/*.wasm
+# through the WAFER runtime, which has no such route and returns 404 — so a
+# skill's block would fail to fetch. (The app's own SW-internal fetch bypasses
+# the handler regardless, but a page-context fetch must resolve to the static
+# asset too, and relying on the bypass is fragile.)
+extra_bypass_prefix = ["/gizza-app.js", "/gizza.css", "/mascot.js", "/mascot.css", "/render.js", "/pending.js", "/gis.png", "/gis_no_eyes.png", "/gis_a_job_no_eyes.png", "/eye.png", "/gis_video_idle.mp4", "/gis_video_typing_loop.mp4", "/gis_video_typing_finish.mp4", "/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/logo.webp", "/model-picker.js", "/model-picker.css", "/tool.js", "/tool.css", "/tools/", "/tools-modal.js", "/tools-modal.css", "/ffmpeg-engine.js", "/ffmpeg.js", "/header.js", "/header.css", "/tools-index.js", "/sitemap.xml", "/robots.txt", "/llms.txt", "/blocks/"]
 
 [[assets.overlay]]
 from = "site/index.html"
