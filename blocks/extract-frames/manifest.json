@@ -1,0 +1,86 @@
+{
+  "name": "gizza-ai/extract-frames",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a contact sheet of video frames sampled by interval, fps or scene change",
+  "role": "skill",
+  "tool": {
+    "description": "Build a contact sheet (thumbnail grid) from a video: sample frames at a fixed interval (one frame every N seconds), a fixed fps (N frames per second), or at scene-change points, then tile them into a single columns x rows grid image. Use interval or fps to storyboard a clip evenly; use scene to capture cuts (scene mode always includes the opening frame, so even a cut-free clip yields a sheet). The sheet holds up to columns x rows thumbnails — the first grid's worth of sampled frames — so raise the interval or grid to cover a longer clip. Output is a single PNG (or JPG) image; a background color fills the grid gaps. Provide the video as either url (HTTP/HTTPS) or ref from a prior tool call. Note: chat ffmpeg is unavailable — runs on the standalone page and the CLI.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "white",
+          "description": "Grid gap/background color: a CSS color name (white, black, navy, ...) or hex like #1A2B3C or #f0a. Default white.",
+          "type": "string"
+        },
+        "columns": {
+          "default": 4,
+          "description": "Grid columns — thumbnails per row (1-8). Default 4.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format: png (lossless, crisp) or jpg (smaller). Default png.",
+          "enum": [
+            "png",
+            "jpg"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "interval",
+          "description": "How frames are chosen: interval = one frame every `value` seconds; fps = `value` frames sampled per second; scene = frames at scene-change points (plus the opening frame). Default interval.",
+          "enum": [
+            "interval",
+            "fps",
+            "scene"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rows": {
+          "default": 3,
+          "description": "Grid rows (1-8). Up to columns x rows thumbnails fit on the sheet; the first grid's worth of sampled frames is used. Default 3.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "value": {
+          "default": 2.0,
+          "description": "Rate/threshold for the chosen mode: seconds between frames for interval (e.g. 2), frames per second for fps (e.g. 1), or scene-change sensitivity 0-1 for scene (lower = more frames; typical 0.2-0.4). Default 2.",
+          "type": "number"
+        },
+        "width": {
+          "default": 240,
+          "description": "Width of each thumbnail in pixels (16-800); height follows the source aspect ratio. Default 240.",
+          "maximum": 800,
+          "minimum": 16,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
