@@ -1,0 +1,95 @@
+{
+  "name": "gizza-ai/image-bg-replace",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Chroma-key a photo's solid or green-screen background out and composite the subject onto a transparent, solid, or gradient background.",
+  "role": "skill",
+  "tool": {
+    "description": "Remove a photo's solid-color / green-screen background by chroma-keying a color, then composite the subject onto a transparent, solid, or two-color gradient background. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional key_color (name or hex, default #00ff00 green), similarity 0-100 (default 30), blend 0-100 (default 10), bg_type transparent|solid|gradient (default solid), bg_color (default #ffffff), bg_color2 for gradients (default #000000), direction vertical|horizontal (default vertical), and format png|webp|jpg|keep (default png). Works on solid/green/blue-screen backgrounds, not busy photos; no AI subject detection.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bg_color": {
+          "default": "#ffffff",
+          "description": "Solid fill color, or the START color of a gradient: a name or hex. Default #ffffff (white). Ignored when bg_type=transparent.",
+          "type": "string"
+        },
+        "bg_color2": {
+          "default": "#000000",
+          "description": "The END color of a gradient (only used when bg_type=gradient): a name or hex. Default #000000 (black).",
+          "type": "string"
+        },
+        "bg_type": {
+          "default": "solid",
+          "description": "New background: solid (default) fills a single color; gradient blends two colors; transparent keeps the cut-out alpha (needs png or webp output).",
+          "enum": [
+            "transparent",
+            "solid",
+            "gradient"
+          ],
+          "type": "string"
+        },
+        "blend": {
+          "default": 10.0,
+          "description": "Edge softness, 0-100. 0 gives a hard cut-out; higher values feather the cut-out edge to hide jaggies (and any color fringe). Default 10.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "direction": {
+          "default": "vertical",
+          "description": "Gradient direction (only used when bg_type=gradient): vertical (top→bottom, default) or horizontal (left→right).",
+          "enum": [
+            "vertical",
+            "horizontal"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output format: png (default, lossless, keeps transparency), webp (small, keeps transparency), jpg (small, no transparency), or keep (same container as the input). A transparent background needs png or webp.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "key_color": {
+          "default": "#00ff00",
+          "description": "Background color to remove (chroma key): a name (green, lime, blue, cyan, white, black, …) or hex like #00FF00 / #0F0. Default #00ff00 (green-screen green). Set it to your backdrop's color — this works on solid/green/blue-screen backgrounds, not busy photos.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "similarity": {
+          "default": 30.0,
+          "description": "How wide a range of colors near the key color counts as background, 0-100. Low (10-20) removes only near-exact matches; high (50+) also removes similar shades but may eat the subject. Default 30.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
