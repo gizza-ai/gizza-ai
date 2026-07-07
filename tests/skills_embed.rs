@@ -1,256 +1,47 @@
-#[test]
-fn clock_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/clock"),
-        "gizza-ai/clock should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/clock")
-        .expect("clock");
-    assert!(!bytes.is_empty(), "clock wasm bytes non-empty");
-    // Quick wasm magic-number check.
-    assert_eq!(&bytes[..4], b"\0asm", "clock bytes look like wasm");
-}
+//! Every core skill block must be compiled into `SKILLS` with its manifest.
+//!
+//! Since the lazy-load refactor (see `build.rs` / `src/lazy_skill.rs`), `SKILLS`
+//! holds `(slug, manifest.json)` — the block wasm is no longer embedded, it is
+//! fetched lazily from `/blocks/<slug>.wasm` on first use. So this asserts the
+//! manifest JSON is embedded, not the (no-longer-embedded) wasm bytes.
+
+/// Core skills that must always be built into the app. A missing entry means the
+/// block wasn't built before compiling (`blocks/<slug>/target/block.wasm` +
+/// `manifest.json` must both exist for `build.rs` to include it).
+const EXPECTED_SKILLS: &[&str] = &[
+    "clock",
+    "web-fetch",
+    "xlsx-to-csv",
+    "css-select-extract",
+    "ffmpeg",
+    "image-fetch",
+    "imagine",
+    "image-resize",
+    "image-crop",
+    "image-convert",
+    "image-compress",
+    "video-frame-extract",
+    "video-transcode",
+    "video-trim",
+    "video-compress",
+    "video-silence-cut",
+];
 
 #[test]
-fn web_fetch_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
+fn core_skills_are_embedded_with_manifests() {
+    for &slug in EXPECTED_SKILLS {
+        let (_, manifest) = gizza_ai::skills::SKILLS
             .iter()
-            .any(|(n, _)| *n == "gizza-ai/web-fetch"),
-        "gizza-ai/web-fetch should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/web-fetch")
-        .expect("web-fetch");
-    assert!(!bytes.is_empty(), "web-fetch wasm bytes non-empty");
-    assert_eq!(&bytes[..4], b"\0asm", "web-fetch bytes look like wasm");
-}
-
-#[test]
-fn xlsx_to_csv_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/xlsx-to-csv"),
-        "gizza-ai/xlsx-to-csv should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/xlsx-to-csv")
-        .expect("xlsx-to-csv");
-    assert!(!bytes.is_empty(), "xlsx-to-csv wasm bytes non-empty");
-    assert_eq!(&bytes[..4], b"\0asm", "xlsx-to-csv bytes look like wasm");
-}
-
-#[test]
-fn css_select_extract_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/css-select-extract"),
-        "gizza-ai/css-select-extract should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/css-select-extract")
-        .expect("css-select-extract");
-    assert!(!bytes.is_empty(), "css-select-extract wasm bytes non-empty");
-    assert_eq!(&bytes[..4], b"\0asm", "css-select-extract bytes look like wasm");
-}
-
-#[test]
-fn ffmpeg_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/ffmpeg"),
-        "gizza-ai/ffmpeg should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/ffmpeg")
-        .expect("ffmpeg");
-    assert!(!bytes.is_empty(), "ffmpeg wasm bytes non-empty");
-    assert_eq!(&bytes[..4], b"\0asm", "ffmpeg bytes look like wasm");
-}
-
-#[test]
-fn image_fetch_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/image-fetch"),
-        "gizza-ai/image-fetch should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/image-fetch")
-        .expect("image-fetch");
-    assert!(!bytes.is_empty(), "image-fetch wasm bytes non-empty");
-    assert_eq!(&bytes[..4], b"\0asm", "image-fetch bytes look like wasm");
-}
-
-#[test]
-fn imagine_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/imagine"),
-        "gizza-ai/imagine should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/imagine")
-        .expect("imagine");
-    assert!(!bytes.is_empty(), "imagine wasm bytes non-empty");
-    assert_eq!(&bytes[..4], b"\0asm", "imagine bytes look like wasm");
-}
-
-#[test]
-fn image_resize_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/image-resize"),
-        "gizza-ai/image-resize should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/image-resize")
-        .expect("image-resize");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn image_crop_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/image-crop"),
-        "gizza-ai/image-crop should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/image-crop")
-        .expect("image-crop");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn image_convert_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/image-convert"),
-        "gizza-ai/image-convert should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/image-convert")
-        .expect("image-convert");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn image_compress_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/image-compress"),
-        "gizza-ai/image-compress should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/image-compress")
-        .expect("image-compress");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn video_frame_extract_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/video-frame-extract"),
-        "gizza-ai/video-frame-extract should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/video-frame-extract")
-        .expect("video-frame-extract");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn video_transcode_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/video-transcode"),
-        "gizza-ai/video-transcode should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/video-transcode")
-        .expect("video-transcode");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn video_trim_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/video-trim"),
-        "gizza-ai/video-trim should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/video-trim")
-        .expect("video-trim");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn video_compress_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/video-compress"),
-        "gizza-ai/video-compress should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/video-compress")
-        .expect("video-compress");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
-}
-
-#[test]
-fn video_silence_cut_skill_is_embedded() {
-    assert!(
-        gizza_ai::skills::SKILLS
-            .iter()
-            .any(|(n, _)| *n == "gizza-ai/video-silence-cut"),
-        "gizza-ai/video-silence-cut should be embedded — did you forget to build the block first?"
-    );
-    let (_, bytes) = gizza_ai::skills::SKILLS
-        .iter()
-        .find(|(n, _)| *n == "gizza-ai/video-silence-cut")
-        .expect("video-silence-cut");
-    assert!(!bytes.is_empty());
-    assert_eq!(&bytes[..4], b"\0asm");
+            .find(|(name, _)| *name == slug)
+            .unwrap_or_else(|| {
+                panic!("{slug} should be embedded in SKILLS — did you forget to build the block first?")
+            });
+        assert!(!manifest.is_empty(), "{slug} manifest.json should be non-empty");
+        // The second tuple element is the block's manifest.json (a JSON object),
+        // not the wasm — the wasm is fetched lazily from /blocks/<slug>.wasm.
+        assert!(
+            manifest.trim_start().starts_with('{'),
+            "{slug} second SKILLS element should be manifest.json (wasm is fetched lazily, not embedded)"
+        );
+    }
 }
