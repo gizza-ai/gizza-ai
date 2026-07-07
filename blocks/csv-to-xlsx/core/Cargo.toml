@@ -1,0 +1,22 @@
+[package]
+name = "gizza-ai-csv-to-xlsx-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+# preserve_order: object keys keep their source order (JSON key / first-seen
+# order) instead of being alphabetized, so column order is stable.
+serde_json = { version = "1", features = ["preserve_order"] }
+# Pure-Rust .xlsx writer. Default features are empty and the zip/deflate backend
+# is pure Rust (miniz_oxide), so it instantiates under `wafer build`
+# (wasm32-wasip1) using the SystemTime clock wafer provides. The browser build
+# (wasm32-unknown-unknown) has no std clock, so the web crate turns on
+# rust_xlsxwriter's `wasm` feature (js_sys::Date::now) for that target only —
+# see ../web/Cargo.toml.
+rust_xlsxwriter = "0.79"
+
+[dev-dependencies]
+# Read the produced workbook back to assert cell values + native Excel types.
+calamine = { version = "0.26", default-features = false }
