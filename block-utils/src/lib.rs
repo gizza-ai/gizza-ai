@@ -725,6 +725,100 @@ pub fn build_media_envelope(
     serde_json::to_vec(&env).map_err(|e| SkillError::Serialize(format!("serialize envelope: {e}")))
 }
 
+/// Base64-encode bytes (standard alphabet). Used by ffmpeg-page `build_argv`s
+/// that ship extra virtual-FS files (a bundled font, a text file) to the page
+/// driver via [`ArgvPlanWithInputs`] — the browser ffmpeg FS starts empty, so
+/// a drawtext tool must hand it the font + text bytes alongside the media.
+pub fn encode_b64(bytes: &[u8]) -> String {
+    B64.encode(bytes)
+}
+
+/// The color names ffmpeg's own parser accepts (`ffmpeg -colors`, the standard
+/// CSS/X11 table), lower-cased. Validating against the same table means a bad
+/// color fails in the tool with a guiding message instead of deep inside
+/// ffmpeg — and the strict charset keeps a filtergraph string injection-free.
+pub const FFMPEG_COLOR_NAMES: &[&str] = &[
+    "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "black",
+    "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse",
+    "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan",
+    "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki", "darkmagenta", "darkolivegreen",
+    "darkorange", "darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue",
+    "darkslategray", "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray",
+    "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite",
+    "gold", "goldenrod", "gray", "green", "greenyellow", "honeydew", "hotpink", "indianred",
+    "indigo", "ivory", "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon",
+    "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow", "lightgreen", "lightgrey",
+    "lightpink", "lightsalmon", "lightseagreen", "lightskyblue", "lightslategray",
+    "lightsteelblue", "lightyellow", "lime", "limegreen", "linen", "magenta", "maroon",
+    "mediumaquamarine", "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen",
+    "mediumslateblue", "mediumspringgreen", "mediumturquoise", "mediumvioletred", "midnightblue",
+    "mintcream", "mistyrose", "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
+    "orange", "orangered", "orchid", "palegoldenrod", "palegreen", "paleturquoise",
+    "palevioletred", "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue", "purple",
+    "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
+    "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray", "snow", "springgreen",
+    "steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white",
+    "whitesmoke", "yellow", "yellowgreen",
+];
+
+/// Normalize a user-facing color into a form ffmpeg accepts verbatim and that
+/// is safe to inject into a filtergraph: a lower-cased name from
+/// [`FFMPEG_COLOR_NAMES`], or `#RRGGBB` / `#RGB` / `0xRRGGBB` / bare 6-digit hex
+/// → `0xRRGGBB`. Errors (never defaults) on empty or unrecognized input — the
+/// caller applies its own default before calling so the meaning of "blank" is
+/// the caller's, not baked in here.
+pub fn normalize_ffmpeg_color(color: &str) -> Result<String, String> {
+    let t = color.trim();
+    if t.is_empty() {
+        return Err("color must not be empty".to_string());
+    }
+    let hex = t
+        .strip_prefix('#')
+        .or_else(|| t.strip_prefix("0x"))
+        .or_else(|| t.strip_prefix("0X"))
+        .unwrap_or(t);
+    if hex.len() == 6 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
+        return Ok(format!("0x{}", hex.to_ascii_uppercase()));
+    }
+    if t.starts_with('#') && hex.len() == 3 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
+        let doubled: String = hex.chars().flat_map(|c| [c, c]).collect();
+        return Ok(format!("0x{}", doubled.to_ascii_uppercase()));
+    }
+    let lower = t.to_ascii_lowercase();
+    if FFMPEG_COLOR_NAMES.contains(&lower.as_str()) {
+        return Ok(lower);
+    }
+    Err(format!(
+        "color {t:?} not recognized — use a CSS color name (black, white, navy, …) or hex like #1A2B3C"
+    ))
+}
+
+#[cfg(test)]
+mod color_tests {
+    use super::normalize_ffmpeg_color;
+
+    #[test]
+    fn names_hex_and_short_hex_normalize() {
+        assert_eq!(normalize_ffmpeg_color("black").unwrap(), "black");
+        assert_eq!(normalize_ffmpeg_color(" White ").unwrap(), "white");
+        assert_eq!(normalize_ffmpeg_color("DarkSlateGray").unwrap(), "darkslategray");
+        assert_eq!(normalize_ffmpeg_color("#ff0000").unwrap(), "0xFF0000");
+        assert_eq!(normalize_ffmpeg_color("1a2b3c").unwrap(), "0x1A2B3C");
+        assert_eq!(normalize_ffmpeg_color("0xabcdef").unwrap(), "0xABCDEF");
+        assert_eq!(normalize_ffmpeg_color("#abc").unwrap(), "0xAABBCC");
+    }
+
+    #[test]
+    fn empty_and_unknown_error() {
+        assert!(normalize_ffmpeg_color("").is_err());
+        assert!(normalize_ffmpeg_color("   ").is_err());
+        assert!(normalize_ffmpeg_color("notacolor").is_err());
+        assert!(normalize_ffmpeg_color("#12").is_err());
+        // bare 3-hex (no '#') is ambiguous with a name → rejected, as before.
+        assert!(normalize_ffmpeg_color("abc").is_err());
+    }
+}
+
 /// Resolve a `Source` to `(bytes, mime, filename)` — the `url` fetch vs `ref`
 /// attachment branch every media tool repeats.
 #[cfg(target_arch = "wasm32")]
@@ -748,9 +842,24 @@ pub fn dispatch_ffmpeg(
     in_bytes: Vec<u8>,
     out_name: String,
 ) -> Result<Vec<u8>, SkillError> {
+    dispatch_ffmpeg_inputs(argv, vec![(in_name, in_bytes)], out_name)
+}
+
+/// Like [`dispatch_ffmpeg`] but writes MULTIPLE virtual-FS files before exec —
+/// e.g. the media input plus a bundled font and a text file for a drawtext
+/// tool. `inputs` is `(filename, bytes)` pairs; the native CLI service writes
+/// each to its temp working dir and the browser bridge writes each into
+/// ffmpeg's FS, so `-vf drawtext=fontfile=font.ttf:textfile=title.txt` resolves
+/// identically on both surfaces.
+#[cfg(target_arch = "wasm32")]
+pub fn dispatch_ffmpeg_inputs(
+    argv: Vec<String>,
+    inputs: Vec<(String, Vec<u8>)>,
+    out_name: String,
+) -> Result<Vec<u8>, SkillError> {
     let req = FfmpegReq {
         args: argv,
-        inputs: vec![(in_name, in_bytes)],
+        inputs,
         output: out_name,
     };
     let req_body = serde_json::to_vec(&req)
@@ -774,6 +883,20 @@ pub fn dispatch_ffmpeg(
 pub struct ArgvPlan {
     pub argv: Vec<String>,
     pub out_name: String,
+}
+
+/// Like [`ArgvPlan`] but also carries extra virtual-FS files the page ffmpeg
+/// driver must write before exec, beyond the single uploaded media input. Each
+/// entry is `(filename, base64-encoded bytes)`. Used by drawtext-style tools
+/// (e.g. `video-title-card`) that ship a bundled font and the overlay text as a
+/// `textfile` — so the text needs no filtergraph escaping and the font is
+/// present in the browser ffmpeg's otherwise-empty FS. The chat/CLI surfaces
+/// write the same files via [`dispatch_ffmpeg_inputs`].
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ArgvPlanWithInputs {
+    pub argv: Vec<String>,
+    pub out_name: String,
+    pub inputs: Vec<(String, String)>,
 }
 
 #[cfg(test)]
