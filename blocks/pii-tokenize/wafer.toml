@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pii-tokenize"
+version = "0.1.0"
+abi = 1
+summary = "Replace PII with deterministic, format-preserving tokens"
