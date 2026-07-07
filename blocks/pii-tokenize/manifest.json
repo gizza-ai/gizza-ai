@@ -1,0 +1,33 @@
+{
+  "name": "gizza-ai/pii-tokenize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Replace PII with deterministic, format-preserving tokens",
+  "role": "skill",
+  "tool": {
+    "description": "Replace personally-identifiable information (PII) in text with deterministic, format-preserving pseudonyms: email addresses, phone numbers, IPv4/IPv6 addresses, credit-card numbers (Luhn-validated) and US SSN-like numbers. Each value is substituted character-by-character (digit→digit, letter→same-case letter, punctuation kept), so tokens keep the original shape and length. The mapping is deterministic — the same input value always maps to the same token, so tokenized data stays linkable/joinable — but not reversible: it is keyed HMAC-SHA256, not a lookup vault. Card tokens stay Luhn-valid; IPv4 octets stay 0-255; IPv6 groups stay valid hex. secret scopes the mapping (same secret → same tokens; blank uses a built-in key). preserve_email_domain (default true) keeps the email domain and only pseudonymizes the local part. Returns the tokenized text plus per-category counts. Runs locally — the text never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "preserve_email_domain": {
+          "default": true,
+          "description": "When true (default), keep the part after @ in email addresses and only pseudonymize the local part (useful for segmenting by provider). When false, pseudonymize the whole address.",
+          "type": "boolean"
+        },
+        "secret": {
+          "default": "",
+          "description": "Optional secret key that scopes the deterministic mapping. The same secret always produces the same tokens (so tokenized data stays joinable across runs); a different secret produces a different, unlinkable set. Leave blank to use a built-in default key.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to scan and tokenize.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

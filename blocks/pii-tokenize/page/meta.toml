@@ -1,0 +1,41 @@
+slug          = "pii-tokenize"
+title         = "PII Tokenizer — Deterministic, Format-Preserving Pseudonyms — gizza.ai"
+description   = "Replace emails, phones, IPs, cards and SSNs with deterministic, format-preserving tokens. Same value maps to the same token, so data stays linkable. No upload."
+tags          = ["pii tokenizer", "pseudonymize", "format-preserving tokenization", "deterministic tokens", "de-identify text", "anonymize data", "referential integrity"]
+h1            = "PII Tokenizer"
+hero_subtitle = "Replace personal data — emails, phone numbers, IP addresses, credit-card and SSN numbers — with deterministic, format-preserving pseudonyms. The same value always maps to the same token, so your data stays linkable but de-identified. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_pii_tokenize_web"
+export        = "run"
+live          = false
+output_label  = "Tokenized text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text containing emails, phone numbers, IPs, card or SSN numbers…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "secret"
+label       = "Secret key (optional)"
+placeholder = "Leave blank for the built-in key, or set one to lock the mapping"
+source      = "field"
+
+[[input]]
+name        = "preserve_email_domain"
+label       = "Keep email domains (only pseudonymize the local part)"
+source      = "field"
+
+[[example]]
+label  = "Support ticket"
+params = { text = "Contact Ada at ada@example.com or (415) 555-0132. Card 4111 1111 1111 1111.", preserve_email_domain = "true" }
+
+[[example]]
+label  = "Server log (keyed)"
+params = { text = "user 10.0.12.5 with ssn 123-45-6789 hit the API twice from 10.0.12.5", secret = "team-key-2026" }
+
+[[example]]
+label  = "Full email pseudonymize"
+params = { text = "invoices go to billing@acme.com and billing@acme.com", preserve_email_domain = "false" }
