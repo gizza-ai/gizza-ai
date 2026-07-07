@@ -1,0 +1,92 @@
+slug          = "csv-pii-redactor"
+title         = "CSV PII Redactor — Mask, Salted-Hash & Redact Columns — gizza.ai"
+description   = "Mask, salted-hash, or redact the values in chosen CSV columns for safe sharing — pick columns by name or index, in your browser. Free, private, no upload."
+tags          = ["csv pii redactor", "anonymize csv columns", "mask csv", "hash csv column", "salted hash pii", "redact csv", "data masking", "csv anonymizer"]
+h1            = "CSV PII redactor"
+hero_subtitle = "Mask, salted-hash, or redact the values in the CSV columns you choose — for safe sharing. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_csv_pii_redactor_web"
+export        = "run"
+live          = false
+output_label  = "Redacted CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,email,card\nAda,ada@example.com,4111111111111111"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns to redact (names or 1-based indices, comma-separated)"
+placeholder = "email,card"
+source      = "field"
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+labels = { mask = "Mask — replace characters", hash = "Hash — salted code", redact = "Redact — fixed label" }
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "mask_char"
+label       = "Mask character (mask mode)"
+placeholder = "*"
+source      = "field"
+
+[[input]]
+name        = "keep_last"
+label       = "Keep last N characters visible (mask mode)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "salt"
+label       = "Salt (hash mode)"
+placeholder = "team-2026"
+source      = "field"
+
+[[input]]
+name        = "hash_length"
+label       = "Hash length in hex chars (hash mode, 4–64)"
+placeholder = "8"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "label"
+label       = "Replacement label (redact mode)"
+placeholder = "[REDACTED]"
+source      = "field"
+
+[[example]]
+label  = "Mask emails"
+params = { data = "name,email\nAda,ada@example.com\nBob,bob@corp.io", columns = "email", mode = "mask" }
+
+[[example]]
+label  = "Keep last 4 of card"
+params = { data = "id,card\n1,4111111111111111\n2,5500005555555559", columns = "card", mode = "mask", keep_last = "4" }
+
+[[example]]
+label  = "Salted-hash user IDs"
+params = { data = "user,city\nada,London\nada,Paris\nbob,Rome", columns = "user", mode = "hash", salt = "team-2026" }
+
+[[example]]
+label  = "Redact SSNs"
+params = { data = "name,ssn\nAda,123-45-6789", columns = "ssn", mode = "redact" }
