@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/pdf-crop",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Crop the margins of a PDF",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Crop the margins of a PDF by trimming each page's edges. Give per-side amounts top/bottom/left/right in `unit` (pt, mm, or in) — set them equal for a uniform crop, or individually. Choose which pages with `pages` (1-based: 'all', 'odd', 'even', or '1,3-5'). Non-destructive: it writes each page's /CropBox and leaves the content untouched. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "top": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0,
+          "description": "Amount to crop off the TOP edge, in `unit` (default 0 = no crop). E.g. 0.5 with unit=in."
+        },
+        "bottom": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0,
+          "description": "Amount to crop off the BOTTOM edge, in `unit` (default 0 = no crop)."
+        },
+        "left": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0,
+          "description": "Amount to crop off the LEFT edge, in `unit` (default 0 = no crop)."
+        },
+        "right": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0,
+          "description": "Amount to crop off the RIGHT edge, in `unit` (default 0 = no crop)."
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "pt",
+            "mm",
+            "in"
+          ],
+          "default": "pt",
+          "description": "Unit for the margins: pt (points, 1/72\"), mm, or in (default pt)."
+        },
+        "pages": {
+          "type": "string",
+          "default": "all",
+          "description": "Which pages to crop, 1-based: 'all' (default), 'odd', 'even', or a list/range like '1,3-5'."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}
