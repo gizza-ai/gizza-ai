@@ -93,6 +93,7 @@ pub fn render_page(
                 meta name="description" content=(meta.description);
                 link rel="canonical" href=(canonical);
                 link rel="alternate" type="text/markdown" href="index.md";
+                link rel="alternate" type="application/json" href="tool.json";
                 meta property="og:type" content="website";
                 meta property="og:title" content=(meta.title);
                 meta property="og:description" content=(meta.description);
@@ -366,6 +367,13 @@ pub fn render_page(
                                 }
                             }
                         }
+                        // Full-width footer line under the grid — the third
+                        // automation surface next to the CLI and deep-link cards.
+                        p class="tool-dev-note" {
+                            "Machine-readable descriptor: "
+                            a href="tool.json" { "tool.json" }
+                            " — title + parameters JSON Schema for agents."
+                        }
                     }
                 }
                 (chrome_footer())
@@ -414,6 +422,8 @@ const TOOL_CLI_CSS: &str = r#"
 .tool-cli-copy-btn.copied .copy-icon { display: none; }
 .tool-cli-copy-btn.copied .check-icon { display: block; }
 .tool-cli-note { font-size: .85rem; margin: 12px 0 0; color: var(--tool-muted, #6b7280); margin-top: auto; padding-top: 10px; }
+.tool-dev-note { font-size: .85rem; color: var(--tool-muted, #6b7280); margin: 14px 2px 0; }
+.tool-dev-note a { color: var(--tool-accent, #4f46e5); }
 "#;
 
 /// Inline styles for the per-tool "Related tools" section (same card idiom as
@@ -756,6 +766,24 @@ source      = "field"
             !without.contains("FAQPage"),
             "no FAQPage block when the page has no FAQ section"
         );
+    }
+
+    #[test]
+    fn links_machine_readable_descriptor_in_head_and_dev_section() {
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        assert!(
+            html.contains(r#"<link rel="alternate" type="application/json" href="tool.json">"#),
+            "tool.json discovery link in the head",
+        );
+        assert!(
+            html.contains(r#"<p class="tool-dev-note">Machine-readable descriptor: <a href="tool.json">tool.json</a>"#),
+            "dev section links the descriptor",
+        );
+        // placement: the note sits inside the dev group, after the grid
+        let grid = html.find(r#"class="tool-dev-grid""#).unwrap();
+        let note = html.find(r#"class="tool-dev-note""#).unwrap();
+        assert!(grid < note, "note renders under the dev-access grid");
+        assert!(html.contains(".tool-dev-note"), "note CSS emitted");
     }
 
     #[test]
