@@ -1,0 +1,48 @@
+slug          = "video-to-h264"
+title         = "Convert Video to H.264 MP4 Online — gizza.ai"
+description   = "Force-transcode any video to universally-playable H.264 High-profile MP4 (yuv420p, faststart, AAC) in your browser. Make clips that won't play work everywhere."
+tags          = ["h264", "mp4", "video", "convert", "transcode", "yuv420p", "compatibility", "faststart", "aac", "webm", "hevc", "profile"]
+h1            = "Convert Video to H.264 MP4"
+hero_subtitle = "Force-transcode any clip to the most universally playable form — H.264 High profile, yuv420p, +faststart, AAC. Makes videos that won't play work everywhere. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_to_h264_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "H.264 MP4 video"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "Video file"
+
+[[input]]
+name        = "profile"
+source      = "field"
+label       = "H.264 profile"
+placeholder = "high"
+
+[input.labels]
+"high"     = "High — best compression, all modern devices (default)"
+"main"     = "Main — slightly wider legacy reach"
+"baseline" = "Baseline — max compatibility, very old / embedded players"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (1–100)"
+placeholder = "75"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Web & social (default)"
+params = { profile = "high", quality = "75" }
+
+[[example]]
+label  = "Maximum compatibility (old devices)"
+params = { profile = "baseline", quality = "70" }
+
+[[example]]
+label  = "High quality (archive)"
+params = { profile = "high", quality = "90" }
