@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/files-to-prompt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bundle pasted files into one LLM-ready digest with a directory tree and token estimate.",
+  "role": "skill",
+  "tool": {
+    "description": "Bundle multiple files into a single LLM-ready prompt digest with a directory tree, each file's contents, and a rough token estimate. Paste the files in 'files', each preceded by a header line '<separator> path' (default separator '==='). Choose the output 'format' (markdown fenced blocks, Claude-XML <documents>, or plain files-to-prompt style), toggle 'line_numbers', and toggle the 'include_tree' directory tree. Pure text in, pure text out — no repo crawling or filesystem access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "description": "The files to bundle, concatenated. Start each file with a header line '<separator> path/to/file.ext' (e.g. '=== src/main.rs'); everything up to the next header is that file's content. Any text before the first header is ignored.",
+          "type": "string"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output style. 'markdown' (default): a '## path' heading + a language-fenced code block per file. 'xml': a single Claude-style <documents> wrapper with one indexed <document> per file. 'plain': files-to-prompt's default — 'path', a '---' rule, contents, another '---'.",
+          "enum": [
+            "markdown",
+            "xml",
+            "plain"
+          ],
+          "type": "string"
+        },
+        "include_tree": {
+          "default": true,
+          "description": "Prepend a 'Directory structure:' tree built from the file paths, so the model sees the layout at a glance. Default true.",
+          "type": "boolean"
+        },
+        "line_numbers": {
+          "default": false,
+          "description": "Prefix every content line with its right-aligned line number. Default false.",
+          "type": "boolean"
+        },
+        "separator": {
+          "default": "===",
+          "description": "The marker that begins each file's header line (default '==='). Change it (e.g. '>>>') if your file contents contain lines starting with '==='.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  }
+}

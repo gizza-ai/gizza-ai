@@ -30,12 +30,20 @@ pub fn map_args(schema: &Value, positional: &[String], json: Option<&str>) -> Re
         .map(|a| a.iter().filter_map(|v| v.as_str()).collect())
         .unwrap_or_default();
     let mut body = Map::new();
+    let mut bare: Vec<&String> = Vec::new();
     for arg in positional.iter() {
-        if let Some((k, v)) = arg.split_once('=') {
-            body.insert(k.to_string(), coerce(props, k, v));
+        // Treat an arg as `key=value` ONLY when the part before the first `=`
+        // names a real schema property. Otherwise it's a bare positional whose
+        // VALUE merely contains `=` — e.g. files-to-prompt's `=== path` header
+        // input, or url-encoding a query string like `a=b`. (With an unknown
+        // schema, `props` is None → keep the legacy "any `=` is key=value".)
+        match arg.split_once('=') {
+            Some((k, v)) if props.is_none_or(|p| p.contains_key(k)) => {
+                body.insert(k.to_string(), coerce(props, k, v));
+            }
+            _ => bare.push(arg),
         }
     }
-    let bare: Vec<&String> = positional.iter().filter(|a| !a.contains('=')).collect();
     let scalar_required: Vec<&str> = required
         .iter()
         .copied()
