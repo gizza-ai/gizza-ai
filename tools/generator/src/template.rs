@@ -5,11 +5,13 @@ use crate::categories::Hub;
 use crate::control::{fmt_num, Control, ParamSchema};
 use crate::markdown::{cli_example as shared_cli_example, example_deeplink};
 use crate::meta::ToolMeta;
+use crate::pairs::PairLink;
 use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-/// The shared header's brand block — identical on every generated page.
-fn brand_link() -> Markup {
+/// The shared header's brand block — identical on every generated page
+/// (`pub(crate)` so the pair pages in `pairs.rs` render the same chrome).
+pub(crate) fn brand_link() -> Markup {
     html! {
         a.tool-brand href="https://gizza.ai" {
             img src="/logo.webp" alt="gizza.ai logo";
@@ -23,7 +25,10 @@ fn brand_link() -> Markup {
 /// ships a `page/custom.js`/`page/custom.css` (copied next to the page by
 /// main.rs) — the escape hatch for bespoke UI that the declarative meta.toml
 /// controls can't express. `related` is the tag-ranked top-5 from
-/// `related::related_tools`, rendered as internal links.
+/// `related::related_tools`, rendered as internal links. `pairs` is the
+/// tool's "X to Y" conversion pages (`pairs::pair_links_for_parent`) —
+/// non-empty only for the converter tools, rendered as a crawlable "Popular
+/// conversions" section right after the content.
 pub fn render_page(
     meta: &ToolMeta,
     content_html: &str,
@@ -31,6 +36,7 @@ pub fn render_page(
     custom_js: bool,
     custom_css: bool,
     related: &[&ToolMeta],
+    pairs: &[PairLink],
 ) -> String {
     let canonical = format!("https://gizza.ai/tools/{}/", meta.slug);
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
@@ -116,6 +122,9 @@ pub fn render_page(
                 style { (PreEscaped(TOOL_CLI_CSS)) }
                 @if !related.is_empty() {
                     style { (PreEscaped(TOOL_RELATED_CSS)) }
+                }
+                @if !pairs.is_empty() {
+                    style { (PreEscaped(TOOL_PAIRS_CSS)) }
                 }
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
                 script type="application/ld+json" { (PreEscaped(breadcrumbs_ld)) }
@@ -306,6 +315,18 @@ pub fn render_page(
                     section class="tool-content" {
                         (PreEscaped(content_html))
                     }
+                    // Crawlable "X to Y" landing-page links for the converter
+                    // tools — each chip is a pair page nested under this tool.
+                    @if !pairs.is_empty() {
+                        section class="tool-pairs" {
+                            h2 { "Popular conversions" }
+                            ul class="tool-pairs-list" {
+                                @for p in pairs {
+                                    li { a class="tool-pairs-link" href=(p.href) { (p.label) } }
+                                }
+                            }
+                        }
+                    }
                     // Internal links to the tag-nearest tools — crawlable
                     // `<a href>`s that spread link equity across the catalog
                     // and give readers a next step.
@@ -386,8 +407,9 @@ pub fn render_page(
 }
 
 /// BreadcrumbList JSON-LD for an ordered (name, url) trail, `</`-neutralized
-/// like the other JSON-LD blobs.
-fn breadcrumbs_json_ld(trail: &[(&str, &str)]) -> String {
+/// like the other JSON-LD blobs (`pub(crate)` — the pair pages emit the same
+/// trail with one extra level).
+pub(crate) fn breadcrumbs_json_ld(trail: &[(&str, &str)]) -> String {
     serde_json::json!({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -436,6 +458,17 @@ const TOOL_RELATED_CSS: &str = r#"
 .tool-related-link { font-weight: 650; color: var(--tool-accent, #4f46e5); text-decoration: none; }
 .tool-related-link:hover, .tool-related-link:focus-visible { text-decoration: underline; }
 .tool-related-desc { margin: 4px 0 0; font-size: .9rem; color: var(--tool-muted, #6b7280); line-height: 1.45; }
+"#;
+
+/// Inline styles for the "Popular conversions" chip list on the converter
+/// tools' pages (same section idiom as the related-tools block; only emitted
+/// when the tool has pair pages).
+const TOOL_PAIRS_CSS: &str = r#"
+.tool-pairs { max-width: 720px; margin: 48px auto 0; }
+.tool-pairs h2 { font-size: 1.3rem; margin: 0 0 12px; color: var(--tool-ink, #0f172a); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+.tool-pairs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-pairs-link { display: inline-block; padding: 7px 14px; border: 1px solid #e2e8f0; border-radius: 999px; background: #fff; color: var(--tool-accent, #4f46e5); font-size: .9rem; text-decoration: none; }
+.tool-pairs-link:hover, .tool-pairs-link:focus-visible { border-color: var(--tool-accent, #4f46e5); text-decoration: underline; }
 "#;
 
 /// Inline styles for the `/tools/` landing grid (uses the `--tool-*` tokens
@@ -726,7 +759,7 @@ source      = "field"
 
     #[test]
     fn includes_seo_head_and_widget() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains("<title>Free Online Calculator — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/calculator/">"#));
         assert!(
@@ -742,7 +775,7 @@ source      = "field"
 
     #[test]
     fn emits_per_tool_og_image_and_breadcrumbs() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             html.contains(r#"content="https://gizza.ai/tools/calculator/og.png""#),
             "og:image + twitter:image point at the per-tool card"
@@ -761,11 +794,11 @@ source      = "field"
     fn faq_json_ld_mirrors_content_faq_section() {
         let with_faq = "<h2>FAQ</h2>\
             <details><summary>Is it private?</summary><p>Yes — runs locally.</p></details>";
-        let html = render_page(&sample(), with_faq, &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&sample(), with_faq, &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#""@type":"FAQPage""#), "FAQPage JSON-LD present");
         assert!(html.contains(r#""name":"Is it private?""#));
 
-        let without = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let without = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !without.contains("FAQPage"),
             "no FAQPage block when the page has no FAQ section"
@@ -774,7 +807,7 @@ source      = "field"
 
     #[test]
     fn links_machine_readable_descriptor_in_head_and_dev_section() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             html.contains(r#"<link rel="alternate" type="application/json" href="tool.json">"#),
             "tool.json discovery link in the head",
@@ -792,7 +825,7 @@ source      = "field"
 
     #[test]
     fn page_documents_query_param_deep_link() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains("Open it by URL"), "deep-link section present");
         assert!(
             html.contains("https://gizza.ai/tools/calculator/?expr="),
@@ -802,7 +835,7 @@ source      = "field"
 
     #[test]
     fn includes_shared_chrome_header_and_footer() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         // Shared header markers from gizza-chrome
         assert!(
             html.contains(r#"id="explore-search""#),
@@ -931,7 +964,7 @@ format        = "text"
         .unwrap();
         let related = vec![&related_meta];
         let html =
-            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &related);
+            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &related, &[]);
         assert!(html.contains(r#"<section class="tool-related">"#), "related section present");
         assert!(html.contains("<h2>Related tools</h2>"));
         assert!(
@@ -951,8 +984,35 @@ format        = "text"
 
         // no related tools → neither the section nor its CSS
         let html =
-            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(!html.contains("tool-related"), "no empty related section");
+    }
+
+    #[test]
+    fn popular_conversions_section_renders_after_content() {
+        let pairs = vec![
+            PairLink { label: "WAV to MP3".to_string(), href: "/tools/audio-convert/wav-to-mp3/".to_string() },
+            PairLink { label: "WAV to FLAC".to_string(), href: "/tools/audio-convert/wav-to-flac/".to_string() },
+        ];
+        let html =
+            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &pairs);
+        assert!(html.contains(r#"<section class="tool-pairs">"#), "pairs section present");
+        assert!(html.contains("<h2>Popular conversions</h2>"));
+        assert!(
+            html.contains(r#"<a class="tool-pairs-link" href="/tools/audio-convert/wav-to-mp3/">WAV to MP3</a>"#),
+            "crawlable pair link"
+        );
+        assert!(html.contains(".tool-pairs-list"), "pairs CSS emitted");
+        // placement: content → popular conversions → Developer & Automation Access
+        let content = html.find(r#"class="tool-content""#).unwrap();
+        let pairs_at = html.find(r#"class="tool-pairs""#).unwrap();
+        let dev = html.find("Developer &amp; Automation Access").unwrap();
+        assert!(content < pairs_at && pairs_at < dev, "pairs sit between content and dev access");
+
+        // no pairs → neither the section nor its CSS
+        let html =
+            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(!html.contains("tool-pairs"), "no empty pairs section");
     }
 
     fn ffmpeg_sample() -> ToolMeta {
@@ -1028,7 +1088,7 @@ params = { birthdate = "1990-04-15" }
 
     #[test]
     fn renders_declarative_controls_examples_and_widget_chrome() {
-        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         // meta kind="date" → native picker, no per-tool JS type-swapping
         assert!(html.contains(r#"id="in-birthdate" class="tool-input" type="date""#), "date picker rendered");
         // meta options="timezones" → datalist autocomplete
@@ -1093,7 +1153,7 @@ label       = "Gain"
             "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
             "gain": { "type": "number", "minimum": -60, "maximum": 60 }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[]);
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
         // kind="slider" → a range input mirroring the canonical number box
         assert!(html.contains(r#"id="in-semitones-slider""#), "slider rendered");
         assert!(html.contains(r#"data-for="in-semitones""#), "slider targets its number box");
@@ -1153,7 +1213,7 @@ kind        = "color"
             "color": { "type": "string", "default": "#4f46e5" },
             "background": { "type": "string" }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[]);
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
         // kind="color" → a native swatch mirroring the canonical TEXT input
         assert!(html.contains(r##"id="in-color-swatch""##), "swatch rendered");
         assert!(html.contains(r##"data-for="in-color""##), "swatch targets its text input");
@@ -1203,7 +1263,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         let schema = ParamSchema::from_props_for_tests(serde_json::json!({
             "aspect": { "type": "string", "enum": ["9:16", "1:1", "16:9"], "default": "9:16" }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[]);
+        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
         // labeled options: canonical value attr + enriched visible text
         assert!(
             html.contains(r#"<option value="9:16" selected>9:16 — Reels / Shorts / TikTok (1080×1920)</option>"#),
@@ -1219,7 +1279,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
 
     #[test]
     fn media_tools_get_reset_but_not_copy_result() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#"id="tool-reset""#), "reset present (has fields)");
         assert!(!html.contains(r#"id="tool-copy-output""#), "no copy-result on media output");
     }
@@ -1229,7 +1289,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         // ffmpeg_sample() is format="image" → the Copy-image button is rendered
         // (hidden, next to the download link), so a result can be copied to the
         // clipboard as PNG by tool.js.
-        let image_html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let image_html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             image_html.contains(r#"id="tool-copy-image""#),
             "image-output page renders the Copy-image button"
@@ -1261,7 +1321,7 @@ accept = "video/*"
 "#,
         )
         .unwrap();
-        let video_html = render_page(&video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let video_html = render_page(&video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !video_html.contains(r#"id="tool-copy-image""#),
             "video-output page must not render the Copy-image button"
@@ -1288,14 +1348,14 @@ accept = "audio/*"
 "#,
         )
         .unwrap();
-        let audio_html = render_page(&audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let audio_html = render_page(&audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !audio_html.contains(r#"id="tool-copy-image""#),
             "audio-output page must not render the Copy-image button"
         );
 
         // Text output (declarative_sample is format="text") must NOT get it.
-        let text_html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let text_html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !text_html.contains(r#"id="tool-copy-image""#),
             "text-output page must not render the Copy-image button"
@@ -1304,7 +1364,7 @@ accept = "audio/*"
 
     #[test]
     fn renders_file_input_and_media_output() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[]);
+        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#"type="file""#), "file input present");
         assert!(html.contains(r#"id="in-image""#), "file input id");
         assert!(html.contains(r#"accept="image/*""#), "accept attr");
