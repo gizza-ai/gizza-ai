@@ -71,9 +71,20 @@ site_mod="$(git_lastmod site)"
 {
   printf '<?xml version="1.0" encoding="UTF-8"?>\n'
   printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+  blocks_mod="$(git_lastmod blocks)"
   emit_url "$BASE_URL/" "$site_mod"
   emit_url "$BASE_URL/chat" "$site_mod"
-  emit_url "$BASE_URL/tools/" "$(git_lastmod blocks)"
+  emit_url "$BASE_URL/tools/" "$blocks_mod"
+  # Category hub pages (/tools/<category>/) from the generator's _hubs.json.
+  # Skipped gracefully when the file is missing (generator not yet run); hubs
+  # aggregate many tools, so they share the blocks lastmod like /tools/.
+  hubs_json="$PKG_DIR/tools/_hubs.json"
+  if [[ -f "$hubs_json" ]]; then
+    while IFS= read -r hub_slug; do
+      [[ -z "$hub_slug" ]] && continue
+      emit_url "$BASE_URL/tools/$hub_slug/" "$blocks_mod"
+    done < <(jq -r '.[].slug' "$hubs_json")
+  fi
   for slug in "${page_slugs[@]}"; do
     emit_url "$BASE_URL/tools/$slug/" "$(git_lastmod "blocks/$slug/page")"
   done
