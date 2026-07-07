@@ -602,6 +602,10 @@ pub fn render_tools_index(metas: &[ToolMeta], hubs: &[Hub]) -> String {
         html lang="en" {
             head {
                 (index_head_meta(title, description, canonical, "https://gizza.ai/tools/og.png"))
+                // Atom feed autodiscovery — feed readers and crawlers find
+                // the 50-newest-tools feed from the landing page.
+                link rel="alternate" type="application/atom+xml"
+                     title="New tools — gizza.ai" href="https://gizza.ai/feed.xml";
                 script type="application/ld+json" { (PreEscaped(item_list)) }
                 script type="application/ld+json" {
                     (PreEscaped(breadcrumbs_json_ld(&[
@@ -843,6 +847,13 @@ source      = "field"
         assert!(html.contains(r#"content="https://gizza.ai/tools/og.png""#));
         assert!(html.contains(r#"name="twitter:card" content="summary_large_image""#));
         assert!(html.contains(r#""@type":"BreadcrumbList""#));
+        // Atom feed autodiscovery link in the head
+        assert!(
+            html.contains(
+                r#"<link rel="alternate" type="application/atom+xml" title="New tools — gizza.ai" href="https://gizza.ai/feed.xml">"#
+            ),
+            "Atom feed autodiscovery link in the head"
+        );
     }
 
     #[test]
