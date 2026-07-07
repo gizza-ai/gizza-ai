@@ -5,6 +5,7 @@ pub fn version() -> &'static str {
 
 pub mod args;
 pub mod ffmpeg_native;
+pub mod mcp;
 pub mod render;
 pub mod runtime;
 

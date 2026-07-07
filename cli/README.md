@@ -50,6 +50,38 @@ gizza describe calculator           # schema for one tool
 gizza describe calculator --json-out
 ```
 
+## MCP server
+
+`gizza mcp` runs a [Model Context Protocol](https://modelcontextprotocol.io) server on
+stdio (newline-delimited JSON-RPC 2.0), exposing every catalog tool to MCP clients such
+as Claude Desktop and Claude Code. Tool names are the short slugs (`calculator`,
+`image-resize`, …); input schemas come straight from the tool manifests. Tools that
+produce a file (image/video/audio) write it to a temp path and return that path in the
+text content.
+
+Claude Code:
+
+```sh
+claude mcp add gizza -- /path/to/gizza mcp
+```
+
+Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "gizza": {
+      "command": "/path/to/gizza",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Build the binary with `cargo build --release --manifest-path cli/Cargo.toml` (after
+`solobase build`) and point `command` at `cli/target/release/gizza` — or wherever you
+installed it. System `ffmpeg` on `PATH` is still required for image/video/audio tools.
+
 ## SKILL.md (agent contract)
 
 `SKILL.md` at the repo root is a small, **static** machine-readable contract (YAML
