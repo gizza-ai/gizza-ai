@@ -1,0 +1,72 @@
+slug          = "qif-ofx-convert"
+title         = "QIF & OFX to CSV Converter — Bank Export to Spreadsheet — gizza.ai"
+description   = "Convert QIF, OFX and QFX bank exports to clean normalized CSV in your browser — Date, Amount, Payee, Memo, Category and more. Free, private, no upload."
+tags          = ["qif to csv", "ofx to csv", "qfx to csv", "bank statement to csv", "quicken to csv", "convert bank export", "transactions to csv", "budgeting import"]
+h1            = "QIF / OFX to CSV Converter"
+hero_subtitle = "Turn a QIF, OFX or QFX bank export into a clean, normalized CSV — Date, Amount, Payee, Memo, Category, Check Number, Type and FITID — ready to import into budgeting apps and spreadsheets. Runs entirely in your browser: nothing is uploaded."
+wasm          = "gizza_ai_qif_ofx_convert_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "QIF or OFX/QFX file contents"
+placeholder = "<OFX><STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20260704<TRNAMT>-42.50<NAME>Coffee Roasters<FITID>c1</STMTTRN></OFX>"
+source      = "field"
+multiline   = true
+
+# format / date_format / delimiter render as <select>s and the two toggles as
+# checkboxes — the control type + option list come from the descriptor schema
+# (manifest.json), so labels here stay short and options are NOT duplicated.
+[[input]]
+name        = "format"
+label       = "Input format"
+source      = "field"
+
+[input.labels]
+"auto" = "auto — detect QIF vs OFX"
+"qif"  = "QIF (Quicken Interchange Format)"
+"ofx"  = "OFX / QFX (Open Financial Exchange)"
+
+[[input]]
+name        = "date_format"
+label       = "Date column format"
+source      = "field"
+
+[input.labels]
+"iso" = "ISO — 2026-07-04 (YYYY-MM-DD)"
+"us"  = "US — 07/04/2026 (MM/DD/YYYY)"
+"eu"  = "EU — 04/07/2026 (DD/MM/YYYY)"
+"raw" = "raw — keep the source date text"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[input.labels]
+"comma"     = "comma  ,"
+"semicolon" = "semicolon  ;"
+"tab"       = "tab (TSV)"
+"pipe"      = "pipe  |"
+
+[[input]]
+name        = "invert_amounts"
+label       = "Flip amount signs (debits <-> credits)"
+source      = "field"
+
+[[input]]
+name        = "drop_empty_columns"
+label       = "Drop columns that are empty for every row"
+source      = "field"
+
+[[example]]
+label  = "QIF sample"
+params = { data = "!Type:Bank\nD03/15/2010\nT-50.00\nPTarget Store\nMweekly run\nLFood:Groceries\nN1002\n^\nD3/16/2010\nT1,250.00\nPPaycheck\nLIncome:Salary\n^", format = "qif", drop_empty_columns = "true" }
+
+[[example]]
+label  = "OFX sample"
+params = { data = "<OFX><STMTTRN><TRNTYPE>DEBIT<DTPOSTED>20231026<TRNAMT>-75.50<FITID>abc123<NAME>Corner Grocery<MEMO>food & drink</STMTTRN><STMTTRN><TRNTYPE>CREDIT<DTPOSTED>20231101<TRNAMT>2000.00<FITID>xyz789<NAME>Employer<MEMO>payroll</STMTTRN></OFX>", format = "ofx", drop_empty_columns = "true" }
