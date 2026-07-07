@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/video-to-h264",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Force-transcode any video to universally-playable H.264 MP4.",
+  "role": "skill",
+  "tool": {
+    "description": "Force-transcode any video to the most universally playable form: H.264 (libx264) in an MP4 container, yuv420p 8-bit 4:2:0 chroma, +faststart, and AAC audio. Use this to make a clip that 'won't play' (10-bit, 4:2:2/4:4:4, HEVC, VP9, AV1, .webm/.mkv/.avi) decode on essentially every browser, phone, TV and old player. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). profile is high|main|baseline (default high; baseline = max compatibility with very old/embedded players). quality 1-100 (default 75) maps to libx264 CRF. Always re-encodes — for a lossless container remux use mov-to-mp4 instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "profile": {
+          "default": "high",
+          "description": "H.264 profile the output is pinned to. high (default) = best compression, plays on every browser and modern device (2012+). main = slightly wider legacy reach, marginally larger. baseline = maximum compatibility with very old / embedded players (no B-frames or CABAC), largest file — use only when something genuinely refuses high.",
+          "enum": [
+            "high",
+            "main",
+            "baseline"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Encode quality 1-100 (default 75; higher = better quality, larger file). Maps to ffmpeg's libx264 CRF (100 = visually lossless CRF 18, 75 ≈ CRF 24, 1 = small CRF 40). Output is always re-encoded — there is no lossless copy.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

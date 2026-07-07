@@ -1,0 +1,59 @@
+slug          = "files-to-prompt"
+title         = "Files to Prompt — Bundle Files into One LLM Prompt — gizza.ai"
+description   = "Bundle multiple files into one LLM-ready prompt: a directory tree, fenced file contents, and a token estimate. Free, in your browser, nothing uploaded."
+tags          = ["files to prompt", "code to prompt", "concatenate files for llm", "repo to text", "codebase to prompt", "llm context bundler", "claude xml documents", "directory tree", "token estimate"]
+h1            = "Files to Prompt"
+hero_subtitle = "Paste your files and get one LLM-ready digest — a directory tree, each file's contents (Markdown, Claude XML, or plain), and a rough token estimate. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_files_to_prompt_web"
+export        = "run"
+live          = false
+output_label  = "Prompt digest"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "files"
+label       = "Files (each preceded by a header line, e.g. '=== path/to/file')"
+placeholder = "=== src/main.rs\nfn main() {}\n\n=== README.md\n# Title"
+source      = "field"
+multiline   = true
+
+# format renders as a <select> — options come from the descriptor schema
+# (manifest.json); `labels` only enriches the visible text.
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+labels = { markdown = "Markdown — fenced code blocks", xml = "XML — Claude <documents>", plain = "Plain — path + --- rules" }
+
+[[input]]
+name        = "separator"
+label       = "File-header separator"
+placeholder = "==="
+source      = "field"
+
+[[input]]
+name   = "line_numbers"
+label  = "Add line numbers to each file"
+source = "field"
+
+[[input]]
+name   = "include_tree"
+label  = "Prepend a directory tree"
+source = "field"
+
+[[example]]
+label  = "Markdown digest"
+params = { files = "=== src/greet.py\ndef greet(name):\n    return f\"Hello, {name}!\"\n\n=== README.md\n# Demo", format = "markdown" }
+
+[[example]]
+label  = "Claude XML"
+params = { files = "=== notes.txt\nRemember to ship.\n\n=== todo.md\n- [ ] tests", format = "xml" }
+
+[[example]]
+label  = "Plain + line numbers"
+params = { files = "=== app.js\nconst x = 1\nconsole.log(x)", format = "plain", line_numbers = "true" }
+
+[[example]]
+label  = "No directory tree"
+params = { files = "=== a.rs\nfn a() {}\n\n=== b.rs\nfn b() {}", format = "markdown", include_tree = "false" }

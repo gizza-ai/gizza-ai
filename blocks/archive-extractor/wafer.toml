@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "archive-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Auto-detect and extract zip, tar, gzip, bzip2, xz, zstd, and lz4 archives"

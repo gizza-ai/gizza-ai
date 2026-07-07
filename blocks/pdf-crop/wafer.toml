@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-crop"
+version = "0.1.0"
+abi = 1
+summary = "Crop the margins of a PDF"

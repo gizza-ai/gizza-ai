@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/csv-to-xlsx",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert CSV or JSON table data into a real Excel .xlsx workbook",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a table (CSV, TSV, semicolon- or pipe-delimited, a JSON array of objects/rows, or NDJSON) into a real binary Excel .xlsx workbook and return it as a download. Numbers and booleans are written as native Excel cell types (leading-zero values like 007 stay text); the first row can be a bold, frozen header, and columns are auto-sized.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "autofit": {
+          "default": true,
+          "description": "Auto-size each column's width to fit its content (default true).",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "The table as text: CSV, TSV, semicolon- or pipe-delimited, a JSON array of objects/rows, or NDJSON. Example: `name,age\\nAlice,30`.",
+          "type": "string"
+        },
+        "detect_types": {
+          "default": true,
+          "description": "Detect numbers and booleans in delimited cells and write them as native Excel types (default true); off writes every delimited cell as text. Leading-zero values like 007 always stay text. JSON/NDJSON keep their own types.",
+          "type": "boolean"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header (default true): its cells become a bold, frozen top row, and for JSON objects the keys are the header. Off writes data with no header row.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "Source format. 'auto' (default) sniffs CSV/TSV/semicolon/pipe/JSON/NDJSON from the text; set it explicitly to override the guess.",
+          "enum": [
+            "auto",
+            "csv",
+            "tsv",
+            "semicolon",
+            "pipe",
+            "json",
+            "ndjson"
+          ],
+          "type": "string"
+        },
+        "sheet_name": {
+          "default": "Sheet1",
+          "description": "Worksheet tab name (default 'Sheet1'). Excel limits apply: at most 31 characters, and the characters []:*?/\\ are replaced with '_'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

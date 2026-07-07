@@ -43,34 +43,6 @@ pub const QUALITIES: &[(&str, &str)] = &[("high", "18"), ("medium", "23"), ("low
 pub const MIN_WIDTH: u32 = 16;
 pub const MAX_WIDTH: u32 = 4096;
 
-/// The color names ffmpeg's own parser accepts (`ffmpeg -colors`, the standard
-/// CSS/X11 table), lower-cased. Validating against the same table means a bad
-/// color fails HERE with a guiding message instead of deep inside ffmpeg — and
-/// the strict charset keeps the filtergraph string injection-free.
-const COLOR_NAMES: &[&str] = &[
-    "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige", "bisque", "black",
-    "blanchedalmond", "blue", "blueviolet", "brown", "burlywood", "cadetblue", "chartreuse",
-    "chocolate", "coral", "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue", "darkcyan",
-    "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki", "darkmagenta", "darkolivegreen",
-    "darkorange", "darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue",
-    "darkslategray", "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray",
-    "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite",
-    "gold", "goldenrod", "gray", "green", "greenyellow", "honeydew", "hotpink", "indianred",
-    "indigo", "ivory", "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon",
-    "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow", "lightgreen", "lightgrey",
-    "lightpink", "lightsalmon", "lightseagreen", "lightskyblue", "lightslategray",
-    "lightsteelblue", "lightyellow", "lime", "limegreen", "linen", "magenta", "maroon",
-    "mediumaquamarine", "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen",
-    "mediumslateblue", "mediumspringgreen", "mediumturquoise", "mediumvioletred", "midnightblue",
-    "mintcream", "mistyrose", "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
-    "orange", "orangered", "orchid", "palegoldenrod", "palegreen", "paleturquoise",
-    "palevioletred", "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue", "purple",
-    "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
-    "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray", "snow", "springgreen",
-    "steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white",
-    "whitesmoke", "yellow", "yellowgreen",
-];
-
 fn aspect_list() -> String {
     ASPECTS.iter().map(|a| a.0).collect::<Vec<_>>().join("|")
 }
@@ -107,27 +79,16 @@ pub fn canvas(aspect: &str, width: Option<u32>) -> Result<(u32, u32), String> {
 
 /// Normalize the user-facing bar color into a form ffmpeg accepts verbatim:
 /// a lower-cased name from ffmpeg's own color table, or `#RRGGBB` / `#RGB` /
-/// bare 6-digit hex → `0xRRGGBB`. Empty means the default black.
+/// bare 6-digit hex → `0xRRGGBB`. Empty means the default black. Delegates the
+/// name-table + hex parsing to the shared
+/// [`gizza_ai_block_utils::normalize_ffmpeg_color`] (the single source used by
+/// every drawtext/color ffmpeg tool); only the "blank means black" default is
+/// this tool's own.
 pub fn normalize_color(color: &str) -> Result<String, String> {
-    let t = color.trim();
-    if t.is_empty() {
+    if color.trim().is_empty() {
         return Ok("black".to_string());
     }
-    let hex = t.strip_prefix('#').unwrap_or(t);
-    if hex.len() == 6 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
-        return Ok(format!("0x{}", hex.to_ascii_uppercase()));
-    }
-    if t.starts_with('#') && hex.len() == 3 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
-        let doubled: String = hex.chars().flat_map(|c| [c, c]).collect();
-        return Ok(format!("0x{}", doubled.to_ascii_uppercase()));
-    }
-    let lower = t.to_ascii_lowercase();
-    if COLOR_NAMES.contains(&lower.as_str()) {
-        return Ok(lower);
-    }
-    Err(format!(
-        "color {t:?} not recognized — use a CSS color name (black, white, navy, …) or hex like #1A2B3C"
-    ))
+    gizza_ai_block_utils::normalize_ffmpeg_color(color)
 }
 
 /// Resolve a quality tier name to its x264 CRF. Empty means the default

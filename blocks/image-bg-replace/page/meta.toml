@@ -1,0 +1,106 @@
+slug          = "image-bg-replace"
+title         = "Green Screen / Chroma Key Background Replacer Online — gizza.ai"
+description   = "Chroma-key a green-screen or solid-color background out and drop the subject onto a transparent, solid, or gradient background — free, in your browser."
+tags          = ["image", "background", "chroma key", "green screen", "remove background", "background replace", "transparent png", "gradient background", "blue screen", "composite", "png", "webp"]
+h1            = "Replace an Image Background (Chroma Key)"
+hero_subtitle = "Upload a green-screen or solid-background photo, pick the color to remove, and composite the subject onto a transparent, solid, or gradient background — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_image_bg_replace_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Image with the background replaced"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image (green screen / solid background)"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# key_color, similarity, blend, bg_type, bg_color, bg_color2, direction, format.
+[[input]]
+name        = "key_color"
+source      = "field"
+label       = "Background color to remove"
+placeholder = "#00ff00 (green screen)"
+kind        = "color"
+
+[[input]]
+name        = "similarity"
+source      = "field"
+label       = "Similarity (0–100)"
+placeholder = "30"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "blend"
+source      = "field"
+label       = "Edge softness (0–100)"
+placeholder = "10"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "bg_type"
+source = "field"
+label  = "New background"
+
+[input.labels]
+"solid"       = "solid — one fill color"
+"gradient"    = "gradient — blend two colors"
+"transparent" = "transparent — keep the cut-out (png/webp)"
+
+[[input]]
+name        = "bg_color"
+source      = "field"
+label       = "Background color (solid / gradient start)"
+placeholder = "#ffffff or white"
+kind        = "color"
+
+[[input]]
+name        = "bg_color2"
+source      = "field"
+label       = "Gradient end color"
+placeholder = "#000000 or black"
+kind        = "color"
+
+[[input]]
+name   = "direction"
+source = "field"
+label  = "Gradient direction"
+
+[input.labels]
+"vertical"   = "vertical — top to bottom"
+"horizontal" = "horizontal — left to right"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"png"  = "png — lossless, keeps transparency"
+"webp" = "webp — small, keeps transparency"
+"jpg"  = "jpg — small, no transparency"
+"keep" = "keep — same format as the input"
+
+[[example]]
+label  = "Green screen → white"
+params = { key_color = "#00ff00", bg_type = "solid", bg_color = "#ffffff", format = "png" }
+
+[[example]]
+label  = "Green screen → transparent PNG"
+params = { key_color = "#00ff00", bg_type = "transparent", format = "png" }
+
+[[example]]
+label  = "Green screen → blue"
+params = { key_color = "#00ff00", bg_type = "solid", bg_color = "#1e66f5", format = "png" }
+
+[[example]]
+label  = "Blue screen → transparent"
+params = { key_color = "#0000ff", similarity = "35", bg_type = "transparent", format = "png" }
+
+[[example]]
+label  = "Green screen → sky gradient"
+params = { key_color = "#00ff00", bg_type = "gradient", bg_color = "#87ceeb", bg_color2 = "#ffffff", direction = "vertical", format = "png" }

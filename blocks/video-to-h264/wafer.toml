@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-to-h264"
+version = "0.1.0"
+abi = 1
+summary = "Force-transcode any video to universally-playable H.264 MP4."

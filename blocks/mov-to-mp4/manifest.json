@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/mov-to-mp4",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rewrap a MOV video into an MP4 container.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a QuickTime MOV video to MP4. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Default mode 'copy' stream-copies the streams into an MP4 container (lossless, instant) — works when the MOV holds H.264/HEVC + AAC (nearly all iPhone/camera clips). Use mode 'transcode' to re-encode to H.264/AAC for MOVs whose codecs MP4 can't hold (e.g. ProRes); quality 1-100 (default 75) maps to CRF and applies only to transcode.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "mode": {
+          "default": "copy",
+          "description": "How to produce the MP4. copy (default) = lossless container remux with -c copy: near-instant, no quality change, works when the MOV already holds H.264/HEVC video + AAC audio (nearly all iPhone/camera clips). transcode = re-encode to H.264/AAC — use for MOVs whose codecs MP4 can't hold, e.g. Apple ProRes.",
+          "enum": [
+            "copy",
+            "transcode"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Transcode quality 1-100 (default 75; higher = better quality, larger file). Maps to ffmpeg's libx264 CRF. Only used when mode=transcode; ignored for copy (a remux never re-encodes).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

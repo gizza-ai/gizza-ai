@@ -1,0 +1,23 @@
+[package]
+name = "gizza-ai-csv-to-xlsx-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+base64 = "0.22"
+gizza-ai-csv-to-xlsx-core = { path = "../core" }
+
+# The browser target (wasm32-unknown-unknown) has no std clock, so
+# rust_xlsxwriter's file-creation-timestamp call would panic at runtime. Its
+# `wasm` feature switches that call to js_sys::Date::now(). Enable it ONLY for
+# the wasm32 web build — Cargo feature unification then turns it on for the copy
+# of rust_xlsxwriter that `core` uses in this build. wafer's wasm32-wasip1 chat
+# build never compiles this crate, so it keeps the default SystemTime path
+# (backed by the clock wafer provides).
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+rust_xlsxwriter = { version = "0.79", features = ["wasm"] }

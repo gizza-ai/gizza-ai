@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-pdf-notes-outliner-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Reuse the proven PDF heading-detection engine (lopdf font-size ranking →
+# `#`/`##`/`###` Markdown) and the dependency-free TextRank summarizer, rather
+# than re-implementing either. Both are shipped blocks that build to
+# wasm32-wasip1 under `wafer build`.
+gizza-ai-pdf-to-markdown-core = { path = "../../pdf-to-markdown/core" }
+gizza-ai-textrank-summarize-core = { path = "../../textrank-summarize/core" }
+# Direct use for page-count + the per-page text probe that maps content pages
+# back onto real page numbers. Same wasm-safe pin/features as pdf-to-markdown.
+lopdf = { version = "=0.36.0", default-features = false }

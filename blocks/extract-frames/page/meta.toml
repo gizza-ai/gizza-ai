@@ -1,0 +1,91 @@
+slug          = "extract-frames"
+title         = "Extract Frames from a Video — Contact Sheet / Thumbnail Grid — gizza.ai"
+description   = "Sample frames from a video by interval, fps or scene change and tile them into one contact-sheet image. Free, in your browser with ffmpeg, nothing is uploaded."
+tags          = ["extract frames", "video contact sheet", "thumbnail grid", "storyboard", "scene detection", "video thumbnails", "frames per second", "ffmpeg"]
+h1            = "Extract Video Frames to a Contact Sheet"
+hero_subtitle = "Pick a video — frames are sampled by interval, fps or scene change and tiled into a single thumbnail grid in your browser. Nothing is uploaded."
+wasm          = "gizza_ai_extract_frames_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Contact sheet"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# mode, value, columns, rows, width, background, format.
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Sample frames by"
+
+[input.labels]
+"interval" = "Every N seconds (interval)"
+"fps"      = "N frames per second (fps)"
+"scene"    = "At scene changes"
+
+[[input]]
+name        = "value"
+source      = "field"
+label       = "Rate / threshold"
+placeholder = "2 (seconds) · fps rate · 0.3 scene sensitivity"
+
+[[input]]
+name        = "columns"
+source      = "field"
+label       = "Grid columns"
+placeholder = "4"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "rows"
+source      = "field"
+label       = "Grid rows"
+placeholder = "3"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Thumbnail width (px)"
+placeholder = "240"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Grid background color"
+placeholder = "white, black or #1A2B3C"
+kind        = "color"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"png" = "PNG — lossless, crisp"
+"jpg" = "JPG — smaller file"
+
+[[example]]
+label  = "Storyboard — every 2s"
+params = { mode = "interval", value = "2", columns = "4", rows = "3", background = "white", format = "png" }
+
+[[example]]
+label  = "1 frame per second"
+params = { mode = "fps", value = "1", columns = "4", rows = "3", background = "white", format = "png" }
+
+[[example]]
+label  = "At scene changes"
+params = { mode = "scene", value = "0.3", columns = "4", rows = "3", background = "black", format = "png" }
+
+[[example]]
+label  = "Dense 6×4 sheet"
+params = { mode = "interval", value = "1", columns = "6", rows = "4", width = "160", background = "black", format = "jpg" }

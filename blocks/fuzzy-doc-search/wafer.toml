@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fuzzy-doc-search"
+version = "0.1.0"
+abi = 1
+summary = "Fuzzy full-text search returning ranked snippets from pasted text"

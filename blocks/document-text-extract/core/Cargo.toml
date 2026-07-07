@@ -1,0 +1,20 @@
+[package]
+name = "gizza-ai-document-text-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Reuse the proven, wasm-safe format cores rather than duplicating them:
+# - pdf-extract-text-core (lopdf) for the PDF text layer,
+# - epub-to-markdown-core (zip + htmd/nanohtml2text) for EPUB plain text.
+gizza-ai-pdf-extract-text-core = { path = "../../pdf-extract-text/core" }
+gizza-ai-epub-to-markdown-core = { path = "../../epub-to-markdown/core" }
+# DOCX = a ZIP of WordprocessingML XML. Both crates instantiate under
+# `wafer build` (wasm32-wasip1): zip with deflate only, quick-xml pull-parser.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+quick-xml = { version = "0.40", default-features = false }
+
+[dev-dependencies]
+# Build a deterministic in-memory PDF fixture for the exact-output unit test.
+gizza-ai-text-to-pdf-core = { path = "../../text-to-pdf/core" }

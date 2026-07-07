@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-7z-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# sevenz-rust2: pure-Rust .7z reader. default-features off drops the C-binding
+# `bzip2`/`zstd` codecs (default-on, NOT wasm-safe) and the LZMA *encoder*; we
+# keep the always-on LZMA/LZMA2 decoders (the 7z defaults) and add `aes256` for
+# AES-256-encrypted archives. We decode from an in-memory `Cursor` via
+# `ArchiveReader::new` (never the std::fs `open`/`decompress` paths), so the
+# block instantiates under wafer (wasm32-wasip1).
+sevenz-rust2 = { version = "0.21", default-features = false, features = ["aes256"] }
+# zip: repack every extracted file into one downloadable ZIP (deflate only —
+# proven wasm32-safe read + write). Same output shape as blocks/archive-extractor.
+zip = { version = "8", default-features = false, features = ["deflate"] }

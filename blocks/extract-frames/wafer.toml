@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "extract-frames"
+version = "0.1.0"
+abi = 1
+summary = "Build a contact sheet of video frames sampled by interval, fps or scene change"
