@@ -50,15 +50,32 @@ is_page_slug() {
   return 1
 }
 
+# Last commit date (ISO 8601) touching a path — used for sitemap <lastmod>.
+# Empty when history is unavailable (shallow clone, no git); the tag is then
+# omitted rather than emitting a wrong date.
+git_lastmod() {
+  git -C "$REPO_ROOT" log -1 --format=%cI -- "$1" 2>/dev/null || true
+}
+
+emit_url() {
+  # $1 = loc, $2 = lastmod (may be empty)
+  if [[ -n "$2" ]]; then
+    printf '  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n' "$1" "$2"
+  else
+    printf '  <url><loc>%s</loc></url>\n' "$1"
+  fi
+}
+
 # --- sitemap.xml ---
+site_mod="$(git_lastmod site)"
 {
   printf '<?xml version="1.0" encoding="UTF-8"?>\n'
   printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-  printf '  <url><loc>%s/</loc></url>\n' "$BASE_URL"
-  printf '  <url><loc>%s/chat</loc></url>\n' "$BASE_URL"
-  printf '  <url><loc>%s/tools/</loc></url>\n' "$BASE_URL"
+  emit_url "$BASE_URL/" "$site_mod"
+  emit_url "$BASE_URL/chat" "$site_mod"
+  emit_url "$BASE_URL/tools/" "$(git_lastmod blocks)"
   for slug in "${page_slugs[@]}"; do
-    printf '  <url><loc>%s/tools/%s/</loc></url>\n' "$BASE_URL" "$slug"
+    emit_url "$BASE_URL/tools/$slug/" "$(git_lastmod "blocks/$slug/page")"
   done
   printf '</urlset>\n'
 } > "$PKG_DIR/sitemap.xml"

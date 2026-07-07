@@ -27,12 +27,14 @@ pub fn render_page(
     let mut client_cfg_json = meta.client_config(schema);
     client_cfg_json["custom"] = serde_json::json!(custom_js);
     let client_cfg = client_cfg_json.to_string().replace("</", "<\\/");
+    let og_image = format!("https://gizza.ai/tools/{}/og.png", meta.slug);
     let json_ld = serde_json::json!({
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": meta.h1,
         "description": meta.description,
         "url": canonical,
+        "image": og_image,
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -40,6 +42,28 @@ pub fn render_page(
     })
     .to_string()
     .replace("</", "<\\/");
+    let breadcrumbs_ld = breadcrumbs_json_ld(&[
+        ("Home", "https://gizza.ai/"),
+        ("Tools", "https://gizza.ai/tools/"),
+        (&meta.h1, &canonical),
+    ]);
+    // FAQPage JSON-LD mirrors the page's visible `## FAQ` <details> blocks
+    // (extracted from the rendered HTML — one source of truth, no drift).
+    // Pages without a FAQ section simply don't emit the block.
+    let faqs = crate::faq::extract_faqs(content_html);
+    let faq_ld = (!faqs.is_empty()).then(|| {
+        serde_json::json!({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.iter().map(|f| serde_json::json!({
+                "@type": "Question",
+                "name": f.question,
+                "acceptedAnswer": { "@type": "Answer", "text": f.answer_html },
+            })).collect::<Vec<_>>(),
+        })
+        .to_string()
+        .replace("</", "<\\/")
+    });
 
     // How to run THIS tool headlessly via the gizza CLI — the same
     // copy-paste-runnable example as the markdown twin (file tools include a
@@ -60,10 +84,14 @@ pub fn render_page(
                 meta property="og:title" content=(meta.title);
                 meta property="og:description" content=(meta.description);
                 meta property="og:url" content=(canonical);
-                meta property="og:image" content="https://gizza.ai/gis.png";
-                meta name="twitter:card" content="summary";
+                meta property="og:image" content=(og_image);
+                meta property="og:image:width" content="1200";
+                meta property="og:image:height" content="630";
+                meta property="og:image:alt" content=(meta.title);
+                meta name="twitter:card" content="summary_large_image";
                 meta name="twitter:title" content=(meta.title);
                 meta name="twitter:description" content=(meta.description);
+                meta name="twitter:image" content=(og_image);
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 link rel="stylesheet" href="./tool.css";
                 link rel="stylesheet" href="./header.css";
@@ -73,6 +101,10 @@ pub fn render_page(
                 link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
                 style { (PreEscaped(TOOL_CLI_CSS)) }
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
+                script type="application/ld+json" { (PreEscaped(breadcrumbs_ld)) }
+                @if let Some(faq_ld) = &faq_ld {
+                    script type="application/ld+json" { (PreEscaped(faq_ld)) }
+                }
                 script type="module" src="./header.js" {}
             }
             body {
@@ -321,6 +353,25 @@ pub fn render_page(
     markup.into_string()
 }
 
+/// BreadcrumbList JSON-LD for an ordered (name, url) trail, `</`-neutralized
+/// like the other JSON-LD blobs.
+fn breadcrumbs_json_ld(trail: &[(&str, &str)]) -> String {
+    serde_json::json!({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": trail.iter().enumerate().map(|(i, (name, url))| {
+            serde_json::json!({
+                "@type": "ListItem",
+                "position": i + 1,
+                "name": name,
+                "item": url,
+            })
+        }).collect::<Vec<_>>(),
+    })
+    .to_string()
+    .replace("</", "<\\/")
+}
+
 /// Inline styles for the per-tool "Run it from the terminal" CLI block.
 const TOOL_CLI_CSS: &str = r#"
 .tool-dev-group { max-width: 720px; margin: 48px auto 64px; }
@@ -426,16 +477,26 @@ pub fn render_tools_index(metas: &[ToolMeta]) -> String {
                 meta property="og:title" content=(title);
                 meta property="og:description" content=(description);
                 meta property="og:url" content=(canonical);
-                meta property="og:image" content="https://gizza.ai/gis.png";
-                meta name="twitter:card" content="summary";
+                meta property="og:image" content="https://gizza.ai/tools/og.png";
+                meta property="og:image:width" content="1200";
+                meta property="og:image:height" content="630";
+                meta property="og:image:alt" content=(title);
+                meta name="twitter:card" content="summary_large_image";
                 meta name="twitter:title" content=(title);
                 meta name="twitter:description" content=(description);
+                meta name="twitter:image" content="https://gizza.ai/tools/og.png";
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 link rel="stylesheet" href="./tool.css";
                 link rel="stylesheet" href="./header.css";
                 link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
                 style { (PreEscaped(TOOLS_INDEX_CSS)) }
                 script type="application/ld+json" { (PreEscaped(item_list)) }
+                script type="application/ld+json" {
+                    (PreEscaped(breadcrumbs_json_ld(&[
+                        ("Home", "https://gizza.ai/"),
+                        ("Tools", "https://gizza.ai/tools/"),
+                    ])))
+                }
                 script type="module" src="./header.js" {}
             }
             body {
@@ -536,6 +597,38 @@ source      = "field"
     }
 
     #[test]
+    fn emits_per_tool_og_image_and_breadcrumbs() {
+        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        assert!(
+            html.contains(r#"content="https://gizza.ai/tools/calculator/og.png""#),
+            "og:image + twitter:image point at the per-tool card"
+        );
+        assert!(html.contains(r#"property="og:image:width" content="1200""#));
+        assert!(html.contains(r#"property="og:image:height" content="630""#));
+        assert!(html.contains(r#"name="twitter:card" content="summary_large_image""#));
+        assert!(html.contains(r#""@type":"BreadcrumbList""#), "breadcrumbs JSON-LD present");
+        assert!(
+            html.contains(r#""image":"https://gizza.ai/tools/calculator/og.png""#),
+            "WebApplication JSON-LD carries the card as its image"
+        );
+    }
+
+    #[test]
+    fn faq_json_ld_mirrors_content_faq_section() {
+        let with_faq = "<h2>FAQ</h2>\
+            <details><summary>Is it private?</summary><p>Yes — runs locally.</p></details>";
+        let html = render_page(&sample(), with_faq, &ParamSchema::empty(), false, false);
+        assert!(html.contains(r#""@type":"FAQPage""#), "FAQPage JSON-LD present");
+        assert!(html.contains(r#""name":"Is it private?""#));
+
+        let without = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
+        assert!(
+            !without.contains("FAQPage"),
+            "no FAQPage block when the page has no FAQ section"
+        );
+    }
+
+    #[test]
     fn page_documents_query_param_deep_link() {
         let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false);
         assert!(html.contains("Open it by URL"), "deep-link section present");
@@ -586,6 +679,10 @@ source      = "field"
         // live filter: a search input + per-card data-slug the JS keys on
         assert!(html.contains(r#"id="tools-filter""#), "search filter input present");
         assert!(html.contains(r#"data-slug="calculator""#), "cards carry data-slug for filtering");
+        // landing page shares the generated /tools/og.png card
+        assert!(html.contains(r#"content="https://gizza.ai/tools/og.png""#));
+        assert!(html.contains(r#"name="twitter:card" content="summary_large_image""#));
+        assert!(html.contains(r#""@type":"BreadcrumbList""#));
     }
 
     fn ffmpeg_sample() -> ToolMeta {
