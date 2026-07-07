@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "document-scan"
+version = "0.1.0"
+abi = 1
+summary = "Perspective-correct a document photo into a flat, cropped scan."

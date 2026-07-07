@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-document-scan-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Decode the photo, warp its detected page quad flat, enhance, re-encode PNG.
+# Pure-Rust / wasm32-safe (same `image` stack as blur-image / scan-to-pdf); the
+# homography solve + bilinear warp + Otsu corner detection are hand-rolled, so
+# no imageproc / fast_image_resize (which bakes v128 SIMD wafer's wasmi rejects).
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
