@@ -1,0 +1,59 @@
+slug          = "csv-to-xlsx"
+title         = "CSV to Excel (XLSX) Converter — gizza.ai"
+description   = "Convert CSV, TSV or JSON into a real Excel .xlsx workbook — typed number/boolean columns, a bold frozen header, auto-fit widths. In-browser, nothing uploaded."
+tags          = ["csv to xlsx", "csv to excel", "json to excel", "xlsx converter", "spreadsheet", "tsv to excel"]
+h1            = "CSV to Excel (.xlsx)"
+hero_subtitle = "Paste CSV, TSV or JSON and download a real Excel workbook — numbers stay numbers, booleans stay booleans, and the header row is bold and frozen. Converted in your browser; nothing is uploaded."
+wasm          = "gizza_ai_csv_to_xlsx_web"
+export        = "run"
+live          = false
+output_label  = "Workbook"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Table data (CSV / TSV / JSON)"
+placeholder = "name,age,active\nAlice,30,true\nBob,25,false"
+source      = "field"
+multiline   = true
+
+# input_format renders as a <select> (option list from the descriptor schema);
+# `labels` only enriches the visible text — values stay canonical for deep-links.
+[[input]]
+name   = "input_format"
+label  = "Source format"
+source = "field"
+labels = { auto = "Auto-detect", csv = "CSV — comma", tsv = "TSV — tab", semicolon = "Semicolon ( ; )", pipe = "Pipe ( | )", json = "JSON — array of objects/rows", ndjson = "NDJSON / JSONL" }
+
+[[input]]
+name        = "sheet_name"
+label       = "Sheet name"
+placeholder = "Sheet1"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header (bold + frozen)"
+source = "field"
+
+[[input]]
+name   = "detect_types"
+label  = "Detect number & boolean types"
+source = "field"
+
+[[input]]
+name   = "autofit"
+label  = "Auto-fit column widths"
+source = "field"
+
+[[example]]
+label  = "People (CSV)"
+params = { data = "name,age,active\nAlice,30,true\nBob,25,false", input_format = "auto", sheet_name = "People" }
+
+[[example]]
+label  = "Sales (JSON)"
+params = { data = "[{\"product\":\"Widget\",\"qty\":12,\"price\":9.99},{\"product\":\"Gadget\",\"qty\":3,\"price\":19.5}]", input_format = "json", sheet_name = "Sales" }
+
+[[example]]
+label  = "Cities (semicolon)"
+params = { data = "id;city\n1;Berlin\n2;Paris", input_format = "auto", sheet_name = "Cities" }
