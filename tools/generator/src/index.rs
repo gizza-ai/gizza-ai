@@ -10,9 +10,13 @@ struct IndexEntry<'a> {
     title: &'a str,
     description: &'a str,
     tags: &'a [String],
+    /// Site-relative path of the tool's machine-readable descriptor
+    /// (`tool.json` — identity, URLs, CLI example, parameters JSON Schema).
+    descriptor: String,
 }
 
-/// Serialize `[{slug,title,description,tags}]` for every tool, in the given order.
+/// Serialize `[{slug,title,description,tags,descriptor}]` for every tool, in
+/// the given order.
 pub fn tools_index_json(metas: &[ToolMeta]) -> String {
     let entries: Vec<IndexEntry> = metas
         .iter()
@@ -21,6 +25,7 @@ pub fn tools_index_json(metas: &[ToolMeta]) -> String {
             title: &m.title,
             description: &m.description,
             tags: &m.tags,
+            descriptor: format!("/tools/{}/tool.json", m.slug),
         })
         .collect();
     serde_json::to_string(&entries).expect("serialize tools index")
@@ -110,6 +115,10 @@ source      = "field"
         assert_eq!(v[0]["description"], "Evaluate expressions instantly.");
         assert_eq!(v[0]["tags"][0], "math");
         assert_eq!(v[0]["tags"][1], "arithmetic");
+        assert_eq!(
+            v[0]["descriptor"], "/tools/calculator/tool.json",
+            "entry links the machine-readable descriptor"
+        );
     }
 
     #[test]

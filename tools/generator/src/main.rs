@@ -7,6 +7,7 @@
 
 mod categories;
 mod control;
+mod descriptor;
 mod faq;
 mod index;
 mod markdown;
@@ -87,6 +88,13 @@ fn run() -> Result<(), String> {
             markdown::tool_markdown(m, &content_md, &schema, &related),
         )
         .map_err(|e| format!("write index.md: {e}"))?;
+        // Machine-readable descriptor (identity, URLs, CLI example and the
+        // manifest's tool schema) — the agent-facing twin of the page.
+        fs::write(
+            out.join("tool.json"),
+            descriptor::tool_descriptor(m, &schema, descriptor::load_manifest(tool_dir).as_ref()),
+        )
+        .map_err(|e| format!("write tool.json: {e}"))?;
         // Per-tool Open Graph card — the page's og:image/twitter:image target.
         fs::write(out.join("og.png"), og_renderer.tool_card(m)?)
             .map_err(|e| format!("write og.png: {e}"))?;
