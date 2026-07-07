@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/image-resize-to-filesize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress an image to a target file size in KB by searching the best JPEG/WebP quality",
+  "role": "skill",
+  "tool": {
+    "description": "Compress an image to a target file size in KB. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call), a target_kb budget, and optionally format (jpg/webp) and max_width. The tool binary-searches the encoder quality for the highest quality whose file is at or under target_kb, optionally shrinking the width first. Output is JPEG or WebP (PNG has no quality knob to search).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "jpg",
+          "description": "Output format for the lossy quality search: \"jpg\" (widest support) or \"webp\" (smaller at equal quality). Default jpg.",
+          "enum": [
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "max_width": {
+          "default": 0,
+          "description": "Optional cap on output width in pixels (0 = keep original size). Shrinks only, never upscales. Use a smaller value when the target can't be reached at full resolution.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "target_kb": {
+          "description": "Target maximum output size in KB, e.g. 200. The tool searches the highest encoder quality whose file is at or under this budget (1 MB = 1024 KB).",
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_kb"
+      ],
+      "type": "object"
+    }
+  }
+}

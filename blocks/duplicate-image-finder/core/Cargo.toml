@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-duplicate-image-finder-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode + grayscale + resize (the image crate's own samplers,
+# NOT fast_image_resize — verified absent from the lock, so it instantiates under
+# `wafer build` with SIMD off). default-features off to drop rayon etc.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+serde = { version = "1", features = ["derive"] }

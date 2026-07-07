@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/fuzzy-doc-search",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fuzzy full-text search returning ranked snippets from pasted text",
+  "role": "skill",
+  "tool": {
+    "description": "Full-text fuzzy search over a block of text: finds the passages that best match your query even with typos, and returns them ranked by relevance with the matched words highlighted. Paste plain text or markdown (concatenate several documents to search across all of them). Tune fuzziness (0–3 typos per word), match any/all query words, whole-word or substring, case sensitivity, and whether to rank by line, sentence, or paragraph. To search a PDF/DOCX, extract its text first with document-text-extract, then search here. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "Match upper/lower case exactly. Default off (case-insensitive).",
+          "type": "boolean"
+        },
+        "fuzziness": {
+          "default": 1,
+          "description": "Typo tolerance: max edit distance per word, 0–3. 0 = exact/prefix only; 1 catches one typo. Default 1.",
+          "maximum": 3,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "match": {
+          "default": "any",
+          "description": "Match snippets containing ANY query word (OR) or ALL query words (AND). Default any.",
+          "enum": [
+            "any",
+            "all"
+          ],
+          "type": "string"
+        },
+        "max_results": {
+          "default": 10,
+          "description": "Maximum number of ranked snippets to return, 1–50. Default 10.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "The word(s) to search for, space-separated (e.g. 'receive parcel').",
+          "type": "string"
+        },
+        "text": {
+          "description": "The document text to search. Paste plain text or markdown; concatenate several documents to search across them all.",
+          "type": "string"
+        },
+        "unit": {
+          "default": "line",
+          "description": "Snippet granularity: rank one snippet per line, sentence, or paragraph. Default line.",
+          "enum": [
+            "line",
+            "sentence",
+            "paragraph"
+          ],
+          "type": "string"
+        },
+        "whole_word": {
+          "default": false,
+          "description": "Match whole words only. Default off, so a term also matches inside a longer word (prefix/substring).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "query",
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

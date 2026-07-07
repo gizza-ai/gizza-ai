@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/document-text-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract plain text from a PDF, DOCX, or EPUB document",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the searchable plain text from a document, auto-detecting the format from the file. Supports PDF (the embedded text layer only — it does NOT OCR scanned/image-only pages), DOCX (Microsoft Word), and EPUB (e-book). Provide url (HTTP/HTTPS) or ref from a prior tool call. Returns the extracted text, its character count, and the detected format.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}

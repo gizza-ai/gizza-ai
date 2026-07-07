@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "files-to-prompt"
+version = "0.1.0"
+abi = 1
+summary = "Bundle pasted files into one LLM-ready digest with a directory tree and token estimate."

@@ -29,3 +29,6 @@ tests/test-results/
 # per-tool web wasm build output
 blocks/*/web/pkg/
 blocks/*/web/target/
+
+# Playwright MCP debug artifacts (console logs + page snapshots)
+.playwright-mcp/

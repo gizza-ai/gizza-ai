@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-organize"
+version = "0.1.0"
+abi = 1
+summary = "Reorder, duplicate, delete, and rotate PDF pages"

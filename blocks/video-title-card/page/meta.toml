@@ -1,0 +1,103 @@
+slug          = "video-title-card"
+title         = "Add a Title or Lower Third to a Video Online — Free, In-Browser — gizza.ai"
+description   = "Add a styled title or lower-third caption to your video over a set time range — pick position, font size, color and a background bar. Free, in your browser."
+tags          = ["add text to video", "video title", "lower third", "caption video", "text overlay", "title card", "drawtext", "reels", "shorts", "ffmpeg"]
+h1            = "Add a Title or Lower Third to a Video"
+hero_subtitle = "Type your caption, choose where and when it appears, and style it — the text is burned onto the video in your browser. Nothing is uploaded."
+wasm          = "gizza_ai_video_title_card_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Captioned video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# text, position, font_size, font_color, background, background_color,
+# background_opacity, start, end.
+[[input]]
+name        = "text"
+source      = "field"
+label       = "Caption text"
+placeholder = "Jane Doe — Chief Engineer"
+
+[[input]]
+name   = "position"
+source = "field"
+label  = "Position"
+
+[input.labels]
+"top-left"      = "Top left"
+"top-center"    = "Top center"
+"top-right"     = "Top right"
+"center"        = "Center"
+"bottom-left"   = "Bottom left (lower third)"
+"bottom-center" = "Bottom center (lower third)"
+"bottom-right"  = "Bottom right"
+
+[[input]]
+name        = "font_size"
+source      = "field"
+label       = "Font size (px)"
+placeholder = "48"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "font_color"
+source      = "field"
+label       = "Text color"
+placeholder = "white, black or #FFCC00"
+kind        = "color"
+
+[[input]]
+name   = "background"
+source = "field"
+label  = "Background bar behind the text"
+
+[[input]]
+name        = "background_color"
+source      = "field"
+label       = "Background bar color"
+placeholder = "black or #000000"
+kind        = "color"
+
+[[input]]
+name        = "background_opacity"
+source      = "field"
+label       = "Background opacity"
+placeholder = "0.5"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "start"
+source      = "field"
+label       = "Show from (seconds)"
+placeholder = "0"
+
+[[input]]
+name        = "end"
+source      = "field"
+label       = "Show until (seconds)"
+placeholder = "5"
+
+[[example]]
+label  = "Lower third (bottom-left)"
+params = { text = "Jane Doe — CEO", position = "bottom-left", background = "true" }
+
+[[example]]
+label  = "Big centered title, no bar"
+params = { text = "SUMMER SALE", position = "center", font_size = "80", background = "false" }
+
+[[example]]
+label  = "Top banner"
+params = { text = "LIVE", position = "top-center", font_color = "#FFCC00", background = "true" }
+
+[[example]]
+label  = "First 3 seconds only"
+params = { text = "Welcome!", position = "bottom-center", start = "0", end = "3" }

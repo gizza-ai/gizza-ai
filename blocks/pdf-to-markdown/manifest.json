@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/pdf-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a PDF into clean structured Markdown",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a PDF's text layer into clean, structured Markdown — headings (from font-size statistics), bullet/numbered lists, and paragraphs — rather than a flat text dump. Provide url (HTTP/HTTPS) or ref from a prior tool call, optionally a 1-based page number (omit for all pages), page_separator (rule|blank), detect_lists, and dehyphenate. Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs, and does not reconstruct tables.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "dehyphenate": {
+          "default": true,
+          "description": "Rejoin words split by a hyphen at the end of a line (e.g. 'conver-' + 'sion' → 'conversion'). Default true.",
+          "type": "boolean"
+        },
+        "detect_lists": {
+          "default": true,
+          "description": "Convert lines starting with a bullet (•, -, *) or a number (1., 2)) into Markdown list items. Disable to keep them as plain text. Default true.",
+          "type": "boolean"
+        },
+        "page": {
+          "description": "1-based page number to convert. Omit to convert all pages (e.g. 1).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "page_separator": {
+          "default": "rule",
+          "description": "How to divide pages in the Markdown: 'rule' inserts a horizontal rule (---) between pages, 'blank' just a blank line. Default 'rule'.",
+          "enum": [
+            "rule",
+            "blank"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

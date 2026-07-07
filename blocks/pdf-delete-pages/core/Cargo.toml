@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-pdf-delete-pages-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# default features off: defaults pull rayon (no wasm32 build) + chrono/jiff/time.
+lopdf = { version = "0.36", default-features = false }

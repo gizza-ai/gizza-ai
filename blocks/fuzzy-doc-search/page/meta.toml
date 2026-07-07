@@ -1,0 +1,79 @@
+slug          = "fuzzy-doc-search"
+title         = "Fuzzy Text Search — find ranked matching snippets — gizza.ai"
+description   = "Paste text and fuzzy-search it — find the best-matching lines even with typos, ranked by relevance with the matches highlighted. Runs in your browser, no upload."
+tags          = ["fuzzy search", "full text search", "search in text", "find in document", "typo tolerant search", "ranked snippets", "search markdown", "grep online"]
+h1            = "Fuzzy Text Search"
+hero_subtitle = "Paste your text, type a query, and get the best-matching snippets ranked by relevance — typos and all. Everything runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_fuzzy_doc_search_web"
+export        = "run"
+live          = false
+output_label  = "Ranked matches"
+format        = "text"
+
+[[input]]
+name        = "query"
+label       = "Search query"
+placeholder = "address"
+source      = "field"
+
+[[input]]
+name        = "text"
+label       = "Text to search (paste one or more documents)"
+placeholder = "Shipping policy: orders are dispatched within two days.\nSend returns to our adress on file and include the receipt.\nRefunds are processed within five working days."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "match"
+label  = "Match"
+source = "field"
+
+[input.labels]
+"any" = "Any word (OR)"
+"all" = "All words (AND)"
+
+[[input]]
+name        = "fuzziness"
+label       = "Fuzziness (typos allowed, 0–3)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case sensitive"
+source = "field"
+
+[[input]]
+name   = "whole_word"
+label  = "Whole words only"
+source = "field"
+
+[[input]]
+name   = "unit"
+label  = "Rank by"
+source = "field"
+
+[input.labels]
+"line"      = "Line"
+"sentence"  = "Sentence"
+"paragraph" = "Paragraph"
+
+[[input]]
+name        = "max_results"
+label       = "Max results (1–50)"
+placeholder = "10"
+source      = "field"
+
+[[example]]
+label  = "Typo-tolerant (address ≈ adress)"
+params = { query = "address", text = "Shipping policy: orders are dispatched within two days.\nSend returns to our adress on file and include the receipt.\nRefunds are processed within five working days.\nContact support if your package is delayed or lost.", fuzziness = "1" }
+
+[[example]]
+label  = "Match all words (package + delayed)"
+params = { query = "package delayed", text = "Shipping policy: orders are dispatched within two days.\nSend returns to our adress on file and include the receipt.\nRefunds are processed within five working days.\nContact support if your package is delayed or lost.", match = "all" }
+
+[[example]]
+label  = "Rank by sentence"
+params = { query = "refund", text = "Orders ship within two days. Refunds are processed within five working days. Contact support if your package is delayed.", unit = "sentence" }

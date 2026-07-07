@@ -89,3 +89,18 @@ constant fails the vector.
 **HTML tokenizing (html-formatter / html-minifier):** HTML is NOT well-formed XML so quick-xml (used by
 xml-formatter) can't parse it. A forgiving quote-aware tag scanner (`scan_tag` skipping quoted `>`) works;
 VOID elements don't indent; pre/textarea/script/style are emitted verbatim.
+
+**Writing .xlsx workbooks (csv-to-xlsx):** `rust_xlsxwriter = "0.79"` (default features `[]`; its `zip`
+dep uses pure-Rust `deflate`/miniz_oxide) writes real Office Open XML workbooks and INSTANTIATES under
+`wafer build` (wasm32-wasip1). Native cell types: `write_number`/`write_boolean`/`write_string`(`_with_format`),
+`Format::new().set_bold()`, `set_freeze_panes(1,0)`, `worksheet.autofit()`, `workbook.save_to_buffer()`.
+**Browser gotcha:** every `Workbook::new()` stamps a creation timestamp via `ExcelDateTime::utc_now()` →
+`SystemTime::now()`, which **panics at runtime on wasm32-unknown-unknown** (no std clock) even though it's
+fine under wafer's wasi. rust_xlsxwriter's `wasm` feature switches that call to `js_sys::Date::now()`.
+Enable it ONLY for the browser build so the wafer/chat build keeps the SystemTime path:
+`[target.'cfg(target_arch = "wasm32")'.dependencies] rust_xlsxwriter = { version = "0.79", features = ["wasm"] }`
+in `web/Cargo.toml` (the web crate is only ever built by wasm-pack → wasm32-unknown-unknown; feature
+unification turns the feature on for the copy of rust_xlsxwriter `core` uses in that build). Verify a
+produced workbook by reading it back with `calamine` (dev-dep) or unzipping `xl/sharedStrings.xml` /
+`xl/worksheets/sheet1.xml`. Binary output → the page needs `page/custom.js` `renderResult` to turn the
+base64 `data:` URL into a Download button (reuse the generator's `#tool-output-download` anchor).

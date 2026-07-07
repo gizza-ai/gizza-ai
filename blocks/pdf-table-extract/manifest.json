@@ -1,0 +1,27 @@
+{
+  "name": "gizza-ai/pdf-table-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect tables in a PDF and export them as CSV/JSON",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Detect tables in a text-based PDF and export them as CSV, TSV, or JSON, preserving rows and columns. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Optionally pick a 1-based `page` (omit to scan every page), choose `format` (csv/json), a csv `delimiter` (comma/semicolon/tab), and whether the first row is a `header`. Reads the embedded selectable-text layer via text coordinates — it does not OCR scanned/image-only PDFs, and works best on pages with clearly separated, left-aligned columns.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":  { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref":  { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "page": { "type": "integer", "minimum": 1, "description": "1-based page number to extract tables from. Omit to scan every page (each page's table is returned separately)." },
+        "format": { "type": "string", "enum": ["csv", "json"], "default": "csv", "description": "Output format: \"csv\" (delimited rows) or \"json\" (array of {page, rows} objects). Default \"csv\"." },
+        "delimiter": { "type": "string", "enum": ["comma", "semicolon", "tab"], "default": "comma", "description": "Field delimiter for csv output: \"comma\" (.csv), \"semicolon\", or \"tab\" (.tsv). Ignored when format is json. Default \"comma\"." },
+        "header": { "type": "boolean", "default": false, "description": "Treat each table's first row as the column header. For json, data rows become objects keyed by the header; for csv the header row is kept in place. Default false." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
