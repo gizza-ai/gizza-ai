@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-resize-to-filesize"
+version = "0.1.0"
+abi = 1
+summary = "Compress an image to a target file size in KB by searching the best JPEG/WebP quality"

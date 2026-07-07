@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-title-card"
+version = "0.1.0"
+abi = 1
+summary = "Overlay a styled title or lower-third caption onto a video"

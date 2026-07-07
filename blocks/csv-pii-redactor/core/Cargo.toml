@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-csv-pii-redactor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+sha2 = "0.10"

@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/pdf-delete-pages",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove specific pages from a PDF and keep the rest",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Remove specific pages from a PDF, keeping the rest. Give the pages to delete as a 1-based comma list with inclusive ranges, e.g. '2,5' or '3-7,10' (or 'odd'/'even'); the surviving pages keep their original order and the selection cannot cover every page. Provide the PDF as either a URL or a `ref` to an uploaded PDF attachment.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "pages": {
+          "type": "string",
+          "description": "Which pages to delete, 1-based, as a comma list with inclusive ranges, e.g. '2,5' or '3-7,10'. Use 'odd' or 'even' to drop those page sets. The remaining pages keep their original order; the selection cannot cover every page."
+        }
+      },
+      "required": [
+        "pages"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}

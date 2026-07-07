@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-docx-to-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# lopdf writes the paginated PDF (built-in base-14 Helvetica/Courier fonts, no
+# font embedding). default-features = false keeps the tree wasm32-wasip1-clean —
+# same as markdown-to-pdf / pdf-to-epub.
+lopdf = { version = "0.36", default-features = false }
+# A .docx is a ZIP of XML; read the word/document.xml part (deflate).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# quick-xml parses the WordprocessingML body (paragraphs, runs, formatting).
+quick-xml = { version = "0.40", default-features = false }

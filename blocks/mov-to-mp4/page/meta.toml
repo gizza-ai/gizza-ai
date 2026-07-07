@@ -1,0 +1,47 @@
+slug          = "mov-to-mp4"
+title         = "Convert MOV to MP4 Online — gizza.ai"
+description   = "Free MOV to MP4 converter that runs in your browser. Lossless container remux (stream-copy) for H.264/HEVC clips, or re-encode ProRes. Nothing is uploaded."
+tags          = ["mov", "mp4", "convert", "video", "remux", "stream-copy", "quicktime", "iphone", "h264", "hevc", "prores", "reencode"]
+h1            = "Convert MOV to MP4"
+hero_subtitle = "Pick a QuickTime .mov and get an .mp4 — a lossless container remux when possible, re-encode when needed. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_mov_to_mp4_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "MP4 video"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "MOV video"
+
+[[input]]
+name        = "mode"
+source      = "field"
+label       = "Conversion mode"
+placeholder = "copy"
+
+[input.labels]
+"copy"      = "Remux (lossless, fast) — keeps H.264/HEVC + AAC"
+"transcode" = "Re-encode to H.264/AAC — for ProRes etc."
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Transcode quality (1–100)"
+placeholder = "75"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Lossless remux"
+params = { mode = "copy" }
+
+[[example]]
+label  = "Re-encode (ProRes) — high quality"
+params = { mode = "transcode", quality = "90" }
+
+[[example]]
+label  = "Re-encode — smaller file"
+params = { mode = "transcode", quality = "55" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-target-filesize-encoder"
+version = "0.1.0"
+abi = 1
+summary = "Re-encode a video to land under a target file size (MB) by computing the bitrate from its duration"

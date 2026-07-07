@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/png-optimizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Losslessly shrink a PNG (optimal filters + palette, pixels unchanged)",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Losslessly shrink a PNG by re-encoding it with optimal scanline filters, stronger compression, and a more compact color type — WITHOUT changing a single pixel. effort is fast|default|max (default default; max brute-forces every filter). reduce (default true) losslessly packs to an indexed palette when there are ≤256 colors, drops a fully-opaque alpha channel, and uses grayscale when possible. All metadata is stripped and the output is never interlaced or larger than the input. Non-PNG input is rejected. Provide the PNG as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "effort": { "type": "string", "enum": ["fast", "default", "max"], "default": "default", "description": "How hard to work for a smaller file: fast (quick, single pass), default (best compression + adaptive filter), or max (also brute-forces every scanline filter and keeps the smallest). Default \"default\"." },
+        "reduce": { "type": "boolean", "default": true, "description": "Lossless color-type reduction (default true): pack to an indexed palette when the image has ≤256 distinct colors, drop a fully-opaque alpha channel, and use grayscale when every pixel is gray. Set false to keep the original color type." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

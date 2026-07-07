@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/qif-ofx-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert QIF and OFX/QFX bank exports into clean normalized CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a QIF (Quicken Interchange Format) or OFX/QFX (Open Financial Exchange, both 1.x SGML and 2.x XML) bank export into a single normalized CSV with columns Date, Amount, Payee, Memo, Category, Check Number, Type, FITID — ready to import into budgeting/spreadsheet apps. format='auto' (default) detects QIF vs OFX; date_format normalizes the Date column to iso/us/eu (or raw); delimiter picks the CSV separator (comma/semicolon/tab/pipe); invert_amounts flips every amount's sign; drop_empty_columns omits columns that are empty across all rows. Paste the file contents in the 'data' field. Runs entirely in-browser; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The QIF or OFX/QFX bank-export text to convert. Paste the whole file contents (QIF records ending in '^', or OFX <STMTTRN> blocks).",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "iso",
+          "description": "How the Date column is written. iso=YYYY-MM-DD (default), us=MM/DD/YYYY, eu=DD/MM/YYYY, raw=keep the source date text unchanged. QIF month/day order is auto-detected (US month-first unless the first field exceeds 12).",
+          "enum": [
+            "iso",
+            "us",
+            "eu",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Output CSV field separator. Default comma. Use semicolon or a comma-decimal locale, tab for TSV, or pipe.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "drop_empty_columns": {
+          "default": false,
+          "description": "Omit output columns that hold no data across all rows (e.g. Type/FITID for QIF, or Category for OFX). Default false keeps the full fixed 8-column set (Date, Amount, Payee, Memo, Category, Check Number, Type, FITID) so import templates stay stable.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Input format. 'auto' (default) detects it: an OFX marker (<OFX>, <STMTTRN>, or OFXHEADER) selects OFX, otherwise QIF. 'ofx' also accepts QFX.",
+          "enum": [
+            "auto",
+            "qif",
+            "ofx"
+          ],
+          "type": "string"
+        },
+        "invert_amounts": {
+          "default": false,
+          "description": "Flip the sign of every amount — for banks/apps that export debits as positive and credits as negative (or vice-versa). Default false (signs kept as in the source).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

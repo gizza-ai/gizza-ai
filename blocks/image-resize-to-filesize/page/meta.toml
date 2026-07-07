@@ -1,0 +1,51 @@
+slug          = "image-resize-to-filesize"
+title         = "Compress Image to a Target File Size (KB) — gizza.ai"
+description   = "Compress a JPG or WebP to a target file size in KB. Enter a KB budget and it searches the best quality that fits — all in your browser, nothing uploaded, free."
+tags          = ["image", "compress", "file size", "kb", "target size", "jpeg", "webp", "reduce"]
+h1            = "Compress an Image to a Target File Size"
+hero_subtitle = "Set a KB budget — it binary-searches the best JPEG/WebP quality that lands under it, right in your browser."
+wasm          = "gizza_ai_image_resize_to_filesize_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Compressed image"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "target_kb"
+source      = "field"
+label       = "Target size (KB)"
+placeholder = "200"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+labels = { jpg = "JPEG (.jpg)", webp = "WebP (.webp)" }
+
+[[input]]
+name        = "max_width"
+source      = "field"
+label       = "Max width (px, 0 = keep)"
+placeholder = "0"
+
+[[example]]
+label  = "Under 50 KB (JPEG)"
+params = { target_kb = "50", format = "jpg" }
+
+[[example]]
+label  = "Under 100 KB (JPEG)"
+params = { target_kb = "100", format = "jpg" }
+
+[[example]]
+label  = "Under 200 KB (JPEG)"
+params = { target_kb = "200", format = "jpg" }
+
+[[example]]
+label  = "Under 100 KB (WebP)"
+params = { target_kb = "100", format = "webp" }

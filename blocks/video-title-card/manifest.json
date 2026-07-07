@@ -1,0 +1,98 @@
+{
+  "name": "gizza-ai/video-title-card",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Overlay a styled title or lower-third caption onto a video",
+  "role": "skill",
+  "tool": {
+    "description": "Overlay a styled title or lower-third caption onto a video over a chosen time range. Give the text plus, optionally, a position preset (top/center/bottom x left/center/right — default bottom-center, the classic lower-third), font size, text color, and a semi-transparent background box (color + opacity). start/end (seconds) gate when the caption appears and disappears via ffmpeg's enable window. The text is drawn literally (apostrophes, colons, % need no escaping) with a bundled bold sans-serif font. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Video re-encodes to H.264; audio is stream-copied when the container is kept (mp4/mov/m4v/mkv) or re-encoded to AAC when converting to mp4; MP4/MOV get +faststart. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": true,
+          "description": "Draw a semi-transparent box behind the text (the lower-third bar look). Default true.",
+          "type": "boolean"
+        },
+        "background_color": {
+          "default": "#000000",
+          "description": "Background box color (CSS name or hex). Default #000000 (black). Ignored when background is false.",
+          "type": "string"
+        },
+        "background_opacity": {
+          "default": 0.5,
+          "description": "Background box opacity from 0 (transparent) to 1 (solid). Default 0.5. Ignored when background is false.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "end": {
+          "default": 5.0,
+          "description": "Seconds into the video when the caption disappears. Default 5. Must be greater than start.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "font_color": {
+          "default": "#ffffff",
+          "description": "Text color: a CSS color name (white, black, navy, ...) or hex like #FFCC00 / #fc0. Default #ffffff (white).",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 48,
+          "description": "Font size in pixels (8-400). Default 48.",
+          "maximum": 400,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "position": {
+          "default": "bottom-center",
+          "description": "Where to anchor the text: top-left, top-center, top-right, center, bottom-left, bottom-center or bottom-right. Default bottom-center (classic lower-third).",
+          "enum": [
+            "top-left",
+            "top-center",
+            "top-right",
+            "center",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "start": {
+          "default": 0.0,
+          "description": "Seconds into the video when the caption appears. Default 0 (from the start).",
+          "minimum": 0,
+          "type": "number"
+        },
+        "text": {
+          "description": "The title or lower-third caption to overlay. Drawn literally, so apostrophes, colons and % are fine — no escaping needed. Keep it to one short line.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

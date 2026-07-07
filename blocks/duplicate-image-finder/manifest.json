@@ -1,0 +1,38 @@
+{
+  "name": "gizza-ai/duplicate-image-finder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find exact and near-duplicate images in a batch",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Scan a batch of images and report exact and near-duplicate pairs above a similarity threshold, with a suggested keep/delete list. Provide `images` as a list of 2+ sources (each a url or a `ref`; PNG/JPEG/WebP/GIF/BMP). `threshold` is a 0-100 similarity percent (default 90): a pair is reported when its perceptual similarity is at or above it; 100 keeps only visually identical images, lower catches looser matches. Byte-identical files are always flagged as exact. The result lists each image (dimensions, size, format, perceptual hash), the duplicate pairs (similarity %, Hamming distance, exact vs near), and grouped clusters whose suggested keep is the highest-resolution copy. Similarity uses a grayscale structural hash (dHash), so it is invariant to brightness, contrast, resizing and color; images that share a layout but differ in color, and flat/solid-color images, can be grouped — review before deleting.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "minItems": 2,
+          "description": "Two or more image sources (PNG/JPEG/WebP/GIF/BMP) to scan for duplicates. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
+              "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+            },
+            "additionalProperties": false
+          }
+        },
+        "threshold": {
+          "type": "number",
+          "default": 90.0,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Similarity cutoff, 0-100 percent. A pair is reported when its perceptual similarity is at or above this value. 100 keeps only visually identical images; 90 (default) catches resizes, re-compression and minor edits; lower toward 80 for looser matches. Byte-identical files are always reported as exact regardless of this value."
+        }
+      },
+      "required": ["images"],
+      "additionalProperties": false
+    }
+  }
+}

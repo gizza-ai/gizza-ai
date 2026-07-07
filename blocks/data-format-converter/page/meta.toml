@@ -1,0 +1,78 @@
+slug          = "data-format-converter"
+title         = "Data Format Converter — CSV, TSV, JSON & NDJSON — gizza.ai"
+description   = "Convert data between CSV, TSV, JSON, and NDJSON (JSONL) in any direction — auto-detects the source, infers types, unions keys. Free, in-browser, no upload."
+tags          = ["data format converter", "csv to json", "json to csv", "csv to ndjson", "json to ndjson", "ndjson to csv", "jsonl converter", "tsv to json", "json to jsonl", "ndjson converter", "tabular data converter"]
+h1            = "Data Format Converter"
+hero_subtitle = "Convert tabular and record data between CSV, TSV, JSON, and NDJSON (JSON Lines) in any direction. Auto-detects the source format, infers numbers and booleans, and unions record keys back into a table. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_data_format_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Input data"
+placeholder = "name,age\nAlice,30\nBob,25"
+source      = "field"
+multiline   = true
+
+# from / to render as <select> — the option lists come from the descriptor schema
+# (manifest.json); `labels` only enriches the visible text (values stay canonical
+# for deep-links / CLI).
+[[input]]
+name        = "from"
+label       = "From"
+source      = "field"
+labels      = { auto = "Auto-detect", csv = "CSV — comma-separated", tsv = "TSV — tab-separated", json = "JSON — single array", ndjson = "NDJSON / JSONL — one record per line" }
+
+[[input]]
+name        = "to"
+label       = "To"
+source      = "field"
+labels      = { csv = "CSV — comma-separated", tsv = "TSV — tab-separated", json = "JSON — single array", ndjson = "NDJSON / JSONL — one record per line" }
+
+[[input]]
+name        = "headers"
+label       = "First row is headers (CSV/TSV)"
+source      = "field"
+
+[[input]]
+name        = "infer_types"
+label       = "Infer numbers, booleans & null (CSV/TSV input)"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON output"
+source      = "field"
+
+[[input]]
+name        = "flatten"
+label       = "Flatten nested records into dot-notation columns (CSV/TSV output)"
+source      = "field"
+
+[[example]]
+label  = "CSV → JSON"
+params = { data = "name,age,active\nAlice,30,true\nBob,25,false", from = "csv", to = "json" }
+
+[[example]]
+label  = "JSON → NDJSON (JSONL)"
+params = { data = "[{\"id\":1,\"name\":\"Alice\"},{\"id\":2,\"name\":\"Bob\"}]", from = "json", to = "ndjson" }
+
+[[example]]
+label  = "CSV → NDJSON"
+params = { data = "id,city\n1,NYC\n2,LA", from = "csv", to = "ndjson" }
+
+[[example]]
+label  = "NDJSON → CSV"
+params = { data = "{\"a\":1,\"b\":2}\n{\"a\":3,\"c\":4}", from = "ndjson", to = "csv" }
+
+[[example]]
+label  = "TSV → JSON (pretty)"
+params = { data = "x\ty\n1\t2", from = "tsv", to = "json", pretty = "true" }
+
+[[example]]
+label  = "Flatten nested JSON → CSV"
+params = { data = "[{\"name\":\"Al\",\"addr\":{\"city\":\"NYC\",\"zip\":\"10001\"}}]", from = "json", to = "csv", flatten = "true" }
