@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
-use gizza_cli::{args, render, runtime};
+use gizza_cli::{args, mcp, render, runtime};
 
 #[derive(Parser)]
 #[command(name = "gizza", version)]
@@ -46,6 +46,8 @@ enum Commands {
         #[arg(long = "json-out")]
         json_out: bool,
     },
+    /// Run an MCP server on stdio (newline-delimited JSON-RPC) exposing every tool
+    Mcp,
 }
 
 #[tokio::main]
@@ -93,6 +95,13 @@ async fn main() {
                     "Parameters:  {}",
                     serde_json::to_string_pretty(&meta.parameters).unwrap()
                 );
+            }
+        }
+        Commands::Mcp => {
+            let rt = boot_or_die().await;
+            if let Err(e) = mcp::serve(rt).await {
+                eprintln!("MCP server error: {e}");
+                std::process::exit(1);
             }
         }
         Commands::Tool {
