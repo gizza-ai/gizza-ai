@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mov-to-mp4"
+version = "0.1.0"
+abi = 1
+summary = "Rewrap a MOV video into an MP4 container."
