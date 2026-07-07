@@ -1,0 +1,73 @@
+slug          = "log-parser"
+title         = "Log Parser — JSON, logfmt, syslog & Apache/nginx Access Logs — gizza.ai"
+description   = "Free log parser — auto-detects JSON/NDJSON, logfmt, syslog and Apache/nginx access logs into a filterable table, JSON, or CSV. Runs in your browser, no upload."
+tags          = ["log parser", "log viewer", "log analyzer", "json logs", "ndjson", "logfmt", "syslog parser", "apache access log", "nginx access log", "combined log format", "clf", "log to csv", "log to table"]
+h1            = "Log Parser"
+hero_subtitle = "Paste raw logs and get a structured, filterable table. Auto-detects JSON/NDJSON, logfmt, syslog (RFC 3164/5424), and Apache/nginx common & combined access logs — filter by severity or text, and export as Markdown, JSON, or CSV. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_log_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed logs"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "logs"
+label       = "Raw logs (one entry per line)"
+placeholder = "127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] \"GET / HTTP/1.0\" 200 2326 \"-\" \"Mozilla/5.0\""
+source      = "field"
+multiline   = true
+
+# format / output / level render as <select> — option lists come from the
+# descriptor schema (manifest.json); `labels` only enriches the visible text
+# (values stay canonical for deep-links / CLI).
+[[input]]
+name        = "format"
+label       = "Format"
+source      = "field"
+labels      = { auto = "Auto-detect", json = "JSON / NDJSON", logfmt = "logfmt (key=value)", syslog = "Syslog (RFC 3164/5424)", common = "Access log — Common (CLF)", combined = "Access log — Combined" }
+
+[[input]]
+name        = "output"
+label       = "Output as"
+source      = "field"
+labels      = { table = "Markdown table", json = "JSON array", csv = "CSV" }
+
+[[input]]
+name        = "level"
+label       = "Minimum severity"
+source      = "field"
+labels      = { all = "All levels", error = "Error and up", warn = "Warning and up", info = "Info and up", debug = "Debug and up", trace = "Trace and up" }
+
+[[input]]
+name        = "filter"
+label       = "Filter text"
+placeholder = "e.g. /api or timeout"
+source      = "field"
+
+[[input]]
+name        = "regex"
+label       = "Filter is a regular expression"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max rows (1–5000)"
+placeholder = "200"
+source      = "field"
+
+[[example]]
+label  = "Apache combined access log"
+params = { logs = "127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] \"GET /index.html HTTP/1.0\" 200 2326 \"-\" \"Mozilla/5.0\"\n10.0.0.5 - - [10/Oct/2000:13:55:37 -0700] \"GET /missing HTTP/1.1\" 404 512 \"-\" \"curl/7.0\"\n10.0.0.9 - - [10/Oct/2000:13:55:38 -0700] \"POST /api HTTP/1.1\" 500 12 \"-\" \"Go-http-client/1.1\"", format = "auto" }
+
+[[example]]
+label  = "JSON / NDJSON logs"
+params = { logs = "{\"ts\":\"2024-01-01T00:00:00Z\",\"level\":\"info\",\"msg\":\"server started\",\"port\":8080}\n{\"ts\":\"2024-01-01T00:00:05Z\",\"level\":\"warn\",\"msg\":\"high latency\",\"ms\":900}\n{\"ts\":\"2024-01-01T00:00:09Z\",\"level\":\"error\",\"msg\":\"db timeout\",\"attempt\":3}", format = "auto" }
+
+[[example]]
+label  = "logfmt (key=value)"
+params = { logs = "level=info msg=\"request handled\" method=GET path=/ status=200 dur=12ms\nlevel=warn msg=\"retrying\" attempt=2 backoff=100ms\nlevel=error msg=\"connection refused\" host=db:5432", format = "auto" }
+
+[[example]]
+label  = "Errors only, as CSV"
+params = { logs = "127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] \"GET /index.html HTTP/1.0\" 200 2326 \"-\" \"Mozilla/5.0\"\n10.0.0.5 - - [10/Oct/2000:13:55:37 -0700] \"GET /missing HTTP/1.1\" 404 512 \"-\" \"curl/7.0\"\n10.0.0.9 - - [10/Oct/2000:13:55:38 -0700] \"POST /api HTTP/1.1\" 500 12 \"-\" \"Go-http-client/1.1\"", format = "combined", level = "error", output = "csv" }
