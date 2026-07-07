@@ -18,6 +18,7 @@ convert-image-format   # duplicate of blocks/image-convert (same: re-encode imag
 image-vectorize        # duplicate of blocks/vectorize (same: trace a raster image into SVG)
 image-to-webp          # duplicate of blocks/image-convert (already does format=webp with quality)
 jpg-compressor         # duplicate of blocks/image-compress (re-encodes jpg at a quality, keeps dimensions)
+audio-gain-adjust      # duplicate of blocks/audio-volume-adjust (precise dB gain via volume=NdB + optional alimiter soft-clip, on by default)
 
 # Architecture-fit skips: need MORE THAN ONE media input. The page driver
 # (site/tool.js) handles a single source="file" upload, and the descriptor
