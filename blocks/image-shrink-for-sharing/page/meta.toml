@@ -1,0 +1,65 @@
+slug          = "image-shrink-for-sharing"
+title         = "Shrink an Image for Sharing — Resize, Strip Metadata & Compress — gizza.ai"
+description   = "Downscale, strip EXIF metadata, and compress a photo in one step for messaging, email or upload. Runs locally in your browser — nothing is uploaded, free."
+tags          = ["image", "compress", "shrink", "resize", "share", "optimize", "reduce file size", "strip exif", "photo", "jpeg", "png", "webp", "whatsapp", "email"]
+h1            = "Shrink an Image for Sharing"
+hero_subtitle = "Downscale, strip EXIF metadata, and compress a photo in one step — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_image_shrink_for_sharing_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Shrunk image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image (JPG, PNG or WebP)"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# max_dimension, quality, format, strip_metadata.
+[[input]]
+name        = "max_dimension"
+source      = "field"
+label       = "Max size — longest side (px)"
+placeholder = "1600"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (1–100)"
+placeholder = "80"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"keep" = "keep — same format as the input"
+"jpeg" = "JPEG — smallest photos"
+"png"  = "PNG — flat graphics / screenshots"
+"webp" = "WebP — modern, very small"
+
+[[input]]
+name   = "strip_metadata"
+source = "field"
+label  = "Strip metadata (EXIF, GPS, comments)"
+
+[[example]]
+label  = "Messaging (1600px, JPEG)"
+params = { max_dimension = "1600", quality = "80", format = "jpeg" }
+
+[[example]]
+label  = "Story / vertical (1080px, WebP)"
+params = { max_dimension = "1080", quality = "80", format = "webp" }
+
+[[example]]
+label  = "Email friendly (1024px, JPEG)"
+params = { max_dimension = "1024", quality = "75", format = "jpeg" }
+
+[[example]]
+label  = "Just compress (keep size)"
+params = { max_dimension = "0", quality = "70", format = "keep" }

@@ -1,0 +1,51 @@
+slug          = "video-target-filesize-encoder"
+title         = "Compress Video to a Target File Size (MB) — gizza.ai"
+description   = "Set an MB budget and it computes the H.264 bitrate from your clip's length to fit under it — for Discord, email or WhatsApp. Runs in your browser, nothing uploaded."
+tags          = ["video", "compress", "file size", "target size", "mb", "discord", "email", "bitrate", "mp4"]
+h1            = "Compress a Video to a Target File Size"
+hero_subtitle = "Pick an MB budget — it reads your clip's length, computes the right bitrate, and encodes an MP4 that lands under the cap. All in your browser."
+wasm          = "gizza_ai_video_target_filesize_encoder_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Compressed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "target_mb"
+source      = "field"
+label       = "Target size (MB)"
+placeholder = "10"
+
+[[input]]
+name   = "audio_kbps"
+source = "field"
+label  = "Audio"
+labels = { none = "No audio", "64" = "64 kbps (voice)", "96" = "96 kbps", "128" = "128 kbps (standard)", "192" = "192 kbps (high)", "320" = "320 kbps" }
+
+[[input]]
+name   = "scale"
+source = "field"
+label  = "Max resolution (height)"
+labels = { keep = "Keep original", "1080" = "1080p", "720" = "720p", "480" = "480p", "360" = "360p" }
+
+[[example]]
+label  = "Discord (10 MB)"
+params = { target_mb = "10", audio_kbps = "128", scale = "keep" }
+
+[[example]]
+label  = "Email (25 MB)"
+params = { target_mb = "25", audio_kbps = "128", scale = "keep" }
+
+[[example]]
+label  = "WhatsApp (16 MB, 720p)"
+params = { target_mb = "16", audio_kbps = "96", scale = "720" }
+
+[[example]]
+label  = "Tiny (5 MB, 480p, voice)"
+params = { target_mb = "5", audio_kbps = "64", scale = "480" }

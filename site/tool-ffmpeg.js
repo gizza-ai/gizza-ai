@@ -50,16 +50,23 @@ export async function runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs) {
   const bytes_b64 = bytesToB64(buf);
 
   // The web wasm builds the argv (pure, shared with the chat block's core).
-  // Signature: build_argv(...fieldArgs, inName) -> { argv: string[], out_name: string }.
+  // Signature: build_argv(...fieldArgs, inName) ->
+  //   { argv: string[], out_name: string, inputs?: [name, base64][] }.
+  // `inputs` (optional) are extra virtual-FS files — a bundled font + a text
+  // file for drawtext-style tools — written alongside the uploaded media so
+  // the shared filtergraph resolves the same way it does on the CLI.
   let plan;
   try {
     plan = mod[cfg.export](...fieldArgs, inName);
   } catch (e) {
     return { ok: false, error: typeof e === "string" ? e : e && e.message ? e.message : "invalid args" };
   }
+  const extraInputs = Array.isArray(plan.inputs)
+    ? plan.inputs.map(([name, b64]) => ({ name, bytes_b64: b64 }))
+    : [];
   const resp = await ffmpegExec(
     JSON.stringify(plan.argv),
-    JSON.stringify([{ name: inName, bytes_b64 }]),
+    JSON.stringify([{ name: inName, bytes_b64 }, ...extraInputs]),
     plan.out_name
   );
   if (resp.exit_code !== 0 || !resp.output_b64) {

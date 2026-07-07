@@ -1,0 +1,30 @@
+[package]
+name = "gizza-ai-archive-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only — read ZIP inputs and repack every extracted file into
+# one output ZIP. Proven wasm32-safe (read + write).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# tar: pure-Rust tar reader. default-features off drops the unix-only `xattr`
+# extra so it compiles to wasm32-wasip1; we only read entries.
+tar = { version = "0.4", default-features = false }
+# flate2: gzip (.gz / tar.gz) inflate — miniz_oxide backend, wasm32-safe.
+flate2 = "1"
+# bzip2-rs: pure-Rust bzip2 (.bz2) decoder, wasm32-safe (no libbz2 C bindings).
+bzip2-rs = "0.1"
+# lzma-rust2: pure-Rust XZ / LZMA codec (port of tukaani xz-for-java). Decodes
+# the .xz container. no_std-capable → wasm32-safe.
+lzma-rust2 = "0.16"
+# ruzstd: pure-Rust Zstandard (.zst) decoder, wasm32-safe (no libzstd C bindings).
+ruzstd = "0.8"
+# lz4_flex: pure-Rust LZ4 frame (.lz4) decoder, wasm32-safe.
+lz4_flex = { version = "0.11", default-features = false, features = ["frame", "std"] }
+
+[dev-dependencies]
+# Host-only encoders used to build round-trip test fixtures (never compiled to
+# wasm). banzai = bzip2 encoder; zstd = libzstd bindings (C compiler present).
+banzai = "0.3"
+zstd = "0.13"

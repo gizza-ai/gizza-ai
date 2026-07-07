@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-table-extract"
+version = "0.1.0"
+abi = 1
+summary = "Detect tables in a PDF and export them as CSV/JSON"

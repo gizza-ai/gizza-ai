@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/data-format-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert tabular/record data between CSV, TSV, JSON, and NDJSON in any direction.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert tabular/record data between CSV, TSV, JSON (a single array) and NDJSON (one JSON record per line, a.k.a. JSONL) in any direction. from='auto' (default) detects the source format; set from/to explicitly to force it. CSV/TSV parse the header row into object keys (headers=true, default) and infer numbers/booleans/null from cell text (infer_types=true, default; leading-zero values stay strings). JSON/NDJSON records are written back to a table by the union of their keys. pretty=true indents the 'json' target; flatten=true expands nested objects/arrays into dot-notation columns when writing CSV/TSV.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV, TSV, JSON, or NDJSON text to convert.",
+          "type": "string"
+        },
+        "flatten": {
+          "default": false,
+          "description": "When the target is CSV/TSV: expand nested objects/arrays into dot-notation columns (e.g. {\"addr\":{\"city\":\"NYC\"}} becomes column 'addr.city'). When false, nested values are written as compact JSON strings. Default false.",
+          "type": "boolean"
+        },
+        "from": {
+          "default": "auto",
+          "description": "Source format. 'auto' (default) detects it: text starting with '[' is a JSON array, '{' is a single JSON object (or NDJSON if every line is its own JSON value), otherwise CSV (or TSV when the first row is tab-separated).",
+          "enum": [
+            "auto",
+            "csv",
+            "tsv",
+            "json",
+            "ndjson"
+          ],
+          "type": "string"
+        },
+        "headers": {
+          "default": true,
+          "description": "For CSV/TSV: treat the first row as field names. Parsing gives an array of objects (true) or arrays (false); writing emits a header row from the record keys. Default true.",
+          "type": "boolean"
+        },
+        "infer_types": {
+          "default": true,
+          "description": "For CSV/TSV input: infer numbers, true/false, and empty->null from cell text. When false every cell stays a string. Leading-zero / '+'-prefixed values (zip codes, phone numbers) always stay strings. Ignored for JSON/NDJSON input. Default true.",
+          "type": "boolean"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Pretty-print (indent) JSON output. Only affects the 'json' target -- NDJSON is always one compact record per line. Default false.",
+          "type": "boolean"
+        },
+        "to": {
+          "default": "json",
+          "description": "Target format: 'json' (a single array), 'ndjson' (one JSON record per line, a.k.a. JSONL), 'csv' (comma-separated), or 'tsv' (tab-separated). Default 'json'.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json",
+            "ndjson"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

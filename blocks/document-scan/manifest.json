@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/document-scan",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Perspective-correct a document photo into a flat, cropped scan.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Turn a photo of a document into a flat, cropped 'scan': detect the page's four corners and perspective-correct (dewarp) it to a rectangle, then clean it up tonally. Provide the image as either url (HTTP/HTTPS) or ref. Leave corners empty to auto-detect the page (classical contrast detection — works best when the page is lighter than its background and fully in frame; on cluttered/low-contrast photos it errors and you pass corners `x0,y0,...,x3,y3`). Pick an enhancement mode (magic colour / grayscale / black & white / colour), output proportions (auto/A4/Letter/square), a rotation and a white margin. Returns a PNG. Note: does NOT do OCR/searchable text, and auto-detect is not ML — pass explicit corners for tricky scenes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "corners": { "type": "string", "description": "Optional manual page corners as 8 comma-separated source pixels `x0,y0,x1,y1,x2,y2,x3,y3` in order top-left, top-right, bottom-right, bottom-left. Leave empty to auto-detect the page (works best when the page is lighter than its background and fully in frame)." },
+        "mode": { "type": "string", "enum": ["magic", "grayscale", "blackwhite", "color"], "default": "magic", "description": "Tonal cleanup of the flattened page. magic (default): whiten the paper and lift contrast while keeping colour (the everyday 'scan' look). grayscale: perception-weighted grey. blackwhite: Otsu threshold → crisp pure black-on-white for forms/contracts. color: keep the warped colours unchanged." },
+        "output": { "type": "string", "enum": ["auto", "a4", "letter", "square"], "default": "auto", "description": "Output proportions. auto (default): the page's own measured shape. a4 / letter: force ISO A4 (210:297) or US Letter (8.5:11), matching the page's portrait/landscape orientation. square: a square." },
+        "rotate": { "type": "string", "enum": ["0", "90", "180", "270"], "default": "0", "description": "Clockwise rotation of the finished scan in degrees, to fix orientation: 0 (default), 90, 180 or 270." },
+        "margin": { "type": "number", "minimum": 0, "maximum": 25, "default": 0.0, "description": "White border added around the scan, as a percent of its longer side (0-25, default 0)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

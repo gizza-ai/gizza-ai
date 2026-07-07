@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/csv-pii-redactor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Mask, salted-hash, or redact chosen CSV columns",
+  "role": "skill",
+  "tool": {
+    "description": "Redact personally-identifiable data in the columns you choose of a CSV. Name columns by header (header=true) or 1-based index; the mode is 'mask' (replace characters with mask_char, keeping the last keep_last visible), 'hash' (salted SHA-256 hex code, deterministic so equal values map to equal codes), or 'redact' (replace with a fixed label). Non-selected columns and the header row are unchanged. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Comma-separated columns to redact: column names (when header=true) or 1-based indices, e.g. 'email,phone' or '2,4'. Only these columns are changed; others pass through.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text to redact.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "hash_length": {
+          "default": 8,
+          "description": "hash mode: how many hex characters of the SHA-256 code to keep, 4–64 (8 ≈ short code, 64 = full digest). Default 8.",
+          "maximum": 64,
+          "minimum": 4,
+          "type": "integer"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header so columns can be named and the header row is left unchanged (default true). With false, address columns by 1-based index.",
+          "type": "boolean"
+        },
+        "keep_last": {
+          "default": 0,
+          "description": "mask mode: leave the last N characters of each value visible, masking the rest (e.g. 4 → ****1234). Default 0 (mask everything).",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "label": {
+          "default": "[REDACTED]",
+          "description": "redact mode: the fixed string every selected cell becomes. Default '[REDACTED]'.",
+          "type": "string"
+        },
+        "mask_char": {
+          "default": "*",
+          "description": "mask mode: the character each hidden character becomes (single char). Default '*'.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "mask",
+          "description": "How to replace each selected cell: 'mask' = characters → mask_char (length kept, last keep_last visible); 'hash' = salted SHA-256 hex code (deterministic, joinable); 'redact' = the fixed label. Default 'mask'.",
+          "enum": [
+            "mask",
+            "hash",
+            "redact"
+          ],
+          "type": "string"
+        },
+        "salt": {
+          "description": "hash mode: salt prepended before hashing so codes aren't reversible via rainbow tables; the same salt+value always yields the same code (values stay joinable across files). Default empty.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "columns"
+      ],
+      "type": "object"
+    }
+  }
+}

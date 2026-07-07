@@ -6,7 +6,10 @@ set -euo pipefail
 
 slug="${1:?usage: scaffold-tool.sh <slug> <pure|ffmpeg>}"
 type="${2:?usage: scaffold-tool.sh <slug> <pure|ffmpeg>}"
-[[ "$slug" =~ ^[a-z][a-z0-9-]*$ ]] || { echo "slug must be kebab-case [a-z0-9-]" >&2; exit 2; }
+# kebab-case [a-z0-9-]; may start with a digit (e.g. 7z-extract) but not a hyphen,
+# and must not start/end with '-'. Block names allow leading digits (wafer-run
+# validate_block_name); all crate/lib identifiers are prefixed gizza-ai-/gizza_ai_.
+[[ "$slug" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]] || { echo "slug must be kebab-case [a-z0-9-], no leading/trailing hyphen" >&2; exit 2; }
 [[ "$type" == pure || "$type" == ffmpeg ]] || { echo "type must be pure|ffmpeg" >&2; exit 2; }
 root="$(cd "$(dirname "$0")/.." && pwd)"
 dir="$root/blocks/$slug"

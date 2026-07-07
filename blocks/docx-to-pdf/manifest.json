@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/docx-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Word .docx document into a paginated PDF",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Convert a Word .docx document into a clean, paginated PDF (US Letter by default, or A4). Carries over paragraphs, heading and title styles (scaled and bold), bold/italic text, explicit run font sizes, paragraph alignment (left/center/right; justify renders left-aligned), bullet and numbered list items (rendered with bullet markers, indented by level), hard line breaks, explicit page breaks, and tables (flattened to readable pipe-separated rows). Provide the .docx as url (HTTP/HTTPS) or ref from a prior tool call. font_size (base body size in points, default 11), margin (points, default 72 = 1 inch), page_size (letter or a4), and optional page_numbers are configurable. It is a lightweight structural converter using the built-in Helvetica fonts — it does not embed images or reproduce exact Word page layout. Returns a PDF. Runs locally — the document never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "font_size": {
+          "type": "number",
+          "minimum": 6,
+          "maximum": 48,
+          "description": "Base body font size in points for text without its own size (default 11). Text that carries an explicit size in the document keeps it; headings are scaled up from this."
+        },
+        "margin": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 300,
+          "description": "Page margin in points (default 72 = 1 inch). 72 points = 1 inch."
+        },
+        "page_size": {
+          "type": "string",
+          "enum": [
+            "letter",
+            "a4"
+          ],
+          "default": "letter",
+          "description": "Page size: 'letter' (US Letter, 8.5x11in, default) or 'a4' (210x297mm)."
+        },
+        "page_numbers": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, draw a centered 'n / total' page number in the bottom margin of each page. Default false."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}
