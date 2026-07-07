@@ -198,3 +198,4 @@ sql-query  # duplicate of blocks/csv-query (its descriptor already takes `data` 
 
 # Speech-to-text captioning is out-of-model: gizza's wasmi runtime has no ML model loader.
 video-to-captions  # out-of-model: the core deliverable is caption TEXT, which needs Whisper-class ASR (speech-to-text). ffmpeg (the type_hint) can extract/convert the audio track and detect silence segments, but CANNOT transcribe speech into words; there is no ML model loader in gizza's wasmi runtime (same loader-blocked class as transcribe/OCR/summarize/translate). Shipping only an audio-extractor mislabeled as a captioner would not produce the timestamped caption file. Revisit only if an in-model ASR path exists.
+heic-to-png  # out-of-model: same as heic-to-jpg (ea24995e) — no wasm/MIT HEIC/HEIF decoder (no ffmpeg HEIF demuxer; only pure-Rust decoder is AGPL); PNG output was never the blocker
