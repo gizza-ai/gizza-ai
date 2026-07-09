@@ -20,7 +20,9 @@ use wafer_run::{ResourceLimits, Wafer};
 
 use gizza_ai::lazy_skill::{LazySkillBlock, SkillWasmFetcher};
 
-/// Serves the committed calculator block wasm, counting every fetch.
+/// Serves the committed calculator block wasm, counting every fetch. Yields
+/// once before returning so concurrent first-use callers genuinely interleave
+/// at the fetch await point (as a real network fetch would).
 struct CountingFetcher {
     fetches: AtomicUsize,
 }
@@ -29,6 +31,7 @@ struct CountingFetcher {
 impl SkillWasmFetcher for CountingFetcher {
     async fn fetch(&self, _url: &str) -> Result<Vec<u8>, String> {
         self.fetches.fetch_add(1, Ordering::SeqCst);
+        tokio::task::yield_now().await;
         Ok(include_bytes!("../blocks/calculator/target/block.wasm").to_vec())
     }
 }
@@ -104,5 +107,65 @@ async fn boot_does_not_fetch_skill_wasm_first_use_does() {
         fetcher.fetches.load(Ordering::SeqCst),
         1,
         "subsequent handle() calls must reuse the cached instance"
+    );
+}
+
+#[tokio::test]
+async fn concurrent_first_use_single_flights_the_fetch() {
+    // Two invocations racing on the same still-unloaded skill must not each
+    // download + compile the wasm — and, worse, without single-flight the
+    // loser of the pending-Init take() caches an instance that never received
+    // its deferred Init. The fetcher yields, so the two calls genuinely
+    // interleave at the fetch await.
+    let manifest = include_str!("../blocks/calculator/manifest.json");
+    let info: BlockInfo = serde_json::from_str(manifest).expect("calculator manifest");
+    let name = info.name.clone();
+
+    let fetcher = Arc::new(CountingFetcher {
+        fetches: AtomicUsize::new(0),
+    });
+    let block = LazySkillBlock::new(
+        info,
+        "/blocks/calculator.wasm".to_string(),
+        ResourceLimits::default(),
+        Arc::new(NoopAssetLoader),
+        fetcher.clone(),
+    );
+
+    let mut wafer = Wafer::builder()
+        .disable_inventory()
+        .disable_lockfile()
+        .build()
+        .expect("Wafer::build");
+    wafer
+        .register_block(&name, Arc::new(block))
+        .expect("register lazy calculator stub");
+    let wafer = wafer.start().await.expect("start runtime");
+
+    let body1 = serde_json::to_vec(&json!({ "expr": "2+2" })).expect("serialize body");
+    let body2 = serde_json::to_vec(&json!({ "expr": "5*5" })).expect("serialize body");
+    let (out1, out2) = tokio::join!(
+        wafer.run_block(
+            &name,
+            Message::new("invoke"),
+            InputStream::from_bytes(body1)
+        ),
+        wafer.run_block(
+            &name,
+            Message::new("invoke"),
+            InputStream::from_bytes(body2)
+        ),
+    );
+    out1.collect_buffered()
+        .await
+        .expect("first concurrent call succeeds");
+    out2.collect_buffered()
+        .await
+        .expect("second concurrent call succeeds");
+    assert_eq!(
+        fetcher.fetches.load(Ordering::SeqCst),
+        1,
+        "concurrent first use must single-flight the wasm fetch (no double \
+         download, no cached instance that skipped its deferred Init)"
     );
 }
