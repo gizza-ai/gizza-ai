@@ -30,7 +30,9 @@ thiserror = "1"
 
 # Async
 async-trait = "0.1"
-futures = { version = "0.3", default-features = false, features = ["alloc"] }
+# "std" (implies "alloc") additionally enables futures::lock — the async
+# Mutex lazy_skill.rs uses to single-flight concurrent first-use wasm loads.
+futures = { version = "0.3", default-features = false, features = ["std"] }
 
 # HTML templating (for the UI block, Task 6)
 maud = { version = "0.26", default-features = false }
