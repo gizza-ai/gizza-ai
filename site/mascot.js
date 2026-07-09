@@ -74,16 +74,16 @@ export function initMascot(rootEl, opts = {}) {
         brandVideo.hidden = false;
         brandVideo.loop = loop;
         rootEl.dataset.pose = 'video';
-        const start = () => {
-            try { brandVideo.currentTime = 0; } catch (_) {}
-            brandVideo.play().catch(() => {});
-        };
         if (!videoSrcIs(src)) {
             brandVideo.src = src;
-            brandVideo.addEventListener('loadedmetadata', start, { once: true });
-        } else {
-            start();
         }
+        // play() directly — never gate it on `loadedmetadata`: with
+        // preload="none" (the chooser) the browser fetches nothing until
+        // play()/load() is called, so a loadedmetadata listener deadlocks and
+        // the mascot swaps to a blank <video> forever. play() itself kicks
+        // off the load and starts as soon as enough data arrives.
+        try { brandVideo.currentTime = 0; } catch (_) {}
+        brandVideo.play().catch(() => {});
     }
 
     function enterResting() {
