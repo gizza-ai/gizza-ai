@@ -12,17 +12,17 @@
 use std::sync::Arc;
 
 #[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::GIZZA_MAX_WASM_MEMORY_PAGES;
+#[cfg(target_arch = "wasm32")]
 use solobase_core::builder::{self, SolobaseBuilder};
 #[cfg(target_arch = "wasm32")]
 use solobase_core::RouteAccess;
 #[cfg(target_arch = "wasm32")]
+use wafer_block::types::BlockInfo;
+#[cfg(target_arch = "wasm32")]
 use wafer_core::interfaces::config::service::ConfigService;
 #[cfg(target_arch = "wasm32")]
-use gizza_ai_block_utils::GIZZA_MAX_WASM_MEMORY_PAGES;
-#[cfg(target_arch = "wasm32")]
 use wafer_run::{FuelLimit, ResourceLimits};
-#[cfg(target_arch = "wasm32")]
-use wafer_block::types::BlockInfo;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
@@ -30,7 +30,8 @@ pub mod blocks;
 #[cfg(target_arch = "wasm32")]
 pub mod config;
 pub mod ffmpeg;
-#[cfg(target_arch = "wasm32")]
+// Compiles on native too: `tests/lazy_skill_lifecycle.rs` covers the
+// boot-must-not-fetch-skill-wasm invariant with an injected fetcher.
 pub mod lazy_skill;
 pub mod skills;
 
@@ -226,6 +227,8 @@ pub async fn initialize() -> Result<(), JsValue> {
         fuel: FuelLimit::Unmetered,
         memory_pages: GIZZA_MAX_WASM_MEMORY_PAGES,
     };
+    let skill_fetcher: Arc<dyn lazy_skill::SkillWasmFetcher> =
+        Arc::new(lazy_skill::SwSkillWasmFetcher);
     for &(slug, manifest_json) in skills::SKILLS {
         let info: BlockInfo = serde_json::from_str(manifest_json)
             .map_err(|e| JsValue::from_str(&format!("skill manifest {slug}: {e}")))?;
@@ -235,6 +238,7 @@ pub async fn initialize() -> Result<(), JsValue> {
             format!("/blocks/{slug}.wasm"),
             skill_limits,
             asset_loader.clone(),
+            skill_fetcher.clone(),
         );
         wafer
             .register_block(&name, Arc::new(block))
