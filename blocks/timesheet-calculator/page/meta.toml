@@ -1,0 +1,73 @@
+slug          = "timesheet-calculator"
+title         = "Timesheet Calculator — Total Work Hours & Billable Amounts — gizza.ai"
+description   = "Paste a work log of start–stop times tagged by project and get total hours plus billable amounts with rates, rounding and overnight shifts."
+tags          = ["timesheet calculator", "billable hours calculator", "work hours calculator", "time card calculator", "hours worked calculator", "project time tracker", "freelance hours", "payroll hours"]
+h1            = "Timesheet Calculator"
+hero_subtitle = "Paste a work log of start–stop times tagged by project and instantly total the hours per project and the billable amount. Handles am/pm and overnight shifts, per-project rates, and 6-minute (0.1h) rounding — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_timesheet_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Timesheet (JSON)"
+format        = "text"
+
+[[input]]
+name        = "log"
+label       = "Work log (one entry per line)"
+placeholder = "9:00-12:30 Acme kickoff call\n13:00-17:15 Acme build feature\n2024-01-15 10:00-11:00 #Beta review"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rate"
+label       = "Default hourly rate"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "rates"
+label       = "Per-project rate overrides (Project=amount)"
+placeholder = "Acme=150, Beta=90"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+
+[[input]]
+name        = "round"
+label       = "Round each entry to"
+placeholder = ""
+source      = "field"
+
+[input.labels]
+"0"  = "No rounding (exact)"
+"6"  = "6 minutes (0.1h — legal standard)"
+"10" = "10 minutes"
+"15" = "15 minutes (quarter hour)"
+"30" = "30 minutes (half hour)"
+"60" = "60 minutes (whole hour)"
+
+[[example]]
+label = "Freelance day, $100/h"
+[example.params]
+log      = "9:00-12:30 Acme kickoff call\n13:00-17:15 Acme build feature\n2024-01-15 10:00-11:00 #Beta review"
+rate     = "100"
+currency = "$"
+round    = "0"
+
+[[example]]
+label = "Legal billing, 6-min rounding"
+[example.params]
+log   = "9:00-9:04 Smith intake call\n10:15-11:50 Smith drafting\n14:00-14:20 Jones review"
+rate  = "300"
+round = "6"
+
+[[example]]
+label = "Overnight on-call"
+[example.params]
+log   = "22:00-02:00 OnCall incident\n2024-02-01 8am-4:30pm #Support tickets"
+rate  = "75"
+round = "15"

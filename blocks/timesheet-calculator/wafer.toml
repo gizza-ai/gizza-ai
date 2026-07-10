@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "timesheet-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Total work-log hours per project and compute billable amounts"
