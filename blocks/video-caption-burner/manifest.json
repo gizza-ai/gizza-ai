@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/video-caption-burner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Burn SRT or WebVTT subtitles permanently into a video",
+  "role": "skill",
+  "tool": {
+    "description": "Hard-burn (\"open\") an SRT or WebVTT subtitle track onto a video so the captions are baked into the pixels — ideal for social clips that autoplay muted. Paste the subtitle file contents as `subtitles`; each timed cue is drawn only during its own start-end window. Optionally set position (bottom/center/top — default bottom), font size, text color, and a semi-transparent background box (color + opacity). Inline markup like <i>/<b> is stripped and text is drawn literally (no escaping needed) with a bundled bold sans-serif font. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Video re-encodes to H.264; audio is stream-copied when the container is kept (mp4/mov/m4v/mkv) or re-encoded to AAC when converting to mp4; MP4/MOV get +faststart. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": true,
+          "description": "Draw a semi-transparent box behind each caption for readability. Default true.",
+          "type": "boolean"
+        },
+        "background_color": {
+          "default": "#000000",
+          "description": "Background box color (CSS name or hex). Default #000000 (black). Ignored when background is false.",
+          "type": "string"
+        },
+        "background_opacity": {
+          "default": 0.5,
+          "description": "Background box opacity from 0 (transparent) to 1 (solid). Default 0.5. Ignored when background is false.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "font_color": {
+          "default": "#ffffff",
+          "description": "Caption text color: a CSS color name (white, black, yellow, ...) or hex like #FFCC00 / #fc0. Default #ffffff (white).",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 24,
+          "description": "Caption font size in pixels (8-200). Default 24.",
+          "maximum": 200,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "position": {
+          "default": "bottom",
+          "description": "Where to anchor the captions vertically: bottom, center or top (always horizontally centered). Default bottom.",
+          "enum": [
+            "bottom",
+            "center",
+            "top"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "subtitles": {
+          "description": "The caption track to burn in, as SRT or WebVTT text (the whole file's contents, including the `HH:MM:SS,mmm --> HH:MM:SS,mmm` timing lines). Each timed cue is drawn during its own window; inline tags like <i> are stripped. Text is drawn literally, so no escaping is needed.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subtitles"
+      ],
+      "type": "object"
+    }
+  }
+}
