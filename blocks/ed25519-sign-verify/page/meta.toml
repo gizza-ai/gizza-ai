@@ -1,0 +1,69 @@
+slug          = "ed25519-sign-verify"
+title         = "Ed25519 Sign & Verify — sign a message or check a signature — gizza.ai"
+description   = "Sign a message with an Ed25519 private key, or verify a signature with the public key — hex, base64, or PEM keys, entirely in your browser."
+tags          = ["ed25519 sign", "ed25519 verify", "eddsa", "curve25519", "digital signature", "rfc8032", "verify signature", "crypto"]
+h1            = "Ed25519 sign & verify"
+hero_subtitle = "Sign a message with your Ed25519 private key, or verify a signature with the public key. Keys as PEM, hex, or base64; deterministic (RFC 8032). Runs in your browser — keys never leave your device."
+wasm          = "gizza_ai_ed25519_sign_verify_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# operation and message_encoding render as <select>; option lists derive from the descriptor schema.
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[input.labels]
+sign   = "Sign (create a signature)"
+verify = "Verify (check a signature)"
+
+[[input]]
+name        = "message"
+label       = "Message"
+placeholder = "The message to sign or verify"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "message_encoding"
+label       = "Message encoding"
+source      = "field"
+
+[input.labels]
+utf8   = "UTF-8 text"
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name        = "key"
+label       = "Key (private to sign, public to verify)"
+placeholder = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----   ·   or raw 32-byte key as hex/base64"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "signature"
+label       = "Signature (verify only, hex or base64)"
+placeholder = "hex or base64 signature — required when verifying"
+source      = "field"
+multiline   = true
+
+[[example]]
+label = "Sign a message"
+[example.params]
+operation = "sign"
+message = "Hello, Ed25519!"
+message_encoding = "utf8"
+key = "4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb"
+
+[[example]]
+label = "Verify a signature"
+[example.params]
+operation = "verify"
+message = "72"
+message_encoding = "hex"
+key = "3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c"
+signature = "92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00"
