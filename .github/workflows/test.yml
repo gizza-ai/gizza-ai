@@ -322,6 +322,14 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test "${specs[@]}"
 
+      - name: Generate tool pages (full)
+        # Renders the /tools/ hub pages into pkg/tools/ — the landing-chooser
+        # smoke below asserts the chooser's Tools button lands on a real hub.
+        # (The generator only warns for tools without a built web/pkg.)
+        if: github.event_name != 'pull_request'
+        working-directory: gizza-ai
+        run: cargo run --manifest-path tools/generator/Cargo.toml -- .
+
       - name: Landing-chooser Playwright smoke
         # Guards the static chooser page in the pkg/ that "Build skill wasms
         # (full)" produced above — main-push only (PRs don't build the app pkg).
