@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/vcard-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert vCard (.vcf) contacts to a JSON array",
+  "role": "skill",
+  "tool": {
+    "description": "Parse vCard (.vcf) contact cards into a JSON array of contacts. Accepts vCard 2.1, 3.0, and 4.0, handling folded continuation lines, multiple cards in one file, repeatable properties (emails/phones/urls/addresses become arrays with their TYPE tags), group prefixes, and value unescaping. `structured` (default true) splits Name and Address into component fields; `wrap` is 'array' (bare array) or 'object' ({contacts,count}); `pretty` indents the JSON. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The vCard text — one or more .vcf contact cards (each a BEGIN:VCARD … END:VCARD block). vCard 2.1, 3.0, and 4.0 are accepted.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Pretty-print (indent) the JSON output instead of emitting it on one line. Default false.",
+          "type": "boolean"
+        },
+        "structured": {
+          "default": true,
+          "description": "Split the Name (N) into family/given/middle/prefix/suffix and each Address (ADR) into poBox/extended/street/locality/region/postalCode/country. With false, N and ADR stay as their raw semicolon-joined strings. Default true.",
+          "type": "boolean"
+        },
+        "wrap": {
+          "default": "array",
+          "description": "Top-level shape: 'array' returns a bare JSON array of contact objects; 'object' returns { \"contacts\": [...], \"count\": N }. Default 'array'.",
+          "enum": [
+            "array",
+            "object"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
