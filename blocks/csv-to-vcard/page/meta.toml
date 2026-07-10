@@ -1,0 +1,42 @@
+slug          = "csv-to-vcard"
+title         = "CSV to vCard Converter — Make .VCF Contact Files — gizza.ai"
+description   = "Convert CSV or JSON contact lists into a single .vcf vCard file for iPhone, Android, Google Contacts, Outlook, and CRM imports."
+tags          = ["csv to vcard", "csv to vcf", "contacts converter", "vcard generator", "vcf file", "google contacts", "outlook contacts", "iphone contacts", "android contacts", "json to vcard"]
+h1            = "CSV to vCard Converter"
+hero_subtitle = "Paste a CSV or JSON contact list and generate one standards-friendly .vcf file for bulk import into iPhone, Android, Google Contacts, Outlook, or your CRM. Runs locally in your browser."
+wasm          = "gizza_ai_csv_to_vcard_web"
+export        = "run"
+live          = false
+output_label  = "vCard (.vcf)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Contact data (CSV with header row, or JSON array)"
+placeholder = "First Name,Last Name,Email,Mobile Phone,Company\nJohn,Doe,john@example.com,555-1234,Acme"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[[input]]
+name        = "version"
+label       = "vCard version"
+source      = "field"
+
+[[example]]
+label  = "CSV contacts"
+params = { data = "First Name,Last Name,Email,Mobile Phone,Company\nJohn,Doe,john@ex.com,555-1234,Acme\nJane,Smith,jane@ex.com,555-9999,Example Co", input_format = "csv", delimiter = "comma", version = "3.0" }
+
+[[example]]
+label  = "JSON contact"
+params = { data = "[{\"first name\":\"Al\",\"last name\":\"Vy\",\"email\":\"al@example.com\",\"city\":\"NYC\"}]", input_format = "json", delimiter = "auto", version = "4.0" }
