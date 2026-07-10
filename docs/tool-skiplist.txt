@@ -163,6 +163,7 @@ drop-bytes  # duplicate of blocks/byte-drop (removes a byte/char range from text
 extract-video-metadata  # duplicate of blocks/media-info (reports container/codecs/duration/bitrate + per-track stream list for a video, ffprobe-style; resolution+fps are a minor media-info improvement, not a distinct tool)
 strip-image-metadata  # duplicate of blocks/strip-exif (already removes EXIF/GPS/XMP/IPTC/comments from JPEG/PNG without re-encoding; batch handling would be an interface improvement, not a distinct gizza tool)
 log-file-analyzer  # duplicate of blocks/log-parser (already parses/searches/filters logs by format, regex/text filter, severity, and row limits; file-upload/large-file UX would be an improvement, not a distinct tool)
+video-rotate-orientation  # duplicate of blocks/video-rotate (already rotates 90/180/270 degrees with ffmpeg and bakes the orientation into output pixels; orientation metadata wording is same scope)
 fuzzy-hash-compare  # duplicate of blocks/fuzzy-hash (its compare param already returns a 0-100 similarity score between two SSDEEP/CTPH hashes; core exposes public compare(h1,h2)->u32)
 hex-to-pem  # duplicate of blocks/pem-der-convert (direction=der-to-pem der_format=hex: wraps DER hex bytes into a PEM block with a chosen label + 64-char line folding)
 pem-to-hex  # duplicate of blocks/pem-der-convert (direction=pem-to-der der_format=hex: strips PEM armor, base64-decodes the body, emits DER bytes as hex)
