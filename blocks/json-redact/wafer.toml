@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-redact"
+version = "0.1.0"
+abi = 1
+summary = "Detect and mask secrets in a JSON document"

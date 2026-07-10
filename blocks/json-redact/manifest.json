@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/json-redact",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect and mask secrets in a JSON document",
+  "role": "skill",
+  "tool": {
+    "description": "Detect and mask secrets — API keys, tokens, passwords, private keys and emails — inside a JSON document before sharing it, keeping the JSON structure and key order intact. Detects both sensitive KEY names (password, secret, api_key, token, private_key, authorization, email, ssn…) and, when detect_values is on (default), secret-looking string VALUES (JWTs, AWS AKIA/OpenAI sk-/GitHub gh?_/Stripe/Google AIza/Slack keys, PEM private-key blocks, emails). style controls the replacement (redacted→placeholder, mask→'***', null, empty, preserve-length). placeholder sets the redacted text; extra_keys adds your own field-name markers. Returns the redacted JSON plus a count and the JSON path of every redacted value. Runs locally — the document never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "detect_values": {
+          "default": true,
+          "description": "Also scan string VALUES for secret patterns (JWTs, AWS/OpenAI/GitHub/Stripe/Google/Slack keys, PEM private keys, emails), not just sensitive key names. Default true.",
+          "type": "boolean"
+        },
+        "extra_keys": {
+          "default": "",
+          "description": "Comma-separated extra key-name markers to always redact, e.g. 'nickname,phone'. Matched case-insensitively as substrings of the normalized key. Default empty.",
+          "type": "string"
+        },
+        "json": {
+          "description": "The JSON document to scan and redact. Must be valid JSON (object, array or value).",
+          "type": "string"
+        },
+        "placeholder": {
+          "default": "[REDACTED]",
+          "description": "Replacement text used when style=redacted. Default '[REDACTED]'.",
+          "type": "string"
+        },
+        "style": {
+          "default": "redacted",
+          "description": "How to replace each detected secret: redacted (default) inserts the placeholder text; mask inserts '***'; null replaces with JSON null; empty replaces with \"\"; preserve-length replaces a string with '*' repeated to its original length.",
+          "enum": [
+            "redacted",
+            "mask",
+            "null",
+            "empty",
+            "preserve-length"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
