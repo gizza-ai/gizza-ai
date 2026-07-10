@@ -318,7 +318,7 @@ jobs:
             echo "No changed tool-page specs; skipping Playwright."
             exit 0
           fi
-          npm ci
+          npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
           npx playwright test "${specs[@]}"
 
@@ -330,6 +330,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm ci
+          npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
           npx playwright test landing-chooser.spec.ts
