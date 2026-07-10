@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/dotenv-manager",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse, validate, merge and secret-mask .env files.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse, validate, merge and secret-mask .env (dotenv) files. Pass the file text in `env`; the tool handles KEY=VALUE lines, # comments, blank lines, single/double quotes, inline comments and an 'export ' prefix. It flags duplicate keys (last value wins), keys missing from the comma-separated `required_keys` list, and lint issues (non-UPPER_SNAKE_CASE names, empty values, whitespace around '='). Set `merge` to a second .env to overlay it (its keys override — last-file-wins). `mask_secrets` (default true) masks values of sensitive-looking keys. `output` selects the shape: 'report' (default) a diagnostic summary; 'normalized' deduped KEY=value lines; 'example' a .env.example with blanked values; 'json' a JSON object of the merged pairs. Set `sort_keys` to emit keys alphabetically.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "env": {
+          "description": "The primary .env file contents (KEY=VALUE lines; # comments, blank lines, quotes and an 'export ' prefix are handled).",
+          "type": "string"
+        },
+        "mask_secrets": {
+          "default": true,
+          "description": "Mask values of sensitive-looking keys (names containing SECRET, TOKEN, PASSWORD, KEY, AUTH, etc.) in every value-bearing output. Default true.",
+          "type": "boolean"
+        },
+        "merge": {
+          "description": "Optional second .env file to overlay; its keys OVERRIDE matching keys from `env` (last-file-wins). Leave blank to validate a single file.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output form: 'report' (default) a diagnostic summary with duplicates/missing/lint warnings and masked values; 'normalized' deduped KEY=value lines (last value wins); 'example' a .env.example with blanked values; 'json' a JSON object of the merged pairs.",
+          "enum": [
+            "report",
+            "normalized",
+            "example",
+            "json"
+          ],
+          "type": "string"
+        },
+        "required_keys": {
+          "description": "Comma-separated key names that must be present after merging (e.g. 'DATABASE_URL,API_KEY'). Any missing ones are reported. Matched case-sensitively. Default none.",
+          "type": "string"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "Emit keys in alphabetical order instead of first-seen order. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "type": "object"
+    }
+  }
+}
