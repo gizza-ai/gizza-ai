@@ -205,7 +205,8 @@ jobs:
           done <<< "${{ steps.changed.outputs.blocks }}"
 
       - name: Cargo tests
-        if: github.event_name != 'pull_request'
+        # Root crate tests (lazy_skill lifecycle, skills_embed, agent, …) run
+        # on PRs too: repo-level regressions used to surface only after merge.
         working-directory: gizza-ai
         run: cargo test
 
@@ -229,7 +230,6 @@ jobs:
           fi
 
       - name: CLI tests
-        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: cargo test --manifest-path cli/Cargo.toml
 
@@ -246,7 +246,6 @@ jobs:
         run: bash scripts/check-tool-hygiene.test.sh
 
       - name: Chrome crate tests
-        if: github.event_name != 'pull_request'
         working-directory: gizza-ai
         run: cargo test --manifest-path chrome/Cargo.toml
 
@@ -260,8 +259,77 @@ jobs:
           node-version: '20'
 
       - name: JS tests
-        if: github.event_name != 'pull_request'
+        # The sw-bypass tests need the solobase-built pkg/sw.js: on main
+        # pushes (pkg built above) REQUIRE_BUILT_PKG makes a missing artifact
+        # a failure; on PRs (no app build) those two tests self-skip.
         working-directory: gizza-ai
+        env:
+          REQUIRE_BUILT_PKG: ${{ github.event_name != 'pull_request' && '1' || '' }}
         run: |
           npm install --no-audit --no-fund
           npm test
+
+      - name: Build changed tool pages
+        # Standalone tool pages are self-contained under pkg/tools/<slug>/
+        # (web wasm + generator output) — no app/solobase build needed. The
+        # generator regenerates all pages but only warns for tools whose
+        # web/pkg is absent (it copies wasm only for the ones built here).
+        if: github.event_name == 'pull_request'
+        working-directory: gizza-ai
+        shell: bash
+        run: |
+          set -euo pipefail
+          built=0
+          while IFS= read -r block; do
+            [ -n "$block" ] || continue
+            if [ ! -d "blocks/$block/web" ]; then
+              echo "blocks/$block has no web/ crate — skipping"
+              continue
+            fi
+            echo "Building web wasm for $block"
+            wasm-pack build "blocks/$block/web" --target web --release --out-dir pkg
+            built=$((built + 1))
+          done <<< "${{ steps.changed.outputs.blocks }}"
+          if [ "$built" -eq 0 ]; then
+            echo "No changed tool web crates; skipping page generation."
+            exit 0
+          fi
+          cargo run --manifest-path tools/generator/Cargo.toml -- .
+
+      - name: Changed tool-page Playwright tests
+        # Playwright runs headless (the fixtures only go headed under HEADED=1
+        # for WebLLM/WebGPU specs, which are not in this set). The webServer in
+        # playwright.config.ts serves ../pkg on :8001 automatically.
+        if: github.event_name == 'pull_request'
+        working-directory: gizza-ai/tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          specs=()
+          while IFS= read -r block; do
+            [ -n "$block" ] || continue
+            if [ -f "tool-page-$block.spec.ts" ]; then
+              specs+=("tool-page-$block.spec.ts")
+            else
+              echo "No Playwright spec for changed block '$block'"
+            fi
+          done <<< "${{ steps.changed.outputs.blocks }}"
+          if [ "${#specs[@]}" -eq 0 ]; then
+            echo "No changed tool-page specs; skipping Playwright."
+            exit 0
+          fi
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npx playwright test "${specs[@]}"
+
+      - name: Landing-chooser Playwright smoke
+        # Guards the static chooser page in the pkg/ that "Build skill wasms
+        # (full)" produced above — main-push only (PRs don't build the app pkg).
+        if: github.event_name != 'pull_request'
+        working-directory: gizza-ai/tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npx playwright test landing-chooser.spec.ts
