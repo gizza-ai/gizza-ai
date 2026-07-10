@@ -36,6 +36,11 @@ if [ ! -d "$parent/solobase" ]; then
   git clone https://github.com/suppers-ai/solobase "$parent/solobase"
 fi
 git -C "$parent/solobase" checkout "$(tr -d '[:space:]' < solobase-pin.txt)" 2>/dev/null || true
+# Best-effort pin (mirrors the solobase pin above): a local checkout on a
+# work branch is left alone by the `|| true`, same as solobase.
+wafer_sha="$(tr -d '[:space:]' < wafer-run-pin.txt)"
+git -C "$parent/wafer-run" fetch --depth 1 origin "$wafer_sha" 2>/dev/null || true
+git -C "$parent/wafer-run" checkout "$wafer_sha" 2>/dev/null || true
 
 log "solobase-web wasm (needed by solobase build.rs)"
 wasm-pack build "$parent/solobase/crates/solobase-web" --target web --release --out-dir pkg
@@ -43,7 +48,7 @@ wasm-pack build "$parent/solobase/crates/solobase-web" --target web --release --
 log "CLIs: wafer, solobase, gizza"
 command -v wafer    >/dev/null 2>&1 || cargo install --path "$parent/wafer-run/crates/wafer-cli" --locked
 command -v solobase >/dev/null 2>&1 || cargo install --path "$parent/solobase/crates/solobase" --locked
-cargo install --path cli
+cargo install --path cli --locked
 
 log "Playwright + chromium"
 ( cd tests && npm install && npx playwright install --with-deps chromium )

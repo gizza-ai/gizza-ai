@@ -15,12 +15,21 @@ needs both siblings checked out next to this repo:
 workspace/
   gizza-ai/     <- this repo
   solobase/     <- suppers-ai/solobase @ the SHA in solobase-pin.txt
-  wafer-run/    <- wafer-run/wafer-run @ main
+  wafer-run/    <- wafer-run/wafer-run @ the SHA in wafer-run-pin.txt
 ```
 
 Note: the per-block crates, the `gizza` CLI, and `tools/generator` pull `wafer-*`
 straight from git (`branch = "main"`), so **they build without the siblings**.
 Only the whole-app `solobase build` needs `../solobase` (and `solobase-web` wasm).
+
+The root, `cli/`, and `block-utils/` crates commit their `Cargo.lock`, which pins
+the wafer-run git deps to the SHA in `wafer-run-pin.txt` (CI's "Verify wafer-run
+pin consistency" step enforces the two agree, and that solobase's own Cargo.lock
+pins the same SHA). Bumping wafer-run = edit `wafer-run-pin.txt` + `cargo update`
+in those three roots (+ bump `solobase-pin.txt` if solobase moved with it). The
+per-block crates keep floating on `branch = "main"` deliberately: deploys never
+compile them (committed `blocks/*/target/block.wasm` + `SOLOBASE_SKIP_BLOCK_BUILD`),
+and pinning them would mean a ~250-manifest sed on every bump.
 
 ## Steps (verified 2026-06-20)
 
@@ -44,6 +53,7 @@ Only the whole-app `solobase build` needs `../solobase` (and `solobase-web` wasm
    git clone https://github.com/wafer-run/wafer-run ../wafer-run
    git clone https://github.com/suppers-ai/solobase ../solobase
    git -C ../solobase checkout "$(tr -d '[:space:]' < solobase-pin.txt)"
+   git -C ../wafer-run checkout "$(tr -d '[:space:]' < wafer-run-pin.txt)"
    ```
 5. **solobase-web wasm** (required by solobase's `build.rs`, which `include_bytes!`s it):
    `wasm-pack build ../solobase/crates/solobase-web --target web --release --out-dir pkg`
@@ -51,7 +61,7 @@ Only the whole-app `solobase build` needs `../solobase` (and `solobase-web` wasm
    ```bash
    cargo install --path ../wafer-run/crates/wafer-cli --locked   # → wafer
    cargo install --path ../solobase/crates/solobase --locked      # → solobase
-   cargo install --path cli                                       # → gizza
+   cargo install --path cli --locked                              # → gizza
    ```
 7. **Playwright + chromium** (page tests run **headed** under xvfb — the config
    sets `headless: false` for WebGPU):
