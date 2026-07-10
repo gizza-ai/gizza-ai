@@ -1,0 +1,59 @@
+slug          = "video-hdr-to-sdr"
+title         = "Convert HDR Video to SDR Online — gizza.ai"
+description   = "Tone-map an HDR (PQ/HLG, BT.2020) video down to SDR BT.709 so it stops looking gray, dim or washed-out. Runs in your browser with ffmpeg — nothing is uploaded."
+tags          = ["video", "hdr", "sdr", "tone-mapping", "bt2020", "bt709", "pq", "hlg", "convert"]
+h1            = "Convert HDR Video to SDR"
+hero_subtitle = "Upload an HDR clip — it's tone-mapped down to standard-dynamic-range in your browser, so it plays with correct color and brightness anywhere. Nothing is uploaded."
+wasm          = "gizza_ai_video_hdr_to_sdr_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "SDR video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "tonemap"
+source = "field"
+label  = "Tone-map curve"
+labels = { hable = "Hable (filmic, default)", mobius = "Mobius (keeps saturation)", reinhard = "Reinhard (flatter)", linear = "Linear (simple)", clip = "Clip (hard)" }
+
+[[input]]
+name        = "peak"
+source      = "field"
+label       = "Peak luminance (nits)"
+placeholder = "100"
+
+[[input]]
+name        = "desat"
+source      = "field"
+label       = "Highlight desaturation (0-4)"
+placeholder = "0"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+labels = { mp4 = "MP4 (H.264/AAC)", webm = "WebM (VP9/Opus)" }
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (1-100)"
+placeholder = "75"
+
+[[example]]
+label  = "Default (hable, MP4)"
+params = { tonemap = "hable", peak = "100", desat = "0", format = "mp4", quality = "75" }
+
+[[example]]
+label  = "Punchy midtones (mobius)"
+params = { tonemap = "mobius", peak = "100", desat = "0", format = "mp4", quality = "80" }
+
+[[example]]
+label  = "WebM output"
+params = { tonemap = "hable", peak = "100", desat = "0", format = "webm", quality = "75" }
