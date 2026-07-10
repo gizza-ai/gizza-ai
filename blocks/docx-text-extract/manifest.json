@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/docx-text-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a DOCX (Word) document to Markdown and plain text",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Microsoft Word .docx document into GitHub-Flavored Markdown and/or clean plain text, preserving the document structure: headings (from Word styles), ordered and bullet lists, tables (as Markdown pipe tables), hyperlinks, and bold/italic emphasis. Provide url (HTTP/HTTPS) or ref from a prior tool call. Set format to `both` (default), `markdown`, or `text`. Returns the requested representation(s) plus heading/table/word counts. Only .docx is supported (not legacy .doc); it reads the document text layer, not embedded images.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "both",
+          "description": "Which representation(s) to return: `both` (default) returns the Markdown structure and the plain text; `markdown` returns only the structured GitHub-Flavored Markdown; `text` returns only the plain text.",
+          "enum": [
+            "both",
+            "markdown",
+            "text"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
