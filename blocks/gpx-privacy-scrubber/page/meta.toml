@@ -1,0 +1,55 @@
+slug          = "gpx-privacy-scrubber"
+title         = "GPX Privacy Scrubber — Remove Start/End Points, Timestamps & Sensor Data | gizza.ai"
+description   = "Scrub a GPX file before sharing it: remove or fuzz start/end locations, rewrite timestamps, and strip sensor extensions. Runs locally in your browser."
+tags          = ["gpx", "privacy", "location", "gps", "fitness"]
+h1            = "GPX Privacy Scrubber"
+hero_subtitle = "Remove or fuzz the home/start/end locations, timestamps, and sensor data from a GPX track before sharing it."
+wasm          = "gizza_ai_gpx_privacy_scrubber_web"
+export        = "run"
+live          = false
+output_label  = "Scrubbed GPX"
+format        = "text"
+
+[[input]]
+name        = "gpx"
+label       = "GPX XML"
+placeholder = "Paste your GPX file here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Start/end handling"
+source = "field"
+
+[input.labels]
+remove = "Remove first and last points"
+fuzz   = "Fuzz first and last coordinates"
+
+[[input]]
+name        = "radius_m"
+label       = "Fuzz radius (metres)"
+placeholder = "200"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "10000"
+step        = "1"
+
+[[input]]
+name   = "scrub_timestamps"
+label  = "Rewrite all timestamps"
+source = "field"
+
+[[input]]
+name   = "remove_extensions"
+label  = "Remove sensor extensions"
+source = "field"
+
+[[example]]
+label  = "Remove start/end"
+params = { gpx = "<gpx version=\"1.1\"><trk><trkseg><trkpt lat=\"52.100000\" lon=\"4.100000\"><time>2024-01-01T08:00:00Z</time></trkpt><trkpt lat=\"52.200000\" lon=\"4.200000\"><time>2024-01-01T08:05:00Z</time><extensions><hr>150</hr></extensions></trkpt><trkpt lat=\"52.300000\" lon=\"4.300000\"><time>2024-01-01T08:10:00Z</time></trkpt></trkseg></trk></gpx>", mode = "remove", radius_m = "200", scrub_timestamps = "true", remove_extensions = "true" }
+
+[[example]]
+label  = "Fuzz endpoints"
+params = { gpx = "<gpx><trk><trkseg><trkpt lat=\"40.000000\" lon=\"-73.000000\"/><trkpt lat=\"40.100000\" lon=\"-73.100000\"/><trkpt lat=\"40.200000\" lon=\"-73.200000\"/></trkseg></trk></gpx>", mode = "fuzz", radius_m = "500", scrub_timestamps = "false", remove_extensions = "false" }
