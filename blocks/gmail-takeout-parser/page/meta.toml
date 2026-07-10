@@ -1,0 +1,65 @@
+slug          = "gmail-takeout-parser"
+title         = "Gmail Takeout Parser — mbox to CSV / JSON with Labels — gizza.ai"
+description   = "Turn a Google Takeout Gmail .mbox export into CSV or JSON — one row per message with date, from/to/cc, subject and Gmail labels. In-browser, no upload."
+tags          = ["gmail takeout parser", "mbox to csv", "mbox to json", "gmail labels export", "google takeout gmail", "mbox converter", "email to spreadsheet", "x-gmail-labels"]
+h1            = "Gmail Takeout mbox → CSV / JSON"
+hero_subtitle = "Paste a Google Takeout Gmail .mbox export and get a tidy table — one row per message with standardized dates, from/to/cc, subject and your Gmail labels. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_gmail_takeout_parser_web"
+export        = "run"
+live          = false
+output_label  = "Message table"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Gmail Takeout .mbox contents"
+placeholder = "From 1521178313854490905@xxx Mon Sep 03 10:00:00 +0000 2018\nX-Gmail-Labels: Inbox,Important,Work\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: Project kickoff\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nHi Bob, let's start the project on Monday."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+csv  = "CSV — open in a spreadsheet"
+json = "JSON — for scripts / automation"
+
+[[input]]
+name   = "include_body"
+label  = "Include a body snippet column"
+source = "field"
+
+[[input]]
+name        = "snippet_chars"
+label       = "Snippet length (characters, 0 = full body)"
+placeholder = "200"
+source      = "field"
+kind        = "slider"
+step        = "10"
+
+[[example]]
+label = "Two messages → CSV with labels"
+[example.params]
+input = "From 1521178313854490905@xxx Mon Sep 03 10:00:00 +0000 2018\nX-Gmail-Labels: Inbox,Important,Work\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: Project kickoff\nDate: Mon, 3 Sep 2018 10:00:00 +0000\nMessage-ID: <k1@example.com>\nContent-Type: text/plain; charset=utf-8\n\nHi Bob, let's start the project on Monday.\nThanks, Alice\nFrom 1611178313854490906@xxx Tue Sep 04 09:30:00 +0000 2018\nX-Gmail-Labels: Sent\nFrom: Bob <bob@example.org>\nTo: alice@example.com, carol@example.net\nCc: dave@example.com\nSubject: Re: Project kickoff\nDate: Tue, 4 Sep 2018 09:30:00 +0000\nMessage-ID: <k2@example.com>\nContent-Type: text/plain\n\nSounds good."
+format = "csv"
+include_body = "false"
+snippet_chars = "200"
+
+[[example]]
+label = "As JSON for scripts"
+[example.params]
+input = "From 1521178313854490905@xxx Mon Sep 03 10:00:00 +0000 2018\nX-Gmail-Labels: Inbox,Important,Work\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: Project kickoff\nDate: Mon, 3 Sep 2018 10:00:00 +0000\nMessage-ID: <k1@example.com>\n\nHi Bob, let's start the project on Monday."
+format = "json"
+include_body = "false"
+snippet_chars = "200"
+
+[[example]]
+label = "With a 40-char body snippet"
+[example.params]
+input = "From 1521178313854490905@xxx Mon Sep 03 10:00:00 +0000 2018\nX-Gmail-Labels: Inbox,Important,Work\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nSubject: Project kickoff\nDate: Mon, 3 Sep 2018 10:00:00 +0000\nMessage-ID: <k1@example.com>\n\nHi Bob, let's start the project on Monday."
+format = "csv"
+include_body = "true"
+snippet_chars = "40"

@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/gmail-takeout-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a Gmail Takeout mbox into a CSV/JSON table",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Google Takeout Gmail mbox export into a clean table of messages, one row per message, as CSV or JSON. Each row has the standardized date (ISO-8601), from, to, cc, subject, the Gmail labels (from the X-Gmail-Labels header), and the message-id; an optional length-capped body snippet column can be added. The mbox is split on `From ` postmark lines and parsed with a pure-Rust RFC 5322 parser — no LLM, no upload, no attachment extraction.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "csv",
+          "description": "Output format. 'csv' returns an RFC-4180 table (header row + one row per message). 'json' returns an array of message objects. Default 'csv'.",
+          "enum": [
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "include_body": {
+          "default": false,
+          "description": "Add a plain-text body snippet column ('snippet'). Off by default to keep the table compact.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The contents of a Google Takeout Gmail .mbox export (or a single RFC 5322 message). Messages are split on the `From ` postmark lines; each becomes one row with date, from, to, cc, subject, Gmail labels, and message-id columns.",
+          "type": "string"
+        },
+        "snippet_chars": {
+          "default": 200,
+          "description": "Maximum characters kept in the body snippet when include_body is on. 0 means the full body (no cap). Default 200.",
+          "maximum": 2000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
