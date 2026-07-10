@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mt940-statement-parse"
+version = "0.1.0"
+abi = 1
+summary = "Parse a SWIFT MT940 bank statement into JSON or CSV transactions and balances"
