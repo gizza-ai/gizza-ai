@@ -215,3 +215,4 @@ invoice-data-extractor  # out-of-model: scanned/photographed invoice needs OCR (
 
 voice-note-cleaner  # out-of-model: requires Whisper-class ASR plus summarization/cleanup model; ffmpeg/Rust can decode audio but cannot transcribe speech or summarize notes in current gizza pure+ffmpeg model
 video-onscreen-text-ocr  # out-of-model: extracting on-screen text from sampled video frames requires OCR (image/frame -> text). ffmpeg can sample frames, but cannot recognize text, and gizza's current pure-Rust+ffmpeg/wasmi model has no OCR engine or ML model loader. Same class as invoice-data-extractor / video-to-captions ASR skips.
+svg-rasterizer  # duplicate of blocks/svg-to-png (resvg+tiny-skia rasterizes an SVG document to PNG/JPEG at any resolution, handling gradients/fonts/filters)
