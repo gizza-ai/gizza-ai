@@ -119,6 +119,8 @@ base64-tool  # near-duplicate of blocks/multi-encoder (base64 encode/decode of t
 generate-totp  # near-duplicate of blocks/totp-generator (TOTP from base32 secret; digits/period/algorithm/timestamp all already covered)
 html-strip  # near-duplicate of blocks/html-to-text (strips HTML tags → clean plain text with entities decoded; same scope)
 image-to-base64  # near-duplicate of blocks/file-to-data-uri (encode file→data: URI, covers images) + extract-decode-base64 (decode); no distinct surface
+image-metadata-dumper  # duplicate of blocks/image-metadata-viewer (already reads image metadata as structured fields + GPS; XMP/IPTC breadth is an improvement to that block, not a new tool)
+javascript-beautifier  # near-duplicate of blocks/js-beautify (formats JavaScript with indentation)
 json-formatter  # near-duplicate of blocks/json-beautify (validate + pretty-print + minify(indent=0) JSON with error reporting; same scope)
 json-minify  # near-duplicate of blocks/json-beautify (indent=0 minifies JSON to smallest single line; same scope)
 json-stringify  # near-duplicate of blocks/json-escape (escape mode + quotes=true wraps text into a JSON string literal; same scope)
