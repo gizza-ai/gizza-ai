@@ -4,7 +4,13 @@
 /node_modules
 node_modules/
 **/target
+# Block crates resolve fresh (dev-time builds; deploys reuse committed wasm),
+# but the deploy/CI-critical cargo roots commit their lockfiles so the
+# wafer-run git deps can't float past the sha in wafer-run-pin.txt.
 Cargo.lock
+!/Cargo.lock
+!/cli/Cargo.lock
+!/block-utils/Cargo.lock
 
 # Git worktrees
 .worktrees/
