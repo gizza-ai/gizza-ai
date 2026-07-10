@@ -49,6 +49,10 @@ jobs:
         id: pin
         run: echo "solobase_sha=$(cat gizza-ai/solobase-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
 
+      - name: Read wafer-run pin
+        id: waferpin
+        run: echo "wafer_sha=$(cat gizza-ai/wafer-run-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+
       - name: Checkout solobase
         uses: actions/checkout@v4
         with:
@@ -57,15 +61,38 @@ jobs:
           path: solobase
 
       - name: Checkout wafer-run
-        # Cargo.lock is gitignored in this repo; using main HEAD here matches
-        # what cargo will resolve `branch = "main"` to at build time, so the
-        # block-crate path deps and the gizza-ai lib's git deps see the same
-        # wafer-run version.
+        # Pinned via wafer-run-pin.txt so wafer-run main breakage can't land in
+        # deploys. The committed Cargo.lock files pin the cargo builds to the
+        # same sha (enforced by "Verify wafer-run pin consistency" below); this
+        # checkout keeps the wafer CLI on that sha too.
         uses: actions/checkout@v4
         with:
           repository: wafer-run/wafer-run
-          ref: main
+          ref: ${{ steps.waferpin.outputs.wafer_sha }}
           path: wafer-run
+
+      - name: Verify wafer-run pin consistency
+        # Every cargo root that feeds this deploy must pin the same wafer-run
+        # sha as wafer-run-pin.txt — a half-bumped pin fails here in seconds
+        # with a clear message instead of 40 minutes into the build (or worse,
+        # silently deploying a mixed wafer-run combination).
+        shell: bash
+        run: |
+          set -euo pipefail
+          pin="$(tr -d '[:space:]' < gizza-ai/wafer-run-pin.txt)"
+          fail=0
+          for lock in gizza-ai/Cargo.lock gizza-ai/cli/Cargo.lock gizza-ai/block-utils/Cargo.lock solobase/Cargo.lock; do
+            shas="$(grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lock" | sed 's/.*#//' | sort -u)"
+            if [ "$shas" != "$pin" ]; then
+              echo "::error::$lock pins wafer-run at '${shas:-<none>}' but wafer-run-pin.txt says '$pin'."
+              fail=1
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo "Bump procedure: update wafer-run-pin.txt, run 'cargo update' in gizza-ai/, cli/, and block-utils/, and point solobase-pin.txt at a solobase commit whose Cargo.lock pins the same wafer-run sha."
+            exit 1
+          fi
+          echo "All lockfiles agree with wafer-run-pin.txt ($pin)."
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -165,7 +192,9 @@ jobs:
           echo "Published $count skill block wasm assets to pkg/blocks/"
 
       - name: Build gizza CLI
-        run: cargo install --path gizza-ai/cli
+        # --locked: respect the committed cli/Cargo.lock (cargo install ignores
+        # lockfiles otherwise), keeping the CLI's wafer-run deps on the pin.
+        run: cargo install --path gizza-ai/cli --locked
 
       - name: Generate SEO files
         working-directory: gizza-ai
