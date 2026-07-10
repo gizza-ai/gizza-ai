@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-doc-to-text-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# A legacy .doc is an OLE2 / Compound File Binary container. `cfb` is pure Rust
+# (byteorder + fnv + uuid, no getrandom) and instantiates under `wafer build`
+# (wasm32-wasip1). We read the WordDocument + table streams and walk the piece
+# table by hand — no heavier Word parser needed for text extraction.
+cfb = "0.10"

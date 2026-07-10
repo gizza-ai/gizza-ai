@@ -1,0 +1,45 @@
+{
+  "name": "gizza-ai/doc-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract plain text from a legacy Word 97-2003 .doc file",
+  "role": "skill",
+  "tool": {
+    "description": "Extract readable plain text from a legacy Microsoft Word .doc (Word 97-2003) binary file. Give a document URL or an uploaded reference. Returns the plain text plus word/paragraph counts. For the modern ZIP-based .docx use docx-text-extract instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "whitespace": {
+          "default": "clean",
+          "description": "How to post-process the extracted text: `clean` (default) collapses runs of blank lines to a single blank line and trims trailing spaces; `raw` returns the mapped text unchanged, preserving the original paragraph spacing.",
+          "enum": [
+            "clean",
+            "raw"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
