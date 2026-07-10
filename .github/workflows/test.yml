@@ -259,7 +259,12 @@ jobs:
           node-version: '20'
 
       - name: JS tests
+        # The sw-bypass tests need the solobase-built pkg/sw.js: on main
+        # pushes (pkg built above) REQUIRE_BUILT_PKG makes a missing artifact
+        # a failure; on PRs (no app build) those two tests self-skip.
         working-directory: gizza-ai
+        env:
+          REQUIRE_BUILT_PKG: ${{ github.event_name != 'pull_request' && '1' || '' }}
         run: |
           npm install --no-audit --no-fund
           npm test
