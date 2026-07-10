@@ -49,6 +49,7 @@ csv-to-tsv  # dup of csv-change-delimiter (comma->tab is the default tab target)
 decrypt-file  # dup of encrypt-file (mode=decrypt already implemented)
 file-encryptor  # dup of encrypt-file (password AES-GCM encrypt+decrypt already implemented)
 password-file-encrypt  # dup of encrypt-file (password-encrypt any file into a portable self-describing blob; XChaCha20-Poly1305/Argon2id vs AES-256-GCM/PBKDF2 is an internal-cipher choice, same user function)
+password-file-decrypt  # duplicate of blocks/encrypt-file (mode=decrypt already decrypts files produced by the password encryptor with the passphrase)
 javascript-runner  # needs a real JS engine (boa); boa compiles to wasm32-wasip1 but imports wasi poll_oneoff which the gizza wafer runtime does not provide -> fails to instantiate. No pure-Rust JS engine fits the minimal WASI host.
 sqlite-query  # needs a full SQLite engine over uploaded .db files; available Rust bindings depend on libsqlite3 C/wasm toolchains (rusqlite bundled spike failed for wasm32-wasip1 here), and no proven pure-Rust SQLite query engine fits wafer + wasm-pack + CLI surfaces
 json-csv-converter  # full dup of csv-json-convert (already bidirectional: direction=auto|csv-to-json|json-to-csv, headers/delimiter/pretty/flatten)
