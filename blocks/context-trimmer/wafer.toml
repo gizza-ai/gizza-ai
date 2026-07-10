@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "context-trimmer"
+version = "0.1.0"
+abi = 1
+summary = "Trim text to fit an approximate LLM token budget, keeping the head, tail, middle, or both ends."
