@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/subscription-finder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find recurring charges and subscriptions in pasted bank/card transactions.",
+  "role": "skill",
+  "tool": {
+    "description": "Find recurring charges and subscriptions in a pasted list of bank or card transactions — privately, with no bank linking. Paste the statement as one 'date, description, amount' row per line (transactions param). The tool groups repeat charges from the same merchant (merging near-equal amounts within tolerance), detects each one's cadence (weekly / biweekly / monthly / quarterly / semiannual / annual), estimates the next charge date, and projects the recurring monthly and annual spend, ranked by yearly cost. Use min_occurrences (default 2, 2-24) to set how many repeats flag a charge as recurring, currency for the display symbol, and date_format (auto/iso/us/eu) for the date column.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol to prefix amounts with in the report (e.g. $, £, €). Default '$'. Purely cosmetic — the tool does not convert currencies.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "auto",
+          "description": "How to read the date column. 'auto' (default) detects ISO (YYYY-MM-DD) by the dash and disambiguates slash dates by any day > 12; 'iso' = YYYY-MM-DD; 'us' = MM/DD/YYYY; 'eu' = DD/MM/YYYY.",
+          "enum": [
+            "auto",
+            "iso",
+            "us",
+            "eu"
+          ],
+          "type": "string"
+        },
+        "min_occurrences": {
+          "default": 2,
+          "description": "How many times a merchant+amount must repeat before it counts as recurring, 2-24. Default 2. Raise it to only surface well-established subscriptions.",
+          "maximum": 24,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "transactions": {
+          "description": "The statement rows, one per line as \"date, description, amount\" (e.g. 2026-01-15, Netflix, 15.99). Commas inside a description are fine — only the first field is the date and the last is the amount. Blank and unparseable lines (like a header row) are ignored. Amounts may include a currency symbol, grouping commas, or a minus/parentheses for a debit.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transactions"
+      ],
+      "type": "object"
+    }
+  }
+}
