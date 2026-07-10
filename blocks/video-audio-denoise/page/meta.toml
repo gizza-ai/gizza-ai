@@ -1,0 +1,55 @@
+slug          = "video-audio-denoise"
+title         = "Remove Background Noise from a Video Online — gizza.ai"
+description   = "Clean up hiss, hum and background noise in a video's audio right in your browser — pick a strength and denoiser. The picture is untouched. Nothing is uploaded, free."
+tags          = ["remove background noise video", "denoise video audio", "video noise reducer", "reduce hiss", "afftdn", "anlmdn", "ffmpeg"]
+h1            = "Remove Background Noise from a Video"
+hero_subtitle = "Pick a video and a strength — background hiss, hum and noise are reduced in your browser while the picture stays untouched. Nothing is uploaded."
+wasm          = "gizza_ai_video_audio_denoise_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Denoised video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "strength"
+source      = "field"
+kind        = "slider"
+label       = "Strength"
+placeholder = "12"
+step        = "1"
+
+[[input]]
+name   = "method"
+source = "field"
+label  = "Denoiser"
+
+[input.labels]
+afftdn = "FFT (afftdn) — fast"
+anlmdn = "Non-local means (anlmdn)"
+
+[[input]]
+name   = "remove_hum"
+source = "field"
+label  = "Also remove low hum/rumble"
+
+[[example]]
+label  = "Gentle cleanup"
+params = { strength = "12", method = "afftdn" }
+
+[[example]]
+label  = "Strong denoise"
+params = { strength = "40", method = "afftdn" }
+
+[[example]]
+label  = "Hiss + hum"
+params = { strength = "20", method = "afftdn", remove_hum = "true" }
+
+[[example]]
+label  = "Non-local means"
+params = { strength = "25", method = "anlmdn" }
