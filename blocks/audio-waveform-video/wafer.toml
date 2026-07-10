@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-waveform-video"
+version = "0.1.0"
+abi = 1
+summary = "Render an animated waveform video (MP4) from an audio file."

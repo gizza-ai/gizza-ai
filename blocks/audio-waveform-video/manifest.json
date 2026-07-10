@@ -1,0 +1,93 @@
+{
+  "name": "gizza-ai/audio-waveform-video",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render an animated waveform video (MP4) from an audio file.",
+  "role": "skill",
+  "tool": {
+    "description": "Render an animated waveform VIDEO (MP4, H.264 + AAC) from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). The moving waveform is generated from the audio and the original audio is muxed back in, so it stays perfectly in sync — ready to post to social. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). mode is mirror|bars|wave|points (default mirror = the centered audiogram look); width x height set the frame size in pixels (default 1280x720; use 720x1280 for a 9:16 story or 1080x1080 for a square); color is the wave's hex color (default #4f46e5; alpha via #RRGGBBAA); color2 turns the wave into a horizontal color->color2 gradient; background is the hex backdrop (default #101014, always opaque); scale (lin|sqrt|cbrt|log) boosts quiet audio's motion; fps is the frame rate 5-60 (default 25). Output is always an MP4 video the length of the audio.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "#101014",
+          "description": "Background color as hex: #RGB, #RRGGBB or #RRGGBBAA — e.g. #000000. The video is opaque (MP4 has no transparency), so a solid backdrop is always drawn. Default #101014 (near-black slate).",
+          "type": "string"
+        },
+        "color": {
+          "default": "#4f46e5",
+          "description": "Waveform color as hex: #RGB, #RRGGBB or #RRGGBBAA (alpha), e.g. #4f46e5 or #f00. Default #4f46e5.",
+          "type": "string"
+        },
+        "color2": {
+          "description": "Optional gradient end color (same hex forms). When set, the wave is filled with a horizontal left-to-right gradient from color to color2. Empty = solid color.",
+          "type": "string"
+        },
+        "fps": {
+          "default": 25,
+          "description": "Video frame rate, 5-60. Higher = smoother motion and a larger file. Default 25.",
+          "maximum": 60,
+          "minimum": 5,
+          "type": "integer"
+        },
+        "height": {
+          "default": 720,
+          "description": "Output video height in pixels, 64-2160. Default 720.",
+          "maximum": 2160,
+          "minimum": 64,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "mirror",
+          "description": "Waveform draw style. mirror (default) = a centered line, symmetric above and below the midline (the classic audiogram look); bars = one vertical bar per sample from the baseline; wave = a continuous line joining samples; points = a dot per sample.",
+          "enum": [
+            "mirror",
+            "bars",
+            "wave",
+            "points"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "scale": {
+          "default": "lin",
+          "description": "Amplitude scale. lin is the true waveform; sqrt, cbrt and log progressively boost quiet audio so the wave keeps moving. Default lin.",
+          "enum": [
+            "lin",
+            "sqrt",
+            "cbrt",
+            "log"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 1280,
+          "description": "Output video width in pixels, 64-3840. Default 1280 (720p 16:9 with the default height). For a 9:16 vertical/story video use 720×1280; for a square post use 1080×1080.",
+          "maximum": 3840,
+          "minimum": 64,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
