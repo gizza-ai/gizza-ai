@@ -126,3 +126,5 @@ mod tests {
         assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
     }
 }
+
+// CI-lane exercise marker (draft PR only; never merged).
