@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/video-denoise",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reduce visual noise/grain in a video",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce visual noise/grain in a video's picture with a temporal-spatial denoise filter. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus strength (1–100, higher removes more but risks softening detail; default 30) and method (hqdn3d = temporal+spatial 3D, fast, default; or nlmeans = non-local means, spatial only, slower, keeps detail on heavy noise). The picture is re-encoded to H.264 (crf 20); audio is kept as-is. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "method": {
+          "default": "hqdn3d",
+          "description": "Denoiser: hqdn3d (temporal + spatial 3D, fast, default) or nlmeans (non-local means, spatial only, slower but preserves detail better on heavy noise).",
+          "enum": [
+            "hqdn3d",
+            "nlmeans"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strength": {
+          "description": "How aggressively to reduce noise/grain, 1–100 (higher removes more but risks softening/smearing fine detail). Default 30. Clamped to 1–100.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
