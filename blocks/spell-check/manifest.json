@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/spell-check",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect misspelled words and suggest corrections",
+  "role": "skill",
+  "tool": {
+    "description": "Spell-check a block of English text and suggest corrections. Returns each misspelled word with its character offset and a ranked list of suggestions (most likely first), the count of misspellings, the number of words checked, and a fully corrected version of the text (each misspelling replaced by its top suggestion, casing preserved). Suggestions come from a bundled ~84k-word English dictionary via Damerau-Levenshtein edit distance ranked by word frequency. Options: max_suggestions (per word, default 5), ignore_uppercase (skip ACRONYMS, default true), ignore_capitalized (skip proper nouns, default false), and custom_words (extra correctly-spelled words). Words with digits or single letters are skipped. It checks spelling only — not grammar, punctuation, or real-word errors (a correctly spelled word used in the wrong place). Fully local and deterministic — no AI model.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "custom_words": {
+          "description": "Extra words to treat as correctly spelled (names, jargon, brand terms), separated by commas, spaces, or new lines.",
+          "type": "string"
+        },
+        "ignore_capitalized": {
+          "default": false,
+          "description": "When true, skip Capitalized words (likely names/proper nouns). Default false so sentence-start typos are still caught.",
+          "type": "boolean"
+        },
+        "ignore_uppercase": {
+          "default": true,
+          "description": "When true (default), skip ALL-CAPS tokens like NASA or HTML (treated as acronyms).",
+          "type": "boolean"
+        },
+        "max_suggestions": {
+          "description": "How many correction suggestions to return per misspelled word (default 5).",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The text to spell-check (English).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
