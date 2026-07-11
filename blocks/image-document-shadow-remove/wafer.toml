@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-document-shadow-remove"
+version = "0.1.0"
+abi = 1
+summary = "Remove shadows and uneven lighting from a document photo"
