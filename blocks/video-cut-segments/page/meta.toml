@@ -1,0 +1,42 @@
+slug          = "video-cut-segments"
+title         = "Cut a Video into Segments Online — Keep or Remove Windows — gizza.ai"
+description   = "Cut a video to multiple time windows, keep or remove those clips, and export one joined MP4. Runs locally in your browser."
+tags          = ["cut video", "trim video", "remove section", "jump cut", "multi trim", "join clips", "ffmpeg"]
+h1            = "Cut a Video into Segments"
+hero_subtitle = "Pick a video, type a list of start-end windows, and keep just those clips (joined) or remove them — it's cut in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_cut_segments_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Cut video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "segments"
+source      = "field"
+multiline   = true
+label       = "Time windows (start-end per line, or comma-separated)"
+placeholder = "0:05-0:10\n1:30-1:45"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Mode"
+labels = { keep = "Keep only these windows (join them)", remove = "Remove these windows (keep the rest)" }
+
+[[example]]
+label  = "Keep two clips"
+params = { segments = "0:00-0:05\n0:20-0:30", mode = "keep" }
+
+[[example]]
+label  = "Remove the middle section"
+params = { segments = "0:10-0:20", mode = "remove" }
+
+[[example]]
+label  = "Keep three highlights"
+params = { segments = "0:02-0:06, 0:15-0:20, 0:40-0:48", mode = "keep" }
