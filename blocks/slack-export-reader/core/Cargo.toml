@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-slack-export-reader-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only — a Slack export is a ZIP of JSON. default-features=false
+# drops the time/aes/bzip2/zstd features so it stays pure-Rust and wasm32-safe
+# (matches unzip / create-zip / epub-to-markdown).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

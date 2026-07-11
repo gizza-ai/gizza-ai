@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "slack-export-reader"
+version = "0.1.0"
+abi = 1
+summary = "Turn a Slack export ZIP into a readable Markdown or HTML transcript"
