@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/sql-dump-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the rows from a SQL dump's INSERT statements into CSV, one per table.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the row data from the INSERT statements in a SQL dump and return it as RFC-4180 CSV, one CSV section per table. Column names come from the INSERT column list when present, else from a matching CREATE TABLE, else generated col1..colN. Handles multi-row INSERTs, doubled '' and MySQL backslash string escapes, backtick/double-quote/[bracket] identifiers, and -- / # / /* */ comments. Options: table (export just one table), delimiter (comma/tab/semicolon/pipe), header (column-name row on/off), null_value (text for SQL NULL), quote (minimal/all), bom (UTF-8 BOM for Excel).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bom": {
+          "default": false,
+          "description": "Prepend a UTF-8 byte-order mark so Excel opens the CSV as UTF-8. Default false.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator for the output. One of: comma (CSV), tab (TSV), semicolon, or pipe. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Include a first row of column names (from the INSERT column list, else CREATE TABLE, else col1..colN). Default true.",
+          "type": "boolean"
+        },
+        "null_value": {
+          "description": "Text to write for a SQL NULL cell. Default is an empty field; set to e.g. NULL or \\N to make nulls explicit.",
+          "type": "string"
+        },
+        "quote": {
+          "default": "minimal",
+          "description": "Quoting policy. 'minimal' (default) wraps a field in double quotes only when it contains the delimiter, a quote, or a newline; 'all' wraps every field.",
+          "enum": [
+            "minimal",
+            "all"
+          ],
+          "type": "string"
+        },
+        "sql": {
+          "description": "The SQL dump text. INSERT statements provide the rows; CREATE TABLE (if present) supplies column names. Comments (-- , #, /* */) and other statements are ignored.",
+          "type": "string"
+        },
+        "table": {
+          "description": "Export only this table (case-insensitive, unquoted name). Blank exports every table found, each in its own '### TABLE: name' section.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sql"
+      ],
+      "type": "object"
+    }
+  }
+}
