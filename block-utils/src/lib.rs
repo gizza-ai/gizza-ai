@@ -294,6 +294,7 @@ pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static st
         (AssetKind::Image, "webp") => Some(("image/webp", "webp")),
         (AssetKind::Video, "mp4") => Some(("video/mp4", "mp4")),
         (AssetKind::Video, "webm") => Some(("video/webm", "webm")),
+        (AssetKind::Video, "mkv") => Some(("video/x-matroska", "mkv")),
         (AssetKind::Audio, "mp3") => Some(("audio/mpeg", "mp3")),
         (AssetKind::Audio, "wav") => Some(("audio/wav", "wav")),
         (AssetKind::Audio, "ogg") => Some(("audio/ogg", "ogg")),
@@ -1087,6 +1088,10 @@ mod tests {
         assert_eq!(
             format_to_mime_and_ext(AssetKind::Video, "webm"),
             Some(("video/webm", "webm"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Video, "mkv"),
+            Some(("video/x-matroska", "mkv"))
         );
     }
 

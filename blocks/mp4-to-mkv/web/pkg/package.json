@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-mp4-to-mkv-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_mp4_to_mkv_web_bg.wasm",
+    "gizza_ai_mp4_to_mkv_web.js",
+    "gizza_ai_mp4_to_mkv_web.d.ts"
+  ],
+  "main": "gizza_ai_mp4_to_mkv_web.js",
+  "types": "gizza_ai_mp4_to_mkv_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
