@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "period-predictor"
+version = "0.1.0"
+abi = 1
+summary = "Predict upcoming periods, ovulation and fertile windows"
