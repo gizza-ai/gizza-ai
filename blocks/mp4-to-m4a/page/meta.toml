@@ -1,0 +1,17 @@
+slug          = "mp4-to-m4a"
+title         = "Extract M4A Audio from MP4 Online — gizza.ai"
+description   = "Extract an MP4's audio track to M4A in your browser. Lossless stream-copy remux — no re-encode, no quality loss, nothing uploaded."
+tags          = ["mp4", "m4a", "extract audio", "audio", "remux", "stream-copy", "lossless", "no-reencode", "video to audio"]
+h1            = "Extract M4A Audio from MP4"
+hero_subtitle = "Pick an .mp4 and get its first audio track as .m4a — a lossless stream-copy remux with no re-encode. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_mp4_to_m4a_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "M4A audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/mp4,video/x-m4v,video/*"
+label  = "MP4 video"
