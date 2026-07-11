@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-to-vcard"
+version = "0.1.0"
+abi = 1
+summary = "Convert a CSV or JSON contact list into a .vcf file of vCards."

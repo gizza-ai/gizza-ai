@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-watermark"
+version = "0.1.0"
+abi = 1
+summary = "Stamp a text watermark onto every page of a PDF"

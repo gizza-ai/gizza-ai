@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-gpx-privacy-scrubber-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure string-scanning scrubber — no XML tree needed, so no deps. GPX in the wild
+# is regular enough (point elements, <time>, <extensions>) that byte scanning is
+# safe and keeps everything else in the document byte-for-byte intact.

@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/metadata-privacy-linter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan image metadata for privacy leaks before sharing.",
+  "role": "skill",
+  "tool": {
+    "description": "Scan image metadata for privacy-sensitive fields before sharing. Provide image_base64 as raw base64 bytes or a data URL. The tool detects JPEG/PNG/TIFF/WebP/HEIF/GIF containers and scans EXIF/TIFF, XMP, and IPTC/IIM metadata for GPS coordinates, camera or lens serials, owner/creator names, copyright, capture timestamps, editing software, descriptions and keywords. min_risk filters findings (all/medium/high). reveal_values defaults false so the report omits concrete metadata values and is safe to share; set true to include values and decoded GPS/map links. output is report or json. Pure and deterministic; no upload or network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "image_base64": {
+          "description": "Image bytes as base64 text, or a data URL such as data:image/jpeg;base64,... . JPEG, PNG, TIFF, WebP, HEIF, and GIF containers are recognized; EXIF/XMP/IPTC metadata is scanned when present.",
+          "type": "string"
+        },
+        "min_risk": {
+          "default": "all",
+          "description": "Minimum risk level to include: all (low+medium+high), medium, or high. Default all.",
+          "enum": [
+            "all",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: report (plain-English text) or json (structured report). Default report.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "reveal_values": {
+          "default": false,
+          "description": "Include the actual metadata values (GPS coordinates, owner names, serials, software). Default false so the report itself is safe to share.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "image_base64"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gmail-takeout-parser"
+version = "0.1.0"
+abi = 1
+summary = "Turn a Gmail Takeout mbox into a CSV/JSON table"

@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/list-set-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two lists and show only-in-A, only-in-B, and shared items.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two lists as sets and report which items are only in list A, only in list B, and shared by both — each with a count, plus a totals line (including the union size). Items are split by `separator` (newline by default, or comma/tab/semicolon/pipe/space). Normalization options: `ignore_case`, `trim` whitespace, `ignore_blank` empty items, `dedupe` repeats within a list (set semantics), and `ignore_leading_zeros` (007 == 7). `sort` orders each section (input/asc/desc). Great for diffing email lists, IDs, SKUs, or any two collections.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": true,
+          "description": "Collapse repeated items within each result section (set semantics). Turn off to keep every occurrence. Default true.",
+          "type": "boolean"
+        },
+        "ignore_blank": {
+          "default": true,
+          "description": "Drop empty items (e.g. blank lines). Default true.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare items case-insensitively (Apple == apple). Default false.",
+          "type": "boolean"
+        },
+        "ignore_leading_zeros": {
+          "default": false,
+          "description": "Treat leading zeros as insignificant so 007 and 7 match — handy for numeric IDs. Default false.",
+          "type": "boolean"
+        },
+        "list_a": {
+          "description": "The first list (\"A\"). Items separated per the `separator` param — one per line by default.",
+          "type": "string"
+        },
+        "list_b": {
+          "description": "The second list (\"B\"), same format as list_a.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "newline",
+          "description": "How items are split within each list: 'newline' (default, one per line), 'comma', 'tab', 'semicolon', 'pipe', or 'space'.",
+          "enum": [
+            "newline",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Ordering of each result section: 'input' (default, first-seen order), 'asc' (A→Z), or 'desc' (Z→A).",
+          "enum": [
+            "input",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading/trailing whitespace from each item before comparing. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "list_a",
+        "list_b"
+      ],
+      "type": "object"
+    }
+  }
+}

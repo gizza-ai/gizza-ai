@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/video-hdr-to-sdr",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Tone-map an HDR video down to SDR (BT.709).",
+  "role": "skill",
+  "tool": {
+    "description": "Tone-map an HDR video (PQ/HLG, BT.2020) down to standard-dynamic-range BT.709 so it no longer looks gray, dim, or washed-out on ordinary SDR screens. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). tonemap picks the curve (hable|mobius|reinhard|linear|clip, default hable); peak is target nits (default 100); desat is highlight desaturation 0-4 (default 0); format is mp4 or webm (default mp4); quality is 1-100 (default 75).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "desat": {
+          "default": 0.0,
+          "description": "Highlight desaturation strength 0-4 (default 0 keeps highlight color).",
+          "maximum": 4,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp4",
+          "description": "Output container (default mp4 = H.264/AAC; webm = VP9/Opus).",
+          "enum": [
+            "mp4",
+            "webm"
+          ],
+          "type": "string"
+        },
+        "peak": {
+          "default": 100,
+          "description": "Target SDR nominal peak luminance in nits (default 100 = reference SDR white).",
+          "maximum": 10000,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Quality 1-100 (default 75). Lower = smaller file, lower quality.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "tonemap": {
+          "default": "hable",
+          "description": "Tone-mapping curve (default hable). hable = filmic default; mobius keeps midtone saturation; reinhard is flatter; linear/clip are simplest.",
+          "enum": [
+            "hable",
+            "mobius",
+            "reinhard",
+            "linear",
+            "clip"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

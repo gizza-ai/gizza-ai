@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-fps"
+version = "0.1.0"
+abi = 1
+summary = "Change a video's frame rate with frame drop/duplication"

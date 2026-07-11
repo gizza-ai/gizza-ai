@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/action-item-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract action items, owners, and decisions from notes",
+  "role": "skill",
+  "tool": {
+    "description": "Turn meeting notes or daily notes into a structured action list. The extractor is deterministic: it pulls tasks from explicit signals such as ACTION/task markers, @handles, 'Alice will...' assignments, trailing owner tags, and imperative task verbs, and pulls decisions from markers like Decided, agreed, resolved, approved. It returns Markdown checklists or compact JSON with owners and decisions; it does not use an LLM or invent unstated tasks.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "markdown",
+          "description": "Output format. 'markdown' returns a checklist plus a Decisions section. 'json' returns {action_items:[{task,owner}],decisions:[...]} for automation.",
+          "enum": [
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "group_by": {
+          "default": "type",
+          "description": "Markdown grouping. 'type' keeps one Action Items checklist with owners inline. 'owner' groups tasks under owner headings and puts unassigned tasks last.",
+          "enum": [
+            "type",
+            "owner"
+          ],
+          "type": "string"
+        },
+        "include_decisions": {
+          "default": true,
+          "description": "Include a Decisions section (or decisions array in JSON) when decision markers are found. Turn off to return action items only.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Meeting notes, daily notes, or bullet lists to scan. Put one note or bullet per line. The extractor looks for explicit action markers (ACTION:, task:), owner assignments (Alice will...), @handles, imperative task verbs, and decision markers (Decided:, agreed, resolved).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

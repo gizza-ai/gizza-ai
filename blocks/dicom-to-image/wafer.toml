@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dicom-to-image"
+version = "0.1.0"
+abi = 1
+summary = "Convert an uncompressed grayscale DICOM (.dcm) scan to a PNG or JPEG image."

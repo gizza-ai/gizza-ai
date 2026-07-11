@@ -1,0 +1,98 @@
+slug          = "audio-waveform-video"
+title         = "Audio Waveform Video Generator — gizza.ai"
+description   = "Turn audio into an animated waveform MP4 in your browser. Pick mirror, bars or wave styles, colors, gradient, size and fps. Nothing uploaded."
+tags          = ["audio", "waveform", "video", "visualizer", "audiogram", "soundwave", "mp4", "music", "podcast", "mirror", "gradient", "social"]
+h1            = "Audio Waveform Video Generator"
+hero_subtitle = "Turn any audio track into an animated waveform MP4 — mirror, bars, wave or point styles, your colors and a gradient, at any size and frame rate. The original audio is muxed back in so it stays perfectly in sync. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_waveform_video_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Waveform MP4 video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio file"
+
+[[input]]
+name        = "mode"
+source      = "field"
+label       = "Waveform style"
+placeholder = "mirror"
+
+[input.labels]
+"mirror" = "Mirror — centered, symmetric (default)"
+"bars"   = "Bars — vertical bar per sample"
+"wave"   = "Wave — continuous line"
+"points" = "Points — dot per sample"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Width (px)"
+placeholder = "1280"
+kind        = "slider"
+step        = "20"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height (px)"
+placeholder = "720"
+kind        = "slider"
+step        = "20"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Wave color"
+placeholder = "#4f46e5"
+kind        = "color"
+
+[[input]]
+name        = "color2"
+source      = "field"
+label       = "Gradient end color (optional)"
+placeholder = "#ec4899"
+kind        = "color"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Background color"
+placeholder = "#101014"
+kind        = "color"
+
+[[input]]
+name        = "scale"
+source      = "field"
+label       = "Amplitude scale"
+placeholder = "lin"
+
+[input.labels]
+"lin"  = "Linear — true waveform (default)"
+"sqrt" = "Square root — boost quiet audio"
+"cbrt" = "Cube root — boost quiet audio more"
+"log"  = "Logarithmic — strongest boost"
+
+[[input]]
+name        = "fps"
+source      = "field"
+label       = "Frame rate (fps)"
+placeholder = "25"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Mirror audiogram (default 720p)"
+params = { mode = "mirror", width = "1280", height = "720", color = "#4f46e5", background = "#101014", scale = "lin", fps = "25" }
+
+[[example]]
+label  = "Vertical story bars (9:16)"
+params = { mode = "bars", width = "720", height = "1280", color = "#22d3ee", background = "#0b1220", scale = "sqrt", fps = "30" }
+
+[[example]]
+label  = "Square gradient wave"
+params = { mode = "mirror", width = "1080", height = "1080", color = "#6366f1", color2 = "#ec4899", background = "#0b0b12", scale = "lin", fps = "25" }

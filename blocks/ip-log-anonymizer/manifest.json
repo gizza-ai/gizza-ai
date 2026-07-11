@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/ip-log-anonymizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Mask or salted-hash IP addresses in a log",
+  "role": "skill",
+  "tool": {
+    "description": "Anonymize every IPv4 and IPv6 address inside a log or text for GDPR-compliant analytics, in place. Three modes: 'mask' zeros trailing octets/hextets like Google Analytics / Matomo (ipv4_octets default 1, ipv6_groups default 5 = keep the /48); 'hash' replaces each address with a short salted SHA-256 token (set `salt` to a secret; `hash_length` chars kept); 'redact' swaps a fixed `replacement` token. Set skip_private=true to leave internal 10.x/192.168.x/127.x/fc00::/fe80:: addresses untouched. Addresses are validated before replacement; ports, paths, and timestamps are preserved. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The log or text to anonymize. Every valid IPv4 and IPv6 address is replaced in place; all other characters (paths, ports, timestamps) are left untouched."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "mask",
+            "hash",
+            "redact"
+          ],
+          "default": "mask",
+          "description": "How to anonymize each address: 'mask' zeros the trailing octets/hextets (GA/Matomo-style truncation, keeps geolocation); 'hash' replaces it with a short salted SHA-256 token (stable pseudonym, not reversible); 'redact' swaps in a fixed placeholder token."
+        },
+        "ipv4_octets": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 4,
+          "description": "mask mode: how many trailing IPv4 octets to zero (1 = 203.0.113.45→203.0.113.0, the Google Analytics default; 2 matches Matomo's stricter default; 4 = 0.0.0.0). 0-4."
+        },
+        "ipv6_groups": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 0,
+          "maximum": 8,
+          "description": "mask mode: how many trailing IPv6 16-bit hextets to zero (5 = zero the last 80 bits, keeping the /48 prefix — the common GA/Cloudflare default; 8 zeros the whole address). 0-8."
+        },
+        "salt": {
+          "type": "string",
+          "default": "",
+          "description": "hash mode: a secret string mixed in before hashing. Strongly recommended — a per-project random salt makes the pseudonyms un-guessable; an empty salt still hashes but is vulnerable to reverse lookup."
+        },
+        "hash_length": {
+          "type": "integer",
+          "default": 12,
+          "minimum": 4,
+          "maximum": 64,
+          "description": "hash mode: how many hex characters of the SHA-256 digest to keep for each token (4-64; default 12). Longer = fewer collisions."
+        },
+        "replacement": {
+          "type": "string",
+          "default": "[IP]",
+          "description": "redact mode: the placeholder token that replaces each address (e.g. '[IP]', '[REDACTED]', 'x.x.x.x')."
+        },
+        "skip_private": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, private/loopback/link-local addresses (10.x, 192.168.x, 127.x, fc00::/7, fe80::/10, …) are left untouched — they are not personal data. Default false anonymizes every address."
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

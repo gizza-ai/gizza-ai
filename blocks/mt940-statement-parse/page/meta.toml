@@ -1,0 +1,74 @@
+slug          = "mt940-statement-parse"
+title         = "MT940 Parser — Convert SWIFT Bank Statements to JSON or CSV"
+description   = "Parse a SWIFT MT940 bank statement into JSON or CSV in your browser: balances, dates, debit/credit, amounts, references and narrative. No upload, free."
+tags          = ["mt940 parser", "mt940 to csv", "mt940 to json", "swift statement parser", "bank statement converter"]
+h1            = "MT940 Statement Parser"
+hero_subtitle = "Turn a SWIFT MT940 bank statement into clean JSON or a CSV transaction table — opening/closing balances, value & entry dates, debit/credit, amounts, references and narrative. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_mt940_statement_parse_web"
+export        = "run"
+live          = false
+output_label  = "Parsed statement"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "MT940 statement text"
+placeholder = ":20:REF12345\n:25:NL91ABNA0417164300\n:28C:00123/001\n:60F:C240101EUR1000,00\n:61:2401020102D150,50NTRFNONREF//BANKREF1\n:86:Payment to Acme Corp invoice 42\n:62F:C240131EUR849,50"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+json = "JSON (full statements)"
+csv  = "CSV (transaction table)"
+
+[[input]]
+name        = "date_format"
+label       = "Date format"
+source      = "field"
+
+[input.labels]
+iso = "ISO — YYYY-MM-DD"
+us  = "US — MM/DD/YYYY"
+eu  = "EU — DD/MM/YYYY"
+raw = "Raw — source YYMMDD"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter (CSV output only)"
+source      = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+semicolon = "Semicolon ( ; )"
+tab       = "Tab"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name        = "signed_amounts"
+label       = "Sign amounts (debits negative, credits positive)"
+source      = "field"
+
+[[example]]
+label = "Statement → JSON"
+[example.params]
+data   = ":20:REF12345\n:25:NL91ABNA0417164300\n:28C:00123/001\n:60F:C240101EUR1000,00\n:61:2401020102D150,50NTRFNONREF//BANKREF1\n:86:Payment to Acme Corp invoice 42\n:61:2401030103C2000,00NTRFPAYROLL//BANKREF2\n:86:Salary March\n:62F:C240131EUR2849,50\n:64:C240131EUR2849,50"
+output = "json"
+
+[[example]]
+label = "Statement → CSV"
+[example.params]
+data   = ":20:REF12345\n:25:NL91ABNA0417164300\n:28C:00123/001\n:60F:C240101EUR1000,00\n:61:2401020102D150,50NTRFNONREF//BANKREF1\n:86:Payment to Acme Corp invoice 42\n:61:2401030103C2000,00NTRFPAYROLL//BANKREF2\n:86:Salary March\n:62F:C240131EUR2849,50"
+output = "csv"
+
+[[example]]
+label = "Unsigned amounts, EU dates"
+[example.params]
+data           = ":20:REF12345\n:60F:C240101EUR1000,00\n:61:2401020102D150,50NTRFNONREF//BANKREF1\n:86:Payment to Acme Corp\n:62F:C240131EUR849,50"
+output         = "json"
+date_format    = "eu"
+signed_amounts = "false"

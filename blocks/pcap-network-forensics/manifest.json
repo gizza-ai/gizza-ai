@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/pcap-network-forensics",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize hosts, conversations, DNS, HTTP, and cleartext credentials from a pcap.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an uploaded libpcap (.pcap) or pcapng (.pcapng) capture into a forensic summary. Reports host inventory, bidirectional TCP/UDP conversations, DNS questions with A/AAAA answers, cleartext HTTP request lines, and cleartext credential findings from HTTP Basic auth, HTTP form logins, FTP USER/PASS, and POP3 USER/PASS. This is offline single-file analysis: no live capture, no GeoIP enrichment, no TLS decryption, and no file carving. Provide the capture as either url (HTTP/HTTPS) or ref (id from a prior file upload/tool call). Use limit to cap each list and section to focus on one tab-like view.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "limit": {
+          "default": 100,
+          "description": "Maximum number of entries returned per section (1-5000, default 100). Totals are always reported even when lists are capped.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "section": {
+          "default": "all",
+          "description": "Which report section to include: all, hosts, conversations, dns, http, or credentials. Totals for every section are always included.",
+          "enum": [
+            "all",
+            "hosts",
+            "conversations",
+            "dns",
+            "http",
+            "credentials"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

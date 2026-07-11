@@ -1,0 +1,49 @@
+slug          = "video-first-last-frame-extractor"
+title         = "First & Last Frame Extractor — Video Start-vs-End Comparison — gizza.ai"
+description   = "Grab a video's first and last frame and stitch them into one before/after image — side by side or stacked. Free, in your browser with ffmpeg, nothing uploaded."
+tags          = ["first and last frame", "video first frame", "video last frame", "before after video", "start vs end frame", "video comparison image", "keyframe grab", "ffmpeg"]
+h1            = "Extract a Video's First & Last Frame"
+hero_subtitle = "Pick a video — the first and last frame are grabbed in one pass and joined into a single before/after image, side by side or stacked. Nothing is uploaded."
+wasm          = "gizza_ai_video_first_last_frame_extractor_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "First + last frame"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST equal web/src/lib.rs build_argv param order: layout, format,
+# then the file (in_name). tool.js calls build_argv(...fieldArgs, inName).
+[[input]]
+name   = "layout"
+source = "field"
+label  = "Join layout"
+
+[input.labels]
+"horizontal" = "Side by side (first · last)"
+"vertical"   = "Stacked (first over last)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"png" = "PNG — lossless, crisp"
+"jpg" = "JPG — smaller file"
+
+[[example]]
+label  = "Side by side (PNG)"
+params = { layout = "horizontal", format = "png" }
+
+[[example]]
+label  = "Stacked over/under (PNG)"
+params = { layout = "vertical", format = "png" }
+
+[[example]]
+label  = "Side by side, smaller JPG"
+params = { layout = "horizontal", format = "jpg" }

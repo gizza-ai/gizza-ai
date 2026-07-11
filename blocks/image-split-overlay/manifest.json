@@ -1,0 +1,87 @@
+{
+  "name": "gizza-ai/image-split-overlay",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Create a static before/after split overlay from two images.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Create a static before/after split overlay from exactly two image sources. Image A defines the output canvas; image B is fitted by stretch or cover. orientation chooses vertical, horizontal, diagonal, or diagonal-reverse; position is 0-100 percent; divider_width and divider_color draw the seam; format outputs png or jpeg. Provide images as an ordered list, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "divider_color": {
+          "default": "#ffffff",
+          "description": "Divider color as #rgb, #rrggbb, or #rrggbbaa. Default white.",
+          "type": "string"
+        },
+        "divider_width": {
+          "default": 4,
+          "description": "Divider seam width in pixels, 0-400. Use 0 for no divider. Default 4.",
+          "maximum": 400,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "fit": {
+          "default": "stretch",
+          "description": "How image B is fitted to image A's canvas: stretch to exact size, or cover with center-crop. Default stretch.",
+          "enum": [
+            "stretch",
+            "cover"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format: png (default, preserves alpha) or jpeg.",
+          "enum": [
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "images": {
+          "description": "Exactly two image sources (PNG/JPEG/WebP/GIF/BMP): image A first, image B second. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "orientation": {
+          "default": "vertical",
+          "description": "Split geometry: vertical (A left/B right), horizontal (A top/B bottom), diagonal (top-left to bottom-right), or diagonal-reverse.",
+          "enum": [
+            "vertical",
+            "horizontal",
+            "diagonal",
+            "diagonal-reverse"
+          ],
+          "type": "string"
+        },
+        "position": {
+          "default": 50.0,
+          "description": "Split position as a percentage from 0 to 100. Default 50.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}

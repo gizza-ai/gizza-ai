@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/csv-sort",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort CSV rows by one or more columns",
+  "role": "skill",
+  "tool": {
+    "description": "Sort the rows of a CSV/TSV by one or more columns. `columns` is a comma-separated priority list of column names (when header=true) or 1-based indices; each may carry a ':asc'/':desc' suffix for its own direction, else `order` (asc/desc) applies. `numeric` is auto (numeric when a column is all numbers, so 2<10, else lexical), number, or text. case_sensitive controls text ordering; the header row stays on top. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "For text ordering, make A–Z case-sensitive (uppercase sorts before lowercase). Default false.",
+          "type": "boolean"
+        },
+        "columns": {
+          "description": "Sort column(s), comma-separated in priority order: column names (when header=true) or 1-based indices. Each may carry a ':asc'/':desc' suffix to set its own direction (else the global order applies). e.g. 'age' or 'dept:asc,salary:desc'.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text (with a header row unless header=false).",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header (kept on top; columns can be named). With false, sort every row and address columns by 1-based index. Default true.",
+          "type": "boolean"
+        },
+        "numeric": {
+          "default": "auto",
+          "description": "Ordering: 'auto' sorts a column numerically when every value is a number (so 2 < 10), else lexically; 'number' forces numeric; 'text' forces lexical. Default 'auto'.",
+          "enum": [
+            "auto",
+            "number",
+            "text"
+          ],
+          "type": "string"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Default sort direction for columns without their own ':asc'/':desc' suffix. Default 'asc'.",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "columns"
+      ],
+      "type": "object"
+    }
+  }
+}

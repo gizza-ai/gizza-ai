@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/pin-image-resizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Resize and crop an image to a Pinterest pin format (2:3 1000x1500, square, tall, or story).",
+  "role": "skill",
+  "tool": {
+    "description": "Resize and crop an image to one of Pinterest's recommended pin formats. preset is standard (1000x1500, 2:3 — the recommended pin), square (1000x1000), tall (1000x2100 long/infographic pin), or story (1080x1920, 9:16 idea pin); default standard. fit is cover (default — scale up and crop the overflow, no distortion), contain (scale down inside the box and pad with 'background'), or stretch. gravity (center/top/bottom) chooses which part cover keeps. background is the pad colour for contain (#fff/#ffffff hex or a colour name, default white). Output keeps the input format (JPG/PNG). Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "white",
+          "description": "Padding colour used when fit=contain, as a short or long hex value (#fff, #ffffff) or a plain colour name (white, black). Default white. Ignored for cover/stretch.",
+          "type": "string"
+        },
+        "fit": {
+          "default": "cover",
+          "description": "How the source fills the pin box: cover (default) scales up and crops the overflow (no distortion, no bars); contain scales down inside the box and pads the rest with 'background'; stretch forces the exact box, distorting if the ratio differs.",
+          "enum": [
+            "cover",
+            "contain",
+            "stretch"
+          ],
+          "type": "string"
+        },
+        "gravity": {
+          "default": "center",
+          "description": "Which part to keep when fit=cover crops the overflow: center (default), top, or bottom. Ignored for contain/stretch.",
+          "enum": [
+            "center",
+            "top",
+            "bottom"
+          ],
+          "type": "string"
+        },
+        "preset": {
+          "default": "standard",
+          "description": "Pinterest pin format: standard = 1000x1500 (2:3, recommended); square = 1000x1000 (1:1); tall = 1000x2100 (long/infographic pin); story = 1080x1920 (9:16 idea pin). Default standard.",
+          "enum": [
+            "standard",
+            "square",
+            "tall",
+            "story"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

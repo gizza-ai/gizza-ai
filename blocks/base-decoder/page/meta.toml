@@ -1,0 +1,43 @@
+slug          = "base-decoder"
+title         = "Base Decoder — Auto-Detect Base16/32/45/58/64/85 Layers"
+description   = "Auto-detect and decode Base16, Base32, Base45, Base58, Base64, and Base85 text, including nested layers, locally in your browser."
+tags          = ["base decoder", "base64 decoder", "base32 decoder", "base58 decoder", "base85 decoder", "hex decoder", "layered decode"]
+h1            = "Base Decoder"
+hero_subtitle = "Auto-detect Base16/32/45/58/64/85 encodings and peel nested layers until readable text or a known binary signature appears. Runs locally, no upload."
+wasm          = "gizza_ai_base_decoder_web"
+export        = "run"
+live          = false
+output_label  = "Decoded output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Encoded text"
+placeholder = "U0dWc2JHOHNJRmR2Y214a0lRPT0="
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "max_depth"
+label       = "Maximum layers to peel"
+placeholder = "8"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output style"
+source      = "field"
+
+[[example]]
+label = "Nested Base64"
+[example.params]
+input     = "U0dWc2JHOHNJRmR2Y214a0lRPT0="
+max_depth = "8"
+output    = "report"
+
+[[example]]
+label = "Plain text only"
+[example.params]
+input     = "SGVsbG8sIFdvcmxkIQ=="
+max_depth = "8"
+output    = "plain"

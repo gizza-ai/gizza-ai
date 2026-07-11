@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-ed25519-sign-verify-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# ed25519-dalek: pure-Rust Ed25519. pkcs8+pem decode PKCS#8 private / SPKI public
+# PEM. Signing/verifying an existing key is deterministic (RFC 8032) and needs no
+# RNG, so no rand/getrandom is pulled — the tool runs on every backend.
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8", "pem"] }
+base64 = "0.22"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }

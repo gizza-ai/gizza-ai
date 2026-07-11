@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-sort"
+version = "0.1.0"
+abi = 1
+summary = "Sort CSV rows by one or more columns"

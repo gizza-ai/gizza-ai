@@ -1,0 +1,50 @@
+slug          = "email-reply-cleaner"
+title         = "Email Reply Cleaner — Strip Quotes, Reply Chains & Signatures | gizza.ai"
+description   = "Paste a replied or forwarded email and get just the fresh message — quoted lines, the reply chain, and signatures removed. Toggle each pass. Runs in your browser."
+tags          = ["email", "reply", "quote", "signature", "text"]
+h1            = "Email Reply Cleaner"
+hero_subtitle = "Paste a replied or forwarded email and instantly get just the fresh message — no quotes, reply chain, or signature."
+wasm          = "gizza_ai_email_reply_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned message"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Email text"
+placeholder = "Paste the replied or forwarded email here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "remove_quotes"
+label  = "Remove quoted lines (>)"
+source = "field"
+
+[[input]]
+name   = "remove_reply_chain"
+label  = "Remove reply chain"
+source = "field"
+
+[[input]]
+name   = "remove_signature"
+label  = "Remove signature"
+source = "field"
+
+[[input]]
+name   = "collapse_blank_lines"
+label  = "Collapse blank lines"
+source = "field"
+
+[[example]]
+label  = "Replied email"
+params = { text = "Hi Bob,\n\nFriday works — see you at 10.\n\nBest,\nAlice\n\n-- \nAlice Smith\nAcme Corp\n\nOn Mon, Jan 1, 2024 at 10:00 AM Bob <bob@example.com> wrote:\n> Are you free on Friday?\n> Let me know." }
+
+[[example]]
+label  = "Forwarded message"
+params = { text = "FYI — see the note below.\n\n---------- Forwarded message ----------\nFrom: Carol <carol@example.com>\nSubject: Schedule\n\nThe meeting moved to 3pm." }
+
+[[example]]
+label  = "Mobile footer"
+params = { text = "Sounds good, thanks!\n\nSent from my iPhone" }

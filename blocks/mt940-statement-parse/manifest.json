@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/mt940-statement-parse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a SWIFT MT940 bank statement into JSON or CSV transactions and balances",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a SWIFT MT940 customer bank statement (the tagged-field format — :20: :25: :28C: :60F: :61: :86: :62F: :64: :65:) into structured statements: opening/closing/available balances plus each transaction's value & entry dates, debit/credit mark, signed amount, currency, 4-char transaction-type code, customer & bank references, and :86: narrative. Output full JSON (default) or a flat CSV transaction table. Handles multi-statement files, reversal marks (RC/RD), reformats dates (iso/us/eu/raw), and picks the CSV delimiter.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The raw MT940 statement text (the SWIFT tagged fields — :20: :25: :28C: :60F: :61: :86: :62F: …). One or more statements; block headers and the '-' trailer are ignored.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "iso",
+          "description": "How value/entry dates are rendered: 'iso' (YYYY-MM-DD), 'us' (MM/DD/YYYY), 'eu' (DD/MM/YYYY), or 'raw' (the source YYMMDD). Default 'iso'.",
+          "enum": [
+            "iso",
+            "us",
+            "eu",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field separator, used only when output='csv': 'comma', 'semicolon', 'tab', or 'pipe'. Default 'comma'.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format: 'json' for full structured statements (balances + transactions) or 'csv' for a flat transaction table. Default 'json'.",
+          "enum": [
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "signed_amounts": {
+          "default": true,
+          "description": "When true, debit amounts and balances are negative and credits positive; when false, amounts stay positive and the D/C mark carries the direction. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

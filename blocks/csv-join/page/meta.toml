@@ -1,0 +1,80 @@
+slug          = "csv-join"
+title         = "CSV Join — Merge Two CSVs on a Key Column Online"
+description   = "Join two CSV files on a key column, SQL-style — inner, left, right, or full outer. Different key names, custom delimiter, case control. In your browser, no upload."
+tags          = ["csv join", "merge csv on key", "sql join csv", "inner join", "left join", "outer join", "vlookup csv", "combine csv columns"]
+h1            = "CSV Join"
+hero_subtitle = "Join two CSVs on a key column, SQL-style — inner, left, right, or full outer. Match on values even when the key columns are named differently. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_join_web"
+export        = "run"
+live          = false
+output_label  = "Joined CSV"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "Left CSV"
+placeholder = "id,name\n1,Alice\n2,Bob\n3,Carol"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Right CSV"
+placeholder = "id,city\n2,Berlin\n3,Cairo\n4,Delhi"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "left_key"
+label       = "Left key column (header name or 1-based index)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "right_key"
+label       = "Right key column (blank = same as left)"
+placeholder = "id"
+source      = "field"
+
+# join_type renders as a <select> and case_sensitive as a checkbox — the control
+# type + enum options are derived from the descriptor schema (manifest.json).
+[[input]]
+name        = "join_type"
+label       = "Join type"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "case_sensitive"
+label       = "Case-sensitive key match"
+source      = "field"
+
+[[example]]
+label = "Inner join on id"
+[example.params]
+left    = "id,name\n1,Alice\n2,Bob\n3,Carol"
+right   = "id,city\n2,Berlin\n3,Cairo\n4,Delhi"
+left_key = "id"
+join_type = "inner"
+
+[[example]]
+label = "Outer join (keep all rows)"
+[example.params]
+left    = "id,name\n1,Alice\n2,Bob\n3,Carol"
+right   = "id,city\n2,Berlin\n3,Cairo\n4,Delhi"
+left_key = "id"
+join_type = "outer"
+
+[[example]]
+label = "Different key names"
+[example.params]
+left    = "user_id,name\n1,Alice\n2,Bob"
+right   = "uid,plan\n2,Pro\n1,Free"
+left_key = "user_id"
+right_key = "uid"
+join_type = "inner"

@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/ed25519-sign-verify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sign and verify messages with Ed25519 keys",
+  "role": "skill",
+  "tool": {
+    "description": "Sign a message with an Ed25519 private key, or verify an Ed25519 signature with the matching public key. Ed25519 (EdDSA over Curve25519, RFC 8032) signatures are deterministic — the same key + message always yields the same 64-byte signature, with no repeated-nonce risk. Keys are accepted as PEM (PKCS#8 private / SPKI public) or as a raw 32-byte key in hex or base64; the message can be plain text (utf8), hex, or base64. Signing returns the signature in hex and base64 plus the derived public key; verifying returns whether the signature is valid. Runs locally — keys and messages never leave the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "For sign: your Ed25519 private key. For verify: the signer's public key. Accepts PEM (PKCS#8 private / SPKI public), or a raw 32-byte key as hex or base64 (a private key may also be a 64-byte seed||public keypair).",
+          "type": "string"
+        },
+        "message": {
+          "description": "The message to sign or verify. Interpreted using message_encoding.",
+          "type": "string"
+        },
+        "message_encoding": {
+          "default": "utf8",
+          "description": "How to read the message into bytes: utf8 (plain text), hex, or base64 (for binary payloads).",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "sign",
+          "description": "sign: create an Ed25519 signature for the message with a private key. verify: check a signature against the message with a public key.",
+          "enum": [
+            "sign",
+            "verify"
+          ],
+          "type": "string"
+        },
+        "signature": {
+          "description": "Required for verify: the signature to check, as hex or base64 (the raw 64 bytes). Ignored for sign.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "key"
+      ],
+      "type": "object"
+    }
+  }
+}

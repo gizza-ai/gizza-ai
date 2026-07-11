@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "psd-to-png"
+version = "0.1.0"
+abi = 1
+summary = "Convert an Adobe Photoshop PSD to a flattened PNG or JPEG image."

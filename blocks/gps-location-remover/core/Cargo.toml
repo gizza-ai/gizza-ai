@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-gps-location-remover-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+img-parts = "0.3"
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+kamadak-exif = "0.6"

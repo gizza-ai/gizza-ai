@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gps-location-remover"
+version = "0.1.0"
+abi = 1
+summary = "Remove only the GPS location tags from a photo, keeping camera data"

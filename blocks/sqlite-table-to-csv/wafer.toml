@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sqlite-table-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Export a table from an SQLite database file as CSV"

@@ -1,0 +1,56 @@
+slug          = "metadata-privacy-linter"
+title         = "Metadata Privacy Linter — Check Image EXIF, XMP & IPTC Leaks Online"
+description   = "Scan image metadata for privacy leaks before sharing: GPS, serial numbers, owner names, timestamps, software, descriptions and keywords. Browser-local, no upload."
+tags          = ["exif privacy", "image metadata", "xmp", "iptc", "gps metadata", "privacy checker", "photo metadata scanner"]
+h1            = "Metadata Privacy Linter"
+hero_subtitle = "Paste base64 image bytes or a data URL and see what EXIF, XMP, or IPTC metadata would leak if the image were shared. Values are hidden by default so reports are safe to share."
+wasm          = "gizza_ai_metadata_privacy_linter_web"
+export        = "run"
+live          = false
+output_label  = "Privacy report"
+format        = "text"
+
+[[input]]
+name        = "image_base64"
+label       = "Image base64 or data URL"
+placeholder = "iVBORw0KGgo... or data:image/jpeg;base64,..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "min_risk"
+label  = "Minimum risk"
+source = "field"
+
+[input.labels]
+all    = "All findings"
+medium = "Medium + high only"
+high   = "High only"
+report = "Text report"
+json   = "JSON"
+
+[[input]]
+name   = "reveal_values"
+label  = "Reveal concrete metadata values (GPS, serials, names)"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[[example]]
+label = "Safe report (values hidden)"
+[example.params]
+image_base64 = "iVBORw0KGgpwcmVmaXg8eDp4bXBtZXRhIHhtbG5zOng9J2Fkb2JlOm5zOm1ldGEvJz48cmRmOlJERj48cmRmOkRlc2NyaXB0aW9uIGF1eDpTZXJpYWxOdW1iZXI9IlNOMTIzNDUiIHhtcDpDcmVhdG9yVG9vbD0iR0lNUCAyLjEwIj48ZGM6Y3JlYXRvcj48cmRmOlNlcT48cmRmOmxpPkFkYSBMb3ZlbGFjZTwvcmRmOmxpPjwvcmRmOlNlcT48L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPnN1ZmZpeA=="
+min_risk = "all"
+reveal_values = "false"
+output = "report"
+
+[[example]]
+label = "Reveal values as JSON"
+[example.params]
+image_base64 = "iVBORw0KGgpwcmVmaXg8eDp4bXBtZXRhIHhtbG5zOng9J2Fkb2JlOm5zOm1ldGEvJz48cmRmOlJERj48cmRmOkRlc2NyaXB0aW9uIGF1eDpTZXJpYWxOdW1iZXI9IlNOMTIzNDUiIHhtcDpDcmVhdG9yVG9vbD0iR0lNUCAyLjEwIj48ZGM6Y3JlYXRvcj48cmRmOlNlcT48cmRmOmxpPkFkYSBMb3ZlbGFjZTwvcmRmOmxpPjwvcmRmOlNlcT48L2RjOmNyZWF0b3I+PC9yZGY6RGVzY3JpcHRpb24+PC9yZGY6UkRGPjwveDp4bXBtZXRhPnN1ZmZpeA=="
+min_risk = "high"
+reveal_values = "true"
+output = "json"

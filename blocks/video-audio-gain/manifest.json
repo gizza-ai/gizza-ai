@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/video-audio-gain",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Raise or lower a video's audio volume",
+  "role": "skill",
+  "tool": {
+    "description": "Raise or lower the audio volume of a video, keeping the picture untouched (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). amount is in decibels by default (6 boosts, -6 cuts; range ±60) or a linear factor with unit=factor (2 doubles, 0.5 halves; range (0,16]). A peak limiter (on by default) caps output at 0 dBFS so boosts don't clip. The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "amount": {
+          "description": "How much to change the audio volume: with unit=db, decibels (6 boosts, -6 cuts, 0 not allowed); with unit=factor, a multiplier in (0, 16] (2 doubles, 0.5 halves).",
+          "maximum": 60,
+          "minimum": -60,
+          "type": "number"
+        },
+        "limiter": {
+          "default": true,
+          "description": "Cap peaks at 0 dBFS (alimiter) so boosts don't clip. Default on; disable for exact linear gain.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "unit": {
+          "default": "db",
+          "description": "How amount is interpreted: decibels (default) or a linear factor.",
+          "enum": [
+            "db",
+            "factor"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "type": "object"
+    }
+  }
+}

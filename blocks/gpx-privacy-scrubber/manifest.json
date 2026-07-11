@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/gpx-privacy-scrubber",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip or fuzz the home/start/end locations, timestamps, and sensor data in a GPX file before sharing it.",
+  "role": "skill",
+  "tool": {
+    "description": "Scrub the privacy-sensitive parts of a GPX file before you share it. The first and last track/route/way points leak your home or start/end location: `mode` = `remove` drops those two point elements, `mode` = `fuzz` keeps them but offsets their coordinates a deterministic distance within `radius_m` metres (1–10000, default 200). `scrub_timestamps` (default on) rewrites every `<time>` (metadata and every point) to the Unix epoch so the recording date and pace are hidden; `remove_extensions` (default on) deletes every `<extensions>` block (heart rate, cadence, power, temperature, hdop/vdop, …). All other content is preserved byte-for-byte. Errors on empty input or a document with no <trkpt>/<rtept>/<wpt> points. Pure and deterministic; runs locally, no network.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "gpx": {
+          "type": "string",
+          "description": "The GPX file to scrub, as XML text. Paste the whole document; every element except the ones being scrubbed is preserved byte-for-byte."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "remove",
+            "fuzz"
+          ],
+          "default": "remove",
+          "description": "How to handle the privacy-sensitive first and last track/route/way points. `remove` drops those two point elements entirely; `fuzz` keeps them but nudges their coordinates a deterministic offset within `radius_m` metres. Default remove."
+        },
+        "radius_m": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "default": 200,
+          "description": "Fuzz offset in metres (only used when mode is `fuzz`): the first and last points are moved this far, in opposite directions. 1–10000, default 200."
+        },
+        "scrub_timestamps": {
+          "type": "boolean",
+          "default": true,
+          "description": "Replace the contents of every `<time>…</time>` (metadata and every point) with the Unix epoch `1970-01-01T00:00:00Z`, so the recording date and pace are not leaked. Default true."
+        },
+        "remove_extensions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Delete every `<extensions>…</extensions>` block — heart rate, cadence, power, temperature, hdop/vdop, and other sensor data. Default true."
+        }
+      },
+      "required": [
+        "gpx"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

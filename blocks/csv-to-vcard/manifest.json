@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/csv-to-vcard",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a CSV or JSON contact list into a .vcf file of vCards.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a CSV (with a header row) or JSON array of contacts into a single .vcf file of vCards for bulk import into iPhone, Android, Google, or Outlook contacts. Common column names are auto-mapped: First/Last/Full Name → N/FN, Email/Work Email → EMAIL, Phone/Mobile/Home Phone/Fax → TEL with HOME/WORK/CELL/FAX types, Company+Department → ORG, Job Title → TITLE, Street/City/State/Zip/Country → ADR, Website → URL, Birthday → BDAY, Notes → NOTE, Gender → GENDER (4.0 only). Set input_format=auto|csv|json, delimiter=auto|comma|semicolon|tab|pipe, and version=3.0|4.0. Values are RFC-escaped and long lines are folded at 75 octets.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The contact list. Either CSV with a header row (the first row names the columns, e.g. 'First Name,Last Name,Email,Mobile Phone,Company') or a JSON array of contact objects. Common column names are auto-mapped to vCard properties: name parts → N/FN, Email/Work Email/Home Email → EMAIL, Phone/Mobile/Home Phone/Fax → TEL (with HOME/WORK/CELL/FAX types), Company+Department → ORG, Job Title → TITLE, Street/City/State/Zip/Country → ADR, Website → URL, Birthday → BDAY, Notes → NOTE, Gender → GENDER (4.0).",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV column separator (ignored for JSON). 'auto' (default) sniffs the header row; otherwise force comma, semicolon, tab, or pipe.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read the input. 'auto' (default) treats input starting with '[' or '{' as JSON, otherwise CSV; 'csv' or 'json' force one.",
+          "enum": [
+            "auto",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "version": {
+          "default": "3.0",
+          "description": "vCard version to emit. '3.0' (default, RFC 2426) has the widest import support (iPhone, Android, Google, Outlook); '4.0' (RFC 6350) adds the GENDER property and uses lowercase TYPE values.",
+          "enum": [
+            "3.0",
+            "4.0"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

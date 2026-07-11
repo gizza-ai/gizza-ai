@@ -1,0 +1,67 @@
+import { test, expect } from './fixtures';
+import path from 'node:path';
+
+// The generated /tools/mkv-to-mp4/ page rewraps an uploaded Matroska .mkv into
+// an .mp4 in-browser via ffmpeg (single-threaded @ffmpeg/core from jsDelivr —
+// needs network). Default "copy" mode stream-copies (lossless remux); the output
+// is always a data:video/mp4 URL.
+//
+// Each test asserts REAL output correctness: it decodes the produced video in a
+// <video> element and checks the container MIME + preserved dimensions/duration,
+// so a transform that silently no-ops would FAIL.
+
+// Decode a data:video/ URL and read its intrinsic size + duration.
+async function decodeVideo(page, src: string) {
+  return await page.evaluate(async (dataUrl) => {
+    const v = document.createElement('video');
+    v.muted = true;
+    v.preload = 'metadata';
+    await new Promise((res, rej) => {
+      v.onloadedmetadata = () => res(null);
+      v.onerror = () => rej(new Error('video decode failed'));
+      v.src = dataUrl;
+    });
+    return { w: v.videoWidth, h: v.videoHeight, d: v.duration };
+  }, src);
+}
+
+test('mkv-to-mp4 page remuxes an MKV to MP4 losslessly (copy mode)', async ({ page }) => {
+  await page.goto('/tools/mkv-to-mp4/');
+  await page.waitForSelector('#in-video');
+
+  // Default mode is "copy" (lossless remux). Upload a 128x128, 2s H.264+AAC MKV.
+  await page.setInputFiles('#in-video', path.resolve(__dirname, 'fixtures/tiny-h264.mkv'));
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const src = await media.getAttribute('src');
+  expect(src).toMatch(/^data:video\/mp4/); // container changed .mkv -> .mp4
+
+  // A remux must preserve the exact frame size and duration (no re-encode/scale).
+  const meta = await decodeVideo(page, src);
+  expect(meta.w).toBe(128);
+  expect(meta.h).toBe(128);
+  expect(meta.d).toBeGreaterThan(1.5);
+  expect(meta.d).toBeLessThan(2.6);
+});
+
+test('mkv-to-mp4 deep-link prefills mode + quality and transcodes', async ({ page }) => {
+  // Deep-link prefills the mode select + quality field; the run fires on upload.
+  await page.goto('/tools/mkv-to-mp4/?mode=transcode&quality=90');
+  await page.waitForSelector('#in-video');
+  await expect(page.locator('#in-mode')).toHaveValue('transcode');
+  await expect(page.locator('#in-quality')).toHaveValue('90');
+
+  await page.setInputFiles('#in-video', path.resolve(__dirname, 'fixtures/tiny-h264.mkv'));
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const src = await media.getAttribute('src');
+  expect(src).toMatch(/^data:video\/mp4/);
+
+  // Re-encode still keeps size + duration intact.
+  const meta = await decodeVideo(page, src);
+  expect(meta.w).toBe(128);
+  expect(meta.h).toBe(128);
+  expect(meta.d).toBeGreaterThan(1.5);
+});

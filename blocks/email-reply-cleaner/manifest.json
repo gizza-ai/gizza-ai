@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/email-reply-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip quotes, reply chains, and signatures from a replied or forwarded email.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract just the fresh message from a replied or forwarded plain-text email. Four deterministic passes, each toggleable: `remove_quotes` drops `>`-prefixed (and nested `>>`) quote lines; `remove_reply_chain` cuts the attribution ('On … wrote:'), Outlook '-----Original Message-----' / 'From:' header block, or a forwarded-message rule and everything below; `remove_signature` cuts the RFC 3676 '-- ' delimiter or a mobile/app footer ('Sent from my iPhone', 'Get Outlook for …') and everything below; `collapse_blank_lines` folds blank-line runs and trims the edges. All default on. English-focused attribution detection; runs locally, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_blank_lines": {
+          "default": true,
+          "description": "Collapse runs of blank lines to a single blank line and trim leading/trailing blank lines. Default true.",
+          "type": "boolean"
+        },
+        "remove_quotes": {
+          "default": true,
+          "description": "Drop lines that begin with the `>` quote marker (including nested `>>`). Default true.",
+          "type": "boolean"
+        },
+        "remove_reply_chain": {
+          "default": true,
+          "description": "Cut the quoted reply chain: the attribution ('On … wrote:'), Outlook '-----Original Message-----' / 'From:' header block, or a forwarded-message rule, and everything below it. Default true.",
+          "type": "boolean"
+        },
+        "remove_signature": {
+          "default": true,
+          "description": "Cut the signature block: the RFC 3676 '-- ' delimiter or a mobile/app footer ('Sent from my iPhone', 'Get Outlook for …'), and everything below it. Default true.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The replied or forwarded plain-text email to clean. Paste the whole body; the tool returns just the fresh message.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

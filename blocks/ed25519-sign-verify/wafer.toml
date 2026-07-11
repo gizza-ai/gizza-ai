@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ed25519-sign-verify"
+version = "0.1.0"
+abi = 1
+summary = "Sign and verify messages with Ed25519 keys"

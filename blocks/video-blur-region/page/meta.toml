@@ -1,0 +1,70 @@
+slug          = "video-blur-region"
+title         = "Blur or Pixelate a Region in a Video — gizza.ai"
+description   = "Blur or pixelate a fixed rectangle — a license plate, name tag or logo — on every frame of a video, right in your browser. Nothing is uploaded, runs locally, free."
+tags          = ["video", "blur", "pixelate", "censor", "redact", "license plate", "privacy", "mosaic", "ffmpeg"]
+h1            = "Blur or Pixelate a Region in a Video"
+hero_subtitle = "Pick a video, set the rectangle to hide (x, y, width, height) — it's blurred or pixelated in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_blur_region_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Redacted video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "x"
+source      = "field"
+label       = "X offset (px)"
+placeholder = "40"
+
+[[input]]
+name        = "y"
+source      = "field"
+label       = "Y offset (px)"
+placeholder = "30"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Region width (px)"
+placeholder = "200"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Region height (px)"
+placeholder = "60"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Mode"
+
+[input.labels]
+blur = "Blur — soft Gaussian (default)"
+pixelate = "Pixelate — coarse mosaic (harder to reverse)"
+
+[[input]]
+name        = "strength"
+source      = "field"
+label       = "Strength (1-100)"
+placeholder = "20"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Blur a plate (200×60 at 40,30)"
+params = { x = "40", y = "30", width = "200", height = "60", mode = "blur", strength = "25" }
+
+[[example]]
+label  = "Pixelate a name tag (180×50)"
+params = { x = "60", y = "120", width = "180", height = "50", mode = "pixelate", strength = "16" }
+
+[[example]]
+label  = "Heavy blur a logo (120×120)"
+params = { x = "20", y = "20", width = "120", height = "120", mode = "blur", strength = "40" }

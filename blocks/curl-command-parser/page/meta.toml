@@ -1,0 +1,51 @@
+slug          = "curl-command-parser"
+title         = "cURL Command Parser — decode a curl command into a structured request — gizza.ai"
+description   = "Paste a curl command to see its method, URL, query params, headers, body, auth, cookies and flags — or rebuild clean curl. Browser-only."
+tags          = ["curl command parser", "parse curl command", "curl parser", "decode curl", "curl to structured request", "curl headers parser", "curl command reader", "rebuild curl command"]
+h1            = "cURL Command Parser"
+hero_subtitle = "Paste a curl command and break it into its HTTP method, URL, query parameters, headers, body, auth, cookies and flags — or rebuild a clean, canonical curl command. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_curl_command_parser_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# mode renders as a <select> (control type comes from the descriptor schema in
+# manifest.json). In parse mode you get the structured breakdown; in rebuild mode
+# you get a tidy curl command.
+[[input]]
+name        = "mode"
+label       = "Mode (parse or rebuild)"
+source      = "field"
+
+[[input]]
+name        = "command"
+label       = "curl command"
+placeholder = "curl -X POST 'https://api.example.com/v1/items' -H 'Content-Type: application/json' -d '{\"name\":\"gizza\"}'"
+source      = "field"
+multiline   = true
+
+# Preset chips — one-click common commands (competitors ship "Load Sample" buttons).
+[[example]]
+label = "GET with headers"
+[example.params]
+mode    = "parse"
+command = "curl 'https://api.example.com/v1/items?page=2' -H 'Accept: application/json' -H 'Authorization: Bearer ***'"
+
+[[example]]
+label = "POST JSON"
+[example.params]
+mode    = "parse"
+command = "curl -X POST 'https://api.example.com/v1/items' -H 'Content-Type: application/json' -d '{\"name\":\"gizza\",\"active\":true}'"
+
+[[example]]
+label = "Basic auth + follow redirects"
+[example.params]
+mode    = "parse"
+command = "curl -u alice:s3cret -L 'https://api.example.com/account'"
+
+[[example]]
+label = "Rebuild a messy command"
+[example.params]
+mode    = "rebuild"
+command = "curl   -sSL   -XPOST https://api.example.com/upload   -F file=@photo.png   -F title=Holiday   --compressed"
