@@ -1,0 +1,73 @@
+slug          = "action-item-extractor"
+title         = "Action Item Extractor — Turn Meeting Notes into Tasks — gizza.ai"
+description   = "Extract action items, owners, and decisions from meeting notes or daily notes with deterministic rules. Markdown checklist or JSON, private in-browser."
+tags          = ["action items", "meeting notes", "task extractor", "decision log", "todo list", "meeting summary", "owner extraction", "daily notes"]
+h1            = "Extract Action Items from Meeting Notes"
+hero_subtitle = "Paste meeting notes or daily bullets and get a structured checklist with owners plus a decision log. Deterministic, private, and no LLM invention."
+wasm          = "gizza_ai_action_item_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Structured tasks"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Meeting or daily notes"
+placeholder = "ACTION: update the roadmap\nAlice will send the deck\nBook the venue @bob\nDecided: ship on Friday"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown checklist"
+json     = "JSON for automation"
+
+[[input]]
+name   = "group_by"
+label  = "Group tasks by"
+source = "field"
+
+[input.labels]
+type  = "Type — one checklist with owners inline"
+owner = "Owner — headings per owner"
+
+[[input]]
+name   = "include_decisions"
+label  = "Include decisions"
+source = "field"
+
+[[example]]
+label = "Meeting notes → checklist"
+[example.params]
+input = "ACTION: update the roadmap\nAlice will send the deck\nBook the venue @bob\nDecided: ship on Friday"
+format = "markdown"
+group_by = "type"
+include_decisions = "true"
+
+[[example]]
+label = "Group by owner"
+[example.params]
+input = "Alice will send the deck\nBob to book the venue\nUpdate the wiki"
+format = "markdown"
+group_by = "owner"
+include_decisions = "true"
+
+[[example]]
+label = "JSON for Zapier / scripts"
+[example.params]
+input = "Alice will send the deck\nDecided: ship Friday"
+format = "json"
+group_by = "type"
+include_decisions = "true"
+
+[[example]]
+label = "Actions only"
+[example.params]
+input = "Decided: ship Friday\nAlice will test"
+format = "markdown"
+group_by = "type"
+include_decisions = "false"

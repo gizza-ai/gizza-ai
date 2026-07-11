@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/sqlite-table-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Export a table from an SQLite database file as CSV",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Export one table of an SQLite database (.db/.sqlite) as CSV by parsing the on-disk file format (no SQL engine). Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Pick a table by name (omit it if the database has only one table); choose the delimiter (comma/tab/semicolon/pipe), toggle the header row, set the text for NULL cells, optionally add a UTF-8 BOM, and cap the number of rows.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":   { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref":   { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "table": { "type": "string", "description": "Name of the table to export (case-insensitive). Omit it if the database has a single table; otherwise the tool lists the available tables." },
+        "delimiter": { "type": "string", "enum": ["comma", "tab", "semicolon", "pipe"], "default": "comma", "description": "Field separator for the output. One of: comma (CSV), tab (TSV), semicolon, or pipe. Default comma." },
+        "header": { "type": "boolean", "default": true, "description": "Include a first row of column names. Default true." },
+        "null_value": { "type": "string", "default": "", "description": "Text to write for SQL NULL cells. Default is an empty field." },
+        "bom": { "type": "boolean", "default": false, "description": "Prepend a UTF-8 byte-order mark so Excel opens the CSV as UTF-8. Default false." },
+        "limit": { "type": "integer", "default": 0, "minimum": 0, "description": "Maximum number of data rows to export; 0 means all rows. Default 0." }
+      },
+      "oneOf": [ { "required": ["url"] }, { "required": ["ref"] } ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-context-trimmer-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_context_trimmer_web_bg.wasm",
+    "gizza_ai_context_trimmer_web.js",
+    "gizza_ai_context_trimmer_web.d.ts"
+  ],
+  "main": "gizza_ai_context_trimmer_web.js",
+  "types": "gizza_ai_context_trimmer_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-hdr-to-sdr"
+version = "0.1.0"
+abi = 1
+summary = "Tone-map an HDR video down to SDR (BT.709)."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dotenv-manager"
+version = "0.1.0"
+abi = 1
+summary = "Parse, validate, merge and secret-mask .env files."

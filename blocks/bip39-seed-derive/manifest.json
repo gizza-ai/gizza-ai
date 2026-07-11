@@ -1,0 +1,27 @@
+{
+  "name": "gizza-ai/bip39-seed-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive the BIP39 512-bit seed from a mnemonic phrase",
+  "role": "skill",
+  "tool": {
+    "description": "Derive the 512-bit BIP39 seed from an EXISTING mnemonic (recovery) phrase plus an optional passphrase. Validates that the phrase is 12/15/18/21/24 words, every word is in the BIP39 English wordlist, and the checksum passes, then stretches it with PBKDF2-HMAC-SHA512 (2048 iterations) into the master seed that BIP32/BIP44 HD wallets use. Optionally supply a passphrase (the BIP39 \"25th word\"), which does not change the words but yields an entirely different seed. Returns the normalized mnemonic, word count, recovered entropy (hex), and the BIP39 seed (hex). Use bip39-mnemonic-generator to CREATE a new phrase; use this to derive the seed from one you already have.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "mnemonic": {
+          "description": "The BIP39 mnemonic (recovery) phrase to derive the seed from — 12, 15, 18, 21, or 24 space-separated words from the BIP39 English wordlist. Case and extra whitespace are tolerated. Rejected if a word is unknown or the checksum fails.",
+          "type": "string"
+        },
+        "passphrase": {
+          "description": "Optional BIP39 passphrase (the \"25th word\"). It does not change the words but is mixed into the derived 512-bit seed, producing a completely different seed. Leave blank for none.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mnemonic"
+      ],
+      "type": "object"
+    }
+  }
+}

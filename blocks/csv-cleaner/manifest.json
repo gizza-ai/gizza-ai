@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/csv-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Clean a CSV: trim, dedupe, drop empty rows, fill cells, normalize delimiter",
+  "role": "skill",
+  "tool": {
+    "description": "Clean a CSV in one pass: trim leading/trailing whitespace from every cell, remove duplicate rows (first kept), drop fully-empty rows, optionally fill empty cells with a value, and normalize the delimiter and line endings. `header`=true keeps the first row and exempts it from dedup/drop/fill. Each cleaning step is an independent toggle. Delimiters accept a char or comma/tab/semicolon/pipe.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to clean.",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": true,
+          "description": "Remove rows identical to an earlier row (first kept). Default true.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Input field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "drop_empty_rows": {
+          "default": true,
+          "description": "Drop rows whose every cell is empty or whitespace-only. Default true.",
+          "type": "boolean"
+        },
+        "empty_cells": {
+          "default": "keep",
+          "description": "Empty cells: 'keep' leaves them, 'fill' replaces them with fill_value. Default 'keep'.",
+          "enum": [
+            "keep",
+            "fill"
+          ],
+          "type": "string"
+        },
+        "fill_value": {
+          "default": "",
+          "description": "Value written into empty cells when empty_cells='fill' (e.g. 'N/A' or '0'). Default empty.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header: keep it and exempt it from dedup, empty-row drop, and cell fill. Default true.",
+          "type": "boolean"
+        },
+        "line_ending": {
+          "default": "lf",
+          "description": "Line ending for the output: 'lf' (\\n) or 'crlf' (\\r\\n, Windows/Excel). Default 'lf'.",
+          "enum": [
+            "lf",
+            "crlf"
+          ],
+          "type": "string"
+        },
+        "output_delimiter": {
+          "default": "same",
+          "description": "Delimiter for the cleaned output. 'same' keeps the input delimiter. Default 'same'.",
+          "enum": [
+            "same",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading/trailing whitespace from every cell. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

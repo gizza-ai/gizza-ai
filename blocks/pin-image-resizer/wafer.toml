@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pin-image-resizer"
+version = "0.1.0"
+abi = 1
+summary = "Resize and crop an image to a Pinterest pin format (2:3 1000x1500, square, tall, or story)."

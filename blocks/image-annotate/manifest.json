@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/image-annotate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Draw arrows, boxes, highlights, and text labels onto an image.",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Draw markup onto an image at exact pixel coordinates and return a PNG. Pass `annotations` as a JSON array of marks — box (hollow rectangle), arrow (line with an arrowhead), highlight (semi-transparent wash), and text (label). Each mark can override the tool-level color; boxes/arrows take a stroke_width, highlights an opacity (0-1), and text a font_size. `color`, `stroke_width`, and `font_size` set the defaults for marks that omit them. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "annotations": {
+          "description": "A JSON array of marks to draw, in order. Each item has a `type` and pixel coordinates (top-left origin): box `{\"type\":\"box\",\"x\",\"y\",\"w\",\"h\"}` (hollow rectangle), arrow `{\"type\":\"arrow\",\"x1\",\"y1\",\"x2\",\"y2\"}` (arrowhead at x2,y2), highlight `{\"type\":\"highlight\",\"x\",\"y\",\"w\",\"h\",\"opacity\":0.35}` (semi-transparent wash; opacity 0-1, 1 = solid fill), text `{\"type\":\"text\",\"x\",\"y\",\"text\":\"Label\"}`. Any mark may add `color` (#rgb/#rrggbb/#rrggbbaa); box/arrow may add `stroke_width`; text may add `font_size`. Example: [{\"type\":\"box\",\"x\":20,\"y\":15,\"w\":120,\"h\":60},{\"type\":\"arrow\",\"x1\":200,\"y1\":10,\"x2\":150,\"y2\":45},{\"type\":\"text\",\"x\":22,\"y\":92,\"text\":\"Look here\"}]",
+          "type": "string"
+        },
+        "color": {
+          "default": "#ff0000",
+          "description": "Default mark color as #rgb, #rrggbb, or #rrggbbaa, used when an annotation omits its own `color`. Default #ff0000 (red).",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 24,
+          "description": "Default text label size in pixels (4-512). Default 24.",
+          "maximum": 512,
+          "minimum": 4,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "stroke_width": {
+          "default": 3,
+          "description": "Default line/border thickness in pixels for boxes and arrows (1-64). Default 3.",
+          "maximum": 64,
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "annotations"
+      ],
+      "type": "object"
+    }
+  }
+}

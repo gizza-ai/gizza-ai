@@ -1,0 +1,82 @@
+slug          = "context-trimmer"
+title         = "Context Trimmer — Fit Text to a Token Budget | gizza.ai"
+description   = "Trim text to an approximate token budget for LLM prompts, keeping the head, tail, middle, or both ends. Runs locally in your browser."
+tags          = ["llm", "prompt", "tokens", "text", "context"]
+h1            = "Context Trimmer"
+hero_subtitle = "Trim long text to an approximate LLM token budget while choosing whether to keep the start, end, middle, or both ends."
+wasm          = "gizza_ai_context_trimmer_web"
+export        = "run"
+live          = false
+output_label  = "Trimmed text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the long text, prompt, log, transcript, or document here…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "max_tokens"
+label       = "Max tokens"
+placeholder = "512"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "1000000"
+step        = "1"
+
+[[input]]
+name        = "chars_per_token"
+label       = "Characters per token"
+placeholder = "4.0"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20"
+step        = "0.1"
+
+[[input]]
+name   = "keep"
+label  = "Keep"
+source = "field"
+
+[input.labels]
+head      = "Head — keep the beginning"
+tail      = "Tail — keep the end"
+middle    = "Middle — keep the centre"
+head_tail = "Head + tail — drop the middle"
+
+[[input]]
+name        = "marker"
+label       = "Omission marker"
+placeholder = "…"
+source      = "field"
+
+[[input]]
+name        = "head_ratio"
+label       = "Head ratio"
+placeholder = "0.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name   = "break_words"
+label  = "Allow cutting inside words"
+source = "field"
+
+[[example]]
+label  = "Prompt head"
+params = { text = "the quick brown fox jumps over the lazy dog", max_tokens = "3", chars_per_token = "4.0", keep = "head", marker = "…", head_ratio = "0.5", break_words = "false" }
+
+[[example]]
+label  = "Keep both ends"
+params = { text = "the quick brown fox jumps over the lazy dog", max_tokens = "5", chars_per_token = "4.0", keep = "head_tail", marker = "…", head_ratio = "0.5", break_words = "false" }
+
+[[example]]
+label  = "Exact hard cut"
+params = { text = "the quick brown fox jumps over the lazy dog", max_tokens = "3", chars_per_token = "4.0", keep = "head", marker = "", head_ratio = "0.5", break_words = "true" }

@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/video-audio-denoise",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reduce background noise in a video's audio",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce background hiss/hum/noise in a video's audio track, keeping the picture untouched (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). strength is 1–100 (higher removes more but risks a hollow sound; start around 12). method is afftdn (FFT, default) or anlmdn (non-local means). Set remove_hum to also cut low-frequency hum below 80 Hz. The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "method": {
+          "default": "afftdn",
+          "description": "Denoiser: afftdn (FFT-based, fast, default) or anlmdn (non-local means, slower).",
+          "enum": [
+            "afftdn",
+            "anlmdn"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "remove_hum": {
+          "default": false,
+          "description": "Also cut low-frequency hum/rumble below 80 Hz with a high-pass filter. Default off.",
+          "type": "boolean"
+        },
+        "strength": {
+          "description": "How aggressively to reduce noise, 1–100 (higher removes more but risks a hollow/robotic sound). Start around 12 and raise gradually.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "strength"
+      ],
+      "type": "object"
+    }
+  }
+}

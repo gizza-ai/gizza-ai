@@ -1,0 +1,74 @@
+slug          = "dotenv-manager"
+title         = "Dotenv Manager — Validate, Merge & Mask .env Files Online"
+description   = "Parse, validate, merge and secret-mask .env files in your browser: flag duplicate and missing keys, lint names, and export .env.example or JSON. No upload."
+tags          = [".env validator", "dotenv linter", "env file checker", "merge env files", "mask secrets", "env.example generator", "duplicate keys", "missing keys"]
+h1            = "Dotenv Manager"
+hero_subtitle = "Paste a .env file to validate it — flag duplicate and missing keys, lint naming, merge an overlay file, and mask secrets. Export a report, a normalized file, a .env.example, or JSON. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_dotenv_manager_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "env"
+label       = ".env file"
+placeholder = "# database\nexport DB_HOST=localhost\nDB_PORT=5432\nAPI_TOKEN=secret123456\nDB_HOST=127.0.0.1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "merge"
+label       = "Overlay .env to merge (optional — its keys win)"
+placeholder = "DB_HOST=prod.internal\nAPI_TOKEN=prod-token-9999"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "required_keys"
+label       = "Required keys (comma-separated, optional)"
+placeholder = "DATABASE_URL,API_KEY"
+source      = "field"
+
+[[input]]
+name   = "mask_secrets"
+label  = "Mask sensitive values (SECRET/TOKEN/PASSWORD/KEY/…)"
+source = "field"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys alphabetically"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report     = "Report — diagnostics + masked values"
+normalized = "Normalized .env — deduped, last value wins"
+example    = ".env.example — keys with blank values"
+json       = "JSON — merged key/value object"
+
+[[example]]
+label = "Validate + mask"
+[example.params]
+env          = "# database\nexport DB_HOST=localhost\nDB_PORT=5432\nAPI_TOKEN=secret123456\nDB_HOST=127.0.0.1"
+mask_secrets = "true"
+output       = "report"
+
+[[example]]
+label = "Merge overlay (prod wins)"
+[example.params]
+env          = "DB_HOST=localhost\nAPI_TOKEN=dev-token\nDEBUG=true"
+merge        = "DB_HOST=prod.internal\nAPI_TOKEN=prod-token-9999"
+mask_secrets = "false"
+output       = "normalized"
+
+[[example]]
+label = "Make .env.example"
+[example.params]
+env       = "DB_HOST=localhost\nDB_PORT=5432\nAPI_TOKEN=secret123456"
+sort_keys = "true"
+output    = "example"

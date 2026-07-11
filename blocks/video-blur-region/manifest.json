@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/video-blur-region",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Blur or pixelate a fixed rectangular region in a video",
+  "role": "skill",
+  "tool": {
+    "description": "Blur or pixelate a fixed rectangular region (e.g. a license plate, name tag, or logo) on every frame of a video. Give the region as x/y (top-left offset in pixels) plus width/height in pixels; pick mode = blur (soft Gaussian) or pixelate (coarse mosaic) and a strength of 1-100. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "height": {
+          "description": "Region height in pixels. Example: 60.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "blur",
+          "description": "How to redact the region: \"blur\" (soft Gaussian) or \"pixelate\" (coarse mosaic, harder to reverse). Default: blur.",
+          "enum": [
+            "blur",
+            "pixelate"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strength": {
+          "default": 20,
+          "description": "Effect intensity (1-100). For blur it is the Gaussian sigma (higher = softer); for pixelate it is the mosaic block size in pixels (higher = coarser). Default: 20.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "description": "Region width in pixels. Example: 200.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "x": {
+          "description": "Left offset of the region in pixels from the top-left corner. Example: 40.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "y": {
+          "description": "Top offset of the region in pixels from the top-left corner. Example: 30.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "type": "object"
+    }
+  }
+}

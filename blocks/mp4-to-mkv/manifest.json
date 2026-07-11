@@ -1,0 +1,36 @@
+{
+  "name": "gizza-ai/mp4-to-mkv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remux an MP4 video into a Matroska (.mkv) container losslessly.",
+  "role": "skill",
+  "tool": {
+    "description": "Remux an MP4 video into a Matroska (.mkv) container without re-encoding. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Every stream (video, all audio tracks, subtitles, data) is stream-copied with -map 0 -c copy: lossless, near-instant, no quality change. MKV holds every codec MP4 can, so this always succeeds — moving to MKV lets you later add soft subtitles or extra audio tracks. To change codec/quality, use video-transcode instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

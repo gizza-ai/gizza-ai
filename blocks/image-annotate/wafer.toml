@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-annotate"
+version = "0.1.0"
+abi = 1
+summary = "Draw arrows, boxes, highlights, and text labels onto an image."

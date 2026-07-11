@@ -1,0 +1,105 @@
+slug          = "csv-cleaner"
+title         = "CSV Cleaner — Trim, Dedupe & Fix Messy CSV Online"
+description   = "Clean a messy CSV in your browser: trim whitespace, remove duplicate rows, drop empty rows, fill blanks, and normalize delimiters. No upload, free."
+tags          = ["csv cleaner", "clean csv", "trim whitespace csv", "remove duplicate rows", "fix messy csv"]
+h1            = "CSV Cleaner"
+hero_subtitle = "Tidy a messy CSV in one pass — trim cells, drop duplicates and empty rows, fill blanks, and normalize the delimiter + line endings. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_csv_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name , age\n Alice ,30\nBob,25\n,,\nBob,25"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "header"
+label       = "First row is a header (kept, not deduped/dropped)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Input delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "output_delimiter"
+label       = "Output delimiter"
+source      = "field"
+
+[input.labels]
+same      = "Same as input"
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace from every cell"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Remove duplicate rows (first kept)"
+source      = "field"
+
+[[input]]
+name        = "drop_empty_rows"
+label       = "Drop fully-empty rows"
+source      = "field"
+
+[[input]]
+name        = "empty_cells"
+label       = "Empty cells"
+source      = "field"
+
+[input.labels]
+keep = "Keep as-is"
+fill = "Fill with value below"
+
+[[input]]
+name        = "fill_value"
+label       = "Fill value (used when 'Fill' is selected)"
+placeholder = "N/A"
+source      = "field"
+
+[[input]]
+name        = "line_ending"
+label       = "Output line ending"
+source      = "field"
+
+[input.labels]
+lf   = "LF (\\n) — Unix/macOS"
+crlf = "CRLF (\\r\\n) — Windows/Excel"
+
+[[example]]
+label = "Trim + dedupe + drop empty rows"
+[example.params]
+data            = "name , age\n Alice ,30\nBob,25\n,,\nBob,25\nCarol, 40 "
+header          = "true"
+trim            = "true"
+dedupe          = "true"
+drop_empty_rows = "true"
+
+[[example]]
+label = "Fill blanks with N/A"
+[example.params]
+data        = "a,b,c\n1,,3\n,5,"
+empty_cells = "fill"
+fill_value  = "N/A"
+dedupe      = "false"
+drop_empty_rows = "false"
+
+[[example]]
+label = "Comma → semicolon, CRLF"
+[example.params]
+data             = "a,b\n1,2\n3,4"
+output_delimiter = "semicolon"
+line_ending      = "crlf"

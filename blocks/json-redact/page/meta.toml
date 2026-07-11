@@ -1,0 +1,62 @@
+slug          = "json-redact"
+title         = "JSON Redact — Mask Secrets, API Keys & Tokens in JSON — gizza.ai"
+description   = "Detect and mask secrets — API keys, tokens, passwords, private keys and emails — in a JSON document before sharing. Structure-aware, in your browser, nothing uploaded."
+tags          = ["json redact", "mask secrets", "redact api keys", "remove tokens", "sanitize json", "hide passwords", "json privacy", "scrub secrets"]
+h1            = "JSON Redact"
+hero_subtitle = "Detect and mask secrets — API keys, tokens, passwords, private keys and emails — in a JSON document before you share it. Keeps the JSON structure and key order intact. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_redact_web"
+export        = "run"
+live          = false
+output_label  = "Redacted JSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = "{\"user\": \"ada\", \"api_key\": \"AKIAIOSFODNN7EXAMPLE\", \"password\": \"hunter2\"}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "style"
+label       = "Replacement style"
+placeholder = "redacted"
+source      = "field"
+
+[input.labels]
+redacted        = "Redacted — insert the placeholder text"
+mask            = "Mask — replace value with ***"
+null            = "Null — replace value with null"
+empty           = "Empty — replace value with \"\""
+"preserve-length" = "Preserve length — *** matching original length"
+
+[[input]]
+name        = "placeholder"
+label       = "Placeholder text (for the “redacted” style)"
+placeholder = "[REDACTED]"
+source      = "field"
+
+[[input]]
+name        = "detect_values"
+label       = "Also scan values for secret patterns"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "extra_keys"
+label       = "Extra key names to redact (comma-separated)"
+placeholder = "nickname, phone"
+source      = "field"
+
+[[example]]
+label  = "Config with secrets"
+params = { json = "{\"service\": \"billing\", \"api_key\": \"sk-live-ABCDEFGHIJKLMNOPQRSTUVWX\", \"db\": {\"host\": \"db.internal\", \"password\": \"s3cr3t!\"}}" }
+
+[[example]]
+label  = "Detect secret values"
+params = { json = "{\"note\": \"jwt eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abc\", \"owner\": \"ada@example.com\", \"env\": \"prod\"}" }
+
+[[example]]
+label  = "Preserve length"
+params = { json = "{\"password\": \"hunter2\", \"pin\": 1234}", style = "preserve-length" }

@@ -1,0 +1,17 @@
+slug          = "mp4-to-mkv"
+title         = "Convert MP4 to MKV Online — gizza.ai"
+description   = "Free MP4 to MKV converter in your browser. Lossless stream-copy remux — keeps video, audio and subtitle tracks, nothing re-encoded or uploaded."
+tags          = ["mp4", "mkv", "convert", "video", "remux", "stream-copy", "matroska", "lossless", "no-reencode"]
+h1            = "Convert MP4 to MKV"
+hero_subtitle = "Pick an .mp4 and get an .mkv — a lossless container remux that stream-copies every track with no re-encode. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_mp4_to_mkv_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "MKV video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/mp4,video/x-m4v,video/*"
+label  = "MP4 video"

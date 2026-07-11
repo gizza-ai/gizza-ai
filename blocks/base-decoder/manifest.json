@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/base-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-detect and peel layered Base16/32/45/58/64/85 encodings",
+  "role": "skill",
+  "tool": {
+    "description": "Auto-detect the encoding of an opaque blob and recursively peel layered base encodings until plaintext, a known binary file signature, or the depth cap is reached. Handles Base16 (hex), Base32, Base45, Base58, Base64 (standard and URL-safe), and Base85 (Ascii85), including nested combinations such as Base64 over Base32. Returns the detected layer chain (e.g. base64 -> base32) plus the decoded text, or a magic-byte signature and hex preview for binary output. Set max_depth (default 8, 1-30) to bound the peel and output='plain' to return only the final decoded value. Runs locally and never uploads data. For a single known scheme with full control, use the per-scheme codec tools instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "The encoded blob to decode. May be wrapped in several base layers (e.g. Base64 of Base32); whitespace and newlines are ignored except for Base45 where space is a data symbol.",
+          "type": "string"
+        },
+        "max_depth": {
+          "default": 8,
+          "description": "Maximum number of encoding layers to peel before stopping. Default 8, clamped to 1-30.",
+          "maximum": 30,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output style. 'report' (default) annotates the detected layer chain and shows text or a binary hex preview; 'plain' returns only the final decoded text (or hex for binary).",
+          "enum": [
+            "report",
+            "plain"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

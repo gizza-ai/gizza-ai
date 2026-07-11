@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "metadata-privacy-linter"
+version = "0.1.0"
+abi = 1
+summary = "Scan image metadata for privacy leaks before sharing."

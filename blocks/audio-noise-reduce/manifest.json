@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/audio-noise-reduce",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reduce background hiss/hum in an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce steady background hiss/hum/noise in an audio file using ffmpeg's afftdn (FFT) or anlmdn (non-local means) denoiser. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). strength is 1–100 (higher removes more but risks a hollow sound; start around 12). method is afftdn (fast, default) or anlmdn (slower, gentler). Set remove_hum to also cut low-frequency hum below 80 Hz. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "afftdn",
+          "description": "Denoiser: afftdn (FFT-based, fast, default) or anlmdn (non-local means, slower, gentler on transients).",
+          "enum": [
+            "afftdn",
+            "anlmdn"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "remove_hum": {
+          "default": false,
+          "description": "Also cut low-frequency hum/rumble below 80 Hz (mains buzz, HVAC) with a high-pass filter. Default off.",
+          "type": "boolean"
+        },
+        "strength": {
+          "default": 12.0,
+          "description": "How aggressively to reduce noise, 1–100 (higher removes more but risks a hollow/robotic sound). Start around 12 and raise gradually.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

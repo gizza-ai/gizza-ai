@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/auto-white-balance",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto white-balance an image",
+  "role": "skill",
+  "tool": {
+    "description": "Remove common image color casts by white-balancing an image with either gray-world (neutralize average color) or white-patch (map brightest channel values toward white). strength is 0..100 percent and blends the correction with the original. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "method": {
+          "default": "gray-world",
+          "description": "White-balance estimate to use: gray-world neutralizes average color; white-patch maps channel maxima toward white.",
+          "enum": [
+            "gray-world",
+            "white-patch"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strength": {
+          "default": 100.0,
+          "description": "Correction strength as a percentage, 0 to 100 (0 = unchanged, 100 = full correction).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

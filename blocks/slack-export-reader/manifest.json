@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/slack-export-reader",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a Slack export ZIP into a readable Markdown or HTML transcript",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Turn a Slack workspace export (the ZIP of users.json, channels.json and per-channel YYYY-MM-DD.json message files that Slack's 'Export data' produces) into a readable Markdown (default) or HTML transcript. Each message shows the author's display name (resolved from users.json), a UTC timestamp, and text with Slack's markup rewritten — user/channel mentions (<@U…>, <#C…|name>), <!here>/<!channel> commands and <url|label> links become readable. Optional channel (case-insensitive name) and date (YYYY-MM-DD) filters narrow the output; returns the transcript plus channel and message counts. Provide the export as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally — the archive never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "channel": {
+          "description": "Optional: only include this channel (case-insensitive, a leading # is ignored, e.g. `general`). Omit to include every channel in the export.",
+          "type": "string"
+        },
+        "date": {
+          "description": "Optional: only include this day, as YYYY-MM-DD (e.g. `2021-01-01`), matching the export's per-day files. Omit to include every day.",
+          "type": "string"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output format: markdown (default, `## #channel` headings with bold authors and resolved links) or html (a standalone, styled transcript document).",
+          "enum": [
+            "markdown",
+            "html"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

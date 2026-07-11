@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gpx-privacy-scrubber"
+version = "0.1.0"
+abi = 1
+summary = "Strip or fuzz the home/start/end locations, timestamps, and sensor data in a GPX file before sharing it."

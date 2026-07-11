@@ -1,0 +1,65 @@
+slug          = "csv-sort"
+title         = "CSV Sort — Sort Rows by Column Online"
+description   = "Sort CSV or TSV rows by one or more columns, ascending or descending, numeric-aware or lexical. Multi-key with per-column direction. Runs in your browser, free."
+tags          = ["csv sort", "sort csv by column", "sort tsv", "multi-column sort", "numeric sort", "descending sort", "order rows"]
+h1            = "CSV Sort"
+hero_subtitle = "Sort CSV/TSV rows by one or more columns — ascending or descending, numeric-aware or lexical. Multi-key with per-column direction. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_sort_web"
+export        = "run"
+live          = false
+output_label  = "Sorted CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age\nBob,30\nAda,36\nCy,4"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Sort column(s) — names or 1-based indices, e.g. dept:asc,salary:desc"
+placeholder = "age"
+source      = "field"
+
+# order/numeric render as <select> and case_sensitive/header as checkboxes —
+# the control type + options are derived from the descriptor schema (manifest.json).
+[[input]]
+name        = "order"
+label       = "Direction"
+source      = "field"
+
+[[input]]
+name        = "numeric"
+label       = "Ordering"
+source      = "field"
+
+[[input]]
+name        = "case_sensitive"
+label       = "Case-sensitive (text ordering: A–Z before a–z)"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[example]]
+label = "Ages numerically"
+[example.params]
+data    = "name,age\nBob,30\nAda,36\nCy,4"
+columns = "age"
+order   = "asc"
+
+[[example]]
+label = "Dept ↑, salary ↓"
+[example.params]
+data    = "dept,salary\neng,100\nhr,50\neng,200\nhr,90"
+columns = "dept:asc,salary:desc"

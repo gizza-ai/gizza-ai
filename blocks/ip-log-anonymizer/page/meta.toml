@@ -1,0 +1,106 @@
+slug          = "ip-log-anonymizer"
+title         = "IP Log Anonymizer — Mask, Hash or Redact IPs for GDPR Logs"
+description   = "Anonymize IPv4 & IPv6 addresses in a log in your browser: GA/Matomo-style masking, salted SHA-256 pseudonyms, or fixed redaction. Ports & timestamps kept. Free, private."
+tags          = ["ip anonymizer", "ip address masking", "gdpr log anonymizer", "anonymize ip", "ip log redaction", "mask ip address", "hash ip address", "log pseudonymization"]
+h1            = "IP Log Anonymizer"
+hero_subtitle = "Mask, salted-hash or redact every IPv4 and IPv6 address inside a log or text — GDPR-compliant analytics without losing the surrounding paths, ports and timestamps. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_ip_log_anonymizer_web"
+export        = "run"
+live          = false
+output_label  = "Anonymized log"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Log or text"
+placeholder = "203.0.113.45 - - [10/Jul/2026:13:55:36 +0000] \"GET /index.html HTTP/1.1\" 200 2326\n198.51.100.7 - - [10/Jul/2026:13:55:37 +0000] \"POST /login HTTP/1.1\" 401 12"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Anonymization method"
+source = "field"
+
+[input.labels]
+mask   = "Mask — zero trailing octets (GA / Matomo style)"
+hash   = "Hash — short salted SHA-256 pseudonym"
+redact = "Redact — fixed placeholder token"
+
+[[input]]
+name        = "ipv4_octets"
+label       = "Mask: IPv4 octets to zero (0–4)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "ipv6_groups"
+label       = "Mask: IPv6 hextets to zero (0–8)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Hash: secret salt (recommended)"
+placeholder = "e.g. a per-project random string"
+source      = "field"
+
+[[input]]
+name        = "hash_length"
+label       = "Hash: token length in hex chars (4–64)"
+placeholder = "12"
+source      = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Redact: placeholder token"
+placeholder = "[IP]"
+source      = "field"
+
+[[input]]
+name   = "skip_private"
+label  = "Skip private / internal addresses (10.x, 192.168.x, 127.x, fc00::, fe80::)"
+source = "field"
+
+[[example]]
+label = "Mask — GA style (last octet)"
+[example.params]
+text        = "203.0.113.45 - - [10/Jul/2026:13:55:36 +0000] \"GET /index.html HTTP/1.1\" 200 2326"
+mode        = "mask"
+ipv4_octets = "1"
+
+[[example]]
+label = "Mask — Matomo style (last 2 octets)"
+[example.params]
+text        = "client 198.51.100.7:8080 fetched /login"
+mode        = "mask"
+ipv4_octets = "2"
+
+[[example]]
+label = "Hash — salted pseudonym"
+[example.params]
+text        = "user from 203.0.113.45 and again 203.0.113.45"
+mode        = "hash"
+salt        = "s3cret"
+hash_length = "12"
+
+[[example]]
+label = "Redact — fixed token"
+[example.params]
+text        = "a 192.0.2.1 b 198.51.100.7 c"
+mode        = "redact"
+replacement = "[IP]"
+
+[[example]]
+label = "Mask, keep internal IPs"
+[example.params]
+text         = "10.0.0.5 -> 203.0.113.9"
+mode         = "mask"
+skip_private = "true"
+
+[[example]]
+label = "Mask an IPv6 address (/48)"
+[example.params]
+text        = "src 2001:db8:85a3::8a2e:370:7334 end"
+mode        = "mask"
+ipv6_groups = "5"

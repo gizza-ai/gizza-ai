@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-cut-segments"
+version = "0.1.0"
+abi = 1
+summary = "Keep or remove multiple time windows from a video and join the parts"

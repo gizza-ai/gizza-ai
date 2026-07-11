@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sql-dump-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Extract the rows from a SQL dump's INSERT statements into CSV, one per table."

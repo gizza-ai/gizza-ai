@@ -1,0 +1,87 @@
+slug          = "list-set-diff"
+title         = "Compare Two Lists — Only in A, Only in B, Shared | gizza.ai"
+description   = "Compare two lists as sets and see which items are only in A, only in B, or shared — with counts. Ignore case, trim, dedupe, and leading zeros. Runs in your browser."
+tags          = ["list", "diff", "compare", "set", "text"]
+h1            = "Compare Two Lists"
+hero_subtitle = "Paste two lists and instantly see only-in-A, only-in-B, and shared items with counts."
+wasm          = "gizza_ai_list_set_diff_web"
+export        = "run"
+live          = false
+output_label  = "Comparison"
+format        = "text"
+
+[[input]]
+name        = "list_a"
+label       = "List A"
+placeholder = "apple\nbanana\ncherry"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "list_b"
+label       = "List B"
+placeholder = "banana\ncherry\ndate"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "separator"
+label       = "Separator"
+placeholder = "newline"
+source      = "field"
+
+[input.labels]
+"newline"   = "New line"
+"comma"     = "Comma"
+"tab"       = "Tab"
+"semicolon" = "Semicolon"
+"pipe"      = "Pipe"
+"space"     = "Space"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace"
+source      = "field"
+
+[[input]]
+name        = "ignore_blank"
+label       = "Ignore blank items"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Remove duplicates"
+source      = "field"
+
+[[input]]
+name        = "ignore_leading_zeros"
+label       = "Ignore leading zeros"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort order"
+placeholder = "input"
+source      = "field"
+
+[input.labels]
+"input" = "Input order"
+"asc"   = "A → Z"
+"desc"  = "Z → A"
+
+[[example]]
+label  = "Fruit lists"
+params = { list_a = "apple\nbanana\ncherry", list_b = "banana\ncherry\ndate" }
+
+[[example]]
+label  = "Emails, ignore case"
+params = { list_a = "Alice@x.com\nBob@x.com\ncarol@x.com", list_b = "bob@x.com\ndave@x.com", ignore_case = "true" }
+
+[[example]]
+label  = "IDs, ignore leading zeros"
+params = { list_a = "007\n042\n100", list_b = "7\n100\n250", ignore_leading_zeros = "true" }

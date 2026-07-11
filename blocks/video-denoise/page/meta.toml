@@ -1,0 +1,46 @@
+slug          = "video-denoise"
+title         = "Denoise a Video Online — gizza.ai"
+description   = "Remove noise, grain and sensor speckle from a video in your browser — choose a strength and denoiser. Local ffmpeg cleanup, nothing uploaded."
+tags          = ["video", "denoise", "noise reduction", "grain", "hqdn3d", "nlmeans", "clean up", "temporal", "spatial"]
+h1            = "Denoise a Video"
+hero_subtitle = "Pick a video, choose a strength and denoiser — grain and noise are smoothed away in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_denoise_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Denoised video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "method"
+source = "field"
+label  = "Denoiser"
+
+[input.labels]
+hqdn3d = "hqdn3d — temporal + spatial 3D (fast, default)"
+nlmeans = "nlmeans — non-local means (slower, keeps detail)"
+
+[[input]]
+name        = "strength"
+source      = "field"
+label       = "Strength (1-100)"
+placeholder = "30"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Default clean-up (hqdn3d, 30)"
+params = { method = "hqdn3d", strength = "30" }
+
+[[example]]
+label  = "Heavy grain (hqdn3d, 60)"
+params = { method = "hqdn3d", strength = "60" }
+
+[[example]]
+label  = "Detail-preserving (nlmeans, 40)"
+params = { method = "nlmeans", strength = "40" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-gain"
+version = "0.1.0"
+abi = 1
+summary = "Raise or lower a video's audio volume"

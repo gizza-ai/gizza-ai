@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "email-reply-cleaner"
+version = "0.1.0"
+abi = 1
+summary = "Strip quotes, reply chains, and signatures from a replied or forwarded email."

@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-mt940-statement-parse-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_mt940_statement_parse_web_bg.wasm",
+    "gizza_ai_mt940_statement_parse_web.js",
+    "gizza_ai_mt940_statement_parse_web.d.ts"
+  ],
+  "main": "gizza_ai_mt940_statement_parse_web.js",
+  "types": "gizza_ai_mt940_statement_parse_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

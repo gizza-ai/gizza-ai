@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-blur-region"
+version = "0.1.0"
+abi = 1
+summary = "Blur or pixelate a fixed rectangular region in a video"

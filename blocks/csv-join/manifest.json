@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/csv-join",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Join two CSVs on a key column, SQL-style",
+  "role": "skill",
+  "tool": {
+    "description": "Join two CSV inputs on a key column, SQL-style. `join_type` is inner (only matching keys), left (all left rows), right (all right rows), or outer (all rows from both sides); unmatched cells are blank. `left_key`/`right_key` are header names or 1-based indices and are matched on VALUES, so the two key columns may have different names (blank right_key reuses left_key). Output = the full left header then every non-key right column (name collisions get a '_right' suffix). Duplicate keys yield a Cartesian product. delimiter is a single char or comma/tab/semicolon/pipe. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": true,
+          "description": "Match key VALUES case-sensitively. false makes 'A1' and 'a1' match. Default true.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "join_type": {
+          "default": "inner",
+          "description": "Which rows to keep: 'inner' only matching keys; 'left' all left rows (unmatched right cells blank); 'right' all right rows; 'outer' all rows from both sides. Default 'inner'.",
+          "enum": [
+            "inner",
+            "left",
+            "right",
+            "outer"
+          ],
+          "type": "string"
+        },
+        "left": {
+          "description": "The left (first) CSV text; the first row is its header.",
+          "type": "string"
+        },
+        "left_key": {
+          "description": "Key column in the LEFT CSV to join on — a header name or a 1-based column index.",
+          "type": "string"
+        },
+        "right": {
+          "description": "The right (second) CSV text; the first row is its header.",
+          "type": "string"
+        },
+        "right_key": {
+          "default": "",
+          "description": "Key column in the RIGHT CSV — a header name or 1-based index. Matched on VALUES, so it may have a different name than left_key. Blank reuses left_key's reference.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "left",
+        "right",
+        "left_key"
+      ],
+      "type": "object"
+    }
+  }
+}

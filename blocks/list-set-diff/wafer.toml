@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "list-set-diff"
+version = "0.1.0"
+abi = 1
+summary = "Compare two lists and show only-in-A, only-in-B, and shared items."

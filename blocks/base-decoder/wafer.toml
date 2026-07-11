@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "base-decoder"
+version = "0.1.0"
+abi = 1
+summary = "Auto-detect and peel layered Base16/32/45/58/64/85 encodings"

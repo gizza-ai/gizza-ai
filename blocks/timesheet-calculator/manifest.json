@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/timesheet-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Total work-log hours per project and compute billable amounts",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a freeform or structured work log of start–stop times tagged by project, then total the hours per project and compute billable amounts. Each line is `[YYYY-MM-DD] START-END PROJECT [notes]` (24-hour or am/pm times; overnight ranges like 10pm-2am roll past midnight). Set an hourly `rate` (with optional per-project `rates` overrides) to get money totals, and `round` durations to a billing increment (6 minutes = 0.1h legal standard). Returns per-entry breakdowns, per-project rollups, and grand totals of minutes, hours and amount. Ideal for freelancers, consultants and payroll.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol/prefix for amounts (default `$`).",
+          "type": "string"
+        },
+        "log": {
+          "description": "The work log, one entry per line: `[YYYY-MM-DD] START-END PROJECT [notes]`, e.g. `9:00-12:30 Acme kickoff call` or `2024-01-15 13:00-17:15 #Beta`. Times are HH:MM 24-hour or 12-hour with am/pm (`9am`, `5:30pm`); if the end is earlier than the start the entry rolls past midnight (`10pm-2am`). The token after the time range is the project/tag (a leading `#` is stripped); anything after it is notes. Blank lines and lines starting with `#` or `//` are ignored.",
+          "type": "string"
+        },
+        "rate": {
+          "default": 0.0,
+          "description": "Fallback hourly billing rate applied to every project (default 0 = hours only, no money). Override individual projects with `rates`.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "rates": {
+          "description": "Optional per-project hourly rate overrides as `Project=amount` pairs, separated by commas or newlines, e.g. `Acme=150, Beta=90`. A project not listed here uses `rate`.",
+          "type": "string"
+        },
+        "round": {
+          "default": "0",
+          "description": "Billing increment in minutes — each entry's duration is rounded to the nearest multiple. `0` = exact (no rounding); `6` = tenths of an hour (the legal-billing standard); `15`/`30`/`60` for payroll.",
+          "enum": [
+            "0",
+            "6",
+            "10",
+            "15",
+            "30",
+            "60"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "log"
+      ],
+      "type": "object"
+    }
+  }
+}

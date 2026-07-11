@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-denoise"
+version = "0.1.0"
+abi = 1
+summary = "Reduce background noise in a video's audio"

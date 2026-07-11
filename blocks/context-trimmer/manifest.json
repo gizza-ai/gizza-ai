@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/context-trimmer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Trim text to fit an approximate LLM token budget, keeping the head, tail, middle, or both ends.",
+  "role": "skill",
+  "tool": {
+    "description": "Trim or truncate text to fit an approximate LLM token budget, keeping the part you choose. Token counts are ESTIMATED as characters ÷ chars_per_token (default 4.0) — there is no real tokenizer in the browser. Set max_tokens (default 512) to the budget and keep to \"head\" (beginning, default), \"tail\" (end), \"middle\" (centre, both ends dropped), or \"head_tail\" (keep the beginning AND the end, drop the middle — head_ratio splits the budget). marker is inserted where text is removed (default \"…\"; set empty for a hard cut) and counts toward the budget so the result still fits. break_words=false (default) keeps cuts on whitespace so no word is split. Text that already fits is returned unchanged. Useful for fitting prompts, documents, logs, or chat history into a context window.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "break_words": {
+          "default": false,
+          "description": "When false (default), each cut is backed up to a whitespace boundary so a word is never split. When true, the text is cut exactly at the character limit.",
+          "type": "boolean"
+        },
+        "chars_per_token": {
+          "default": 4.0,
+          "description": "Approximate characters per token used to estimate tokens (default 4.0, OpenAI's English rule of thumb). Lower it (~3) for code or non-English text to trim more conservatively.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "number"
+        },
+        "head_ratio": {
+          "default": 0.5,
+          "description": "For keep=head_tail, the fraction of the budget given to the head (default 0.5 = an even split; 1.0 = all head, 0.0 = all tail). Ignored for other strategies.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "keep": {
+          "default": "head",
+          "description": "Which part to keep: head (beginning, default), tail (end), middle (centre, both ends dropped), or head_tail (keep the beginning AND the end, drop the middle).",
+          "enum": [
+            "head",
+            "tail",
+            "middle",
+            "head_tail"
+          ],
+          "type": "string"
+        },
+        "marker": {
+          "default": "…",
+          "description": "Marker inserted where text is removed (default \"…\"). Its length counts toward the budget so the result still fits. Set to an empty string for a hard cut with no marker.",
+          "type": "string"
+        },
+        "max_tokens": {
+          "default": 512,
+          "description": "Target token budget (default 512). Tokens are estimated, not counted by a real tokenizer — see chars_per_token.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The text to trim. Returned unchanged (no marker) when it already fits the token budget.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

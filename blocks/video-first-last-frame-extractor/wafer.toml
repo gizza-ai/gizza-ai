@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-first-last-frame-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Grab a video's first and last frame stitched into one comparison image"

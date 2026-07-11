@@ -1,0 +1,36 @@
+slug          = "bip39-seed-derive"
+title         = "BIP39 Seed Derive — Mnemonic to 512-bit Seed — gizza.ai"
+description   = "Derive the 512-bit BIP39 seed from an existing mnemonic recovery phrase and optional passphrase, in your browser. Validates the wordlist and checksum. Free and private."
+tags          = ["bip39", "seed derive", "mnemonic to seed", "recovery phrase", "bip39 seed", "crypto wallet", "bitcoin", "hd wallet", "bip32", "bip44"]
+h1            = "BIP39 Seed Derivation"
+hero_subtitle = "Paste a BIP39 mnemonic recovery phrase to validate it and derive the 512-bit BIP39 seed (PBKDF2-HMAC-SHA512) your wallet uses. Runs entirely in your browser — nothing is sent to a server."
+wasm          = "gizza_ai_bip39_seed_derive_web"
+export        = "run"
+live          = false
+output_label  = "BIP39 seed"
+format        = "text"
+
+[[input]]
+name        = "mnemonic"
+label       = "Mnemonic phrase (12–24 words)"
+placeholder = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "passphrase"
+label       = "Passphrase (optional 25th word)"
+placeholder = "leave blank for none"
+source      = "field"
+
+[[example]]
+label = "BIP39 test vector (TREZOR)"
+[example.params]
+mnemonic   = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+passphrase = "TREZOR"
+
+[[example]]
+label = "24-word phrase, no passphrase"
+[example.params]
+mnemonic   = "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo vote"
+passphrase = ""

@@ -1,0 +1,108 @@
+{
+  "name": "gizza-ai/pdf-watermark",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Stamp a text watermark onto every page of a PDF",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Stamp a text watermark (CONFIDENTIAL, DRAFT, a company name…) onto every page of a PDF. The same `text` is placed on each selected page — control the `position` (center or a corner/edge), the `rotation` in degrees (45 = classic diagonal), the `font`/`font_size`/`color`/`opacity` (faint by default), whether to `tile` it in a mosaic across the whole page, and which `pages` to mark (1-based; use '2-' to skip a cover page). Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "color": {
+          "default": "#808080",
+          "description": "Text colour as a hex code, e.g. #808080 (grey, default), #ff0000 (red) or #f00.",
+          "type": "string"
+        },
+        "font": {
+          "default": "helvetica",
+          "description": "Built-in font family: helvetica (sans), times (serif) or courier (mono). Default helvetica.",
+          "enum": [
+            "helvetica",
+            "times",
+            "courier"
+          ],
+          "type": "string"
+        },
+        "font_size": {
+          "default": 48.0,
+          "description": "Font size in points (4–288). Watermarks are large — default 48.",
+          "maximum": 288,
+          "minimum": 4,
+          "type": "number"
+        },
+        "opacity": {
+          "default": 0.3,
+          "description": "Opacity from 0.05 (barely visible) to 1.0 (fully opaque). 0.15–0.4 reads as a subtle watermark. Default 0.3.",
+          "maximum": 1,
+          "minimum": 0.05,
+          "type": "number"
+        },
+        "pages": {
+          "default": "all",
+          "description": "Which pages to watermark, 1-based: 'all' (default), a list/range like '1,3-5', or an open range like '2-' to skip a cover page.",
+          "type": "string"
+        },
+        "position": {
+          "default": "center",
+          "description": "Where to anchor the watermark: center (default) or a corner/edge — top/middle/bottom × left/center/right. Ignored when tile is true.",
+          "enum": [
+            "center",
+            "top-left",
+            "top-center",
+            "top-right",
+            "middle-left",
+            "middle-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rotation": {
+          "default": 45.0,
+          "description": "Rotation in degrees, counter-clockwise (-360 to 360). 0 = horizontal; 45 (default) or -45 gives the classic diagonal stamp; 90 = vertical.",
+          "maximum": 360,
+          "minimum": -360,
+          "type": "number"
+        },
+        "text": {
+          "description": "The watermark text stamped on every selected page, e.g. 'CONFIDENTIAL', 'DRAFT' or 'Acme Corp'. Required.",
+          "type": "string"
+        },
+        "tile": {
+          "default": false,
+          "description": "When true, repeat the watermark in a grid (mosaic) across the whole page instead of a single stamp — harder to crop out. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

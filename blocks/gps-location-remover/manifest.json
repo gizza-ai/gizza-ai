@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/gps-location-remover",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove only the GPS location tags from a photo, keeping camera data",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Remove ONLY the GPS/geolocation tags (latitude, longitude, altitude, GPS timestamp, etc.) from a JPEG or PNG photo, while KEEPING all other EXIF metadata — camera make/model, lens, and exposure settings (ISO, aperture, shutter speed, timestamps). Unlike a strip-all-metadata cleaner, camera and exposure data survive. The pixels are NOT re-encoded, so there is no quality loss. Useful for privacy before sharing photos while keeping the technical camera data. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). JPEG and PNG only; GPS embedded in XMP is not removed.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}

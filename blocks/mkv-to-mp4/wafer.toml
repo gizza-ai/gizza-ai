@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mkv-to-mp4"
+version = "0.1.0"
+abi = 1
+summary = "Convert a Matroska (.mkv) video into an MP4 container."

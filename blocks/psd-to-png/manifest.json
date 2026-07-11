@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/psd-to-png",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an Adobe Photoshop PSD to a flattened PNG or JPEG image.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode an Adobe Photoshop .psd document and render its FLATTENED composite (all visible layers merged, exactly as Photoshop previews it) to a viewable PNG or JPEG. Output is a single image of the whole canvas — per-layer extraction to separate files is not supported. PNG preserves the document's transparency; JPEG has no alpha, so transparent areas are flattened onto the background colour. Params: format (png|jpeg, default png), quality (JPEG 1-100, default 90), background (hex #rrggbb for JPEG flatten, default #ffffff). Renders RGB/RGBA PSDs from the document's stored composite; a file that is not a PSD returns a clear error. Provide the file as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "#ffffff",
+          "description": "Background colour for JPEG output as hex (#rgb or #rrggbb, default #ffffff). Transparent areas are flattened onto this colour. Ignored for PNG, which keeps transparency.",
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format (default: png). PNG keeps the document's transparency; JPEG is smaller but has no alpha.",
+          "enum": [
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 90,
+          "description": "JPEG quality 1-100 (default 90; ignored for PNG).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

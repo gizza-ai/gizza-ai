@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/mkv-to-mp4",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Matroska (.mkv) video into an MP4 container.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Matroska MKV video to MP4. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Default mode 'copy' stream-copies the streams into an MP4 container (lossless, instant) — works when the MKV holds H.264/HEVC + AAC. Use mode 'transcode' to re-encode to H.264/AAC for MKVs whose codecs MP4 can't hold (VP8/VP9/AV1 video, FLAC/Vorbis/Opus audio); quality 1-100 (default 75) maps to CRF and applies only to transcode. Both modes keep video + audio and drop MKV subtitle/attachment tracks MP4 can't carry.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "mode": {
+          "default": "copy",
+          "description": "How to produce the MP4. copy (default) = lossless container remux with -c copy: near-instant, no quality change, works when the MKV already holds H.264/HEVC video + AAC audio. transcode = re-encode to H.264/AAC — use for MKVs whose codecs MP4 can't hold (VP8/VP9/AV1 video, FLAC/Vorbis/Opus audio). Both modes keep video + audio and drop MKV subtitle/attachment tracks.",
+          "enum": [
+            "copy",
+            "transcode"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Transcode quality 1-100 (default 75; higher = better quality, larger file). Maps to ffmpeg's libx264 CRF. Only used when mode=transcode; ignored for copy (a remux never re-encodes).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

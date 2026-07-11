@@ -1,0 +1,35 @@
+slug          = "video-fps"
+title         = "Change Video Frame Rate Online — gizza.ai"
+description   = "Change a video's frame rate right in your browser — set any fps (60→30, 24, 25). Frames are dropped or duplicated with ffmpeg locally, nothing is uploaded, free."
+tags          = ["video", "fps", "frame rate", "framerate", "60fps", "30fps", "convert", "reencode"]
+h1            = "Change a Video's Frame Rate"
+hero_subtitle = "Pick a video and a target fps — frames are dropped or duplicated in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_fps_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Re-timed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "fps"
+source      = "field"
+label       = "Target frame rate (fps, 1-240)"
+placeholder = "30"
+
+[[example]]
+label  = "60 → 30 fps"
+params = { fps = "30" }
+
+[[example]]
+label  = "Film look (24 fps)"
+params = { fps = "24" }
+
+[[example]]
+label  = "PAL (25 fps)"
+params = { fps = "25" }
