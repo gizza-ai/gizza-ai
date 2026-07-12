@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/document-binarize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Threshold an image to pure black and white.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Binarize an image to pure black & white — ideal for cleaning up scanned documents. method picks the algorithm: otsu (automatic global), fixed (use the threshold param), sauvola or niblack (local adaptive, best for uneven lighting; default sauvola). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "method": { "type": "string", "enum": ["otsu", "fixed", "sauvola", "niblack"], "default": "sauvola", "description": "Binarization method: otsu (global auto threshold), fixed (global threshold param), sauvola or niblack (local adaptive; best for documents). Default sauvola." },
+        "threshold": { "type": "integer", "minimum": 0, "maximum": 255, "default": 128, "description": "Global cutoff 0-255 used only when method=fixed; pixels brighter than it become white. Default 128." },
+        "window": { "type": "integer", "minimum": 3, "maximum": 101, "default": 25, "description": "Neighbourhood size in pixels for the local methods (sauvola/niblack); forced odd internally. Default 25." },
+        "k": { "type": "number", "minimum": -1, "maximum": 1, "default": 0.34, "description": "Sensitivity for the local methods (sauvola/niblack), -1.0 to 1.0; lower keeps more dark foreground. Default 0.34." },
+        "invert": { "type": "boolean", "default": false, "description": "Swap black and white in the output. Default false." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
