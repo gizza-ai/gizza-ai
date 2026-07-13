@@ -3,14 +3,14 @@ name = "gizza-ai"
 title = "Gizza AI"
 boot_redirect = "/chat"
 
-[solobase]
-manifest_path = "../solobase"
+[impresspress]
+manifest_path = "../impresspress"
 
 [assets]
 opfs_wipe_on_recovery = true
 # Serve the apex chooser (site/index.html) as a static asset the SW never
 # intercepts, so it renders even when the runtime can't boot. Exact-match
-# (not prefix) because "/" can't be a startsWith prefix. Requires solobase
+# (not prefix) because "/" can't be a startsWith prefix. Requires impresspress
 # >= c67ba6f (extra_bypass_exact support).
 extra_bypass_exact = ["/", "/index.html"]
 # `/blocks/` serves the per-skill wasm the chat app lazy-loads on first use

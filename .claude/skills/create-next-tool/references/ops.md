@@ -38,7 +38,7 @@ pre-read remaining budget from disk; it must react to a limit error (back off / 
 - `cargo install --path cli` embeds only the blocks whose `target/block.wasm` exists. A fresh
   checkout has just the ~33 COMMITTED wasm fixtures, so the install produces (and globally
   overwrites `~/.cargo/bin/gizza` with) a CLI missing most tools. Either run the baseline
-  `solobase build` first, or reinstall from the full checkout when done.
+  `impresspress build` first, or reinstall from the full checkout when done.
 - The page generator prints a "web/pkg not found (skipping WASM copy)" warning per block whose
   wasm-pack output is missing — in a fresh checkout that's ~300 warnings. Harmless for the tool
   you're building (its own page still renders); noisy but expected without the baseline build.

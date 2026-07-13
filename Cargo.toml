@@ -53,9 +53,9 @@ wafer-block = { git = "https://github.com/wafer-run/wafer-run", branch = "main" 
 wafer-core = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 wafer-sql-utils = { git = "https://github.com/wafer-run/wafer-run", branch = "main" }
 
-# Solobase — path deps (sibling checkout; can be switched to git later).
-solobase-core = { path = "../solobase/crates/solobase-core", default-features = false }
-solobase-browser = { path = "../solobase/crates/solobase-browser" }
+# Impresspress — path deps (sibling checkout; can be switched to git later).
+impresspress-core = { path = "../impresspress/crates/impresspress-core", default-features = false }
+impresspress-browser = { path = "../impresspress/crates/impresspress-browser" }
 
 # Shared helpers across all gizza-ai skill blocks (URL parsing, MIME tables,
 # ffmpeg-runtime dispatch, response envelope, quality validation).
@@ -78,11 +78,11 @@ tokio = { version = "1", features = ["macros", "rt"] }
 async-trait = "0.1"
 
 # Size-optimized release profile for the Cloudflare-Pages wasm bundle.
-# `solobase build` compiles this crate to wasm with `--release`; without
+# `impresspress build` compiles this crate to wasm with `--release`; without
 # these settings the app wasm is ~29 MB and Cloudflare Pages rejects it
 # ("Pages only supports files up to 25 MiB in size"). With them it drops
-# to a few MB. Mirrors solobase's and site's release profiles (and is what
-# solobase's own cloudflare `profile_check` recommends).
+# to a few MB. Mirrors impresspress's and site's release profiles (and is what
+# impresspress's own cloudflare `profile_check` recommends).
 [profile.release]
 opt-level = "z"
 lto = true
@@ -90,7 +90,7 @@ codegen-units = 1
 strip = true
 panic = "abort"
 
-# wasm-opt flags for the `--release` build that `solobase build --release`
+# wasm-opt flags for the `--release` build that `impresspress build --release`
 # runs via `wasm-pack`. Two things matter here:
 #   * `--all-features` — rustc emits bulk-memory ops (memory.copy/fill) by
 #     default, but wasm-pack's bundled `wasm-opt` rejects them unless the
@@ -98,7 +98,7 @@ panic = "abort"
 #     [--enable-bulk-memory]"), so the default `wasm-opt -O` aborts validation.
 #   * `-Oz` — size-optimize, which (with `[profile.release]` above) keeps the
 #     bundle under Cloudflare Pages' 25 MiB per-file limit.
-# Mirrors solobase-web / solobase-browser, the proven Cloudflare wasm build.
+# Mirrors impresspress-web / impresspress-browser, the proven Cloudflare wasm build.
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = ["-Oz", "--all-features"]
 

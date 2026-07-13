@@ -1,7 +1,7 @@
 //! Browser-side variable seeding and loading.
 //!
 //! Mirrors the native `seed_and_load_variables()` / `load_block_settings()` from
-//! `solobase/src/main.rs`, but uses the JS bridge (`bridge::db_exec_raw` /
+//! `impresspress/src/main.rs`, but uses the JS bridge (`bridge::db_exec_raw` /
 //! `bridge::db_query_raw`) instead of `rusqlite`.
 //!
 //! All bootstrap fns are fallible (`Result<_, JsValue>`) so that a real SQL
@@ -11,7 +11,7 @@
 use std::collections::HashMap;
 
 #[cfg(target_arch = "wasm32")]
-use solobase_browser::bridge;
+use impresspress_browser::bridge;
 use wasm_bindgen::JsValue;
 
 /// Run a write SQL statement, propagating any failure as a JsValue with the
@@ -74,9 +74,9 @@ fn json_params(values: Vec<wafer_sql_utils::SeaValue>) -> Result<String, JsValue
 /// There are no env vars to seed from in the browser — only auto-generated
 /// secrets and previously-stored values.
 pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
+    use serde_json::json;
     use wafer_block::db::ListOptions;
     use wafer_sql_utils::{query, upsert, Backend};
-    use serde_json::json;
 
     // 1. Create variables table if it does not exist.
     //
@@ -113,22 +113,16 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     let now = chrono::Utc::now().to_rfc3339();
 
     // 2. Seed default admin account for browser build.
-    //    Email: admin@solobase.local / Password: admin
+    //    Email: admin@impresspress.local / Password: admin
     //    This is local-only (OPFS) so a simple default is acceptable.
     let stmt = upsert::build_upsert(
         "variables",
         &[
             ("id".into(), json!("var_admin_email")),
-            (
-                "key".into(),
-                json!("SUPPERS_AI__AUTH__ADMIN_EMAIL"),
-            ),
+            ("key".into(), json!("WAFER_RUN__AUTH__ADMIN_EMAIL")),
             ("name".into(), json!("Admin Email")),
-            (
-                "description".into(),
-                json!("Admin account email"),
-            ),
-            ("value".into(), json!("admin@solobase.local")),
+            ("description".into(), json!("Admin account email")),
+            ("value".into(), json!("admin@impresspress.local")),
             ("sensitive".into(), json!(0)),
             ("created_at".into(), json!(now.as_str())),
             ("updated_at".into(), json!(now.as_str())),
@@ -143,15 +137,9 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         "variables",
         &[
             ("id".into(), json!("var_admin_pass")),
-            (
-                "key".into(),
-                json!("SUPPERS_AI__AUTH__ADMIN_PASSWORD"),
-            ),
+            ("key".into(), json!("WAFER_RUN__AUTH__ADMIN_PASSWORD")),
             ("name".into(), json!("Admin Password")),
-            (
-                "description".into(),
-                json!("Admin account password"),
-            ),
+            ("description".into(), json!("Admin account password")),
             ("value".into(), json!("admin")),
             ("sensitive".into(), json!(1)),
             ("created_at".into(), json!(now.as_str())),
@@ -164,23 +152,18 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     exec_or_err(&stmt.sql, &json_params(stmt.values)?)?;
 
     // Inject the framework's page-side WebLLM engine into every SSR-rendered
-    // page served via solobase-core's layout (admin UI, etc.). gizza's own
+    // page served via impresspress-core's layout (admin UI, etc.). gizza's own
     // /b/ui page has its own maud template that loads /webllm-engine.js
     // directly, so this seed is strictly for framework-rendered surfaces.
     let stmt = upsert::build_upsert(
         "variables",
         &[
             ("id".into(), json!("var_embedded_scripts")),
-            (
-                "key".into(),
-                json!("SOLOBASE_SHARED__EMBEDDED_SCRIPTS"),
-            ),
+            ("key".into(), json!("WAFER_RUN_SHARED__EMBEDDED_SCRIPTS")),
             ("name".into(), json!("Embedded Scripts")),
             (
                 "description".into(),
-                json!(
-                    "Module-script URLs injected into every SSR page"
-                ),
+                json!("Module-script URLs injected into every SSR page"),
             ),
             ("value".into(), json!("/webllm-engine.js")),
             ("sensitive".into(), json!(0)),
@@ -199,13 +182,13 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     //     strings are accepted as "not configured" by the auth block, which
     //     disables the corresponding flow.
     for (key, val) in [
-        ("SUPPERS_AI__AUTH__ALLOWED_EMAIL_DOMAINS", ""),
-        ("SUPPERS_AI__AUTH__OAUTH_GOOGLE_CLIENT_ID", ""),
-        ("SUPPERS_AI__AUTH__OAUTH_GOOGLE_CLIENT_SECRET", ""),
-        ("SUPPERS_AI__AUTH__OAUTH_GITHUB_CLIENT_ID", ""),
-        ("SUPPERS_AI__AUTH__OAUTH_GITHUB_CLIENT_SECRET", ""),
-        ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_ID", ""),
-        ("SUPPERS_AI__AUTH__OAUTH_FACEBOOK_CLIENT_SECRET", ""),
+        ("WAFER_RUN__AUTH__ALLOWED_EMAIL_DOMAINS", ""),
+        ("WAFER_RUN__AUTH__OAUTH_GOOGLE_CLIENT_ID", ""),
+        ("WAFER_RUN__AUTH__OAUTH_GOOGLE_CLIENT_SECRET", ""),
+        ("WAFER_RUN__AUTH__OAUTH_GITHUB_CLIENT_ID", ""),
+        ("WAFER_RUN__AUTH__OAUTH_GITHUB_CLIENT_SECRET", ""),
+        ("WAFER_RUN__AUTH__OAUTH_FACEBOOK_CLIENT_ID", ""),
+        ("WAFER_RUN__AUTH__OAUTH_FACEBOOK_CLIENT_SECRET", ""),
     ] {
         let id = format!("var_{}", key.to_lowercase().replace("__", "_"));
         let stmt = upsert::build_upsert(
@@ -239,13 +222,13 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
     //     values stick.
     seed_random_secret(
         "var_auth_jwt_secret",
-        "SUPPERS_AI__AUTH__JWT_SECRET",
+        "WAFER_RUN__AUTH__JWT_SECRET",
         "JWT signing secret (gizza-local)",
         &now,
     )?;
     seed_random_secret(
         "var_auth_internal_secret",
-        "SUPPERS_AI__AUTH__INTERNAL_SECRET",
+        "WAFER_RUN__AUTH__INTERNAL_SECRET",
         "Internal-endpoint shared secret (gizza-local)",
         &now,
     )?;
@@ -262,9 +245,8 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         Backend::Sqlite,
     );
     let json_str = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-    let rows: Vec<serde_json::Value> = serde_json::from_str(&json_str).map_err(|e| {
-        JsValue::from_str(&format!("config: parse variables result failed: {e}"))
-    })?;
+    let rows: Vec<serde_json::Value> = serde_json::from_str(&json_str)
+        .map_err(|e| JsValue::from_str(&format!("config: parse variables result failed: {e}")))?;
 
     let mut vars = HashMap::new();
     for row in rows {
@@ -282,7 +264,7 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
 }
 
 /// Sample 32 random bytes and return them hex-encoded. Used to seed
-/// auth-runtime secrets that solobase's upstream config-var machinery
+/// auth-runtime secrets that impresspress's upstream config-var machinery
 /// doesn't yet auto-generate. The `key` argument is for error labelling only.
 #[cfg(target_arch = "wasm32")]
 fn random_secret_hex(key: &str) -> Result<String, JsValue> {
@@ -298,14 +280,9 @@ fn random_secret_hex(key: &str) -> Result<String, JsValue> {
 /// `now` is the RFC-3339 timestamp pre-computed by the caller — passed in
 /// so all seeds within a boot share the same `created_at` / `updated_at`.
 #[cfg(target_arch = "wasm32")]
-fn seed_random_secret(
-    id: &str,
-    key: &str,
-    description: &str,
-    now: &str,
-) -> Result<(), JsValue> {
-    use wafer_sql_utils::{upsert, Backend};
+fn seed_random_secret(id: &str, key: &str, description: &str, now: &str) -> Result<(), JsValue> {
     use serde_json::json;
+    use wafer_sql_utils::{upsert, Backend};
     let secret = random_secret_hex(key)?;
     let stmt = upsert::build_upsert(
         "variables",
@@ -342,11 +319,11 @@ fn seed_random_secret(
 /// and generates random hex values for any that don't already exist in the
 /// variables table.
 fn seed_auto_generated(now: &str) -> Result<(), JsValue> {
-    use wafer_sql_utils::{upsert, Backend};
     use serde_json::json;
+    use wafer_sql_utils::{upsert, Backend};
 
-    let block_infos = solobase_core::blocks::all_block_infos();
-    let all_vars = solobase_core::config_vars::collect_all_config_vars(&block_infos);
+    let block_infos = impresspress_core::blocks::all_block_infos();
+    let all_vars = impresspress_core::config_vars::collect_all_config_vars(&block_infos);
 
     for var in &all_vars {
         if !var.auto_generate {
@@ -388,15 +365,15 @@ fn seed_auto_generated(now: &str) -> Result<(), JsValue> {
 
 /// Load block settings from the browser database.
 ///
-/// Reads the `suppers_ai__admin__block_settings` table (creating it if needed)
+/// Reads the `impresspress__admin__block_settings` table (creating it if needed)
 /// and returns a `BlockSettings` with the enabled/disabled state of each block.
-pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, JsValue> {
-    // PRECONDITION: `wafer.init_block(suppers-ai/admin)` must have already
+pub fn load_block_settings() -> Result<impresspress_core::features::BlockSettings, JsValue> {
+    // PRECONDITION: `wafer.init_block(impresspress/admin)` must have already
     // run before this function is called — admin's migration is the single
-    // source of schema truth for `suppers_ai__admin__block_settings`. See
+    // source of schema truth for `impresspress__admin__block_settings`. See
     // `initialize()` in `lib.rs` for the ordering. Removing the pre-create
-    // eliminates the schema-drift class of bug that took down the solobase
-    // demo in solobase #210/#211 (mirrored in #212 for solobase-web; this
+    // eliminates the schema-drift class of bug that took down the impresspress
+    // demo in impresspress #210/#211 (mirrored in #212 for impresspress-web; this
     // is the matching gizza-ai change).
     //
     // One-shot migration for legacy OPFS state: users who visited a build
@@ -412,10 +389,10 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     // CREATE TABLE, and CREATE INDEX below are kept as hand-written strings.
     // These are one-shot migration/schema statements; using the DDL builders
     // (`ddl::build_create_table` etc.) would require defining Table structs
-    // for a schema owned by solobase-core, coupling gizza-ai to that
+    // for a schema owned by impresspress-core, coupling gizza-ai to that
     // definition for no practical benefit at bootstrap time.
     let table_info = query_or_err(
-        "SELECT name FROM pragma_table_info('suppers_ai__admin__block_settings')",
+        "SELECT name FROM pragma_table_info('impresspress__admin__block_settings')",
         "[]",
     )
     .unwrap_or_else(|_| "[]".to_string());
@@ -423,11 +400,11 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     let table_exists = table_info != "[]" && !table_info.is_empty();
     if table_exists && !has_id_column {
         exec_or_err(
-            "DROP TABLE IF EXISTS suppers_ai__admin__block_settings",
+            "DROP TABLE IF EXISTS impresspress__admin__block_settings",
             "[]",
         )?;
         exec_or_err(
-            "CREATE TABLE suppers_ai__admin__block_settings (
+            "CREATE TABLE impresspress__admin__block_settings (
                 id            TEXT PRIMARY KEY,
                 block_name    TEXT NOT NULL UNIQUE,
                 enabled       INTEGER NOT NULL DEFAULT 1,
@@ -439,8 +416,8 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
             "[]",
         )?;
         exec_or_err(
-            "CREATE UNIQUE INDEX IF NOT EXISTS suppers_ai__admin__block_settings_block_name_uniq \
-             ON suppers_ai__admin__block_settings (block_name)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS impresspress__admin__block_settings_block_name_uniq \
+             ON impresspress__admin__block_settings (block_name)",
             "[]",
         )?;
     }
@@ -454,30 +431,30 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
     // generates the same shape in Rust, letting us use `upsert::build_upsert`
     // (INSERT OR IGNORE semantics via empty update-columns slice) and the
     // pre-computed `now` timestamp, consistent with the seed_* helpers above.
+    use serde_json::json;
     use wafer_block::db::ListOptions;
     use wafer_sql_utils::{query, upsert, Backend};
-    use serde_json::json;
 
     let now = chrono::Utc::now().to_rfc3339();
     let defaults: &[(&str, bool)] = &[
-        ("suppers-ai/auth", true),
-        ("suppers-ai/llm", true),
-        ("suppers-ai/local-llm", true),
-        ("suppers-ai/messages", true),
-        ("suppers-ai/admin", false),
-        ("suppers-ai/files", false),
-        ("suppers-ai/products", false),
-        ("suppers-ai/projects", false),
-        ("suppers-ai/legalpages", false),
-        ("suppers-ai/userportal", false),
-        ("suppers-ai/system", false),
-        ("suppers-ai/vector", false),
+        ("wafer-run/auth", true),
+        ("impresspress/llm", true),
+        ("impresspress/local-llm", true),
+        ("impresspress/messages", true),
+        ("impresspress/admin", false),
+        ("impresspress/files", false),
+        ("impresspress/products", false),
+        ("impresspress/projects", false),
+        ("impresspress/legalpages", false),
+        ("impresspress/userportal", false),
+        ("impresspress/system", false),
+        ("impresspress/vector", false),
     ];
 
     for &(block_name, enabled) in defaults {
         let block_id = format!("block_{}", uuid::Uuid::new_v4());
         let stmt = upsert::build_upsert(
-            "suppers_ai__admin__block_settings",
+            "impresspress__admin__block_settings",
             &[
                 ("id".into(), json!(block_id)),
                 ("block_name".into(), json!(block_name)),
@@ -494,7 +471,7 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
 
     // Read all settings
     let stmt = query::build_select_columns(
-        "suppers_ai__admin__block_settings",
+        "impresspress__admin__block_settings",
         &["block_name", "enabled"],
         &ListOptions::default(),
         None,
@@ -518,5 +495,5 @@ pub fn load_block_settings() -> Result<solobase_core::features::BlockSettings, J
         }
     }
 
-    Ok(solobase_core::features::BlockSettings::from_map(map))
+    Ok(impresspress_core::features::BlockSettings::from_map(map))
 }

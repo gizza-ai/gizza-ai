@@ -100,7 +100,7 @@ Follow these phases in order:
 6. **Phase 5 — Re-test (the "did we improve it" gate).** Re-run the full matrix
    (reference.md §"Phase 5"): unit + drift-guard (regenerated) + wafer fixtures + Playwright
    page **incl. the query-param deep-link** + CLI smoke + `wafer build` / `wasm-pack` /
-   generator / `solobase build`. Hard gates: pre-existing behavior tests stay GREEN; **each new
+   generator / `impresspress build`. Hard gates: pre-existing behavior tests stay GREEN; **each new
    capability ships with its own test**; API/CLI/query all pass post-edit. ≤3 fix attempts per
    failure, then escalate (Honesty gate).
 

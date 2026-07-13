@@ -82,9 +82,7 @@ impl Block for FakeNetworkBlock {
                     (200, "text/plain", b"WEBFETCH_OK_8f3a2".to_vec())
                 }
                 // A real 2-page PDF fixture served with the canonical PDF mime.
-                "https://example.test/sample.pdf" => {
-                    (200, "application/pdf", SAMPLE_PDF.to_vec())
-                }
+                "https://example.test/sample.pdf" => (200, "application/pdf", SAMPLE_PDF.to_vec()),
                 // The same bytes served as application/octet-stream — the mime
                 // raw.githubusercontent.com uses for binary downloads. The
                 // pdf-extract-text block's AssetKind::Document must accept it.
@@ -252,12 +250,19 @@ async fn pdf_extract_all_pages_returns_text() {
         .await
         .expect("happy path");
     let text = resp["text"].as_str().expect("text field");
-    assert!(text.contains("Gizza"), "should contain page 1 text; got {text:?}");
+    assert!(
+        text.contains("Gizza"),
+        "should contain page 1 text; got {text:?}"
+    );
     assert!(
         text.contains("Beta Marker"),
         "all-pages extraction should include page 2 text; got {text:?}"
     );
-    assert_eq!(resp["page"], serde_json::Value::Null, "page is null for all");
+    assert_eq!(
+        resp["page"],
+        serde_json::Value::Null,
+        "page is null for all"
+    );
     assert_eq!(resp["truncated"], false);
     assert!(resp["chars"].as_u64().unwrap() > 0);
 }

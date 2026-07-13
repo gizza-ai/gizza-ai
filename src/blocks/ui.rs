@@ -21,7 +21,7 @@ use super::DEFAULT_MODEL_ID;
 ///
 /// Single source consumed by BOTH the Service-Worker/SSR render
 /// ([`render_chat`]) and the static, crawler-facing chat shell `site/chat.html`
-/// (which `solobase.toml` overlays as the deployed `chat.html`). A no-JS
+/// (which `impresspress.toml` overlays as the deployed `chat.html`). A no-JS
 /// crawler or social-card scraper hitting `/chat` only ever sees that static
 /// shell, so the SEO `<head>` must be present there too — the
 /// `static_shell_carries_seo_head` test fails if the shell drifts from these
@@ -139,7 +139,7 @@ fn render_chat() -> maud::Markup {
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 script type="module" src="https://site-kit.suppers.ai/dist/components/sa-chat.js" {}
                 // Shared gizza-chrome header — styling + behavior. Replaces the
-                // external sa-header web component. Asset delivery via solobase.toml
+                // external sa-header web component. Asset delivery via impresspress.toml
                 // overlay/bypass is a later task; referenced here.
                 link rel="stylesheet" href="/header.css";
                 // Markdown renderer for assistant messages.
@@ -540,7 +540,7 @@ mod tests {
     }
 
     /// The cold, crawler-facing chat shell is the static `site/chat.html` overlay
-    /// (`solobase.toml` copies it to the deployed `chat.html`) — NOT
+    /// (`impresspress.toml` copies it to the deployed `chat.html`) — NOT
     /// [`render_chat`], which is the Service-Worker/SSR path a no-JS crawler or
     /// social-card scraper (Twitter/Slack/LinkedIn) never executes. So the SEO
     /// `<head>` must be present statically here too, kept in sync with

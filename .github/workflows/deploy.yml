@@ -45,20 +45,20 @@ jobs:
           # Full history: gen-seo.sh derives sitemap <lastmod> from git log.
           fetch-depth: 0
 
-      - name: Read solobase pin
+      - name: Read impresspress pin
         id: pin
-        run: echo "solobase_sha=$(cat gizza-ai/solobase-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+        run: echo "impresspress_sha=$(cat gizza-ai/impresspress-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
 
       - name: Read wafer-run pin
         id: waferpin
         run: echo "wafer_sha=$(cat gizza-ai/wafer-run-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout solobase
+      - name: Checkout impresspress
         uses: actions/checkout@v4
         with:
-          repository: suppers-ai/solobase
-          ref: ${{ steps.pin.outputs.solobase_sha }}
-          path: solobase
+          repository: impresspress/impresspress
+          ref: ${{ steps.pin.outputs.impresspress_sha }}
+          path: impresspress
 
       - name: Checkout wafer-run
         # Pinned via wafer-run-pin.txt so wafer-run main breakage can't land in
@@ -81,7 +81,7 @@ jobs:
           set -euo pipefail
           pin="$(tr -d '[:space:]' < gizza-ai/wafer-run-pin.txt)"
           fail=0
-          for lock in gizza-ai/Cargo.lock gizza-ai/cli/Cargo.lock gizza-ai/block-utils/Cargo.lock solobase/Cargo.lock; do
+          for lock in gizza-ai/Cargo.lock gizza-ai/cli/Cargo.lock gizza-ai/block-utils/Cargo.lock impresspress/Cargo.lock; do
             shas="$(grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lock" | sed 's/.*#//' | sort -u)"
             if [ "$shas" != "$pin" ]; then
               echo "::error::$lock pins wafer-run at '${shas:-<none>}' but wafer-run-pin.txt says '$pin'."
@@ -89,7 +89,7 @@ jobs:
             fi
           done
           if [ "$fail" -ne 0 ]; then
-            echo "Bump procedure: update wafer-run-pin.txt, run 'cargo update' in gizza-ai/, cli/, and block-utils/, and point solobase-pin.txt at a solobase commit whose Cargo.lock pins the same wafer-run sha."
+            echo "Bump procedure: update wafer-run-pin.txt, run 'cargo update' in gizza-ai/, cli/, and block-utils/, and point impresspress-pin.txt at a impresspress commit whose Cargo.lock pins the same wafer-run sha."
             exit 1
           fi
           echo "All lockfiles agree with wafer-run-pin.txt ($pin)."
@@ -115,17 +115,17 @@ jobs:
         with:
           workspaces: |
             gizza-ai
-            solobase
+            impresspress
             wafer-run
 
-      - name: Build solobase-web wasm
-        # Required by solobase's build.rs (it include_bytes!s the wasm).
-        # Mirrors solobase/justfile's `build` recipe.
-        working-directory: solobase
-        run: wasm-pack build crates/solobase-web --target web --release --out-dir pkg
+      - name: Build impresspress-web wasm
+        # Required by impresspress's build.rs (it include_bytes!s the wasm).
+        # Mirrors impresspress/justfile's `build` recipe.
+        working-directory: impresspress
+        run: wasm-pack build crates/impresspress-web --target web --release --out-dir pkg
 
-      - name: Build solobase CLI
-        run: cargo install --path solobase/crates/solobase --locked
+      - name: Build impresspress CLI
+        run: cargo install --path impresspress/crates/impresspress --locked
 
       - name: Build wafer CLI
         run: cargo install --path wafer-run/crates/wafer-cli --locked
@@ -147,13 +147,13 @@ jobs:
 
       - name: Build site
         working-directory: gizza-ai
-        # `--release` is required: without it `solobase build` runs
+        # `--release` is required: without it `impresspress build` runs
         # `wasm-pack build --dev`, producing an unoptimized ~29 MB app wasm
         # that Cloudflare Pages rejects (25 MiB/file limit). With `--release`
         # (+ the size-optimized [profile.release] in Cargo.toml) the bundle
         # drops to a few MB. The per-tool wasm-pack builds below already use
         # `--release`.
-        run: SOLOBASE_SKIP_BLOCK_BUILD=1 solobase build --release
+        run: IMPRESSPRESS_SKIP_BLOCK_BUILD=1 impresspress build --release
 
       - name: Build tool pages
         # Per-tool web wasm + rendered standalone pages into pkg/tools/.
