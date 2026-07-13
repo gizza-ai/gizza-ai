@@ -1,0 +1,37 @@
+{
+  "name": "gizza-ai/phishing-header-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect email headers for spoofing and phishing indicators",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect pasted raw email headers for offline phishing and spoofing indicators. The tool compares From, Return-Path, Reply-To, display-name, Message-ID, SPF, DKIM, DMARC, and Received-hop evidence; highlights mismatched sender domains, failed or missing authentication results, suspicious reply paths, short or missing Received chains, and private/internal relay references; and returns a deterministic MINIMAL/LOW/MEDIUM/HIGH/CRITICAL risk score. It never performs DNS, reputation, HTTP, SMTP, or mailbox lookups, so it is safe for private browser-local triage but not a final deliverability verdict.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "check_received": {
+          "default": true,
+          "description": "Whether to inspect the Received header chain for missing/short relay paths and private/internal IP references. Disable for copied header snippets that intentionally omit Received lines.",
+          "type": "boolean"
+        },
+        "headers": {
+          "description": "Raw RFC 5322 email headers to inspect. Paste the header block including fields such as From, Return-Path, Authentication-Results, Received, Reply-To, DKIM-Signature, and Message-ID. The message body is ignored after the first blank line.",
+          "type": "string"
+        },
+        "report_mode": {
+          "default": "detailed",
+          "description": "How much text to return: 'detailed' includes every finding and recommended checks; 'summary' returns identity/authentication fields plus the top findings.",
+          "enum": [
+            "detailed",
+            "summary"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "headers"
+      ],
+      "type": "object"
+    }
+  }
+}
