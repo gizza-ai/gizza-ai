@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/video-eq-adjust",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Adjust a video's brightness, contrast, saturation, and gamma",
+  "role": "skill",
+  "tool": {
+    "description": "Adjust a video's brightness, contrast, saturation, and gamma in one ffmpeg pass. brightness -1..1 (0=none), contrast 0..4 (1=none), saturation 0..3 (1=none, 0=grayscale), gamma 0.1..10 (1=none). Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "brightness": {
+          "default": 0.0,
+          "description": "Brightness shift from -1 (darker) to 1 (brighter); 0 keeps the original. Example: 0.1.",
+          "maximum": 1,
+          "minimum": -1,
+          "type": "number"
+        },
+        "contrast": {
+          "default": 1.0,
+          "description": "Contrast multiplier from 0 (flat gray) to 4; 1 keeps the original. Example: 1.2.",
+          "maximum": 4,
+          "minimum": 0,
+          "type": "number"
+        },
+        "gamma": {
+          "default": 1.0,
+          "description": "Gamma from 0.1 to 10; 1 keeps the original, below 1 brightens midtones. Example: 0.9.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "saturation": {
+          "default": 1.0,
+          "description": "Color saturation from 0 (grayscale) to 3 (vivid); 1 keeps the original. Example: 1.4.",
+          "maximum": 3,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

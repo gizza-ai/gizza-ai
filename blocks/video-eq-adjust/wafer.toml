@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-eq-adjust"
+version = "0.1.0"
+abi = 1
+summary = "Adjust a video's brightness, contrast, saturation, and gamma"
