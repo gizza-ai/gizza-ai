@@ -1,4 +1,4 @@
-// Run-sequence guard (site/tool.js run()): overlapping ffmpeg runs must not
+// Run-sequence guard (tools/generator/assets/runtime/tool.js run()): overlapping ffmpeg runs must not
 // let a stale slow run overwrite a newer result (or repaint after Reset).
 // Driven on trim-audio, but the behavior under test is generic tool.js.
 //

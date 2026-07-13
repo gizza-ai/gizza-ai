@@ -74,8 +74,8 @@ Follow these phases in order:
         get an add/remove UI, not a comma-separated text box.
      2. **Platform over per-tool hacks.** When a control kind or layout the tool needs doesn't
         exist yet, add it DECLARATIVELY to the shared generator
-        (`tools/generator/src/{control,template}.rs` + `site/tool.js`) so every tool can use it.
-        Never add another `cfg.slug === "…"` branch to the shared `site/tool.js` — that's the
+        (`tools/generator/src/{control,template}.rs` + `tools/generator/assets/runtime/tool.js`) so every tool can use it.
+        Never add another `cfg.slug === "…"` branch to the shared `tools/generator/assets/runtime/tool.js` — that's the
         workspace fix-at-root-cause rule, and slug branches are why 6 tools' UI can't be reused.
      3. **Smart defaults + context detection.** Pre-fill what the browser already knows (today's
         date, the user's timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`) so the

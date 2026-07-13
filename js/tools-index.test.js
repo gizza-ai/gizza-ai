@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { filterTools } from '../site/tools-index.js';
+import { filterTools } from '../tools/generator/assets/runtime/tools-index.js';
 
 const LIST = [
   { slug: 'calculator', title: 'Free Online Calculator', description: 'Evaluate math expressions', tags: ['arithmetic'] },

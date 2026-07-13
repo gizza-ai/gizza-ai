@@ -11,7 +11,7 @@ to real regressions:
      every real `enumv` param to have a matching `enum` in the manifest (and, when
      the variant list is parseable, the SAME variants).
 
-  2. FAQ formatting. `site/tool.css` styles FAQ as `<details>`/`<summary>`
+  2. FAQ formatting. `tools/generator/assets/runtime/tool.css` styles FAQ as `<details>`/`<summary>`
      accordions (`.tool-content details ...`), but only if `page/content.md`
      actually uses that markup. A FAQ written as plain `## FAQ` markdown renders
      as bare headings. This gate requires any content.md with a FAQ section to use
@@ -180,7 +180,7 @@ def check_block(slug_dir: Path) -> list[str]:
             problems.append(
                 f"{slug}: page/content.md has a FAQ section written as plain markdown — "
                 f"convert it to <details>/<summary>/<p> accordions (see blocks/age-calculator, "
-                f"improve-tool usability standard #8) so site/tool.css styles it."
+                f"improve-tool usability standard #8) so tools/generator/assets/runtime/tool.css styles it."
             )
         if "TODO: SEO copy" in text:
             problems.append(f"{slug}: page/content.md still has the scaffold 'TODO: SEO copy' stub — write real copy.")
