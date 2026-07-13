@@ -1,6 +1,6 @@
 /* gizza.css — Cursor-inspired editorial chat UI.
  *
- * Foundation tokens (colors, type, spacing) come from suppers-ai/site-kit
+ * Foundation tokens (colors, type, spacing) come from impresspress/site-kit
  * via the design-system.css link in render_chat(). This file overrides
  * --sa-accent for the gizza brand and aliases the legacy --color-* and
  * --space-* names onto the kit's --sa-* tokens so the rest of this stylesheet did

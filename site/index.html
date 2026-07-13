@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Static apex CHOOSER. Served at / and SW-bypassed (solobase.toml
+  <!-- Static apex CHOOSER. Served at / and SW-bypassed (impresspress.toml
        extra_bypass_exact = ["/", "/index.html"]) so it renders on any device
        even when the in-browser runtime can't boot — the failure that showed
        "gizza-ai couldn't start" on mobile. Registers no Service Worker and
@@ -52,7 +52,7 @@
     .chooser__btn .hint { font-size: .75rem; font-weight: 500; color: #737373; min-height: 1em; }
   </style>
   <!-- Shared animated-mascot compositing rules (still + video + eyes), the same
-       file the chat links. Static + SW-bypassed (solobase.toml). -->
+       file the chat links. Static + SW-bypassed (impresspress.toml). -->
   <link rel="stylesheet" href="/mascot.css">
   <script type="module" src="/header.js"></script>
 </head>
@@ -292,7 +292,7 @@
         <h3 class="about-card__title">Run tools from a terminal or agent</h3>
         <p>The <code>gizza</code> CLI runs the same WASM skill blocks headlessly — for scripts, pipelines, or AI agents (<a href="https://github.com/gizza-ai/gizza-ai/blob/main/SKILL.md" target="_blank" rel="noopener noreferrer">SKILL.md</a>).</p>
         <pre><code># 1. Build blocks + CLI
-solobase build
+impresspress build
 cargo build --manifest-path cli/Cargo.toml --release
 
 # 2. Run a tool
@@ -310,10 +310,10 @@ gizza describe calculator</code></pre>
         <h3 class="about-card__title">Run the site on your own machine</h3>
         <p>Build the static site and serve it locally — no cloud required.</p>
         <pre><code># Build everything into pkg/
-solobase build
+impresspress build
 
 # Serve at http://localhost:3000
-solobase serve</code></pre>
+impresspress serve</code></pre>
         <p>On first visit the Service Worker registers and intercepts requests through the WAFER runtime blocks.</p>
       </div>
     </div>
@@ -502,7 +502,7 @@ solobase serve</code></pre>
        states). This is a plain ES-module <script type="module">: it imports
        /mascot.js only. It registers NO Service Worker and loads NO runtime, so
        the page stays inert and renders on any device even when the in-browser
-       runtime can't boot. /mascot.js is SW-bypassed (solobase.toml). -->
+       runtime can't boot. /mascot.js is SW-bypassed (impresspress.toml). -->
   <script type="module">
     import { initMascot } from '/mascot.js';
     initMascot(document.querySelector('.brand-mascot'), { landing: true });

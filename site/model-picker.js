@@ -2,7 +2,7 @@
 //! docs/superpowers/specs/2026-05-08-gizza-ai-model-picker-redesign-design.md.
 
 // The maud-rendered chat page (src/blocks/ui.rs) doesn't yet <link> to
-// /model-picker.css — the Rust-side cleanup is deferred behind solobase build.
+// /model-picker.css — the Rust-side cleanup is deferred behind impresspress build.
 // Inject the stylesheet on module load so the picker styling lands without a
 // rebuild. Once ui.rs ships the link, the idempotent guard makes this a no-op.
 if (typeof document !== 'undefined' && !document.querySelector('link[href="/model-picker.css"]')) {

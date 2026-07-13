@@ -6,19 +6,19 @@ Browser-local AI chat site with WASM skill blocks. See the design at
 ## Build
 
 ```bash
-solobase build
+impresspress build
 ```
 
 This:
 1. Builds every skill block under `blocks/*` via `wafer build` (auto-discovered).
 2. Compiles gizza-ai to WASM via `wasm-pack`.
-3. Provisions `sql-wasm.wasm` + `sql-wasm-esm.js` from the sibling solobase checkout.
+3. Provisions `sql-wasm.wasm` + `sql-wasm-esm.js` from the sibling impresspress checkout.
 4. Assembles everything into `pkg/`.
 
 ## Serve
 
 ```bash
-solobase serve
+impresspress serve
 ```
 
 First visit registers the Service Worker and reloads. After that the SW intercepts all requests and routes them through the WAFER runtime blocks.
@@ -34,7 +34,7 @@ the model.
 
 ```bash
 # build the blocks first (produces blocks/*/target/block.wasm), then the CLI:
-solobase build
+impresspress build
 cargo build --manifest-path cli/Cargo.toml --release   # → cli/target/release/gizza
 
 # run a tool — positional, key=value, or full JSON
@@ -68,14 +68,14 @@ The `gizza-cli` crate also exposes a small library API — `run_tool(name, json)
 `list_tools()`, `describe_tool(name)` — for Rust programs that want the tools
 without shelling out. Full reference: [`cli/README.md`](cli/README.md).
 
-## Local development against unmerged wafer-run/solobase changes
+## Local development against unmerged wafer-run/impresspress changes
 
 Copy `.cargo/config.toml.example` to `.cargo/config.toml` to point the wafer-* crate names at sibling working copies (`../wafer-run/`). The example file is committed; the active config is gitignored so per-developer overrides don't leak into PRs.
 
 ## End-to-end test
 
 ```bash
-# Prerequisites: pkg/ built via 'solobase build', chromium installed.
+# Prerequisites: pkg/ built via 'impresspress build', chromium installed.
 cd tests
 npm install
 npx playwright install chromium   # first time only (~200 MB download)

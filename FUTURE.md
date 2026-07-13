@@ -4,7 +4,7 @@ Out-of-scope items from the v1 design and possible enhancements. Nothing here bl
 
 ## Conversation & state
 
-- **Multi-thread history.** Sidebar with past conversations, rename, archive, search across threads. Backed by the same `suppers-ai/messages` block — schema already supports it.
+- **Multi-thread history.** Sidebar with past conversations, rename, archive, search across threads. Backed by the same `impresspress/messages` block — schema already supports it.
 - **Export / import conversations.** Download a thread as JSON or Markdown; re-import on another device.
 - **Per-conversation system prompt.** Settings panel per thread for personality / role.
 - **Conversation forking.** Branch from any message to explore alternative replies without losing the original.
@@ -73,4 +73,4 @@ These would no longer be "all local" and so are not strictly future work for thi
 - **Team / shared skills workspace.** Skills defined centrally, used by a team's gizza-ai instances.
 - **Cloud LLM fallback.** When local model can't handle a request, fall back to a configured remote provider (clearly indicated in the UI).
 
-The cloud-side AI agent platform is covered by `solobase/SOLOBASE_AI_PLAN.md` and is intentionally a separate product.
+The cloud-side AI agent platform is covered by `impresspress/IMPRESSPRESS_AI_PLAN.md` and is intentionally a separate product.

@@ -417,12 +417,12 @@ dependencies = [
  "gizza-chrome",
  "gloo-timers",
  "hex",
+ "impresspress-browser",
+ "impresspress-core",
  "js-sys",
  "maud",
  "serde",
  "serde_json",
- "solobase-browser",
- "solobase-core",
  "thiserror 1.0.69",
  "tokio",
  "uuid",
@@ -643,6 +643,72 @@ checksum = "cb68373c0d6620ef8105e855e7745e18b0d00d3bdb07fb532e434244cdb9a714"
 dependencies = [
  "icu_normalizer",
  "icu_properties",
+]
+
+[[package]]
+name = "impresspress-browser"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "base64ct",
+ "bytemuck",
+ "chrono",
+ "futures",
+ "getrandom 0.2.17",
+ "hex",
+ "hmac",
+ "js-sys",
+ "pbkdf2",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "sha2",
+ "subtle",
+ "tokio-util",
+ "uuid",
+ "wafer-block",
+ "wafer-block-crypto",
+ "wafer-core",
+ "wafer-run",
+ "wafer-sql-utils",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-streams",
+ "web-sys",
+]
+
+[[package]]
+name = "impresspress-core"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "base64ct",
+ "chrono",
+ "futures",
+ "getrandom 0.2.17",
+ "js-sys",
+ "maud",
+ "percent-encoding",
+ "sea-query",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 2.0.18",
+ "tokio-util",
+ "tracing",
+ "url",
+ "uuid",
+ "wafer-block",
+ "wafer-block-cors",
+ "wafer-block-crypto",
+ "wafer-block-inspector",
+ "wafer-block-readonly-guard",
+ "wafer-block-router",
+ "wafer-block-security-headers",
+ "wafer-block-web",
+ "wafer-core",
+ "wafer-run",
+ "wafer-sql-utils",
 ]
 
 [[package]]
@@ -1096,72 +1162,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 
 [[package]]
-name = "solobase-browser"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "base64ct",
- "bytemuck",
- "chrono",
- "futures",
- "getrandom 0.2.17",
- "hex",
- "hmac",
- "js-sys",
- "pbkdf2",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "sha2",
- "subtle",
- "tokio-util",
- "uuid",
- "wafer-block",
- "wafer-block-crypto",
- "wafer-core",
- "wafer-run",
- "wafer-sql-utils",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-streams",
- "web-sys",
-]
-
-[[package]]
-name = "solobase-core"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "base64ct",
- "chrono",
- "futures",
- "getrandom 0.2.17",
- "js-sys",
- "maud",
- "percent-encoding",
- "sea-query",
- "serde",
- "serde_json",
- "sha2",
- "thiserror 2.0.18",
- "tokio-util",
- "tracing",
- "url",
- "uuid",
- "wafer-block",
- "wafer-block-cors",
- "wafer-block-crypto",
- "wafer-block-inspector",
- "wafer-block-readonly-guard",
- "wafer-block-router",
- "wafer-block-security-headers",
- "wafer-block-web",
- "wafer-core",
- "wafer-run",
- "wafer-sql-utils",
-]
-
-[[package]]
 name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1434,7 +1434,6 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1458,7 +1457,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-cors"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "serde_json",
@@ -1470,7 +1468,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-crypto"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "argon2",
  "async-trait",
@@ -1491,7 +1488,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-inspector"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "percent-encoding",
@@ -1504,7 +1500,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1515,7 +1510,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-readonly-guard"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "wafer-block",
@@ -1525,7 +1519,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-router"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "serde_json",
@@ -1537,7 +1530,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-security-headers"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "wafer-block",
@@ -1547,7 +1539,6 @@ dependencies = [
 [[package]]
 name = "wafer-block-web"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "tracing",
@@ -1559,7 +1550,6 @@ dependencies = [
 [[package]]
 name = "wafer-core"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1581,7 +1571,6 @@ dependencies = [
 [[package]]
 name = "wafer-flow"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "serde",
  "serde_json",
@@ -1591,7 +1580,6 @@ dependencies = [
 [[package]]
 name = "wafer-run"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "async-trait",
  "base64ct",
@@ -1619,7 +1607,6 @@ dependencies = [
 [[package]]
 name = "wafer-schema"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "serde",
  "serde_json",
@@ -1629,7 +1616,6 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "serde",
  "serde_json",
@@ -1639,7 +1625,6 @@ dependencies = [
 [[package]]
 name = "wafer-sql-utils"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#b5c82fd862a7bcb8850163506cfdddae8ab3fc0a"
 dependencies = [
  "sea-query",
  "serde_json",
@@ -2061,3 +2046,31 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[patch.unused]]
+name = "wafer-block-fastembed"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "wafer-block-http-listener"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "wafer-block-local-storage"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "wafer-block-network"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "wafer-block-postgres"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "wafer-block-s3"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "wafer-block-sqlite"
+version = "0.1.0"

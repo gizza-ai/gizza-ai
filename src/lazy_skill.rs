@@ -76,7 +76,7 @@ pub struct LazySkillBlock {
     load_gate: futures::lock::Mutex<()>,
 }
 
-// SAFETY: mirrors solobase-browser's `BrowserNetworkService`. On
+// SAFETY: mirrors impresspress-browser's `BrowserNetworkService`. On
 // wasm32-unknown-unknown there are no threads, so the `Send`/`Sync` bounds
 // required by `Arc<dyn Block>` are satisfied trivially — there is no
 // cross-thread aliasing. On native targets these impls are NOT emitted: all

@@ -341,7 +341,7 @@ mod tests {
                 parameters: serde_json::json!({}),
             });
         let non_skill = BlockInfo::new("gizza-ai/ui", "0.1.0", "handler@v1", "");
-        let other_prefix = BlockInfo::new("suppers-ai/other", "0.1.0", "handler@v1", "")
+        let other_prefix = BlockInfo::new("impresspress/other", "0.1.0", "handler@v1", "")
             .tool(SkillTool {
                 description: "should be filtered".into(),
                 parameters: serde_json::json!({}),

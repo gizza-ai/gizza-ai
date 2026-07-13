@@ -19,9 +19,9 @@ already hit; read the relevant one BEFORE implementing.
 
 Follow these steps in order:
 
-0. **Toolchain.** This skill needs `cargo`, `wafer`, `wasm-pack`, `solobase`, `gizza`, Playwright,
+0. **Toolchain.** This skill needs `cargo`, `wafer`, `wasm-pack`, `impresspress`, `gizza`, Playwright,
    and `ffmpeg`. If any is missing, bootstrap once with `scripts/bootstrap-toolchain.sh` (details +
-   gotchas in `docs/TOOLCHAIN-SETUP.md`); the very first run also needs a baseline `solobase build`
+   gotchas in `docs/TOOLCHAIN-SETUP.md`); the very first run also needs a baseline `impresspress build`
    so every existing block has its `target/block.wasm` + `web/pkg/` (else the generator hard-aborts
    and `gizza list` is incomplete).
 
@@ -56,10 +56,10 @@ Follow these steps in order:
    **Throughput note (verified):** the per-tool validation is `cd blocks/<slug> && cargo test
    --workspace` + `wafer build` (validates the chat block.wasm) + `wasm-pack build blocks/<slug>/web`
    + `cargo run --manifest-path tools/generator/Cargo.toml -- .` (renders the page) + `gizza tool`
-   (CLI) + Playwright. These are minutes. The full **`solobase build` rebuilds the whole app wasm
+   (CLI) + Playwright. These are minutes. The full **`impresspress build` rebuilds the whole app wasm
    (`-Oz`+lto, ~25 min on 2 CPUs) and is the loop bottleneck** — a new block changes only its own
-   block.wasm, which `wafer build` already validated, and CI runs `solobase build` on deploy. So for
-   loop throughput, run `solobase build` **once at the start (baseline) and not on every tool**; if you
+   block.wasm, which `wafer build` already validated, and CI runs `impresspress build` on deploy. So for
+   loop throughput, run `impresspress build` **once at the start (baseline) and not on every tool**; if you
    skip it per-tool, say so in the report. The generator step still needs every block's `web/pkg/`
    (built once in the baseline; only the new tool's is added per run).
 

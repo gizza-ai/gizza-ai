@@ -105,7 +105,7 @@ no competitor copy, branding, or trademarks reused.
 - `wafer build` OK (553.4 KiB block.wasm); `wasm-pack` web build OK; manifest re-synced
   from the live descriptor; generator re-rendered (sliders, labeled selects, color swatch,
   6 preset chips); hygiene gate exit 0. No wafer JSON fixtures exist for the ffmpeg family
-  (noted, not invented). `solobase build` skipped per throughput rule.
+  (noted, not invented). `impresspress build` skipped per throughput rule.
 - CLI (native ffmpeg): default → corner (109,109,109) exact; `color=#A52 strength=100` →
   corners exactly (170,85,34), center white; `format=jpg strength=80` → real JPEG,
   corner (3,3,3), envelope renamed `ffffff.jpg`; `format=webp` → real WEBP; lighten+color

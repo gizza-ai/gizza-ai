@@ -5,7 +5,7 @@
 - `cd blocks/<slug> && wafer build` — wasm32 chat block → target/block.wasm (run from INSIDE the dir; NO path arg). It does NOT generate/update `manifest.json` — that file is scaffold-generated and hand-synced (build.rs requires it).
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — from repo root → web/pkg/<wasm>.js + _bg.wasm
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders pkg/tools/<slug>/
-- `solobase build` — rebuild app + all blocks into pkg/
+- `impresspress build` — rebuild app + all blocks into pkg/
 - `cargo install --path cli --force` then `gizza tool <slug> <args>` — CLI test
 - `python3 scripts/sync-tool-manifest.py <slug>` — AFTER the CLI install: regenerates
   `manifest.json` `tool.parameters`/`tool.description` from the installed CLI's live descriptor
