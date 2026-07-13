@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
-// Shared waveform component (site/tool-audio.js): every audio-input ffmpeg
+// Shared waveform component (tools/generator/assets/runtime/tool-audio.js): every audio-input ffmpeg
 // tool page renders an interactive waveform after upload. audio-convert is
 // the UNBOUND case: selection is audition-only and must never write fields.
 // NOTE: two .tool-wf containers exist per page (input + output) — always

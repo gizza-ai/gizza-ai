@@ -42,7 +42,8 @@ pub enum Control {
     /// A range slider paired with the regular number box (meta `kind =
     /// "slider"`), for bounded numeric params where dragging beats typing.
     /// The number input keeps the canonical `in-<name>` id (deep-links, CLI
-    /// parity, reset all unchanged); the slider mirrors it via `site/tool.js`.
+    /// parity, reset all unchanged); the slider mirrors it via the runtime's
+    /// `tool.js`.
     Slider {
         min: f64,
         max: f64,
@@ -67,7 +68,7 @@ pub enum Control {
     /// `in-<name>` id — it stays the source of truth so empty ("transparent"/
     /// "use the default"), alpha hex (`#RRGGBBAA`) and multi-color lists stay
     /// expressible, which a bare native picker can't do. The swatch mirrors it
-    /// two-way via `site/tool.js`. `default` is the schema default hex, shown
+    /// two-way via the runtime's `tool.js`. `default` is the schema default hex, shown
     /// on the swatch at rest.
     Color {
         default: Option<String>,
@@ -78,7 +79,7 @@ pub enum Control {
     },
     /// A multi-value pill list (meta `kind = "tag-list"`): the real field is a
     /// hidden comma-joined input; pills + a search box (optionally backed by a
-    /// vocabulary datalist) are wired generically by `site/tool.js`.
+    /// vocabulary datalist) are wired generically by the runtime's `tool.js`.
     TagList {
         options: Vec<String>,
     },

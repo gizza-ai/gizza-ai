@@ -90,10 +90,10 @@ design** (page styling).
 - **UX/layout** — page input/output presentation; keep `[[input]]` field names + order in sync
   with the web export params. Apply the **Usability Standards** in SKILL.md Phase 4 (right
   control for the data; platform over per-tool hacks — extend `tools/generator` declaratively,
-  NEVER add a `cfg.slug === "…"` branch to `site/tool.js`; smart defaults + context detection;
+  NEVER add a `cfg.slug === "…"` branch to `tools/generator/assets/runtime/tool.js`; smart defaults + context detection;
   worked examples; layout stability; one-click reset; FAQ accordions; state the limits;
   actionable errors). Shared chrome (dev-group cards, CLI copy buttons, scrollbar styling) lives
-  in `tools/generator/src/template.rs` + `site/tool.css` — improve it THERE so all tools get it.
+  in `tools/generator/src/template.rs` + `tools/generator/assets/runtime/tool.css` — improve it THERE so all tools get it.
 - **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
 
 ### param types across surfaces (GOTCHA — bit me on url-encode)
@@ -119,7 +119,7 @@ silently passes a string where the wasm export wants a `bool`/`u32`:
 - **Page (ffmpeg tools) numeric-sniffing hazard:** the ffmpeg path coerces numeric-LOOKING field
   strings to `Number` before calling `build_argv` — a digits-only value in a STRING param (bare hex
   color "112233", a digits-only label) gets mangled. This bit twice (waveform-image, vignette);
-  `kind = "color"` fields are now exempted platform-wide in `site/tool.js`. When adding any other
+  `kind = "color"` fields are now exempted platform-wide in `tools/generator/assets/runtime/tool.js`. When adding any other
   string param whose values can look numeric, verify a digits-only value survives the page path
   end-to-end, and fix in tool.js declaratively (by kind/schema type), never per-slug.
 - **ffmpeg checkboxes** marshal via `readField()` as `"true"`/`"false"` (an old bug sent a constant

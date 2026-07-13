@@ -138,13 +138,13 @@ to = "ffmpeg.js"
 # Served at root and SW-bypassed so the chat app and any in-browser navigation
 # can reach them without the service worker intercepting (mirrors tools-modal.*).
 [[assets.overlay]]
-from = "site/header.js"
+from = "tools/generator/assets/runtime/header.js"
 to = "header.js"
 
 [[assets.overlay]]
-from = "site/header.css"
+from = "tools/generator/assets/runtime/header.css"
 to = "header.css"
 
 [[assets.overlay]]
-from = "site/tools-index.js"
+from = "tools/generator/assets/runtime/tools-index.js"
 to = "tools-index.js"
