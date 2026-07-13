@@ -1,0 +1,69 @@
+slug          = "voice-note-converter"
+title         = "Voice Note Converter — gizza.ai"
+description   = "Convert WhatsApp, Telegram, Signal and other Opus/Ogg voice notes to MP3 or WAV, or encode audio back to Opus voice notes in your browser."
+tags          = ["audio", "voice note", "opus", "ogg", "mp3", "wav", "whatsapp", "telegram"]
+h1            = "Convert a Voice Note"
+hero_subtitle = "Turn Opus/Ogg chat voice messages into MP3 or WAV — or make a real .opus voice note from audio. Runs locally in your browser."
+wasm          = "gizza_ai_voice_note_converter_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Converted voice note"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio or voice note"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Target format"
+
+[input.labels]
+opus = "Opus voice note (.opus)"
+mp3  = "MP3"
+wav  = "WAV"
+
+[[input]]
+name        = "bitrate"
+source      = "field"
+label       = "Bitrate (kbps, lossy only)"
+placeholder = "32 for Opus, 128 for MP3"
+kind        = "slider"
+min         = "6"
+max         = "320"
+step        = "1"
+
+[[input]]
+name   = "mono"
+source = "field"
+label  = "Mono / voice-tuned"
+
+[[example]]
+label = "WhatsApp-style Opus"
+[example.params]
+format  = "opus"
+bitrate = "24"
+mono    = "true"
+
+[[example]]
+label = "To MP3"
+[example.params]
+format  = "mp3"
+bitrate = "128"
+mono    = "true"
+
+[[example]]
+label = "Editable WAV"
+[example.params]
+format = "wav"
+mono   = "true"
+
+[[example]]
+label = "Music-quality Opus"
+[example.params]
+format  = "opus"
+bitrate = "96"
+mono    = "false"
