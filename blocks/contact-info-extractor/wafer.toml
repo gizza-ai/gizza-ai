@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "contact-info-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract emails and phone numbers from text"
