@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "amazon-order-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Summarize an Amazon order-history CSV: total spend by month, top items, and category breakdown."
