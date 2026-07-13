@@ -1,0 +1,22 @@
+slug          = "audio-metadata-stripper"
+title         = "Strip Audio Metadata Online — gizza.ai"
+description   = "Remove ID3 tags, comments, chapters, and cover art from MP3, FLAC, OGG, M4A, WAV, and other audio files in your browser. Stream-copy audio, no upload."
+tags          = ["audio", "metadata", "id3", "privacy", "cover art", "tags", "mp3", "flac"]
+h1            = "Strip Audio Metadata"
+hero_subtitle = "Pick an audio file and remove tags, chapters, and cover art locally in your browser — the audio is stream-copied, not re-encoded."
+wasm          = "gizza_ai_audio_metadata_stripper_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Clean audio"
+format        = "audio"
+
+[[input]]
+name   = "cover_art"
+source = "field"
+label  = "Cover art"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio file"
