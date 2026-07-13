@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-hd-key-derive-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_hd_key_derive_web_bg.wasm",
+    "gizza_ai_hd_key_derive_web.js",
+    "gizza_ai_hd_key_derive_web.d.ts"
+  ],
+  "main": "gizza_ai_hd_key_derive_web.js",
+  "types": "gizza_ai_hd_key_derive_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

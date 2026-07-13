@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "phishing-header-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Inspect email headers for spoofing and phishing indicators"

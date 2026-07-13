@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "voice-note-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert chat voice notes to mp3/wav and back to Opus"

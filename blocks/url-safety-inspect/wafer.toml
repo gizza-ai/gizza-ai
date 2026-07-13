@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "url-safety-inspect"
+version = "0.1.0"
+abi = 1
+summary = "Rate a URL's phishing risk from structural heuristics"

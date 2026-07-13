@@ -1,0 +1,55 @@
+slug          = "video-extract-audio-track"
+title         = "Extract a Video's Audio Track Losslessly — gizza.ai"
+description   = "Demux a video's audio track in your browser with no re-encode — lossless stream-copy into MKA, M4A or OGG. Pick the track, keep the original codec, nothing uploaded."
+tags          = ["audio", "video", "extract", "demux", "stream-copy", "lossless", "no-reencode", "mka", "m4a", "ogg", "audio track"]
+h1            = "Extract a Video's Audio Track (Lossless)"
+hero_subtitle = "Pull one audio stream out of a video without re-encoding — a lossless stream-copy into MKA, M4A or OGG. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_extract_audio_track_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Extracted audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "container"
+source      = "field"
+label       = "Container"
+placeholder = "mka"
+
+[[input]]
+name        = "track"
+source      = "field"
+label       = "Audio track (0 = first)"
+placeholder = "0"
+
+[input.labels]
+mka = "MKA (Matroska — any codec)"
+m4a = "M4A (AAC / ALAC)"
+ogg = "OGG (Vorbis / Opus)"
+
+[[example]]
+label = "First track → MKA (any codec)"
+
+[example.params]
+container = "mka"
+track     = "0"
+
+[[example]]
+label = "AAC audio → M4A"
+
+[example.params]
+container = "m4a"
+track     = "0"
+
+[[example]]
+label = "Second track → OGG"
+
+[example.params]
+container = "ogg"
+track     = "1"

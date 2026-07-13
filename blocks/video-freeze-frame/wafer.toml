@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-freeze-frame"
+version = "0.1.0"
+abi = 1
+summary = "Hold a chosen frame as a still for N seconds inside a video"

@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-amazon-order-analyzer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+serde_json = "1"
+# No `clock` feature: we only parse dates (never read the system clock), so this
+# stays instantiable under both wafer (wasm32-wasip1) and wasm-pack
+# (wasm32-unknown-unknown) with no getrandom/js dependency.
+chrono = { version = "0.4", default-features = false, features = ["std"] }

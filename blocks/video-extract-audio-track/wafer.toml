@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-extract-audio-track"
+version = "0.1.0"
+abi = 1
+summary = "Extract a video's audio track losslessly (stream-copy, no re-encode)"

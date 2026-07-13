@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/browser-history-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a Chrome or Firefox history database into a visit timeline",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Parse an uploaded browser history database into a unified, searchable visit timeline. Auto-detects Chrome/Edge (a `History` file: urls + visits tables) or Firefox (`places.sqlite`: moz_places + moz_historyvisits) by reading the on-disk SQLite file directly (no SQL engine, read-only). Each row has a readable UTC timestamp, URL, page title, visit type (link/typed/bookmark/reload/…), and visit count. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Filter by a URL/title substring (`search`), sort newest or oldest (`order`), cap the rows (`limit`), and export as json or csv.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Output format: json (structured, the default) or csv (a spreadsheet-friendly table with a browser column so exports from several history files merge).",
+          "enum": [
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of visits to return; 0 means all visits. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "order": {
+          "default": "newest",
+          "description": "Timeline sort order by visit time: newest (most recent first, the default) or oldest.",
+          "enum": [
+            "newest",
+            "oldest"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "search": {
+          "description": "Only include visits whose URL or page title contains this text (case-insensitive). Omit to return every visit.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

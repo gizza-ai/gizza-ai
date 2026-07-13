@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/vcard-deduplicate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and merge duplicate contacts in a vCard file",
+  "role": "skill",
+  "tool": {
+    "description": "Find and merge duplicate contacts in a vCard (.vcf) file. Groups cards that refer to the same person by matching on names, emails, and/or phone numbers, then either merges each group into one card (unioning phones/emails/URLs/addresses and filling empty fields) or removes the extra copies. Handles vCard 2.1, 3.0, and 4.0, folded lines, and many cards in one file. `match_by` is 'any' (default), 'name', 'email', or 'phone'; `merge` (default true) merges vs. removes. Returns the cleaned vCard text. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The vCard text — one or more .vcf contact cards (each a BEGIN:VCARD … END:VCARD block). vCard 2.1, 3.0, and 4.0 are accepted, including folded lines and multiple cards in one file.",
+          "type": "string"
+        },
+        "match_by": {
+          "default": "any",
+          "description": "Which signals mark two cards as the same contact: 'any' groups cards that share a name OR an email OR a phone; 'name' matches only on the full name (FN, else N); 'email' only on a shared email (case-insensitive); 'phone' only on a shared phone (compared by digits). Default 'any'.",
+          "enum": [
+            "any",
+            "name",
+            "email",
+            "phone"
+          ],
+          "type": "string"
+        },
+        "merge": {
+          "default": true,
+          "description": "With true, each duplicate group is merged into one card — repeatable properties (emails, phones, URLs, addresses) are unioned and empty singular fields are filled from later copies. With false, only the first card of each group is kept and the extra copies are dropped without merging their data. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

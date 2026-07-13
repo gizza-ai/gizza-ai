@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/token-counter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Count LLM tokens for pasted text and estimate the prompt cost and context-window usage for a chosen model.",
+  "role": "skill",
+  "tool": {
+    "description": "Count how many tokens a piece of text is for a chosen LLM, and estimate the prompt (input) cost and context-window usage. Uses real BPE tokenization via tiktoken: OpenAI GPT-5.5/GPT-5/GPT-4.1/GPT-4.1-mini/GPT-4o/GPT-4o-mini use o200k_base and GPT-4-turbo/GPT-3.5-turbo use cl100k_base — those counts are exact. Anthropic Claude (Opus 4.8, Sonnet 5, Haiku 4.5) and Google Gemini (3 Pro, 2.5 Flash) tokenizers are proprietary, so their counts are an o200k_base approximation, labeled (approx). Reports the token count, character count, estimated input cost (tokens x the model's input price / 1M), the output price for reference, and the context-window size with percent used. Pricing is a dated embedded snapshot (an estimate) — verify on the provider's pricing page. Runs entirely in the sandbox; no text leaves the tool.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "default": "gpt-4o",
+          "description": "Model whose tokenizer and pricing to use. OpenAI GPT-5.5/5/4.1/4.1-mini/4o/4o-mini use o200k_base and GPT-4-turbo/3.5-turbo use cl100k_base (both exact); Anthropic Claude and Google Gemini token counts are an o200k_base approximation (proprietary tokenizers). Default gpt-4o.",
+          "enum": [
+            "gpt-5.5",
+            "gpt-5",
+            "gpt-4.1",
+            "gpt-4.1-mini",
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4-turbo",
+            "gpt-3.5-turbo",
+            "claude-opus-4.8",
+            "claude-sonnet-5",
+            "claude-haiku-4.5",
+            "gemini-3-pro",
+            "gemini-2.5-flash"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to tokenize. Counted with the chosen model's BPE encoding (exact for OpenAI models; an approximation for Anthropic/Google, whose tokenizers are proprietary).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
