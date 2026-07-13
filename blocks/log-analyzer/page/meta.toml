@@ -1,0 +1,62 @@
+slug          = "log-analyzer"
+title         = "Log Analyzer — Level Counts, Top Errors & Volume Timeline — gizza.ai"
+description   = "Free log analyzer — paste JSON/NDJSON, logfmt, syslog or Apache/nginx logs and get level counts, grouped top errors, time span, and a volume timeline."
+tags          = ["log analyzer", "log analysis", "error summary", "log level counts", "top errors", "log timeline", "json logs", "ndjson", "logfmt", "syslog analyzer", "apache access log", "nginx access log", "log stats"]
+h1            = "Log Analyzer"
+hero_subtitle = "Paste raw logs and get an at-a-glance summary — counts by severity, the most frequent errors (grouped so near-identical messages collapse into one), the time span, and a volume timeline. Auto-detects JSON/NDJSON, logfmt, syslog (RFC 3164/5424), and Apache/nginx common & combined access logs. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_log_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Analysis"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "logs"
+label       = "Raw logs (one entry per line)"
+placeholder = "{\"ts\":\"2024-01-01T00:00:00Z\",\"level\":\"error\",\"msg\":\"db timeout attempt 3\"}"
+source      = "field"
+multiline   = true
+
+# format / output / bucket render as <select> — option lists come from the
+# descriptor schema (manifest.json); `labels` only enriches the visible text
+# (values stay canonical for deep-links / CLI).
+[[input]]
+name        = "format"
+label       = "Format"
+source      = "field"
+labels      = { auto = "Auto-detect", json = "JSON / NDJSON", logfmt = "logfmt (key=value)", syslog = "Syslog (RFC 3164/5424)", common = "Access log — Common (CLF)", combined = "Access log — Combined" }
+
+[[input]]
+name        = "output"
+label       = "Output as"
+source      = "field"
+labels      = { summary = "Markdown summary", json = "JSON object" }
+
+[[input]]
+name        = "top"
+label       = "Top errors to list (1–100)"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "bucket"
+label       = "Timeline granularity"
+source      = "field"
+labels      = { auto = "Auto", minute = "Per minute", hour = "Per hour", day = "Per day" }
+
+[[example]]
+label  = "JSON / NDJSON logs"
+params = { logs = "{\"ts\":\"2024-01-01T00:00:00Z\",\"level\":\"info\",\"msg\":\"server started\"}\n{\"ts\":\"2024-01-01T00:20:00Z\",\"level\":\"warn\",\"msg\":\"high latency 900ms\"}\n{\"ts\":\"2024-01-01T00:40:00Z\",\"level\":\"error\",\"msg\":\"db timeout attempt 3\"}\n{\"ts\":\"2024-01-01T00:41:00Z\",\"level\":\"error\",\"msg\":\"db timeout attempt 5\"}", format = "auto" }
+
+[[example]]
+label  = "Apache combined access log"
+params = { logs = "127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] \"GET /index.html HTTP/1.0\" 200 2326 \"-\" \"Mozilla/5.0\"\n10.0.0.5 - - [10/Oct/2000:13:55:37 -0700] \"GET /missing HTTP/1.1\" 404 512 \"-\" \"curl/7.0\"\n10.0.0.9 - - [10/Oct/2000:13:55:38 -0700] \"POST /api HTTP/1.1\" 500 12 \"-\" \"Go-http-client/1.1\"", format = "auto" }
+
+[[example]]
+label  = "Syslog (RFC 3164)"
+params = { logs = "<34>Oct 11 22:14:15 host su: authentication failure for user root\n<38>Oct 11 22:14:16 host sshd: accepted password for admin\n<11>Oct 11 22:15:01 host cron: job failed with exit code 1", format = "auto" }
+
+[[example]]
+label  = "logfmt, errors as JSON"
+params = { logs = "level=info msg=\"request handled\" method=GET path=/ status=200\nlevel=warn msg=\"retrying\" attempt=2 backoff=100ms\nlevel=error msg=\"connection refused\" host=db:5432\nlevel=error msg=\"connection refused\" host=db:5433", format = "logfmt", output = "json" }
