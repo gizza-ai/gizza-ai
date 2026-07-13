@@ -1,34 +1,34 @@
 # Toolchain bootstrap for building gizza tools
 
 The `/new-tool`, `/improve-tool`, and `/create-next-tool` skills assume a working
-toolchain (`cargo`, `wafer`, `wasm-pack`, `solobase`, `gizza`, `node`/Playwright,
+toolchain (`cargo`, `wafer`, `wasm-pack`, `impresspress`, `gizza`, `node`/Playwright,
 `ffmpeg`). CI installs these fresh on every run (see `.github/workflows/deploy.yml`
 — this doc mirrors it). On a fresh dev box or sandbox, bootstrap once with the
 steps below; `scripts/bootstrap-toolchain.sh` automates them.
 
 ## Expected sibling layout
 
-The root `gizza-ai` crate has **path deps** on `../solobase`, and `solobase build`
+The root `gizza-ai` crate has **path deps** on `../impresspress`, and `impresspress build`
 needs both siblings checked out next to this repo:
 
 ```
 workspace/
   gizza-ai/     <- this repo
-  solobase/     <- suppers-ai/solobase @ the SHA in solobase-pin.txt
+  impresspress/     <- impresspress/impresspress @ the SHA in impresspress-pin.txt
   wafer-run/    <- wafer-run/wafer-run @ the SHA in wafer-run-pin.txt
 ```
 
 Note: the per-block crates, the `gizza` CLI, and `tools/generator` pull `wafer-*`
 straight from git (`branch = "main"`), so **they build without the siblings**.
-Only the whole-app `solobase build` needs `../solobase` (and `solobase-web` wasm).
+Only the whole-app `impresspress build` needs `../impresspress` (and `impresspress-web` wasm).
 
 The root, `cli/`, and `block-utils/` crates commit their `Cargo.lock`, which pins
 the wafer-run git deps to the SHA in `wafer-run-pin.txt` (CI's "Verify wafer-run
-pin consistency" step enforces the two agree, and that solobase's own Cargo.lock
+pin consistency" step enforces the two agree, and that impresspress's own Cargo.lock
 pins the same SHA). Bumping wafer-run = edit `wafer-run-pin.txt` + `cargo update`
-in those three roots (+ bump `solobase-pin.txt` if solobase moved with it). The
+in those three roots (+ bump `impresspress-pin.txt` if impresspress moved with it). The
 per-block crates keep floating on `branch = "main"` deliberately: deploys never
-compile them (committed `blocks/*/target/block.wasm` + `SOLOBASE_SKIP_BLOCK_BUILD`),
+compile them (committed `blocks/*/target/block.wasm` + `IMPRESSPRESS_SKIP_BLOCK_BUILD`),
 and pinning them would mean a ~250-manifest sed on every bump.
 
 ## Steps (verified 2026-06-20)
@@ -51,16 +51,16 @@ and pinning them would mean a ~250-manifest sed on every bump.
 4. **Sibling checkouts:**
    ```bash
    git clone https://github.com/wafer-run/wafer-run ../wafer-run
-   git clone https://github.com/suppers-ai/solobase ../solobase
-   git -C ../solobase checkout "$(tr -d '[:space:]' < solobase-pin.txt)"
+   git clone https://github.com/impresspress/impresspress ../impresspress
+   git -C ../impresspress checkout "$(tr -d '[:space:]' < impresspress-pin.txt)"
    git -C ../wafer-run checkout "$(tr -d '[:space:]' < wafer-run-pin.txt)"
    ```
-5. **solobase-web wasm** (required by solobase's `build.rs`, which `include_bytes!`s it):
-   `wasm-pack build ../solobase/crates/solobase-web --target web --release --out-dir pkg`
+5. **impresspress-web wasm** (required by impresspress's `build.rs`, which `include_bytes!`s it):
+   `wasm-pack build ../impresspress/crates/impresspress-web --target web --release --out-dir pkg`
 6. **CLIs:**
    ```bash
    cargo install --path ../wafer-run/crates/wafer-cli --locked   # → wafer
-   cargo install --path ../solobase/crates/solobase --locked      # → solobase
+   cargo install --path ../impresspress/crates/impresspress --locked      # → impresspress
    cargo install --path cli --locked                              # → gizza
    ```
 7. **Playwright + chromium** (page tests run **headed** under xvfb — the config
@@ -69,9 +69,9 @@ and pinning them would mean a ~250-manifest sed on every bump.
    (cd tests && npm install && npx playwright install --with-deps chromium)
    ```
 8. **Baseline build** — two parts (the bootstrap script does both):
-   - `solobase build` — builds every block's `target/block.wasm` + the app wasm.
+   - `impresspress build` — builds every block's `target/block.wasm` + the app wasm.
      Without it `gizza list` shows only blocks you've built yourself.
-   - **Tool pages** — `solobase build` does NOT build the page `web/pkg/`; the
+   - **Tool pages** — `impresspress build` does NOT build the page `web/pkg/`; the
      deploy workflow does it separately. `tools/generator` hard-aborts on the
      first block whose `web/pkg/` is missing, so build them all once:
      ```bash
@@ -85,11 +85,11 @@ and pinning them would mean a ~250-manifest sed on every bump.
 ## Gotchas learned
 
 - The non-login shell used by tooling does **not** auto-source `~/.cargo/env`;
-  prefix cargo/wafer/solobase commands with `. "$HOME/.cargo/env"` (or add it to
+  prefix cargo/wafer/impresspress commands with `. "$HOME/.cargo/env"` (or add it to
   the profile the runner sources).
 - Each `blocks/<slug>/` and `tools/generator` is a **separate cargo workspace** —
   `cd` into it; never `-p <crate>` from the repo root.
-- 2 CPU / ~4 GB RAM is enough but `solobase build` + a parallel block build can
+- 2 CPU / ~4 GB RAM is enough but `impresspress build` + a parallel block build can
   contend; build the baseline first, then iterate per-tool.
 - A first full build is slow (each block pulls + compiles the wafer git deps and
   any block-specific crates); the cargo cache makes later per-tool builds fast.

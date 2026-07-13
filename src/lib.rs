@@ -2,8 +2,8 @@
 //!
 //! Compiles to wasm32 via wasm-bindgen; loaded by a Service Worker that
 //! forwards requests through the WAFER runtime. `initialize()` builds the
-//! runtime via `SolobaseBuilder` using browser platform services from
-//! `solobase-browser`, registers gizza's curated feature blocks plus the
+//! runtime via `ImpresspressBuilder` using browser platform services from
+//! `impresspress-browser`, registers gizza's curated feature blocks plus the
 //! native agent/ui blocks and every embedded skill WASM, and wires `/`,
 //! `/b/ui/`, `/b/ui`, and `/b/agent/` to gizza blocks as Public tier.
 //! `handle_request()` dispatches through the `site-main` flow.
@@ -14,9 +14,9 @@ use std::sync::Arc;
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::GIZZA_MAX_WASM_MEMORY_PAGES;
 #[cfg(target_arch = "wasm32")]
-use solobase_core::builder::{self, SolobaseBuilder};
+use impresspress_core::builder::{self, ImpresspressBuilder};
 #[cfg(target_arch = "wasm32")]
-use solobase_core::RouteAccess;
+use impresspress_core::RouteAccess;
 #[cfg(target_arch = "wasm32")]
 use wafer_block::types::BlockInfo;
 #[cfg(target_arch = "wasm32")]
@@ -56,63 +56,63 @@ pub fn module_start() {
 /// Initialize the gizza-ai WAFER runtime.
 ///
 /// Must be called exactly once when the Service Worker starts, before any
-/// `handle_request()` call. Async because it awaits `solobase_browser::db_init()`
+/// `handle_request()` call. Async because it awaits `impresspress_browser::db_init()`
 /// and `wafer.seal()`.
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn initialize() -> Result<(), JsValue> {
     // Guard against double initialization.
-    if solobase_browser::runtime::is_initialized() {
+    if impresspress_browser::runtime::is_initialized() {
         return Ok(());
     }
 
     // 1. Load sql.js WASM + open/create the OPFS database.
-    solobase_browser::db_init().await;
+    impresspress_browser::db_init().await;
 
     // ── Phase 1 ─────────────────────────────────────────────────────────────
     // Build the runtime with EMPTY config + EMPTY BlockSettings. We can't
-    // pre-fill them from OPFS yet because the `suppers_ai__admin__block_settings`
+    // pre-fill them from OPFS yet because the `impresspress__admin__block_settings`
     // table only exists after admin's `lifecycle(Init)` has run its
     // migrations — and admin can't run until the wafer is built and sealed.
     // gizza-ai's own `variables` table is independent of the admin tables
-    // and CAN be seeded earlier, but for symmetry with the solobase-web
+    // and CAN be seeded earlier, but for symmetry with the impresspress-web
     // restructure (and so any future schema additions to the gizza vars
     // table can also rely on a known runtime baseline) we defer all seeding
-    // to Phase 3. See solobase #212 for the equivalent rewrite there.
+    // to Phase 3. See impresspress #212 for the equivalent rewrite there.
     let config_svc: Arc<dyn ConfigService> =
         Arc::new(wafer_core::service_blocks::config::EnvConfigService::new());
     let initial_block_settings =
-        solobase_core::features::BlockSettings::from_map(std::collections::HashMap::new());
+        impresspress_core::features::BlockSettings::from_map(std::collections::HashMap::new());
 
-    // Browser WebLLM service — provided by solobase-browser in Phase D.
+    // Browser WebLLM service — provided by impresspress-browser in Phase D.
     //     Registered on the MultiBackendLlmService router under the label
     //     "browser"; BrowserLlmService::claims_backend matches the
     //     `"webllm"` backend_id that ChatRequest will carry.
     let browser_llm: Arc<dyn wafer_core::interfaces::llm::service::LlmService> =
-        Arc::new(solobase_browser::llm::BrowserLlmService::new());
+        Arc::new(impresspress_browser::llm::BrowserLlmService::new());
 
     // Browser image service — Janus-Pro-1B via transformers.js on WebGPU.
     //     Registered on the MultiBackendImageService router under the label
     //     "browser"; BrowserImageService::claims_backend matches the
     //     `"transformers-image"` backend_id that ImageRequest will carry.
     let browser_image: Arc<dyn wafer_core::interfaces::image::service::ImageService> =
-        Arc::new(solobase_browser::image::BrowserImageService::new());
+        Arc::new(impresspress_browser::image::BrowserImageService::new());
 
     // Crypto starts with an empty JWT secret; the persisted secret is loaded
     // in Phase 3 and installed via `BrowserCryptoService::set_jwt_secret`.
-    let crypto_concrete = Arc::new(solobase_browser::crypto::BrowserCryptoService::new(
+    let crypto_concrete = Arc::new(impresspress_browser::crypto::BrowserCryptoService::new(
         String::new(),
     ));
     let crypto_svc: Arc<dyn wafer_core::interfaces::crypto::service::CryptoService> =
         crypto_concrete.clone();
 
-    let builder = SolobaseBuilder::new()
-        .database(solobase_browser::make_database_service())
-        .storage(solobase_browser::make_storage_service())
+    let builder = ImpresspressBuilder::new()
+        .database(impresspress_browser::make_database_service())
+        .storage(impresspress_browser::make_storage_service())
         .config(config_svc.clone())
         .crypto(crypto_svc)
-        .network(solobase_browser::make_network_service())
-        .logger(solobase_browser::make_console_logger())
+        .network(impresspress_browser::make_network_service())
+        .logger(impresspress_browser::make_console_logger())
         .llm_service("browser", browser_llm)
         .image_service("browser", browser_image)
         .block_settings(initial_block_settings)
@@ -140,21 +140,21 @@ pub async fn initialize() -> Result<(), JsValue> {
         // populated from `vars`. The DB seed in `config.rs` is the single
         // source of truth: admin email/password from the `INSERT OR IGNORE`
         // seed, JWT/INTERNAL secrets from the per-browser random `seed_random_secret`
-        // call. No `.block_config("suppers-ai/auth", ...)` override here —
+        // call. No `.block_config("wafer-run/auth", ...)` override here —
         // historically that override silently shipped the same hardcoded MVP
         // values to every user, defeating the auto-generate path.
         .block_config(
-            "suppers-ai/llm",
+            "impresspress/llm",
             serde_json::json!({
-                "SUPPERS_AI__LLM__DEFAULT_PROVIDER": "suppers-ai/local-llm",
-                "SUPPERS_AI__LLM__DEFAULT_MODEL": "Qwen2.5-1.5B-Instruct-q4f32_1-MLC",
+                "IMPRESSPRESS__LLM__DEFAULT_PROVIDER": "impresspress/local-llm",
+                "IMPRESSPRESS__LLM__DEFAULT_MODEL": "Qwen2.5-1.5B-Instruct-q4f32_1-MLC",
             }),
         )
         // Note: `/` is routed at the OUTER wafer-run/router level (see step
-        // 6a below), so it never reaches suppers-ai/router. Adding `/` to
-        // suppers-ai/router's extra routes here would be dead code AND
+        // 6a below), so it never reaches impresspress/router. Adding `/` to
+        // impresspress/router's extra routes here would be dead code AND
         // actively harmful — its match uses `starts_with`, so a `/` prefix
-        // would catch every `/b/**` request that has no built-in solobase
+        // would catch every `/b/**` request that has no built-in impresspress
         // route (e.g. `/b/agent/chat`) before more specific extras.
         .add_route("/b/ui", "gizza-ai/ui", RouteAccess::Public)
         .add_route("/b/ui/", "gizza-ai/ui", RouteAccess::Public)
@@ -166,8 +166,8 @@ pub async fn initialize() -> Result<(), JsValue> {
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
     // 6a. Override wafer-run/router's default routes so `/` dispatches to
-    // gizza-ai/ui (not wafer-run/web). SolobaseBuilder::add_route only
-    // affects the inner suppers-ai/router (reached via /b/**); the OUTER
+    // gizza-ai/ui (not wafer-run/web). ImpresspressBuilder::add_route only
+    // affects the inner impresspress/router (reached via /b/**); the OUTER
     // site-main flow dispatcher (wafer-run/router) has its own route
     // table set by flows::register_site_main. Without this override, `/`
     // falls through to wafer-run/web which tries OPFS path
@@ -176,10 +176,10 @@ pub async fn initialize() -> Result<(), JsValue> {
         "wafer-run/router",
         serde_json::json!({
             "routes": [
-                { "path": "/b/**",                   "block": "suppers-ai/router" },
-                { "path": "/health",                 "block": "suppers-ai/router" },
-                { "path": "/openapi.json",           "block": "suppers-ai/router" },
-                { "path": "/.well-known/agent.json", "block": "suppers-ai/router" },
+                { "path": "/b/**",                   "block": "impresspress/router" },
+                { "path": "/health",                 "block": "impresspress/router" },
+                { "path": "/openapi.json",           "block": "impresspress/router" },
+                { "path": "/.well-known/agent.json", "block": "impresspress/router" },
                 { "path": "/chat",                   "block": "gizza-ai/ui" },
             ],
         }),
@@ -189,7 +189,7 @@ pub async fn initialize() -> Result<(), JsValue> {
     // block init that triggers an asset load sees the real loader (not
     // the NoopAssetLoader default). The same loader is forwarded to each
     // lazily-loaded skill block at load time (see step 6c / lazy_skill).
-    let asset_loader = solobase_browser::make_sw_asset_loader();
+    let asset_loader = impresspress_browser::make_sw_asset_loader();
     wafer.set_asset_loader(&asset_loader);
 
     // 6c. Register gizza-ai's native blocks (agent + ui) and every
@@ -253,16 +253,16 @@ pub async fn initialize() -> Result<(), JsValue> {
 
     // ── Phase 2 ─────────────────────────────────────────────────────────────
     // Run admin's `lifecycle(Init)` so its migrations create the canonical
-    // `suppers_ai__admin__block_settings` (+ `suppers_ai__admin__variables`)
+    // `impresspress__admin__block_settings` (+ `impresspress__admin__variables`)
     // tables. gizza-ai disables admin in its feature flags so it never
     // routes there, but other enabled blocks' migrations call
     // `migration_helper::write_state` against `block_settings` and need
     // the strict schema in place. Forcing the admin Init unconditionally
-    // here mirrors the solobase-web restructure (#212) and avoids the
+    // here mirrors the impresspress-web restructure (#212) and avoids the
     // schema-drift pre-create pattern (`load_block_settings` no longer
     // pre-creates the admin table).
     if let Err(e) = wafer
-        .init_block(solobase_core::blocks::admin::ADMIN_BLOCK_ID)
+        .init_block(impresspress_core::blocks::admin::ADMIN_BLOCK_ID)
         .await
     {
         web_sys::console::error_1(&format!("gizza-ai: admin block Init failed: {e}").into());
@@ -285,13 +285,13 @@ pub async fn initialize() -> Result<(), JsValue> {
         config_svc.set(key, value);
     }
     config_svc.set(
-        solobase_core::features::BLOCK_SETTINGS_CONFIG_KEY,
+        impresspress_core::features::BLOCK_SETTINGS_CONFIG_KEY,
         &features.to_config_json(),
     );
     *block_settings_handle
         .write()
         .expect("BlockSettings RwLock poisoned") = features;
-    if let Some(secret) = vars.get("SUPPERS_AI__AUTH__JWT_SECRET") {
+    if let Some(secret) = vars.get("WAFER_RUN__AUTH__JWT_SECRET") {
         crypto_concrete.set_jwt_secret(secret.clone());
     }
 
@@ -309,7 +309,8 @@ pub async fn initialize() -> Result<(), JsValue> {
 
     // 9. Store in framework's thread_local. Errors if a runtime is already
     //    stored (double-init) — surface that as a boot failure.
-    solobase_browser::runtime::store_wafer(wafer).map_err(|e| JsValue::from_str(&e.to_string()))?;
+    impresspress_browser::runtime::store_wafer(wafer)
+        .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
     Ok(())
 }
@@ -325,5 +326,5 @@ pub async fn initialize() -> Result<(), JsValue> {
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn handle_request(request: web_sys::Request) -> Result<web_sys::Response, JsValue> {
-    solobase_browser::runtime::dispatch_request(request).await
+    impresspress_browser::runtime::dispatch_request(request).await
 }

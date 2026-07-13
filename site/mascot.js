@@ -19,7 +19,7 @@
 // chooser only ever shows resting / idle-video / sign + the eyes following the
 // cursor.
 //
-// The asset paths are SW-bypassed static files (see solobase.toml
+// The asset paths are SW-bypassed static files (see impresspress.toml
 // extra_bypass_prefix): /gis_no_eyes.png, /gis_a_job_no_eyes.png, /eye.png,
 // /gis_video_idle.mp4, /gis_video_typing_loop.mp4, /gis_video_typing_finish.mp4.
 

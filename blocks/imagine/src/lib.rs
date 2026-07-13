@@ -34,8 +34,8 @@ use wafer_sdk::*;
 const BACKEND_ID: &str = "browser";
 const MODEL_ID: &str = "onnx-community/Janus-Pro-1B-ONNX";
 
-/// Marker emitted by `t2i-engine.js::requireWebGpuAdapter` (in solobase's
-/// `solobase-browser` crate). When this substring appears in an
+/// Marker emitted by `t2i-engine.js::requireWebGpuAdapter` (in impresspress's
+/// `impresspress-browser` crate). When this substring appears in an
 /// `ImageService::generate` error, the page has no WebGPU adapter at all
 /// and no amount of retrying or fallback dtype will help. Keep in sync
 /// with `WEBGPU_UNAVAILABLE_MARKER` in `t2i-engine.js`.

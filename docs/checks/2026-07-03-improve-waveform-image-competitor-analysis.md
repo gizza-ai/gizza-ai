@@ -131,5 +131,5 @@ root cause: `parse_hex_color` now expands 3/4-digit forms before interpolation
   `background=#00000080` → corner (0,0,0,128); guiding errors for `color2` with a
   color list and for `sampling=rms`.
 - `python3 scripts/check-tool-hygiene.py waveform-image` → exit 0 (strict per-slug).
-- `npm test` (js unit) 41/41; `solobase build` intentionally skipped (throughput rule);
+- `npm test` (js unit) 41/41; `impresspress build` intentionally skipped (throughput rule);
   no wafer `tests/*.json` fixtures exist for the ffmpeg family (noted, not invented).

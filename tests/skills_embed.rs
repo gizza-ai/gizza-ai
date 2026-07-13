@@ -36,7 +36,10 @@ fn core_skills_are_embedded_with_manifests() {
             .unwrap_or_else(|| {
                 panic!("{slug} should be embedded in SKILLS — did you forget to build the block first?")
             });
-        assert!(!manifest.is_empty(), "{slug} manifest.json should be non-empty");
+        assert!(
+            !manifest.is_empty(),
+            "{slug} manifest.json should be non-empty"
+        );
         // The second tuple element is the block's manifest.json (a JSON object),
         // not the wasm — the wasm is fetched lazily from /blocks/<slug>.wasm.
         assert!(

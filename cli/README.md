@@ -6,7 +6,7 @@ Headless CLI to run [gizza](https://gizza.ai) skill tools locally — calculator
 
 - Rust 1.82+ (stable)
 - System `ffmpeg` on `PATH` for image and video tools (`image-resize`, `image-convert`, `image-crop`, `image-fetch`, `video-trim`, `video-transcode`, `video-frame-extract`, `ffmpeg`)
-- The skill WASMs must be pre-built (run `solobase build` from the `gizza-ai` repo root before using or testing)
+- The skill WASMs must be pre-built (run `impresspress build` from the `gizza-ai` repo root before using or testing)
 
 > **Note on `imagine`:** The `imagine` (text-to-image) tool requires a browser GPU and is not supported in the CLI. Invoking it returns exit code 3 (`unsupported_in_cli`). Use [gizza.ai](https://gizza.ai) instead.
 
@@ -14,7 +14,7 @@ Headless CLI to run [gizza](https://gizza.ai) skill tools locally — calculator
 
 ```sh
 # From gizza-ai/ repo root:
-solobase build                      # compile all skill WASMs
+impresspress build                      # compile all skill WASMs
 cargo build --manifest-path cli/Cargo.toml
 ```
 
@@ -79,7 +79,7 @@ Claude Desktop (`claude_desktop_config.json`):
 ```
 
 Build the binary with `cargo build --release --manifest-path cli/Cargo.toml` (after
-`solobase build`) and point `command` at `cli/target/release/gizza` — or wherever you
+`impresspress build`) and point `command` at `cli/target/release/gizza` — or wherever you
 installed it. System `ffmpeg` on `PATH` is still required for image/video/audio tools.
 
 ## SKILL.md (agent contract)
@@ -130,4 +130,4 @@ See `SKILL.md` for the full agent contract (all tool schemas and CLI examples).
 cargo test
 ```
 
-All integration tests require the skill WASMs to be pre-built (`solobase build`).
+All integration tests require the skill WASMs to be pre-built (`impresspress build`).

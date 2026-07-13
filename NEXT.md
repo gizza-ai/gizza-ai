@@ -8,14 +8,14 @@ reference remain.
 
 ## Pending work
 
-### Blocked on a producer-side (solobase) change
+### Blocked on a producer-side (impresspress) change
 
 - [ ] **Conversation persistence** — write user/assistant turns to
-  `suppers-ai/messages`; load prior entries on page init. **Blocked**: the
-  `suppers-ai/messages` list endpoint requires authentication and gizza-ai
+  `impresspress/messages`; load prior entries on page init. **Blocked**: the
+  `impresspress/messages` list endpoint requires authentication and gizza-ai
   runs anonymous. Either an anonymous list path or a server-side helper that
-  synthesizes auth needs to land in solobase first.
-- [ ] **`gizza-ai/search-messages`** — calls `suppers-ai/messages` via
+  synthesizes auth needs to land in impresspress first.
+- [ ] **`gizza-ai/search-messages`** — calls `impresspress/messages` via
   `ctx.call_block` to search past conversation. Blocked on conversation
   persistence above (no chat history is persisted today).
 
@@ -41,7 +41,7 @@ reference remain.
 - [ ] `security-headers` block reads CSP from flow-step config, not from
   `block_configs` (filed in Plan B commit `d83d657`). Clean fix is upstream:
   have the block also consult `block_configs`, or expose
-  `SolobaseBuilder::csp(...)`.
+  `ImpresspressBuilder::csp(...)`.
 - [ ] Error taxonomy for `AssetLoadError` could split `LoaderNotConfigured`
   from `UnknownLoader`, and `Bridge(String)` from `Unknown(String)` (both
   noted in Plan A reviews). Low urgency.
@@ -56,8 +56,8 @@ becomes a hotspot._
 
 ## Operational gotchas (living reference)
 
-- `solobase` on `$PATH` is the wrong binary (Go-based). Use the full path
-  `/home/joris/Programs/suppers-ai/workspace/solobase/target/release/solobase`.
+- `impresspress` on `$PATH` is the wrong binary (Go-based). Use the full path
+  `/home/joris/Programs/impresspress/workspace/impresspress/target/release/impresspress`.
 - `~/.cargo/bin/wafer` can be stale relative to `wafer-run/main`. Symptom:
   `wafer build` fails with "function type mismatch for import
   wafer::__wafer_host_call_block". Fix: `cd wafer-run && cargo install --path
@@ -74,10 +74,10 @@ becomes a hotspot._
   only captures the page's console, NOT the SW's. To see SW logs, hook
   `context.on('serviceworker', sw => sw.on('console', ...))`.
 - **Rebuilding sql.js FTS5**: Docker Desktop must be running. Run `bash
-  scripts/build-sql-js-fts5.sh` (in solobase) — ~5 min in the
+  scripts/build-sql-js-fts5.sh` (in impresspress) — ~5 min in the
   `emscripten/emsdk:3.1.74` container. The script passes the FULL upstream
   `SQLITE_COMPILATION_FLAGS` plus `-DSQLITE_ENABLE_FTS5`; do NOT shorten that
-  list (see solobase #47 commit `1373975` — dropping
+  list (see impresspress #47 commit `1373975` — dropping
   `-DSQLITE_OMIT_LOAD_EXTENSION` leaves dlopen stubs as null function
   pointers in wasm and traps with "null function" on first
   `new SQL.Database()` in a Service Worker).
