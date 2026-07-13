@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hd-key-derive"
+version = "0.1.0"
+abi = 1
+summary = "Derive BIP32 child keys and Bitcoin addresses"

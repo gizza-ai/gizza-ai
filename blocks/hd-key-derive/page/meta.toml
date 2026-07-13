@@ -1,0 +1,75 @@
+slug          = "hd-key-derive"
+title         = "HD Key Derive — BIP32 xprv/xpub and Bitcoin Address — gizza.ai"
+description   = "Derive BIP32 child private keys, xpubs, WIF keys, and Bitcoin mainnet/testnet P2PKH or SegWit addresses from a seed or xprv. Private and offline in your browser."
+tags          = ["bip32", "hd wallet", "xprv", "xpub", "bitcoin", "wallet", "derivation path", "p2pkh", "segwit", "wif"]
+h1            = "BIP32 HD Key Derivation"
+hero_subtitle = "Paste a hex seed or xprv/tprv plus a BIP32 path to derive the child xprv, xpub, private key, WIF, public key, and Bitcoin address. Runs entirely in your browser."
+wasm          = "gizza_ai_hd_key_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived key"
+format        = "text"
+
+[[input]]
+name        = "seed"
+label       = "Seed hex (optional)"
+placeholder = "000102030405060708090a0b0c0d0e0f"
+source      = "field"
+
+[[input]]
+name        = "xprv"
+label       = "xprv / tprv (optional)"
+placeholder = "xprv9s21ZrQH143K..."
+source      = "field"
+
+[[input]]
+name        = "path"
+label       = "Derivation path"
+placeholder = "m/44'/0'/0'/0/0"
+source      = "field"
+
+[[input]]
+name        = "network"
+label       = "Network"
+source      = "field"
+
+[input.labels]
+mainnet = "Bitcoin mainnet"
+testnet = "Bitcoin testnet"
+
+[[input]]
+name        = "address_type"
+label       = "Address type"
+source      = "field"
+
+[input.labels]
+p2pkh       = "P2PKH legacy"
+p2sh_p2wpkh = "P2SH-wrapped SegWit"
+p2wpkh      = "Native SegWit (bech32)"
+
+[[example]]
+label = "BIP32 vector m/0'"
+[example.params]
+seed = "000102030405060708090a0b0c0d0e0f"
+xprv = ""
+path = "m/0'"
+network = "mainnet"
+address_type = "p2pkh"
+
+[[example]]
+label = "BIP44 first receive"
+[example.params]
+seed = "000102030405060708090a0b0c0d0e0f"
+xprv = ""
+path = "m/44'/0'/0'/0/0"
+network = "mainnet"
+address_type = "p2pkh"
+
+[[example]]
+label = "Native SegWit testnet"
+[example.params]
+seed = "000102030405060708090a0b0c0d0e0f"
+xprv = ""
+path = "m/84'/1'/0'/0/0"
+network = "testnet"
+address_type = "p2wpkh"
