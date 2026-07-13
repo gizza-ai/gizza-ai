@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-browser-history-parser-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Reuse the proven on-disk SQLite b-tree reader (no SQL engine, no libsqlite3) —
+# same parser that backs blocks/sqlite-table-to-csv.
+gizza-ai-sqlite-table-to-csv-core = { path = "../../sqlite-table-to-csv/core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

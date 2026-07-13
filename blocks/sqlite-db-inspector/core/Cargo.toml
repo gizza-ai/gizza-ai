@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-sqlite-db-inspector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Reuse the proven on-disk SQLite b-tree reader / schema-catalog parser (no SQL
+# engine, no libsqlite3) — the same crate that backs blocks/sqlite-table-to-csv
+# and blocks/browser-history-parser.
+gizza-ai-sqlite-table-to-csv-core = { path = "../../sqlite-table-to-csv/core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Analyze raw logs: counts by level, top errors, time span, and a volume timeline."

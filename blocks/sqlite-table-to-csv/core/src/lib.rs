@@ -101,12 +101,95 @@ pub struct CsvOutput {
 
 /// A decoded cell value.
 #[derive(Debug, Clone, PartialEq)]
-enum Value {
+pub enum Value {
     Null,
     Int(i64),
     Real(f64),
     Text(String),
     Blob(Vec<u8>),
+}
+
+impl Value {
+    /// The cell as an integer (also coerces a REAL that is integral). `None` for
+    /// text/blob/null.
+    pub fn as_i64(&self) -> Option<i64> {
+        match self {
+            Value::Int(i) => Some(*i),
+            Value::Real(f) if f.is_finite() => Some(*f as i64),
+            _ => None,
+        }
+    }
+
+    /// The cell as a string slice, if it is TEXT.
+    pub fn as_text(&self) -> Option<&str> {
+        match self {
+            Value::Text(s) => Some(s.as_str()),
+            _ => None,
+        }
+    }
+
+    /// Whether the cell is SQL `NULL`.
+    pub fn is_null(&self) -> bool {
+        matches!(self, Value::Null)
+    }
+}
+
+/// A whole table read into memory as typed rows (rowid-alias substituted).
+#[derive(Debug, Clone)]
+pub struct Table {
+    /// The table name as declared in the schema.
+    pub name: String,
+    /// Column names in declaration order.
+    pub columns: Vec<String>,
+    /// One `Vec<Value>` per row, each aligned to `columns` (short records are
+    /// NULL-padded; an `INTEGER PRIMARY KEY` alias cell holds the rowid).
+    pub rows: Vec<Vec<Value>>,
+}
+
+impl Table {
+    /// Case-insensitive column-name lookup → index into each row.
+    pub fn col_index(&self, name: &str) -> Option<usize> {
+        self.columns.iter().position(|c| c.eq_ignore_ascii_case(name))
+    }
+}
+
+/// Read an entire rowid table into memory as typed rows. Reuses the same on-disk
+/// b-tree parser as [`to_csv`]; used by higher-level blocks (e.g.
+/// `browser-history-parser`) that need typed cells rather than CSV text.
+/// Errors on a missing table or a `WITHOUT ROWID` table.
+pub fn read_table(bytes: &[u8], table: &str) -> Result<Table, String> {
+    let hdr = parse_header(bytes)?;
+    let schemas = read_schema(bytes, &hdr)?;
+    let schema = schemas
+        .iter()
+        .find(|s| s.name.eq_ignore_ascii_case(table))
+        .ok_or_else(|| format!("no table named {table:?}"))?;
+    if schema.without_rowid {
+        return Err(format!(
+            "table {:?} is a WITHOUT ROWID table, which this parser does not support yet",
+            schema.name
+        ));
+    }
+    let ncols = schema.columns.len();
+    let mut raw: Vec<(i64, Vec<Value>)> = Vec::new();
+    walk_table_btree(bytes, &hdr, schema.rootpage, &mut raw, 0)?;
+    let rows = raw
+        .into_iter()
+        .map(|(rowid, mut values)| {
+            values.resize(ncols, Value::Null);
+            if let Some(i) = schema.rowid_alias {
+                if matches!(values[i], Value::Null) {
+                    values[i] = Value::Int(rowid);
+                }
+            }
+            values
+        })
+        .collect();
+    Ok(Table {
+        name: schema.name.clone(),
+        columns: schema.columns.clone(),
+        rows,
+    })
 }
 
 /// A parsed schema entry for one user table.
@@ -134,6 +217,123 @@ pub fn list_tables(bytes: &[u8]) -> Result<Vec<String>, String> {
     let hdr = parse_header(bytes)?;
     let schemas = read_schema(bytes, &hdr)?;
     Ok(schemas.into_iter().map(|s| s.name).collect())
+}
+
+/// One raw row of the `sqlite_master` schema catalog, as stored on page 1.
+/// Higher-level tools (e.g. `sqlite-db-inspector`) interpret these to describe
+/// tables, indexes, views and triggers; unlike [`list_tables`] this exposes
+/// *every* object, including internal `sqlite_*` ones, so the caller decides
+/// what to keep.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MasterEntry {
+    /// Object kind: `"table"`, `"index"`, `"view"` or `"trigger"`.
+    pub kind: String,
+    /// The object's own name.
+    pub name: String,
+    /// The table the object belongs to (equals `name` for a table itself).
+    pub tbl_name: String,
+    /// The b-tree root page (`None` for views, triggers and virtual tables).
+    pub rootpage: Option<u32>,
+    /// The `CREATE …` SQL text (empty for auto-created indexes and internal
+    /// objects that store a NULL `sql`).
+    pub sql: String,
+}
+
+/// Read every row of `sqlite_master` (the on-disk schema catalog rooted at page
+/// 1) as raw [`MasterEntry`] records, in stored order. This is the low-level
+/// primitive behind [`list_tables`]; it performs no filtering so a schema
+/// inspector can see indexes, views, triggers and internal `sqlite_*` objects.
+pub fn master_entries(bytes: &[u8]) -> Result<Vec<MasterEntry>, String> {
+    let hdr = parse_header(bytes)?;
+    let mut rows: Vec<(i64, Vec<Value>)> = Vec::new();
+    walk_table_btree(bytes, &hdr, 1, &mut rows, 0)?;
+
+    let mut out = Vec::new();
+    for (_rowid, cols) in rows {
+        // sqlite_master columns: type, name, tbl_name, rootpage, sql
+        let kind = cols.first().and_then(as_text).unwrap_or_default();
+        if kind.is_empty() {
+            continue;
+        }
+        let name = cols.get(1).and_then(as_text).unwrap_or_default();
+        let tbl_name = cols.get(2).and_then(as_text).unwrap_or_default();
+        let rootpage = match cols.get(3) {
+            Some(Value::Int(i)) if *i > 0 => Some(*i as u32),
+            _ => None,
+        };
+        let sql = cols.get(4).and_then(as_text).unwrap_or_default();
+        out.push(MasterEntry {
+            kind,
+            name,
+            tbl_name,
+            rootpage,
+            sql,
+        });
+    }
+    Ok(out)
+}
+
+/// Count the rows of a user table by walking its b-tree, without decoding any
+/// cell values (cheap even for large tables). Returns:
+///   - `Ok(Some(n))` for a normal rowid table,
+///   - `Ok(None)` for a `WITHOUT ROWID` table (its index-b-tree layout isn't
+///     supported here — the caller should explain that to the user),
+///   - `Err(_)` if there is no such table or the file is corrupt.
+pub fn count_rows(bytes: &[u8], table: &str) -> Result<Option<u64>, String> {
+    let hdr = parse_header(bytes)?;
+    let schemas = read_schema(bytes, &hdr)?;
+    let schema = schemas
+        .iter()
+        .find(|s| s.name.eq_ignore_ascii_case(table))
+        .ok_or_else(|| format!("no table named {table:?}"))?;
+    if schema.without_rowid {
+        return Ok(None);
+    }
+    let n = count_table_btree(bytes, &hdr, schema.rootpage)?;
+    Ok(Some(n))
+}
+
+/// Walk a rowid table b-tree counting leaf cells (rows) without decoding them.
+/// Shares the page/cycle guards of [`walk_table_btree`] but skips record parsing.
+fn count_table_btree(bytes: &[u8], hdr: &DbHeader, root: u32) -> Result<u64, String> {
+    let mut visited = HashSet::new();
+    let mut stack = vec![root];
+    let mut total: u64 = 0;
+    while let Some(pageno) = stack.pop() {
+        if pageno == 0 {
+            continue;
+        }
+        if !visited.insert(pageno) {
+            return Err("corrupt database: b-tree page cycle detected".to_string());
+        }
+        let page = page_slice(bytes, hdr, pageno)?;
+        let hdr_off = if pageno == 1 { 100 } else { 0 };
+        let page_type = page
+            .get(hdr_off)
+            .copied()
+            .ok_or("corrupt database: truncated page header")?;
+        let ncells = be_u16(page, hdr_off + 3)? as usize;
+        match page_type {
+            0x0d => {
+                total += ncells as u64;
+            }
+            0x05 => {
+                let right = be_u32(page, hdr_off + 8)?;
+                let ptr_base = hdr_off + 12;
+                for i in 0..ncells {
+                    let cell_off = be_u16(page, ptr_base + i * 2)? as usize;
+                    stack.push(be_u32(page, cell_off)?);
+                }
+                stack.push(right);
+            }
+            other => {
+                return Err(format!(
+                    "unexpected b-tree page type 0x{other:02x} on page {pageno} (not a rowid table)"
+                ));
+            }
+        }
+    }
+    Ok(total)
 }
 
 /// Export a table of the SQLite database `bytes` as CSV per `opts`.
@@ -952,6 +1152,57 @@ mod tests {
         assert_eq!(Delimiter::parse("TAB").unwrap(), Delimiter::Tab);
         assert_eq!(Delimiter::parse(";").unwrap(), Delimiter::Semicolon);
         assert!(Delimiter::parse("colon").is_err());
+    }
+
+    #[test]
+    fn read_table_returns_typed_rows_with_rowid_alias() {
+        let t = read_table(SAMPLE, "people").unwrap();
+        assert_eq!(t.columns, vec!["id", "name", "score", "bio", "avatar", "notes"]);
+        assert_eq!(t.rows.len(), 3);
+        // rowid alias filled the `id` column; typed accessors work.
+        let id = t.col_index("ID").unwrap(); // case-insensitive
+        assert_eq!(t.rows[0][id].as_i64(), Some(1));
+        let name = t.col_index("name").unwrap();
+        assert_eq!(t.rows[0][name].as_text(), Some("Ada"));
+        // NULL notes on row 1.
+        let notes = t.col_index("notes").unwrap();
+        assert!(t.rows[0][notes].is_null());
+    }
+
+    #[test]
+    fn read_table_unknown_errors() {
+        assert!(read_table(SAMPLE, "nope").is_err());
+    }
+
+    #[test]
+    fn master_entries_expose_all_objects() {
+        let entries = master_entries(SAMPLE).unwrap();
+        // Every user table appears as a "table" entry, in creation order.
+        let tables: Vec<&str> = entries
+            .iter()
+            .filter(|e| e.kind == "table" && !e.name.starts_with("sqlite_"))
+            .map(|e| e.name.as_str())
+            .collect();
+        assert_eq!(tables, vec!["people", "empties", "big", "many"]);
+        // A table entry carries its CREATE SQL and a real rootpage.
+        let people = entries.iter().find(|e| e.name == "people").unwrap();
+        assert!(people.sql.to_uppercase().contains("CREATE TABLE"));
+        assert!(people.rootpage.is_some());
+        assert_eq!(people.tbl_name, "people");
+    }
+
+    #[test]
+    fn count_rows_matches_table_sizes() {
+        assert_eq!(count_rows(SAMPLE, "people").unwrap(), Some(3));
+        assert_eq!(count_rows(SAMPLE, "empties").unwrap(), Some(0));
+        assert_eq!(count_rows(SAMPLE, "many").unwrap(), Some(2000));
+        // Case-insensitive, like the other lookups.
+        assert_eq!(count_rows(SAMPLE, "MANY").unwrap(), Some(2000));
+    }
+
+    #[test]
+    fn count_rows_unknown_table_errors() {
+        assert!(count_rows(SAMPLE, "nope").is_err());
     }
 
     #[test]

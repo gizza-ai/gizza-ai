@@ -1,0 +1,65 @@
+slug          = "video-eq-adjust"
+title         = "Adjust Video Brightness & Contrast Online — gizza.ai"
+description   = "Free online video color adjuster — tweak brightness, contrast, saturation, and gamma with live sliders. Re-encodes locally with ffmpeg in your browser, nothing uploaded."
+tags          = ["video", "brightness", "contrast", "saturation", "gamma", "color correction", "video editor", "ffmpeg", "exposure", "vivid"]
+h1            = "Adjust Video Brightness, Contrast & Color"
+hero_subtitle = "Pick a video, drag the brightness / contrast / saturation / gamma sliders, and it's re-encoded in your browser — nothing is uploaded."
+wasm          = "gizza_ai_video_eq_adjust_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Adjusted video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "brightness"
+source      = "field"
+label       = "Brightness (-1 to 1)"
+placeholder = "0"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "contrast"
+source      = "field"
+label       = "Contrast (0 to 4)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "saturation"
+source      = "field"
+label       = "Saturation (0 to 3)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "gamma"
+source      = "field"
+label       = "Gamma (0.1 to 10)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[example]]
+label  = "Brighten"
+params = { brightness = "0.15", contrast = "1", saturation = "1", gamma = "0.85" }
+
+[[example]]
+label  = "Vivid & punchy"
+params = { brightness = "0.05", contrast = "1.2", saturation = "1.4", gamma = "1" }
+
+[[example]]
+label  = "Faded / muted"
+params = { brightness = "0.05", contrast = "0.85", saturation = "0.7", gamma = "1.05" }
+
+[[example]]
+label  = "Grayscale"
+params = { brightness = "0", contrast = "1", saturation = "0", gamma = "1" }

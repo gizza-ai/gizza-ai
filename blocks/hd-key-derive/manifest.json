@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/hd-key-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive BIP32 child keys and Bitcoin addresses",
+  "role": "skill",
+  "tool": {
+    "description": "Derive a BIP32 hierarchical-deterministic child private key from either a hex seed or an xprv/tprv plus a path such as m/44'/0'/0'/0/0. Returns xprv/xpub, raw private/public keys, WIF, fingerprint, and a Bitcoin mainnet/testnet P2PKH, wrapped SegWit, or native SegWit address. Runs locally; provide exactly one of seed or xprv.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "address_type": {
+          "default": "p2pkh",
+          "description": "Address format to render for the derived public key: legacy 'p2pkh', wrapped SegWit 'p2sh_p2wpkh', or native SegWit 'p2wpkh'.",
+          "enum": [
+            "p2pkh",
+            "p2sh_p2wpkh",
+            "p2wpkh"
+          ],
+          "type": "string"
+        },
+        "network": {
+          "default": "mainnet",
+          "description": "Bitcoin network for version bytes and address prefixes: 'mainnet' (xprv/xpub, 1/3/bc1) or 'testnet' (tprv/tpub, m/n/2/tb1).",
+          "enum": [
+            "mainnet",
+            "testnet"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "BIP32 derivation path such as m, m/0', m/44'/0'/0'/0/0. Hardened segments may end with ', h, or H.",
+          "type": "string"
+        },
+        "seed": {
+          "description": "Optional BIP32 seed as hex (16–64 bytes, often produced by the bip39-seed-derive tool). Provide exactly one of seed or xprv.",
+          "type": "string"
+        },
+        "xprv": {
+          "description": "Optional BIP32 extended private key (xprv/tprv) to start from instead of a seed. Provide exactly one of seed or xprv.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    }
+  }
+}

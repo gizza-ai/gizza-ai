@@ -1,0 +1,66 @@
+slug          = "contact-info-extractor"
+title         = "Contact Info Extractor — Pull Emails & Phone Numbers from Text — gizza.ai"
+description   = "Extract emails and phone numbers from pasted text. Deduplicated, counted, sorted, and private in your browser with no upload."
+tags          = ["contact extractor", "email extractor", "phone number extractor", "extract emails", "extract phone numbers", "text scraper", "deduplicate contacts", "contact list"]
+h1            = "Extract Emails & Phone Numbers from Text"
+hero_subtitle = "Paste any text — email threads, signatures, contact lists — and get every email address and phone number, deduplicated and counted. Deterministic, private, and runs in your browser."
+wasm          = "gizza_ai_contact_info_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted contacts"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text to scan"
+placeholder = "Reach Alice at alice@corp.com or +1 415 555 2671.\nBob: bob@corp.com, (212) 555-0199."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "types"
+label  = "Extract"
+source = "field"
+
+[input.labels]
+both   = "Emails and phone numbers"
+emails = "Emails only"
+phones = "Phone numbers only"
+
+[[input]]
+name   = "dedupe"
+label  = "Remove duplicates"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Order"
+source = "field"
+
+[input.labels]
+"first-seen"   = "First seen — order in the text"
+alphabetical = "Alphabetical"
+
+[[example]]
+label = "Emails and phones"
+[example.params]
+input = "Reach Alice at alice@corp.com or call +1 415 555 2671.\nBob: bob@corp.com, (212) 555-0199."
+types = "both"
+dedupe = "true"
+sort = "first-seen"
+
+[[example]]
+label = "Emails only, sorted"
+[example.params]
+input = "zed@x.com amy@x.com bob@x.com AMY@x.com"
+types = "emails"
+dedupe = "true"
+sort = "alphabetical"
+
+[[example]]
+label = "Phone numbers only"
+[example.params]
+input = "US: (415) 555-2671, UK: +44 20 7946 0958, dotted 555.123.4568, plain 5551234567"
+types = "phones"
+dedupe = "true"
+sort = "first-seen"

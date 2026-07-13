@@ -1,0 +1,47 @@
+slug          = "phishing-header-inspector"
+title         = "Phishing Header Inspector — Check Email Headers | gizza.ai"
+description   = "Paste raw email headers to flag From/Return-Path mismatches, Reply-To detours, failed SPF/DKIM/DMARC, and suspicious Received hops locally."
+tags          = ["email header analyzer", "phishing header checker", "spoofing detector", "spf dkim dmarc", "return path mismatch", "received headers", "email security"]
+h1            = "Phishing Header Inspector"
+hero_subtitle = "Paste raw message headers and get an offline risk report for spoofing indicators, authentication failures, Reply-To detours, and Received-chain gaps."
+wasm          = "gizza_ai_phishing_header_inspector_web"
+export        = "run"
+live          = false
+output_label  = "Header risk report"
+format        = "text"
+
+[[input]]
+name        = "headers"
+label       = "Raw email headers"
+placeholder = "From: Alerts <alerts@example.com>\nReturn-Path: <bounce@example.com>\nAuthentication-Results: mx.example; spf=pass; dkim=pass; dmarc=pass\nReceived: from mail.example.com by mx.example"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "report_mode"
+label       = "Report detail"
+placeholder = "detailed"
+source      = "field"
+
+[input.labels]
+detailed = "Detailed findings"
+summary  = "Summary only"
+
+[[input]]
+name        = "check_received"
+label       = "Check Received hop chain"
+source      = "field"
+
+[[example]]
+label = "Aligned sender"
+[example.params]
+headers = "From: Example Alerts <alerts@example.com>\nReturn-Path: <bounce@example.com>\nAuthentication-Results: mx.example; spf=pass smtp.mailfrom=example.com; dkim=pass header.d=example.com; dmarc=pass header.from=example.com\nReceived: from mail.example.com by mx.example; Tue, 1 Jan 2026 00:00:00 +0000\nReceived: from app.example.com by mail.example.com; Tue, 1 Jan 2026 00:00:01 +0000\nMessage-ID: <abc@example.com>"
+report_mode = "detailed"
+check_received = "true"
+
+[[example]]
+label = "Spoofing indicators"
+[example.params]
+headers = "From: \"alerts@paypal.com\" <notice@evil.example>\nReturn-Path: <bounce@mailer.bad>\nReply-To: help@bad.example\nAuthentication-Results: mx.example; spf=fail smtp.mailfrom=mailer.bad; dkim=none; dmarc=fail header.from=evil.example\nReceived: from [10.0.0.4] by mx.example; Tue, 1 Jan 2026 00:00:00 +0000\nMessage-ID: <abc@mailer.bad>"
+report_mode = "summary"
+check_received = "true"

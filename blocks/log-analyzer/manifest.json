@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/log-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze raw logs: counts by level, top errors, time span, and a volume timeline.",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze raw logs and return an aggregate summary (not a row-by-row view — use log-parser for that). Auto-detects JSON/NDJSON, logfmt, syslog (RFC 3164/5424), and Apache/nginx access logs, then reports: total entries and time span, a breakdown of counts by unified severity (trace/debug/info/warn/error — 5xx and 4xx access-log statuses map to error/warn), the most frequent warning/error messages ('top errors', grouped by masking numbers and hex ids), and a volume timeline bucketed by minute/hour/day. output='summary' (default) is Markdown; 'json' is a structured object. top caps the error list (default 10); bucket sets the timeline granularity (default auto).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bucket": {
+          "default": "auto",
+          "description": "Volume-timeline granularity. 'auto' (default) picks minute/hour/day from the time span; or force 'minute', 'hour', or 'day'.",
+          "enum": [
+            "auto",
+            "minute",
+            "hour",
+            "day"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Log format. 'auto' (default) detects it by majority vote over the first lines; or force 'json' (JSON/NDJSON), 'logfmt' (key=value pairs), 'syslog' (RFC 3164/5424), 'common' (Apache/nginx Common Log Format), or 'combined' (Common + referer + user-agent).",
+          "enum": [
+            "auto",
+            "json",
+            "logfmt",
+            "syslog",
+            "common",
+            "combined"
+          ],
+          "type": "string"
+        },
+        "logs": {
+          "description": "The raw log text — one entry per line. Paste JSON/NDJSON, logfmt, syslog, or Apache/nginx access logs.",
+          "type": "string"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output shape. 'summary' (default) is a Markdown report: a caption, a level breakdown, top errors, and a volume timeline; 'json' is a structured object with the same data.",
+          "enum": [
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "top": {
+          "default": 10,
+          "description": "How many top warning/error groups to list (1-100). Similar messages are grouped by masking numbers and hex ids. Default 10.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "logs"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+slug          = "amazon-order-analyzer"
+title         = "Amazon Order Analyzer — Spending by Month, Item, Category — gizza.ai"
+description   = "Paste an Amazon order-history CSV export to summarize total spend by month, top items, and category breakdowns. Browser-only, private, with Markdown or JSON output."
+tags          = ["amazon orders", "order history", "csv analyzer", "spending summary", "monthly spend", "top items", "category breakdown", "personal finance", "shopping"]
+h1            = "Amazon Order Analyzer"
+hero_subtitle = "Paste an Amazon order-history CSV export to total your spending, group it by month, rank top items, and summarize categories. Runs locally in your browser."
+wasm          = "gizza_ai_amazon_order_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Spending summary"
+format        = "text"
+
+[[input]]
+name        = "csv"
+label       = "Amazon order-history CSV"
+placeholder = "Order Date,Order ID,Title,Category,Quantity,Item Total\n2024-01-05,111-1111111-1111111,USB-C Cable,Electronics,2,$9.99"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+summary = "Markdown summary"
+json    = "JSON"
+
+[[input]]
+name        = "top"
+label       = "Top items to show"
+placeholder = "10"
+source      = "field"
+
+[[example]]
+label = "Classic report"
+[example.params]
+csv = "Order Date,Order ID,Title,Category,Quantity,Item Total\n2024-01-05,111-1111111-1111111,USB-C Cable,Electronics,2,$9.99\n2024-01-20,111-1111111-1111112,Coffee Beans,Grocery,1,$18.50\n2024-02-03,111-1111111-1111113,USB-C Cable,Electronics,1,$9.99"
+output = "summary"
+top = "5"
+
+[[example]]
+label = "Request My Data export"
+[example.params]
+csv = "Order Date,Order ID,Product Name,Quantity,Total Owed\n2024-03-01,A1,Notebook,3,$12.00\n2024-03-15,A2,Desk Lamp,1,$32.50"
+output = "summary"
+top = "10"
+
+[[example]]
+label = "JSON output"
+[example.params]
+csv = "Order Date,Order ID,Title,Category,Quantity,Item Total\n2024-01-05,111-1111111-1111111,USB-C Cable,Electronics,2,$9.99\n2024-01-20,111-1111111-1111112,Coffee Beans,Grocery,1,$18.50"
+output = "json"
+top = "3"

@@ -1,0 +1,33 @@
+{
+  "name": "gizza-ai/weak-password-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check a password against common/breached lists",
+  "role": "skill",
+  "tool": {
+    "description": "Check whether a password is one of the most common or previously-breached passwords, using a bundled ranked blocklist — entirely offline, nothing is sent anywhere. Detects exact matches, case-only variations (case_sensitive=false, the default), and leetspeak variants like P@ssw0rd (normalize_leet=true, the default). Returns found, the 1-based rank (1 = most common), the matched list entry, match_kind (exact/case-insensitive/leetspeak/none), a severity band (critical/high/common/safe), the list size, and a plain-language message. This is a bundled-list dictionary check, NOT a live breach-database (HIBP) lookup: 'not found' rules out well-known weak passwords but is not proof of strength.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "When false (default), 'PASSWORD' matches the listed 'password' — attackers ignore case, so case-only variations are treated as the same weak password. Set true to require an exact-case match.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The password to check against the bundled common/breached-password list. Checked locally; never sent anywhere.",
+          "type": "string"
+        },
+        "normalize_leet": {
+          "default": true,
+          "description": "When true (default), common leetspeak substitutions are collapsed so 'P@ssw0rd' matches 'password' (0->o, @->a, 1->i, 3->e, 4->a, 5->s, 7->t, etc.). Set false to skip leetspeak normalization.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

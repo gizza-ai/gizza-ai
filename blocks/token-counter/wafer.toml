@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "token-counter"
+version = "0.1.0"
+abi = 1
+summary = "Count LLM tokens for pasted text and estimate the prompt cost and context-window usage for a chosen model."

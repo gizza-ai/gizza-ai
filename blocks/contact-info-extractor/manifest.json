@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/contact-info-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract emails and phone numbers from text",
+  "role": "skill",
+  "tool": {
+    "description": "Scan a block of unstructured text and pull out every email address and phone number, deduplicated and counted. Emails dedupe case-insensitively; phone numbers dedupe by normalized digits and are detected across international (+CC), (area), dashed, dotted, spaced, and continuous formats. Set types to 'emails' or 'phones' to narrow the scan, dedupe=false to keep duplicates, and sort to 'alphabetical'. Returns email_count, phone_count, total, and the email/phone lists. Deterministic regex, no LLM, runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": true,
+          "description": "Remove duplicate values. Emails are deduplicated case-insensitively; phone numbers by their normalized digits. Turn off to keep every occurrence.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The unstructured text to scan for email addresses and phone numbers (email threads, signatures, contact lists, exported notes).",
+          "type": "string"
+        },
+        "sort": {
+          "default": "first-seen",
+          "description": "Ordering of each list: 'first-seen' keeps the order values appear in the text; 'alphabetical' sorts ascending.",
+          "enum": [
+            "first-seen",
+            "alphabetical"
+          ],
+          "type": "string"
+        },
+        "types": {
+          "default": "both",
+          "description": "Which contact types to extract: 'both' (default), 'emails' only, or 'phones' only.",
+          "enum": [
+            "both",
+            "emails",
+            "phones"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
