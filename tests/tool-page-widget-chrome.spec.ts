@@ -1,4 +1,4 @@
-// Declarative widget chrome (tools/generator + site/tool.js): example chips,
+// Declarative widget chrome (tools/generator + its runtime tool.js): example chips,
 // meta-declared defaults, Reset, and Copy-result — rendered on every page from
 // meta.toml with zero per-tool JS. age-calculator is the first migrated tool
 // (kind="date" pickers replace its old slug-specific setup in tool.js).

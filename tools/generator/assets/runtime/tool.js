@@ -500,7 +500,7 @@ async function main() {
     const fileInput = fileMeta ? document.getElementById("in-" + fileMeta.name) : null;
     const fieldInputs = cfg.inputs.filter((i) => i.source === "field");
 
-    // ---- Shared audio waveform (site/tool-audio.js) ----------------------
+    // ---- Shared audio waveform (tool-audio.js) ----------------------------
     // Auto-enabled for audio-input tools (accept="audio/*") unless meta says
     // `waveform = false`. Declarative binding (cfg.waveform = {start,end})
     // two-way syncs the selection with those fields; commit runs ffmpeg once.

@@ -199,7 +199,7 @@ TODO: SEO copy.
 
 ## FAQ
 
-<!-- FAQ MUST be <details>/<summary> accordions: site/tool.css styles them and
+<!-- FAQ MUST be <details>/<summary> accordions: tools/generator/assets/runtime/tool.css styles them and
      scripts/check-tool-hygiene.py fails the build on a plain-markdown FAQ. Keep
      the blank line inside each <details> so the answer's markdown (inline
      \`code\`, **bold**, lists) renders and gets wrapped in <p>. One <details> per

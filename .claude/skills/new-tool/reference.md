@@ -29,7 +29,7 @@
 #### Declarative page controls (meta.toml — USE these instead of custom JS)
 
 The generator renders premium controls straight from `meta.toml`; never add per-tool JS to the
-shared `site/tool.js` for these:
+shared `tools/generator/assets/runtime/tool.js` for these:
 
 - `[[input]] kind = "date" | "time" | "datetime-local"` — native picker (overrides the schema's
   `string`). Use for every date/time field.

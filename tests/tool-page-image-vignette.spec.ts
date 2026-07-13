@@ -235,7 +235,7 @@ test('image-vignette rejects a color combined with lighten mode, with guidance',
   await expect(out).toContainText('darken'); // the error names the fix
 });
 
-// The "Copy image" button (generator template + site/tool.js): image-output
+// The "Copy image" button (generator template + tools/generator/assets/runtime/tool.js): image-output
 // tools get a declarative button next to Download that copies the CURRENT
 // output image to the clipboard as PNG (offscreen canvas → toBlob →
 // ClipboardItem, so jpg/webp/png all copy as PNG). It stays hidden until a

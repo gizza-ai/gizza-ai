@@ -36,6 +36,7 @@ fn run() -> Result<(), String> {
     let root = PathBuf::from(root);
     let blocks = root.join("blocks");
     let pkg_tools = root.join("pkg").join("tools");
+    let runtime = root.join("tools/generator/assets/runtime");
 
     let metas = collect_tool_metas(&blocks)?;
     if metas.is_empty() {
@@ -120,16 +121,16 @@ fn run() -> Result<(), String> {
             eprintln!("warning: web/pkg not found for {} (skipping WASM copy)", m.slug);
         }
 
-        copy_file(&root.join("site/tool.js"), &out.join("tool.js"))?;
+        copy_file(&runtime.join("tool.js"), &out.join("tool.js"))?;
         copy_file(&root.join("js/query-prefill.js"), &out.join("query-prefill.js"))?;
-        copy_file(&root.join("site/tool.css"), &out.join("tool.css"))?;
-        copy_file(&root.join("site/header.css"), &out.join("header.css"))?;
-        copy_file(&root.join("site/header.js"), &out.join("header.js"))?;
-        copy_file(&root.join("site/tools-index.js"), &out.join("tools-index.js"))?;
+        copy_file(&runtime.join("tool.css"), &out.join("tool.css"))?;
+        copy_file(&runtime.join("header.css"), &out.join("header.css"))?;
+        copy_file(&runtime.join("header.js"), &out.join("header.js"))?;
+        copy_file(&runtime.join("tools-index.js"), &out.join("tools-index.js"))?;
         if m.runtime == "ffmpeg" {
             copy_file(&root.join("js/ffmpeg.js"), &out.join("ffmpeg.js"))?;
-            copy_file(&root.join("site/tool-ffmpeg.js"), &out.join("tool-ffmpeg.js"))?;
-            copy_file(&root.join("site/tool-audio.js"), &out.join("tool-audio.js"))?;
+            copy_file(&runtime.join("tool-ffmpeg.js"), &out.join("tool-ffmpeg.js"))?;
+            copy_file(&runtime.join("tool-audio.js"), &out.join("tool-audio.js"))?;
         }
         eprintln!("rendered tools/{}/", m.slug);
     }
@@ -212,10 +213,10 @@ fn run() -> Result<(), String> {
         index::tools_catalog_md(&metas_only),
     )
     .map_err(|e| format!("write tools/index.md: {e}"))?;
-    copy_file(&root.join("site/tool.css"), &pkg_tools.join("tool.css"))?;
-    copy_file(&root.join("site/header.css"), &pkg_tools.join("header.css"))?;
-    copy_file(&root.join("site/header.js"), &pkg_tools.join("header.js"))?;
-    copy_file(&root.join("site/tools-index.js"), &pkg_tools.join("tools-index.js"))?;
+    copy_file(&runtime.join("tool.css"), &pkg_tools.join("tool.css"))?;
+    copy_file(&runtime.join("header.css"), &pkg_tools.join("header.css"))?;
+    copy_file(&runtime.join("header.js"), &pkg_tools.join("header.js"))?;
+    copy_file(&runtime.join("tools-index.js"), &pkg_tools.join("tools-index.js"))?;
     fs::write(pkg_tools.join("og.png"), og_renderer.index_card(metas_only.len())?)
         .map_err(|e| format!("write tools/og.png: {e}"))?;
     eprintln!("rendered tools/ (landing page, {} tools)", metas_only.len());
@@ -234,7 +235,7 @@ fn run() -> Result<(), String> {
         fs::write(out.join("og.png"), og_renderer.hub_card(hub.category)?)
             .map_err(|e| format!("write tools/{}/og.png: {e}", hub.category.slug))?;
         for asset in ["tool.css", "header.css", "header.js", "tools-index.js"] {
-            copy_file(&root.join("site").join(asset), &out.join(asset))?;
+            copy_file(&runtime.join(asset), &out.join(asset))?;
         }
         eprintln!(
             "rendered tools/{}/ (hub, {} tools)",
