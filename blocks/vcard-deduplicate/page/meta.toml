@@ -1,0 +1,55 @@
+slug          = "vcard-deduplicate"
+title         = "vCard Duplicate Remover — Merge Duplicate .vcf Contacts Online"
+description   = "Find and merge duplicate contacts in a vCard (.vcf) file. Match on name, email, or phone; merge into one card or drop extra copies. Runs in your browser."
+tags          = ["vcard duplicate remover", "merge duplicate contacts", "deduplicate vcf", "vcf duplicate remover", "remove duplicate contacts", "clean vcard", "merge vcf contacts"]
+h1            = "vCard Duplicate Remover"
+hero_subtitle = "Clean up an exported .vcf file: find contacts that repeat, then merge each set into one card or drop the extras. Matches on name, email, or phone across vCard 2.1, 3.0, and 4.0 — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_vcard_deduplicate_web"
+export        = "run"
+live          = false
+output_label  = "Deduplicated vCard"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "vCard (.vcf) text"
+placeholder = "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nEMAIL:john@work.com\nTEL:+1-555-111-2222\nEND:VCARD\nBEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nEMAIL:john@home.com\nTEL:1 (555) 111-2222\nEND:VCARD"
+source      = "field"
+multiline   = true
+
+# match_by renders as a <select> and merge as a checkbox — the control type +
+# options are derived from the descriptor schema (manifest.json).
+[[input]]
+name        = "match_by"
+label       = "Treat as duplicates when they share"
+source      = "field"
+
+[input.labels]
+any   = "Any of name, email, or phone"
+name  = "The same full name"
+email = "The same email address"
+phone = "The same phone number"
+
+[[input]]
+name        = "merge"
+label       = "Merge each group into one card (off = keep only the first)"
+source      = "field"
+
+[[example]]
+label = "Merge two John Doe cards"
+[example.params]
+data     = "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nEMAIL:john@work.com\nTEL:+1-555-111-2222\nEND:VCARD\nBEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nEMAIL:john@home.com\nTEL:1 (555) 111-2222\nEND:VCARD"
+match_by = "any"
+
+[[example]]
+label = "Same email, different names"
+[example.params]
+data     = "BEGIN:VCARD\nVERSION:4.0\nFN:Ada L.\nEMAIL:ada@example.com\nEND:VCARD\nBEGIN:VCARD\nVERSION:4.0\nFN:Ada Lovelace\nEMAIL:ADA@example.com\nTEL:+1-555-987-6543\nEND:VCARD"
+match_by = "email"
+
+[[example]]
+label = "Remove copies (don't merge)"
+[example.params]
+data     = "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nEMAIL:john@work.com\nEND:VCARD\nBEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nEMAIL:john@home.com\nEND:VCARD"
+match_by = "name"
+merge    = "false"

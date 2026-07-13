@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "vcard-deduplicate"
+version = "0.1.0"
+abi = 1
+summary = "Find and merge duplicate contacts in a vCard file"
