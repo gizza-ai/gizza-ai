@@ -177,12 +177,12 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
   The generator WARNS AND SKIPS a tool whose `web/pkg/` is missing (as of 2026-07: it no longer
   hard-aborts — three runs tripped on the stale hard-abort note here). Check the warning list:
   if YOUR slug was skipped, `wasm-pack build blocks/<slug>/web …` and re-run.
-- `solobase build` — rebuild app + blocks into `pkg/`. GOTCHA: it iterates+validates EVERY block
+- `impresspress build` — rebuild app + blocks into `pkg/`. GOTCHA: it iterates+validates EVERY block
   and aborts on the first that fails — which may be a PRE-EXISTING, unrelated broken block (e.g. a
   `wasi_snapshot_preview1::sched_yield` validation error), not your tool. Confirm with
   `cd blocks/<that-block> && wafer build`; if it's unrelated and pre-existing, do NOT fix it here —
   validate YOUR tool with `cd blocks/<slug> && wafer build` and note the blocked full-app build in
-  the PR (honesty gate). Do not claim `solobase build` passed if it didn't.
+  the PR (honesty gate). Do not claim `impresspress build` passed if it didn't.
 - **Playwright** `tests/tool-page-<slug>.spec.ts` (import from `./fixtures`) — drive
   `/tools/<slug>/`, AND a `?<param>=<value>` deep-link assertion. Add a case per new capability.
 - **CLI** `cargo install --path cli --force` then `gizza tool <slug> "<args>"` — incl. a new

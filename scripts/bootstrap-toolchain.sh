@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Bootstrap the toolchain needed to build gizza tools (cargo, wafer, wasm-pack,
-# solobase, gizza, Playwright, ffmpeg) on a fresh box. Mirrors
+# impresspress, gizza, Playwright, ffmpeg) on a fresh box. Mirrors
 # .github/workflows/deploy.yml. Idempotent: each step is skipped if already done.
 # See docs/TOOLCHAIN-SETUP.md for the rationale. Run from the repo root.
 set -euo pipefail
@@ -32,32 +32,32 @@ command -v wasm-pack >/dev/null 2>&1 || cargo install wasm-pack
 
 log "sibling checkouts"
 [ -d "$parent/wafer-run" ] || git clone --depth 1 https://github.com/wafer-run/wafer-run "$parent/wafer-run"
-if [ ! -d "$parent/solobase" ]; then
-  git clone https://github.com/suppers-ai/solobase "$parent/solobase"
+if [ ! -d "$parent/impresspress" ]; then
+  git clone https://github.com/impresspress/impresspress "$parent/impresspress"
 fi
-git -C "$parent/solobase" checkout "$(tr -d '[:space:]' < solobase-pin.txt)" 2>/dev/null || true
-# Best-effort pin (mirrors the solobase pin above): a local checkout on a
-# work branch is left alone by the `|| true`, same as solobase.
+git -C "$parent/impresspress" checkout "$(tr -d '[:space:]' < impresspress-pin.txt)" 2>/dev/null || true
+# Best-effort pin (mirrors the impresspress pin above): a local checkout on a
+# work branch is left alone by the `|| true`, same as impresspress.
 wafer_sha="$(tr -d '[:space:]' < wafer-run-pin.txt)"
 git -C "$parent/wafer-run" fetch --depth 1 origin "$wafer_sha" 2>/dev/null || true
 git -C "$parent/wafer-run" checkout "$wafer_sha" 2>/dev/null || true
 
-log "solobase-web wasm (needed by solobase build.rs)"
-wasm-pack build "$parent/solobase/crates/solobase-web" --target web --release --out-dir pkg
+log "impresspress-web wasm (needed by impresspress build.rs)"
+wasm-pack build "$parent/impresspress/crates/impresspress-web" --target web --release --out-dir pkg
 
-log "CLIs: wafer, solobase, gizza"
+log "CLIs: wafer, impresspress, gizza"
 command -v wafer    >/dev/null 2>&1 || cargo install --path "$parent/wafer-run/crates/wafer-cli" --locked
-command -v solobase >/dev/null 2>&1 || cargo install --path "$parent/solobase/crates/solobase" --locked
+command -v impresspress >/dev/null 2>&1 || cargo install --path "$parent/impresspress/crates/impresspress" --locked
 cargo install --path cli --locked
 
 log "Playwright + chromium"
 ( cd tests && npm install && npx playwright install --with-deps chromium )
 
-log "baseline solobase build (all blocks + app)"
-solobase build
+log "baseline impresspress build (all blocks + app)"
+impresspress build
 
 log "baseline tool pages (per-block web wasm + rendered pages)"
-# Mirrors deploy.yml "Build tool pages": solobase build does NOT build the page
+# Mirrors deploy.yml "Build tool pages": impresspress build does NOT build the page
 # web/pkg/, and tools/generator hard-aborts on the first block whose web/pkg/ is
 # missing — so build them all once up front.
 for dir in blocks/*/page; do
@@ -67,4 +67,4 @@ done
 cargo run --manifest-path tools/generator/Cargo.toml -- .
 
 log "done — toolchain ready"
-wafer --version; solobase --version 2>/dev/null || true; gizza list | head -1
+wafer --version; impresspress --version 2>/dev/null || true; gizza list | head -1

@@ -6,7 +6,7 @@
 # Expected layout:
 #   workspace/
 #     gizza-ai/       <- this repo
-#     solobase/       <- sibling checkout
+#     impresspress/       <- sibling checkout
 #     wafer-run/      <- sibling checkout
 #
 # Docs: https://doc.rust-lang.org/cargo/reference/config.html#patch
