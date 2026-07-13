@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/signature-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a handwritten signature from a photo as a transparent PNG",
+  "role": "skill",
+  "tool": {
+    "description": "Extract a handwritten signature from a photo or scan of a signed page and return it as a clean transparent PNG (just the ink, paper knocked out) — ready to drop into a PDF, contract, or e-sign form. threshold (0-100, default 50) is the ink sensitivity: pixels darker than the cut-off are kept, lighter paper is made transparent; raise it for faint strokes. ink recolours the result: 'original' keeps the pen colour (default), or 'black'/'blue'/'red' for a solid wet-ink look. smooth (default true) anti-aliases the edges; trim (default true) crops the transparent margin to the signature. Best on dark ink over light paper. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ink": {
+          "default": "original",
+          "description": "Recolour the extracted signature: original (keep the pen's own colour, default), or a solid black / blue / red 'wet ink' shade.",
+          "enum": [
+            "original",
+            "black",
+            "blue",
+            "red"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "smooth": {
+          "default": true,
+          "description": "Anti-alias the stroke edges with a soft alpha ramp (default true) for a natural look; false gives hard 1-bit edges.",
+          "type": "boolean"
+        },
+        "threshold": {
+          "default": 50,
+          "description": "Ink sensitivity, 0-100 (default 50). Pixels darker than this luminance cut-off are kept as ink; the lighter paper is knocked out to transparent. Raise it to catch faint/pencil strokes, lower it if paper texture bleeds through.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "trim": {
+          "default": true,
+          "description": "Crop the transparent margin down to the signature's bounding box (default true), so the PNG is tight to the ink.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
