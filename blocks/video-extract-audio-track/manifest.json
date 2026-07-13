@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/video-extract-audio-track",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a video's audio track losslessly (stream-copy, no re-encode)",
+  "role": "skill",
+  "tool": {
+    "description": "Extract (demux) one audio track from a video and save it in its original codec WITHOUT re-encoding — lossless, near-instant, no quality change. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Set container='mka' (default, Matroska — accepts any codec), 'm4a' (AAC/ALAC) or 'ogg' (Vorbis/Opus), and optionally track (which audio stream, 0 = first, default 0). Runs -vn -map 0:a:<track> -c:a copy: drops the video and stream-copies the chosen audio. To change codec/bitrate (e.g. AAC → MP3) use extract-audio-from-video or audio-convert instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "container": {
+          "default": "mka",
+          "description": "Output container the audio stream is copied into (no re-encode): mka (Matroska audio — accepts any codec, the safe default), m4a (fits AAC/ALAC from MP4/MOV), or ogg (fits Vorbis/Opus from WebM/OGG). Pick one that matches the source codec. Default mka.",
+          "enum": [
+            "mka",
+            "m4a",
+            "ogg"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "track": {
+          "default": 0,
+          "description": "Which audio stream to extract on multi-track files (0 = the first stream). Maps ffmpeg -map 0:a:<track>. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
