@@ -101,12 +101,95 @@ pub struct CsvOutput {
 
 /// A decoded cell value.
 #[derive(Debug, Clone, PartialEq)]
-enum Value {
+pub enum Value {
     Null,
     Int(i64),
     Real(f64),
     Text(String),
     Blob(Vec<u8>),
+}
+
+impl Value {
+    /// The cell as an integer (also coerces a REAL that is integral). `None` for
+    /// text/blob/null.
+    pub fn as_i64(&self) -> Option<i64> {
+        match self {
+            Value::Int(i) => Some(*i),
+            Value::Real(f) if f.is_finite() => Some(*f as i64),
+            _ => None,
+        }
+    }
+
+    /// The cell as a string slice, if it is TEXT.
+    pub fn as_text(&self) -> Option<&str> {
+        match self {
+            Value::Text(s) => Some(s.as_str()),
+            _ => None,
+        }
+    }
+
+    /// Whether the cell is SQL `NULL`.
+    pub fn is_null(&self) -> bool {
+        matches!(self, Value::Null)
+    }
+}
+
+/// A whole table read into memory as typed rows (rowid-alias substituted).
+#[derive(Debug, Clone)]
+pub struct Table {
+    /// The table name as declared in the schema.
+    pub name: String,
+    /// Column names in declaration order.
+    pub columns: Vec<String>,
+    /// One `Vec<Value>` per row, each aligned to `columns` (short records are
+    /// NULL-padded; an `INTEGER PRIMARY KEY` alias cell holds the rowid).
+    pub rows: Vec<Vec<Value>>,
+}
+
+impl Table {
+    /// Case-insensitive column-name lookup → index into each row.
+    pub fn col_index(&self, name: &str) -> Option<usize> {
+        self.columns.iter().position(|c| c.eq_ignore_ascii_case(name))
+    }
+}
+
+/// Read an entire rowid table into memory as typed rows. Reuses the same on-disk
+/// b-tree parser as [`to_csv`]; used by higher-level blocks (e.g.
+/// `browser-history-parser`) that need typed cells rather than CSV text.
+/// Errors on a missing table or a `WITHOUT ROWID` table.
+pub fn read_table(bytes: &[u8], table: &str) -> Result<Table, String> {
+    let hdr = parse_header(bytes)?;
+    let schemas = read_schema(bytes, &hdr)?;
+    let schema = schemas
+        .iter()
+        .find(|s| s.name.eq_ignore_ascii_case(table))
+        .ok_or_else(|| format!("no table named {table:?}"))?;
+    if schema.without_rowid {
+        return Err(format!(
+            "table {:?} is a WITHOUT ROWID table, which this parser does not support yet",
+            schema.name
+        ));
+    }
+    let ncols = schema.columns.len();
+    let mut raw: Vec<(i64, Vec<Value>)> = Vec::new();
+    walk_table_btree(bytes, &hdr, schema.rootpage, &mut raw, 0)?;
+    let rows = raw
+        .into_iter()
+        .map(|(rowid, mut values)| {
+            values.resize(ncols, Value::Null);
+            if let Some(i) = schema.rowid_alias {
+                if matches!(values[i], Value::Null) {
+                    values[i] = Value::Int(rowid);
+                }
+            }
+            values
+        })
+        .collect();
+    Ok(Table {
+        name: schema.name.clone(),
+        columns: schema.columns.clone(),
+        rows,
+    })
 }
 
 /// A parsed schema entry for one user table.
@@ -952,6 +1035,26 @@ mod tests {
         assert_eq!(Delimiter::parse("TAB").unwrap(), Delimiter::Tab);
         assert_eq!(Delimiter::parse(";").unwrap(), Delimiter::Semicolon);
         assert!(Delimiter::parse("colon").is_err());
+    }
+
+    #[test]
+    fn read_table_returns_typed_rows_with_rowid_alias() {
+        let t = read_table(SAMPLE, "people").unwrap();
+        assert_eq!(t.columns, vec!["id", "name", "score", "bio", "avatar", "notes"]);
+        assert_eq!(t.rows.len(), 3);
+        // rowid alias filled the `id` column; typed accessors work.
+        let id = t.col_index("ID").unwrap(); // case-insensitive
+        assert_eq!(t.rows[0][id].as_i64(), Some(1));
+        let name = t.col_index("name").unwrap();
+        assert_eq!(t.rows[0][name].as_text(), Some("Ada"));
+        // NULL notes on row 1.
+        let notes = t.col_index("notes").unwrap();
+        assert!(t.rows[0][notes].is_null());
+    }
+
+    #[test]
+    fn read_table_unknown_errors() {
+        assert!(read_table(SAMPLE, "nope").is_err());
     }
 
     #[test]
