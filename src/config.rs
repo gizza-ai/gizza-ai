@@ -74,9 +74,9 @@ fn json_params(values: Vec<wafer_sql_utils::SeaValue>) -> Result<String, JsValue
 /// There are no env vars to seed from in the browser — only auto-generated
 /// secrets and previously-stored values.
 pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
+    use serde_json::json;
     use wafer_block::db::ListOptions;
     use wafer_sql_utils::{query, upsert, Backend};
-    use serde_json::json;
 
     // 1. Create variables table if it does not exist.
     //
@@ -119,15 +119,9 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         "variables",
         &[
             ("id".into(), json!("var_admin_email")),
-            (
-                "key".into(),
-                json!("WAFER_RUN__AUTH__ADMIN_EMAIL"),
-            ),
+            ("key".into(), json!("WAFER_RUN__AUTH__ADMIN_EMAIL")),
             ("name".into(), json!("Admin Email")),
-            (
-                "description".into(),
-                json!("Admin account email"),
-            ),
+            ("description".into(), json!("Admin account email")),
             ("value".into(), json!("admin@impresspress.local")),
             ("sensitive".into(), json!(0)),
             ("created_at".into(), json!(now.as_str())),
@@ -143,15 +137,9 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         "variables",
         &[
             ("id".into(), json!("var_admin_pass")),
-            (
-                "key".into(),
-                json!("WAFER_RUN__AUTH__ADMIN_PASSWORD"),
-            ),
+            ("key".into(), json!("WAFER_RUN__AUTH__ADMIN_PASSWORD")),
             ("name".into(), json!("Admin Password")),
-            (
-                "description".into(),
-                json!("Admin account password"),
-            ),
+            ("description".into(), json!("Admin account password")),
             ("value".into(), json!("admin")),
             ("sensitive".into(), json!(1)),
             ("created_at".into(), json!(now.as_str())),
@@ -171,16 +159,11 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         "variables",
         &[
             ("id".into(), json!("var_embedded_scripts")),
-            (
-                "key".into(),
-                json!("WAFER_RUN_SHARED__EMBEDDED_SCRIPTS"),
-            ),
+            ("key".into(), json!("WAFER_RUN_SHARED__EMBEDDED_SCRIPTS")),
             ("name".into(), json!("Embedded Scripts")),
             (
                 "description".into(),
-                json!(
-                    "Module-script URLs injected into every SSR page"
-                ),
+                json!("Module-script URLs injected into every SSR page"),
             ),
             ("value".into(), json!("/webllm-engine.js")),
             ("sensitive".into(), json!(0)),
@@ -262,9 +245,8 @@ pub fn seed_and_load_variables() -> Result<HashMap<String, String>, JsValue> {
         Backend::Sqlite,
     );
     let json_str = query_or_err(&stmt.sql, &json_params(stmt.values)?)?;
-    let rows: Vec<serde_json::Value> = serde_json::from_str(&json_str).map_err(|e| {
-        JsValue::from_str(&format!("config: parse variables result failed: {e}"))
-    })?;
+    let rows: Vec<serde_json::Value> = serde_json::from_str(&json_str)
+        .map_err(|e| JsValue::from_str(&format!("config: parse variables result failed: {e}")))?;
 
     let mut vars = HashMap::new();
     for row in rows {
@@ -298,14 +280,9 @@ fn random_secret_hex(key: &str) -> Result<String, JsValue> {
 /// `now` is the RFC-3339 timestamp pre-computed by the caller — passed in
 /// so all seeds within a boot share the same `created_at` / `updated_at`.
 #[cfg(target_arch = "wasm32")]
-fn seed_random_secret(
-    id: &str,
-    key: &str,
-    description: &str,
-    now: &str,
-) -> Result<(), JsValue> {
-    use wafer_sql_utils::{upsert, Backend};
+fn seed_random_secret(id: &str, key: &str, description: &str, now: &str) -> Result<(), JsValue> {
     use serde_json::json;
+    use wafer_sql_utils::{upsert, Backend};
     let secret = random_secret_hex(key)?;
     let stmt = upsert::build_upsert(
         "variables",
@@ -342,8 +319,8 @@ fn seed_random_secret(
 /// and generates random hex values for any that don't already exist in the
 /// variables table.
 fn seed_auto_generated(now: &str) -> Result<(), JsValue> {
-    use wafer_sql_utils::{upsert, Backend};
     use serde_json::json;
+    use wafer_sql_utils::{upsert, Backend};
 
     let block_infos = impresspress_core::blocks::all_block_infos();
     let all_vars = impresspress_core::config_vars::collect_all_config_vars(&block_infos);
@@ -454,9 +431,9 @@ pub fn load_block_settings() -> Result<impresspress_core::features::BlockSetting
     // generates the same shape in Rust, letting us use `upsert::build_upsert`
     // (INSERT OR IGNORE semantics via empty update-columns slice) and the
     // pre-computed `now` timestamp, consistent with the seed_* helpers above.
+    use serde_json::json;
     use wafer_block::db::ListOptions;
     use wafer_sql_utils::{query, upsert, Backend};
-    use serde_json::json;
 
     let now = chrono::Utc::now().to_rfc3339();
     let defaults: &[(&str, bool)] = &[

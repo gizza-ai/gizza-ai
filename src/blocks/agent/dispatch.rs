@@ -174,8 +174,7 @@ mod tests {
     #[test]
     fn tool_failed_payload_escapes_special_chars() {
         let payload = build_tool_failed_payload("oops \"quoted\" and\nnewline");
-        let parsed: serde_json::Value =
-            serde_json::from_str(&payload).expect("must be valid JSON");
+        let parsed: serde_json::Value = serde_json::from_str(&payload).expect("must be valid JSON");
         assert_eq!(parsed["error"], "tool_failed");
         assert_eq!(parsed["message"], "oops \"quoted\" and\nnewline");
     }

@@ -330,19 +330,18 @@ mod tests {
 
     #[test]
     fn list_skill_commands_filters_to_skills_strips_prefix_and_sorts() {
-        let skill_a = BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "")
-            .tool(SkillTool {
+        let skill_a =
+            BlockInfo::new("gizza-ai/imagine", "0.1.0", "handler@v1", "").tool(SkillTool {
                 description: "Generate image".into(),
                 parameters: serde_json::json!({}),
             });
-        let skill_b = BlockInfo::new("gizza-ai/clock", "0.1.0", "handler@v1", "")
-            .tool(SkillTool {
-                description: "Current time".into(),
-                parameters: serde_json::json!({}),
-            });
+        let skill_b = BlockInfo::new("gizza-ai/clock", "0.1.0", "handler@v1", "").tool(SkillTool {
+            description: "Current time".into(),
+            parameters: serde_json::json!({}),
+        });
         let non_skill = BlockInfo::new("gizza-ai/ui", "0.1.0", "handler@v1", "");
-        let other_prefix = BlockInfo::new("impresspress/other", "0.1.0", "handler@v1", "")
-            .tool(SkillTool {
+        let other_prefix =
+            BlockInfo::new("impresspress/other", "0.1.0", "handler@v1", "").tool(SkillTool {
                 description: "should be filtered".into(),
                 parameters: serde_json::json!({}),
             });
@@ -363,8 +362,7 @@ mod tests {
     #[test]
     fn agent_request_default_matches_empty_object_parse() {
         let from_default = AgentRequest::default();
-        let from_empty: AgentRequest =
-            serde_json::from_str("{}").expect("empty object parses");
+        let from_empty: AgentRequest = serde_json::from_str("{}").expect("empty object parses");
         assert_eq!(from_default, from_empty);
     }
 }

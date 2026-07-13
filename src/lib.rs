@@ -309,7 +309,8 @@ pub async fn initialize() -> Result<(), JsValue> {
 
     // 9. Store in framework's thread_local. Errors if a runtime is already
     //    stored (double-init) — surface that as a boot failure.
-    impresspress_browser::runtime::store_wafer(wafer).map_err(|e| JsValue::from_str(&e.to_string()))?;
+    impresspress_browser::runtime::store_wafer(wafer)
+        .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
     Ok(())
 }
