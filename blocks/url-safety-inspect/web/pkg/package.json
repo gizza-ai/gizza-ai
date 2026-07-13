@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-url-safety-inspect-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_url_safety_inspect_web_bg.wasm",
+    "gizza_ai_url_safety_inspect_web.js",
+    "gizza_ai_url_safety_inspect_web.d.ts"
+  ],
+  "main": "gizza_ai_url_safety_inspect_web.js",
+  "types": "gizza_ai_url_safety_inspect_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

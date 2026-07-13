@@ -1,0 +1,33 @@
+slug          = "url-safety-inspect"
+title         = "URL Safety Inspector — Phishing Risk Checker | gizza.ai"
+description   = "Paste a URL to rate phishing risk from structural heuristics: IP hosts, @ tricks, deep subdomains, punycode and lookalike TLDs. Runs locally."
+tags          = ["url", "phishing", "security", "safety", "url-checker", "punycode", "typosquatting"]
+h1            = "URL Safety Inspector"
+hero_subtitle = "Heuristically rate a URL's phishing risk — IP-literal hosts, an @ in the authority, excessive subdomains, punycode and lookalike TLDs — right in your browser. No request is ever made to the site."
+wasm          = "gizza_ai_url_safety_inspect_web"
+export        = "run"
+live          = true
+output_label  = "Risk report"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "URL to inspect"
+placeholder = "https://secure-login.example.tk/verify-account"
+source      = "field"
+multiline   = true
+
+[[example]]
+label = "Disguised IP + @ trick"
+[example.params]
+url = "http://paypal.com@192.168.0.1/login"
+
+[[example]]
+label = "Punycode + free TLD"
+[example.params]
+url = "https://xn--pple-43d.tk/id/verify"
+
+[[example]]
+label = "Clean, legitimate URL"
+[example.params]
+url = "https://www.example.com/pricing"
