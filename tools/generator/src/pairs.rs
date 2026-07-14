@@ -11,8 +11,8 @@
 
 use crate::formats::{self, Family, FormatInfo};
 use crate::meta::ToolMeta;
-use crate::template::{brand_link, breadcrumbs_json_ld};
-use gizza_chrome::{footer as chrome_footer, header as chrome_header, Active};
+use crate::site::SiteConfig;
+use crate::template::breadcrumbs_json_ld;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 /// Source formats the audio converter accepts (anything ffmpeg decodes; these
@@ -74,20 +74,18 @@ impl PairSpec {
         format!("{}/{}", self.parent, self.slug())
     }
 
-    pub fn canonical(&self) -> String {
-        format!("https://gizza.ai/tools/{}/", self.path())
-    }
-
     pub fn h1(&self) -> String {
         format!("Convert {} to {}", self.src_name(), self.tgt_name())
     }
 
-    pub fn title(&self) -> String {
-        format!(
-            "Convert {} to {} Online — Free & Private — gizza.ai",
+    /// `cfg`-branded per the site's `brand_name` — independent of
+    /// `title_suffix` (see `SiteConfig::brand_title` doc comment).
+    pub fn title(&self, cfg: &SiteConfig) -> String {
+        cfg.brand_title(&format!(
+            "Convert {} to {} Online — Free & Private",
             self.src_name(),
             self.tgt_name()
-        )
+        ))
     }
 
     pub fn description(&self) -> String {
@@ -185,10 +183,10 @@ pub fn pair_links_for_parent(pairs: &[PairSpec], parent_slug: &str) -> Vec<PairL
 
 /// `pkg/tools/_pairs.json` — `[{path, title}]`, consumed by
 /// `scripts/gen-seo.sh` to add the pair URLs to the sitemap.
-pub fn pairs_json(pairs: &[&PairSpec]) -> String {
+pub fn pairs_json(cfg: &SiteConfig, pairs: &[&PairSpec]) -> String {
     let entries: Vec<serde_json::Value> = pairs
         .iter()
-        .map(|p| serde_json::json!({ "path": p.path(), "title": p.title() }))
+        .map(|p| serde_json::json!({ "path": p.path(), "title": p.title(cfg) }))
         .collect();
     serde_json::to_string(&entries).expect("serialize pairs index")
 }
@@ -839,20 +837,24 @@ const PAIR_CSS: &str = r#"
 /// Render the full HTML document for one pair page. Chrome assets are linked
 /// from the PARENT tool's directory (`../tool.css`, `../header.js`, …) — the
 /// parent page always ships them, so pair pages add no per-page asset copies.
-pub fn render_pair_page(parent: &ToolMeta, pair: &PairSpec, all: &[PairSpec]) -> String {
-    let canonical = pair.canonical();
-    let title = pair.title();
+pub fn render_pair_page(cfg: &SiteConfig, parent: &ToolMeta, pair: &PairSpec, all: &[PairSpec]) -> String {
+    let canonical = cfg.abs(&format!("/tools/{}/", pair.path()));
+    let title = pair.title(cfg);
     let description = pair.description();
     let h1 = pair.h1();
-    let og_image = format!("https://gizza.ai/tools/{}/og.png", pair.path());
-    let parent_url = format!("https://gizza.ai/tools/{}/", parent.slug);
+    let og_image = cfg.abs(&format!("/tools/{}/og.png", pair.path()));
     let pair_label = format!("{} to {}", pair.src_name(), pair.tgt_name());
-    let breadcrumbs_ld = breadcrumbs_json_ld(&[
-        ("Home", "https://gizza.ai/"),
-        ("Tools", "https://gizza.ai/tools/"),
-        (&parent.h1, &parent_url),
-        (&pair_label, &canonical),
-    ]);
+    // BreadcrumbList JSON-LD only makes sense tied to a canonical identity —
+    // omitted entirely for the unbranded/generic render.
+    let breadcrumbs_ld = (!cfg.base_url.is_empty()).then(|| {
+        let parent_url = cfg.abs(&format!("/tools/{}/", parent.slug)).unwrap();
+        breadcrumbs_json_ld(&[
+            ("Home", &cfg.abs("/").unwrap()),
+            ("Tools", &cfg.abs("/tools/").unwrap()),
+            (&parent.h1, &parent_url),
+            (&pair_label, canonical.as_deref().unwrap()),
+        ])
+    });
     let content = content_html(pair);
     // FAQPage JSON-LD mirrors the visible FAQ <details> blocks — same
     // extraction path as the tool pages (one source of truth, no drift).
@@ -879,33 +881,43 @@ pub fn render_pair_page(parent: &ToolMeta, pair: &PairSpec, all: &[PairSpec]) ->
                 meta name="viewport" content="width=device-width, initial-scale=1";
                 title { (title) }
                 meta name="description" content=(description);
-                link rel="canonical" href=(canonical);
+                @if let Some(c) = &canonical {
+                    link rel="canonical" href=(c);
+                }
                 link rel="alternate" type="text/markdown" href="index.md";
                 meta property="og:type" content="website";
                 meta property="og:title" content=(title);
                 meta property="og:description" content=(description);
-                meta property="og:url" content=(canonical);
-                meta property="og:image" content=(og_image);
-                meta property="og:image:width" content="1200";
-                meta property="og:image:height" content="630";
-                meta property="og:image:alt" content=(title);
+                @if let Some(c) = &canonical {
+                    meta property="og:url" content=(c);
+                }
+                @if let Some(img) = &og_image {
+                    meta property="og:image" content=(img);
+                    meta property="og:image:width" content="1200";
+                    meta property="og:image:height" content="630";
+                    meta property="og:image:alt" content=(title);
+                }
                 meta name="twitter:card" content="summary_large_image";
                 meta name="twitter:title" content=(title);
                 meta name="twitter:description" content=(description);
-                meta name="twitter:image" content=(og_image);
+                @if let Some(img) = &og_image {
+                    meta name="twitter:image" content=(img);
+                }
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 link rel="stylesheet" href="../tool.css";
                 link rel="stylesheet" href="../header.css";
-                link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
+                (PreEscaped(cfg.head_extras.clone()))
                 style { (PreEscaped(PAIR_CSS)) }
-                script type="application/ld+json" { (PreEscaped(breadcrumbs_ld)) }
+                @if let Some(bld) = &breadcrumbs_ld {
+                    script type="application/ld+json" { (PreEscaped(bld)) }
+                }
                 @if let Some(faq_ld) = &faq_ld {
                     script type="application/ld+json" { (PreEscaped(faq_ld)) }
                 }
                 script type="module" src="../header.js" {}
             }
             body {
-                (chrome_header(brand_link(), Active::Tool))
+                (PreEscaped(cfg.header_html_fragment().to_string()))
                 main class="tool-main" {
                     section class="pair-hero" {
                         p class="pair-breadcrumb" {
@@ -931,7 +943,7 @@ pub fn render_pair_page(parent: &ToolMeta, pair: &PairSpec, all: &[PairSpec]) ->
                     }
                     (siblings_section(parent, pair, all))
                 }
-                (chrome_footer())
+                (PreEscaped(cfg.footer_html_fragment().to_string()))
             }
         }
     };
@@ -940,7 +952,7 @@ pub fn render_pair_page(parent: &ToolMeta, pair: &PairSpec, all: &[PairSpec]) ->
 
 /// Markdown twin of a pair page: what/why, the deep-link CTA, a runnable CLI
 /// example and a pointer at the parent tool's full docs.
-pub fn pair_markdown(parent: &ToolMeta, pair: &PairSpec) -> String {
+pub fn pair_markdown(cfg: &SiteConfig, parent: &ToolMeta, pair: &PairSpec) -> String {
     let cli = match pair.src_info().family {
         Family::Audio => format!(
             "gizza tool {} 'url=https://example.com/input.{}' 'format={}'",
@@ -957,24 +969,28 @@ pub fn pair_markdown(parent: &ToolMeta, pair: &PairSpec) -> String {
     };
     format!(
         "# {h1}\n\n{desc}\n\n{src_blurb}\n\n{tgt_blurb}\n\n{why}\n\n## Run it\n\n\
-         - **Web ({tgt} preselected):** https://gizza.ai{cta}\n\
+         - **Web ({tgt} preselected):** {web}\n\
          - **CLI:** `{cli}`\n\
-         - **Parent tool docs:** https://gizza.ai/tools/{parent_slug}/index.md\n",
+         - **Parent tool docs:** {parent_docs}\n",
         h1 = pair.h1(),
         desc = pair.description(),
         src_blurb = pair.src_info().blurb,
         tgt_blurb = pair.tgt_info().blurb,
         why = why_paragraph(pair),
         tgt = pair.tgt_name(),
-        cta = pair.cta_url(),
+        web = cfg.url_or_rel(&pair.cta_url()),
         cli = cli,
-        parent_slug = parent.slug,
+        parent_docs = cfg.url_or_rel(&format!("/tools/{}/index.md", parent.slug)),
     )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn branded() -> SiteConfig {
+        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+    }
 
     fn audio_meta() -> ToolMeta {
         ToolMeta::from_toml(
@@ -1053,7 +1069,7 @@ format        = "image"
         slugs.sort();
         slugs.dedup();
         assert_eq!(slugs.len(), 50, "pair paths unique");
-        let mut titles: Vec<String> = pairs.iter().map(|p| p.title()).collect();
+        let mut titles: Vec<String> = pairs.iter().map(|p| p.title(&branded())).collect();
         titles.sort();
         titles.dedup();
         assert_eq!(titles.len(), 50, "pair titles unique");
@@ -1063,7 +1079,7 @@ format        = "image"
     fn wav_to_mp3_page_has_seo_head_breadcrumbs_cta_and_faq_ld() {
         let pairs = all_pairs();
         let pair = find(&pairs, "wav", "mp3");
-        let html = render_pair_page(&audio_meta(), pair, &pairs);
+        let html = render_pair_page(&branded(), &audio_meta(), pair, &pairs);
         assert!(html.contains("<title>Convert WAV to MP3 Online — Free &amp; Private — gizza.ai</title>"));
         assert!(html.contains(
             r#"<link rel="canonical" href="https://gizza.ai/tools/audio-convert/wav-to-mp3/">"#
@@ -1095,7 +1111,7 @@ format        = "image"
     fn png_to_webp_page_deep_links_quality_and_keeps_transparency_claims() {
         let pairs = all_pairs();
         let pair = find(&pairs, "png", "webp");
-        let html = render_pair_page(&image_meta(), pair, &pairs);
+        let html = render_pair_page(&branded(), &image_meta(), pair, &pairs);
         assert!(html.contains(r#"href="/tools/image-convert/?format=webp&amp;quality=85""#));
         assert!(html.contains("<h1>Convert PNG to WebP</h1>"));
         // alpha survives png→webp — the page must say so, not warn about flattening
@@ -1111,12 +1127,12 @@ format        = "image"
     #[test]
     fn png_to_jpeg_warns_transparency_but_jpg_to_png_does_not() {
         let pairs = all_pairs();
-        let warn = render_pair_page(&image_meta(), find(&pairs, "png", "jpeg"), &pairs);
+        let warn = render_pair_page(&branded(), &image_meta(), find(&pairs, "png", "jpeg"), &pairs);
         assert!(warn.contains("Transparency is flattened"));
-        let no_warn = render_pair_page(&image_meta(), find(&pairs, "jpg", "png"), &pairs);
+        let no_warn = render_pair_page(&branded(), &image_meta(), find(&pairs, "jpg", "png"), &pairs);
         assert!(!no_warn.contains("Transparency is flattened"));
         // gif sources warn about animation instead
-        let gif = render_pair_page(&image_meta(), find(&pairs, "gif", "png"), &pairs);
+        let gif = render_pair_page(&branded(), &image_meta(), find(&pairs, "gif", "png"), &pairs);
         assert!(gif.contains("Animation doesn't carry over"));
     }
 
@@ -1150,7 +1166,7 @@ format        = "image"
     #[test]
     fn sibling_links_cover_other_targets_reverse_and_parent() {
         let pairs = all_pairs();
-        let html = render_pair_page(&audio_meta(), find(&pairs, "wav", "mp3"), &pairs);
+        let html = render_pair_page(&branded(), &audio_meta(), find(&pairs, "wav", "mp3"), &pairs);
         // other targets for the same source
         for sib in ["wav-to-ogg", "wav-to-flac", "wav-to-m4a"] {
             assert!(
@@ -1163,7 +1179,7 @@ format        = "image"
         // and the parent converter
         assert!(html.contains(r#"href="/tools/audio-convert/""#));
         // a source-only format (opus) has no reverse page to link
-        let opus = render_pair_page(&audio_meta(), find(&pairs, "opus", "mp3"), &pairs);
+        let opus = render_pair_page(&branded(), &audio_meta(), find(&pairs, "opus", "mp3"), &pairs);
         assert!(!opus.contains("mp3-to-opus"));
     }
 
@@ -1194,7 +1210,7 @@ format        = "image"
     fn pairs_json_lists_path_and_title() {
         let pairs = all_pairs();
         let refs: Vec<&PairSpec> = pairs.iter().collect();
-        let v: serde_json::Value = serde_json::from_str(&pairs_json(&refs)).unwrap();
+        let v: serde_json::Value = serde_json::from_str(&pairs_json(&branded(), &refs)).unwrap();
         let arr = v.as_array().unwrap();
         assert_eq!(arr.len(), 50);
         let wav_mp3 = arr
@@ -1220,7 +1236,7 @@ format        = "image"
     #[test]
     fn pair_markdown_has_cta_cli_and_parent_docs_link() {
         let pairs = all_pairs();
-        let md = pair_markdown(&audio_meta(), find(&pairs, "wav", "mp3"));
+        let md = pair_markdown(&branded(), &audio_meta(), find(&pairs, "wav", "mp3"));
         assert!(md.starts_with("# Convert WAV to MP3\n"));
         assert!(md.contains("https://gizza.ai/tools/audio-convert/?format=mp3"));
         assert!(md.contains(
@@ -1228,7 +1244,7 @@ format        = "image"
         ));
         assert!(md.contains("https://gizza.ai/tools/audio-convert/index.md"));
 
-        let md = pair_markdown(&image_meta(), find(&pairs, "png", "webp"));
+        let md = pair_markdown(&branded(), &image_meta(), find(&pairs, "png", "webp"));
         assert!(md.contains(
             "`gizza tool image-convert 'url=https://example.com/input.png' 'format=webp' 'quality=85'`"
         ));
@@ -1248,5 +1264,29 @@ format        = "image"
             .iter()
             .any(|l| l.label == "JPG to WebP" && l.href == "/tools/image-convert/jpg-to-webp/"));
         assert!(pair_links_for_parent(&pairs, "calculator").is_empty());
+    }
+
+    #[test]
+    fn default_config_renders_a_generic_unbranded_pair_page() {
+        let pairs = all_pairs();
+        let pair = find(&pairs, "wav", "mp3");
+        let html = render_pair_page(&SiteConfig::default(), &audio_meta(), pair, &pairs);
+        assert!(html.contains("<title>Convert WAV to MP3 Online — Free &amp; Private</title>"));
+        assert!(!html.contains(r#"<link rel="canonical""#), "no canonical when unbranded");
+        assert!(!html.contains("og:image"), "no og:image when unbranded");
+        assert!(!html.contains("BreadcrumbList"), "no BreadcrumbList JSON-LD when unbranded");
+        assert!(html.contains(r#"class="tool-nav""#), "generic header rendered");
+        assert!(html.contains(r#"class="tool-footer""#), "generic footer rendered");
+        assert!(!html.contains("gizza"), "fully generic — no brand leaks");
+
+        let md = pair_markdown(&SiteConfig::default(), &audio_meta(), pair);
+        assert!(
+            md.contains("- **Web (MP3 preselected):** /tools/audio-convert/?format=mp3\n"),
+            "web link stays relative when unbranded"
+        );
+        assert!(
+            md.contains("- **Parent tool docs:** /tools/audio-convert/index.md\n"),
+            "parent docs link stays relative when unbranded"
+        );
     }
 }

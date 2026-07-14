@@ -6,19 +6,8 @@ use crate::control::{fmt_num, Control, ParamSchema};
 use crate::markdown::{cli_example as shared_cli_example, example_deeplink};
 use crate::meta::ToolMeta;
 use crate::pairs::PairLink;
-use gizza_chrome::{header as chrome_header, footer as chrome_footer, Active};
+use crate::site::SiteConfig;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
-
-/// The shared header's brand block — identical on every generated page
-/// (`pub(crate)` so the pair pages in `pairs.rs` render the same chrome).
-pub(crate) fn brand_link() -> Markup {
-    html! {
-        a.tool-brand href="https://gizza.ai" {
-            img src="/logo.webp" alt="gizza.ai logo";
-            span { "gizza.ai" }
-        }
-    }
-}
 
 /// Render the full HTML document for a tool page. `content_html` is the
 /// markdown-rendered SEO section. `custom_js`/`custom_css` say whether the tool
@@ -30,6 +19,7 @@ pub(crate) fn brand_link() -> Markup {
 /// non-empty only for the converter tools, rendered as a crawlable "Popular
 /// conversions" section right after the content.
 pub fn render_page(
+    cfg: &SiteConfig,
     meta: &ToolMeta,
     content_html: &str,
     schema: &ParamSchema,
@@ -38,7 +28,8 @@ pub fn render_page(
     related: &[&ToolMeta],
     pairs: &[PairLink],
 ) -> String {
-    let canonical = format!("https://gizza.ai/tools/{}/", meta.slug);
+    let canonical = cfg.abs(&format!("/tools/{}/", meta.slug));
+    let og_image = cfg.abs(&format!("/tools/{}/og.png", meta.slug));
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
     // literal "</script>" in any value would break out of the element. serde_json
     // does not escape '/', so we neutralize the closing-tag sequence. Values are
@@ -46,26 +37,35 @@ pub fn render_page(
     let mut client_cfg_json = meta.client_config(schema);
     client_cfg_json["custom"] = serde_json::json!(custom_js);
     let client_cfg = client_cfg_json.to_string().replace("</", "<\\/");
-    let og_image = format!("https://gizza.ai/tools/{}/og.png", meta.slug);
-    let json_ld = serde_json::json!({
+    let mut json_ld_obj = serde_json::json!({
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": meta.h1,
         "description": meta.description,
-        "url": canonical,
-        "image": og_image,
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "publisher": { "@type": "Organization", "name": "gizza.ai", "url": "https://gizza.ai" }
-    })
-    .to_string()
-    .replace("</", "<\\/");
-    let breadcrumbs_ld = breadcrumbs_json_ld(&[
-        ("Home", "https://gizza.ai/"),
-        ("Tools", "https://gizza.ai/tools/"),
-        (&meta.h1, &canonical),
-    ]);
+    });
+    if let Some(c) = &canonical {
+        json_ld_obj["url"] = serde_json::json!(c);
+    }
+    if let Some(img) = &og_image {
+        json_ld_obj["image"] = serde_json::json!(img);
+    }
+    if !cfg.base_url.is_empty() {
+        json_ld_obj["publisher"] =
+            serde_json::json!({ "@type": "Organization", "name": cfg.brand_name, "url": cfg.base_url });
+    }
+    let json_ld = json_ld_obj.to_string().replace("</", "<\\/");
+    // BreadcrumbList JSON-LD only makes sense tied to a canonical identity —
+    // omitted entirely for the unbranded/generic render.
+    let breadcrumbs_ld = (!cfg.base_url.is_empty()).then(|| {
+        breadcrumbs_json_ld(&[
+            ("Home", &cfg.abs("/").unwrap()),
+            ("Tools", &cfg.abs("/tools/").unwrap()),
+            (&meta.h1, canonical.as_deref().unwrap()),
+        ])
+    });
     // FAQPage JSON-LD mirrors the page's visible `## FAQ` <details> blocks
     // (extracted from the rendered HTML — one source of truth, no drift).
     // Pages without a FAQ section simply don't emit the block.
@@ -97,28 +97,36 @@ pub fn render_page(
                 meta name="viewport" content="width=device-width, initial-scale=1";
                 title { (meta.title) }
                 meta name="description" content=(meta.description);
-                link rel="canonical" href=(canonical);
+                @if let Some(c) = &canonical {
+                    link rel="canonical" href=(c);
+                }
                 link rel="alternate" type="text/markdown" href="index.md";
                 link rel="alternate" type="application/json" href="tool.json";
                 meta property="og:type" content="website";
                 meta property="og:title" content=(meta.title);
                 meta property="og:description" content=(meta.description);
-                meta property="og:url" content=(canonical);
-                meta property="og:image" content=(og_image);
-                meta property="og:image:width" content="1200";
-                meta property="og:image:height" content="630";
-                meta property="og:image:alt" content=(meta.title);
+                @if let Some(c) = &canonical {
+                    meta property="og:url" content=(c);
+                }
+                @if let Some(img) = &og_image {
+                    meta property="og:image" content=(img);
+                    meta property="og:image:width" content="1200";
+                    meta property="og:image:height" content="630";
+                    meta property="og:image:alt" content=(meta.title);
+                }
                 meta name="twitter:card" content="summary_large_image";
                 meta name="twitter:title" content=(meta.title);
                 meta name="twitter:description" content=(meta.description);
-                meta name="twitter:image" content=(og_image);
+                @if let Some(img) = &og_image {
+                    meta name="twitter:image" content=(img);
+                }
                 link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
                 link rel="stylesheet" href="./tool.css";
                 link rel="stylesheet" href="./header.css";
                 @if custom_css {
                     link rel="stylesheet" href="./custom.css";
                 }
-                link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
+                (PreEscaped(cfg.head_extras.clone()))
                 style { (PreEscaped(TOOL_CLI_CSS)) }
                 @if !related.is_empty() {
                     style { (PreEscaped(TOOL_RELATED_CSS)) }
@@ -127,14 +135,16 @@ pub fn render_page(
                     style { (PreEscaped(TOOL_PAIRS_CSS)) }
                 }
                 script type="application/ld+json" { (PreEscaped(json_ld)) }
-                script type="application/ld+json" { (PreEscaped(breadcrumbs_ld)) }
+                @if let Some(bld) = &breadcrumbs_ld {
+                    script type="application/ld+json" { (PreEscaped(bld)) }
+                }
                 @if let Some(faq_ld) = &faq_ld {
                     script type="application/ld+json" { (PreEscaped(faq_ld)) }
                 }
                 script type="module" src="./header.js" {}
             }
             body {
-                (chrome_header(brand_link(), Active::Tool))
+                (PreEscaped(cfg.header_html_fragment().to_string()))
                 main class="tool-main" {
                     section class="tool-hero" {
                         h1 { (meta.h1) }
@@ -373,7 +383,7 @@ pub fn render_page(
                                     h3 { "Open it by URL" }
                                     p { "Pre-fill and auto-run this tool with query parameters — the names match the API/CLI:" }
                                     div class="tool-cli-code-wrapper" {
-                                        pre class="tool-cli-code" { code { (example_deeplink(meta, schema)) } }
+                                        pre class="tool-cli-code" { code { (example_deeplink(cfg, meta, schema)) } }
                                         button class="tool-cli-copy-btn" title="Copy to clipboard"
                                             onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent.trim()).then(()=>{this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),2000)})" {
                                             svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {
@@ -397,7 +407,7 @@ pub fn render_page(
                         }
                     }
                 }
-                (chrome_footer())
+                (PreEscaped(cfg.footer_html_fragment().to_string()))
                 script { (PreEscaped(format!("window.GIZZA_TOOL = {client_cfg};"))) }
                 script type="module" src="./tool.js" {}
             }
@@ -531,36 +541,52 @@ input.addEventListener('input', apply);
 /// The shared `<head>` SEO cluster for the `/tools/` landing and category hub
 /// pages: title/description/canonical, OG + twitter card tags and relative
 /// stylesheet/icon links (both pages get their chrome assets copied alongside).
-fn index_head_meta(title: &str, description: &str, canonical: &str, og_image: &str) -> Markup {
+/// `canonical`/`og_image` are `None` when unbranded — the corresponding tags
+/// are omitted entirely rather than pointing at a bogus relative URL.
+fn index_head_meta(
+    cfg: &SiteConfig,
+    title: &str,
+    description: &str,
+    canonical: Option<&str>,
+    og_image: Option<&str>,
+) -> Markup {
     html! {
         meta charset="utf-8";
         meta name="viewport" content="width=device-width, initial-scale=1";
         title { (title) }
         meta name="description" content=(description);
-        link rel="canonical" href=(canonical);
+        @if let Some(c) = canonical {
+            link rel="canonical" href=(c);
+        }
         meta property="og:type" content="website";
         meta property="og:title" content=(title);
         meta property="og:description" content=(description);
-        meta property="og:url" content=(canonical);
-        meta property="og:image" content=(og_image);
-        meta property="og:image:width" content="1200";
-        meta property="og:image:height" content="630";
-        meta property="og:image:alt" content=(title);
+        @if let Some(c) = canonical {
+            meta property="og:url" content=(c);
+        }
+        @if let Some(img) = og_image {
+            meta property="og:image" content=(img);
+            meta property="og:image:width" content="1200";
+            meta property="og:image:height" content="630";
+            meta property="og:image:alt" content=(title);
+        }
         meta name="twitter:card" content="summary_large_image";
         meta name="twitter:title" content=(title);
         meta name="twitter:description" content=(description);
-        meta name="twitter:image" content=(og_image);
+        @if let Some(img) = og_image {
+            meta name="twitter:image" content=(img);
+        }
         link rel="stylesheet" href="https://site-kit.suppers.ai/dist/design-system.css";
         link rel="stylesheet" href="./tool.css";
         link rel="stylesheet" href="./header.css";
-        link rel="icon" href="https://gizza.ai/favicon-32.png" sizes="32x32";
+        (PreEscaped(cfg.head_extras.clone()))
         style { (PreEscaped(TOOLS_INDEX_CSS)) }
     }
 }
 
 /// ItemList JSON-LD for a set of tool cards, `</`-neutralized like the other
 /// JSON-LD blobs. Shared by the landing page and the category hubs.
-fn item_list_json_ld(name: &str, metas: &[&ToolMeta]) -> String {
+fn item_list_json_ld(cfg: &SiteConfig, name: &str, metas: &[&ToolMeta]) -> String {
     serde_json::json!({
         "@context": "https://schema.org",
         "@type": "ItemList",
@@ -568,7 +594,7 @@ fn item_list_json_ld(name: &str, metas: &[&ToolMeta]) -> String {
         "itemListElement": metas.iter().enumerate().map(|(i, m)| serde_json::json!({
             "@type": "ListItem",
             "position": i + 1,
-            "url": format!("https://gizza.ai/tools/{}/", m.slug),
+            "url": cfg.url_or_rel(&format!("/tools/{}/", m.slug)),
             "name": m.h1,
         })).collect::<Vec<_>>(),
     })
@@ -622,34 +648,48 @@ fn category_nav(hubs: &[Hub], current: Option<&str>) -> Markup {
 /// responsive card grid of every tool that has a page. Built from the same
 /// `ToolMeta` slice as the per-tool pages and `_index.json` — one source of
 /// truth, no drift.
-pub fn render_tools_index(metas: &[ToolMeta], hubs: &[Hub]) -> String {
-    let canonical = "https://gizza.ai/tools/";
-    let title = "All Tools — gizza.ai";
-    let description = "Browse every gizza.ai tool — free, private, browser-local utilities. \
-        No sign-up, nothing leaves your device, works offline.";
+pub fn render_tools_index(cfg: &SiteConfig, metas: &[ToolMeta], hubs: &[Hub]) -> String {
+    let canonical = cfg.abs("/tools/");
+    let title = cfg.brand_title("All Tools");
+    let description = format!(
+        "Browse every {}tool — free, private, browser-local utilities. \
+         No sign-up, nothing leaves your device, works offline.",
+        if cfg.brand_name.is_empty() { String::new() } else { format!("{} ", cfg.brand_name) }
+    );
+    let og_image = cfg.abs("/tools/og.png");
     let refs: Vec<&ToolMeta> = metas.iter().collect();
-    let item_list = item_list_json_ld("gizza.ai tools", &refs);
+    let item_list_name = if cfg.brand_name.is_empty() {
+        "Tools".to_string()
+    } else {
+        format!("{} tools", cfg.brand_name)
+    };
+    let item_list = item_list_json_ld(cfg, &item_list_name, &refs);
+    // BreadcrumbList JSON-LD only makes sense tied to a canonical identity —
+    // omitted entirely for the unbranded/generic render.
+    let breadcrumbs_ld = (!cfg.base_url.is_empty()).then(|| {
+        breadcrumbs_json_ld(&[("Home", &cfg.abs("/").unwrap()), ("Tools", &cfg.abs("/tools/").unwrap())])
+    });
 
     let markup = html! {
         (DOCTYPE)
         html lang="en" {
             head {
-                (index_head_meta(title, description, canonical, "https://gizza.ai/tools/og.png"))
+                (index_head_meta(cfg, &title, &description, canonical.as_deref(), og_image.as_deref()))
                 // Atom feed autodiscovery — feed readers and crawlers find
-                // the 50-newest-tools feed from the landing page.
-                link rel="alternate" type="application/atom+xml"
-                     title="New tools — gizza.ai" href="https://gizza.ai/feed.xml";
+                // the 50-newest-tools feed from the landing page. Only
+                // discoverable when the site has a canonical feed to point at.
+                @if let Some(feed_url) = cfg.abs("/feed.xml") {
+                    link rel="alternate" type="application/atom+xml"
+                         title=(cfg.brand_title("New tools")) href=(feed_url);
+                }
                 script type="application/ld+json" { (PreEscaped(item_list)) }
-                script type="application/ld+json" {
-                    (PreEscaped(breadcrumbs_json_ld(&[
-                        ("Home", "https://gizza.ai/"),
-                        ("Tools", "https://gizza.ai/tools/"),
-                    ])))
+                @if let Some(bld) = &breadcrumbs_ld {
+                    script type="application/ld+json" { (PreEscaped(bld)) }
                 }
                 script type="module" src="./header.js" {}
             }
             body {
-                (chrome_header(brand_link(), Active::Tool))
+                (PreEscaped(cfg.header_html_fragment().to_string()))
                 main class="tools-index" {
                     section class="tools-index__hero" {
                         h1 { "All tools" }
@@ -670,7 +710,7 @@ pub fn render_tools_index(metas: &[ToolMeta], hubs: &[Hub]) -> String {
                     (tools_grid(&refs))
                     p #tools-empty class="tools-index__empty" hidden { "No tools match your search." }
                 }
-                (chrome_footer())
+                (PreEscaped(cfg.footer_html_fragment().to_string()))
                 script type="module" { (PreEscaped(TOOLS_FILTER_JS)) }
             }
         }
@@ -683,29 +723,35 @@ pub fn render_tools_index(metas: &[ToolMeta], hubs: &[Hub]) -> String {
 /// SEO head, a visible breadcrumb back to `/tools/`, and the sibling-category
 /// nav. No client-side filter here — that stays a landing-page affordance
 /// (its `_index.json` fetch is relative to `/tools/`).
-pub fn render_category_hub(hub: &Hub, all_hubs: &[Hub]) -> String {
+pub fn render_category_hub(cfg: &SiteConfig, hub: &Hub, all_hubs: &[Hub]) -> String {
     let cat = hub.category;
-    let canonical = format!("https://gizza.ai/tools/{}/", cat.slug);
-    let title = format!("{} — gizza.ai", cat.title);
-    let og_image = format!("https://gizza.ai/tools/{}/og.png", cat.slug);
-    let item_list = item_list_json_ld(cat.title, &hub.members);
-    let breadcrumbs = breadcrumbs_json_ld(&[
-        ("Home", "https://gizza.ai/"),
-        ("Tools", "https://gizza.ai/tools/"),
-        (cat.title, &canonical),
-    ]);
+    let canonical = cfg.abs(&format!("/tools/{}/", cat.slug));
+    let title = cfg.brand_title(cat.title);
+    let og_image = cfg.abs(&format!("/tools/{}/og.png", cat.slug));
+    let item_list = item_list_json_ld(cfg, cat.title, &hub.members);
+    // BreadcrumbList JSON-LD only makes sense tied to a canonical identity —
+    // omitted entirely for the unbranded/generic render.
+    let breadcrumbs = (!cfg.base_url.is_empty()).then(|| {
+        breadcrumbs_json_ld(&[
+            ("Home", &cfg.abs("/").unwrap()),
+            ("Tools", &cfg.abs("/tools/").unwrap()),
+            (cat.title, canonical.as_deref().unwrap()),
+        ])
+    });
 
     let markup = html! {
         (DOCTYPE)
         html lang="en" {
             head {
-                (index_head_meta(&title, cat.blurb, &canonical, &og_image))
+                (index_head_meta(cfg, &title, cat.blurb, canonical.as_deref(), og_image.as_deref()))
                 script type="application/ld+json" { (PreEscaped(item_list)) }
-                script type="application/ld+json" { (PreEscaped(breadcrumbs)) }
+                @if let Some(bcr) = &breadcrumbs {
+                    script type="application/ld+json" { (PreEscaped(bcr)) }
+                }
                 script type="module" src="./header.js" {}
             }
             body {
-                (chrome_header(brand_link(), Active::Tool))
+                (PreEscaped(cfg.header_html_fragment().to_string()))
                 main class="tools-index" {
                     section class="tools-index__hero" {
                         p class="tools-breadcrumb" {
@@ -721,7 +767,7 @@ pub fn render_category_hub(hub: &Hub, all_hubs: &[Hub]) -> String {
                     (category_nav(all_hubs, Some(cat.slug)))
                     (tools_grid(&hub.members))
                 }
-                (chrome_footer())
+                (PreEscaped(cfg.footer_html_fragment().to_string()))
             }
         }
     };
@@ -732,6 +778,13 @@ pub fn render_category_hub(hub: &Hub, all_hubs: &[Hub]) -> String {
 mod tests {
     use super::*;
     use crate::meta::ToolMeta;
+
+    /// A branded config matching today's real `site/site-config.toml`
+    /// (`base_url`/`brand_name` set) — most existing assertions here check
+    /// the historical absolute `https://gizza.ai/...` links and chrome.
+    fn branded() -> SiteConfig {
+        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+    }
 
     fn sample() -> ToolMeta {
         ToolMeta::from_toml(
@@ -759,7 +812,7 @@ source      = "field"
 
     #[test]
     fn includes_seo_head_and_widget() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains("<title>Free Online Calculator — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/calculator/">"#));
         assert!(
@@ -775,7 +828,7 @@ source      = "field"
 
     #[test]
     fn emits_per_tool_og_image_and_breadcrumbs() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             html.contains(r#"content="https://gizza.ai/tools/calculator/og.png""#),
             "og:image + twitter:image point at the per-tool card"
@@ -794,11 +847,11 @@ source      = "field"
     fn faq_json_ld_mirrors_content_faq_section() {
         let with_faq = "<h2>FAQ</h2>\
             <details><summary>Is it private?</summary><p>Yes — runs locally.</p></details>";
-        let html = render_page(&sample(), with_faq, &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &sample(), with_faq, &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#""@type":"FAQPage""#), "FAQPage JSON-LD present");
         assert!(html.contains(r#""name":"Is it private?""#));
 
-        let without = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let without = render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !without.contains("FAQPage"),
             "no FAQPage block when the page has no FAQ section"
@@ -807,7 +860,7 @@ source      = "field"
 
     #[test]
     fn links_machine_readable_descriptor_in_head_and_dev_section() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             html.contains(r#"<link rel="alternate" type="application/json" href="tool.json">"#),
             "tool.json discovery link in the head",
@@ -825,7 +878,7 @@ source      = "field"
 
     #[test]
     fn page_documents_query_param_deep_link() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains("Open it by URL"), "deep-link section present");
         assert!(
             html.contains("https://gizza.ai/tools/calculator/?expr="),
@@ -834,39 +887,72 @@ source      = "field"
     }
 
     #[test]
-    fn includes_shared_chrome_header_and_footer() {
-        let html = render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
-        // Shared header markers from gizza-chrome
-        assert!(
-            html.contains(r#"id="explore-search""#),
-            "shared header explore-search input present",
+    fn default_config_renders_generic_header_footer_no_brand() {
+        // `sample()`'s title carries a literal " — gizza.ai" suffix, mirroring
+        // every real `blocks/*/page/meta.toml` today (unmigrated data, Task 3's
+        // job — `meta.title` is rendered as-is regardless of `cfg`). Use an
+        // unsuffixed title here so this test isolates GENERATOR-introduced
+        // branding, not that known, pre-existing, out-of-scope data residue.
+        let mut meta = sample();
+        meta.title = "Free Online Calculator".to_string();
+        let html = render_page(
+            &SiteConfig::default(),
+            &meta,
+            "<h2>About</h2>",
+            &ParamSchema::empty(),
+            false,
+            false,
+            &[],
+            &[],
         );
-        assert!(html.contains("Explore"), "shared header Explore mega-menu trigger present");
-        // Shared footer columns from gizza-chrome
-        assert!(html.contains("Product"), "footer Product column present");
-        assert!(html.contains("Resources"), "footer Resources column present");
-        assert!(html.contains("For AI"), "footer For AI & devs column present");
-        // #85 rel=alternate link must survive the chrome migration
+        // Generic (unbranded) chrome — the built-in fallback markup.
+        assert!(html.contains(r#"<header class="tool-nav">"#), "generic header rendered");
+        assert!(html.contains(r#"<footer class="tool-footer">"#), "generic footer rendered");
+        // "gizza" alone still appears in the unrelated `gizza` CLI tool name and
+        // its GitHub repo link (product naming, not site branding/theming) — the
+        // acceptance bar is no *site domain* branding leaking through.
+        assert!(!html.contains("gizza.ai"), "no brand leaks into a fully generic render");
+        // #85 rel=alternate link must survive with no chrome fragment configured
         assert!(
             html.contains(r#"<link rel="alternate" type="text/markdown" href="index.md">"#),
-            "#85 markdown twin discovery link preserved after chrome integration",
+            "#85 markdown twin discovery link preserved",
         );
-        // Chrome asset links present (tools-index.js is copied alongside but not
-        // referenced directly — header.js imports it as a relative module)
         assert!(html.contains("header.css"), "header.css link present");
         assert!(html.contains("header.js"), "header.js script present");
+    }
+
+    #[test]
+    fn branded_config_injects_header_and_footer_fragments_verbatim() {
+        let cfg = SiteConfig {
+            header: r#"<header id="brand-header">BRAND HEADER</header>"#.to_string(),
+            footer: r#"<footer id="brand-footer">BRAND FOOTER</footer>"#.to_string(),
+            ..Default::default()
+        };
+        let html = render_page(&cfg, &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(
+            html.contains(r#"<header id="brand-header">BRAND HEADER</header>"#),
+            "configured header fragment injected verbatim"
+        );
+        assert!(
+            html.contains(r#"<footer id="brand-footer">BRAND FOOTER</footer>"#),
+            "configured footer fragment injected verbatim"
+        );
+        assert!(!html.contains(r#"class="tool-nav""#), "generic header fallback not used when configured");
+        assert!(!html.contains(r#"class="tool-footer""#), "generic footer fallback not used when configured");
     }
 
     #[test]
     fn tools_index_lists_all_tools_with_chrome() {
         let metas = [sample()];
         let hubs = crate::categories::build_hubs(&metas);
-        let html = render_tools_index(&metas, &hubs);
-        // landing-page SEO + shared chrome
+        let html = render_tools_index(&branded(), &metas, &hubs);
+        // landing-page SEO + chrome (branded() sets identity only, so chrome
+        // falls back to the generic fragments here — header/footer fragment
+        // wiring is covered separately by the render_page chrome tests).
         assert!(html.contains("<title>All Tools — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/">"#));
-        assert!(html.contains(r#"id="explore-search""#), "shared header present");
-        assert!(html.contains("Resources"), "shared footer present");
+        assert!(html.contains(r#"<header class="tool-nav">"#), "chrome header present");
+        assert!(html.contains(r#"<footer class="tool-footer">"#), "chrome footer present");
         assert!(html.contains("ItemList"), "JSON-LD ItemList for SEO");
         // a card per tool, rendered from the same ToolMeta (one source of truth)
         assert!(html.contains(r#"href="/tools/calculator/""#), "card links to the tool page");
@@ -890,11 +976,26 @@ source      = "field"
     }
 
     #[test]
+    fn default_config_renders_a_generic_unbranded_landing_page() {
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_tools_index(&SiteConfig::default(), &metas, &hubs);
+        assert!(html.contains("<title>All Tools</title>"), "unsuffixed generic title");
+        assert!(!html.contains(r#"<link rel="canonical""#), "no canonical when unbranded");
+        assert!(!html.contains("og:image"), "no og:image when unbranded");
+        assert!(!html.contains("atom+xml"), "no feed autodiscovery when unbranded");
+        assert!(!html.contains("BreadcrumbList"), "no BreadcrumbList JSON-LD when unbranded");
+        assert!(html.contains(r#"<header class="tool-nav">"#), "generic header rendered");
+        assert!(html.contains(r#"<footer class="tool-footer">"#), "generic footer rendered");
+        assert!(!html.contains("gizza"), "fully generic — no brand leaks");
+    }
+
+    #[test]
     fn tools_index_renders_category_nav_with_counts() {
         // sample() ("calculator", no tags) lands in math via its slug word.
         let metas = [sample()];
         let hubs = crate::categories::build_hubs(&metas);
-        let html = render_tools_index(&metas, &hubs);
+        let html = render_tools_index(&branded(), &metas, &hubs);
         assert!(
             html.contains(r#"<nav class="tools-cats" aria-label="Tool categories">"#),
             "category nav present above the grid"
@@ -919,7 +1020,7 @@ source      = "field"
         let hubs = crate::categories::build_hubs(&metas);
         let hub = &hubs[0];
         assert_eq!(hub.category.slug, "math");
-        let html = render_category_hub(hub, &hubs);
+        let html = render_category_hub(&branded(), hub, &hubs);
         // SEO head: canonical, description, per-hub og card
         assert!(html.contains("<title>Math &amp; statistics tools — gizza.ai</title>"));
         assert!(html.contains(r#"<link rel="canonical" href="https://gizza.ai/tools/math/">"#));
@@ -941,9 +1042,23 @@ source      = "field"
         assert!(html.contains(r#"href="/tools/math/" aria-current="page""#));
         // no client-side filter here — its _index.json fetch is landing-relative
         assert!(!html.contains(r#"id="tools-filter""#), "no search filter on hub pages");
-        // shared chrome
-        assert!(html.contains(r#"id="explore-search""#), "shared header present");
-        assert!(html.contains("Resources"), "shared footer present");
+        // chrome (branded() sets identity only, so this falls back to generic)
+        assert!(html.contains(r#"<header class="tool-nav">"#), "chrome header present");
+        assert!(html.contains(r#"<footer class="tool-footer">"#), "chrome footer present");
+    }
+
+    #[test]
+    fn default_config_renders_a_generic_unbranded_hub_page() {
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_category_hub(&SiteConfig::default(), &hubs[0], &hubs);
+        assert!(html.contains("<title>Math &amp; statistics tools</title>"), "unsuffixed generic title");
+        assert!(!html.contains(r#"<link rel="canonical""#), "no canonical when unbranded");
+        assert!(!html.contains("og:image"), "no og:image when unbranded");
+        assert!(!html.contains("BreadcrumbList"), "no BreadcrumbList JSON-LD when unbranded");
+        assert!(html.contains(r#""@type":"ItemList""#), "ItemList JSON-LD still present");
+        assert!(html.contains(r#""url":"/tools/calculator/""#), "ItemList member URL is relative when unbranded");
+        assert!(!html.contains("gizza"), "fully generic — no brand leaks");
     }
 
     #[test]
@@ -964,7 +1079,7 @@ format        = "text"
         .unwrap();
         let related = vec![&related_meta];
         let html =
-            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &related, &[]);
+            render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &related, &[]);
         assert!(html.contains(r#"<section class="tool-related">"#), "related section present");
         assert!(html.contains("<h2>Related tools</h2>"));
         assert!(
@@ -984,7 +1099,7 @@ format        = "text"
 
         // no related tools → neither the section nor its CSS
         let html =
-            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+            render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(!html.contains("tool-related"), "no empty related section");
     }
 
@@ -995,7 +1110,7 @@ format        = "text"
             PairLink { label: "WAV to FLAC".to_string(), href: "/tools/audio-convert/wav-to-flac/".to_string() },
         ];
         let html =
-            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &pairs);
+            render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &pairs);
         assert!(html.contains(r#"<section class="tool-pairs">"#), "pairs section present");
         assert!(html.contains("<h2>Popular conversions</h2>"));
         assert!(
@@ -1011,7 +1126,7 @@ format        = "text"
 
         // no pairs → neither the section nor its CSS
         let html =
-            render_page(&sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+            render_page(&branded(), &sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(!html.contains("tool-pairs"), "no empty pairs section");
     }
 
@@ -1088,7 +1203,7 @@ params = { birthdate = "1990-04-15" }
 
     #[test]
     fn renders_declarative_controls_examples_and_widget_chrome() {
-        let html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         // meta kind="date" → native picker, no per-tool JS type-swapping
         assert!(html.contains(r#"id="in-birthdate" class="tool-input" type="date""#), "date picker rendered");
         // meta options="timezones" → datalist autocomplete
@@ -1153,7 +1268,7 @@ label       = "Gain"
             "semitones": { "type": "number", "minimum": -24, "maximum": 24 },
             "gain": { "type": "number", "minimum": -60, "maximum": 60 }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
+        let html = render_page(&branded(), &meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
         // kind="slider" → a range input mirroring the canonical number box
         assert!(html.contains(r#"id="in-semitones-slider""#), "slider rendered");
         assert!(html.contains(r#"data-for="in-semitones""#), "slider targets its number box");
@@ -1213,7 +1328,7 @@ kind        = "color"
             "color": { "type": "string", "default": "#4f46e5" },
             "background": { "type": "string" }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
+        let html = render_page(&branded(), &meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
         // kind="color" → a native swatch mirroring the canonical TEXT input
         assert!(html.contains(r##"id="in-color-swatch""##), "swatch rendered");
         assert!(html.contains(r##"data-for="in-color""##), "swatch targets its text input");
@@ -1263,7 +1378,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         let schema = ParamSchema::from_props_for_tests(serde_json::json!({
             "aspect": { "type": "string", "enum": ["9:16", "1:1", "16:9"], "default": "9:16" }
         }));
-        let html = render_page(&meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
+        let html = render_page(&branded(), &meta, "<h2>About</h2>", &schema, false, false, &[], &[]);
         // labeled options: canonical value attr + enriched visible text
         assert!(
             html.contains(r#"<option value="9:16" selected>9:16 — Reels / Shorts / TikTok (1080×1920)</option>"#),
@@ -1279,7 +1394,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
 
     #[test]
     fn media_tools_get_reset_but_not_copy_result() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#"id="tool-reset""#), "reset present (has fields)");
         assert!(!html.contains(r#"id="tool-copy-output""#), "no copy-result on media output");
     }
@@ -1289,7 +1404,7 @@ labels = { "9:16" = "9:16 — Reels / Shorts / TikTok (1080×1920)", "1:1" = "1:
         // ffmpeg_sample() is format="image" → the Copy-image button is rendered
         // (hidden, next to the download link), so a result can be copied to the
         // clipboard as PNG by tool.js.
-        let image_html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let image_html = render_page(&branded(), &ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             image_html.contains(r#"id="tool-copy-image""#),
             "image-output page renders the Copy-image button"
@@ -1321,7 +1436,7 @@ accept = "video/*"
 "#,
         )
         .unwrap();
-        let video_html = render_page(&video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let video_html = render_page(&branded(), &video_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !video_html.contains(r#"id="tool-copy-image""#),
             "video-output page must not render the Copy-image button"
@@ -1348,14 +1463,14 @@ accept = "audio/*"
 "#,
         )
         .unwrap();
-        let audio_html = render_page(&audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let audio_html = render_page(&branded(), &audio_meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !audio_html.contains(r#"id="tool-copy-image""#),
             "audio-output page must not render the Copy-image button"
         );
 
         // Text output (declarative_sample is format="text") must NOT get it.
-        let text_html = render_page(&declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let text_html = render_page(&branded(), &declarative_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(
             !text_html.contains(r#"id="tool-copy-image""#),
             "text-output page must not render the Copy-image button"
@@ -1364,7 +1479,7 @@ accept = "audio/*"
 
     #[test]
     fn renders_file_input_and_media_output() {
-        let html = render_page(&ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        let html = render_page(&branded(), &ffmpeg_sample(), "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#"type="file""#), "file input present");
         assert!(html.contains(r#"id="in-image""#), "file input id");
         assert!(html.contains(r#"accept="image/*""#), "accept attr");

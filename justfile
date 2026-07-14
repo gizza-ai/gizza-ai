@@ -12,3 +12,8 @@ test:
 # Generate sitemap.xml, robots.txt, and llms.txt into pkg/.
 seo:
     GIZZA=cli/target/release/gizza scripts/gen-seo.sh
+
+# Render branded tool pages (emit chrome partials first).
+build-tools:
+    cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
+    cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
