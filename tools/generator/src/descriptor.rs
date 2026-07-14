@@ -8,12 +8,10 @@ use crate::categories;
 use crate::control::ParamSchema;
 use crate::markdown::{cli_example, example_deeplink};
 use crate::meta::ToolMeta;
+use crate::site::SiteConfig;
 use serde::Serialize;
 use serde_json::Value;
 use std::path::Path;
-
-/// Public site origin — matches the literal used in `template.rs`/`markdown.rs`.
-const SITE: &str = "https://gizza.ai";
 
 /// The `tool.json` document. Field order here is the emitted key order
 /// (serde serializes struct fields in declaration order).
@@ -71,8 +69,13 @@ pub fn load_manifest(tool_dir: &Path) -> Option<Value> {
 /// `blocks/<slug>/manifest.json` (from [`load_manifest`]); when it — or its
 /// `tool` object — is missing, the descriptor is still written without the
 /// `tool` key so the discovery surface never disappears with a stale manifest.
-pub fn tool_descriptor(meta: &ToolMeta, schema: &ParamSchema, manifest: Option<&Value>) -> String {
-    let base = format!("{SITE}/tools/{}/", meta.slug);
+pub fn tool_descriptor(
+    cfg: &SiteConfig,
+    meta: &ToolMeta,
+    schema: &ParamSchema,
+    manifest: Option<&Value>,
+) -> String {
+    let base = cfg.url_or_rel(&format!("/tools/{}/", meta.slug));
     let tool = match manifest {
         None => {
             eprintln!(
@@ -114,7 +117,7 @@ pub fn tool_descriptor(meta: &ToolMeta, schema: &ParamSchema, manifest: Option<&
                 .inputs
                 .iter()
                 .any(|i| i.source == "field" || i.source == "file")
-                .then(|| example_deeplink(meta, schema)),
+                .then(|| example_deeplink(cfg, meta, schema)),
         },
         cli: cli_example(meta, schema),
         tool,
@@ -126,6 +129,10 @@ pub fn tool_descriptor(meta: &ToolMeta, schema: &ParamSchema, manifest: Option<&
 mod tests {
     use super::*;
     use serde_json::json;
+
+    fn branded() -> SiteConfig {
+        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+    }
 
     fn audio_tool() -> ToolMeta {
         ToolMeta::from_toml(
@@ -186,7 +193,7 @@ source = "field"
     #[test]
     fn happy_path_has_identity_urls_cli_and_schema() {
         let m = manifest();
-        let json = tool_descriptor(&audio_tool(), &schema_of(&m), Some(&m));
+        let json = tool_descriptor(&branded(), &audio_tool(), &schema_of(&m), Some(&m));
         let v: Value = serde_json::from_str(&json).unwrap();
         assert_eq!(v["slug"], "audio-convert");
         assert_eq!(v["name"], "gizza-ai/audio-convert");
@@ -218,7 +225,7 @@ source = "field"
 
     #[test]
     fn missing_manifest_is_tolerated_without_tool_or_version() {
-        let json = tool_descriptor(&audio_tool(), &ParamSchema::empty(), None);
+        let json = tool_descriptor(&branded(), &audio_tool(), &ParamSchema::empty(), None);
         let v: Value = serde_json::from_str(&json).unwrap();
         assert_eq!(v["slug"], "audio-convert");
         assert_eq!(v["name"], "gizza-ai/audio-convert");
@@ -232,7 +239,7 @@ source = "field"
     fn manifest_without_tool_object_keeps_version_but_omits_tool() {
         let m = json!({ "name": "gizza-ai/audio-convert", "version": "0.2.0" });
         let v: Value =
-            serde_json::from_str(&tool_descriptor(&audio_tool(), &ParamSchema::empty(), Some(&m)))
+            serde_json::from_str(&tool_descriptor(&branded(), &audio_tool(), &ParamSchema::empty(), Some(&m)))
                 .unwrap();
         assert_eq!(v["version"], "0.2.0");
         assert!(v.get("tool").is_none(), "tool key omitted");
@@ -242,7 +249,7 @@ source = "field"
     fn parameters_schema_is_passed_through_verbatim() {
         let m = manifest();
         let v: Value =
-            serde_json::from_str(&tool_descriptor(&audio_tool(), &schema_of(&m), Some(&m)))
+            serde_json::from_str(&tool_descriptor(&branded(), &audio_tool(), &schema_of(&m), Some(&m)))
                 .unwrap();
         assert_eq!(
             v["tool"]["parameters"], m["tool"]["parameters"],
@@ -273,11 +280,20 @@ source = "clock"
         )
         .unwrap();
         let v: Value =
-            serde_json::from_str(&tool_descriptor(&clock, &ParamSchema::empty(), None)).unwrap();
+            serde_json::from_str(&tool_descriptor(&branded(), &clock, &ParamSchema::empty(), None)).unwrap();
         assert!(
             v["urls"].get("deep_link_example").is_none(),
             "nothing to deep-link on an auto-only tool"
         );
         assert_eq!(v["cli"], "gizza tool clock");
+    }
+
+    #[test]
+    fn default_config_uses_relative_urls() {
+        let json = tool_descriptor(&SiteConfig::default(), &audio_tool(), &ParamSchema::empty(), None);
+        let v: Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(v["urls"]["page"], "/tools/audio-convert/");
+        assert_eq!(v["urls"]["markdown"], "/tools/audio-convert/index.md");
+        assert_eq!(v["urls"]["descriptor"], "/tools/audio-convert/tool.json");
     }
 }

@@ -1,0 +1,6 @@
+base_url = "https://gizza.ai"
+brand_name = "gizza.ai"
+title_suffix = ""
+header_html = "partials/header.html"
+footer_html = "partials/footer.html"
+head_extras_html = "partials/head-extras.html"

@@ -2,6 +2,7 @@
 
 use crate::categories::Hub;
 use crate::meta::ToolMeta;
+use crate::site::SiteConfig;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -58,21 +59,34 @@ pub fn hubs_json(hubs: &[Hub]) -> String {
 /// Markdown catalog of every tool — the `text/markdown` twin of the `/tools/`
 /// landing page, for LLMs and AI agents. Built from the same `metas` as the
 /// HTML landing + `_index.json` (one source of truth, no drift).
-pub fn tools_catalog_md(metas: &[ToolMeta]) -> String {
-    let mut s = String::from(
-        "# gizza.ai tools\n\n> Every gizza.ai tool — free, private, browser-local utilities. \
+pub fn tools_catalog_md(cfg: &SiteConfig, metas: &[ToolMeta]) -> String {
+    let catalog_name = if cfg.brand_name.is_empty() {
+        "Tools".to_string()
+    } else {
+        format!("{} tools", cfg.brand_name)
+    };
+    let brand_prefix = if cfg.brand_name.is_empty() {
+        String::new()
+    } else {
+        format!("{} ", cfg.brand_name)
+    };
+    let mut s = format!(
+        "# {catalog_name}\n\n> Every {brand_prefix}tool — free, private, browser-local utilities. \
          Nothing leaves your device, no sign-up, works offline.\n\n",
     );
     for m in metas {
         s.push_str(&format!(
-            "- [{}](https://gizza.ai/tools/{}/): {}\n",
-            m.h1, m.slug, m.description
+            "- [{}]({}): {}\n",
+            m.h1,
+            cfg.url_or_rel(&format!("/tools/{}/", m.slug)),
+            m.description
         ));
     }
-    s.push_str(
-        "\nMachine-readable catalog: <https://gizza.ai/tools/_index.json>. \
+    s.push_str(&format!(
+        "\nMachine-readable catalog: <{}>. \
          Run any tool headlessly with `gizza tool <slug>` (see the CLI README).\n",
-    );
+        cfg.url_or_rel("/tools/_index.json")
+    ));
     s
 }
 
@@ -152,12 +166,25 @@ source      = "field"
         assert_eq!(v[0]["count"], 1);
     }
 
+    fn branded() -> SiteConfig {
+        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+    }
+
     #[test]
     fn catalog_md_lists_tools_from_metas() {
-        let md = tools_catalog_md(&[calc()]);
+        let md = tools_catalog_md(&branded(), &[calc()]);
         assert!(md.starts_with("# gizza.ai tools"));
         assert!(md.contains("[Free Online Calculator](https://gizza.ai/tools/calculator/)"));
         assert!(md.contains("Evaluate expressions instantly."));
+        assert!(md.contains("https://gizza.ai/tools/_index.json"));
+    }
+
+    #[test]
+    fn catalog_md_default_config_is_generic() {
+        let md = tools_catalog_md(&SiteConfig::default(), &[calc()]);
+        assert!(md.starts_with("# Tools"));
+        assert!(md.contains("[Free Online Calculator](/tools/calculator/)"));
         assert!(md.contains("/tools/_index.json"));
+        assert!(!md.contains("gizza.ai"), "no brand leaks into a generic render");
     }
 }
