@@ -10,6 +10,7 @@ GIZZA="${GIZZA:-gizza}"
 
 # Allow passing an explicit repo root for testing; default to script's parent dir
 REPO_ROOT="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
+BLOCKS_DIR="${BLOCKS_DIR:-$REPO_ROOT/blocks}"
 
 PKG_DIR="$REPO_ROOT/pkg"
 mkdir -p "$PKG_DIR"
@@ -34,12 +35,12 @@ meta_field() {
 page_slugs=()
 while IFS= read -r meta_file; do
   [[ -z "$meta_file" ]] && continue
-  slug="${meta_file#"$REPO_ROOT/blocks/"}"
+  slug="${meta_file#"$BLOCKS_DIR/"}"
   slug="${slug%/page/meta.toml}"
   page_slugs+=("$slug")
 done < <(
-  [[ -d "$REPO_ROOT/blocks" ]] &&
-    find "$REPO_ROOT/blocks" -mindepth 3 -maxdepth 3 -path '*/page/meta.toml' -type f | sort
+  [[ -d "$BLOCKS_DIR" ]] &&
+    find "$BLOCKS_DIR" -mindepth 3 -maxdepth 3 -path '*/page/meta.toml' -type f | sort
 )
 
 # Membership lookup for page slugs (used when emitting llms.txt)
@@ -171,7 +172,7 @@ else
     printf '  <author><name>gizza.ai</name></author>\n'
     for row in "${feed_entries[@]}"; do
       IFS=$'\t' read -r published updated slug <<< "$row"
-      meta="$REPO_ROOT/blocks/$slug/page/meta.toml"
+      meta="$BLOCKS_DIR/$slug/page/meta.toml"
       title="$(meta_field "$meta" title)"
       [[ -z "$title" ]] && title="$slug"
       summary="$(meta_field "$meta" description)"
@@ -219,7 +220,7 @@ printf '%s' "$INDEXNOW_KEY" > "$PKG_DIR/$INDEXNOW_KEY.txt"
     if is_page_slug "$slug"; then
       # Fall back to meta.toml when gizza has no entry (or a null description)
       if [[ -z "$desc" || "$desc" == "null" ]]; then
-        meta="$REPO_ROOT/blocks/$slug/page/meta.toml"
+        meta="$BLOCKS_DIR/$slug/page/meta.toml"
         desc="$(meta_field "$meta" description)"
         [[ -z "$desc" ]] && desc="$(meta_field "$meta" title)"
       fi

@@ -4,7 +4,9 @@ fn main() {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR");
     let out_dir = env::var("OUT_DIR").expect("OUT_DIR");
 
-    let blocks_dir = PathBuf::from(&manifest_dir).join("blocks");
+    let blocks_dir_name = env::var("GIZZA_BLOCKS_DIR").unwrap_or_else(|_| "blocks".to_string());
+    let blocks_dir = PathBuf::from(&manifest_dir).join(&blocks_dir_name);
+    println!("cargo:rerun-if-env-changed=GIZZA_BLOCKS_DIR");
     // Do NOT `include_bytes!` block wasm anymore: baking every block into the
     // app cdylib grew `gizza_ai_bg.wasm` ~0.5 MiB per tool and blew past
     // Cloudflare Pages' hard 25 MiB/file limit once ~47 blocks accumulated
@@ -32,7 +34,7 @@ fn main() {
             entries.push((slug, manifest));
         }
     }
-    println!("cargo:rerun-if-changed=blocks");
+    println!("cargo:rerun-if-changed={}", blocks_dir_name);
 
     // Sort by slug for deterministic output.
     entries.sort_by(|a, b| a.0.cmp(&b.0));
