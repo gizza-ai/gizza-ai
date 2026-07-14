@@ -60,11 +60,19 @@ log "baseline tool pages (per-block web wasm + rendered pages)"
 # Mirrors deploy.yml "Build tool pages": impresspress build does NOT build the page
 # web/pkg/, and tools/generator hard-aborts on the first block whose web/pkg/ is
 # missing — so build them all once up front.
+# If site config is present, emit branded partials (site checkout); otherwise render generic pages.
 for dir in blocks/*/page; do
   tool="$(basename "$(dirname "$dir")")"
   wasm-pack build "blocks/$tool/web" --target web --release --out-dir pkg
 done
-cargo run --manifest-path tools/generator/Cargo.toml -- .
+if [ -f site/site-config.toml ]; then
+  # Branded render — mirrors deploy.yml "Build tool pages" (site checkout).
+  cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
+  cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
+else
+  # Generic render — public toolkit checkout has no site config.
+  cargo run --manifest-path tools/generator/Cargo.toml -- .
+fi
 
 log "done — toolchain ready"
 wafer --version; impresspress --version 2>/dev/null || true; gizza list | head -1
