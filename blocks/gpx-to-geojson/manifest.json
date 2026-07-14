@@ -1,0 +1,37 @@
+{
+  "name": "gizza-ai/gpx-to-geojson",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert GPX/KML GPS tracks and waypoints into GeoJSON, and back",
+  "role": "skill",
+  "tool": {
+    "description": "Convert GPX or KML GPS data into GeoJSON, or GeoJSON back into GPX — the input format is auto-detected from the content. GPX -> GeoJSON: <trk>/<trkseg>/<trkpt> becomes a LineString (or MultiLineString for a multi-segment track), <rte>/<rtept> becomes a LineString, <wpt> becomes a Point; standard tags (name, cmt, desc, link, keywords, sym, type) become properties, elevation becomes the position's third coordinate, and per-point timestamps become a coordTimes property. KML -> GeoJSON: a Placemark's Point/LineString/Polygon becomes the matching geometry, MultiGeometry becomes a GeometryCollection; name/description become properties, ExtendedData/SimpleData become arbitrary properties, TimeSpan/TimeStamp become begin/end/time properties, and (when include_styles=true, the default) each Placemark's inline or shared Style/styleUrl/StyleMap color and line width are resolved into simplestyle-spec properties (stroke, stroke-width, stroke-opacity, fill, fill-opacity, marker-color). Set output_format=gpx to convert GeoJSON back into GPX: Point becomes a wpt, LineString/MultiLineString becomes a trk (one trkseg per line, restoring per-point <time> from a coordTimes property when present), and a Polygon's exterior ring becomes a trk (GPX has no polygon primitive, so interior rings/holes are dropped). Runs fully locally, no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_styles": {
+          "default": true,
+          "description": "KML input only: fold each Placemark's Style/styleUrl/StyleMap color and width into simplestyle-spec properties (stroke, stroke-width, stroke-opacity, fill, fill-opacity, marker-color). Ignored for GPX input and for output_format=gpx. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The document to convert: GPX or KML XML text, or a GeoJSON document (FeatureCollection, Feature, or bare geometry). The format is auto-detected from the content — no separate format selector needed.",
+          "type": "string"
+        },
+        "output_format": {
+          "default": "geojson",
+          "description": "Target format. 'geojson' (default) converts GPX/KML input into a GeoJSON FeatureCollection. 'gpx' converts GeoJSON input back into a GPX document (Point -> wpt, LineString/MultiLineString -> trk, Polygon's exterior ring -> trk).",
+          "enum": [
+            "geojson",
+            "gpx"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
