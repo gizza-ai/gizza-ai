@@ -1,6 +1,6 @@
 ---
 name: improve-tool
-description: "Use when the user wants to improve/upgrade an existing gizza tool. Takes a tool slug, verifies its three surfaces (chat/LLM API, CLI, page query-params) and fixes any breakage, researches the top 5 competitor tools in parallel, closes every in-model capability/copy/UX/visual gap, re-runs the full test matrix, and opens a review-only PR with a competitor-analysis summary. Fully autonomous; never copies competitor copy or branding; never merges."
+description: "Use when the user wants to improve/upgrade an existing gizza tool. Takes a tool slug, verifies its two locally-verifiable surfaces (CLI, page query-params — the descriptor/schema tests also validate what the chat surface would consume) and fixes any breakage, researches the top 5 competitor tools in parallel, closes every in-model capability/copy/UX/visual gap, re-runs the full test matrix, and opens a review-only PR with a competitor-analysis summary. Fully autonomous; never copies competitor copy or branding; never merges."
 ---
 
 # improve-tool — upgrade an existing gizza tool end to end
@@ -31,11 +31,14 @@ Follow these phases in order:
    (freshly built on a tool-loop branch): then branch from THAT branch and pass it as the
    PR base (`gh pr create --base <branch>`) so the PR diff shows only the improvements.
 
-2. **Phase 1 — Verify the three surfaces, fix any breakage (known-good baseline).** The
-   descriptor single-sources chat/CLI/page/query-params; verify all three live. See
-   reference.md §"Phase 1":
-   - **API** (LLM/chat schema + invoke): `cd blocks/<slug> && cargo test --workspace`; run
-     the wafer `tests/*.json` fixtures; confirm `descriptor()`/`info()` emits the schema.
+2. **Phase 1 — Verify what's locally verifiable, fix any breakage (known-good baseline).** The
+   descriptor single-sources the chat schema/CLI/page/query-params, but only TWO of those surfaces
+   can actually be exercised in THIS repo — **CLI** and **page (query-params)**. The live chat UI
+   is the private site repo's job (it consumes this repo at a pin; chat verification happens on
+   gizza.ai after that repo bumps its pin, not here). See reference.md §"Phase 1":
+   - **Descriptor/schema** (what chat would consume): `cd blocks/<slug> && cargo test --workspace`
+     (incl. the drift-guard); the wafer `tests/*.json` fixtures if the optional `wafer` CLI is
+     installed; confirm `descriptor()`/`info()` emits the schema.
    - **CLI:** `cargo install --path cli --force` then `gizza tool <slug> "<args>"`.
    - **Query params:** Playwright `/tools/<slug>/?<param>=<value>` → field pre-fills + output
      computes.
@@ -92,24 +95,31 @@ Follow these phases in order:
         belong on the page — users shouldn't discover them via an error.
      9. **Errors say what was expected.** "expected X, got Y at Z" — never a bare "error"/
         "invalid input".
-   - **Visual design:** page styling, consistent with the shared `gizza-chrome`. Original only.
+   - **Visual design:** page styling, via the shared `tools/generator/assets/runtime/tool.css` +
+     the generic chrome (`tools/generator/src/site.rs`'s `GENERIC_HEADER`/`GENERIC_FOOTER`) — this
+     repo renders unbranded and page copy must stay that way (a literal `gizza.ai`/
+     `gizza-ai.pages.dev` string under `page/` hard-fails the hygiene gate's check 8); the private
+     site repo re-skins via its own `--site-config` at ITS build time. Original design only.
    - **Drift-guard:** REGENERATE the `authored` schema literal in the block's drift-guard test
      to the new descriptor (do NOT keep the old). Record the before→after schema diff for the
      PR. Keep `manifest.json` `tool.*` consistent with the new `descriptor()`.
 
 6. **Phase 5 — Re-test (the "did we improve it" gate).** Re-run the full matrix
-   (reference.md §"Phase 5"): unit + drift-guard (regenerated) + wafer fixtures + Playwright
-   page **incl. the query-param deep-link** + CLI smoke + `wafer build` / `wasm-pack` /
-   generator / `impresspress build`. Hard gates: pre-existing behavior tests stay GREEN; **each new
-   capability ships with its own test**; API/CLI/query all pass post-edit. ≤3 fix attempts per
-   failure, then escalate (Honesty gate).
+   (reference.md §"Phase 5"): unit + drift-guard (regenerated) + wafer fixtures (if the optional
+   `wafer` CLI is installed) + Playwright page **incl. the query-param deep-link** + CLI smoke +
+   `cargo build --target wasm32-wasip1 --release` / `wasm-pack` / generator. There is no whole-app
+   build here to also run (that belongs to the private site repo). Hard gates: pre-existing
+   behavior tests stay GREEN; **each new capability ships with its own test**; CLI/query all pass
+   post-edit. ≤3 fix attempts per failure, then escalate (Honesty gate).
 
 7. **Phase 6 — Ship (review-only).** Commit; `git push -u origin feat/improve-<slug>`;
    `gh pr create` with the body template in reference.md §"Phase 6" (competitor-analysis
    summary · before→after schema diff · per-dimension change list · Phase-1 fixes ·
    out-of-model features considered · tested+results · limitations). Commit a
    `docs/checks/<YYYY-MM-DD>-improve-<slug>-competitor-analysis.md` snapshot. Run `/code-review`
-   on the diff and post findings as a PR comment. **Do NOT merge.**
+   on the diff and post findings as a PR comment. **Do NOT merge.** Merging (later, by a human)
+   still doesn't publish the change to gizza.ai — the private site repo consumes this repo at a
+   pin, so a pin-bump PR there is the actual publication step (out of scope for this skill).
 
 **Honesty gate:** if a build/test fails unrecoverably (≤3 attempts), STOP and report the
 failure with the error — never open a "done" PR for a broken tool. If fewer than 5 real

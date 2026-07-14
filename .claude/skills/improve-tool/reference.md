@@ -1,23 +1,31 @@
 # improve-tool — reference (per-phase recipes, commands, templates)
 
-Each `blocks/<slug>/` and `tools/generator` are SEPARATE cargo workspaces → `cd` into the
-dir; do NOT use `-p <crate>` from repo root. `wafer build` runs from INSIDE `blocks/<slug>/`.
+This is the public toolkit repo (blocks + `gizza` CLI + the generic tool-page generator; no app,
+no branding, no deploy — those live in a private site repo that consumes this one at a pin). Each
+`blocks/<slug>/` and `tools/generator` are SEPARATE cargo workspaces → `cd` into the dir; do NOT
+use `-p <crate>` from repo root. `cargo build --target wasm32-wasip1 --release` runs from INSIDE
+`blocks/<slug>/` (the optional `wafer build` is an equivalent shorthand if that CLI happens to be
+installed from a sibling `wafer-run` checkout — not required here).
 
-## Phase 1 — verify the three surfaces
+## Phase 1 — verify the two locally-verifiable surfaces (+ the schema tests that gate chat)
 
-The descriptor (`src/lib.rs` `descriptor()`) single-sources the chat schema, CLI, page, and
-URL query-params. Verify all three live, from a known-good baseline:
+The descriptor (`src/lib.rs` `descriptor()`) single-sources the chat schema, CLI, page, and URL
+query-params — but the live chat UI is the private site repo's job (it consumes this repo at a
+pin; chat verification happens on gizza.ai after that repo bumps its pin, not here). What IS fully
+verifiable in THIS repo, from a known-good baseline:
 
-- **API (LLM/chat schema + invoke):**
+- **Descriptor/schema** (what chat would consume):
   - `cd blocks/<slug> && cargo test --workspace` (core + block units, incl. the drift-guard).
     The drift-guard lives in the *block* crate (`gizza-ai-<slug>-block`); a `tail`'d output can
     scroll it off — grep for the test name to confirm it actually ran.
   - `cd blocks/<slug> && wafer test` runs the `tests/*.json` fixtures (each a
-    `{"kind":"invoke","data":[…bytes…],"meta":[]}` invoke payload). It is a no-crash/handles-input
-    smoke gate, NOT an output assertion — assert exact outputs via the CLI + Playwright instead.
-  - Confirm `descriptor()`/`info()` emits the tool schema (it's what the chat LLM sees).
+    `{"kind":"invoke","data":[…bytes…],"meta":[]}` invoke payload) — only if the optional `wafer`
+    CLI is installed (needs a sibling `wafer-run` checkout; not required in this repo — if it's
+    missing, say so and skip, it isn't CI-enforced). It is a no-crash/handles-input smoke gate, NOT
+    an output assertion — assert exact outputs via the CLI + Playwright instead.
+  - Confirm `descriptor()`/`info()` emits the tool schema (it's what the chat LLM would see).
 - **CLI:** `cargo install --path cli --force`, then `gizza tool <slug> "<args>"` returns a
-  correct result (same wasmi runtime + block + schema as chat).
+  correct result (same wasmi runtime + block + schema chat would use).
 - **Query params (page deep-link):** Playwright navigate `/tools/<slug>/?<param>=<value>` and
   assert the field pre-fills and the output computes. (The page reads descriptor params from
   the URL query string.)
@@ -94,7 +102,9 @@ design** (page styling).
   worked examples; layout stability; one-click reset; FAQ accordions; state the limits;
   actionable errors). Shared chrome (dev-group cards, CLI copy buttons, scrollbar styling) lives
   in `tools/generator/src/template.rs` + `tools/generator/assets/runtime/tool.css` — improve it THERE so all tools get it.
-- **Visual design** — page styling consistent with `gizza-chrome`. Original; no competitor assets.
+- **Visual design** — page styling via the shared `tools/generator/assets/runtime/tool.css` + the
+  generic chrome (`tools/generator/src/site.rs`'s `GENERIC_HEADER`/`GENERIC_FOOTER`); this repo
+  renders unbranded and stays that way. Original; no competitor assets.
 
 ### param types across surfaces (GOTCHA — bit me on url-encode)
 
@@ -135,9 +145,10 @@ The block has a unit test pinning `derived == authored` (e.g. url-encode's
 `/improve-tool` schema change is INTENTIONAL, so:
 
 **Ordering (bit two runs):** after any descriptor change run, in this order, before trusting
-manifest state: (0) `cd blocks/<slug> && wafer build` — the sync script reads the descriptor
-embedded in the BUILT wasm/CLI, so syncing against stale wasm reports a silent "already in
-sync"; (1) `cargo install --path cli --force`; (2) `python3 scripts/sync-tool-manifest.py
+manifest state: (0) `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release` (copy the
+wasm to `target/block.wasm`; `wafer build` is an equivalent optional shorthand) — the sync script
+reads the descriptor embedded in the BUILT wasm/CLI, so syncing against stale wasm reports a silent
+"already in sync"; (1) `cargo install --path cli --force`; (2) `python3 scripts/sync-tool-manifest.py
 <slug>` **from the repo root** (it resolves paths relative to cwd). Those are the only three
 CLI-reinstall/sync points — Phase 1 baseline, post-descriptor-change, and Phase 5 re-test all
 reuse this same sequence.
@@ -168,21 +179,26 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
 - `cd blocks/<slug> && cargo test --workspace` — unit + drift-guard (regenerated) + core.
 - wafer fixtures — the `tests/*.json` invokes (add one per new capability), IF the family has
   them: pure families do; the ffmpeg family has NONE (family norm — note it, don't invent
-  fixtures that can't run ffmpeg).
+  fixtures that can't run ffmpeg). Run via `wafer test`, only if the optional `wafer` CLI is
+  installed (sibling `wafer-run` checkout); otherwise say so and skip — not CI-enforced.
   Recipe: `python3 -c "import json;print(list(json.dumps({'<param>':'<v>'}).encode()))"` →
   the byte list goes in `{"kind":"invoke","data":[…],"meta":[]}`.
-- `cd blocks/<slug> && wafer build` — wasm32 chat block (from INSIDE the dir; no path arg).
+- `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release && mkdir -p target && cp
+  target/wasm32-wasip1/release/*.wasm target/block.wasm` — wasm32 chat block (from INSIDE the dir;
+  exactly what CI's "Build changed skill wasms" step runs; `wafer build` is an optional equivalent
+  shorthand if that CLI happens to be installed).
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` (from repo root).
-- `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders `pkg/tools/<slug>/`.
-  The generator WARNS AND SKIPS a tool whose `web/pkg/` is missing (as of 2026-07: it no longer
-  hard-aborts — three runs tripped on the stale hard-abort note here). Check the warning list:
-  if YOUR slug was skipped, `wasm-pack build blocks/<slug>/web …` and re-run.
-- `impresspress build` — rebuild app + blocks into `pkg/`. GOTCHA: it iterates+validates EVERY block
-  and aborts on the first that fails — which may be a PRE-EXISTING, unrelated broken block (e.g. a
-  `wasi_snapshot_preview1::sched_yield` validation error), not your tool. Confirm with
-  `cd blocks/<that-block> && wafer build`; if it's unrelated and pre-existing, do NOT fix it here —
-  validate YOUR tool with `cd blocks/<slug> && wafer build` and note the blocked full-app build in
-  the PR (honesty gate). Do not claim `impresspress build` passed if it didn't.
+- `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders `pkg/tools/<slug>/`,
+  GENERIC (no `--site-config`; this repo has none — the private site repo that consumes this one
+  at a pin renders its own branded copy at ITS build time). The generator WARNS AND SKIPS a tool
+  whose `web/pkg/` is missing (as of 2026-07: it no longer hard-aborts — three runs tripped on the
+  stale hard-abort note here). Check the warning list: if YOUR slug was skipped, `wasm-pack build
+  blocks/<slug>/web …` and re-run.
+- There is no whole-app build to run here anymore (that belonged to the site repo, which consumes
+  this repo at a pin and builds its own branded app separately) — validating YOUR tool's block wasm
+  (above) + the generator run IS the full local build gate; CI's per-PR job builds/tests only the
+  changed blocks the same way, and there's no "aborts on an unrelated pre-existing broken block"
+  failure mode to route around anymore.
 - **Playwright** `tests/tool-page-<slug>.spec.ts` (import from `./fixtures`) — drive
   `/tools/<slug>/`, AND a `?<param>=<value>` deep-link assertion. Add a case per new capability.
 - **CLI** `cargo install --path cli --force` then `gizza tool <slug> "<args>"` — incl. a new
@@ -195,16 +211,22 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
 - **Hygiene gate** `python3 scripts/check-tool-hygiene.py <slug>` — MUST exit 0. Enforces the
   standards that silently regressed before: enum params synced into `manifest.json` (run
   `scripts/sync-tool-manifest.py <slug>` after any descriptor change — never hand-sync), FAQ as
-  `<details>` accordions, no scaffold TODOs, summary consistency; per-slug strict mode also gates
-  placeholders, FAQ count, and meta description length. CI runs it repo-wide.
-- Hard gates: pre-existing behavior tests GREEN; every new capability has a test; API/CLI/query
-  pass; hygiene gate exits 0. ≤3 fix attempts per failure, else escalate.
+  `<details>` accordions, no scaffold TODOs, summary consistency, and NO `gizza.ai`/
+  `gizza-ai.pages.dev` string anywhere under `page/` (check 8 — page copy must stay generic;
+  branding is injected site-side, not here); per-slug strict mode also gates placeholders, FAQ
+  count, and meta description length. CI runs it repo-wide.
+- Hard gates: pre-existing behavior tests GREEN; every new capability has a test; CLI/query pass;
+  hygiene gate exits 0. ≤3 fix attempts per failure, else escalate.
 
 ### Known constraints (state in the PR when relevant)
 - **chat ffmpeg is non-functional** — the chat runtime is a Service Worker where `import()`/
   `Worker` are forbidden; ffmpeg tools work via the standalone PAGE + CLI only.
 - **gpu/imagine** — no headless GPU; build the chat block only, no page; CLI is
   `unsupported_in_cli`.
+- **The live chat UI can't be exercised in this repo at all** — it lives in the private site repo
+  that consumes this one at a pin. The descriptor/schema tests (`cargo test --workspace`, the
+  drift-guard) validate the same schema chat would consume; actual chat verification happens on
+  gizza.ai after that repo bumps its pin, not as part of this skill.
 
 ## Phase 6 — ship (review-only)
 
@@ -247,4 +269,6 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
 = the 5 paraphrased competitor-profiles + screenshots + the gap list (the archive record).
 
 Then: `gh pr create` (review-only) → `/code-review` on the diff → post findings as a PR
-comment → **do NOT merge**.
+comment → **do NOT merge**. Note in the PR that even once merged, this doesn't publish to
+gizza.ai — the private site repo consumes this repo at a pin, so a separate pin-bump PR there
+(out of scope for this skill) is what actually ships the change.

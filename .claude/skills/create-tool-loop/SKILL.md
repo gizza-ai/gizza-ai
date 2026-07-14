@@ -59,13 +59,15 @@ Working context (DERIVE at dispatch time — never hardcode; boxes and branches 
 This is the ONLY copy of the builder prompt; `create-next-tool/SKILL.md` points here. Edit it
 here or nowhere (a second copy WILL drift — it did once, re-introducing banned background builds).
 
-> Build the next gizza backlog tool end-to-end. Working dir `<REPO>` (a gizza-ai checkout), branch
-> `<BRANCH>`. Use absolute paths; `source $HOME/.cargo/env` in every bash command; `wafer build`
-> runs from INSIDE blocks/<slug>/; cwd resets after /tmp commands.
+> Build the next gizza backlog tool end-to-end. Working dir `<REPO>` (a gizza-ai checkout — the
+> public MIT toolkit: blocks + `gizza` CLI + the generic tool-page generator; no app, no branding, no
+> deploy — those live in a private site repo that consumes this one at a pin), branch `<BRANCH>`.
+> Use absolute paths; `source $HOME/.cargo/env` in every bash command; `cargo build --target
+> wasm32-wasip1 --release` runs from INSIDE blocks/<slug>/; cwd resets after /tmp commands.
 >
 > CRITICAL — NO BACKGROUND JOBS / NO TASK LEAKS: Run every build in the FOREGROUND with a generous
-> timeout (the Bash tool supports timeout up to 600000 ms = 10 min; cargo test / wafer build /
-> wasm-pack each finish well under that). Do NOT use run_in_background and do NOT spawn `sleep`/poll
+> timeout (the Bash tool supports timeout up to 600000 ms = 10 min; cargo test / cargo build --target
+> wasm32-wasip1 --release / wasm-pack each finish well under that). Do NOT use run_in_background and do NOT spawn `sleep`/poll
 > loops or `while` wait-loops — they leak as orphan background tasks. If for any reason you do start
 > a background job, you MUST kill it before returning (e.g. `kill $(jobs -p) 2>/dev/null`). Do NOT
 > end your turn while any build is still running. There is no external monitor.
@@ -95,12 +97,17 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 >    control kinds (slider/color/tag-list/date/time, `[input.labels]`, `[[example]]` preset chips —
 >    see create-next-tool references/page-patterns.md) — the right control at build time, chips
 >    whenever competitors ship presets. Fill EVERY scaffold TODO.
-> 6. **Verify (all foreground):** `cargo test --workspace` (in blocks/<slug>/) → `wafer build` (in
->    blocks/<slug>/) → `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` →
+> 6. **Verify (all foreground):** `cargo test --workspace` (in blocks/<slug>/) → `cargo build
+>    --target wasm32-wasip1 --release && mkdir -p target && cp target/wasm32-wasip1/release/*.wasm
+>    target/block.wasm` (in blocks/<slug>/ — exactly what CI's "Build changed skill wasms" step
+>    runs; `wafer build` is an optional equivalent shorthand if the `wafer` CLI happens to be
+>    installed) → `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` →
 >    `cargo install --path cli` → `python3 scripts/sync-tool-manifest.py <slug>` (generates
 >    manifest.json tool.* from the live descriptor — never hand-edit those) → `cargo run
->    --manifest-path tools/generator/Cargo.toml -- .` → CLI (`gizza tool <slug> …`, incl. one
->    exact-output case) → Playwright (`cd tests && xvfb-run npx playwright test
+>    --manifest-path tools/generator/Cargo.toml -- .` (renders the page GENERIC — no site config in
+>    this repo; the private site repo that consumes this one at a pin renders its own branded copy
+>    at ITS build time) → CLI (`gizza tool <slug> …`, incl. one
+>    exact-output case) → Playwright (`cd tests && npx playwright test
 >    tool-page-<slug>.spec.ts`). The page spec MUST assert real output — exact text for pure tools;
 >    for media decode the result and assert dimensions/pixels (new-tool/reference.md §media
 >    correctness) — plus one `?param=` deep-link case. Advertised-values matrix: one real run per
@@ -108,14 +115,19 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 >    while argv tests passed), ≥1 NON-default checkbox state, the exact cap boundary, ≥1 secondary
 >    input format for media tools. Copy-paste-run the page's generated CLI example VERBATIM (pure:
 >    succeeds; file tools: args parse + graceful fetch error).
-> 7. **Hygiene gate:** `python3 scripts/check-tool-hygiene.py <slug>` must exit 0 (per-slug strict
->    mode also enforces placeholders, FAQ count, and meta description length).
+> 7. **Hygiene gate:** `python3 scripts/check-tool-hygiene.py <slug>` must exit 0 — this also
+>    hard-fails any `gizza.ai`/`gizza-ai.pages.dev` string under `page/` (check 8: page copy must
+>    stay GENERIC/brand-free — this repo renders unbranded, the private site repo injects branding
+>    at ITS build time) (per-slug strict mode also enforces placeholders, FAQ count, and meta
+>    description length).
 > 8. **Honesty gate:** can't build+verify in ≤3 fix attempts → `git clean -fd blocks/<slug>`,
 >    skiplist or report FAILED. NEVER commit broken.
 > 9. **Cleanup:** `for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name
 >    block.wasm -exec rm -rf {} + ; done`. NEVER delete any web/pkg.
 > 10. **Ship:** ONE commit for the tool + wasm artifacts + spec (a separate commit for the
 >    competitor-analysis doc is fine); `git add -A && git commit && git push origin <BRANCH>`.
+>    (This does not publish to gizza.ai — that's a separate pin-bump PR in the private site repo,
+>    out of scope here.)
 >
 > Return ONE line only (no summary paragraphs): `<slug>: built+pushed <short-sha>` OR
 > `skiplisted <slug>: <reason>` OR `FAILED <slug>: <reason>`.

@@ -1,7 +1,10 @@
 # Proven wasm-safe crates + recipes (wafer wasm32-wasip1 / wasm-pack wasm32-unknown-unknown)
 
 Read this before adding ANY new dependency. An engine crate must INSTANTIATE, not just compile —
-`wafer build` is the gate; watch for `cannot find import
+building the block wasm (`cargo build --target wasm32-wasip1 --release`; the optional `wafer build`
+does the same thing if that CLI is installed) then actually invoking it via `cargo install --path
+cli --force && gizza tool <slug> …` is the gate (the CLI embeds the same wafer-run wasmi runtime
+chat would use); watch for `cannot find import
 wasi_snapshot_preview1::{poll_oneoff,path_open,fd_close}`.
 
 **Crypto / encoding crates that instantiate in wafer (wasm32-wasip1):** `rsa` 0.9 (sign: pkcs1v15 +
@@ -75,7 +78,8 @@ metadata on both wafer and wasm-pack, but the browser `wasm32-unknown-unknown` b
 `getrandom` transitively through crypto crates even when the code only parses keys. Add
 `getrandom = { version = "0.2", features = ["js"] }` in the core crate so
 `wasm-pack --target web` doesn't fail with "wasm*-unknown-unknown targets are not supported by
-default". The same crate still builds under `wafer build` for `wasm32-wasip1`.
+default". The same crate still builds for `wasm32-wasip1` (`cargo build --target wasm32-wasip1
+--release`, or `wafer build` if that optional CLI is installed).
 
 **Misc proven crates:** `toml = "0.8"` (config; TOML needs a table root + has no null),
 `color_quant = "1"` (NeuQuant palette quantization to N colors), `kamadak-exif = "0.6"` (EXIF/TIFF read —
@@ -91,8 +95,8 @@ xml-formatter) can't parse it. A forgiving quote-aware tag scanner (`scan_tag` s
 VOID elements don't indent; pre/textarea/script/style are emitted verbatim.
 
 **Writing .xlsx workbooks (csv-to-xlsx):** `rust_xlsxwriter = "0.79"` (default features `[]`; its `zip`
-dep uses pure-Rust `deflate`/miniz_oxide) writes real Office Open XML workbooks and INSTANTIATES under
-`wafer build` (wasm32-wasip1). Native cell types: `write_number`/`write_boolean`/`write_string`(`_with_format`),
+dep uses pure-Rust `deflate`/miniz_oxide) writes real Office Open XML workbooks and INSTANTIATES
+under `cargo build --target wasm32-wasip1 --release` (wasm32-wasip1). Native cell types: `write_number`/`write_boolean`/`write_string`(`_with_format`),
 `Format::new().set_bold()`, `set_freeze_panes(1,0)`, `worksheet.autofit()`, `workbook.save_to_buffer()`.
 **Browser gotcha:** every `Workbook::new()` stamps a creation timestamp via `ExcelDateTime::utc_now()` →
 `SystemTime::now()`, which **panics at runtime on wasm32-unknown-unknown** (no std clock) even though it's

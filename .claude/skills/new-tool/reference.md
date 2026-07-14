@@ -1,11 +1,21 @@
 # new-tool — reference (per-type files, commands, gotchas)
 
 ## Build + test commands (each blocks/<slug>/ and tools/generator are SEPARATE cargo workspaces)
+
+This is the public toolkit repo — no app, no branding, no deploy (those live in a private site
+repo that consumes this one at a pin). Building/testing here never touches that repo.
+
 - `cd blocks/<slug> && cargo test --workspace` — core + block unit tests
-- `cd blocks/<slug> && wafer build` — wasm32 chat block → target/block.wasm (run from INSIDE the dir; NO path arg). It does NOT generate/update `manifest.json` — that file is scaffold-generated and hand-synced (build.rs requires it).
+- `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release && mkdir -p target && cp
+  target/wasm32-wasip1/release/*.wasm target/block.wasm` — wasm32 chat block → target/block.wasm
+  (run from INSIDE the dir; exactly what CI's "Build changed skill wasms" step runs). It does NOT
+  generate/update `manifest.json` — that file is scaffold-generated and hand-synced (build.rs
+  requires it). (Optional equivalent shorthand: `wafer build`, only if you have the `wafer` CLI
+  installed from a sibling `wafer-run` checkout — not required in this repo.)
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — from repo root → web/pkg/<wasm>.js + _bg.wasm
-- `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders pkg/tools/<slug>/
-- `impresspress build` — rebuild app + all blocks into pkg/
+- `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders pkg/tools/<slug>/, GENERIC
+  (no `--site-config`; this repo has none — the private site repo renders its own branded copy at
+  ITS build time).
 - `cargo install --path cli --force` then `gizza tool <slug> <args>` — CLI test
 - `python3 scripts/sync-tool-manifest.py <slug>` — AFTER the CLI install: regenerates
   `manifest.json` `tool.parameters`/`tool.description` from the installed CLI's live descriptor
@@ -14,8 +24,10 @@
 - `python3 scripts/check-tool-hygiene.py <slug>` — hard gate (CI runs it repo-wide): fails on a
   manifest whose `tool.parameters` drifted from the descriptor (page renders text not `<select>`), a
   `page/content.md` FAQ written as plain markdown instead of `<details>` accordions, scaffold TODOs,
-  or summary drift. Per-slug mode is STRICT and additionally fails on missing field placeholders,
-  fewer than 3 FAQ entries, and a meta description outside 50–170 chars.
+  summary drift, or a `gizza.ai`/`gizza-ai.pages.dev` string anywhere under `page/` (check 8 — page
+  copy must stay generic; branding is injected site-side, not here). Per-slug mode is STRICT and
+  additionally fails on missing field placeholders, fewer than 3 FAQ entries, and a meta description
+  outside 50–170 chars.
 
 ## Per-type file checklist (fill the scaffold's TODO/stub files)
 
@@ -122,5 +134,9 @@ size via the element (`media.duration > 0`) after `loadedmetadata` — not just 
 - `f64` not `i64` for wasm-bindgen numeric params (else a JS BigInt error at runtime).
 - ffmpeg: meta.toml field order = `build_argv` param order.
 - Each `blocks/<slug>/` and `tools/generator` are separate workspaces → `cd` into the dir; do NOT use `-p <crate>` from the repo root.
-- `wafer build` is run from INSIDE `blocks/<slug>/`.
+- `cargo build --target wasm32-wasip1 --release` (or the optional `wafer build`) is run from INSIDE `blocks/<slug>/`.
 - **CHAT ffmpeg is non-functional**: the runtime runs in a Service Worker where `import()` and `Worker` are spec-forbidden, so ffmpeg can't run in-chat. ffmpeg tools work via their standalone PAGE + the CLI only. State this in ffmpeg tool PRs.
+- **The chat UI itself can't be exercised in this repo** — it lives in the private site repo that
+  consumes this one at a pin. What's verifiable here is the descriptor/schema (`cargo test
+  --workspace`, incl. the drift-guard — the same schema chat would consume), the CLI, and the page.
+  Live chat verification happens on gizza.ai after that repo bumps its pin.
