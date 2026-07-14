@@ -996,7 +996,7 @@ mod tests {
         ToolMeta::from_toml(
             r#"
 slug          = "audio-convert"
-title         = "Convert Audio Online — gizza.ai"
+title         = "Convert Audio Online"
 description   = "d"
 h1            = "Convert an Audio File"
 hero_subtitle = "s"
@@ -1014,7 +1014,7 @@ format        = "audio"
         ToolMeta::from_toml(
             r#"
 slug          = "image-convert"
-title         = "Convert an Image Online — gizza.ai"
+title         = "Convert an Image Online"
 description   = "d"
 h1            = "Convert an Image"
 hero_subtitle = "s"

@@ -276,7 +276,7 @@ mod tests {
         let meta = ToolMeta::from_toml(
             r#"
 slug          = "calculator"
-title         = "Free Online Calculator — gizza.ai"
+title         = "Free Online Calculator"
 description   = "Evaluate expressions instantly."
 h1            = "Free Online Calculator"
 hero_subtitle = "Type a math expression — result updates instantly."
