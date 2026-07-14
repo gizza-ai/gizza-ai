@@ -1,5 +1,5 @@
 slug          = "pem-der-convert"
-title         = "PEM to DER & DER to PEM Converter — gizza.ai"
+title         = "PEM to DER & DER to PEM Converter"
 description   = "Convert keys, certificates and CSRs between PEM (base64 text) and DER (binary, shown as hex or base64) in either direction. Runs in your browser, nothing uploaded, free."
 tags          = ["pem to der", "der to pem", "convert certificate", "pem decode", "der encode", "x509 converter", "csr converter"]
 h1            = "PEM ⇄ DER Converter"

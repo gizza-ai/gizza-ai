@@ -1,5 +1,5 @@
 slug          = "log-parser"
-title         = "Log Parser — JSON, logfmt, syslog & Apache/nginx Access Logs — gizza.ai"
+title         = "Log Parser — JSON, logfmt, syslog & Apache/nginx Access Logs"
 description   = "Free log parser — auto-detects JSON/NDJSON, logfmt, syslog and Apache/nginx access logs into a filterable table, JSON, or CSV. Runs in your browser, no upload."
 tags          = ["log parser", "log viewer", "log analyzer", "json logs", "ndjson", "logfmt", "syslog parser", "apache access log", "nginx access log", "combined log format", "clf", "log to csv", "log to table"]
 h1            = "Log Parser"

@@ -1,5 +1,5 @@
 slug          = "bencode-decoder"
-title         = "Bencode Decoder — bencode ⇄ JSON converter — gizza.ai"
+title         = "Bencode Decoder — bencode ⇄ JSON converter"
 description   = "Decode bencode (the BitTorrent / .torrent serialization format) into readable JSON, and re-encode JSON back into canonical bencode — in your browser. Nothing is uploaded."
 tags          = ["bencode", "bencode decoder", "bencode to json", "torrent", "torrent decoder", "bencode encoder", "bittorrent"]
 h1            = "Bencode decoder"

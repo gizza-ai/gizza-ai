@@ -1,5 +1,5 @@
 slug          = "ssh-public-key-from-private"
-title         = "Get SSH Public Key from a Private Key — gizza.ai"
+title         = "Get SSH Public Key from a Private Key"
 description   = "Derive the OpenSSH public key (id_*.pub line) from an RSA, ECDSA (P-256/P-384) or Ed25519 private key. Runs in your browser, nothing uploaded, free."
 tags          = ["ssh public key from private", "ssh-keygen -y", "id_rsa.pub", "openssh public key", "ssh-ed25519", "ecdsa-sha2-nistp256", "ssh-rsa", "authorized_keys"]
 h1            = "Get the SSH Public Key from a Private Key"

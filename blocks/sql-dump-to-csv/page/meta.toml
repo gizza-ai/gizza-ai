@@ -1,5 +1,5 @@
 slug          = "sql-dump-to-csv"
-title         = "SQL Dump to CSV — Extract INSERT Rows | gizza.ai"
+title         = "SQL Dump to CSV — Extract INSERT Rows"
 description   = "Paste a SQL dump and pull the rows out of its INSERT statements into CSV — one CSV per table, with delimiter, header, NULL and quoting options. Free, private, no upload."
 tags          = ["sql to csv", "sql dump to csv", "insert to csv", "mysql dump to csv", "sql export csv", "convert sql to csv", "sql insert extract", "database dump csv"]
 h1            = "SQL Dump → CSV"

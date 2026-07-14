@@ -1,5 +1,5 @@
 slug          = "extract-dates"
-title         = "Extract Dates — find & normalize dates in text — gizza.ai"
+title         = "Extract Dates — find & normalize dates in text"
 description   = "Scan any text for dates and times and list them normalized to ISO 8601 — in your browser. Handles ISO, numeric, month-name, and clock formats. No upload."
 tags          = ["extract dates", "find dates", "date parser", "iso 8601", "normalize dates", "date extraction", "datetime"]
 h1            = "Extract Dates"

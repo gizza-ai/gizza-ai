@@ -1,5 +1,5 @@
 slug          = "http-request-builder"
-title         = "HTTP Request Builder — raw HTTP/1.1 message — gizza.ai"
+title         = "HTTP Request Builder — raw HTTP/1.1 message"
 description   = "Build a well-formed raw HTTP/1.1 request from a method, URL, headers, and body — in your browser. Nothing is sent. Great for netcat, teaching, and debugging."
 tags          = ["http request builder", "raw http", "http/1.1", "request message", "netcat", "build http request"]
 h1            = "HTTP Request Builder"

@@ -1,5 +1,5 @@
 slug          = "ioc-extract"
-title         = "IOC Extractor — Pull IPs, URLs, Domains, Emails & Hashes from Text — gizza.ai"
+title         = "IOC Extractor — Pull IPs, URLs, Domains, Emails & Hashes from Text"
 description   = "Extract IOCs from threat reports in your browser — IPs, URLs, domains, emails, MD5/SHA hashes — with defanged (hxxp, [.]) input support. Free, private, no sign-up."
 tags          = ["ioc", "ioc extractor", "indicators of compromise", "extract ip", "extract url", "extract domain", "extract hash", "threat intelligence", "cti", "soc", "malware analysis", "defang", "ioc parser"]
 h1            = "IOC Extractor"

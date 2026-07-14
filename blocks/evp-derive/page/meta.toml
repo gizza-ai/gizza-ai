@@ -1,5 +1,5 @@
 slug          = "evp-derive"
-title         = "EVP_BytesToKey — OpenSSL key/IV derivation from a password — gizza.ai"
+title         = "EVP_BytesToKey — OpenSSL key/IV derivation from a password"
 description   = "Reproduce OpenSSL's EVP_BytesToKey key and IV derivation from a password and salt (MD5, SHA-1, SHA-256, SHA-512) — free and entirely in your browser."
 tags          = ["evp_bytestokey", "openssl key derivation", "openssl iv", "derive key from password", "openssl enc", "md5 key derivation", "legacy kdf", "openssl decrypt"]
 h1            = "EVP_BytesToKey — OpenSSL key & IV derivation"

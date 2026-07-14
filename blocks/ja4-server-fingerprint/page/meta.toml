@@ -1,5 +1,5 @@
 slug          = "ja4-server-fingerprint"
-title         = "JA4S Fingerprint Calculator — compute the JA4S TLS server hash from a ServerHello — gizza.ai"
+title         = "JA4S Fingerprint Calculator — compute the JA4S TLS server hash from a ServerHello"
 description   = "Compute a JA4S server fingerprint from a TLS ServerHello in hex — the JA4+ server hash of version, ALPN, cipher, and extensions. Nothing is uploaded."
 tags          = ["ja4s fingerprint", "ja4s calculator", "ja4 server fingerprint", "ja4+ tls", "serverhello fingerprint", "tls server fingerprint", "ja4s hash", "foxio ja4", "tls fingerprinting", "threat intelligence"]
 h1            = "JA4S Fingerprint Calculator"

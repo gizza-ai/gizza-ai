@@ -1,5 +1,5 @@
 slug          = "ioc-defang"
-title         = "Defang & Refang IOCs — Neutralize URLs, IPs, Domains & Emails — gizza.ai"
+title         = "Defang & Refang IOCs — Neutralize URLs, IPs, Domains & Emails"
 description   = "Defang or refang IOCs in your browser: turn http://evil.com into hxxp[://]evil[.]com so URLs, IPs, domains and emails are safe to share. Free, private."
 tags          = ["defang", "refang", "ioc", "indicators of compromise", "defang url", "defang ip", "threat intelligence", "cti", "soc", "malware analysis", "neutralize url", "hxxp"]
 h1            = "Defang / Refang IOCs"

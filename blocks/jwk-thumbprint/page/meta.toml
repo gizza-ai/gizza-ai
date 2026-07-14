@@ -1,5 +1,5 @@
 slug          = "jwk-thumbprint"
-title         = "JWK Thumbprint (RFC 7638) — gizza.ai"
+title         = "JWK Thumbprint (RFC 7638)"
 description   = "Compute the RFC 7638 SHA-256 thumbprint of a JSON Web Key — the canonical kid — in your browser. Supports RSA, EC, OKP, and oct keys. Nothing is uploaded."
 tags          = ["jwk thumbprint", "rfc 7638", "jwk kid", "json web key", "key fingerprint", "jose"]
 h1            = "JWK Thumbprint"

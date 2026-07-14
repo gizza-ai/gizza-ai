@@ -1,5 +1,5 @@
 slug          = "jwt-decode"
-title         = "JWT Decode — Decodes a JSON Web Token offline — gizza.ai"
+title         = "JWT Decode — Decodes a JSON Web Token offline"
 description   = "Decode any compact JSON Web Token (JWT) offline to inspect its header, payload claims, signature, and time-based validations. No data leaves your device."
 tags          = ["jwt decode", "jwt decoder", "json web token", "jws", "decode jwt", "offline jwt decoder", "base64url decode jwt"]
 h1            = "JWT decode"

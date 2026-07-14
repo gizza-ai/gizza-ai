@@ -1,5 +1,5 @@
 slug          = "remove-control-chars"
-title         = "Remove Control Characters — Strip null bytes & non-printable chars — gizza.ai"
+title         = "Remove Control Characters — Strip null bytes & non-printable chars"
 description   = "Strip null bytes and non-printable control characters from text, in your browser. Keep tabs and newlines or remove them too. Nothing is uploaded."
 tags          = ["remove control characters", "strip null bytes", "remove non-printable characters", "clean text", "remove invisible characters"]
 h1            = "Remove control characters"

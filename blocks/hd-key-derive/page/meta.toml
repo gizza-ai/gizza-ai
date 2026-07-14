@@ -1,5 +1,5 @@
 slug          = "hd-key-derive"
-title         = "HD Key Derive — BIP32 xprv/xpub and Bitcoin Address — gizza.ai"
+title         = "HD Key Derive — BIP32 xprv/xpub and Bitcoin Address"
 description   = "Derive BIP32 child private keys, xpubs, WIF keys, and Bitcoin mainnet/testnet P2PKH or SegWit addresses from a seed or xprv. Private and offline in your browser."
 tags          = ["bip32", "hd wallet", "xprv", "xpub", "bitcoin", "wallet", "derivation path", "p2pkh", "segwit", "wif"]
 h1            = "BIP32 HD Key Derivation"

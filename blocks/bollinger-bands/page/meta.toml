@@ -1,5 +1,5 @@
 slug          = "bollinger-bands"
-title         = "Bollinger Bands Calculator — moving average ± standard deviations — gizza.ai"
+title         = "Bollinger Bands Calculator — moving average ± standard deviations"
 description   = "Compute Bollinger Bands (SMA plus/minus standard deviations) for a price series, plus %B and bandwidth, in your browser. Free, private, no upload."
 tags          = ["bollinger bands", "technical analysis", "moving average", "standard deviation", "percent b", "bandwidth", "trading indicator"]
 h1            = "Bollinger Bands calculator"

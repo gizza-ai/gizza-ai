@@ -1,5 +1,5 @@
 slug          = "extract-decode-base64"
-title         = "Find & Decode Base64 in Text — gizza.ai"
+title         = "Find & Decode Base64 in Text"
 description   = "Scan any text for embedded Base64 blobs and decode them — showing decoded text, or a file-type + hex preview for binaries. Runs in your browser, nothing uploaded."
 tags          = ["decode base64", "find base64", "base64 extractor", "base64 in text", "url-safe base64", "decode blob"]
 h1            = "Find & Decode Base64"

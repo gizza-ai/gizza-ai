@@ -1,5 +1,5 @@
 slug          = "video-denoise"
-title         = "Denoise a Video Online — gizza.ai"
+title         = "Denoise a Video Online"
 description   = "Remove noise, grain and sensor speckle from a video in your browser — choose a strength and denoiser. Local ffmpeg cleanup, nothing uploaded."
 tags          = ["video", "denoise", "noise reduction", "grain", "hqdn3d", "nlmeans", "clean up", "temporal", "spatial"]
 h1            = "Denoise a Video"

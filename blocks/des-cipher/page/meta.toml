@@ -1,5 +1,5 @@
 slug          = "des-cipher"
-title         = "DES Cipher — Encrypt/decrypt with DES (ECB/CBC) — gizza.ai"
+title         = "DES Cipher — Encrypt/decrypt with DES (ECB/CBC)"
 description   = "Encrypt or decrypt data with single DES in ECB or CBC mode, with hex/base64 I/O — in your browser. For legacy interop. Nothing is uploaded."
 tags          = ["des", "des encrypt", "des decrypt", "legacy cipher", "ecb", "cbc"]
 h1            = "DES cipher"

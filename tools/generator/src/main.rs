@@ -209,7 +209,7 @@ fn run() -> Result<(), String> {
     // /tools/ so it is covered by the runtime SW's /tools/ bypass).
     fs::write(
         pkg_tools.join("_index.json"),
-        index::tools_index_json(&metas_only),
+        index::tools_index_json(&cfg, &metas_only),
     )
     .map_err(|e| format!("write tools/_index.json: {e}"))?;
 

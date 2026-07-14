@@ -57,6 +57,6 @@ it.
 
 No. The standalone page runs ffmpeg in WebAssembly inside your browser tab. The
 CLI/chat tool resolves its own provided URL or attachment reference, but the page
-does not upload your file to gizza.ai.
+does not upload your file anywhere.
 
 </details>

@@ -1,5 +1,5 @@
 slug          = "hash-text"
-title         = "Text Hash Generator — MD5, SHA-256, SHA-3, BLAKE3 | gizza.ai"
+title         = "Text Hash Generator — MD5, SHA-256, SHA-3, BLAKE3"
 description   = "Generate MD5, SHA-1, SHA-256/512, SHA-3, BLAKE2 or BLAKE3 hashes of any text in your browser, with hex or base64 output. Free, private, nothing uploaded."
 tags          = ["hash", "md5", "sha1", "sha256", "sha512", "sha3", "blake2", "blake3", "checksum", "digest", "hex", "base64", "cryptography"]
 h1            = "Text Hash Generator"

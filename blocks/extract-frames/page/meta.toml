@@ -1,5 +1,5 @@
 slug          = "extract-frames"
-title         = "Extract Frames from a Video — Contact Sheet / Thumbnail Grid — gizza.ai"
+title         = "Extract Frames from a Video — Contact Sheet / Thumbnail Grid"
 description   = "Sample frames from a video by interval, fps or scene change and tile them into one contact-sheet image. Free, in your browser with ffmpeg, nothing is uploaded."
 tags          = ["extract frames", "video contact sheet", "thumbnail grid", "storyboard", "scene detection", "video thumbnails", "frames per second", "ffmpeg"]
 h1            = "Extract Video Frames to a Contact Sheet"

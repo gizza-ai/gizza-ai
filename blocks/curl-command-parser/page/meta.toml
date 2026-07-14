@@ -1,5 +1,5 @@
 slug          = "curl-command-parser"
-title         = "cURL Command Parser — decode a curl command into a structured request — gizza.ai"
+title         = "cURL Command Parser — decode a curl command into a structured request"
 description   = "Paste a curl command to see its method, URL, query params, headers, body, auth, cookies and flags — or rebuild clean curl. Browser-only."
 tags          = ["curl command parser", "parse curl command", "curl parser", "decode curl", "curl to structured request", "curl headers parser", "curl command reader", "rebuild curl command"]
 h1            = "cURL Command Parser"

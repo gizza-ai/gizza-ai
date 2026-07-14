@@ -1,5 +1,5 @@
 slug          = "dns-message-parser"
-title         = "DNS Message Parser — decode a DNS query/response from hex or base64url — gizza.ai"
+title         = "DNS Message Parser — decode a DNS query/response from hex or base64url"
 description   = "Decode a DNS wire-format message from hex or base64url — header flags, RCODE, question and answer records, name decompression. Free, in your browser."
 tags          = ["dns message parser", "decode dns packet", "dns wire format", "dns over https", "dns header flags", "rcode", "dns resource records", "name compression", "edns0", "dns hex decoder"]
 h1            = "DNS Message Parser"

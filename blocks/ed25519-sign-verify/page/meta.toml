@@ -1,5 +1,5 @@
 slug          = "ed25519-sign-verify"
-title         = "Ed25519 Sign & Verify — sign a message or check a signature — gizza.ai"
+title         = "Ed25519 Sign & Verify — sign a message or check a signature"
 description   = "Sign a message with an Ed25519 private key, or verify a signature with the public key — hex, base64, or PEM keys, entirely in your browser."
 tags          = ["ed25519 sign", "ed25519 verify", "eddsa", "curve25519", "digital signature", "rfc8032", "verify signature", "crypto"]
 h1            = "Ed25519 sign & verify"

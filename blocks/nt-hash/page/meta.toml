@@ -1,5 +1,5 @@
 slug          = "nt-hash"
-title         = "NT / NTLM Hash Generator — gizza.ai"
+title         = "NT / NTLM Hash Generator"
 description   = "Generate the NT (NTLM) hash of a password — MD4 of its UTF-16LE encoding — instantly in your browser. Hex or base64 output. Free, private, nothing uploaded."
 tags          = ["nt-hash", "ntlm", "ntlm-hash", "md4", "windows-password", "pass-the-hash", "hash", "hex"]
 h1            = "NT / NTLM Hash Generator"

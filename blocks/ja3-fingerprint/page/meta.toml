@@ -1,5 +1,5 @@
 slug          = "ja3-fingerprint"
-title         = "JA3 Fingerprint Calculator — compute the JA3 TLS hash from a ClientHello — gizza.ai"
+title         = "JA3 Fingerprint Calculator — compute the JA3 TLS hash from a ClientHello"
 description   = "Compute the JA3 and JA3N fingerprints (string + MD5 hash) of a TLS ClientHello from pasted hex, GREASE removed — free and local in your browser."
 tags          = ["ja3 fingerprint", "ja3 hash calculator", "ja3n normalized", "tls fingerprint", "clienthello fingerprint", "ja3 md5", "tls client fingerprint", "grease rfc 8701", "suricata ja3", "threat intelligence"]
 h1            = "JA3 Fingerprint Calculator"

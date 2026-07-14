@@ -1,5 +1,5 @@
 slug          = "gost-kuznyechik-cipher"
-title         = "GOST Kuznyechik Cipher — Encrypt/decrypt (GOST R 34.12-2015) — gizza.ai"
+title         = "GOST Kuznyechik Cipher — Encrypt/decrypt (GOST R 34.12-2015)"
 description   = "Encrypt or decrypt text with the GOST Kuznyechik cipher (GOST R 34.12-2015) in CBC, CTR, CFB, OFB or ECB mode — 256-bit key, hex/base64 I/O, in your browser."
 tags          = ["kuznyechik", "gost", "gost r 34.12-2015", "gost encrypt", "gost decrypt", "cbc", "ctr", "cfb", "ofb", "cipher"]
 h1            = "GOST Kuznyechik cipher"

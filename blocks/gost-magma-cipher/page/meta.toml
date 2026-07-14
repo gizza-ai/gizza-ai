@@ -1,5 +1,5 @@
 slug          = "gost-magma-cipher"
-title         = "GOST Magma Cipher — Encrypt/decrypt (GOST 28147-89) — gizza.ai"
+title         = "GOST Magma Cipher — Encrypt/decrypt (GOST 28147-89)"
 description   = "Encrypt or decrypt text with the GOST 28147-89 Magma 64-bit block cipher — ECB or CBC, 256-bit key, hex or base64 — free and entirely in your browser."
 tags          = ["magma", "gost", "gost 28147-89", "gost r 34.12-2015", "gost encrypt", "gost decrypt", "cbc", "ecb", "block cipher", "cipher"]
 h1            = "GOST Magma cipher"

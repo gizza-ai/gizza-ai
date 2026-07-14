@@ -1,5 +1,5 @@
 slug          = "z-score-normalize"
-title         = "Z-Score Normalize — Z-Score, Min-Max, Max-Abs & Robust Scaling — gizza.ai"
+title         = "Z-Score Normalize — Z-Score, Min-Max, Max-Abs & Robust Scaling"
 description   = "Standardize a list of numbers with z-score, min-max, max-abs, or robust median/IQR scaling. Population or sample standard deviation, private and browser-local."
 tags          = ["z-score", "z-score normalization", "standardize", "standardization", "standard score", "min-max scaling", "max-abs scaling", "robust scaling", "median", "interquartile range", "feature scaling", "normalize numbers", "standard deviation", "rescale", "statistics", "machine learning"]
 h1            = "Z-Score Normalize"

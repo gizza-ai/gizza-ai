@@ -1,5 +1,5 @@
 slug          = "bcrypt-hash"
-title         = "Bcrypt Hash — bcrypt password hashing & verify — gizza.ai"
+title         = "Bcrypt Hash — bcrypt password hashing & verify"
 description   = "Hash a password with bcrypt at a chosen cost and get a $2b$ hash string, or verify a password against an existing bcrypt hash — in your browser. Nothing is uploaded."
 tags          = ["bcrypt", "password hash", "bcrypt generator", "bcrypt verify", "password hashing", "$2b$"]
 h1            = "Bcrypt hash"

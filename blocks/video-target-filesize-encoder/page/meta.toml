@@ -1,5 +1,5 @@
 slug          = "video-target-filesize-encoder"
-title         = "Compress Video to a Target File Size (MB) — gizza.ai"
+title         = "Compress Video to a Target File Size (MB)"
 description   = "Set an MB budget and it computes the H.264 bitrate from your clip's length to fit under it — for Discord, email or WhatsApp. Runs in your browser, nothing uploaded."
 tags          = ["video", "compress", "file size", "target size", "mb", "discord", "email", "bitrate", "mp4"]
 h1            = "Compress a Video to a Target File Size"

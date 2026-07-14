@@ -1,5 +1,5 @@
 slug          = "password-entropy"
-title         = "Password Strength / Entropy Checker — gizza.ai"
+title         = "Password Strength / Entropy Checker"
 description   = "Estimate a password's entropy in bits and crack time, and flag weaknesses — entirely in your browser. Your password is never sent anywhere, free."
 tags          = ["password strength", "password entropy", "password checker", "bits of entropy", "crack time"]
 h1            = "Password Strength Checker"

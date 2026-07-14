@@ -246,7 +246,7 @@ mod tests {
         ToolMeta::from_toml(
             r#"
 slug          = "calculator"
-title         = "Free Online Calculator — gizza.ai"
+title         = "Free Online Calculator"
 description   = "Evaluate expressions instantly."
 tags          = ["math"]
 h1            = "Free Online Calculator"
@@ -282,7 +282,7 @@ source      = "field"
         ToolMeta::from_toml(
             r#"
 slug          = "image-grayscale"
-title         = "Grayscale an Image — gizza.ai"
+title         = "Grayscale an Image"
 description   = "Convert an image to grayscale in your browser."
 h1            = "Grayscale an Image"
 hero_subtitle = "Upload an image."
@@ -306,7 +306,7 @@ accept = "image/*"
         ToolMeta::from_toml(
             r#"
 slug          = "clock"
-title         = "Clock — gizza.ai"
+title         = "Clock"
 description   = "The current time, live."
 h1            = "Clock"
 hero_subtitle = "Live time."

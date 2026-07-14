@@ -1,5 +1,5 @@
 slug          = "find-unique-lines"
-title         = "Find Unique Lines — keep only one-off lines — gizza.ai"
+title         = "Find Unique Lines — keep only one-off lines"
 description   = "Return only the lines that appear exactly once in pasted text (like uniq -u) — in your browser. Optional case-insensitive and trim matching. Nothing is uploaded."
 tags          = ["find unique lines", "uniq -u", "lines appearing once", "non-repeated lines", "unique line filter"]
 h1            = "Find Unique Lines"

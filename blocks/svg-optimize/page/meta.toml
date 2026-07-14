@@ -1,5 +1,5 @@
 slug          = "svg-optimize"
-title         = "SVG Optimizer — minify & clean up SVG markup — gizza.ai"
+title         = "SVG Optimizer — minify & clean up SVG markup"
 description   = "Minify and clean SVG in your browser — collapse whitespace, strip comments, the XML prolog and Inkscape/Sodipodi metadata. Path data is untouched. Nothing uploaded."
 tags          = ["svg optimizer", "minify svg", "svg minifier", "clean svg", "svgo", "compress svg"]
 h1            = "SVG Optimizer"

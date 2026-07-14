@@ -1,5 +1,5 @@
 slug          = "parse-datetime"
-title         = "Date/Time Parser — parse any date string into structured parts — gizza.ai"
+title         = "Date/Time Parser — parse any date string into structured parts"
 description   = "Parse a date or time in almost any format — ISO 8601, RFC 2822, US/European dates — into year, month, day, weekday, ISO week and a canonical ISO 8601 value."
 tags          = ["date parser", "datetime parser", "parse date", "iso 8601", "rfc 3339", "rfc 2822", "date components", "weekday from date", "day of year", "iso week number", "timestamp parser"]
 h1            = "Date / Time Parser"

@@ -1,5 +1,5 @@
 slug          = "data-format-converter"
-title         = "Data Format Converter — CSV, TSV, JSON & NDJSON — gizza.ai"
+title         = "Data Format Converter — CSV, TSV, JSON & NDJSON"
 description   = "Convert data between CSV, TSV, JSON, and NDJSON (JSONL) in any direction — auto-detects the source, infers types, unions keys. Free, in-browser, no upload."
 tags          = ["data format converter", "csv to json", "json to csv", "csv to ndjson", "json to ndjson", "ndjson to csv", "jsonl converter", "tsv to json", "json to jsonl", "ndjson converter", "tabular data converter"]
 h1            = "Data Format Converter"

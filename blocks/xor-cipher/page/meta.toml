@@ -1,5 +1,5 @@
 slug          = "xor-cipher"
-title         = "XOR Cipher — Repeating-key XOR for text, hex, and Base64 — gizza.ai"
+title         = "XOR Cipher — Repeating-key XOR for text, hex, and Base64"
 description   = "XOR text, hex, or Base64 data against a repeating key and output hex, Base64, or UTF-8. Symmetric encrypt/decrypt in your browser."
 tags          = ["xor", "xor cipher", "xor encrypt", "xor decrypt", "repeating-key xor", "vigenere xor", "cryptopals", "hex xor", "base64 xor"]
 h1            = "XOR cipher"
