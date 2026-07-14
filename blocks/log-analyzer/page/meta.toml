@@ -1,5 +1,5 @@
 slug          = "log-analyzer"
-title         = "Log Analyzer — Level Counts, Top Errors & Volume Timeline — gizza.ai"
+title         = "Log Analyzer — Level Counts, Top Errors & Volume Timeline"
 description   = "Free log analyzer — paste JSON/NDJSON, logfmt, syslog or Apache/nginx logs and get level counts, grouped top errors, time span, and a volume timeline."
 tags          = ["log analyzer", "log analysis", "error summary", "log level counts", "top errors", "log timeline", "json logs", "ndjson", "logfmt", "syslog analyzer", "apache access log", "nginx access log", "log stats"]
 h1            = "Log Analyzer"

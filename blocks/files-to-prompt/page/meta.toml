@@ -1,5 +1,5 @@
 slug          = "files-to-prompt"
-title         = "Files to Prompt — Bundle Files into One LLM Prompt — gizza.ai"
+title         = "Files to Prompt — Bundle Files into One LLM Prompt"
 description   = "Bundle multiple files into one LLM-ready prompt: a directory tree, fenced file contents, and a token estimate. Free, in your browser, nothing uploaded."
 tags          = ["files to prompt", "code to prompt", "concatenate files for llm", "repo to text", "codebase to prompt", "llm context bundler", "claude xml documents", "directory tree", "token estimate"]
 h1            = "Files to Prompt"

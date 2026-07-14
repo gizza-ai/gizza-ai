@@ -1,5 +1,5 @@
 slug          = "url-safety-inspect"
-title         = "URL Safety Inspector — Phishing Risk Checker | gizza.ai"
+title         = "URL Safety Inspector — Phishing Risk Checker"
 description   = "Paste a URL to rate phishing risk from structural heuristics: IP hosts, @ tricks, deep subdomains, punycode and lookalike TLDs. Runs locally."
 tags          = ["url", "phishing", "security", "safety", "url-checker", "punycode", "typosquatting"]
 h1            = "URL Safety Inspector"

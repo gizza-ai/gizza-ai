@@ -1,5 +1,5 @@
 slug          = "salsa20-cipher"
-title         = "Salsa20 Cipher — Encrypt/decrypt with Salsa20 (key + nonce) — gizza.ai"
+title         = "Salsa20 Cipher — Encrypt/decrypt with Salsa20 (key + nonce)"
 description   = "Encrypt and decrypt with the Salsa20 stream cipher in your browser — 16/32-byte key, 8-byte nonce, hex or base64 output. Free, private, nothing uploaded."
 tags          = ["salsa20", "salsa20 encrypt", "salsa20 decrypt", "stream cipher", "djb", "estream", "cipher"]
 h1            = "Salsa20 cipher"

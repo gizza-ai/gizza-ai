@@ -1,5 +1,5 @@
 slug          = "extract-hashes"
-title         = "Extract Hashes from Text — gizza.ai"
+title         = "Extract Hashes from Text"
 description   = "Pull every MD5, SHA-1, SHA-256 and SHA-512 hash out of any text, grouped by algorithm and deduplicated — in your browser. Nothing is uploaded."
 tags          = ["extract hashes", "hash extractor", "find md5", "find sha256", "ioc hashes", "checksum extractor"]
 h1            = "Extract Hashes"

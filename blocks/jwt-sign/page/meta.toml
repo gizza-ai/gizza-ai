@@ -1,5 +1,5 @@
 slug          = "jwt-sign"
-title         = "JWT Sign — Create a signed JSON Web Token (HS/RS/ES) — gizza.ai"
+title         = "JWT Sign — Create a signed JSON Web Token (HS/RS/ES)"
 description   = "Sign a JSON Web Token (JWT) from a payload with HS256/384/512, RS256/384/512 or ES256/384 in your browser. The secret and key never leave your device."
 tags          = ["jwt sign", "jwt generator", "json web token", "jws", "hs256", "rs256", "es256", "jwt encoder"]
 h1            = "JWT sign"

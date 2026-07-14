@@ -1,5 +1,5 @@
 slug          = "xpath-query"
-title         = "XPath Query — Evaluate XPath 1.0 on XML/XHTML — gizza.ai"
+title         = "XPath Query — Evaluate XPath 1.0 on XML/XHTML"
 description   = "Run an XPath 1.0 expression against XML or XHTML and return matching node values or serialized XML. Local browser WebAssembly tool."
 tags          = ["xpath", "xpath query", "xml xpath", "xhtml xpath", "xml query", "xpath tester", "xpath evaluator"]
 h1            = "XPath query"

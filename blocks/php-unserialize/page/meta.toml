@@ -1,5 +1,5 @@
 slug          = "php-unserialize"
-title         = "PHP unserialize() to JSON Converter — gizza.ai"
+title         = "PHP unserialize() to JSON Converter"
 description   = "Decode a PHP serialize() string to readable JSON in your browser. Inspect PHP sessions and WordPress wp_options values. Free, private, no sign-up."
 tags          = ["php unserialize", "php to json", "serialize", "php session", "wordpress options", "serialized array", "php array", "deserialize"]
 h1            = "PHP unserialize() → JSON"

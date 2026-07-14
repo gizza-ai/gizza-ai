@@ -1,5 +1,5 @@
 slug          = "video-hdr-to-sdr"
-title         = "Convert HDR Video to SDR Online — gizza.ai"
+title         = "Convert HDR Video to SDR Online"
 description   = "Tone-map an HDR (PQ/HLG, BT.2020) video down to SDR BT.709 so it stops looking gray, dim or washed-out. Runs in your browser with ffmpeg — nothing is uploaded."
 tags          = ["video", "hdr", "sdr", "tone-mapping", "bt2020", "bt709", "pq", "hlg", "convert"]
 h1            = "Convert HDR Video to SDR"

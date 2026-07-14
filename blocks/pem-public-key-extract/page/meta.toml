@@ -1,5 +1,5 @@
 slug          = "pem-public-key-extract"
-title         = "Extract Public Key from Private Key (PEM) — gizza.ai"
+title         = "Extract Public Key from Private Key (PEM)"
 description   = "Derive the public key from an RSA, EC (P-256/P-384) or Ed25519 private key as a PEM public-key block. Free, in your browser — nothing is uploaded."
 tags          = ["extract public key", "private key to public key", "pem public key", "openssl pkey pubout", "rsa public key", "ec public key", "ed25519 public key"]
 h1            = "Extract Public Key from a Private Key"

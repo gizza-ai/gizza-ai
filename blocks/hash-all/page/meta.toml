@@ -1,5 +1,5 @@
 slug          = "hash-all"
-title         = "Hash All — MD5, SHA, SHA-3, RIPEMD, BLAKE3, Whirlpool, CRC-32 | gizza.ai"
+title         = "Hash All — MD5, SHA, SHA-3, RIPEMD, BLAKE3, Whirlpool, CRC-32"
 description   = "Hash text with every common algorithm at once — MD5, SHA-1, SHA-256/512, SHA-3, BLAKE3, RIPEMD-160, CRC-32 and more — free and private in your browser."
 tags          = ["hash", "md5", "sha1", "sha256", "sha512", "sha3", "ripemd", "blake2", "blake3", "whirlpool", "crc32", "checksum", "digest", "hex", "base64", "cryptography"]
 h1            = "Hash All Generator"

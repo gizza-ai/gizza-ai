@@ -1,5 +1,5 @@
 slug          = "parse-ethernet-frame"
-title         = "Ethernet Frame Parser — decode an Ethernet II / 802.3 frame from hex — gizza.ai"
+title         = "Ethernet Frame Parser — decode an Ethernet II / 802.3 frame from hex"
 description   = "Paste an Ethernet frame in hex and decode destination/source MAC, EtherType or 802.3 length, 802.1Q / Q-in-Q VLAN tags, and payload — free, in your browser."
 tags          = ["ethernet frame parser", "decode ethernet frame", "ethernet ii", "802.3 frame", "mac address", "ethertype", "802.1q vlan", "qinq", "frame hex decoder"]
 h1            = "Ethernet Frame Parser"

@@ -1,5 +1,5 @@
 slug          = "zero-width-cleaner"
-title         = "Zero-Width Character Cleaner — Remove invisible spaces, joiners & BOMs — gizza.ai"
+title         = "Zero-Width Character Cleaner — Remove invisible spaces, joiners & BOMs"
 description   = "Detect and strip invisible zero-width spaces, joiners, byte-order marks, bidi controls and soft hyphens from pasted text, in your browser. Nothing is uploaded."
 tags          = ["zero width space remover", "remove invisible characters", "strip zero width joiner", "remove byte order mark", "clean pasted text", "delete zero width space"]
 h1            = "Zero-width character cleaner"

@@ -1,5 +1,5 @@
 slug          = "video-frame-extract"
-title         = "Extract a Frame from a Video — gizza.ai"
+title         = "Extract a Frame from a Video"
 description   = "Grab a single frame from any video as a PNG image, right in your browser — pick a timestamp in seconds. Runs locally with ffmpeg, nothing is uploaded, free."
 tags          = ["video", "frame", "extract", "screenshot", "thumbnail", "still", "png"]
 h1            = "Extract a Video Frame"

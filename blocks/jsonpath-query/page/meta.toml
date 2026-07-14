@@ -1,5 +1,5 @@
 slug          = "jsonpath-query"
-title         = "JSONPath Query Online (RFC 9535) — gizza.ai"
+title         = "JSONPath Query Online (RFC 9535)"
 description   = "Evaluate JSONPath expressions (RFC 9535) against any JSON in your browser — wildcards, slices, recursive descent, filters. Free, private, nothing uploaded."
 tags          = ["jsonpath", "json query", "jsonpath online", "jsonpath evaluator", "rfc 9535", "json filter"]
 h1            = "JSONPath Query"

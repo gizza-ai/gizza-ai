@@ -1,5 +1,5 @@
 slug          = "lz-string-compress"
-title         = "LZ-String Compress & Decompress — gizza.ai"
+title         = "LZ-String Compress & Decompress"
 description   = "Compress and decompress text with LZ-String in your browser — Base64, URL-safe, or UTF-16 output, byte-compatible with the lz-string JS library. Free, private."
 tags          = ["lz-string", "lzstring", "compress", "decompress", "base64", "url safe", "encodeduricomponent", "utf16", "localstorage"]
 h1            = "LZ-String Compress / Decompress"

@@ -1,5 +1,5 @@
 slug          = "parse-http-message"
-title         = "HTTP Message Parser — decode a raw HTTP request or response — gizza.ai"
+title         = "HTTP Message Parser — decode a raw HTTP request or response"
 description   = "Parse a raw HTTP/1.x request or response — decode the method, target, status, version, all headers and the body, in your browser. Free, nothing uploaded."
 tags          = ["http message parser", "parse http request", "parse http response", "http header parser", "raw http", "http/1.1", "request line", "status line", "header decoder"]
 h1            = "HTTP Message Parser"

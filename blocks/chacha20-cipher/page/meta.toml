@@ -1,5 +1,5 @@
 slug          = "chacha20-cipher"
-title         = "ChaCha20 Cipher — Encrypt/decrypt with ChaCha20 & ChaCha20-Poly1305 — gizza.ai"
+title         = "ChaCha20 Cipher — Encrypt/decrypt with ChaCha20 & ChaCha20-Poly1305"
 description   = "Encrypt or decrypt text with ChaCha20 or ChaCha20-Poly1305 AEAD (RFC 8439) in your browser — 32-byte key, 12-byte nonce, hex/base64 I/O. Nothing is uploaded."
 tags          = ["chacha20", "chacha20-poly1305", "chacha20 encrypt", "chacha20 decrypt", "aead", "rfc 8439", "stream cipher", "poly1305"]
 h1            = "ChaCha20 cipher"

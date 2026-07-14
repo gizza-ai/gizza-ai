@@ -1,5 +1,5 @@
 slug          = "render-template"
-title         = "Handlebars / Mustache Template Renderer — gizza.ai"
+title         = "Handlebars / Mustache Template Renderer"
 description   = "Render a Handlebars or Mustache template against JSON data in your browser — {{variables}}, nested paths, {{#each}} loops and {{#if}} conditionals. Free, private."
 tags          = ["handlebars renderer", "mustache template", "render template online", "template engine", "json to text", "handlebars playground"]
 h1            = "Template Renderer"

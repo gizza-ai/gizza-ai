@@ -1,5 +1,5 @@
 slug          = "totp-generator"
-title         = "TOTP Generator — 2FA codes from a secret — gizza.ai"
+title         = "TOTP Generator — 2FA codes from a secret"
 description   = "Generate time-based one-time (2FA) codes from a TOTP secret, in your browser. The secret never leaves your device."
 tags          = ["totp", "2fa", "authenticator", "one-time password", "otp", "two-factor"]
 h1            = "TOTP generator"

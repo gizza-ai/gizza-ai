@@ -1,5 +1,5 @@
 slug          = "parse-websocket-frame"
-title         = "WebSocket Frame Parser — Decode RFC 6455 Frames (FIN, Opcode, Mask, Payload) | gizza.ai"
+title         = "WebSocket Frame Parser — Decode RFC 6455 Frames (FIN, Opcode, Mask, Payload)"
 description   = "Decode a WebSocket frame (RFC 6455) from base64 or hex — FIN, RSV bits, opcode, mask flag, payload length, masking key, unmasked payload — in your browser."
 tags          = ["websocket", "websocket frame", "rfc 6455", "ws frame", "frame decoder", "opcode", "masking key", "unmask payload", "web sockets"]
 h1            = "WebSocket Frame Parser"

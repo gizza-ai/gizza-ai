@@ -1,5 +1,5 @@
 slug          = "eml-parse"
-title         = "EML Parser — read a raw .eml email message — gizza.ai"
+title         = "EML Parser — read a raw .eml email message"
 description   = "Parse a raw .eml / RFC 822 email into headers, decoded text and HTML bodies, and an attachment list — in your browser. Nothing is uploaded."
 tags          = ["eml parser", "parse email", "rfc822", "rfc5322", "mime parser", "read eml", "email headers", "attachments"]
 h1            = "EML Parser"

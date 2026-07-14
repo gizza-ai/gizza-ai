@@ -1,5 +1,5 @@
 slug          = "json-yaml-convert"
-title         = "JSON ⇄ YAML ⇄ TOML Converter — gizza.ai"
+title         = "JSON ⇄ YAML ⇄ TOML Converter"
 description   = "Convert config data between JSON, YAML, and TOML in any direction — in your browser. Round-trips through a common model. Nothing is uploaded."
 tags          = ["json to toml", "yaml to toml", "toml to json", "json yaml toml", "config converter", "toml converter"]
 h1            = "JSON ⇄ YAML ⇄ TOML"

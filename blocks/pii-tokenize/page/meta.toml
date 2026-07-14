@@ -1,5 +1,5 @@
 slug          = "pii-tokenize"
-title         = "PII Tokenizer — Deterministic, Format-Preserving Pseudonyms — gizza.ai"
+title         = "PII Tokenizer — Deterministic, Format-Preserving Pseudonyms"
 description   = "Replace emails, phones, IPs, cards and SSNs with deterministic, format-preserving tokens. Same value maps to the same token, so data stays linkable. No upload."
 tags          = ["pii tokenizer", "pseudonymize", "format-preserving tokenization", "deterministic tokens", "de-identify text", "anonymize data", "referential integrity"]
 h1            = "PII Tokenizer"

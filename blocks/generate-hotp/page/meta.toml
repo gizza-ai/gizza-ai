@@ -1,5 +1,5 @@
 slug          = "generate-hotp"
-title         = "HOTP Generator — counter-based one-time codes — gizza.ai"
+title         = "HOTP Generator — counter-based one-time codes"
 description   = "Generate counter-based one-time (HOTP, RFC 4226) codes from a base32 secret and a counter, in your browser. The secret never leaves your device."
 tags          = ["hotp", "rfc4226", "one-time password", "otp", "2fa", "counter", "authenticator"]
 h1            = "HOTP generator"

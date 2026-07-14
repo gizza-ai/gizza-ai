@@ -1,5 +1,5 @@
 slug          = "gmail-takeout-parser"
-title         = "Gmail Takeout Parser — mbox to CSV / JSON with Labels — gizza.ai"
+title         = "Gmail Takeout Parser — mbox to CSV / JSON with Labels"
 description   = "Turn a Google Takeout Gmail .mbox export into CSV or JSON — one row per message with date, from/to/cc, subject and Gmail labels. In-browser, no upload."
 tags          = ["gmail takeout parser", "mbox to csv", "mbox to json", "gmail labels export", "google takeout gmail", "mbox converter", "email to spreadsheet", "x-gmail-labels"]
 h1            = "Gmail Takeout mbox → CSV / JSON"

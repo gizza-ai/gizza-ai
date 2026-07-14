@@ -1,5 +1,5 @@
 slug          = "aes-key-wrap"
-title         = "AES Key Wrap — Wrap & unwrap keys (RFC 3394 / RFC 5649) — gizza.ai"
+title         = "AES Key Wrap — Wrap & unwrap keys (RFC 3394 / RFC 5649)"
 description   = "Wrap and unwrap cryptographic keys with AES Key Wrap (KW / RFC 3394, KWP / RFC 5649) using a 128/192/256-bit KEK — hex or base64, free and in-browser."
 tags          = ["aes key wrap", "key wrap", "rfc 3394", "rfc 5649", "kwp", "kek", "wrap key"]
 h1            = "AES Key Wrap"

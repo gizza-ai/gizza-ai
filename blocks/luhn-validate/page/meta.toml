@@ -1,5 +1,5 @@
 slug          = "luhn-validate"
-title         = "Luhn Validator — Check a Card / IMEI Number — gizza.ai"
+title         = "Luhn Validator — Check a Card / IMEI Number"
 description   = "Validate a credit card, IMEI, or any number against the Luhn check-digit algorithm — instantly, in your browser. Nothing is uploaded, free."
 tags          = ["luhn", "credit card validator", "imei check", "checksum", "card number validator", "mod 10"]
 h1            = "Luhn Validator"

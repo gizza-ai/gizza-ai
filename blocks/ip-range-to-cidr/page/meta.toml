@@ -1,5 +1,5 @@
 slug          = "ip-range-to-cidr"
-title         = "IP Range to CIDR — Convert a Start-End IP Range to CIDR Blocks (IPv4 & IPv6) | gizza.ai"
+title         = "IP Range to CIDR — Convert a Start-End IP Range to CIDR Blocks (IPv4 & IPv6)"
 description   = "Convert a start-end IP range like 10.0.0.5-10.0.0.20 into the minimal set of CIDR blocks that exactly covers it — IPv4 and IPv6, free and in-browser."
 tags          = ["ip range to cidr", "range to cidr", "cidr aggregator", "ip range aggregation", "ip to cidr", "subnet from range", "cidr calculator", "ipv4", "ipv6", "cidr block list", "minimal cidr cover"]
 h1            = "IP Range to CIDR"

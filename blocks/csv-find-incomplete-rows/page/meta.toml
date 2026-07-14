@@ -1,5 +1,5 @@
 slug          = "csv-find-incomplete-rows"
-title         = "Find Incomplete CSV Rows — Flag rows with wrong field count or blank cells — gizza.ai"
+title         = "Find Incomplete CSV Rows — Flag rows with wrong field count or blank cells"
 description   = "Scan a CSV for malformed rows: too few or too many fields, or blank cells in required columns. Runs in your browser. Free, private, no upload."
 tags          = ["csv validation", "incomplete csv rows", "malformed csv", "csv field count", "csv missing values"]
 h1            = "Find incomplete CSV rows"

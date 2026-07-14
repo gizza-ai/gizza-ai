@@ -1,5 +1,5 @@
 slug          = "pem-to-jwk"
-title         = "PEM to JWK Converter — gizza.ai"
+title         = "PEM to JWK Converter"
 description   = "Convert a PEM-encoded RSA or EC key into a JSON Web Key (JWK), in your browser. Nothing is uploaded."
 tags          = ["pem", "jwk", "rsa", "ec", "json web key", "crypto", "developer"]
 h1            = "PEM → JWK converter"

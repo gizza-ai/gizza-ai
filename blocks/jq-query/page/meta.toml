@@ -1,5 +1,5 @@
 slug          = "jq-query"
-title         = "Run jq on JSON Online — gizza.ai"
+title         = "Run jq on JSON Online"
 description   = "Run a jq program against any JSON document right in your browser — filter, map, select, reshape. Pure-Rust jq (jaq), nothing is uploaded, free."
 tags          = ["jq", "json query", "jq online", "json filter", "jq playground", "transform json"]
 h1            = "Run jq on JSON"

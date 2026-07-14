@@ -1,5 +1,5 @@
 slug          = "base62-codec"
-title         = "Base62 Encoder & Decoder (Short IDs / URL Slugs) — gizza.ai"
+title         = "Base62 Encoder & Decoder (Short IDs / URL Slugs)"
 description   = "Encode text, hex bytes, or numbers to Base62 (0-9A-Za-z) and decode back — URL-safe, no padding, arbitrary-precision numbers. Free, private, in your browser."
 tags          = ["base62", "base62 encode", "base62 decode", "base62 encoder", "base62 decoder", "short id", "url slug", "number to base62", "base62 converter", "hex", "encoder", "decoder"]
 h1            = "Base62 Encoder / Decoder"

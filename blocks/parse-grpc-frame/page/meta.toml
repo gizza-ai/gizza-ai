@@ -1,5 +1,5 @@
 slug          = "parse-grpc-frame"
-title         = "gRPC Frame Parser — Decode gRPC Length-Prefixed Messages | gizza.ai"
+title         = "gRPC Frame Parser — Decode gRPC Length-Prefixed Messages"
 description   = "Parse gRPC length-prefixed frames from base64 or hex and decode each protobuf payload into a readable field tree. No .proto needed — free, in your browser."
 tags          = ["grpc", "grpc frame", "length-prefixed message", "protobuf", "decode grpc", "grpc wire format", "reverse engineering", "http2"]
 h1            = "gRPC Frame Parser"

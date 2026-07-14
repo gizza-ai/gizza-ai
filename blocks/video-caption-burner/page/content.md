@@ -2,7 +2,7 @@
 
 Burn an SRT or WebVTT subtitle track directly into a video so the captions are part of the pixels, not a separate sidecar file. That makes the result reliable on social feeds, messaging apps, muted autoplay, and players that do not load subtitle tracks.
 
-Upload a video, paste the subtitle file contents, then choose the caption position, font size, text color, and optional background bar. Processing runs locally in your browser with ffmpeg; your source video is not uploaded to gizza.ai.
+Upload a video, paste the subtitle file contents, then choose the caption position, font size, text color, and optional background bar. Processing runs locally in your browser with ffmpeg; your source video is not uploaded anywhere.
 
 ### Worked example
 

@@ -1,5 +1,5 @@
 slug          = "rc2-cipher"
-title         = "RC2 Cipher — Encrypt/decrypt with RC2 (ECB/CBC, RFC 2268) — gizza.ai"
+title         = "RC2 Cipher — Encrypt/decrypt with RC2 (ECB/CBC, RFC 2268)"
 description   = "Encrypt or decrypt with the RC2 block cipher (RFC 2268) in ECB or CBC mode, configurable effective key bits, hex or Base64 output — in your browser."
 tags          = ["rc2", "rc2 encrypt", "rc2 decrypt", "rfc 2268", "effective key length", "ecb", "cbc", "legacy cipher"]
 h1            = "RC2 cipher"

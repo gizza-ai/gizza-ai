@@ -1,5 +1,5 @@
 slug          = "extract-urls"
-title         = "Extract URLs from Text — gizza.ai"
+title         = "Extract URLs from Text"
 description   = "Pull all http/https URLs out of any text, deduplicated, with an optional scheme/host/path component split — in your browser. Nothing is uploaded."
 tags          = ["extract urls", "url extractor", "find links", "parse urls", "dedupe urls", "url components"]
 h1            = "Extract URLs"

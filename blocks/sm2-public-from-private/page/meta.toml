@@ -1,5 +1,5 @@
 slug          = "sm2-public-from-private"
-title         = "SM2 Public Key from Private Key — Derive Q = d·G (GM/T 0003) — gizza.ai"
+title         = "SM2 Public Key from Private Key — Derive Q = d·G (GM/T 0003)"
 description   = "Derive an SM2 public key from a private key (GM/T 0003, curve sm2p256v1) — hex scalar or PKCS#8 PEM in, SEC1 hex and SPKI PEM out. In-browser, no upload."
 tags          = ["sm2", "sm2p256v1", "public key", "private key", "gm/t 0003", "oscca", "sec1", "pkcs8"]
 h1            = "SM2 public key from private key"

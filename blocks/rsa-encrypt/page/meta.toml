@@ -1,5 +1,5 @@
 slug          = "rsa-encrypt"
-title         = "RSA Encrypt — Encrypt a message to an RSA public key (OAEP / PKCS#1) — gizza.ai"
+title         = "RSA Encrypt — Encrypt a message to an RSA public key (OAEP / PKCS#1)"
 description   = "Encrypt a short message to an RSA public key (OAEP or PKCS#1 v1.5, SHA-256/384/512) and get base64 ciphertext, in your browser. Nothing is uploaded."
 tags          = ["rsa encrypt", "rsa oaep", "pkcs1", "public key encryption", "rsa cipher", "crypto"]
 h1            = "RSA encrypt"

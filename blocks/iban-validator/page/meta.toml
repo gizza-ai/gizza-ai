@@ -1,5 +1,5 @@
 slug          = "iban-validator"
-title         = "IBAN Validator — Check & Parse an IBAN — gizza.ai"
+title         = "IBAN Validator — Check & Parse an IBAN"
 description   = "Validate an IBAN with the mod-97 checksum and parse out the country, bank, and account — instantly, in your browser. Nothing is uploaded, free."
 tags          = ["iban validator", "iban checker", "validate iban", "mod 97", "bank account number", "iso 13616"]
 h1            = "IBAN Validator"

@@ -1,5 +1,5 @@
 slug          = "parse-tcp-header"
-title         = "TCP Header Parser — decode a raw TCP segment header from hex — gizza.ai"
+title         = "TCP Header Parser — decode a raw TCP segment header from hex"
 description   = "Decode a raw TCP header from hex in your browser: ports, sequence/ack numbers, SYN/ACK/FIN flags, window, checksum and TCP options. Nothing is uploaded."
 tags          = ["tcp header parser", "decode tcp header", "tcp segment header", "tcp flags", "syn ack fin", "tcp options", "mss", "window scale", "sequence number", "tcp port"]
 h1            = "TCP Header Parser"

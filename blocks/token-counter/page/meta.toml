@@ -1,5 +1,5 @@
 slug          = "token-counter"
-title         = "LLM Token Counter — Count Tokens & Estimate Cost | gizza.ai"
+title         = "LLM Token Counter — Count Tokens & Estimate Cost"
 description   = "Paste text to count LLM tokens with real tiktoken BPE, then estimate the prompt cost and context-window usage for GPT, Claude, and Gemini. Free, private, in-browser."
 tags          = ["token counter", "llm tokens", "tiktoken", "openai tokenizer", "gpt token count", "claude tokens", "gemini tokens", "prompt cost", "context window", "o200k", "cl100k"]
 h1            = "LLM Token Counter & Cost Estimator"

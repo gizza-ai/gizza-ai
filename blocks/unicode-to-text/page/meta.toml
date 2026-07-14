@@ -1,5 +1,5 @@
 slug          = "unicode-to-text"
-title         = "Unicode to Text — gizza.ai"
+title         = "Unicode to Text"
 description   = "Decode Unicode escape sequences back into readable text. Auto-detects \\uXXXX, \\u{X}, \\xXX, \\U00XXXXXX, U+XXXX and HTML &#nn; / &#xnn; in one pass."
 tags          = ["text", "unicode", "decode", "encoding", "unescape"]
 h1            = "Unicode to Text"

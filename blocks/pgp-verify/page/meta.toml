@@ -1,5 +1,5 @@
 slug          = "pgp-verify"
-title         = "PGP Verify — Check an OpenPGP signature in your browser — gizza.ai"
+title         = "PGP Verify — Check an OpenPGP signature in your browser"
 description   = "Verify a PGP signature online — detached or clearsigned — against a message and public key; reports validity and signer key ID. Runs in your browser."
 tags          = ["pgp verify", "gpg verify", "openpgp signature", "verify pgp signature", "detached signature", "clearsign", "check signature", "pgp signature validator"]
 h1            = "PGP verify"

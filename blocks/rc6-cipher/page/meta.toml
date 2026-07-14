@@ -1,5 +1,5 @@
 slug          = "rc6-cipher"
-title         = "RC6 Cipher — Encrypt/decrypt with RC6 (ECB/CBC) — gizza.ai"
+title         = "RC6 Cipher — Encrypt/decrypt with RC6 (ECB/CBC)"
 description   = "Encrypt or decrypt data with RC6-32/20 in ECB or CBC mode with hex/base64 I/O — in your browser. For interop, learning, and CTFs. Nothing is uploaded."
 tags          = ["rc6", "rc6 encrypt", "rc6 decrypt", "block cipher", "ecb", "cbc", "aes finalist", "legacy cipher"]
 h1            = "RC6 cipher"
