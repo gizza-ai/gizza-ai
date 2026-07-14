@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dir-checksum-report"
+version = "0.1.0"
+abi = 1
+summary = "Checksum report for a batch of files"

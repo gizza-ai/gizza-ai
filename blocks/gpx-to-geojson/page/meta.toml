@@ -1,0 +1,54 @@
+slug          = "gpx-to-geojson"
+title         = "GPX/KML to GeoJSON Converter (and back to GPX)"
+description   = "Convert GPX or KML GPS tracks and waypoints into GeoJSON, or GeoJSON back into GPX, entirely in your browser. Free, private, no upload."
+tags          = ["gpx to geojson", "kml to geojson", "geojson to gpx", "gpx converter", "kml converter", "gps track converter online"]
+h1            = "GPX / KML to GeoJSON Converter"
+hero_subtitle = "Convert GPX or KML GPS tracks and waypoints into GeoJSON — or GeoJSON back into GPX. The format is auto-detected. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_gpx_to_geojson_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "GPX, KML, or GeoJSON"
+placeholder = "<gpx version='1.1'><trk><name>Morning Run</name><trkseg><trkpt lat='52.1' lon='5.1'><ele>10</ele></trkpt><trkpt lat='52.2' lon='5.2'><ele>12</ele></trkpt></trkseg></trk></gpx>"
+source      = "field"
+multiline   = true
+
+# output_format renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "output_format"
+label  = "Convert to"
+source = "field"
+
+[input.labels]
+geojson = "GeoJSON (from GPX or KML)"
+gpx     = "GPX (from GeoJSON)"
+
+[[input]]
+name        = "include_styles"
+label       = "Include KML Style/styleUrl colors as simplestyle properties"
+source      = "field"
+
+[[example]]
+label = "GPX track → GeoJSON"
+[example.params]
+input = "<?xml version=\"1.0\"?>\n<gpx version=\"1.1\"><trk><name>Morning Run</name><trkseg>\n<trkpt lat=\"52.100\" lon=\"5.100\"><ele>10</ele><time>2026-07-01T08:00:00Z</time></trkpt>\n<trkpt lat=\"52.101\" lon=\"5.102\"><ele>12</ele><time>2026-07-01T08:05:00Z</time></trkpt>\n</trkseg></trk></gpx>"
+output_format = "geojson"
+include_styles = "true"
+
+[[example]]
+label = "KML placemark (with style) → GeoJSON"
+[example.params]
+input = "<kml><Document><Placemark>\n<name>Trailhead</name><description>Parking lot</description>\n<Style><IconStyle><color>ff0000ff</color></IconStyle></Style>\n<Point><coordinates>-122.084,37.421,15</coordinates></Point>\n</Placemark></Document></kml>"
+output_format = "geojson"
+include_styles = "true"
+
+[[example]]
+label = "GeoJSON → GPX"
+[example.params]
+input = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"Camp\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[5.1,52.1,10]}},{\"type\":\"Feature\",\"properties\":{\"name\":\"Loop\"},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[5.1,52.1],[5.102,52.101]]}}]}"
+output_format = "gpx"
+include_styles = "true"
