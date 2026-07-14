@@ -80,15 +80,19 @@ impl SiteConfig {
         if self.footer.is_empty() { GENERIC_FOOTER } else { &self.footer }
     }
 
-    /// Suffix a generator-owned title (landing/hub/pair pages and similar
-    /// synthesized strings — as opposed to per-tool `meta.toml` titles, which
-    /// still carry their own literal " — gizza.ai" until a later migration
-    /// finishes moving them onto `title_suffix` too) with `brand_name` when
-    /// set, unsuffixed otherwise. Deliberately independent of `title_suffix`:
-    /// during the rollout `title_suffix` must stay "" so it doesn't
-    /// double-append onto still-suffixed meta titles, but these
-    /// generator-owned strings have no such legacy suffix to collide with and
-    /// must still reproduce their historical branded text byte-for-byte.
+    /// Suffix a generator-owned title (landing/hub/feed/pair pages and
+    /// similar synthesized strings, as opposed to per-tool `meta.toml`
+    /// titles) with `brand_name` when set, unsuffixed otherwise.
+    ///
+    /// Block `page/meta.toml` titles are brand-free by construction — hygiene
+    /// check 8 rejects any domain string in `page/`, and `title()` above
+    /// appends `title_suffix` to them at render time. `brand_title` is a
+    /// separate mechanism for the generator's own synthesized titles, which
+    /// have no `meta.toml` to hold a suffix and so derive their suffix
+    /// straight from `brand_name` instead of `title_suffix`. Keeping the two
+    /// independent means a site config can set `title_suffix` for per-tool
+    /// titles without also affecting (or being required for) these
+    /// generator-owned titles, and vice versa.
     pub fn brand_title(&self, base: &str) -> String {
         if self.brand_name.is_empty() {
             base.to_string()

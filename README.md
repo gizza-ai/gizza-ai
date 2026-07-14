@@ -22,7 +22,7 @@ public, MIT-licensed toolkit that powers it: the tool implementations
 - `cli/` — the `gizza` binary: runs any block headlessly via the wasmi runtime.
 - `tools/generator/` — renders each block's `page/` into a static, standalone
   HTML page (`pkg/tools/<slug>/`).
-- `js/`, `site/` — small runtime JS/CSS shared by the generated tool pages.
+- `js/` — small runtime JS/CSS shared by the generated tool pages.
 - `tests/` — Playwright end-to-end specs for generated tool pages, plus a few
   `node --test` unit suites (`js/*.test.js`).
 - `scripts/` — toolchain bootstrap, the tool-hygiene gate, and the
@@ -89,7 +89,10 @@ gizza tool calculator "2*2" --json-out               # full {_for_llm,_for_ui} e
 Exit codes: `0` ok · `1` tool error · `2` usage/bad args · `3` unsupported in the
 CLI. Image/video tools shell out to the system `ffmpeg` (install it to use them);
 GPU-only tools (e.g. `imagine`) need a browser GPU and so return an
-`unsupported_in_cli` error here.
+`unsupported_in_cli` error here. `gizza list`/`gizza tool` only cover blocks
+with a committed `target/block.wasm` artifact — currently a subset of
+`blocks/`; blocks without committed wasm still ship pages but aren't yet
+runnable from the CLI.
 
 ### MCP server
 

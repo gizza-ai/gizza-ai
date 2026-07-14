@@ -1,7 +1,11 @@
 // header.js — mega-menu open/close behavior + Tools search for the shared
-// site chrome rendered by the gizza-chrome crate.
+// site chrome.
 //
-// DOM contract (ids come from chrome/src/lib.rs header()):
+// DOM contract (ids come from the site's header partial, supplied via the
+// generator's `--site-config` `header_html` fragment — see
+// tools/generator/src/site.rs). The default `GENERIC_HEADER` used when no
+// site config (or an empty `header_html`) is set does not contain these
+// elements, so this module simply finds nothing and no-ops:
 //   #explore-trigger  — <button> that opens/closes the mega-menu
 //   #explore-panel    — the <div class="mega-menu"> panel
 //   #explore-search   — <input type="search"> inside the mega-menu
