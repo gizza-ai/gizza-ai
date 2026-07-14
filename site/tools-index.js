@@ -1,1 +1,0 @@
-../tools/generator/assets/runtime/tools-index.js
