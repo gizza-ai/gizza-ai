@@ -178,7 +178,7 @@ mod tests {
     fn parses_calculator_meta() {
         let text = r#"
 slug          = "calculator"
-title         = "Free Online Calculator — gizza.ai"
+title         = "Free Online Calculator"
 description   = "desc"
 h1            = "Free Online Calculator"
 hero_subtitle = "sub"

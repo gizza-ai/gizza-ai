@@ -13,7 +13,6 @@ name = "gizza-tool-pages"
 path = "src/main.rs"
 
 [dependencies]
-gizza-chrome = { path = "../../chrome" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"

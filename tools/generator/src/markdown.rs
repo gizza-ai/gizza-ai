@@ -4,14 +4,13 @@
 
 use crate::control::{fmt_num, Control, ParamSchema};
 use crate::meta::{Input, ToolMeta};
-
-/// Public site origin — matches the literal used in `template.rs`.
-const SITE: &str = "https://gizza.ai";
+use crate::site::SiteConfig;
 
 /// Render a tool's `index.md`: a generated header (description, run-it, inputs,
 /// output) followed by the tool's prose `content.md`, verbatim, and a
 /// "Related tools" link list (same top-5 as the HTML page).
 pub fn tool_markdown(
+    cfg: &SiteConfig,
     meta: &ToolMeta,
     content_md: &str,
     schema: &ParamSchema,
@@ -23,11 +22,11 @@ pub fn tool_markdown(
 
     s.push_str("## Run it\n\n");
     s.push_str(&format!("- **CLI:** `{}`\n", cli_example(meta, schema)));
-    s.push_str(&format!("- **Web:** {}/tools/{}/\n", SITE, meta.slug));
+    s.push_str(&format!("- **Web:** {}\n", cfg.url_or_rel(&format!("/tools/{}/", meta.slug))));
     s.push_str(&format!(
         "- **Agents:** machine-readable descriptor (parameters JSON Schema) at \
-         {}/tools/{}/tool.json\n\n",
-        SITE, meta.slug
+         {}\n\n",
+        cfg.url_or_rel(&format!("/tools/{}/tool.json", meta.slug))
     ));
 
     s.push_str("## Inputs\n\n");
@@ -68,7 +67,7 @@ pub fn tool_markdown(
         if has_file {
             s.push_str("- `url` — fetch the input file from a public URL (CORS-permitting)\n");
         }
-        s.push_str(&format!("\nExample: `{}`\n\n", example_deeplink(meta, schema)));
+        s.push_str(&format!("\nExample: `{}`\n\n", example_deeplink(cfg, meta, schema)));
     }
 
     s.push_str("---\n\n");
@@ -79,8 +78,10 @@ pub fn tool_markdown(
         s.push_str("\n## Related tools\n\n");
         for r in related {
             s.push_str(&format!(
-                "- [{}]({}/tools/{}/): {}\n",
-                r.h1, SITE, r.slug, r.description
+                "- [{}]({}): {}\n",
+                r.h1,
+                cfg.url_or_rel(&format!("/tools/{}/", r.slug)),
+                r.description
             ));
         }
     }
@@ -135,7 +136,7 @@ pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
 /// placeholder/default/min, else the field placeholder — so the example is
 /// copy-pasteable rather than `=value`. A file input becomes `?url=…`.
 /// `pub(crate)` so `template.rs` renders the same example.
-pub(crate) fn example_deeplink(meta: &ToolMeta, schema: &ParamSchema) -> String {
+pub(crate) fn example_deeplink(cfg: &SiteConfig, meta: &ToolMeta, schema: &ParamSchema) -> String {
     let mut pairs: Vec<String> = Vec::new();
     for i in &meta.inputs {
         if i.source == "file" {
@@ -146,7 +147,7 @@ pub(crate) fn example_deeplink(meta: &ToolMeta, schema: &ParamSchema) -> String 
             }
         }
     }
-    format!("{}/tools/{}/?{}", SITE, meta.slug, pairs.join("&"))
+    cfg.url_or_rel(&format!("/tools/{}/?{}", meta.slug, pairs.join("&")))
 }
 
 /// A realistic sample value for a field in the deep-link example, or `None`
@@ -234,6 +235,13 @@ fn urlencode(s: &str) -> String {
 mod tests {
     use super::*;
 
+    /// A branded config matching today's real `site/site-config.toml`
+    /// (`base_url`/`brand_name` set) — most existing assertions here check
+    /// the historical absolute `https://gizza.ai/...` links.
+    fn branded() -> SiteConfig {
+        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+    }
+
     fn field_tool() -> ToolMeta {
         ToolMeta::from_toml(
             r#"
@@ -319,7 +327,7 @@ source = "clock"
 
     #[test]
     fn field_tool_has_header_runit_inputs_output_prose() {
-        let md = tool_markdown(&field_tool(), "Some **prose** about the calculator.", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &field_tool(), "Some **prose** about the calculator.", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("# Free Online Calculator"));
         assert!(md.contains("`gizza tool calculator \"2 + 2 * 3\"`"), "CLI example");
         assert!(md.contains("https://gizza.ai/tools/calculator/"), "web URL");
@@ -330,7 +338,7 @@ source = "clock"
 
     #[test]
     fn run_it_mentions_the_machine_readable_descriptor() {
-        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(
             md.contains(
                 "- **Agents:** machine-readable descriptor (parameters JSON Schema) at \
@@ -342,7 +350,7 @@ source = "clock"
 
     #[test]
     fn file_tool_uses_url_example_and_accept() {
-        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &file_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(
             md.contains("`gizza tool image-grayscale 'url=https://example.com/input'`"),
             "url= CLI example"
@@ -443,7 +451,7 @@ placeholder = "cotton, linen"
 
     #[test]
     fn live_tool_takes_no_manual_arguments() {
-        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &live_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("`gizza tool clock`"), "no-arg CLI example");
         assert!(md.contains("_no manual inputs — runs automatically_"), "no manual inputs note");
     }
@@ -466,6 +474,7 @@ format        = "text"
         .unwrap();
         let related = vec![&percentage];
         let md = tool_markdown(
+            &branded(),
             &field_tool(),
             "prose",
             &crate::control::ParamSchema::empty(),
@@ -483,13 +492,13 @@ format        = "text"
         assert!(md.find("prose").unwrap() < md.find("## Related tools").unwrap());
 
         // no related tools → no empty section
-        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(!md.contains("## Related tools"));
     }
 
     #[test]
     fn field_tool_documents_query_parameters_with_example() {
-        let md = tool_markdown(&field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("## Query parameters"), "query-params section present");
         assert!(md.contains("- `expr`"), "field param listed");
         assert!(
@@ -500,7 +509,7 @@ format        = "text"
 
     #[test]
     fn file_tool_documents_url_query_parameter() {
-        let md = tool_markdown(&file_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &file_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(md.contains("## Query parameters"));
         assert!(md.contains("- `url`"), "media tools document ?url=");
     }
@@ -508,7 +517,19 @@ format        = "text"
     #[test]
     fn live_tool_has_no_query_parameters_section() {
         // clock has only a "clock" input — nothing to deep-link.
-        let md = tool_markdown(&live_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        let md = tool_markdown(&branded(), &live_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
         assert!(!md.contains("## Query parameters"), "no query-params for auto-only tools");
+    }
+
+    #[test]
+    fn default_config_uses_relative_urls_and_no_brand() {
+        let md = tool_markdown(&SiteConfig::default(), &field_tool(), "prose", &crate::control::ParamSchema::empty(), &[]);
+        assert!(md.contains("- **Web:** /tools/calculator/\n"), "relative web link");
+        assert!(
+            md.contains("- **Agents:** machine-readable descriptor (parameters JSON Schema) at /tools/calculator/tool.json"),
+            "relative descriptor link"
+        );
+        assert!(md.contains("/tools/calculator/?expr="), "relative deep-link example");
+        assert!(!md.contains("gizza.ai"), "no brand leaks into a generic render");
     }
 }

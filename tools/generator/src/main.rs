@@ -16,6 +16,7 @@ mod meta;
 mod og;
 mod pairs;
 mod related;
+mod site;
 mod template;
 mod vocab;
 
@@ -32,10 +33,26 @@ fn main() {
 }
 
 fn run() -> Result<(), String> {
-    let root = std::env::args().nth(1).unwrap_or_else(|| ".".to_string());
+    let mut root = String::from(".");
+    let mut cfg_path: Option<String> = None;
+    let mut out_dir: Option<String> = None;
+    let mut args = std::env::args().skip(1);
+    while let Some(a) = args.next() {
+        match a.as_str() {
+            "--site-config" => cfg_path = args.next(),
+            "--out" => out_dir = args.next(),
+            _ => root = a,
+        }
+    }
     let root = PathBuf::from(root);
+    let cfg = match cfg_path {
+        Some(p) => site::SiteConfig::load(Path::new(&p))?,
+        None => site::SiteConfig::default(),
+    };
     let blocks = root.join("blocks");
-    let pkg_tools = root.join("pkg").join("tools");
+    let pkg_tools = out_dir
+        .map(PathBuf::from)
+        .unwrap_or_else(|| root.join("pkg").join("tools"));
     let runtime = root.join("tools/generator/assets/runtime");
 
     let metas = collect_tool_metas(&blocks)?;
@@ -85,6 +102,7 @@ fn run() -> Result<(), String> {
         // linking every pair page nested under them (empty for other tools).
         let pair_links = pairs::pair_links_for_parent(&pair_specs, &m.slug);
         let html = template::render_page(
+            &cfg,
             m,
             &content_html,
             &schema,
@@ -97,18 +115,18 @@ fn run() -> Result<(), String> {
             .map_err(|e| format!("write index.html: {e}"))?;
         fs::write(
             out.join("index.md"),
-            markdown::tool_markdown(m, &content_md, &schema, &related),
+            markdown::tool_markdown(&cfg, m, &content_md, &schema, &related),
         )
         .map_err(|e| format!("write index.md: {e}"))?;
         // Machine-readable descriptor (identity, URLs, CLI example and the
         // manifest's tool schema) — the agent-facing twin of the page.
         fs::write(
             out.join("tool.json"),
-            descriptor::tool_descriptor(m, &schema, descriptor::load_manifest(tool_dir).as_ref()),
+            descriptor::tool_descriptor(&cfg, m, &schema, descriptor::load_manifest(tool_dir).as_ref()),
         )
         .map_err(|e| format!("write tool.json: {e}"))?;
         // Per-tool Open Graph card — the page's og:image/twitter:image target.
-        fs::write(out.join("og.png"), og_renderer.tool_card(m)?)
+        fs::write(out.join("og.png"), og_renderer.tool_card(&cfg, m)?)
             .map_err(|e| format!("write og.png: {e}"))?;
 
         let web_pkg = tool_dir.join("web/pkg");
@@ -163,15 +181,16 @@ fn run() -> Result<(), String> {
         fs::create_dir_all(&out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
         fs::write(
             out.join("index.html"),
-            pairs::render_pair_page(parent, pair, &pair_specs),
+            pairs::render_pair_page(&cfg, parent, pair, &pair_specs),
         )
         .map_err(|e| format!("write {}/index.html: {e}", pair.path()))?;
-        fs::write(out.join("index.md"), pairs::pair_markdown(parent, pair))
+        fs::write(out.join("index.md"), pairs::pair_markdown(&cfg, parent, pair))
             .map_err(|e| format!("write {}/index.md: {e}", pair.path()))?;
         let card = og_renderer.pair_card(
+            &cfg,
             &pair.h1(),
             &pair.og_tagline(),
-            &format!("gizza.ai/tools/{}", pair.path()),
+            &cfg.og_label(&format!("tools/{}", pair.path())),
         )?;
         fs::write(out.join("og.png"), card)
             .map_err(|e| format!("write {}/og.png: {e}", pair.path()))?;
@@ -181,7 +200,7 @@ fn run() -> Result<(), String> {
     // pair URLs to the sitemap (same pattern as _hubs.json).
     fs::write(
         pkg_tools.join("_pairs.json"),
-        pairs::pairs_json(&rendered_pairs),
+        pairs::pairs_json(&cfg, &rendered_pairs),
     )
     .map_err(|e| format!("write tools/_pairs.json: {e}"))?;
     eprintln!("rendered {} conversion pair pages", rendered_pairs.len());
@@ -204,20 +223,20 @@ fn run() -> Result<(), String> {
     // etc. resolve when the page is served at `/tools/`.
     fs::write(
         pkg_tools.join("index.html"),
-        template::render_tools_index(&metas_only, &hubs),
+        template::render_tools_index(&cfg, &metas_only, &hubs),
     )
     .map_err(|e| format!("write tools/index.html: {e}"))?;
     // Markdown twin of the landing page (the "tools .md page") for LLMs/agents.
     fs::write(
         pkg_tools.join("index.md"),
-        index::tools_catalog_md(&metas_only),
+        index::tools_catalog_md(&cfg, &metas_only),
     )
     .map_err(|e| format!("write tools/index.md: {e}"))?;
     copy_file(&runtime.join("tool.css"), &pkg_tools.join("tool.css"))?;
     copy_file(&runtime.join("header.css"), &pkg_tools.join("header.css"))?;
     copy_file(&runtime.join("header.js"), &pkg_tools.join("header.js"))?;
     copy_file(&runtime.join("tools-index.js"), &pkg_tools.join("tools-index.js"))?;
-    fs::write(pkg_tools.join("og.png"), og_renderer.index_card(metas_only.len())?)
+    fs::write(pkg_tools.join("og.png"), og_renderer.index_card(&cfg, metas_only.len())?)
         .map_err(|e| format!("write tools/og.png: {e}"))?;
     eprintln!("rendered tools/ (landing page, {} tools)", metas_only.len());
 
@@ -229,10 +248,10 @@ fn run() -> Result<(), String> {
         fs::create_dir_all(&out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
         fs::write(
             out.join("index.html"),
-            template::render_category_hub(hub, &hubs),
+            template::render_category_hub(&cfg, hub, &hubs),
         )
         .map_err(|e| format!("write tools/{}/index.html: {e}", hub.category.slug))?;
-        fs::write(out.join("og.png"), og_renderer.hub_card(hub.category)?)
+        fs::write(out.join("og.png"), og_renderer.hub_card(&cfg, hub.category)?)
             .map_err(|e| format!("write tools/{}/og.png: {e}", hub.category.slug))?;
         for asset in ["tool.css", "header.css", "header.js", "tools-index.js"] {
             copy_file(&runtime.join(asset), &out.join(asset))?;

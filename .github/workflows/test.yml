@@ -294,7 +294,8 @@ jobs:
             echo "No changed tool web crates; skipping page generation."
             exit 0
           fi
-          cargo run --manifest-path tools/generator/Cargo.toml -- .
+          cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
+          cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
 
       - name: Changed tool-page Playwright tests
         # Playwright runs headless (the fixtures only go headed under HEADED=1
@@ -328,7 +329,10 @@ jobs:
         # (The generator only warns for tools without a built web/pkg.)
         if: github.event_name != 'pull_request'
         working-directory: gizza-ai
-        run: cargo run --manifest-path tools/generator/Cargo.toml -- .
+        run: |
+          set -euo pipefail
+          cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
+          cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
 
       - name: Landing-chooser Playwright smoke
         # Guards the static chooser page in the pkg/ that "Build skill wasms

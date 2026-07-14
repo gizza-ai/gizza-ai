@@ -7,6 +7,7 @@
 //! across dev machines and CI.
 
 use crate::meta::ToolMeta;
+use crate::site::SiteConfig;
 use resvg::{tiny_skia, usvg};
 
 pub const WIDTH: u32 = 1200;
@@ -37,7 +38,7 @@ impl OgRenderer {
     }
 
     /// Render the card for one tool page.
-    pub fn tool_card(&self, meta: &ToolMeta) -> Result<Vec<u8>, String> {
+    pub fn tool_card(&self, cfg: &SiteConfig, meta: &ToolMeta) -> Result<Vec<u8>, String> {
         let tagline = if meta.hero_subtitle.is_empty() {
             &meta.description
         } else {
@@ -46,7 +47,8 @@ impl OgRenderer {
         self.render(&card_svg(
             &meta.h1,
             tagline,
-            &format!("gizza.ai/tools/{}", meta.slug),
+            &cfg.og_label(&format!("tools/{}", meta.slug)),
+            &cfg.brand_name,
         ))
     }
 
@@ -54,30 +56,37 @@ impl OgRenderer {
     /// (`/tools/<parent>/<src>-to-<tgt>/`).
     pub fn pair_card(
         &self,
+        cfg: &SiteConfig,
         title: &str,
         tagline: &str,
         footer: &str,
     ) -> Result<Vec<u8>, String> {
-        self.render(&card_svg(title, tagline, footer))
+        self.render(&card_svg(title, tagline, footer, &cfg.brand_name))
     }
 
     /// Render the card for a category hub page (`/tools/<category>/`).
-    pub fn hub_card(&self, category: &crate::categories::Category) -> Result<Vec<u8>, String> {
+    pub fn hub_card(
+        &self,
+        cfg: &SiteConfig,
+        category: &crate::categories::Category,
+    ) -> Result<Vec<u8>, String> {
         self.render(&card_svg(
             category.title,
             category.blurb,
-            &format!("gizza.ai/tools/{}", category.slug),
+            &cfg.og_label(&format!("tools/{}", category.slug)),
+            &cfg.brand_name,
         ))
     }
 
     /// Render the card for the `/tools/` landing page.
-    pub fn index_card(&self, tool_count: usize) -> Result<Vec<u8>, String> {
+    pub fn index_card(&self, cfg: &SiteConfig, tool_count: usize) -> Result<Vec<u8>, String> {
         self.render(&card_svg(
             "All tools",
             &format!(
                 "{tool_count} free, private, browser-local tools — no sign-up, works offline."
             ),
-            "gizza.ai/tools",
+            &cfg.og_label("tools"),
+            &cfg.brand_name,
         ))
     }
 
@@ -93,8 +102,9 @@ impl OgRenderer {
 
 /// Compose the card SVG. Palette mirrors the site (`--tool-ink` slate,
 /// `--tool-accent` indigo). Kept `pub(crate)` so tests can assert on layout
-/// without rasterizing.
-pub(crate) fn card_svg(title: &str, tagline: &str, footer: &str) -> String {
+/// without rasterizing. `brand_name` labels the top-left brand row; empty
+/// omits the label text (generic/unbranded cards carry no brand name).
+pub(crate) fn card_svg(title: &str, tagline: &str, footer: &str, brand_name: &str) -> String {
     // Title: bigger for short names, wrapped up to 3 lines for long ones.
     let title_size: f32 = match title.chars().count() {
         0..=22 => 88.0,
@@ -108,14 +118,23 @@ pub(crate) fn card_svg(title: &str, tagline: &str, footer: &str) -> String {
     let tagline_lines = wrap(tagline, chars_per_line(tagline_size), tagline_max_lines);
 
     let mut text_elems = String::new();
-    // Brand row.
+    // Brand row. The brand-name text is omitted for a generic/unbranded card;
+    // the accent dot and right-aligned tagline are universal either way.
+    let brand_text = if brand_name.is_empty() {
+        String::new()
+    } else {
+        format!(
+            r##"<text x="{bx}" y="122" font-family="DejaVu Sans" font-weight="bold" font-size="40" fill="#e2e8f0">{}</text>
+"##,
+            escape_xml(brand_name),
+            bx = PAD + 44.0,
+        )
+    };
     text_elems.push_str(&format!(
         r##"<circle cx="{cx}" cy="108" r="14" fill="#4f46e5"/>
-<text x="{bx}" y="122" font-family="DejaVu Sans" font-weight="bold" font-size="40" fill="#e2e8f0">gizza.ai</text>
-<text x="{rx}" y="120" text-anchor="end" font-family="DejaVu Sans" font-size="26" fill="#64748b">Free · Private · In your browser</text>
+{brand_text}<text x="{rx}" y="120" text-anchor="end" font-family="DejaVu Sans" font-size="26" fill="#64748b">Free · Private · In your browser</text>
 "##,
         cx = PAD + 14.0,
-        bx = PAD + 44.0,
         rx = WIDTH as f32 - PAD,
     ));
     // Title block.
@@ -232,7 +251,7 @@ mod tests {
 
     #[test]
     fn svg_escapes_and_lays_out() {
-        let svg = card_svg("A & B <fast>", "Convert \"x\" locally.", "gizza.ai/tools/x");
+        let svg = card_svg("A & B <fast>", "Convert \"x\" locally.", "gizza.ai/tools/x", "gizza.ai");
         assert!(svg.contains("A &amp; B &lt;fast&gt;"));
         assert!(svg.contains("&quot;x&quot;"));
         assert!(svg.contains("gizza.ai/tools/x"));
@@ -240,8 +259,20 @@ mod tests {
     }
 
     #[test]
+    fn brand_text_omitted_when_brand_name_empty() {
+        let branded = card_svg("Title", "Tagline", "tools/x", "gizza.ai");
+        assert!(branded.contains(">gizza.ai</text>"), "brand name rendered when set");
+        let generic = card_svg("Title", "Tagline", "tools/x", "");
+        assert!(!generic.contains("gizza.ai"), "no brand text when brand_name is empty");
+        // the accent dot and right-aligned tagline stay either way
+        assert!(generic.contains("<circle"), "accent dot still rendered");
+        assert!(generic.contains("Free · Private · In your browser"));
+    }
+
+    #[test]
     fn renders_a_valid_png() {
         let r = OgRenderer::new();
+        let cfg = SiteConfig { brand_name: "gizza.ai".into(), ..Default::default() };
         let meta = ToolMeta::from_toml(
             r#"
 slug          = "calculator"
@@ -256,10 +287,14 @@ format        = "number"
 "#,
         )
         .unwrap();
-        let png = r.tool_card(&meta).unwrap();
+        let png = r.tool_card(&cfg, &meta).unwrap();
         assert_eq!(&png[..8], b"\x89PNG\r\n\x1a\n", "PNG magic");
         assert!(png.len() > 5_000, "non-trivial image ({} bytes)", png.len());
-        let idx = r.index_card(324).unwrap();
+        let idx = r.index_card(&cfg, 324).unwrap();
         assert_eq!(&idx[..8], b"\x89PNG\r\n\x1a\n");
+
+        // a fully generic (default) config renders too, with no brand label.
+        let generic = r.index_card(&SiteConfig::default(), 324).unwrap();
+        assert_eq!(&generic[..8], b"\x89PNG\r\n\x1a\n");
     }
 }

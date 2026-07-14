@@ -170,7 +170,8 @@ jobs:
             echo "building missing web/pkg for $tool"
             wasm-pack build "blocks/$tool/web" --target web --release --out-dir pkg
           done
-          cargo run --manifest-path tools/generator/Cargo.toml -- .
+          cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
+          cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
 
       - name: Publish skill block wasm as static assets
         # The chat app no longer embeds block wasm into gizza_ai_bg.wasm (see
