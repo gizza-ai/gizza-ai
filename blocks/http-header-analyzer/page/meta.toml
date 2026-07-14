@@ -1,5 +1,5 @@
 slug          = "http-header-analyzer"
-title         = "HTTP Header Analyzer — explain response headers & spot missing security headers — gizza.ai"
+title         = "HTTP Header Analyzer — explain response headers & spot missing security headers"
 description   = "Paste HTTP response headers for a plain-English explanation of each, an A+–F security grade, and missing security headers. Free, private, in your browser."
 tags          = ["http header analyzer", "http response headers", "security headers checker", "cache-control explained", "content-encoding", "missing security headers", "hsts", "content-security-policy", "header inspector"]
 h1            = "HTTP Header Analyzer"

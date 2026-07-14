@@ -1,5 +1,5 @@
 slug          = "sha3-hash"
-title         = "SHA-3 Hash Generator — SHA3-256 / SHA3-384 / SHA3-512 (FIPS-202) | gizza.ai"
+title         = "SHA-3 Hash Generator — SHA3-256 / SHA3-384 / SHA3-512 (FIPS-202)"
 description   = "Compute the FIPS-202 SHA-3 hash (SHA3-256/384/512) of any text in your browser — the NIST standard, not Keccak. Hex or base64 output. Free, private, no sign-up."
 tags          = ["sha3", "sha3-256", "sha3-384", "sha3-512", "fips-202", "nist", "keccak", "hash", "digest", "checksum", "hex", "base64", "cryptography"]
 h1            = "SHA-3 Hash Generator"

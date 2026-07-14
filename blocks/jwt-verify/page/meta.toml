@@ -1,5 +1,5 @@
 slug          = "jwt-verify"
-title         = "JWT Verify — Validate a JSON Web Token signature & claims — gizza.ai"
+title         = "JWT Verify — Validate a JSON Web Token signature & claims"
 description   = "Verify a JWT signature (HS256/384/512, RS256/384/512, ES256/384) and its exp, nbf, iss and aud claims in your browser — token and key never leave your device."
 tags          = ["jwt verify", "jwt validator", "json web token", "jws", "verify jwt signature", "hs256", "rs256", "es256", "jwt decoder"]
 h1            = "JWT verify"

@@ -1,5 +1,5 @@
 slug          = "text-to-unicode"
-title         = "Text to Unicode — gizza.ai"
+title         = "Text to Unicode"
 description   = "List each character's Unicode code point (U+XXXX), name, \\u escape sequence and UTF-8 bytes for any text."
 tags          = ["text", "unicode", "encoding"]
 h1            = "Text to Unicode"

@@ -8,7 +8,8 @@ use serde::Serialize;
 #[derive(Serialize)]
 struct IndexEntry<'a> {
     slug: &'a str,
-    title: &'a str,
+    /// `meta.title` (bare) + `cfg.title_suffix` — see `SiteConfig::title`.
+    title: String,
     description: &'a str,
     tags: &'a [String],
     /// Site-relative path of the tool's machine-readable descriptor
@@ -18,12 +19,12 @@ struct IndexEntry<'a> {
 
 /// Serialize `[{slug,title,description,tags,descriptor}]` for every tool, in
 /// the given order.
-pub fn tools_index_json(metas: &[ToolMeta]) -> String {
+pub fn tools_index_json(cfg: &SiteConfig, metas: &[ToolMeta]) -> String {
     let entries: Vec<IndexEntry> = metas
         .iter()
         .map(|m| IndexEntry {
             slug: &m.slug,
-            title: &m.title,
+            title: cfg.title(&m.title),
             description: &m.description,
             tags: &m.tags,
             descriptor: format!("/tools/{}/tool.json", m.slug),
@@ -98,7 +99,7 @@ mod tests {
         ToolMeta::from_toml(
             r#"
 slug          = "calculator"
-title         = "Free Online Calculator — gizza.ai"
+title         = "Free Online Calculator"
 description   = "Evaluate expressions instantly."
 tags          = ["math", "arithmetic"]
 h1            = "Free Online Calculator"
@@ -121,7 +122,9 @@ source      = "field"
 
     #[test]
     fn index_has_slug_title_description() {
-        let json = tools_index_json(&[calc()]);
+        // Bare `meta.title` + `cfg.title_suffix` (Task 3) round-trips to the
+        // historical suffixed title.
+        let json = tools_index_json(&branded(), &[calc()]);
         let v: serde_json::Value = serde_json::from_str(&json).unwrap();
         assert!(v.is_array());
         assert_eq!(v[0]["slug"], "calculator");
@@ -136,20 +139,27 @@ source      = "field"
     }
 
     #[test]
+    fn default_config_renders_bare_unsuffixed_title() {
+        let json = tools_index_json(&SiteConfig::default(), &[calc()]);
+        let v: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(v[0]["title"], "Free Online Calculator", "unsuffixed generic title");
+    }
+
+    #[test]
     fn tags_default_to_empty_array_when_absent() {
         // A tool meta without a `tags` line still serializes `tags: []`.
         let m = ToolMeta::from_toml(
             "slug=\"x\"\ntitle=\"X\"\ndescription=\"d\"\nh1=\"h\"\nhero_subtitle=\"s\"\nwasm=\"w\"\nexport=\"e\"\noutput_label=\"o\"\nformat=\"text\"\n",
         )
         .unwrap();
-        let v: serde_json::Value = serde_json::from_str(&tools_index_json(&[m])).unwrap();
+        let v: serde_json::Value = serde_json::from_str(&tools_index_json(&SiteConfig::default(), &[m])).unwrap();
         assert!(v[0]["tags"].is_array());
         assert_eq!(v[0]["tags"].as_array().unwrap().len(), 0);
     }
 
     #[test]
     fn empty_metas_is_empty_array() {
-        assert_eq!(tools_index_json(&[]), "[]");
+        assert_eq!(tools_index_json(&SiteConfig::default(), &[]), "[]");
     }
 
     #[test]
@@ -167,7 +177,12 @@ source      = "field"
     }
 
     fn branded() -> SiteConfig {
-        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+        SiteConfig {
+            base_url: "https://gizza.ai".into(),
+            brand_name: "gizza.ai".into(),
+            title_suffix: " — gizza.ai".into(),
+            ..Default::default()
+        }
     }
 
     #[test]

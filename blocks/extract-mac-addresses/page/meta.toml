@@ -1,5 +1,5 @@
 slug          = "extract-mac-addresses"
-title         = "Extract MAC Addresses from Text or Logs — gizza.ai"
+title         = "Extract MAC Addresses from Text or Logs"
 description   = "Find every MAC address in pasted text or logs and normalize to colon, hyphen, Cisco dotted, or bare hex. Deduplicated, private, runs in your browser."
 tags          = ["extract mac", "mac address finder", "mac normalizer", "eui-48", "eui-64", "cisco mac format", "parse logs", "dedupe mac"]
 h1            = "Extract MAC Addresses"

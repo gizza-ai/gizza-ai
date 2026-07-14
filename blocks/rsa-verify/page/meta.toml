@@ -1,5 +1,5 @@
 slug          = "rsa-verify"
-title         = "RSA Verify — Verify an RSA signature (PKCS#1 / PSS) — gizza.ai"
+title         = "RSA Verify — Verify an RSA signature (PKCS#1 / PSS)"
 description   = "Verify an RSA signature (PKCS#1 v1.5 or PSS, SHA-256/384/512) over a message against an RSA public key, in your browser. Nothing is uploaded."
 tags          = ["rsa verify", "verify rsa signature", "pkcs1", "rsa pss", "signature verification", "crypto"]
 h1            = "RSA verify"

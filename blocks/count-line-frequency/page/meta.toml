@@ -1,5 +1,5 @@
 slug          = "count-line-frequency"
-title         = "Count Line Frequency — Rank lines by occurrence — gizza.ai"
+title         = "Count Line Frequency — Rank lines by occurrence"
 description   = "Count how often each line or value occurs and rank them most to least frequent, in your browser. Like sort | uniq -c | sort -rn. Nothing is uploaded."
 tags          = ["count lines", "uniq -c", "frequency count", "tally", "duplicate counter", "rank lines"]
 h1            = "Count line frequency"

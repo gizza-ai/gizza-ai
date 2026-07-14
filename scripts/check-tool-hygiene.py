@@ -26,6 +26,12 @@ to real regressions:
   4. Summary drift. The wafer_block macro summary, `manifest.json` `summary`, and
      `wafer.toml` `summary` must agree (a trailing period is ignored).
 
+  8. Site branding. Pages must be generic: the site injects branding at render
+     time (`SiteConfig` `title_suffix`/header/footer — `tools/generator/src/site.rs`).
+     A literal `gizza.ai`/`gizza-ai.pages.dev` string in `page/meta.toml`,
+     `content.md`, `custom.js` or `custom.css` would leak the brand into the
+     public, MIT-licensed page sources themselves.
+
 Prose usability standards (see `.claude/skills/improve-tool/SKILL.md`) were being
 skipped silently because nothing failed the build. This turns the mechanically
 checkable ones into a gate.
@@ -44,8 +50,8 @@ aggregated advisory so CI stays green until the corpus is backfilled:
      require 50-170 chars (truncation starts ~160; shorter than 50 wastes the slot).
 
 Usage:
-  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4 gate, 5-7 advisory
-  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-7 all gate
+  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4+8 gate, 5-7 advisory
+  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-8 all gate
 
 Exit code 0 = clean, 1 = violations found (prints each), 2 = usage error.
 """
@@ -69,6 +75,7 @@ STR_LIT_RE = re.compile(r'"([^"]*)"')
 FAQ_HEADING_RE = re.compile(r"^#{1,6}\s*(faq|frequently asked)", re.IGNORECASE | re.MULTILINE)
 MACRO_SUMMARY_RE = re.compile(r'wafer_block\((?:.|\n)*?\bsummary\s*=\s*"((?:\\.|[^"\\])*)"')
 WAFER_SUMMARY_RE = re.compile(r'^\s*summary\s*=\s*"((?:\\.|[^"\\])*)"', re.MULTILINE)
+BRAND_RE = re.compile(r"gizza\.ai|gizza-ai\.pages\.dev", re.IGNORECASE)
 
 
 def norm_summary(s: str) -> str:
@@ -220,6 +227,19 @@ def check_block(slug_dir: Path) -> list[str]:
     if summaries and len({norm_summary(v) for v in summaries.values()}) > 1:
         detail = ", ".join(f"{k}={v!r}" for k, v in summaries.items())
         problems.append(f"{slug}: summary differs across {detail} — keep the three in sync (a trailing period is fine).")
+
+    # 8. Site branding. Pages must be generic: the site injects branding at
+    #    render time (SiteConfig title_suffix/header/footer). Domain strings
+    #    in page/ would leak the brand into the public, MIT-licensed pages.
+    for name in ("meta.toml", "content.md", "custom.js", "custom.css"):
+        f = slug_dir / "page" / name
+        if f.is_file():
+            m = BRAND_RE.search(f.read_text(encoding="utf-8", errors="replace"))
+            if m:
+                problems.append(
+                    f"{slug}: site branding {m.group(0)!r} in page/{name} "
+                    "— pages must be generic (branding is injected by the site config)"
+                )
 
     return problems
 

@@ -1,5 +1,5 @@
 slug          = "rsa-sign"
-title         = "RSA Sign — Sign a message with an RSA key (PKCS#1 / PSS) — gizza.ai"
+title         = "RSA Sign — Sign a message with an RSA key (PKCS#1 / PSS)"
 description   = "Sign a message with an RSA private key (PKCS#1 v1.5 or PSS, SHA-256/384/512) and get a base64 signature, in your browser. Nothing is uploaded."
 tags          = ["rsa sign", "rsa signature", "pkcs1", "rsa pss", "digital signature", "crypto"]
 h1            = "RSA sign"

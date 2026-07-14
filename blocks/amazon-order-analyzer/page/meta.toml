@@ -1,5 +1,5 @@
 slug          = "amazon-order-analyzer"
-title         = "Amazon Order Analyzer — Spending by Month, Item, Category — gizza.ai"
+title         = "Amazon Order Analyzer — Spending by Month, Item, Category"
 description   = "Paste an Amazon order-history CSV export to summarize total spend by month, top items, and category breakdowns. Browser-only, private, with Markdown or JSON output."
 tags          = ["amazon orders", "order history", "csv analyzer", "spending summary", "monthly spend", "top items", "category breakdown", "personal finance", "shopping"]
 h1            = "Amazon Order Analyzer"

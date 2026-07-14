@@ -1,5 +1,5 @@
 slug          = "video-first-last-frame-extractor"
-title         = "First & Last Frame Extractor — Video Start-vs-End Comparison — gizza.ai"
+title         = "First & Last Frame Extractor — Video Start-vs-End Comparison"
 description   = "Grab a video's first and last frame and stitch them into one before/after image — side by side or stacked. Free, in your browser with ffmpeg, nothing uploaded."
 tags          = ["first and last frame", "video first frame", "video last frame", "before after video", "start vs end frame", "video comparison image", "keyframe grab", "ffmpeg"]
 h1            = "Extract a Video's First & Last Frame"

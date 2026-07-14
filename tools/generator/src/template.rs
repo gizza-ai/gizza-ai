@@ -30,6 +30,9 @@ pub fn render_page(
 ) -> String {
     let canonical = cfg.abs(&format!("/tools/{}/", meta.slug));
     let og_image = cfg.abs(&format!("/tools/{}/og.png", meta.slug));
+    // `meta.title` is the bare per-tool title (Task 3: the literal site suffix
+    // moved out of `blocks/*/page/meta.toml` and into `cfg.title_suffix`).
+    let page_title = cfg.title(&meta.title);
     // Both JSON blobs below are emitted raw inside <script> via PreEscaped, so a
     // literal "</script>" in any value would break out of the element. serde_json
     // does not escape '/', so we neutralize the closing-tag sequence. Values are
@@ -95,7 +98,7 @@ pub fn render_page(
             head {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
-                title { (meta.title) }
+                title { (page_title) }
                 meta name="description" content=(meta.description);
                 @if let Some(c) = &canonical {
                     link rel="canonical" href=(c);
@@ -103,7 +106,7 @@ pub fn render_page(
                 link rel="alternate" type="text/markdown" href="index.md";
                 link rel="alternate" type="application/json" href="tool.json";
                 meta property="og:type" content="website";
-                meta property="og:title" content=(meta.title);
+                meta property="og:title" content=(page_title);
                 meta property="og:description" content=(meta.description);
                 @if let Some(c) = &canonical {
                     meta property="og:url" content=(c);
@@ -112,10 +115,10 @@ pub fn render_page(
                     meta property="og:image" content=(img);
                     meta property="og:image:width" content="1200";
                     meta property="og:image:height" content="630";
-                    meta property="og:image:alt" content=(meta.title);
+                    meta property="og:image:alt" content=(page_title);
                 }
                 meta name="twitter:card" content="summary_large_image";
-                meta name="twitter:title" content=(meta.title);
+                meta name="twitter:title" content=(page_title);
                 meta name="twitter:description" content=(meta.description);
                 @if let Some(img) = &og_image {
                     meta name="twitter:image" content=(img);
@@ -780,17 +783,23 @@ mod tests {
     use crate::meta::ToolMeta;
 
     /// A branded config matching today's real `site/site-config.toml`
-    /// (`base_url`/`brand_name` set) — most existing assertions here check
-    /// the historical absolute `https://gizza.ai/...` links and chrome.
+    /// (`base_url`/`brand_name`/`title_suffix` set) — most existing assertions
+    /// here check the historical absolute `https://gizza.ai/...` links, chrome,
+    /// and suffixed `<title>` text.
     fn branded() -> SiteConfig {
-        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+        SiteConfig {
+            base_url: "https://gizza.ai".into(),
+            brand_name: "gizza.ai".into(),
+            title_suffix: " — gizza.ai".into(),
+            ..Default::default()
+        }
     }
 
     fn sample() -> ToolMeta {
         ToolMeta::from_toml(
             r#"
 slug          = "calculator"
-title         = "Free Online Calculator — gizza.ai"
+title         = "Free Online Calculator"
 description   = "Evaluate expressions instantly."
 h1            = "Free Online Calculator"
 hero_subtitle = "Type a math expression."
@@ -888,16 +897,12 @@ source      = "field"
 
     #[test]
     fn default_config_renders_generic_header_footer_no_brand() {
-        // `sample()`'s title carries a literal " — gizza.ai" suffix, mirroring
-        // every real `blocks/*/page/meta.toml` today (unmigrated data, Task 3's
-        // job — `meta.title` is rendered as-is regardless of `cfg`). Use an
-        // unsuffixed title here so this test isolates GENERATOR-introduced
-        // branding, not that known, pre-existing, out-of-scope data residue.
-        let mut meta = sample();
-        meta.title = "Free Online Calculator".to_string();
+        // `sample()`'s title is bare (Task 3: the site suffix moved out of
+        // `blocks/*/page/meta.toml` and into `cfg.title_suffix`), so the
+        // default (empty-suffix) config renders it completely unsuffixed.
         let html = render_page(
             &SiteConfig::default(),
-            &meta,
+            &sample(),
             "<h2>About</h2>",
             &ParamSchema::empty(),
             false,
@@ -1164,7 +1169,7 @@ placeholder = "640"
         ToolMeta::from_toml(
             r#"
 slug          = "age-calculator"
-title         = "Age Calculator — gizza.ai"
+title         = "Age Calculator"
 description   = "d"
 h1            = "Age Calculator"
 hero_subtitle = "s"

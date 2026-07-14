@@ -1,5 +1,5 @@
 slug          = "strip-udp-header"
-title         = "UDP Header Stripper — remove the 8-byte UDP header and get the payload — gizza.ai"
+title         = "UDP Header Stripper — remove the 8-byte UDP header and get the payload"
 description   = "Strip the 8-byte UDP header from a hex datagram to get the payload, plus source/destination ports, length and checksum — free, in your browser."
 tags          = ["strip udp header", "remove udp header", "udp payload", "udp datagram payload", "decapsulate udp", "extract udp payload", "udp source port", "udp destination port", "udp length field", "udp checksum"]
 h1            = "UDP Header Stripper"

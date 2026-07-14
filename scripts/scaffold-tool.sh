@@ -175,7 +175,7 @@ EOF
 
 cat > "$dir/page/meta.toml" <<EOF
 slug          = "$slug"
-title         = "TODO — gizza.ai"
+title         = "TODO"
 description   = "TODO."
 tags          = []
 h1            = "TODO"
@@ -321,7 +321,7 @@ pub fn plan(in_name: &str) -> Result<(Vec<String>, String), String> {
 EOF
   cat > "$dir/page/meta.toml" <<EOF
 slug          = "$slug"
-title         = "TODO — gizza.ai"
+title         = "TODO"
 description   = "TODO."
 tags          = []
 h1            = "TODO"

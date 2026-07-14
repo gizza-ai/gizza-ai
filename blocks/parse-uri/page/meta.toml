@@ -1,5 +1,5 @@
 slug          = "parse-uri"
-title         = "URI Parser — split a URL into scheme, host, path, query & fragment — gizza.ai"
+title         = "URI Parser — split a URL into scheme, host, path, query & fragment"
 description   = "Parse a URI or URL into scheme, user info, host, port, path, percent-decoded query parameters, and fragment — free and private, right in your browser."
 tags          = ["uri parser", "url parser", "parse url", "url components", "query string parser", "rfc 3986", "url breakdown", "host port path", "url decoder"]
 h1            = "URI / URL Parser"

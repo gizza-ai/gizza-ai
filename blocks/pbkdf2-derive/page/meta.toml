@@ -1,5 +1,5 @@
 slug          = "pbkdf2-derive"
-title         = "PBKDF2 Key Derivation — derive a key from a password — gizza.ai"
+title         = "PBKDF2 Key Derivation — derive a key from a password"
 description   = "Derive a key from a password with PBKDF2-HMAC (SHA-1/256/512). Pick iterations, salt, length and hex/base64 output — all in your browser. Nothing is uploaded."
 tags          = ["pbkdf2", "key derivation", "kdf", "pbkdf2-hmac-sha256", "derive key from password", "rfc 2898", "rfc 8018", "password based key derivation"]
 h1            = "PBKDF2 key derivation"

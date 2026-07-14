@@ -1,5 +1,5 @@
 slug          = "argon2-hash"
-title         = "Argon2 Hash — Argon2id password hashing & verify — gizza.ai"
+title         = "Argon2 Hash — Argon2id password hashing & verify"
 description   = "Hash a password with Argon2id (configurable memory, iterations, parallelism) and get a PHC string, or verify a password — in your browser. Nothing is uploaded."
 tags          = ["argon2", "argon2id", "password hash", "phc", "password hashing", "verify password"]
 h1            = "Argon2 hash"

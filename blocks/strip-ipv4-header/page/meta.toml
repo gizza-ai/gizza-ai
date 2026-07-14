@@ -1,5 +1,5 @@
 slug          = "strip-ipv4-header"
-title         = "IPv4 Header Stripper — remove the IPv4 header and get the payload — gizza.ai"
+title         = "IPv4 Header Stripper — remove the IPv4 header and get the payload"
 description   = "Strip the IPv4 header from a raw hex packet — honoring IHL options and Total Length padding — to get the TCP/UDP/ICMP payload as hex, free in your browser."
 tags          = ["strip ipv4 header", "remove ip header", "ipv4 payload", "ip packet payload", "decapsulate ipv4", "ip header length", "ihl", "extract tcp payload", "extract udp payload", "ip protocol number"]
 h1            = "IPv4 Header Stripper"

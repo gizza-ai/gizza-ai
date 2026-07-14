@@ -1,5 +1,5 @@
 slug          = "lznt1-decompress"
-title         = "LZNT1 Decompress — Decode RtlCompressBuffer Blobs — gizza.ai"
+title         = "LZNT1 Decompress — Decode RtlCompressBuffer Blobs"
 description   = "Decompress LZNT1 (Windows RtlCompressBuffer) blobs from hex or Base64 in your browser — registry hives, hiberfil, malware configs. Free, private, no sign-up."
 tags          = ["lznt1", "lznt1 decompress", "rtldecompressbuffer", "rtlcompressbuffer", "ntfs compression", "registry hive", "hibernation file", "malware analysis", "forensics", "compression_format_lznt1"]
 h1            = "LZNT1 Decompress"

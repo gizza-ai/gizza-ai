@@ -1,5 +1,5 @@
 slug          = "rc4-cipher"
-title         = "RC4 Cipher — Encrypt/decrypt with RC4 (with drop-N) — gizza.ai"
+title         = "RC4 Cipher — Encrypt/decrypt with RC4 (with drop-N)"
 description   = "Encrypt or decrypt text with the RC4 stream cipher — optional drop-N to skip weak keystream bytes, hex or base64 output — free and in your browser."
 tags          = ["rc4", "rc4 encrypt", "rc4 decrypt", "rc4-drop", "stream cipher", "arcfour", "cipher"]
 h1            = "RC4 cipher"

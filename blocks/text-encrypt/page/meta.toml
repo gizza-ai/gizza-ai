@@ -1,5 +1,5 @@
 slug          = "text-encrypt"
-title         = "Text Encrypt — AES-256 encrypt/decrypt text with a passphrase — gizza.ai"
+title         = "Text Encrypt — AES-256 encrypt/decrypt text with a passphrase"
 description   = "Encrypt or decrypt text with a passphrase using AES-256-GCM, in your browser. Get a copy-pasteable token. Nothing is uploaded."
 tags          = ["text encryption", "aes", "encrypt text", "decrypt text", "passphrase", "privacy"]
 h1            = "Text encrypt"

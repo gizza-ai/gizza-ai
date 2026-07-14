@@ -1,5 +1,5 @@
 slug          = "csv-stats"
-title         = "CSV Stats — Per-column summary statistics — gizza.ai"
+title         = "CSV Stats — Per-column summary statistics"
 description   = "Compute per-column count, distinct, min, max, mean and sum for a CSV, in your browser. Free, private, no upload."
 tags          = ["csv stats", "csv summary", "column statistics", "csv describe", "csv mean min max"]
 h1            = "CSV stats"

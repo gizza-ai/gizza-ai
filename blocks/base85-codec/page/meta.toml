@@ -1,5 +1,5 @@
 slug          = "base85-codec"
-title         = "Base85 Encoder & Decoder (Ascii85, Z85, RFC 1924) — gizza.ai"
+title         = "Base85 Encoder & Decoder (Ascii85, Z85, RFC 1924)"
 description   = "Encode text or hex bytes to Base85 and decode Base85 back. Supports Ascii85, ZeroMQ Z85, and RFC 1924 variants with optional Adobe framing. Free, private, browser-local."
 tags          = ["base85", "ascii85", "z85", "rfc1924", "base85 encoder", "base85 decoder", "adobe ascii85", "zeromq z85", "binary encoder", "url safe"]
 h1            = "Base85 Encoder / Decoder"

@@ -1,5 +1,5 @@
 slug          = "parse-udp-header"
-title         = "UDP Header Parser — decode a raw UDP datagram header from hex — gizza.ai"
+title         = "UDP Header Parser — decode a raw UDP datagram header from hex"
 description   = "Decode a UDP header from hex — source and destination ports with service names, length, payload size, and checksum. Free, private, runs in your browser."
 tags          = ["udp header parser", "decode udp header", "udp datagram header", "udp port", "udp length", "udp checksum", "rfc 768", "dns port 53", "ntp port 123", "quic port 443"]
 h1            = "UDP Header Parser"

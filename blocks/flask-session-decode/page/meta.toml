@@ -1,5 +1,5 @@
 slug          = "flask-session-decode"
-title         = "Flask Session Cookie Decoder — Decode itsdangerous Sessions — gizza.ai"
+title         = "Flask Session Cookie Decoder — Decode itsdangerous Sessions"
 description   = "Decode a Flask session cookie (itsdangerous) into readable JSON without the secret key — base64url, zlib payloads, signature timestamp. Free, in your browser."
 tags          = ["flask session decoder", "itsdangerous", "session cookie", "decode flask cookie", "flask cookie decoder", "base64url", "session debugging", "python flask"]
 h1            = "Flask Session Cookie Decoder"

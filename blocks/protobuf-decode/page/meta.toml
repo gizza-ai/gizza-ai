@@ -1,5 +1,5 @@
 slug          = "protobuf-decode"
-title         = "Protobuf Decoder — Decode Protobuf Wire Bytes Without a .proto | gizza.ai"
+title         = "Protobuf Decoder — Decode Protobuf Wire Bytes Without a .proto"
 description   = "Decode raw protobuf wire bytes (base64 or hex) into a field-number/wire-type tree — no .proto schema needed, nested messages recursed. Free, in your browser."
 tags          = ["protobuf", "protocol buffers", "decode protobuf", "protobuf wire format", "grpc", "protobuf inspector", "no schema", "reverse engineering"]
 h1            = "Protobuf Wire Decoder"

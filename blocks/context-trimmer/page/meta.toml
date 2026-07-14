@@ -1,5 +1,5 @@
 slug          = "context-trimmer"
-title         = "Context Trimmer — Fit Text to a Token Budget | gizza.ai"
+title         = "Context Trimmer — Fit Text to a Token Budget"
 description   = "Trim text to an approximate token budget for LLM prompts, keeping the head, tail, middle, or both ends. Runs locally in your browser."
 tags          = ["llm", "prompt", "tokens", "text", "context"]
 h1            = "Context Trimmer"

@@ -1,5 +1,5 @@
 slug          = "bech32-codec"
-title         = "Bech32 & Bech32m Encoder / Decoder (BIP 173 / BIP 350) — gizza.ai"
+title         = "Bech32 & Bech32m Encoder / Decoder (BIP 173 / BIP 350)"
 description   = "Encode and decode checksummed Bech32 and Bech32m strings (HRP + data) as used by SegWit, Taproot, Lightning and Nostr. Free, private, browser-local."
 tags          = ["bech32", "bech32m", "bech32 encoder", "bech32 decoder", "bip173", "bip350", "segwit address", "taproot", "lightning invoice", "nostr npub"]
 h1            = "Bech32 / Bech32m Encoder & Decoder"

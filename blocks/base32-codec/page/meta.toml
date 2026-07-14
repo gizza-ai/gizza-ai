@@ -1,5 +1,5 @@
 slug          = "base32-codec"
-title         = "Base32 Encoder & Decoder (RFC 4648) — gizza.ai"
+title         = "Base32 Encoder & Decoder (RFC 4648)"
 description   = "Free Base32 encoder and decoder in your browser — RFC 4648, base32hex, Crockford and z-base-32 variants, hex byte I/O, optional padding. Private, no sign-up."
 tags          = ["base32", "base32 encode", "base32 decode", "rfc 4648", "base32hex", "crockford base32", "z-base-32", "encoder", "decoder", "hex"]
 h1            = "Base32 Encoder / Decoder"

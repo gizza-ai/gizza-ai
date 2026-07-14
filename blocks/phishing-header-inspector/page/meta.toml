@@ -1,5 +1,5 @@
 slug          = "phishing-header-inspector"
-title         = "Phishing Header Inspector — Check Email Headers | gizza.ai"
+title         = "Phishing Header Inspector — Check Email Headers"
 description   = "Paste raw email headers to flag From/Return-Path mismatches, Reply-To detours, failed SPF/DKIM/DMARC, and suspicious Received hops locally."
 tags          = ["email header analyzer", "phishing header checker", "spoofing detector", "spf dkim dmarc", "return path mismatch", "received headers", "email security"]
 h1            = "Phishing Header Inspector"

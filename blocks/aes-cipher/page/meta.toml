@@ -1,5 +1,5 @@
 slug          = "aes-cipher"
-title         = "AES Cipher — Encrypt/decrypt with AES (CBC/CTR/GCM/ECB) — gizza.ai"
+title         = "AES Cipher — Encrypt/decrypt with AES (CBC/CTR/GCM/ECB)"
 description   = "Encrypt or decrypt text with AES in CBC, CTR, GCM or ECB mode and 128/192/256-bit keys, with hex/base64 I/O — in your browser. Nothing is uploaded."
 tags          = ["aes", "aes encrypt", "aes decrypt", "cbc", "ctr", "gcm", "cipher"]
 h1            = "AES cipher"

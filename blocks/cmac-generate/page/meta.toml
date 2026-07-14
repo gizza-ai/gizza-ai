@@ -1,5 +1,5 @@
 slug          = "cmac-generate"
-title         = "AES-CMAC Generator — AES-128/192/256 CMAC (RFC 4493) | gizza.ai"
+title         = "AES-CMAC Generator — AES-128/192/256 CMAC (RFC 4493)"
 description   = "Generate an AES-CMAC (NIST SP 800-38B / RFC 4493) of any message and key in your browser — AES-128/192/256 by key length, hex or base64 output. Free and private."
 tags          = ["cmac", "aes-cmac", "aes", "aes-128", "aes-256", "mac", "block-cipher-mac", "message-authentication", "rfc-4493", "nist-sp-800-38b", "hex", "base64", "cryptography"]
 h1            = "AES-CMAC Generator"

@@ -1,5 +1,5 @@
 slug          = "bip39-seed-derive"
-title         = "BIP39 Seed Derive — Mnemonic to 512-bit Seed — gizza.ai"
+title         = "BIP39 Seed Derive — Mnemonic to 512-bit Seed"
 description   = "Derive the 512-bit BIP39 seed from an existing mnemonic recovery phrase and optional passphrase, in your browser. Validates the wordlist and checksum. Free and private."
 tags          = ["bip39", "seed derive", "mnemonic to seed", "recovery phrase", "bip39 seed", "crypto wallet", "bitcoin", "hd wallet", "bip32", "bip44"]
 h1            = "BIP39 Seed Derivation"

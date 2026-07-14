@@ -182,4 +182,29 @@ EOF
 out2="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
 grep -q 'summary differs' <<<"$out2" || { echo "FAIL: gate missed a summary inconsistency" >&2; exit 1; }
 
+# Restore a compliant manifest before testing check #8 in isolation.
+cat > "$dir/manifest.json" <<'EOF'
+{ "summary": "Encode or decode data.", "tool": { "parameters": { "properties": {
+  "mode": { "type": "string", "enum": ["encode", "decode"], "default": "encode" },
+  "text": { "type": "string" }
+} } } }
+EOF
+
+# Site branding (check #8): a page/meta.toml title carrying the literal site
+# suffix must fail — pages must be generic, the site injects branding at
+# render time via SiteConfig.
+sed -i 's/^slug        = "zzhygiene-scratch"$/slug        = "zzhygiene-scratch"\ntitle       = "X — gizza.ai"/' "$dir/page/meta.toml"
+out6="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1)" && {
+  echo "FAIL: gate passed a block with site branding in page/meta.toml (should have failed)" >&2
+  exit 1
+}
+grep -q 'site branding' <<<"$out6" || { echo "FAIL: missing site-branding violation" >&2; exit 1; }
+
+# Fixing it (bare title, no brand string) must pass again.
+sed -i '/^title       = "X — gizza\.ai"$/d' "$dir/page/meta.toml"
+python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
+  echo "FAIL: gate rejected a block with no site branding" >&2
+  python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
+  exit 1; }
+
 echo "check-tool-hygiene.test.sh OK"

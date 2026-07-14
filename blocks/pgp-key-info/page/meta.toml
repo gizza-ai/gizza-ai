@@ -1,5 +1,5 @@
 slug          = "pgp-key-info"
-title         = "PGP Key Info — OpenPGP fingerprint inspector — gizza.ai"
+title         = "PGP Key Info — OpenPGP fingerprint inspector"
 description   = "Inspect an ASCII-armored PGP public or private key locally: fingerprint, key ID, algorithm, user IDs, dates, and subkeys."
 tags          = ["pgp key info", "openpgp fingerprint", "gpg key id", "pgp public key inspector"]
 h1            = "PGP key info"

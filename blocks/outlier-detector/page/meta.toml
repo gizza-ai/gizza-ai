@@ -1,5 +1,5 @@
 slug          = "outlier-detector"
-title         = "Outlier Detector — flag outliers with z-score and IQR — gizza.ai"
+title         = "Outlier Detector — flag outliers with z-score and IQR"
 description   = "Find outliers in a list of numbers using the z-score, modified z-score (MAD) and IQR (Tukey's fences) methods, in your browser. Free, private, no upload."
 tags          = ["outlier detector", "z-score", "modified z-score", "iqr method", "tukey fences", "anomaly detection", "data cleaning"]
 h1            = "Outlier detector"

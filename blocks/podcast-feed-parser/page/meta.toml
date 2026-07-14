@@ -1,5 +1,5 @@
 slug          = "podcast-feed-parser"
-title         = "Podcast Feed Parser — RSS/XML episode list to JSON — gizza.ai"
+title         = "Podcast Feed Parser — RSS/XML episode list to JSON"
 description   = "Parse a pasted podcast RSS/XML feed into clean JSON with episode titles, dates, durations, and audio enclosure URLs. Free, private, in-browser."
 tags          = ["podcast", "rss", "xml", "feed", "itunes", "episodes", "json"]
 h1            = "Podcast feed parser"

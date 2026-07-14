@@ -1,5 +1,5 @@
 slug          = "blowfish-cipher"
-title         = "Blowfish Cipher — Encrypt/decrypt with Blowfish (ECB/CBC) — gizza.ai"
+title         = "Blowfish Cipher — Encrypt/decrypt with Blowfish (ECB/CBC)"
 description   = "Encrypt or decrypt data with the Blowfish cipher in ECB or CBC mode, with hex/base64 I/O — in your browser. Variable 4–56 byte key. Nothing is uploaded."
 tags          = ["blowfish", "blowfish encrypt", "blowfish decrypt", "block cipher", "ecb", "cbc"]
 h1            = "Blowfish cipher"

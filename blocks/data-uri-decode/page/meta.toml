@@ -1,5 +1,5 @@
 slug          = "data-uri-decode"
-title         = "Data URI Decoder — decode a data: URI into its MIME type & payload — gizza.ai"
+title         = "Data URI Decoder — decode a data: URI into its MIME type & payload"
 description   = "Decode a data: URI into its MIME type, charset and payload — text decoded inline, binaries with detected type and hex preview, all in your browser."
 tags          = ["data uri decoder", "data url decoder", "decode data uri", "data uri parser", "base64 data uri", "rfc 2397", "mime type", "data uri to text", "decode base64 data url"]
 h1            = "Data URI Decoder"

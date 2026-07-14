@@ -1,5 +1,5 @@
 slug          = "asn1-parser"
-title         = "ASN.1 / DER Parser — decode DER hex to a readable tree — gizza.ai"
+title         = "ASN.1 / DER Parser — decode DER hex to a readable tree"
 description   = "Parse an ASN.1 / DER hex string into a readable tree of tags, lengths, OIDs and values — free, in your browser. Inspect X.509 certificates, keys and CSRs."
 tags          = ["asn.1 parser", "asn1 decoder", "der decoder", "der parser", "der to text", "x.509 parser", "oid decoder", "asn1 hex", "certificate decoder"]
 h1            = "ASN.1 / DER parser"

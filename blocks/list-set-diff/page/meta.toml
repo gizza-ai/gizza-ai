@@ -1,5 +1,5 @@
 slug          = "list-set-diff"
-title         = "Compare Two Lists — Only in A, Only in B, Shared | gizza.ai"
+title         = "Compare Two Lists — Only in A, Only in B, Shared"
 description   = "Compare two lists as sets and see which items are only in A, only in B, or shared — with counts. Ignore case, trim, dedupe, and leading zeros. Runs in your browser."
 tags          = ["list", "diff", "compare", "set", "text"]
 h1            = "Compare Two Lists"

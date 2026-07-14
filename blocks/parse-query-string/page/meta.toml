@@ -1,5 +1,5 @@
 slug          = "parse-query-string"
-title         = "Query String Parser — gizza.ai"
+title         = "Query String Parser"
 description   = "Parse a URL query string into key/value pairs and structured JSON — repeated keys, PHP/Rails bracket notation, percent and + decoding. Free, in your browser."
 tags          = ["query string", "parse query string", "url parameters", "querystring", "parse url params", "bracket notation", "form urlencoded", "percent decode", "key value pairs"]
 h1            = "Query String Parser"

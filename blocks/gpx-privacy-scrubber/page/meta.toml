@@ -1,5 +1,5 @@
 slug          = "gpx-privacy-scrubber"
-title         = "GPX Privacy Scrubber — Remove Start/End Points, Timestamps & Sensor Data | gizza.ai"
+title         = "GPX Privacy Scrubber — Remove Start/End Points, Timestamps & Sensor Data"
 description   = "Scrub a GPX file before sharing it: remove or fuzz start/end locations, rewrite timestamps, and strip sensor extensions. Runs locally in your browser."
 tags          = ["gpx", "privacy", "location", "gps", "fitness"]
 h1            = "GPX Privacy Scrubber"

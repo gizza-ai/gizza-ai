@@ -1,5 +1,5 @@
 slug          = "jsonata-query"
-title         = "JSONata Online — Query & Transform JSON | gizza.ai"
+title         = "JSONata Online — Query & Transform JSON"
 description   = "Run a JSONata expression against any JSON document right in your browser — query, filter, aggregate, and reshape JSON. Pure-Rust engine, nothing is uploaded, free."
 tags          = ["jsonata", "json query", "jsonata online", "json transform", "jsonata playground", "json query language"]
 h1            = "Query & transform JSON with JSONata"

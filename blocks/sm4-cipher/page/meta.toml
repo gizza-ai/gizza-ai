@@ -1,5 +1,5 @@
 slug          = "sm4-cipher"
-title         = "SM4 Cipher — Encrypt/decrypt with SM4 (ECB/CBC) — gizza.ai"
+title         = "SM4 Cipher — Encrypt/decrypt with SM4 (ECB/CBC)"
 description   = "Encrypt or decrypt data with the SM4 block cipher (GB/T 32907) in ECB or CBC mode, with hex/base64 I/O — in your browser. 128-bit key. Nothing is uploaded."
 tags          = ["sm4", "sm4 encrypt", "sm4 decrypt", "block cipher", "ecb", "cbc"]
 h1            = "SM4 cipher"

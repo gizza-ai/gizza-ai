@@ -22,7 +22,8 @@ struct Descriptor<'a> {
     /// Block version from `manifest.json`; omitted when the manifest is missing.
     #[serde(skip_serializing_if = "Option::is_none")]
     version: Option<String>,
-    title: &'a str,
+    /// `meta.title` (bare) + `cfg.title_suffix` — see `SiteConfig::title`.
+    title: String,
     description: &'a str,
     tags: &'a [String],
     /// Primary category slug (first taxonomy match — see `categories.rs`).
@@ -105,7 +106,7 @@ pub fn tool_descriptor(
             .and_then(|m| m.get("version"))
             .and_then(|v| v.as_str())
             .map(String::from),
-        title: &meta.title,
+        title: cfg.title(&meta.title),
         description: &meta.description,
         tags: &meta.tags,
         category: categories::primary_category(meta).slug,
@@ -131,14 +132,19 @@ mod tests {
     use serde_json::json;
 
     fn branded() -> SiteConfig {
-        SiteConfig { base_url: "https://gizza.ai".into(), brand_name: "gizza.ai".into(), ..Default::default() }
+        SiteConfig {
+            base_url: "https://gizza.ai".into(),
+            brand_name: "gizza.ai".into(),
+            title_suffix: " — gizza.ai".into(),
+            ..Default::default()
+        }
     }
 
     fn audio_tool() -> ToolMeta {
         ToolMeta::from_toml(
             r#"
 slug          = "audio-convert"
-title         = "Convert Audio — gizza.ai"
+title         = "Convert Audio"
 description   = "Convert audio between formats in your browser."
 tags          = ["audio"]
 h1            = "Convert Audio"
@@ -262,7 +268,7 @@ source = "field"
         let clock = ToolMeta::from_toml(
             r#"
 slug          = "clock"
-title         = "Clock — gizza.ai"
+title         = "Clock"
 description   = "The current time, live."
 h1            = "Clock"
 hero_subtitle = "Live time."

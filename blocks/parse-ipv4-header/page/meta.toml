@@ -1,5 +1,5 @@
 slug          = "parse-ipv4-header"
-title         = "IPv4 Header Parser — decode a raw IPv4 packet header from hex — gizza.ai"
+title         = "IPv4 Header Parser — decode a raw IPv4 packet header from hex"
 description   = "IPv4 header parser: paste hex and decode DSCP/ECN, flags, fragment offset, TTL, protocol, checksum validity, and addresses — free, in your browser."
 tags          = ["ipv4 header parser", "decode ipv4 header", "ip packet header", "ip header decoder", "dscp", "ecn", "ttl", "ip protocol number", "header checksum", "fragment offset"]
 h1            = "IPv4 Header Parser"
