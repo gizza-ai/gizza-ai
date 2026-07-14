@@ -1,6 +1,6 @@
 ---
 name: create-next-tool
-description: "Use when the user wants to build the next un-built gizza tool from the tools-to-build.csv backlog. Picks the next tool whose blocks/<slug>/ folder doesn't exist yet, builds it with the /new-tool procedure, fully enhances + verifies it with the /improve-tool procedure (competitor research + 3-surface checks), then commits and pushes on the current branch. No new branch, no PR. One tool per run."
+description: "Use when the user wants to build the next un-built gizza tool from the tools-to-build.csv backlog. Picks the next tool whose blocks/<slug>/ folder doesn't exist yet, builds it with the /new-tool procedure, fully enhances + verifies it with the /improve-tool procedure (competitor research + CLI/page checks), then commits and pushes on the current branch. No new branch, no PR. One tool per run."
 ---
 
 # create-next-tool — build the next backlog tool end to end
@@ -19,11 +19,17 @@ already hit; read the relevant one BEFORE implementing.
 
 Follow these steps in order:
 
-0. **Toolchain.** This skill needs `cargo`, `wafer`, `wasm-pack`, `impresspress`, `gizza`, Playwright,
-   and `ffmpeg`. If any is missing, bootstrap once with `scripts/bootstrap-toolchain.sh` (details +
-   gotchas in `docs/TOOLCHAIN-SETUP.md`); the very first run also needs a baseline `impresspress build`
-   so every existing block has its `target/block.wasm` + `web/pkg/` (else the generator hard-aborts
-   and `gizza list` is incomplete).
+0. **Toolchain.** This is the public toolkit repo (blocks + `gizza` CLI + the generic tool-page
+   generator; no app, no branding, no deploy — those live in a private site repo that consumes this
+   one at a pin). This skill needs `cargo`, `wasm-pack`, `gizza`, Playwright, and `ffmpeg`; the
+   `wafer` CLI is OPTIONAL (a convenience wrapper around `cargo build --target wasm32-wasip1
+   --release`, only buildable from a sibling `wafer-run` checkout — not required here, and CI never
+   uses it). If any required tool is missing, bootstrap once with `scripts/bootstrap-toolchain.sh`
+   (details + gotchas in `docs/TOOLCHAIN-SETUP.md`); the very first run also needs a baseline pass
+   building every existing block's `target/block.wasm` (`cargo build --target wasm32-wasip1
+   --release` per block, copied in) + `web/pkg/` (`wasm-pack build blocks/<slug>/web --target web
+   --release --out-dir pkg` per block) — else the generator skips blocks missing `web/pkg/` and
+   `gizza list` is incomplete.
 
 1. **Pick the next tool.** From the gizza-ai repo root:
    ```bash
@@ -53,18 +59,20 @@ Follow these steps in order:
    after `cargo install --path cli`, run `python3 scripts/sync-tool-manifest.py <slug>` (see
    "Manifest sync + hygiene gate" below).
 
-   **Throughput note (verified):** the per-tool validation is `cd blocks/<slug> && cargo test
-   --workspace` + `wafer build` (validates the chat block.wasm) + `wasm-pack build blocks/<slug>/web`
-   + `cargo run --manifest-path tools/generator/Cargo.toml -- .` (renders the page) + `gizza tool`
-   (CLI) + Playwright. These are minutes. The full **`impresspress build` rebuilds the whole app wasm
-   (`-Oz`+lto, ~25 min on 2 CPUs) and is the loop bottleneck** — a new block changes only its own
-   block.wasm, which `wafer build` already validated, and CI runs `impresspress build` on deploy. So for
-   loop throughput, run `impresspress build` **once at the start (baseline) and not on every tool**; if you
-   skip it per-tool, say so in the report. The generator step still needs every block's `web/pkg/`
-   (built once in the baseline; only the new tool's is added per run).
+   **Throughput note (verified):** the per-tool validation is `cd blocks/<slug> && cargo build
+   --target wasm32-wasip1 --release` (then copy the produced wasm to `target/block.wasm` — exactly
+   what CI's "Build changed skill wasms" step runs) + `cargo test --workspace` + `wasm-pack build
+   blocks/<slug>/web --target web --release --out-dir pkg` + `cargo run --manifest-path
+   tools/generator/Cargo.toml -- .` (renders the page, GENERIC — no site config here) + `gizza tool`
+   (CLI) + Playwright. These are all minutes, and there is no whole-app build to amortize in this
+   repo — that bottleneck belonged to the site repo (which consumes this one at a pin and builds its
+   own branded app separately); each tool's page is fully standalone under `pkg/tools/<slug>/`. The
+   generator step still needs every OTHER block's `web/pkg/` to already exist (built once in the
+   toolchain baseline) so it doesn't skip them — only the new tool's `web/pkg/` is added per run.
 
-3. **Improve** — follow the FULL `/improve-tool` **Phases 1–5** on `<slug>`: verify the 3 surfaces
-   (chat/LLM API, CLI, page query-params) + fix any breakage → research the top-5 competitors → diff +
+3. **Improve** — follow the FULL `/improve-tool` **Phases 1–5** on `<slug>`: verify the 2
+   locally-verifiable surfaces (CLI, page query-params — the live chat UI lives in the private site
+   repo and can't be exercised here; see `/improve-tool` Phase 1) + fix any breakage → research the top-5 competitors → diff +
    rank gaps (fit-to-model) → close every in-model capability/copy/UX/visual gap → regenerate the
    drift-guard → re-run the full test matrix. Write the competitor-analysis snapshot to
    `docs/checks/<YYYY-MM-DD>-improve-<slug>-competitor-analysis.md`. **SKIP** `/improve-tool`'s "Gather
@@ -79,6 +87,9 @@ Follow these steps in order:
    git commit -m "feat(<slug>): competitor improvements + analysis"
    git push
    ```
+   Publication is a separate, out-of-scope step: this push doesn't reach gizza.ai by itself — the
+   private site repo consumes this repo at a pin, so the new tool goes live only after that repo's
+   pin is bumped past this commit (a PR there, not here).
 
 **Honesty + cleanup gate:** if the build (step 2) or verification (step 3 Phase 1) fails
 unrecoverably (≤3 fix attempts per the sibling skills), **STOP, run `git clean -fd blocks/<slug>` to
@@ -115,14 +126,17 @@ python3 scripts/check-tool-hygiene.py <slug>
 ```
 
 must exit 0 before committing — per-slug mode is STRICT: enum→manifest sync, FAQ as `<details>`
-accordions (blank line inside each), no scaffold TODOs, summary consistency, plus placeholders on
-text/number fields, ≥3 FAQ entries, and meta description length. CI runs the same gate repo-wide.
+accordions (blank line inside each), no scaffold TODOs, summary consistency, page copy stays
+GENERIC (no `gizza.ai`/`gizza-ai.pages.dev` string anywhere under `page/` — check 8; this repo
+renders unbranded, the private site repo injects branding at ITS build time, not here), plus
+placeholders on text/number fields, ≥3 FAQ entries, and meta description length. CI runs the same
+gate repo-wide.
 
 ## References (read the relevant one BEFORE implementing)
 
 - `references/wasm-crates.md` — proven wasm-safe crates with full recipes (crypto, PGP,
   ECDSA/Ed25519, EPUB/ZIP, mail parsing, GIF encoding, misc). Check here before adding ANY
-  dependency — an engine crate must INSTANTIATE under `wafer build`, not just compile.
+  dependency — an engine crate must INSTANTIATE, not just compile.
 - `references/page-patterns.md` — how params render on the page (select/checkbox/textarea),
   boolean checkbox defaults, drift-guard `N.0` gotcha, clocks across surfaces, recurring tool
   shapes, page output formats (incl. audio), what's un-buildable (audio-input, multi-input ffmpeg).

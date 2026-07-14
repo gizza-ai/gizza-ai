@@ -10,9 +10,11 @@ with: `for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name bl
 which is correct; do not additionally `rm -rf` any `web/pkg`. If a pkg does go missing, rebuild it with
 `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` before re-running the generator.
 
-**cwd gotcha:** `wafer build` must run from inside `blocks/<slug>/`; `cargo install --path cli` and
-`wasm-pack build blocks/<slug>/web …` must run from the repo ROOT — after any `/tmp` command the shell
-cwd resets, so always cd to the absolute repo path before those.
+**cwd gotcha:** `cargo build --target wasm32-wasip1 --release` (the block-wasm build; optional
+equivalent shorthand `wafer build` if you have the `wafer` CLI installed from a sibling `wafer-run`
+checkout — not required in this repo) must run from inside `blocks/<slug>/`; `cargo install --path
+cli` and `wasm-pack build blocks/<slug>/web …` must run from the repo ROOT — after any `/tmp` command
+the shell cwd resets, so always cd to the absolute repo path before those.
 
 **CLI verification fetch is SSRF-guarded:** `gizza tool … url=…` only fetches PUBLIC http(s); `data:`
 URLs and localhost are rejected ("request to private/internal address is not allowed"), and GitHub
@@ -37,8 +39,10 @@ pre-read remaining budget from disk; it must react to a limit error (back off / 
   does), NOT `npm ci` (which hard-requires a lockfile and fails).
 - `cargo install --path cli` embeds only the blocks whose `target/block.wasm` exists. A fresh
   checkout has just the ~33 COMMITTED wasm fixtures, so the install produces (and globally
-  overwrites `~/.cargo/bin/gizza` with) a CLI missing most tools. Either run the baseline
-  `impresspress build` first, or reinstall from the full checkout when done.
+  overwrites `~/.cargo/bin/gizza` with) a CLI missing most tools. Either run the baseline per-block
+  build loop first (`for dir in blocks/*/; do (cd "$dir" && cargo build --target wasm32-wasip1
+  --release && mkdir -p target && cp target/wasm32-wasip1/release/*.wasm target/block.wasm); done` —
+  see `docs/TOOLCHAIN-SETUP.md` step 7), or reinstall from the full checkout when done.
 - The page generator prints a "web/pkg not found (skipping WASM copy)" warning per block whose
   wasm-pack output is missing — in a fresh checkout that's ~300 warnings. Harmless for the tool
   you're building (its own page still renders); noisy but expected without the baseline build.

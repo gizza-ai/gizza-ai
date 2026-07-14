@@ -49,7 +49,11 @@ the build/test/PR commands. Follow these steps in order:
    - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning the
      shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` — already wired by the scaffold).
    - `page/meta.toml` + `page/content.md` — real title/desc/tags/inputs (field ORDER must
-     match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures.
+     match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures. **Page copy
+     must stay GENERIC/brand-free** — this repo renders pages unbranded (no `--site-config`); a
+     literal `gizza.ai`/`gizza-ai.pages.dev` string anywhere under `page/` hard-fails the hygiene
+     gate (check 8). Branding (title suffix, header/footer chrome) is injected by the private site
+     repo at ITS build time, not here.
      **Right control for the data, at build time:** check the generator's CURRENT declarative
      kinds (`tools/generator/src/control.rs` + create-next-tool references/page-patterns.md) —
      `kind = "slider"` for bounded numeric ranges, `kind = "color"` for color params (hybrid
@@ -61,7 +65,7 @@ the build/test/PR commands. Follow these steps in order:
      NOT plain `## FAQ` markdown — keep a BLANK LINE inside each `<details>` so the answer's
      markdown renders and wraps in `<p>` (see `blocks/age-calculator`). Plain-markdown FAQ is
      a hard-fail in the hygiene gate.
-   - `manifest.json` — the scaffold generates it (build.rs needs it; `wafer build` does
+   - `manifest.json` — the scaffold generates it (build.rs needs it; building the block wasm does
      NOT). **`tool.parameters` is LOAD-BEARING for the page**: the page form
      (`tools/generator/src/control.rs`) reads the MANIFEST (not the live descriptor) to pick
      each field's control — a param renders as a `<select>` only if its manifest property
@@ -73,20 +77,26 @@ the build/test/PR commands. Follow these steps in order:
      **Summaries:** write ONE clean one-line summary in the macro (no vestigial `"… skill"`
      suffix) — the sync script owns the other two copies. Fill every scaffold `TODO` (title,
      h1, hero, descriptions); the gate fails on any leftover `TODO`.
-7. **Build (in this order):** `wafer build` (from `blocks/<slug>/`); `cargo test --workspace`
-   (from `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`;
-   `cargo install --path cli --force`; `python3 scripts/sync-tool-manifest.py <slug>` (regenerates
-   manifest `tool.*` + summaries from the live descriptor — required BEFORE the generator, which
-   reads the manifest); `cargo run --manifest-path tools/generator/Cargo.toml -- .`;
-   `impresspress build` (may be SKIPPED per the create-next-tool throughput rule — `wafer build`
-   already validated this block's wasm and CI runs the full build on deploy; say so in the PR
-   if skipped); and `python3 scripts/check-tool-hygiene.py <slug>` (the hard gate CI
-   enforces — per-slug mode is strict: drifted manifest, plain-markdown FAQ, scaffold TODOs,
-   summary drift, missing placeholders, <3 FAQs, bad meta description length). Fix
-   compile/test failures (≤3 attempts) before escalating. (No SKILL.md to regenerate —
-   the root SKILL.md is static and points agents at `gizza list`/`gizza describe`.)
+7. **Build (in this order):** `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release`
+   then `mkdir -p target && cp target/wasm32-wasip1/release/*.wasm target/block.wasm` (exactly what
+   CI's "Build changed skill wasms" step runs; `wafer build` is an optional equivalent shorthand
+   only if you have the `wafer` CLI installed from a sibling `wafer-run` checkout — not required
+   here); `cargo test --workspace` (from `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web
+   --target web --release --out-dir pkg` (from repo root); `cargo install --path cli --force`;
+   `python3 scripts/sync-tool-manifest.py <slug>` (regenerates manifest `tool.*` + summaries from
+   the live descriptor — required BEFORE the generator, which reads the manifest); `cargo run
+   --manifest-path tools/generator/Cargo.toml -- .` (renders the page GENERIC — no `--site-config`,
+   no branding; this repo has none, the private site repo that consumes this one at a pin renders
+   its own branded copy at ITS build time); and `python3 scripts/check-tool-hygiene.py <slug>` (the
+   hard gate CI enforces — per-slug mode is strict: drifted manifest, plain-markdown FAQ, scaffold
+   TODOs, summary drift, a `gizza.ai`/`gizza-ai.pages.dev` string leaking into `page/` (check 8),
+   missing placeholders, <3 FAQs, bad meta description length). Fix compile/test failures (≤3
+   attempts) before escalating. (No SKILL.md to regenerate — the root SKILL.md is static and points
+   agents at `gizza list`/`gizza describe`.)
 8. **Test (type-aware)** — see reference.md:
-   - unit (always) + wafer fixtures (always);
+   - unit (always) + wafer fixtures (`tests/*.json`, via the optional `wafer test` — if the `wafer`
+     CLI isn't installed, say so and skip; it isn't CI-enforced, `cargo test --workspace` + CLI +
+     Playwright are the load-bearing local checks);
    - **Playwright** the page (pure + ffmpeg): add a spec in `tests/` driving `/tools/<slug>/`.
      The spec MUST assert real output correctness — exact text for pure tools; for media,
      decode the result and assert dimensions/pixels (reference.md §media correctness) — plus
@@ -112,7 +122,10 @@ the build/test/PR commands. Follow these steps in order:
 9. **Ship:** commit, `git push -u origin feat/tool-<slug>`, `gh pr create` with a body that
    states: the tool type, the derived assumptions, what was tested + results, and any
    limitation (e.g. "gpu: no page, no headless verification"; "ffmpeg: chat path is
-   non-functional — runs only on the standalone page / CLI, see the SW-ffmpeg note").
+   non-functional — runs only on the standalone page / CLI, see the SW-ffmpeg note"). Merging this
+   PR doesn't publish the tool to gizza.ai by itself — the private site repo consumes this repo at
+   a pin, so it goes live only after that repo bumps its pin past this commit (a separate PR there,
+   out of scope for this skill).
 10. **Code review:** run `/code-review` on the diff and post the findings as a PR comment.
     Do NOT merge.
 
