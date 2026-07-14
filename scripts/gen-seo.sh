@@ -12,6 +12,15 @@ GIZZA="${GIZZA:-gizza}"
 REPO_ROOT="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
 BLOCKS_DIR="${BLOCKS_DIR:-$REPO_ROOT/blocks}"
 
+# Git repo containing the blocks tree (post-split this is the pinned gizza-ai
+# checkout, a different repo from $REPO_ROOT) + the blocks dir's path inside it.
+BLOCKS_GIT_ROOT="$(git -C "$BLOCKS_DIR" rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -n "$BLOCKS_GIT_ROOT" ]; then
+  BLOCKS_GIT_PREFIX="$(realpath --relative-to="$BLOCKS_GIT_ROOT" "$BLOCKS_DIR")"
+else
+  BLOCKS_GIT_ROOT="$REPO_ROOT"; BLOCKS_GIT_PREFIX="blocks"   # non-git fixture dirs (tests)
+fi
+
 PKG_DIR="$REPO_ROOT/pkg"
 mkdir -p "$PKG_DIR"
 
@@ -52,17 +61,37 @@ is_page_slug() {
   return 1
 }
 
-# Last commit date (ISO 8601) touching a path — used for sitemap <lastmod>.
-# Empty when history is unavailable (shallow clone, no git); the tag is then
-# omitted rather than emitting a wrong date.
+# Last commit date (ISO 8601) touching a path in $REPO_ROOT — used for
+# sitemap <lastmod> on site (non-blocks) paths. Empty when history is
+# unavailable (shallow clone, no git); the tag is then omitted rather than
+# emitting a wrong date.
 git_lastmod() {
   git -C "$REPO_ROOT" log -1 --format=%cI -- "$1" 2>/dev/null || true
 }
 
-# First commit touching a path as "unixtime<TAB>iso8601" — used to order and
-# date the Atom feed entries. Empty when history is unavailable.
+# First commit touching a path in $REPO_ROOT as "unixtime<TAB>iso8601" — used
+# to order and date the Atom feed entries. Empty when history is unavailable.
 git_first_commit() {
   git -C "$REPO_ROOT" log --format='%ct%x09%cI' --reverse -- "$1" 2>/dev/null | head -n1 || true
+}
+
+# blocks_* variants of the two helpers above, rooted at $BLOCKS_GIT_ROOT with
+# paths relative to $BLOCKS_GIT_PREFIX rather than $REPO_ROOT — the blocks
+# tree can live in a different git repo from $REPO_ROOT (post-split: a pinned
+# checkout). $1 = path *inside* the blocks dir (e.g. "$slug/page"), or omitted
+# for the blocks dir itself.
+blocks_lastmod() {
+  git -C "$BLOCKS_GIT_ROOT" log -1 --format=%cI -- "$BLOCKS_GIT_PREFIX${1:+/$1}" 2>/dev/null || true
+}
+
+blocks_first_commit() {
+  git -C "$BLOCKS_GIT_ROOT" log --format='%ct%x09%cI' --reverse -- "$BLOCKS_GIT_PREFIX${1:+/$1}" 2>/dev/null | head -n1 || true
+}
+
+# Combined "unixtime iso8601" for a blocks path in one git invocation — used
+# by the feed to compare <updated> across entries by unix time.
+blocks_lastmod_ts() {
+  git -C "$BLOCKS_GIT_ROOT" log -1 --format='%ct %cI' -- "$BLOCKS_GIT_PREFIX${1:+/$1}" 2>/dev/null || true
 }
 
 # Escape text for XML content and attribute values (&, <, >, quotes).
@@ -87,7 +116,7 @@ site_mod="$(git_lastmod site)"
 {
   printf '<?xml version="1.0" encoding="UTF-8"?>\n'
   printf '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-  blocks_mod="$(git_lastmod blocks)"
+  blocks_mod="$(blocks_lastmod)"
   emit_url "$BASE_URL/" "$site_mod"
   emit_url "$BASE_URL/chat" "$site_mod"
   emit_url "$BASE_URL/tools/" "$blocks_mod"
@@ -102,7 +131,7 @@ site_mod="$(git_lastmod site)"
     done < <(jq -r '.[].slug' "$hubs_json")
   fi
   for slug in "${page_slugs[@]}"; do
-    emit_url "$BASE_URL/tools/$slug/" "$(git_lastmod "blocks/$slug/page")"
+    emit_url "$BASE_URL/tools/$slug/" "$(blocks_lastmod "$slug/page")"
   done
   # "X to Y" conversion pair pages (/tools/<parent>/<src>-to-<tgt>/) from the
   # generator's _pairs.json. Skipped gracefully when the file is missing
@@ -113,7 +142,7 @@ site_mod="$(git_lastmod site)"
     while IFS= read -r pair_path; do
       [[ -z "$pair_path" ]] && continue
       parent="${pair_path%%/*}"
-      emit_url "$BASE_URL/tools/$pair_path/" "$(git_lastmod "blocks/$parent/page")"
+      emit_url "$BASE_URL/tools/$pair_path/" "$(blocks_lastmod "$parent/page")"
     done < <(jq -r '.[].path' "$pairs_json")
   fi
   printf '</urlset>\n'
@@ -131,7 +160,7 @@ site_mod="$(git_lastmod site)"
 # no git) skip the feed with a warning rather than emitting undated entries.
 feed_rows=()
 for slug in "${page_slugs[@]}"; do
-  first="$(git_first_commit "blocks/$slug/page")"
+  first="$(blocks_first_commit "$slug/page")"
   [[ -z "$first" ]] && continue
   feed_rows+=("$first"$'\t'"$slug")
 done
@@ -149,7 +178,7 @@ else
   feed_updated_ts=0
   for row in "${feed_newest[@]}"; do
     IFS=$'\t' read -r _ published slug <<< "$row"
-    read -r updated_ts updated <<< "$(git -C "$REPO_ROOT" log -1 --format='%ct %cI' -- "blocks/$slug/page" 2>/dev/null || true)"
+    read -r updated_ts updated <<< "$(blocks_lastmod_ts "$slug/page")"
     if [[ -z "$updated" ]]; then
       updated="$published"
       updated_ts=0

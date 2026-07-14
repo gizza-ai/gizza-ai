@@ -4,7 +4,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Create a temp dir that mirrors the repo structure expected by gen-seo.sh
 tmpdir="$(mktemp -d)"
-cleanup() { rm -rf "$tmpdir"; }
+cleanup() { rm -rf "$tmpdir" "${tmpdir2:-}"; }
 trap cleanup EXIT
 
 # Create the stub gizza binary
@@ -128,6 +128,42 @@ if ! grep -qF "https://example.test/tools/ghost-tool/index.md" "$llmstxt"; then
 fi
 if ! grep -qF "A tool only present on disk" "$llmstxt"; then
   echo "FAIL: llms.txt missing ghost-tool fallback description from meta.toml"
+  exit 1
+fi
+
+
+# --- BLOCKS_DIR in a SEPARATE git repo (post-split site build) ---
+# Regression test: the blocks tree's git history lives in whatever repo
+# contains $BLOCKS_DIR, which post-split is a different repo from $REPO_ROOT
+# (e.g. BLOCKS_DIR=gizza-ai/blocks, a pinned checkout with its own .git).
+# git-history lookups that hardcode `-C "$REPO_ROOT"` silently return nothing
+# in that layout, and sitemap <lastmod>/feed.xml go empty.
+tmpdir2="$(mktemp -d)"
+repo_root2="$tmpdir2/site-repo"
+blocks_repo="$tmpdir2/blocks-repo"
+mkdir -p "$repo_root2/pkg" "$blocks_repo/blocks/foreign-tool/page"
+
+printf 'title = "Foreign Tool"\ndescription = "Lives in a separate git repo"\n' \
+  > "$blocks_repo/blocks/foreign-tool/page/meta.toml"
+
+git -C "$blocks_repo" init -q
+git -C "$blocks_repo" add -A
+git -C "$blocks_repo" \
+  -c user.email=test@example.com -c user.name=test \
+  commit -q -m "add foreign-tool"
+
+BASE_URL="https://example.test" \
+GIZZA="$tmpdir/bin/gizza" \
+BLOCKS_DIR="$blocks_repo/blocks" \
+  bash "$root/scripts/gen-seo.sh" "$repo_root2"
+
+foreign_sitemap="$repo_root2/pkg/sitemap.xml"
+if ! grep -qF "https://example.test/tools/foreign-tool/" "$foreign_sitemap"; then
+  echo "FAIL: foreign-repo sitemap missing foreign-tool URL"
+  exit 1
+fi
+if ! grep -A1 "https://example.test/tools/foreign-tool/</loc>" "$foreign_sitemap" | grep -qF "<lastmod>"; then
+  echo "FAIL: foreign-repo sitemap missing <lastmod> for foreign-tool (BLOCKS_DIR git history lookup did not follow BLOCKS_DIR into its own repo)"
   exit 1
 fi
 
