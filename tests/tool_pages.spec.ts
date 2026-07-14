@@ -13,8 +13,11 @@ test.describe('standalone tool pages', () => {
     await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /browser/i);
     await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
 
-    await expect(page.locator('.tool-brand')).toContainText('gizza.ai');
-    await expect(page.locator('.site-footer')).toContainText('Everything runs in your browser');
+    await expect(page.locator('.tool-brand')).toHaveText('Tools');
+    await expect(page.locator('.tool-brand')).toHaveAttribute('href', '/tools/');
+    await expect(page.locator('.tool-footer')).toContainText(
+      'Free, private, in-browser tools — everything runs locally, nothing is uploaded.',
+    );
 
     await page.fill('#in-expr', '2 + 2 * 3');
     await expect(page.locator('#tool-output')).toHaveText('8', { timeout: 10_000 });

@@ -1,60 +1,77 @@
 # gizza-ai tests
 
-Two test surfaces with very different runtime characteristics.
+Playwright end-to-end specs for the generated, static tool pages
+(`pkg/tools/<slug>/`, the output of `tools/generator/`), plus the fixtures
+they exercise.
 
-## `cargo test`
+## What's here
 
-Native Rust integration tests. Run in CI, fast, deterministic, headless.
+- `tool_pages.spec.ts` — core smoke test: renders/asserts the `calculator`
+  and `clock` pages (title, meta description, JSON-LD, brand link, footer
+  copy, and a live compute round-trip).
+- `tool-page-<slug>.spec.ts` (one per block, ~390 files) — goes to
+  `/tools/<slug>/`, fills the page's form, and asserts the computed output
+  for that specific tool.
+- `fixtures/` — binary sample inputs (images, audio, video, PDF, PGP
+  signatures, etc.) that the per-tool specs upload into file-based tool
+  pages.
+- `fixtures.ts` — shared `test`/`expect` re-export used by every spec; wraps
+  Playwright's `test` with a worker-scoped persistent Chromium context
+  (backed by `tests/.cache/chromium-profile/`, gitignored) so browser-side
+  caches survive across tests and runs. Import `test`/`expect` from here,
+  not `@playwright/test` directly.
+- `serve_pkg.py` — static file server for `../pkg` that sends
+  `Cache-Control: no-store`. Plain `python3 -m http.server` doesn't set that
+  header, so the persistent Chromium profile from `fixtures.ts` would
+  otherwise disk-cache stale, unhashed `tool.js`/`tool-audio.js` across page
+  regenerations. `playwright.config.ts`'s `webServer` runs this.
+- `playwright.config.ts` — `testDir: '.'`; headless Chromium by default
+  (`HEADED=1` env var to run headed); `webServer` auto-starts
+  `python3 serve_pkg.py ../pkg 8001`; tests hit `baseURL: http://localhost:8001`.
 
-- `tests/skills_embed.rs` — asserts every skill block under `blocks/*/` ends up embedded in `gizza_ai::skills::SKILLS` after `impresspress build`. Catches "I forgot to add the new skill" and "wafer compiled to an empty file."
-- `tests/dispatch_skills.rs` — boots a `wafer-run::Wafer` runtime in-process, loads the produced `block.wasm` into the `wasmi` runtime, substitutes a `FakeNetworkBlock` at the network leaf, and verifies cross-block dispatch round-trips correctly. Same wasmi loader and `__wafer_host_call_block` ABI used in the browser SW.
+## Running
+
+Pages must be rendered before Playwright can hit them:
 
 ```bash
-# Prerequisite: blocks/*/target/block.wasm must exist (built via wafer build).
-impresspress build       # builds every block under blocks/* + the gizza-ai bundle
-                     # equivalent: `wafer build blocks/<name>` per block
-
-cargo test
+# from the repo root — renders every block's page/ into pkg/tools/<slug>/
+cargo run --manifest-path tools/generator/Cargo.toml -- .
 ```
 
-## `npx playwright test` — manual smoke test
-
-Drives the real chat UI (boot → load WebLLM model → send prompt → assert tool call result). Useful as a manual sanity check that the deployed site works end-to-end, but **not** runnable in CI today:
-
-- Requires headed Chromium with WebGPU (set in `playwright.config.ts` as `headless: false`). Linux headless Chromium has no WebGPU.
-- Downloads ~1.2 GB of model weights (Qwen2.5-1.5B) on each cold run, because Playwright's per-test browser context wipes IndexedDB. Persistent-context fixture work is tracked separately.
+Then run the specs:
 
 ```bash
-# Prerequisite: pkg/ built via 'impresspress build'.
 cd tests
 npm install
-npx playwright install chromium    # first time only
-npx playwright test
+npx playwright install chromium              # first time only
+
+npx playwright test                          # everything
+npx playwright test tool_pages.spec.ts       # just the core smoke test
+npx playwright test tool-page-calculator.spec.ts   # a single tool's spec
 ```
 
-If you need a deterministic, repeatable check that a skill works end-to-end, prefer `cargo test --test dispatch_skills` over the Playwright suite.
-
-## `npm test` — JS unit tests
-
-Pure-JS tests for `pkg/render.js` (the inline-media render module) using `node:test` + `linkedom`. No browser, no model, deterministic.
+The `webServer` in `playwright.config.ts` starts `serve_pkg.py` automatically
+(reusing an already-running server if one is up on :8001), so there's no
+separate serve step. The repo-root `justfile` wraps the common case:
 
 ```bash
-npm install   # one-time, installs linkedom
-npm test
+just test    # == cd tests && npx playwright test
 ```
 
-Runs in CI (`.github/workflows/test.yml`).
+## CI: changed-tool testing
 
-## Manual smoke: inline media rendering
+`.github/workflows/test.yml` scopes pull-request runs to whatever changed,
+and only runs the full suite on pushes to `main`:
 
-After `impresspress build && impresspress serve`, paste a public image URL into chat (e.g., `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg`). The model should call `gizza-ai/image-fetch` and a thumbnail should appear inside the tool-call row, capped to 240px tall by `.tool-attachment` CSS. If the thumbnail is missing but the tool-call row succeeded, inspect the SSE stream — `tool_result` events should carry a `for_ui` field with `data_url` and `mime`.
-
-## Manual smoke: image-ops skills (sub-project 5)
-
-After `impresspress build && impresspress serve`, paste a public small image URL (≤ 4 MiB) and ask the model to do one of:
-
-- `"resize this to 256 wide"` — should call `gizza-ai/image-resize`; the resized thumbnail appears inside the tool-call row.
-- `"crop the center 200×200 from this"` — should call `gizza-ai/image-crop`; cropped thumbnail appears.
-- `"convert this to JPEG quality 70"` — should call `gizza-ai/image-convert`; new JPEG appears (filename ends `.jpg`).
-
-If the thumbnail does not appear, check the SSE stream from `/b/agent/chat`: `tool_result` events should carry a `for_ui` field with `data_url` and `mime`. If `for_ui` is missing, the skill probably hit one of the size/mime caps — see browser console for the agent's LLM-history text from `_for_llm`.
+- It diffs the PR head against its base branch to find touched
+  `blocks/<slug>/` directories, ignoring changes under `target/block.wasm`,
+  `web/pkg/`, `page/`, and `manifest.json` (those don't affect the compiled
+  wasm or its tests).
+- For each changed block that has a `web/` crate, it builds that block's
+  browser wasm (`wasm-pack build blocks/<slug>/web --target web --release
+  --out-dir pkg`), then regenerates all pages (`cargo run --manifest-path
+  tools/generator/Cargo.toml -- .`).
+- It then runs only that block's `tool-page-<slug>.spec.ts` (if one exists —
+  missing specs are logged, not treated as failures), not the whole suite.
+- On pushes to `main`, it instead renders every page and runs the full
+  `tool_pages.spec.ts` core smoke test.

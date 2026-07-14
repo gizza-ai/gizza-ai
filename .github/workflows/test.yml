@@ -32,16 +32,14 @@ jobs:
           echo "Disk space after cleanup:"
           df -h
 
-      - name: Checkout gizza-ai
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: gizza-ai
           fetch-depth: 0
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Detect changed blocks
         id: changed
-        working-directory: gizza-ai
         shell: bash
         run: |
           set -euo pipefail
@@ -79,43 +77,22 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Tool hygiene gate
-        working-directory: gizza-ai
         shell: bash
         run: python3 scripts/check-tool-hygiene.py
 
-      - name: Read impresspress pin
-        id: pin
-        run: echo "impresspress_sha=$(cat gizza-ai/impresspress-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
-
       - name: Read wafer-run pin
         id: waferpin
-        run: echo "wafer_sha=$(cat gizza-ai/wafer-run-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
-
-      - name: Checkout impresspress
-        uses: actions/checkout@v4
-        with:
-          repository: impresspress/impresspress
-          ref: ${{ steps.pin.outputs.impresspress_sha }}
-          path: impresspress
-
-      - name: Checkout wafer-run
-        # Pinned via wafer-run-pin.txt — see deploy.yml for the rationale.
-        uses: actions/checkout@v4
-        with:
-          repository: wafer-run/wafer-run
-          ref: ${{ steps.waferpin.outputs.wafer_sha }}
-          path: wafer-run
+        run: echo "wafer_sha=$(cat wafer-run-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
 
       - name: Verify wafer-run pin consistency
-        # Same guard as deploy.yml, but running on every PR so a half-bumped
-        # pin (wafer-run-pin.txt vs the committed Cargo.lock files vs the
-        # impresspress pin) is caught before merge, not at deploy time.
+        # Guards against a half-bumped pin: wafer-run-pin.txt vs the committed
+        # Cargo.lock files that pin the wafer-run git dep.
         shell: bash
         run: |
           set -euo pipefail
-          pin="$(tr -d '[:space:]' < gizza-ai/wafer-run-pin.txt)"
+          pin="$(tr -d '[:space:]' < wafer-run-pin.txt)"
           fail=0
-          for lock in gizza-ai/Cargo.lock gizza-ai/cli/Cargo.lock gizza-ai/block-utils/Cargo.lock impresspress/Cargo.lock; do
+          for lock in cli/Cargo.lock block-utils/Cargo.lock; do
             shas="$(grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lock" | sed 's/.*#//' | sort -u)"
             if [ "$shas" != "$pin" ]; then
               echo "::error::$lock pins wafer-run at '${shas:-<none>}' but wafer-run-pin.txt says '$pin'."
@@ -123,7 +100,7 @@ jobs:
             fi
           done
           if [ "$fail" -ne 0 ]; then
-            echo "Bump procedure: update wafer-run-pin.txt, run 'cargo update' in gizza-ai/, cli/, and block-utils/, and point impresspress-pin.txt at a impresspress commit whose Cargo.lock pins the same wafer-run sha."
+            echo "Bump procedure: update wafer-run-pin.txt, then run 'cargo update' in cli/ and block-utils/."
             exit 1
           fi
           echo "All lockfiles agree with wafer-run-pin.txt ($pin)."
@@ -147,23 +124,10 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: |
-            gizza-ai
-            impresspress
-            wafer-run
-
-      - name: Build impresspress-web wasm
-        working-directory: impresspress
-        run: wasm-pack build crates/impresspress-web --target web --release --out-dir pkg
-
-      - name: Build impresspress + wafer CLIs
-        run: |
-          cargo install --path impresspress/crates/impresspress --locked
-          cargo install --path wafer-run/crates/wafer-cli --locked
+          workspaces: .
 
       - name: Audit missing skill wasm artifacts
         if: github.event_name != 'pull_request'
-        working-directory: gizza-ai
         shell: bash
         run: |
           set -euo pipefail
@@ -175,16 +139,10 @@ jobs:
             fi
           done
           echo "Missing committed blocks/*/target/block.wasm artifacts: $missing"
-          echo "Skipping rebuild here; deploy reuses committed artifacts and standalone tool pages are generated separately."
-
-      - name: Build skill wasms (full)
-        if: github.event_name != 'pull_request'
-        working-directory: gizza-ai
-        run: IMPRESSPRESS_SKIP_BLOCK_BUILD=1 impresspress build
+          echo "Skipping rebuild here; standalone tool pages are generated separately."
 
       - name: Build changed skill wasms
         if: github.event_name == 'pull_request'
-        working-directory: gizza-ai
         shell: bash
         run: |
           set -euo pipefail
@@ -204,15 +162,8 @@ jobs:
             )
           done <<< "${{ steps.changed.outputs.blocks }}"
 
-      - name: Cargo tests
-        # Root crate tests (lazy_skill lifecycle, skills_embed, agent, …) run
-        # on PRs too: repo-level regressions used to surface only after merge.
-        working-directory: gizza-ai
-        run: cargo test
-
       - name: Changed block Cargo tests
         if: github.event_name == 'pull_request'
-        working-directory: gizza-ai
         shell: bash
         run: |
           set -euo pipefail
@@ -230,27 +181,15 @@ jobs:
           fi
 
       - name: CLI tests
-        working-directory: gizza-ai
         run: cargo test --manifest-path cli/Cargo.toml
 
       - name: Tool-page generator tests
-        working-directory: gizza-ai
         run: cargo test --manifest-path tools/generator/Cargo.toml
 
-      - name: SEO generator tests
-        working-directory: gizza-ai
-        run: bash scripts/gen-seo.test.sh
-
       - name: Tool hygiene gate self-test
-        working-directory: gizza-ai
         run: bash scripts/check-tool-hygiene.test.sh
 
-      - name: Chrome crate tests
-        working-directory: gizza-ai
-        run: cargo test --manifest-path chrome/Cargo.toml
-
       - name: block-utils tests
-        working-directory: gizza-ai
         run: cargo test --manifest-path block-utils/Cargo.toml
 
       - name: Setup Node
@@ -259,23 +198,16 @@ jobs:
           node-version: '20'
 
       - name: JS tests
-        # The sw-bypass tests need the impresspress-built pkg/sw.js: on main
-        # pushes (pkg built above) REQUIRE_BUILT_PKG makes a missing artifact
-        # a failure; on PRs (no app build) those two tests self-skip.
-        working-directory: gizza-ai
-        env:
-          REQUIRE_BUILT_PKG: ${{ github.event_name != 'pull_request' && '1' || '' }}
         run: |
           npm install --no-audit --no-fund
           npm test
 
       - name: Build changed tool pages
         # Standalone tool pages are self-contained under pkg/tools/<slug>/
-        # (web wasm + generator output) — no app/impresspress build needed. The
-        # generator regenerates all pages but only warns for tools whose
-        # web/pkg is absent (it copies wasm only for the ones built here).
+        # (web wasm + generator output) — no app build needed. The generator
+        # regenerates all pages but only warns for tools whose web/pkg is
+        # absent (it copies wasm only for the ones built here).
         if: github.event_name == 'pull_request'
-        working-directory: gizza-ai
         shell: bash
         run: |
           set -euo pipefail
@@ -294,15 +226,14 @@ jobs:
             echo "No changed tool web crates; skipping page generation."
             exit 0
           fi
-          cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
-          cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
+          cargo run --manifest-path tools/generator/Cargo.toml -- .
 
       - name: Changed tool-page Playwright tests
         # Playwright runs headless (the fixtures only go headed under HEADED=1
         # for WebLLM/WebGPU specs, which are not in this set). The webServer in
         # playwright.config.ts serves ../pkg on :8001 automatically.
         if: github.event_name == 'pull_request'
-        working-directory: gizza-ai/tests
+        working-directory: tests
         shell: bash
         run: |
           set -euo pipefail
@@ -324,24 +255,17 @@ jobs:
           npx playwright test "${specs[@]}"
 
       - name: Generate tool pages (full)
-        # Renders the /tools/ hub pages into pkg/tools/ — the landing-chooser
-        # smoke below asserts the chooser's Tools button lands on a real hub.
-        # (The generator only warns for tools without a built web/pkg.)
+        # Renders every block's page/ into pkg/tools/<slug>/, generic (no site
+        # config — this repo has none).
         if: github.event_name != 'pull_request'
-        working-directory: gizza-ai
-        run: |
-          set -euo pipefail
-          cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
-          cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
+        run: cargo run --manifest-path tools/generator/Cargo.toml -- .
 
-      - name: Landing-chooser Playwright smoke
-        # Guards the static chooser page in the pkg/ that "Build skill wasms
-        # (full)" produced above — main-push only (PRs don't build the app pkg).
+      - name: Tool pages Playwright test (full)
         if: github.event_name != 'pull_request'
-        working-directory: gizza-ai/tests
+        working-directory: tests
         shell: bash
         run: |
           set -euo pipefail
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
-          npx playwright test landing-chooser.spec.ts
+          npx playwright test tool_pages.spec.ts

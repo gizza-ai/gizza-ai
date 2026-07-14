@@ -6,15 +6,21 @@ Headless CLI to run [gizza](https://gizza.ai) skill tools locally — calculator
 
 - Rust 1.82+ (stable)
 - System `ffmpeg` on `PATH` for image and video tools (`image-resize`, `image-convert`, `image-crop`, `image-fetch`, `video-trim`, `video-transcode`, `video-frame-extract`, `ffmpeg`)
-- The skill WASMs must be pre-built (run `impresspress build` from the `gizza-ai` repo root before using or testing)
+- The block WASMs must be built: most `blocks/*/target/block.wasm` artifacts are committed to the repo already; if one is missing or you changed a block's `core/`, rebuild it with `cargo build --target wasm32-wasip1 --release` inside `blocks/<slug>/` and copy the produced `.wasm` to `blocks/<slug>/target/block.wasm` (see the repo root [README.md](../README.md#build))
 
 > **Note on `imagine`:** The `imagine` (text-to-image) tool requires a browser GPU and is not supported in the CLI. Invoking it returns exit code 3 (`unsupported_in_cli`). Use [gizza.ai](https://gizza.ai) instead.
 
 ## Build
 
 ```sh
-# From gizza-ai/ repo root:
-impresspress build                      # compile all skill WASMs
+# From the gizza-ai repo root — block WASMs are mostly already committed;
+# rebuild a changed one first if needed:
+cd blocks/<slug>
+cargo build --target wasm32-wasip1 --release
+mkdir -p target
+cp target/wasm32-wasip1/release/*.wasm target/block.wasm
+cd -
+
 cargo build --manifest-path cli/Cargo.toml
 ```
 
@@ -78,9 +84,11 @@ Claude Desktop (`claude_desktop_config.json`):
 }
 ```
 
-Build the binary with `cargo build --release --manifest-path cli/Cargo.toml` (after
-`impresspress build`) and point `command` at `cli/target/release/gizza` — or wherever you
-installed it. System `ffmpeg` on `PATH` is still required for image/video/audio tools.
+Build the binary with `cargo build --release --manifest-path cli/Cargo.toml` (block WASMs
+are mostly already committed under `blocks/*/target/block.wasm`; rebuild any changed one
+first — see Requirements above) and point `command` at `cli/target/release/gizza` — or
+wherever you installed it. System `ffmpeg` on `PATH` is still required for image/video/audio
+tools.
 
 ## SKILL.md (agent contract)
 
@@ -130,4 +138,5 @@ See `SKILL.md` for the full agent contract (all tool schemas and CLI examples).
 cargo test
 ```
 
-All integration tests require the skill WASMs to be pre-built (`impresspress build`).
+All integration tests require the block WASMs to be built — most `blocks/*/target/block.wasm`
+artifacts are committed already; rebuild any changed one as described in Requirements above.

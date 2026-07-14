@@ -1,19 +1,14 @@
 default:
     @just --list
 
-# Serve dist/ over HTTP on the chosen port (default 8001).
+# Serve pkg/ over HTTP on the chosen port (default 8001).
 serve port="8001":
-    python3 -m http.server --directory dist {{port}}
+    python3 -m http.server --directory pkg {{port}}
 
 # Run the e2e smoke test.
 test:
     cd tests && npx playwright test
 
-# Generate sitemap.xml, robots.txt, and llms.txt into pkg/.
-seo:
-    GIZZA=cli/target/release/gizza scripts/gen-seo.sh
-
-# Render branded tool pages (emit chrome partials first).
+# Render generic tool pages (no site config — this repo has none).
 build-tools:
-    cargo run --manifest-path chrome/Cargo.toml --bin emit_partials -- site/partials
-    cargo run --manifest-path tools/generator/Cargo.toml -- . --site-config site/site-config.toml
+    cargo run --manifest-path tools/generator/Cargo.toml -- .
