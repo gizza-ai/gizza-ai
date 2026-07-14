@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/dir-checksum-report",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Checksum report for a batch of files",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Produce a checksum manifest for a batch of files: a Markdown table (or CSV) of filename, size, and the requested digests (any of crc32, md5, sha1, sha256, sha512; default crc32+sha256), plus a 'Duplicate files' section (Markdown only) grouping files whose digests all match. Provide at least two file sources; each is a URL or a `ref` to an uploaded attachment.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithms": {
+          "default": "crc32,sha256",
+          "description": "Comma-separated digest algorithms to include as report columns, in order: any of crc32, md5, sha1, sha256, sha512. Default 'crc32,sha256'.",
+          "type": "string"
+        },
+        "files": {
+          "description": "Two or more files to checksum. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Report shape: 'markdown' (a table plus a 'Duplicate files' section listing any files whose digests all match) or 'csv' (header + one row per file, no duplicate section). Default 'markdown'.",
+          "enum": [
+            "markdown",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "name",
+          "description": "Row order: 'name' (case-insensitive alphabetical) or 'size' (ascending bytes). Default 'name'.",
+          "enum": [
+            "name",
+            "size"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  }
+}
