@@ -187,11 +187,15 @@ pub async fn boot_full() -> Result<ToolRuntime> {
     // Block name comes from service_blocks/network.rs ("wafer-run/network").
     // Constructor: NetworkBlock::new(Arc<dyn NetworkService>).
     // Source: wafer-run/crates/wafer-core/src/service_blocks/network.rs:10.
+    // from_env(): the response-size cap comes from the environment; an
+    // invalid value is a boot error rather than a silently-applied default.
+    let network_service = wafer_block_network::service::HttpNetworkService::from_env()
+        .map_err(|e| anyhow::anyhow!("construct network service: {e}"))?;
     wafer
         .register_block(
             "wafer-run/network",
             Arc::new(wafer_core::service_blocks::network::NetworkBlock::new(
-                Arc::new(wafer_block_network::service::HttpNetworkService::new()),
+                Arc::new(network_service),
             )),
         )
         .map_err(|e| anyhow::anyhow!("register network: {e}"))?;
