@@ -82,6 +82,7 @@ struct VideoAudioGain;
     interface = "handler@v1",
     summary = "Raise or lower a video's audio volume",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Raise or lower the audio volume of a video, keeping the picture untouched (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). amount is in decibels by default (6 boosts, -6 cuts; range ±60) or a linear factor with unit=factor (2 doubles, 0.5 halves; range (0,16]). A peak limiter (on by default) caps output at 0 dBFS so boosts don't clip. The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

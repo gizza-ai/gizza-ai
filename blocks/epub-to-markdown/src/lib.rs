@@ -68,6 +68,7 @@ struct EpubToMarkdown;
     interface = "handler@v1",
     summary = "Extract an EPUB's chapters into Markdown or plain text",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract an EPUB e-book's chapters into clean Markdown (default) or plain text, in reading (spine) order. Reads the EPUB's OPF manifest so chapters come out in the right order. Returns the book title, the number of chapters extracted, and the combined content (chapters separated by a Markdown horizontal rule). Provide the EPUB as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally.",
         parameters = schema_json()

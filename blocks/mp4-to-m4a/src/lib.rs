@@ -59,6 +59,7 @@ struct Mp4ToM4a;
     interface = "handler@v1",
     summary = "Remux the audio track of an MP4 into an M4A container losslessly.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remux the audio track of an MP4 into an M4A (.m4a) container without re-encoding. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). The first audio stream is stream-copied with -vn -map 0:a:0 -c:a copy: the video is dropped and the already-compressed audio packets (AAC, ALAC, …) are copied across losslessly — near-instant, no quality change. M4A is the audio profile of the same MP4 container, so this always succeeds. To change codec/bitrate (e.g. AAC → MP3) use extract-audio-from-video or audio-convert instead.",
         parameters = schema_json()

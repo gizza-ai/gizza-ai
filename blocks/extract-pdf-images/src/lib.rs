@@ -48,6 +48,7 @@ struct ExtractPdfImages;
     interface = "handler@v1",
     summary = "Extract embedded images from a PDF as a ZIP",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract the embedded raster images from a PDF and return them bundled in a ZIP. JPEG (DCTDecode) and JPEG-2000 images are saved losslessly as-is; 8-bit grayscale/RGB images are saved as PNG. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call). This extracts stored image objects — it does not rasterize/screenshot pages.",
         parameters = schema_json()

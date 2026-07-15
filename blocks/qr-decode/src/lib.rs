@@ -52,6 +52,7 @@ struct QrDecode;
     interface = "handler@v1",
     summary = "Decode the data in a QR code image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Read and decode the data contained in a QR code image (PNG/JPEG/GIF/BMP/WebP). Returns the decoded text of every QR code found in the image, in detection order. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Runs locally — the image never leaves the device.",
         parameters = schema_json()

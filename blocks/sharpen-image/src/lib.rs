@@ -59,6 +59,7 @@ struct SharpenImage;
     interface = "handler@v1",
     summary = "Sharpen an image with an unsharp mask",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Sharpen an image using an adjustable unsharp mask. amount is the unsharp strength (Gaussian sigma; default 2.0, higher = sharper); threshold (0-255, default 0) is the minimum brightness difference before a pixel is sharpened, which avoids amplifying noise in flat areas. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

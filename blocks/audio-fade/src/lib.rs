@@ -82,6 +82,7 @@ struct AudioFade;
     interface = "handler@v1",
     summary = "Add a fade-in and fade-out to an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Add a smooth fade-in at the start and/or fade-out at the end of an audio file. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). fade_in and fade_out are lengths in seconds (0-30, both default 3); set one to 0 to fade only the other side — both at 0 is rejected. Fades longer than the track just fade across the whole file. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
         parameters = schema_json()

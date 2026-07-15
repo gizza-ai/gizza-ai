@@ -50,6 +50,7 @@ struct PdfCompress;
     interface = "handler@v1",
     summary = "Shrink a PDF by recompressing its streams",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Shrink a PDF's file size by dropping unused objects and Flate-compressing its streams (content and images), losslessly — text and vector graphics are preserved exactly and already-compressed image data is kept as-is (it does not re-encode images to a lossier codec). Provide the PDF as either a URL or a `ref` to an uploaded PDF attachment.",
         parameters = schema_json()

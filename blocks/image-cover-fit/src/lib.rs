@@ -91,6 +91,7 @@ struct ImageCoverFit;
     interface = "handler@v1",
     summary = "Scale and centre-crop an image to completely fill target dimensions while preserving aspect ratio (cover)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Scale and centre-crop ('cover') an image so it completely fills a target width x height while preserving its aspect ratio. The image is scaled to the smallest size that covers the box, then the overflow is cropped away around the chosen anchor (gravity). anchor is one of center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right (default center); set allow_upscale=false to keep images smaller than the target at original size. The result is exactly the requested size with no padding (use image-contain-fit for letterboxing instead). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

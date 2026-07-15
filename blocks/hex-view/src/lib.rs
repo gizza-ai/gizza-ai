@@ -77,6 +77,7 @@ struct HexView;
     interface = "handler@v1",
     summary = "Render a file as a hex dump",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Render any file as a classic hex dump — an 8-digit hex offset column, the bytes in hex (grouped 8+8), and an ASCII gutter (like `xxd`). bytes_per_line (1-64, default 16) sets the row width; max_bytes (default 4096, hard cap 262144) limits how much is shown. Returns the dump text plus total/shown byte counts. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

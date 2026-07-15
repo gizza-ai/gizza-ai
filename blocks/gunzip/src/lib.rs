@@ -46,6 +46,7 @@ struct Gunzip;
     interface = "handler@v1",
     summary = "Decompress a gzip (.gz) file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decompress a gzip (.gz) file or blob back to its original bytes, returned as a downloadable file. The original filename is recovered from the gzip header when present (otherwise the .gz suffix is stripped). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). For .tar.gz archives use extract-tar instead.",
         parameters = schema_json()

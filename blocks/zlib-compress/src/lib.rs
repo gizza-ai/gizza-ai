@@ -60,6 +60,7 @@ struct ZlibCompress;
     interface = "handler@v1",
     summary = "Compress a file into a zlib stream",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress a file (or any bytes) into a zlib stream (RFC 1950) — a 2-byte zlib header, the raw DEFLATE body (RFC 1951) and a trailing 4-byte Adler-32 checksum — returned for download as <input>.zz. zlib sits between gzip (CRC-32 + filename header) and raw DEFLATE (no header/checksum); it is the framing PNG IDAT chunks and Content-Encoding: deflate HTTP bodies embed. level sets the deflate level 1-9 (default 6). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

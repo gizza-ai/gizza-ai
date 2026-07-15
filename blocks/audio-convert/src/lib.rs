@@ -71,6 +71,7 @@ struct AudioConvert;
     interface = "handler@v1",
     summary = "Convert audio between mp3, wav, ogg, flac and m4a",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert an audio file to mp3, wav, ogg, flac or m4a. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Lossy targets (mp3/ogg/m4a) take a bitrate in kbps (32-320, default 192); wav/flac are lossless and ignore it. Any input ffmpeg can decode works; embedded album art is dropped.",
         parameters = schema_json()

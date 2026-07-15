@@ -120,6 +120,7 @@ struct PdfWatermark;
     interface = "handler@v1",
     summary = "Stamp a text watermark onto every page of a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Stamp a text watermark (CONFIDENTIAL, DRAFT, a company name…) onto every page of a PDF. The same `text` is placed on each selected page — control the `position` (center or a corner/edge), the `rotation` in degrees (45 = classic diagonal), the `font`/`font_size`/`color`/`opacity` (faint by default), whether to `tile` it in a mosaic across the whole page, and which `pages` to mark (1-based; use '2-' to skip a cover page). Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

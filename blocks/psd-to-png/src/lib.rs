@@ -65,6 +65,7 @@ struct PsdToPng;
     interface = "handler@v1",
     summary = "Convert an Adobe Photoshop PSD to a flattened PNG or JPEG image.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decode an Adobe Photoshop .psd document and render its FLATTENED composite (all visible layers merged, exactly as Photoshop previews it) to a viewable PNG or JPEG. Output is a single image of the whole canvas — per-layer extraction to separate files is not supported. PNG preserves the document's transparency; JPEG has no alpha, so transparent areas are flattened onto the background colour. Params: format (png|jpeg, default png), quality (JPEG 1-100, default 90), background (hex #rrggbb for JPEG flatten, default #ffffff). Renders RGB/RGBA PSDs from the document's stored composite; a file that is not a PSD returns a clear error. Provide the file as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

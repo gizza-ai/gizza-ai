@@ -82,6 +82,7 @@ struct VideoSilenceCut;
     interface = "handler@v1",
     summary = "Remove silent gaps from a video (correct two-pass, A/V stays in sync)",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remove silent gaps from a video to tighten pacing (jump-cut style), keeping audio and video in sync. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). threshold_db sets the silence loudness cutoff in dB (default -30; quieter than this counts as silence) and min_silence is the shortest gap in seconds to trim (default 0.5). Output is mp4 (re-encoded H.264/AAC). Uses a correct two-pass detect-then-cut flow.",
         parameters = schema_json()

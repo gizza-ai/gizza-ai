@@ -47,6 +47,7 @@ struct GifToMp4;
     interface = "handler@v1",
     summary = "Convert an animated GIF to a smaller MP4/WebM video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert an animated GIF into a much smaller MP4 (H.264) or WebM (VP9) video, preserving the animation. Set format='mp4' (default) or 'webm'. Provide the GIF as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

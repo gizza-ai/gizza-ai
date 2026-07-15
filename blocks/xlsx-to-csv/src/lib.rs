@@ -92,6 +92,7 @@ struct XlsxToCsv;
     interface = "handler@v1",
     summary = "Convert a spreadsheet (.xlsx/.xls/.ods) to CSV",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert a spreadsheet (.xlsx, .xlsm, .xls, or .ods) to CSV. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Optionally pick a sheet by name or 0-based index; defaults to the first sheet.",
         parameters = schema_json()

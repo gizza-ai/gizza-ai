@@ -51,6 +51,7 @@ struct VideoRotate;
     interface = "handler@v1",
     summary = "Rotate and/or flip a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Rotate a video clockwise by 90, 180, or 270 degrees and/or flip it horizontally or vertically. Set rotate (0/90/180/270) and/or flip (none/horizontal/vertical); at least one must be active. Provide the video as either url (HTTP/HTTPS) or ref. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

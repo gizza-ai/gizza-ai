@@ -57,6 +57,7 @@ struct CarveFiles;
     interface = "handler@v1",
     summary = "Recover embedded files from a binary blob by magic-byte signatures",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Scan a binary blob (disk image, memory dump, corrupted container, or any concatenation of files) for embedded files by their magic-byte signatures and extract the recovered files — this is 'file carving'. Returns each recovered file with its byte offset, size, detected type (extension / format name / MIME), whether its end was found exactly, and its content inline as base64 (up to an internal budget; larger files are listed without content). Recognises PNG, JPEG, GIF, BMP, PDF, ZIP, gzip, bzip2, XZ, 7-Zip, RAR, Ogg, FLAC, MP3, RIFF (WAV/AVI/WEBP), and SQLite. Provide the blob as either url (HTTP/HTTPS) or ref (id from a prior tool call). Runs locally — the data never leaves the device.",
         parameters = schema_json()

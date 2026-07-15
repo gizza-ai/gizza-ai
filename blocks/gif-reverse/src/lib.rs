@@ -43,6 +43,7 @@ struct GifReverse;
     interface = "handler@v1",
     summary = "Reverse an animated GIF's frame order",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Reverse the playback order of an animated GIF (last frame first). Each frame keeps its own delay so the speed is unchanged, and the result loops forever. Set boomerang=true to instead play forward then backward (ping-pong) for a seamless loop. Returns the new GIF. Provide the GIF as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

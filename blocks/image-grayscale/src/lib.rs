@@ -59,6 +59,7 @@ struct ImageGrayscale;
     interface = "handler@v1",
     summary = "Convert an image to grayscale",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert an image to grayscale. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

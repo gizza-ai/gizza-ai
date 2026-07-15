@@ -62,6 +62,7 @@ struct VideoFps;
     interface = "handler@v1",
     summary = "Change a video's frame rate with frame drop/duplication",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Change a video's frame rate to a fixed target (e.g. 60→30, or any chosen fps). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus fps (target frames per second, default 30). Lowering the rate drops frames; raising it duplicates them — the clip's duration is unchanged, only its frames-per-second. The video is re-encoded to H.264 (crf 20); audio is kept as-is. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. fps is clamped to 1-240.",
         parameters = schema_json()

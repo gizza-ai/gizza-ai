@@ -83,6 +83,7 @@ struct VideoAudioDenoise;
     interface = "handler@v1",
     summary = "Reduce background noise in a video's audio",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Reduce background hiss/hum/noise in a video's audio track, keeping the picture untouched (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). strength is 1–100 (higher removes more but risks a hollow sound; start around 12). method is afftdn (FFT, default) or anlmdn (non-local means). Set remove_hum to also cut low-frequency hum below 80 Hz. The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

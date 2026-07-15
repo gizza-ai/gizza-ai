@@ -81,6 +81,7 @@ struct MemeCaption;
     interface = "handler@v1",
     summary = "Add a classic top/bottom impact-style caption to an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Add a classic top and/or bottom meme caption to an image and return a PNG. The text is rendered impact-style: bold letters with an outline, centered horizontally, auto-sized to the image width (long captions wrap), placed near the top and bottom edges, and uppercased by default. Set top and/or bottom (at least one is required); set uppercase=false to keep the text exactly as written, and text_color/outline_color as #rrggbb to recolour the fill and stroke (default white text with a black outline). Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

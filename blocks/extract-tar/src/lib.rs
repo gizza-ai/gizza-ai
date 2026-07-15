@@ -48,6 +48,7 @@ struct ExtractTar;
     interface = "handler@v1",
     summary = "List and extract files from a tar / tar.gz / tgz archive",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "List and extract the files from a tar, tar.gz, or tgz archive, returning them repacked as a ZIP (gzip is auto-detected). The response lists every member (files and directories). Provide the archive as either url (HTTP/HTTPS) or ref (id from a prior tool call). Paths are sanitized (no absolute paths or '..' traversal).",
         parameters = schema_json()

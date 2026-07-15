@@ -93,6 +93,7 @@ struct TrimAudio;
     interface = "handler@v1",
     summary = "Keep or remove a [start, end] range of an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Trim an audio file: keep just the [start, end] selection (mode=keep) or delete that range and join the rest (mode=remove). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds; end 0 or omitted means the end of the track (so start=15 alone drops the first 15 seconds). Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; an optional short fade avoids clicks at the cut edges (keep mode only).",
         parameters = schema_json()

@@ -46,6 +46,7 @@ struct ImagesToPdf;
     interface = "handler@v1",
     summary = "Combine images into a single PDF (one image per page)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Combine a set of images into a single PDF, one image per page, in the given order. Each image is a URL or a `ref` to an uploaded image attachment (PNG/JPEG/WebP/GIF/BMP). Provide at least one image.",
         parameters = schema_json()

@@ -59,6 +59,7 @@ struct PngOptimizer;
     interface = "handler@v1",
     summary = "Losslessly shrink a PNG (optimal filters + palette, pixels unchanged)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Losslessly shrink a PNG by re-encoding it with optimal scanline filters, stronger compression, and a more compact color type — WITHOUT changing a single pixel. effort is fast|default|max (default default; max brute-forces every filter). reduce (default true) losslessly packs to an indexed palette when there are ≤256 colors, drops a fully-opaque alpha channel, and uses grayscale when possible. All metadata is stripped and the output is never interlaced or larger than the input. Non-PNG input is rejected. Provide the PNG as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

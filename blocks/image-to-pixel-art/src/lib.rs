@@ -66,6 +66,7 @@ struct ImageToPixelArt;
     interface = "handler@v1",
     summary = "Turn an image into limited-palette pixel art",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn a photo into retro pixel art: downscale to a coarse grid of chunky blocks and reduce to a limited palette derived from the image (NeuQuant). pixel_size is the block size 2-64 (default 8; larger = chunkier); colors is the palette size 2-256 (default 16). Returns a PNG at roughly the original dimensions. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

@@ -127,6 +127,7 @@ struct PdfPageNumbers;
     interface = "handler@v1",
     summary = "Add page numbers to a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Stamp page numbers onto an existing PDF. Control the label with a `format` template ({n} = page number, {total} = last number printed), the `position` (bottom/top × left/center/right), the numbering `style` (decimal, roman, or letters), the `start_number`, which `pages` to number (1-based; use '2-' to skip a cover page), and the `font`/`font_size`/`color`/`margin`/`opacity`. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

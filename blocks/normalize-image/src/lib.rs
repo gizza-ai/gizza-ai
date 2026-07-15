@@ -45,6 +45,7 @@ struct NormalizeImage;
     interface = "handler@v1",
     summary = "Auto-normalize an image (histogram stretch)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Auto-normalize (contrast-stretch) an image by mapping each color channel's used range to the full 0-255 dynamic range, brightening flat/low-contrast photos. clip_percent (0-45, default 0) ignores that fraction of extreme pixels per channel first so outliers don't flatten the result. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

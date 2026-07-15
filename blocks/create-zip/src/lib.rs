@@ -45,6 +45,7 @@ struct CreateZip;
     interface = "handler@v1",
     summary = "Bundle multiple files into a ZIP archive",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Bundle multiple files into a single downloadable ZIP archive (deflate-compressed). Provide at least one file; each is a URL or a `ref` to an uploaded attachment. Entry names come from each file's name; duplicate names are made unique.",
         parameters = schema_json()

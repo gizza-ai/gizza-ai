@@ -46,6 +46,7 @@ struct RandomizePalette;
     interface = "handler@v1",
     summary = "Randomly remap an indexed image's palette",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Randomly remap the color palette of an indexed GIF/PNG-8 image — every pixel keeps its index but each palette slot is reassigned a different color, so shapes and stego payloads hidden by near-identical palette entries become visible. Images with more than 256 colors are quantized to 256 first. The shuffle is driven by seed (default 0) so results are reproducible; change seed to try a different shuffle. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

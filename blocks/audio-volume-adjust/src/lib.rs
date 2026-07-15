@@ -87,6 +87,7 @@ struct AudioVolumeAdjust;
     interface = "handler@v1",
     summary = "Boost or cut audio volume by dB or a factor",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Increase or decrease an audio file's volume. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). amount is in decibels by default (6 boosts, -6 cuts; range ±60) or a linear factor with unit=factor (2 doubles, 0.5 halves; range (0,16]). A peak limiter (on by default) caps output at 0 dBFS so boosts don't clip. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
         parameters = schema_json()

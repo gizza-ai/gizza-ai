@@ -289,6 +289,7 @@ struct HttpRequest;
     interface = "handler@v1",
     summary = "Make a full HTTP request and return status, headers, and body",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Make a full HTTP request to an http(s) URL: choose the method, set custom headers and query parameters, and send an optional request body. Returns the status (code + reason), the response headers, and the body (pretty-printed when it is JSON). Only public URLs are allowed — loopback and private addresses are blocked.",
         parameters = schema_json()

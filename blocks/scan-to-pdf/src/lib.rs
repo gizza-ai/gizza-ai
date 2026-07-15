@@ -140,6 +140,7 @@ struct ScanToPdf;
     interface = "handler@v1",
     summary = "Turn document photos into a cleaned, deskewed, high-contrast PDF scan.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn one or more phone photos of documents into a cleaned, deskewed, high-contrast multi-page PDF scan (one page per photo, in order). Each photo is a URL or a `ref` to an uploaded image (PNG/JPEG/WebP/GIF/BMP). Choose an enhancement mode (magic colour, grayscale, black & white, or plain colour), auto-straighten a small tilt, rotate for orientation, tune brightness/contrast, and pick the output page size (fit/A4/Letter). Note: does NOT do 4-corner auto-crop/perspective de-warp or OCR/searchable text.",
         parameters = schema_json()

@@ -120,6 +120,7 @@ struct ColorPaletteExtract;
     interface = "handler@v1",
     summary = "Extract the dominant color palette from an image as hex codes",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract the dominant color palette from an image. For each color it returns the #rrggbb hex, rgb() and hsl() strings, the r/g/b channels (0-255) and h/s/l values, and its share of the image (fraction + percent), ordered most-dominant first. Also returns a plain list of the hex codes, a ready-to-paste CSS custom-properties block (:root { --color-1: ...; }), and the image dimensions. The palette is derived from the image itself (NeuQuant), and fully transparent pixels are ignored. Use the colors parameter (1-64, default 6) to set how many colors to extract. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

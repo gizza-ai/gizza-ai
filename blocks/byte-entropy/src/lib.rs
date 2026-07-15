@@ -96,6 +96,7 @@ struct ByteEntropy;
     interface = "handler@v1",
     summary = "Measure a file's Shannon entropy, overall and per block",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compute the Shannon entropy (bits per byte, 0–8) of a file, both overall and across fixed-size blocks, to locate encrypted, compressed, or packed regions. High uniform entropy (~7.5–8.0) indicates random-looking data (encryption/compression); low entropy indicates text, code, padding, or repetitive structure. Returns total_bytes, overall_entropy, distinct_bytes (how many of 256 byte values occur), an assessment string, the min/max per-block entropy, and a blocks array (each with offset, size, entropy). Set block_size to control the per-block window (16–4194304 bytes, default 256). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

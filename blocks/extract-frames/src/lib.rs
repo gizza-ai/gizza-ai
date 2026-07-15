@@ -123,6 +123,7 @@ struct ExtractFrames;
     interface = "handler@v1",
     summary = "Build a contact sheet of video frames sampled by interval, fps or scene change",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Build a contact sheet (thumbnail grid) from a video: sample frames at a fixed interval (one frame every N seconds), a fixed fps (N frames per second), or at scene-change points, then tile them into a single columns x rows grid image. Use interval or fps to storyboard a clip evenly; use scene to capture cuts (scene mode always includes the opening frame, so even a cut-free clip yields a sheet). The sheet holds up to columns x rows thumbnails — the first grid's worth of sampled frames — so raise the interval or grid to cover a longer clip. Output is a single PNG (or JPG) image; a background color fills the grid gaps. Provide the video as either url (HTTP/HTTPS) or ref from a prior tool call. Note: chat ffmpeg is unavailable — runs on the standalone page and the CLI.",
         parameters = schema_json()

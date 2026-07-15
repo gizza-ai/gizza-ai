@@ -59,6 +59,7 @@ struct ImageFalseColor;
     interface = "handler@v1",
     summary = "Apply a scientific colormap to an image's luminance.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Map a grayscale, thermal, depth, or scientific image's per-pixel luminance through a scientific colormap to produce a false-colour heatmap (PNG). colormap = viridis (default), magma, inferno, plasma, cividis, turbo, jet, hot, or grayscale; set invert = true to flip the scale so dark areas become the high end. Alpha is preserved. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

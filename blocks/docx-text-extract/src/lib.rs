@@ -135,6 +135,7 @@ struct DocxTextExtract;
     interface = "handler@v1",
     summary = "Convert a DOCX (Word) document to Markdown and plain text",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert a Microsoft Word .docx document into GitHub-Flavored Markdown and/or clean plain text, preserving the document structure: headings (from Word styles), ordered and bullet lists, tables (as Markdown pipe tables), hyperlinks, and bold/italic emphasis. Provide url (HTTP/HTTPS) or ref from a prior tool call. Set format to `both` (default), `markdown`, or `text`. Returns the requested representation(s) plus heading/table/word counts. Only .docx is supported (not legacy .doc); it reads the document text layer, not embedded images.",
         parameters = schema_json()

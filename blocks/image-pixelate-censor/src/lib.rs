@@ -62,6 +62,7 @@ struct ImagePixelateCensor;
     interface = "handler@v1",
     summary = "Pixelate or blur a region of an image to censor it",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Censor a rectangular region of an image (e.g. a face, license plate, or sensitive text) by pixelating it into a mosaic (default) or blurring it. Give the region as x, y, width, height in pixels (0-based from the top-left; clamped to the image). mode is 'pixelate' or 'blur'; strength sets the mosaic tile size (pixelate) or blur radius (blur). Only the region is changed; the rest is untouched. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

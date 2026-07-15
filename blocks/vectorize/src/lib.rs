@@ -102,6 +102,7 @@ struct Vectorize;
     interface = "handler@v1",
     summary = "Trace a raster image into a scalable SVG",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Trace a raster image (logo, sketch, icon) into a clean, scalable SVG. Provide the image as a `url` (http/https) or a `ref` to an uploaded attachment. Returns the SVG for inline display and download. Use this when the user asks to vectorize / convert an image to SVG / make a logo scalable.",
         parameters = schema_json()

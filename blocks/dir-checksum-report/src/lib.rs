@@ -77,6 +77,7 @@ struct DirChecksumReport;
     interface = "handler@v1",
     summary = "Checksum report for a batch of files",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Produce a checksum manifest for a batch of files: a Markdown table (or CSV) of filename, size, and the requested digests (any of crc32, md5, sha1, sha256, sha512; default crc32+sha256), plus a 'Duplicate files' section (Markdown only) grouping files whose digests all match. Provide at least two file sources; each is a URL or a `ref` to an uploaded attachment.",
         parameters = schema_json()

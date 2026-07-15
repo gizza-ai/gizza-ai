@@ -115,6 +115,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Add a soft darkened, lightened, or colored vignette with adjustable strength around an image's edges.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Add a soft darkened, lightened, or colored vignette around the edges of an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional strength 0-100 (default 40), mode darken|lighten (default darken), color (name or hex, darken mode only, default black), center_x/center_y as percent of the image size (default 50/50, the middle), and format keep|png|jpg|webp (default keep).",
         parameters = schema_json()

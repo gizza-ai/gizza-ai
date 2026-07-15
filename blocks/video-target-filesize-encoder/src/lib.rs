@@ -111,6 +111,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Re-encode a video to land under a target file size (MB) by computing the bitrate from its duration",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Re-encode a video so its file lands UNDER a chosen size budget (target_mb, e.g. 10 for Discord or 25 for email). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). The tool probes the clip duration, computes the H.264 video bitrate that fits the budget minus the audio (audio_kbps: none/64/96/128/192/320), optionally caps the height (scale: keep/1080/720/480/360), and outputs MP4 (H.264/AAC). Single-pass bitrate targeting — highly-compressible clips land comfortably under, never over. Not true two-pass VBR.",
         parameters = schema_json()

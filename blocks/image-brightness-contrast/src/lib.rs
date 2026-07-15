@@ -54,6 +54,7 @@ struct ImageBrightnessContrast;
     interface = "handler@v1",
     summary = "Adjust image brightness and contrast",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Adjust the brightness and contrast of an image by signed amounts. brightness is -255..255 (negative darkens, positive brightens); contrast is -100..100 (negative flattens, positive increases); 0/0 leaves the image unchanged. Contrast is applied around mid-gray, then brightness. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

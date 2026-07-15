@@ -84,6 +84,7 @@ struct DocxToPdf;
     interface = "handler@v1",
     summary = "Convert a Word .docx document into a paginated PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert a Word .docx document into a clean, paginated PDF (US Letter by default, or A4). Carries over paragraphs, heading and title styles (scaled and bold), bold/italic text, explicit run font sizes, paragraph alignment (left/center/right; justify renders left-aligned), bullet and numbered list items (rendered with bullet markers, indented by level), hard line breaks, explicit page breaks, and tables (flattened to readable pipe-separated rows). Provide the .docx as url (HTTP/HTTPS) or ref from a prior tool call. font_size (base body size in points, default 11), margin (points, default 72 = 1 inch), page_size (letter or a4), and optional page_numbers are configurable. It is a lightweight structural converter using the built-in Helvetica fonts — it does not embed images or reproduce exact Word page layout. Returns a PDF. Runs locally — the document never leaves the device.",
         parameters = schema_json()

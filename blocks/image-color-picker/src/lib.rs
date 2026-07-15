@@ -65,6 +65,7 @@ struct ImageColorPicker;
     interface = "handler@v1",
     summary = "Report the color at a pixel in an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Report the color at a given pixel (x, y) in an image: hex (#rrggbb and #rrggbbaa), rgb()/rgba() strings, the individual r/g/b/a channels (0-255), and the nearest common color name, plus the image dimensions. Coordinates are 0-based from the top-left. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

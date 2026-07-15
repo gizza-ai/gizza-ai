@@ -130,6 +130,7 @@ struct PdfToMarkdown;
     interface = "handler@v1",
     summary = "Convert a PDF into clean structured Markdown",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert a PDF's text layer into clean, structured Markdown — headings (from font-size statistics), bullet/numbered lists, and paragraphs — rather than a flat text dump. Provide url (HTTP/HTTPS) or ref from a prior tool call, optionally a 1-based page number (omit for all pages), page_separator (rule|blank), detect_lists, and dehyphenate. Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs, and does not reconstruct tables.",
         parameters = schema_json()

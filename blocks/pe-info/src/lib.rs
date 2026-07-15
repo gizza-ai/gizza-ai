@@ -122,6 +122,7 @@ struct PeInfoTool;
     interface = "handler@v1",
     summary = "Parse a Windows PE/EXE/DLL and report its headers, sections, imports, and exports",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Parse a Windows Portable Executable (PE) binary — .exe, .dll, .sys, or other PE/COFF files — and report a structured summary of its internals. Returns the PE format (PE32 vs PE32+/64-bit), target machine architecture (x86, x86-64, ARM64, …), file kind (Executable/DLL/Driver), Windows subsystem (GUI/Console/Native/EFI), link timestamp, preferred image base and entry-point addresses, image size, enabled loader/security mitigation flags (ASLR, DEP/NX, Control Flow Guard, …), the section table (name, virtual/raw sizes, and access flags), the imported libraries with the symbols pulled from each, and the names a DLL exports. Useful for malware triage, reverse engineering, dependency inspection, and verifying build settings. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

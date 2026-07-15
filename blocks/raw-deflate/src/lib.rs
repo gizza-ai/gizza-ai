@@ -59,6 +59,7 @@ struct RawDeflate;
     interface = "handler@v1",
     summary = "Compress a file with headerless raw DEFLATE",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress a file (or any bytes) with headerless raw DEFLATE (RFC 1951) — no gzip and no zlib wrapper, just the bare deflate bit stream, returned for download as <input>.deflate. Raw deflate has no magic bytes, no checksum and no filename header, so it is smaller than gzip/zlib and is what other formats embed. level sets the deflate level 1-9 (default 6). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

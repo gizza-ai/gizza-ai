@@ -126,6 +126,7 @@ struct PdfNotesOutliner;
     interface = "handler@v1",
     summary = "Outline a PDF's headings with per-section summaries",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn a lecture/course PDF into a structured heading outline (table of contents) with a short extractive summary under each section. Detects the heading hierarchy from document-wide font-size statistics (no bookmarks needed), tags each heading with its page number, and summarises each section's text with TextRank (top verbatim sentences, no ML model — nothing is rewritten). Provide url (HTTP/HTTPS) or ref from a prior tool call, optionally max_depth (1–6, deepest heading level kept; default 3) and summary_sentences (0–10 per section; 0 = pure outline; default 2). Extracts the embedded text layer only — it does NOT OCR scanned/image-only PDFs (those return a note and no headings), and heading detection needs font-size contrast (a uniform-font document yields one whole-document summary).",
         parameters = schema_json()

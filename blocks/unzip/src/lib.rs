@@ -53,6 +53,7 @@ struct Unzip;
     interface = "handler@v1",
     summary = "Extract the files from a .zip archive",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract the files from a .zip archive and return them individually. Each regular file is listed with its path and size, and its content inline — as text when it is UTF-8, otherwise as base64. (Large files past an internal budget are listed without content.) Provide the zip as either url (HTTP/HTTPS) or ref. Runs locally — the archive never leaves the device.",
         parameters = schema_json()

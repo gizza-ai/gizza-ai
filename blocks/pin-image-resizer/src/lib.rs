@@ -76,6 +76,7 @@ struct PinImageResizer;
     interface = "handler@v1",
     summary = "Resize and crop an image to a Pinterest pin format (2:3 1000x1500, square, tall, or story).",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Resize and crop an image to one of Pinterest's recommended pin formats. preset is standard (1000x1500, 2:3 — the recommended pin), square (1000x1000), tall (1000x2100 long/infographic pin), or story (1080x1920, 9:16 idea pin); default standard. fit is cover (default — scale up and crop the overflow, no distortion), contain (scale down inside the box and pad with 'background'), or stretch. gravity (center/top/bottom) chooses which part cover keeps. background is the pad colour for contain (#fff/#ffffff hex or a colour name, default white). Output keeps the input format (JPG/PNG). Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

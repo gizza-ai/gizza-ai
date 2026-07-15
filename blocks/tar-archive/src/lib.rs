@@ -58,6 +58,7 @@ struct TarArchive;
     interface = "handler@v1",
     summary = "Bundle multiple files into a single .tar (or .tar.gz) archive",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Bundle multiple files into a single downloadable .tar archive, optionally compressed to .tar.gz (gzip), .tar.bz2 (bzip2) or .tar.xz (xz). Provide at least one file; each is a URL or a `ref` to an uploaded attachment. Entry names come from each file's name; duplicate names are made unique. Set `compression` to choose the format (default none = plain .tar).",
         parameters = schema_json()

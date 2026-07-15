@@ -66,6 +66,7 @@ struct VideoCrop;
     interface = "handler@v1",
     summary = "Crop a video to a rectangular region",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Crop a video to a width x height rectangle. Optionally give x/y for the top-left offset (in pixels); without them the crop is centered. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

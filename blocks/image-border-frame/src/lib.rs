@@ -60,6 +60,7 @@ struct ImageBorderFrame;
     interface = "handler@v1",
     summary = "Add a colored border/frame to an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Add a solid border/frame of a chosen color and thickness around an image. thickness is the border width in pixels on every side (default 20); color is #rgb/#rrggbb/#rrggbbaa (default black). The output is larger than the input by 2×thickness in each dimension. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

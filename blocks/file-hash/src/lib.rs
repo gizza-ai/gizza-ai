@@ -60,6 +60,7 @@ struct FileHash;
     interface = "handler@v1",
     summary = "Compute MD5/SHA-1/SHA-256/SHA-512/CRC-32 checksums of a file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compute cryptographic checksums of a file — MD5, SHA-1, SHA-256, SHA-512, and CRC-32 — as lowercase hex. Useful for verifying file integrity/downloads, deduplication, and threat-intel hash lookups (e.g. VirusTotal). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

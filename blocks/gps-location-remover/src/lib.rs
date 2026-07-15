@@ -49,6 +49,7 @@ struct GpsLocationRemover;
     interface = "handler@v1",
     summary = "Remove only the GPS location tags from a photo, keeping camera data",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Remove ONLY the GPS/geolocation tags (latitude, longitude, altitude, GPS timestamp, etc.) from a JPEG or PNG photo, while KEEPING all other EXIF metadata — camera make/model, lens, and exposure settings (ISO, aperture, shutter speed, timestamps). Unlike a strip-all-metadata cleaner, camera and exposure data survive. The pixels are NOT re-encoded, so there is no quality loss. Useful for privacy before sharing photos while keeping the technical camera data. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). JPEG and PNG only; GPS embedded in XMP is not removed.",
         parameters = schema_json()

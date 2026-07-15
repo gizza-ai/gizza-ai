@@ -71,6 +71,7 @@ struct AudioToMono;
     interface = "handler@v1",
     summary = "Downmix stereo or multi-channel audio to mono",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Downmix an audio file to a single mono channel. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). channel=mix (default) blends all channels with ffmpeg's standard downmix — stereo and 5.1/7.1 alike; channel=left or right keeps just that side instead. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
         parameters = schema_json()

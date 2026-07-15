@@ -119,6 +119,7 @@ struct SpritesheetToGif;
     interface = "handler@v1",
     summary = "Combine a grid sprite sheet's frames into one animated GIF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Combine a grid sprite sheet's frames into a single animated GIF. Describe the grid either by columns + rows, or by tile_width + tile_height (fixed-size tiles); margin (outer border) and spacing (gap between frames) default to 0. Frames are taken in row-major (left-to-right, top-to-bottom) order. delay_ms sets the per-frame delay (default 100ms, 10ms granularity), loop_count controls repeats (0 = forever), skip_empty drops fully-transparent cells, and max_frames caps how many frames are used. Provide the sheet as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

@@ -67,6 +67,7 @@ struct ImageHslAdjust;
     interface = "handler@v1",
     summary = "Adjust image hue/saturation/lightness (HSL)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Shift hue and scale saturation and lightness of an image in HSL space. hue is a degree shift (-360..360, 0 = no change); saturation and lightness are scale factors (0 = none/black, 1 = unchanged, >1 = more). E.g. saturation=0 makes it grayscale, hue=180 rotates colors to their complement. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

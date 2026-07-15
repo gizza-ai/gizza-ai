@@ -93,6 +93,7 @@ struct VoiceNoteConverter;
     interface = "handler@v1",
     summary = "Convert chat voice notes to mp3/wav and back to Opus",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert a chat voice message. Decode an incoming voice note (Opus/OGG from WhatsApp, Telegram, Signal — or any audio ffmpeg can decode) to mp3 or wav, or encode mp3/wav back into a real .opus voice note (Opus codec in an Ogg container). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). format is opus|mp3|wav (required). bitrate (kbps) applies to the lossy targets — opus 6-256 (default 32), mp3 32-320 (default 128) — and is clamped per format; wav ignores it. mono (default true) downmixes to one channel and tunes Opus for speech. Embedded cover art is dropped.",
         parameters = schema_json()

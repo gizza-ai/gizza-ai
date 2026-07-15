@@ -58,6 +58,7 @@ struct LzmaCompress;
     interface = "handler@v1",
     summary = "Compress a file into LZMA (.xz)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress a file (or any bytes) into an LZMA .xz file, returned for download. .xz (LZMA2) usually achieves a smaller size than gzip or zip at the cost of speed — use it when maximum compression ratio matters. level sets the LZMA preset 0-9 (default 6; higher = smaller but slower and more memory). The output is a standard .xz stream named <input>.xz that any xz / 7-Zip tool can decompress. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

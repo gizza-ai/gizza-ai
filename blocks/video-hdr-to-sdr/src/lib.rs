@@ -89,6 +89,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Tone-map an HDR video down to SDR (BT.709).",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Tone-map an HDR video (PQ/HLG, BT.2020) down to standard-dynamic-range BT.709 so it no longer looks gray, dim, or washed-out on ordinary SDR screens. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). tonemap picks the curve (hable|mobius|reinhard|linear|clip, default hable); peak is target nits (default 100); desat is highlight desaturation 0-4 (default 0); format is mp4 or webm (default mp4); quality is 1-100 (default 75).",
         parameters = schema_json()

@@ -80,6 +80,7 @@ struct PdfCrop;
     interface = "handler@v1",
     summary = "Crop the margins of a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Crop the margins of a PDF by trimming each page's edges. Give per-side amounts top/bottom/left/right in `unit` (pt, mm, or in) — set them equal for a uniform crop, or individually. Choose which pages with `pages` (1-based: 'all', 'odd', 'even', or '1,3-5'). Non-destructive: it writes each page's /CropBox and leaves the content untouched. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

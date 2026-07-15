@@ -69,6 +69,7 @@ struct PdfOrganize;
     interface = "handler@v1",
     summary = "Reorder, duplicate, delete, and rotate PDF pages",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Reorder, duplicate, delete, and rotate the pages of a PDF in one operation. `order` is the output sequence of 1-based source page numbers ('3,1,2' reorders, '1,1,2' duplicates, '1,3' deletes page 2, ranges like '2-4' and 'reverse' work; 'all' keeps the original order). Optionally add `rotate` degrees (a multiple of 90) to the pages named by `rotate_pages`. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

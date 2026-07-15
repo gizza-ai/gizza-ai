@@ -96,6 +96,7 @@ struct AppIconSet;
     interface = "handler@v1",
     summary = "Generate a full PWA/iOS/Android app-icon set from one image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Resize a single source image into a complete cross-platform app-icon set, returned as one ZIP. Includes: a drop-in iOS Xcode AppIcon.appiconset/ folder with every iPhone/iPad size (20–83.5pt across @1x/@2x/@3x) plus the 1024px App-Store marketing icon and the Contents.json catalog; the Android res/mipmap-* launcher tree (mdpi 48, hdpi 72, xhdpi 96, xxhdpi 144, xxxhdpi 192) plus the 512px Google Play store icon; and PWA/web icons (192, 512, a padded 512 maskable icon, a 180px apple-touch-icon) with a ready manifest.webmanifest. For best results provide a square image at least 1024px. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional app_name names the PWA manifest; background (hex) flattens the opaque iOS marketing icon and pads the maskable icon; set ios/android/web=false to omit a platform.",
         parameters = schema_json()

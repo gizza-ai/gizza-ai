@@ -285,6 +285,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "TODO: one-line summary.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(description = "TODO: describe the tool.", parameters = schema_json()),
 )]
 impl Tool {

@@ -88,6 +88,7 @@ struct VideoFreezeFrame;
     interface = "handler@v1",
     summary = "Hold a chosen frame as a still for N seconds inside a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Create a freeze-frame effect: the video plays normally up to a chosen timestamp (time, seconds), holds that frame as a still for a set number of seconds (duration, 0-60), then resumes from the same point. The output is `duration` seconds longer than the source. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). The frame is held at the source frame rate (no fps guessing) and the video re-encodes to H.264; the input container (mp4/mov/mkv) is kept when it can hold H.264, otherwise the output is mp4. Audio is dropped — the freeze is a video-only visual effect. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

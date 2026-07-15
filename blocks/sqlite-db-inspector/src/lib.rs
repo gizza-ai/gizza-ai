@@ -82,6 +82,7 @@ struct SqliteDbInspector;
     interface = "handler@v1",
     summary = "Inspect SQLite tables, columns, indexes, foreign keys, views, and row counts",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Inspect an uploaded SQLite .db/.sqlite file without running user SQL. Provide the database by public http/https url or uploaded attachment ref. The tool reads the on-disk schema catalog to list tables, columns, explicit and auto-created indexes, foreign keys, views, triggers, and row counts for normal rowid tables; WITHOUT ROWID row counts are reported as unavailable rather than guessed. Choose markdown or json output, and optionally include sqlite_* internal objects.",
         parameters = schema_json()

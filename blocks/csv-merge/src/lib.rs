@@ -42,6 +42,7 @@ struct CsvMerge;
     interface = "handler@v1",
     summary = "Concatenate multiple CSVs into one",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Concatenate (stack) two or more CSV files into one. With header=true (default) the output uses the UNION of all input headers and aligns each file's rows by column name (missing columns blank); with header=false rows are stacked positionally. Each file is a URL or a `ref` to an uploaded attachment. (Key-join is not yet supported — this concatenates.)",
         parameters = schema_json()

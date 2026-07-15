@@ -72,6 +72,7 @@ struct FileSplitter;
     interface = "handler@v1",
     summary = "Split a text/CSV file into parts or chunks (ZIP of pieces)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Split a large text or CSV file into pieces, returned as a ZIP. Set mode='parts' (count equal parts), 'lines' (count lines each), or 'bytes' (up to count bytes each), with count as the parameter. Splitting is always on line boundaries (no line is cut). Set csv_header=true to repeat the first line as a header atop every piece. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

@@ -47,6 +47,7 @@ struct StripExif;
     interface = "handler@v1",
     summary = "Remove EXIF/GPS/XMP metadata from a JPEG or PNG",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Remove all metadata (EXIF, GPS location, XMP, IPTC, comments) from a JPEG or PNG image and return a clean copy. The pixels are NOT re-encoded — the image is byte-for-byte identical apart from the stripped metadata, so there is no quality loss. Useful for privacy before sharing photos. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). JPEG and PNG only.",
         parameters = schema_json()

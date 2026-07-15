@@ -72,6 +72,7 @@ struct PdfFormFill;
     interface = "handler@v1",
     summary = "Fill AcroForm fields in a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Fill the interactive AcroForm fields of a fillable PDF and return the filled PDF. `fields` is a JSON object mapping field names to values (text fields take strings; checkbox/radio fields take the on-state name). Sets NeedAppearances so viewers render the values. Provide the PDF as either url (HTTP/HTTPS) or ref. The response lists which fields were filled and which names were not found.",
         parameters = schema_json()

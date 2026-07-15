@@ -72,6 +72,7 @@ struct ExtractAudioFromVideo;
     interface = "handler@v1",
     summary = "Extract the audio track from a video as MP3 or WAV",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Extract the audio track from a video file as MP3 (lossy) or WAV (lossless). Set format='mp3' (default) or 'wav', and optionally bitrate (kbps, 32-320, default 192, mp3 only). Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

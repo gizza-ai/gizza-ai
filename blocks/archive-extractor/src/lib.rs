@@ -46,6 +46,7 @@ struct ArchiveExtractor;
     interface = "handler@v1",
     summary = "Auto-detect and extract zip, tar, gzip, bzip2, xz, zstd, and lz4 archives",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Auto-detect and extract an archive, returning every file repacked as a single ZIP. The format is detected from the archive's bytes (no filename needed): zip, tar, gzip (.gz), bzip2 (.bz2), xz (.xz), zstd (.zst), and lz4, including the layered .tar.gz / .tar.bz2 / .tar.xz / .tar.zst / .tar.lz4 family. The response lists every member (files and directories). Provide the archive as either url (HTTP/HTTPS) or ref (id from a prior tool call). Paths are sanitized (no absolute paths or '..' traversal).",
         parameters = schema_json()

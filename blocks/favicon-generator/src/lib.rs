@@ -102,6 +102,7 @@ struct FaviconGenerator;
     interface = "handler@v1",
     summary = "Generate a complete favicon bundle (ICO + PNGs + web manifest) from one image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn one source image into a complete favicon bundle, returned as a ZIP. The bundle contains a multi-resolution favicon.ico (16/32/48 px), square PNG icons at each requested size, an apple-touch-icon.png (180 px) for iOS, and a site.webmanifest referencing the PNGs. sizes is a comma-separated list of square PNG sizes in pixels (default 16,32,48,64,96,128,192,256,512). fit controls how a non-square source is squared: contain (pad with the background color) or cover (scale-to-fill then center-crop). background sets the pad color (#rrggbbaa, default transparent). name sets the app name in the manifest. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call); PNG/JPEG/WebP/GIF/BMP input.",
         parameters = schema_json()

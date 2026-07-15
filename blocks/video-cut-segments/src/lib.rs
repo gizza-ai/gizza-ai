@@ -81,6 +81,7 @@ struct VideoCutSegments;
     interface = "handler@v1",
     summary = "Keep or remove multiple time windows from a video and join the parts",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Cut a video down to multiple time windows from a typed list and join the kept parts into one clip. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). `segments` is a comma- or newline-separated list of start-end windows (each time SS, MM:SS, or HH:MM:SS, fractions allowed), e.g. '0:05-0:10, 1:30-1:45'. `mode` = keep keeps only those windows and joins them (default); mode = remove cuts them out and keeps the rest. Audio stays in sync (trim+concat). Output is mp4 (re-encoded H.264/AAC).",
         parameters = schema_json()

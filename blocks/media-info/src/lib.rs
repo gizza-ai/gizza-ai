@@ -81,6 +81,7 @@ struct MediaInfo;
     interface = "handler@v1",
     summary = "Report an audio or video file's container, codecs, duration, and stream metadata",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Inspect an audio or video file and report its container format, total duration, overall bitrate, and a per-track summary — codec (AAC/MP3/FLAC/ALAC/Opus/Vorbis/PCM/ADPCM/etc.), stream kind (audio or video), sample rate, channel count and layout (mono/stereo/5.1), and bit depth. Reads the bytes directly without re-encoding. Recognised containers: MP4/M4A/MOV, Matroska/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, and AAC/ADTS. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

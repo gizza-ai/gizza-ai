@@ -86,6 +86,7 @@ struct AudioNoiseReduce;
     interface = "handler@v1",
     summary = "Reduce background hiss/hum in an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Reduce steady background hiss/hum/noise in an audio file using ffmpeg's afftdn (FFT) or anlmdn (non-local means) denoiser. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). strength is 1–100 (higher removes more but risks a hollow sound; start around 12). method is afftdn (fast, default) or anlmdn (slower, gentler). Set remove_hum to also cut low-frequency hum below 80 Hz. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

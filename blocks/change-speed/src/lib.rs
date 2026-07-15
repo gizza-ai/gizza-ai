@@ -60,6 +60,7 @@ struct ChangeSpeed;
     interface = "handler@v1",
     summary = "Speed up or slow down a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Speed up or slow down a video by a factor, keeping the audio in sync (>1 faster, <1 slower; e.g. 2 = double speed, 0.5 = half). Range 0.25-4. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

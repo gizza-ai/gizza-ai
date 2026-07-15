@@ -69,6 +69,7 @@ struct GifFromImages;
     interface = "handler@v1",
     summary = "Combine images into an animated GIF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Combine a set of images into a single animated GIF, one frame per image in order. delay_ms sets the per-frame delay (10-60000, default 500). Frames are scaled to fit a common canvas (the max width/height) with aspect ratio preserved, padded with the background color. Provide images as a list, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP). Loops forever.",
         parameters = schema_json()

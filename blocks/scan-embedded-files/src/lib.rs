@@ -86,6 +86,7 @@ struct ScanEmbeddedFiles;
     interface = "handler@v1",
     summary = "Scan a file for embedded or appended file signatures",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Scan a file for embedded file signatures (magic numbers) appearing anywhere inside it, not just at the start — revealing hidden, appended, or concatenated files such as a ZIP appended to a PNG, an executable carved into a JPEG, or a PDF embedded in an image (polyglot files and steganographic carriers). Returns the file size, the leading (declared) type, and every signature found with its byte offset, format name, media type, and whether it was appended past the host file's logical end. Recognises images, audio, video, PDFs/Office, archives (ZIP/RAR/7z/gz/xz/zstd), fonts, executables (ELF/Mach-O/Wasm/Java), and SQLite. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

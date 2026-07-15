@@ -61,6 +61,7 @@ struct ImageInfo;
     interface = "handler@v1",
     summary = "Report an image's format, dimensions, and color type",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Report an image's properties without uploading it: format (PNG/JPEG/WebP/GIF/BMP/TIFF/ICO), pixel dimensions, megapixels, aspect ratio, color type (RGB/RGBA/grayscale and bit depth), channel count, bits per pixel, whether it has an alpha channel, and the file size in bytes. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

@@ -82,6 +82,7 @@ struct AudioLoop;
     interface = "handler@v1",
     summary = "Loop a sound to a target duration or number of plays",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Repeat a short audio clip seamlessly. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). duration (seconds, default 30, max 3600) loops the clip and cuts the output to exactly that length — the usual way to turn a short sound into background audio; or set duration to 0 and count (2-100) to play the clip a whole number of times instead. The audio is re-encoded, so joins are sample-level (no container-copy clicks). Output format mp3 (192 kbps, default), wav, ogg, flac or m4a; embedded album art is dropped.",
         parameters = schema_json()
