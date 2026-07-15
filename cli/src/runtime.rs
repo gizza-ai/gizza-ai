@@ -196,6 +196,19 @@ pub async fn boot_full() -> Result<ToolRuntime> {
         )
         .map_err(|e| anyhow::anyhow!("register network: {e}"))?;
 
+    // WRAP host grant for network egress. WRAP default-denies typed service
+    // resources unless the HOST grants them — block-declared capabilities are
+    // a separate, second gate. Without this grant every network-using tool
+    // dies with `WRAP: access denied (type: Network)` before its capability
+    // is even consulted. The CLI is a local single-user tool: invoking
+    // `gizza tool web-fetch url=…` IS the user's authorization for that
+    // egress, so grant network to all blocks; per-block capability
+    // declarations still decide which blocks may use it.
+    wafer.add_wrap_grants(vec![wafer_block::types::ResourceGrant::read_write(
+        "*", "*",
+    )
+    .typed(wafer_block::types::ResourceType::Network)]);
+
     // --- Skill WASMs (same loop as boot_minimal) ---
     let mut names = Vec::new();
     let mut metas = Vec::new();
