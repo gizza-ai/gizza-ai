@@ -409,25 +409,23 @@ mod tests {
 
     #[test]
     fn zip_and_ooxml() {
-        // Bare zip with a generic first entry name.
-        let mut z = vec![0x50, 0x4B, 0x03, 0x04];
-        z.extend_from_slice(&[0u8; 24]); // pad so indices 26,27 exist
-        // name_len at 26..28
-        let name = b"hello.txt";
-        z[26] = name.len() as u8;
-        z[27] = 0;
-        z.extend_from_slice(name);
-        assert_eq!(ext_of(&z), "zip");
-
-        // DOCX: first entry under word/
-        let mk_ooxml = |first: &[u8]| {
+        // Minimal ZIP local file header: 30 bytes, name_len at 26..28 (LE),
+        // extra_len at 28..30, entry name from offset 30.
+        let mk_zip = |first: &[u8]| {
             let mut v = vec![0x50, 0x4B, 0x03, 0x04];
-            v.extend_from_slice(&[0u8; 24]);
+            v.extend_from_slice(&[0u8; 26]); // rest of the 30-byte header
             v[26] = first.len() as u8;
             v[27] = 0;
+            // 28..30 (extra_len) stay 0
             v.extend_from_slice(first);
             v
         };
+
+        // Bare zip with a generic first entry name.
+        assert_eq!(ext_of(&mk_zip(b"hello.txt")), "zip");
+
+        // OOXML: first entry under word/ (resp. xl/, ppt/).
+        let mk_ooxml = mk_zip;
         assert_eq!(ext_of(&mk_ooxml(b"word/document.xml")), "docx");
         assert_eq!(ext_of(&mk_ooxml(b"xl/workbook.xml")), "xlsx");
         assert_eq!(ext_of(&mk_ooxml(b"ppt/presentation.xml")), "pptx");
