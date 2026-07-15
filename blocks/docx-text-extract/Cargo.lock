@@ -632,6 +632,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_bytes"
+version = "0.11.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5d440709e79d88e51ac01c4b72fc6cb7314017bb7da9eeff678aa94c10e3ea8"
+dependencies = [
+ "serde",
+ "serde_core",
+]
+
+[[package]]
 name = "serde_core"
 version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -886,7 +896,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#9a310aec983ba4f5a0c2c1552ba583eb2d8a8c46"
+source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#d834b34d00ac4bb5cbfadf2679ad5949ff4ccfcc"
 dependencies = [
  "async-trait",
  "chrono",
@@ -895,6 +905,7 @@ dependencies = [
  "linkme",
  "rmp-serde",
  "serde",
+ "serde_bytes",
  "serde_json",
  "sha2",
  "thiserror 2.0.18",
@@ -910,7 +921,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#9a310aec983ba4f5a0c2c1552ba583eb2d8a8c46"
+source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#d834b34d00ac4bb5cbfadf2679ad5949ff4ccfcc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -921,7 +932,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#9a310aec983ba4f5a0c2c1552ba583eb2d8a8c46"
+source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#d834b34d00ac4bb5cbfadf2679ad5949ff4ccfcc"
 dependencies = [
  "serde",
  "serde_json",
