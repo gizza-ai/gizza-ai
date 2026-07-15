@@ -145,6 +145,7 @@ struct DocumentScan;
     interface = "handler@v1",
     summary = "Perspective-correct a document photo into a flat, cropped scan.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn a photo of a document into a flat, cropped 'scan': detect the page's four corners and perspective-correct (dewarp) it to a rectangle, then clean it up tonally. Provide the image as either url (HTTP/HTTPS) or ref. Leave corners empty to auto-detect the page (classical contrast detection — works best when the page is lighter than its background and fully in frame; on cluttered/low-contrast photos it errors and you pass corners `x0,y0,...,x3,y3`). Pick an enhancement mode (magic colour / grayscale / black & white / colour), output proportions (auto/A4/Letter/square), a rotation and a white margin. Returns a PNG. Note: does NOT do OCR/searchable text, and auto-detect is not ML — pass explicit corners for tricky scenes.",
         parameters = schema_json()

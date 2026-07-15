@@ -60,6 +60,7 @@ struct ImageOpacity;
     interface = "handler@v1",
     summary = "Set or scale an image's opacity (alpha)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Set or scale the alpha/opacity of an image, producing a semi-transparent PNG. opacity is 0.0 (fully transparent) to 1.0 (fully opaque). mode='scale' multiplies each pixel's existing alpha by opacity (preserving existing transparency); mode='set' overwrites every pixel's alpha with a uniform opacity. Always returns a PNG so the alpha channel is kept. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

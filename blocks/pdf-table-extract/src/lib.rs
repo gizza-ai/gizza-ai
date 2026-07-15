@@ -146,6 +146,7 @@ struct PdfTableExtract;
     interface = "handler@v1",
     summary = "Detect tables in a PDF and export them as CSV/JSON",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Detect tables in a text-based PDF and export them as CSV, TSV, or JSON, preserving rows and columns. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Optionally pick a 1-based `page` (omit to scan every page), choose `format` (csv/json), a csv `delimiter` (comma/semicolon/tab), and whether the first row is a `header`. Reads the embedded selectable-text layer via text coordinates — it does not OCR scanned/image-only PDFs, and works best on pages with clearly separated, left-aligned columns.",
         parameters = schema_json()

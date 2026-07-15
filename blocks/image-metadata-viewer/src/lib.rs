@@ -43,6 +43,7 @@ struct ImageMetadataViewer;
     interface = "handler@v1",
     summary = "Read EXIF/GPS metadata from an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Read and display EXIF/TIFF metadata embedded in an image — camera make/model, exposure/aperture/ISO, lens, orientation, timestamps, and GPS. Returns every metadata field (tag, value, IFD) plus the GPS location decoded to decimal latitude/longitude when present. Works on JPEG/TIFF/HEIF/PNG/WebP that carry EXIF. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

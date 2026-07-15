@@ -95,6 +95,7 @@ struct DocumentBinarize;
     interface = "handler@v1",
     summary = "Threshold an image to pure black and white.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Binarize an image to pure black & white — ideal for cleaning up scanned documents. method picks the algorithm: otsu (automatic global), fixed (use the threshold param), sauvola or niblack (local adaptive, best for uneven lighting; default sauvola). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

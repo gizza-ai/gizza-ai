@@ -50,6 +50,7 @@ struct BlurImage;
     interface = "handler@v1",
     summary = "Apply a Gaussian blur of adjustable radius to an image.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Apply a Gaussian blur of adjustable radius to an entire image. radius is the blur strength in pixels (Gaussian standard deviation; default 5.0, higher = blurrier; 2-10 is typical). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

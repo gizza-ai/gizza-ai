@@ -82,6 +82,7 @@ struct MovToMp4;
     interface = "handler@v1",
     summary = "Rewrap a MOV video into an MP4 container.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert a QuickTime MOV video to MP4. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Default mode 'copy' stream-copies the streams into an MP4 container (lossless, instant) — works when the MOV holds H.264/HEVC + AAC (nearly all iPhone/camera clips). Use mode 'transcode' to re-encode to H.264/AAC for MOVs whose codecs MP4 can't hold (e.g. ProRes); quality 1-100 (default 75) maps to CRF and applies only to transcode.",
         parameters = schema_json()

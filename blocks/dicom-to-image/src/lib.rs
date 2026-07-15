@@ -86,6 +86,7 @@ struct DicomToImage;
     interface = "handler@v1",
     summary = "Convert an uncompressed grayscale DICOM (.dcm) scan to a PNG or JPEG image.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decode an uncompressed grayscale DICOM (.dcm) medical image (CT/MR/X-ray/ultrasound) and render one frame to a viewable PNG or JPEG. Reads Rows/Columns/BitsAllocated/PixelRepresentation/PhotometricInterpretation and the pixel data; applies rescale slope/intercept and window centre/width (embedded WindowCenter/WindowWidth, or your manual window_center/window_width, else auto contrast from the pixel range); honours MONOCHROME1/MONOCHROME2. Params: format (png|jpeg, default png), quality (JPEG 1-100, default 90), invert (bool), frame (1-based), window_center, window_width. Supports Implicit and Explicit VR Little Endian, 8/16-bit signed or unsigned. Compressed (JPEG/JPEG2000/JPEG-LS/RLE) or colour DICOM return a clear error. Provide the file as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

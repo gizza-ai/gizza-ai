@@ -54,6 +54,7 @@ struct ImageFetch;
     interface = "handler@v1",
     summary = "Fetch an image URL and return it for inline display.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Fetch an image and render it inline. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

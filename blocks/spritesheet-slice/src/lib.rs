@@ -118,6 +118,7 @@ struct SpritesheetSlice;
     interface = "handler@v1",
     summary = "Slice a grid sprite sheet into individual frame PNGs (ZIP)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Slice a grid sprite sheet into individual frames, returned bundled in a ZIP. Describe the grid either by columns + rows, or by tile_width + tile_height (fixed-size tiles); margin (outer border) and spacing (gap between frames) default to 0. Set skip_empty to drop fully-transparent frames, max_frames to cap how many are written, format to choose the per-frame encoding (png/jpeg/webp/bmp), and prefix to name them. Frames are named <prefix>_000.<ext>, <prefix>_001.<ext>, … (prefix defaults to frame) in row-major order. Provide the sheet as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

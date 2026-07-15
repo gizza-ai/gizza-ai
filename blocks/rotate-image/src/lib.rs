@@ -67,6 +67,7 @@ struct RotateImage;
     interface = "handler@v1",
     summary = "Rotate an image by 90/180/270 or an arbitrary angle",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Rotate an image clockwise by 90, 180, or 270 degrees (lossless) or by any arbitrary angle (e.g. 45, -30; the canvas is enlarged to fit and exposed corners are filled with the background color). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

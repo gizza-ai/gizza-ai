@@ -84,6 +84,7 @@ struct WebFetch;
     interface = "handler@v1",
     summary = "Fetch a URL and return its body",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Fetch a URL and return its body as text. Optionally limit the response size.",
         parameters = schema_json()

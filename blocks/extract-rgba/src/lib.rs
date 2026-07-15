@@ -71,6 +71,7 @@ struct ExtractRgba;
     interface = "handler@v1",
     summary = "Export an image's raw per-pixel RGBA values as text, CSV, or JSON",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decode an image and export its raw per-pixel RGBA values (0-255 red, green, blue, alpha) as text, CSV, or JSON for inspection or scripting. Pixels are emitted in row-major order (left to right, top to bottom). Use `format` to choose text/csv/json and `max_pixels` to cap the output for large images. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

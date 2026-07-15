@@ -78,6 +78,7 @@ struct VideoFirstLastFrameExtractor;
     interface = "handler@v1",
     summary = "Grab a video's first and last frame stitched into one comparison image",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Extract the first frame and the last frame of a video and stitch them into a single comparison image — side by side (horizontal) or stacked (vertical). Both frames are grabbed in one decode pass, so no timestamp is needed. Handy for spotting a clip's start-vs-end change, making a before/after thumbnail, or picking start/end keyframes for AI video tools. Output is one PNG (or JPG) image with the two frames joined; the source dimensions are preserved. Provide the video as either url (HTTP/HTTPS) or ref from a prior tool call. Note: chat ffmpeg is unavailable — runs on the standalone page and the CLI.",
         parameters = schema_json()

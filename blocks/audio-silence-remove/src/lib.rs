@@ -82,6 +82,7 @@ struct AudioSilenceRemove;
     interface = "handler@v1",
     summary = "Strip long silent gaps out of an audio recording",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remove silent gaps from an audio recording (leading, middle and trailing) with ffmpeg's silenceremove filter. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Audio quieter than threshold_db (default -30) counts as silence; only gaps longer than min_silence seconds (default 0.5) are trimmed, and 0.25s of each gap is kept so speech keeps natural pauses. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
         parameters = schema_json()

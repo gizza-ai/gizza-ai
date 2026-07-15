@@ -70,6 +70,7 @@ struct IdentifyArchiveFormat;
     interface = "handler@v1",
     summary = "Detect the compression or archive format of a blob from its magic bytes",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Detect the COMPRESSION or ARCHIVE format of an uploaded file/blob by inspecting its leading bytes (magic numbers), independent of its name or extension — answers 'what compression format is this and which decompressor do I use?'. Returns a short format id, a human-readable name, the media type (MIME), the usual extension, whether it is a single-stream compressor or a multi-file archive, and a concrete decompression command. Recognises gzip, bzip2, xz, raw LZMA, zstd, lz4, lzip, lzop, zlib (deflate), Unix compress (.Z), Snappy framing, and the ZIP, TAR, 7-Zip, RAR, ar/.deb, cpio, and Microsoft Cabinet container archives. Reports a clear error when the blob is not a recognised archive/compression format. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

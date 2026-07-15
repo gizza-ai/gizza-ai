@@ -167,6 +167,7 @@ struct BrowserHistoryParser;
     interface = "handler@v1",
     summary = "Parse a Chrome or Firefox history database into a visit timeline",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Parse an uploaded browser history database into a unified, searchable visit timeline. Auto-detects Chrome/Edge (a `History` file: urls + visits tables) or Firefox (`places.sqlite`: moz_places + moz_historyvisits) by reading the on-disk SQLite file directly (no SQL engine, read-only). Each row has a readable UTC timestamp, URL, page title, visit type (link/typed/bookmark/reload/…), and visit count. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Filter by a URL/title substring (`search`), sort newest or oldest (`order`), cap the rows (`limit`), and export as json or csv.",
         parameters = schema_json()

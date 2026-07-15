@@ -72,6 +72,7 @@ struct VideoTrim;
     interface = "handler@v1",
     summary = "Trim a video to a [start, start+duration] window",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Trim a video to a [start, start+duration] window using stream-copy (no re-encode). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). The output keeps the source container (mp4 stays mp4, webm stays webm, and so on); an unknown container falls back to mp4. Stream-copy preserves the source codecs and is fast and lossless.",
         parameters = schema_json()

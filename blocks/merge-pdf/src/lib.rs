@@ -64,6 +64,7 @@ struct MergePdf;
     interface = "handler@v1",
     summary = "Combine multiple PDFs into one",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Combine multiple PDF files into a single PDF, in the given order. Provide at least two PDF sources; each source is either a URL or a `ref` to an uploaded PDF attachment.",
         parameters = schema_json()

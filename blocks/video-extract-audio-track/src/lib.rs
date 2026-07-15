@@ -85,6 +85,7 @@ struct VideoExtractAudioTrack;
     interface = "handler@v1",
     summary = "Extract a video's audio track losslessly (stream-copy, no re-encode)",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Extract (demux) one audio track from a video and save it in its original codec WITHOUT re-encoding — lossless, near-instant, no quality change. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Set container='mka' (default, Matroska — accepts any codec), 'm4a' (AAC/ALAC) or 'ogg' (Vorbis/Opus), and optionally track (which audio stream, 0 = first, default 0). Runs -vn -map 0:a:<track> -c:a copy: drops the video and stream-copies the chosen audio. To change codec/bitrate (e.g. AAC → MP3) use extract-audio-from-video or audio-convert instead.",
         parameters = schema_json()

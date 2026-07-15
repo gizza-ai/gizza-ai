@@ -114,6 +114,7 @@ struct ImageToAscii;
     interface = "handler@v1",
     summary = "Convert an image into ASCII or ANSI character art",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert an image into ASCII or ANSI character art. The image is scaled to `width` characters wide (1-400, default 80; height is derived from the aspect ratio and corrected for tall text cells) and each cell's brightness is mapped through a character ramp from dark to light. Choose a built-in ramp (standard, detailed, or blocks) or supply a custom `charset` ordered dark→light. Use `brightness` (-1.0 to 1.0) to lighten/darken, color=true to wrap each character in a 24-bit ANSI truecolor escape for terminals, or invert=true for light-on-dark terminals. Returns the art plus the output character dimensions and source pixel dimensions. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

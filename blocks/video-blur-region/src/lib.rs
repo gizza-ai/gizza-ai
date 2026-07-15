@@ -89,6 +89,7 @@ struct VideoBlurRegion;
     interface = "handler@v1",
     summary = "Blur or pixelate a fixed rectangular region in a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Blur or pixelate a fixed rectangular region (e.g. a license plate, name tag, or logo) on every frame of a video. Give the region as x/y (top-left offset in pixels) plus width/height in pixels; pick mode = blur (soft Gaussian) or pixelate (coarse mosaic) and a strength of 1-100. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

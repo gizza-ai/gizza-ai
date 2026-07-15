@@ -110,6 +110,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Extract plain text from a legacy Word 97-2003 .doc file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract readable plain text from a legacy Microsoft Word .doc \
                        (Word 97-2003) binary file. Give a document URL or an uploaded \

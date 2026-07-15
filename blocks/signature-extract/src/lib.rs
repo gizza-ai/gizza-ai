@@ -87,6 +87,7 @@ struct SignatureExtract;
     interface = "handler@v1",
     summary = "Extract a handwritten signature from a photo as a transparent PNG",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract a handwritten signature from a photo or scan of a signed page and return it as a clean transparent PNG (just the ink, paper knocked out) — ready to drop into a PDF, contract, or e-sign form. threshold (0-100, default 50) is the ink sensitivity: pixels darker than the cut-off are kept, lighter paper is made transparent; raise it for faint strokes. ink recolours the result: 'original' keeps the pen colour (default), or 'black'/'blue'/'red' for a solid wet-ink look. smooth (default true) anti-aliases the edges; trim (default true) crops the transparent margin to the signature. Best on dark ink over light paper. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

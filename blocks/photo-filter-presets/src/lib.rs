@@ -54,6 +54,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Apply a photo filter preset (sepia, vintage, warm, cool, noir, and more) to an image.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Apply a named photographic filter preset (sepia, vintage, warm, cool, noir, grayscale, vivid, invert, fade) to an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call), and optional preset (default sepia).",
         parameters = schema_json()

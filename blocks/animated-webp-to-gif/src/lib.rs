@@ -75,6 +75,7 @@ struct AnimatedWebpToGif;
     interface = "handler@v1",
     summary = "Convert an animated WebP into an animated GIF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert an animated (or still) WebP into an animated GIF for maximum compatibility. Preserves every frame and its timing, with infinite looping by default. Provide the WebP as either url (HTTP/HTTPS) or ref from a prior tool call. Options: loop (infinite, default, or once), speed (1-30 encoder quality/speed, default 10; lower = better palette), delay (override every frame's delay in ms, default 0 = keep original timing), and width (resize output width in px, height scales to keep aspect ratio, default 0 = keep source size). Returns a GIF.",
         parameters = schema_json()

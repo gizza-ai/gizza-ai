@@ -57,6 +57,7 @@ struct EncryptFile;
     interface = "handler@v1",
     summary = "Encrypt or decrypt a file with a passphrase (AES-256-GCM)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Encrypt a file with a passphrase using AES-256-GCM (key derived via PBKDF2-HMAC-SHA256), producing a portable encrypted blob; or decrypt a blob this tool produced. Set mode='encrypt' (default) or 'decrypt' and provide the passphrase. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

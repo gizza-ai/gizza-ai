@@ -91,6 +91,7 @@ struct ImageAnnotate;
     interface = "handler@v1",
     summary = "Draw arrows, boxes, highlights, and text labels onto an image.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Draw markup onto an image at exact pixel coordinates and return a PNG. Pass `annotations` as a JSON array of marks — box (hollow rectangle), arrow (line with an arrowhead), highlight (semi-transparent wash), and text (label). Each mark can override the tool-level color; boxes/arrows take a stroke_width, highlights an opacity (0-1), and text a font_size. `color`, `stroke_width`, and `font_size` set the defaults for marks that omit them. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

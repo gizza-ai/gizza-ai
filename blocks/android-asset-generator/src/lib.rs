@@ -68,6 +68,7 @@ struct AndroidAssetGenerator;
     interface = "handler@v1",
     summary = "Generate a full set of Android launcher icons from one image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Resize a source image into a full set of Android launcher icons at every density bucket (mdpi 48px, hdpi 72px, xhdpi 96px, xxhdpi 144px, xxxhdpi 192px) plus the 512px Google Play store icon. Returns a ZIP laid out as an Android res/mipmap-* resource tree (res/mipmap-<density>/<name>.png + play-store-icon.png). For best results give a square image at least 512px. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional name sets the icon resource name (default ic_launcher); set round=true to also emit a circular-masked <name>_round.png per density.",
         parameters = schema_json()

@@ -139,6 +139,7 @@ struct PcapNetworkForensics;
     interface = "handler@v1",
     summary = "Summarize hosts, conversations, DNS, HTTP, and cleartext credentials from a pcap.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Parse an uploaded libpcap (.pcap) or pcapng (.pcapng) capture into a forensic summary. Reports host inventory, bidirectional TCP/UDP conversations, DNS questions with A/AAAA answers, cleartext HTTP request lines, and cleartext credential findings from HTTP Basic auth, HTTP form logins, FTP USER/PASS, and POP3 USER/PASS. This is offline single-file analysis: no live capture, no GeoIP enrichment, no TLS decryption, and no file carving. Provide the capture as either url (HTTP/HTTPS) or ref (id from a prior file upload/tool call). Use limit to cap each list and section to focus on one tab-like view.",
         parameters = schema_json()

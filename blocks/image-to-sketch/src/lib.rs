@@ -63,6 +63,7 @@ struct ImageToSketch;
     interface = "handler@v1",
     summary = "Turn a photo into a pencil or line-art sketch",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn a photo into a hand-drawn-style sketch. mode 'pencil' gives a soft graphite pencil-shading look (the classic color-dodge sketch effect); mode 'lineart' gives a clean black-on-white outline drawing (good for a coloring-page / contour look). strength sets the pencil softness (blur radius) or the line-art edge sensitivity; 0 = sensible default. Returns a grayscale PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

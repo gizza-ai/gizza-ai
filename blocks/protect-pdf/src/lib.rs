@@ -55,6 +55,7 @@ struct ProtectPdf;
     interface = "handler@v1",
     summary = "Password-protect a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Add password encryption to a PDF using the standard security handler (AES-256). The returned PDF requires the password to open in any viewer. Provide the PDF as either url (HTTP/HTTPS) or ref, a required password, and optionally a separate owner_password. Runs locally — the PDF and password never leave the device.",
         parameters = schema_json()

@@ -120,6 +120,7 @@ struct VideoCaptionBurner;
     interface = "handler@v1",
     summary = "Burn SRT or WebVTT subtitles permanently into a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Hard-burn (\"open\") an SRT or WebVTT subtitle track onto a video so the captions are baked into the pixels — ideal for social clips that autoplay muted. Paste the subtitle file contents as `subtitles`; each timed cue is drawn only during its own start-end window. Optionally set position (bottom/center/top — default bottom), font size, text color, and a semi-transparent background box (color + opacity). Inline markup like <i>/<b> is stripped and text is drawn literally (no escaping needed) with a bundled bold sans-serif font. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Video re-encodes to H.264; audio is stream-copied when the container is kept (mp4/mov/m4v/mkv) or re-encoded to AAC when converting to mp4; MP4/MOV get +faststart. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

@@ -83,6 +83,7 @@ struct MkvToMp4;
     interface = "handler@v1",
     summary = "Convert a Matroska (.mkv) video into an MP4 container.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert a Matroska MKV video to MP4. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Default mode 'copy' stream-copies the streams into an MP4 container (lossless, instant) — works when the MKV holds H.264/HEVC + AAC. Use mode 'transcode' to re-encode to H.264/AAC for MKVs whose codecs MP4 can't hold (VP8/VP9/AV1 video, FLAC/Vorbis/Opus audio); quality 1-100 (default 75) maps to CRF and applies only to transcode. Both modes keep video + audio and drop MKV subtitle/attachment tracks MP4 can't carry.",
         parameters = schema_json()

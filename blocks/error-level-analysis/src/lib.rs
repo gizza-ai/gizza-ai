@@ -85,6 +85,7 @@ struct Ela;
     interface = "handler@v1",
     summary = "Reveal edited regions of an image with Error Level Analysis (ELA)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Run Error Level Analysis (ELA) on an image to reveal edited, spliced, or pasted-in regions. The image is recompressed as JPEG at quality (1-100, default 90) and the difference from the original is amplified — areas with a different compression history (edits, splices, added text) appear brighter than the uniformly-compressed background. Use scale (1-100, default 15) to set the brightness multiplier, normalize=true for auto-contrast, and grayscale=true for a luminance-only map. Returns a lossless PNG visualisation. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

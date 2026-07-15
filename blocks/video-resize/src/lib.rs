@@ -51,6 +51,7 @@ struct VideoResize;
     interface = "handler@v1",
     summary = "Scale a video to a target resolution",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Scale a video to a target resolution. Give width and/or height in pixels; omit one to preserve the aspect ratio (the omitted side is computed to an even number). Provide the video as either url (HTTP/HTTPS) or ref. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

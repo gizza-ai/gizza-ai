@@ -52,6 +52,7 @@ struct GifResize;
     interface = "handler@v1",
     summary = "Resize an animated GIF to new dimensions",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Resize an animated GIF to new pixel dimensions, preserving every frame, its timing, and the loop. Provide width and/or height; if only one is given the other is computed to preserve the aspect ratio. Returns the resized GIF. Provide the GIF as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

@@ -79,6 +79,7 @@ struct VideoDenoise;
     interface = "handler@v1",
     summary = "Reduce visual noise/grain in a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Reduce visual noise/grain in a video's picture with a temporal-spatial denoise filter. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus strength (1–100, higher removes more but risks softening detail; default 30) and method (hqdn3d = temporal+spatial 3D, fast, default; or nlmeans = non-local means, spatial only, slower, keeps detail on heavy noise). The picture is re-encoded to H.264 (crf 20); audio is kept as-is. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

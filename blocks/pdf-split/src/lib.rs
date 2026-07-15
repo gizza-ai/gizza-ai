@@ -52,6 +52,7 @@ struct PdfSplit;
     interface = "handler@v1",
     summary = "Extract or split specific pages out of a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract specific pages from a PDF into a new PDF. Give the page selection as a 1-based comma list with inclusive ranges, e.g. '1,3-5,8' (or 'all'/'odd'/'even'); output page order follows the original document. Provide the PDF as either a URL or a `ref` to an uploaded PDF attachment.",
         parameters = schema_json()

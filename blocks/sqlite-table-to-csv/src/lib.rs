@@ -169,6 +169,7 @@ struct SqliteTableToCsv;
     interface = "handler@v1",
     summary = "Export a table from an SQLite database file as CSV",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Export one table of an SQLite database (.db/.sqlite) as CSV by parsing the on-disk file format (no SQL engine). Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Pick a table by name (omit it if the database has only one table); choose the delimiter (comma/tab/semicolon/pipe), toggle the header row, set the text for NULL cells, optionally add a UTF-8 BOM, and cap the number of rows.",
         parameters = schema_json()

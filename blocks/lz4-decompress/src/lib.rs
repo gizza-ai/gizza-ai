@@ -49,6 +49,7 @@ struct Lz4Decompress;
     interface = "handler@v1",
     summary = "Decompress an LZ4 (.lz4) file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decompress a standard LZ4 frame file (.lz4) back to its original bytes, returned as a downloadable file. This is the exact inverse of the lz4-compress tool and of any standard lz4 -d / unlz4. LZ4 is optimised for speed — fast to compress and decompress at a modest ratio, ideal for logs, streaming, and real-time pipelines. The .lz4 suffix is stripped from the output filename. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). For .tar.lz4 archives, decompress first then use extract-tar.",
         parameters = schema_json()

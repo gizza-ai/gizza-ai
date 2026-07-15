@@ -70,6 +70,7 @@ struct DetectFileType;
     interface = "handler@v1",
     summary = "Identify a file's true format from its magic bytes",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Identify a file's true format by inspecting its leading bytes (magic numbers), independent of its name or extension — useful for files with a missing, wrong, or generic extension. Returns the media type (MIME), usual extension, a human-readable format name, and a coarse category (image/video/audio/document/archive/font/executable/database/text/data). Recognises images, audio, video, PDFs/Office docs, archives, fonts, executables, SQLite, and common text formats (XML/SVG/HTML/JSON). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

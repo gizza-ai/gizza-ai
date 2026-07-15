@@ -78,6 +78,7 @@ struct ImageToIco;
     interface = "handler@v1",
     summary = "Convert a PNG/JPG image into a multi-resolution .ico favicon",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert one source image (PNG/JPEG/WebP/GIF/BMP) into a single multi-resolution Windows .ico favicon, returned as a downloadable file. The .ico embeds a square bitmap at each requested resolution so the browser/OS can pick the best fit. sizes is a comma-separated list of square resolutions in pixels, each 1..=256 (default 16,32,48,64,128,256). fit controls how a non-square source is squared: contain (pad with the background color) or cover (scale-to-fill then center-crop). background sets the pad color when fit=contain (#rrggbbaa, default transparent). Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

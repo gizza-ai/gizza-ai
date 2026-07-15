@@ -85,6 +85,7 @@ struct PdfToEpub;
     interface = "handler@v1",
     summary = "Convert a text-based PDF into a reflowable EPUB ebook",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Convert a text-based PDF into a reflowable EPUB ebook (one chapter per page, with a table of contents). Wrapped lines are unwrapped into flowing text so the result reflows on any reader; set preserve_line_breaks to keep the original line layout (e.g. for poetry or code). Provide the PDF as url (HTTP/HTTPS) or ref from a prior tool call, and optionally a title and author for the ebook metadata. Returns the EPUB file as a download. Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs (those produce empty chapters).",
         parameters = schema_json()

@@ -55,6 +55,7 @@ struct SevenZExtract;
     interface = "handler@v1",
     summary = "Extract a .7z archive, including AES-256-encrypted ones, into a downloadable ZIP",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract every file from a .7z (7-Zip) archive and return them repacked as a single ZIP for download. Supports the LZMA and LZMA2 codecs (the 7z defaults) and AES-256-encrypted archives — pass the password via the `password` parameter (for archives created with header encryption / -mhe=on, the password is also required just to list the contents). The response lists every member (files and directories). Provide the archive as either url (HTTP/HTTPS) or ref (id from a prior tool call). Paths are sanitized (no absolute paths or '..' traversal). Not supported: the rarely-used BZip2/Zstd/PPMd/Brotli/Deflate 7z codecs.",
         parameters = schema_json()

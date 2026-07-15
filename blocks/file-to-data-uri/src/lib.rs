@@ -66,6 +66,7 @@ struct FileToDataUri;
     interface = "handler@v1",
     summary = "Encode a file as a base64 data: URI",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Encode a (small) file as a self-contained base64 data: URI — 'data:<mime>;base64,<...>' — for inline embedding in CSS url(...), an <img src>, an email, or a JSON payload. The content type is taken from the file unless you pass a mime override. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). Best for assets up to a few MB.",
         parameters = schema_json()

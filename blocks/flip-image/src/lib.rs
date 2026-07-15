@@ -48,6 +48,7 @@ struct FlipImage;
     interface = "handler@v1",
     summary = "Flip an image horizontally or vertically",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Flip an image horizontally (left-right mirror, direction=horizontal, default) or vertically (top-bottom, direction=vertical). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

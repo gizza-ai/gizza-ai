@@ -119,6 +119,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Chroma-key a photo's solid or green-screen background out and composite the subject onto a transparent, solid, or gradient background.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remove a photo's solid-color / green-screen background by chroma-keying a color, then composite the subject onto a transparent, solid, or two-color gradient background. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional key_color (name or hex, default #00ff00 green), similarity 0-100 (default 30), blend 0-100 (default 10), bg_type transparent|solid|gradient (default solid), bg_color (default #ffffff), bg_color2 for gradients (default #000000), direction vertical|horizontal (default vertical), and format png|webp|jpg|keep (default png). Works on solid/green/blue-screen backgrounds, not busy photos; no AI subject detection.",
         parameters = schema_json()

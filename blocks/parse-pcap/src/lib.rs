@@ -97,6 +97,7 @@ struct ParsePcap;
     interface = "handler@v1",
     summary = "Parse a pcap/pcapng capture into a per-packet summary",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Parse an uploaded libpcap (.pcap) or pcapng (.pcapng) network capture into a per-packet summary. Decodes the link layer (Ethernet, with VLAN tags, plus raw-IP / Linux-cooked / loopback) and the network/transport layers: IPv4, IPv6, TCP (with flag names), UDP, ICMP/ICMPv6, and ARP. Each packet reports its capture timestamp, on-wire and captured length, source/destination addresses, source/destination ports (TCP/UDP), the highest decoded protocol, and a one-line description. Returns the container format, link type, total packet count, and the decoded packets (capped by limit). Provide the capture as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

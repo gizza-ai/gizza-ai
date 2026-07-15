@@ -94,6 +94,7 @@ struct PdfExtractText;
     interface = "handler@v1",
     summary = "Extract the selectable text from a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract the selectable text from a PDF. Provide url (HTTP/HTTPS) or ref from a prior tool call, and optionally a 1-based page number (omit to extract every page). Extracts the embedded text layer only — it does not OCR scanned/image-only PDFs.",
         parameters = schema_json()

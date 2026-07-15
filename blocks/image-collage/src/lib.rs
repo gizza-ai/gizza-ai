@@ -81,6 +81,7 @@ struct ImageCollage;
     interface = "handler@v1",
     summary = "Combine images into a collage (grid/strip/stack)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Combine several images into a single collage PNG. layout is grid (default), horizontal (one row), or vertical (one column); columns sets the grid width; gap adds pixel spacing; background sets the fill color (#rrggbb). Each image is scaled to fit a uniform cell with its aspect ratio preserved. Provide images as a list, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
         parameters = schema_json()

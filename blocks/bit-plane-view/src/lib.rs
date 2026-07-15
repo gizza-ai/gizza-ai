@@ -79,6 +79,7 @@ struct BitPlaneView;
     interface = "handler@v1",
     summary = "Extract a single bit plane of an image channel as a PNG.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Isolate one bit plane of an image channel to reveal bit-level patterns and hidden data (steganography / image forensics). channel = red (default), green, blue, alpha, or gray (Rec. 601 luminance). bit = 0-7, where 0 is the least-significant bit (LSB, default) — the classic place steganographic payloads hide, which pops out as structured noise against the natural image's randomness — and 7 is the most-significant bit (MSB). mode = binary (default) renders a set bit white and a clear bit black (max contrast); weighted renders the bit at its positional weight (bit << plane) as a gray level; color renders a set bit in the channel's colour over black. Output is a PNG the same size as the input. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

@@ -139,6 +139,7 @@ struct VideoTitleCard;
     interface = "handler@v1",
     summary = "Overlay a styled title or lower-third caption onto a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Overlay a styled title or lower-third caption onto a video over a chosen time range. Give the text plus, optionally, a position preset (top/center/bottom x left/center/right — default bottom-center, the classic lower-third), font size, text color, and a semi-transparent background box (color + opacity). start/end (seconds) gate when the caption appears and disappears via ffmpeg's enable window. The text is drawn literally (apostrophes, colons, % need no escaping) with a bundled bold sans-serif font. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Video re-encodes to H.264; audio is stream-copied when the container is kept (mp4/mov/m4v/mkv) or re-encoded to AAC when converting to mp4; MP4/MOV get +faststart. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

@@ -48,6 +48,7 @@ struct ColorblindSimulator;
     interface = "handler@v1",
     summary = "Simulate colour-blindness on an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Simulate how an image looks to someone with a colour-vision deficiency, to check a design's accessibility. type = protanopia (red-deficient), deuteranopia (green-deficient, default), or tritanopia (blue-deficient); the standard CVD simulation matrix is applied to every pixel (alpha preserved). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

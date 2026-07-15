@@ -91,6 +91,7 @@ struct TorrentFileInspector;
     interface = "handler@v1",
     summary = "Parse a .torrent file and show its name, files, trackers, and info-hash",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Inspect a BitTorrent .torrent file: parse its bencoded metainfo and report the suggested name, the file list with each file's size, the total size, the tracker announce URLs (from announce and announce-list), the piece length and piece count, whether it is a private torrent, the BitTorrent v1 info-hash (SHA-1 of the bencoded info dictionary, the magnet-link btih), and the optional comment, created-by, and creation-date fields. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

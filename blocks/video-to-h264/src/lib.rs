@@ -83,6 +83,7 @@ struct VideoToH264;
     interface = "handler@v1",
     summary = "Force-transcode any video to universally-playable H.264 MP4.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Force-transcode any video to the most universally playable form: H.264 (libx264) in an MP4 container, yuv420p 8-bit 4:2:0 chroma, +faststart, and AAC audio. Use this to make a clip that 'won't play' (10-bit, 4:2:2/4:4:4, HEVC, VP9, AV1, .webm/.mkv/.avi) decode on essentially every browser, phone, TV and old player. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). profile is high|main|baseline (default high; baseline = max compatibility with very old/embedded players). quality 1-100 (default 75) maps to libx264 CRF. Always re-encodes — for a lossless container remux use mov-to-mp4 instead.",
         parameters = schema_json()

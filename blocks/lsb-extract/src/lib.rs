@@ -132,6 +132,7 @@ struct LsbExtract;
     interface = "handler@v1",
     summary = "Extract a hidden message from an image (LSB steganography)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Recover a hidden payload from an image's least-significant bits (LSB steganography) — the inverse of lsb-embed. mode=auto (default) finds a gizza-ai/lsb-embed payload (LSB1 header, RGB channels, bit depth auto-detected 1-4) and returns the hidden text. mode=raw reads the low bits-per-channel bits of the chosen channels (channels: any of r,g,b,a; bits_per_channel 1-8; bit_order msb or lsb; optional invert to XOR 0xFF) in pixel order with no header — use it for payloads embedded by other LSB tools. Returns the recovered text (if valid UTF-8), a hex preview, byte length, a best-effort file-type sniff of binary payloads, and the depth + channels used. The carrier MUST be lossless (PNG/BMP/etc.); a JPEG re-encode destroys the hidden bits. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call). Runs locally — the image never leaves the device.",
         parameters = schema_json()

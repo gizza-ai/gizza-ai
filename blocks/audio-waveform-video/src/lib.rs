@@ -138,6 +138,7 @@ struct AudioWaveformVideo;
     interface = "handler@v1",
     summary = "Render an animated waveform video (MP4) from an audio file.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Render an animated waveform VIDEO (MP4, H.264 + AAC) from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). The moving waveform is generated from the audio and the original audio is muxed back in, so it stays perfectly in sync — ready to post to social. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). mode is mirror|bars|wave|points (default mirror = the centered audiogram look); width x height set the frame size in pixels (default 1280x720; use 720x1280 for a 9:16 story or 1080x1080 for a square); color is the wave's hex color (default #4f46e5; alpha via #RRGGBBAA); color2 turns the wave into a horizontal color->color2 gradient; background is the hex backdrop (default #101014, always opaque); scale (lin|sqrt|cbrt|log) boosts quiet audio's motion; fps is the frame rate 5-60 (default 25). Output is always an MP4 video the length of the audio.",
         parameters = schema_json()

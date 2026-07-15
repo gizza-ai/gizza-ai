@@ -115,6 +115,7 @@ struct Tool;
     interface = "handler@v1",
     summary = "Compress an image to a target file size in KB by searching the best JPEG/WebP quality",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Compress an image to a target file size in KB. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call), a target_kb budget, and optionally format (jpg/webp) and max_width. The tool binary-searches the encoder quality for the highest quality whose file is at or under target_kb, optionally shrinking the width first. Output is JPEG or WebP (PNG has no quality knob to search).",
         parameters = schema_json()

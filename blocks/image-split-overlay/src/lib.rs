@@ -93,6 +93,7 @@ struct ImageSplitOverlay;
     interface = "handler@v1",
     summary = "Create a static before/after split overlay from two images.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Create a static before/after split overlay from exactly two image sources. Image A defines the output canvas; image B is fitted by stretch or cover. orientation chooses vertical, horizontal, diagonal, or diagonal-reverse; position is 0-100 percent; divider_width and divider_color draw the seam; format outputs png or jpeg. Provide images as an ordered list, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
         parameters = schema_json()

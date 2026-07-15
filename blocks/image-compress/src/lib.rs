@@ -71,6 +71,7 @@ struct ImageCompress;
     interface = "handler@v1",
     summary = "Re-encode an image at a chosen quality to shrink its file size, keeping the same format",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Compress (re-encode) an image at a chosen quality to shrink its file size, keeping the same format (jpg/png/webp). Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Lower quality = smaller file. For JPEG/WebP this trades visual fidelity for size; PNG is lossless so quality only tunes compression effort.",
         parameters = schema_json()

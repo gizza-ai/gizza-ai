@@ -73,6 +73,7 @@ struct AudioPitchShift;
     interface = "handler@v1",
     summary = "Shift audio pitch by semitones without changing tempo",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Shift the pitch of an audio file up or down by semitones without changing its speed or duration (transpose a song to another key, deepen a voice, make a chipmunk effect). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). semitones may be fractional: 12 = one octave up, -12 = one octave down, range -24 to 24 (0 is rejected as a no-op). Tempo is preserved via a resample + atempo chain; output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
         parameters = schema_json()

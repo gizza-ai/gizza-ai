@@ -76,6 +76,7 @@ struct VideoToGif;
     interface = "handler@v1",
     summary = "Convert a section of a video into an optimized animated GIF",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Convert a section of a video into an optimized animated GIF. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional start (seconds, default 0), duration (seconds, default 0 = to the end), fps (default 12), and width in pixels (default 0 = keep source size; height scales to preserve aspect ratio). Output is a looping GIF, made with a per-clip palette (palettegen/paletteuse) for high quality at a small size.",
         parameters = schema_json()

@@ -58,6 +58,7 @@ struct AutoWhiteBalance;
     interface = "handler@v1",
     summary = "Auto white-balance an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Remove common image color casts by white-balancing an image with either gray-world (neutralize average color) or white-patch (map brightest channel values toward white). strength is 0..100 percent and blends the correction with the original. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

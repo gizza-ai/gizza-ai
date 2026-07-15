@@ -62,6 +62,7 @@ struct DuplicateImageFinder;
     interface = "handler@v1",
     summary = "Find exact and near-duplicate images in a batch",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Scan a batch of images and report exact and near-duplicate pairs above a similarity threshold, with a suggested keep/delete list. Provide `images` as a list of 2+ sources (each a url or a `ref`; PNG/JPEG/WebP/GIF/BMP). `threshold` is a 0-100 similarity percent (default 90): a pair is reported when its perceptual similarity is at or above it; 100 keeps only visually identical images, lower catches looser matches. Byte-identical files are always flagged as exact. The result lists each image (dimensions, size, format, perceptual hash), the duplicate pairs (similarity %, Hamming distance, exact vs near), and grouped clusters whose suggested keep is the highest-resolution copy. Similarity uses a grayscale structural hash (dHash), so it is invariant to brightness, contrast, resizing and color; images that share a layout but differ in color, and flat/solid-color images, can be grouped — review before deleting.",
         parameters = schema_json()

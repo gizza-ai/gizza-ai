@@ -77,6 +77,7 @@ struct ImageContainFit;
     interface = "handler@v1",
     summary = "Fit an image inside target dimensions preserving aspect ratio, padding with a chosen colour (letterbox)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Fit (letterbox) an image inside a target width x height preserving its aspect ratio, padding the leftover space with a chosen background colour so the result is exactly the requested size. background accepts a hex value like #ffffff or a name (white, black, transparent); set allow_upscale=false to keep images smaller than the target at original size. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

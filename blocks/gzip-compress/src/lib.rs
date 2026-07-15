@@ -57,6 +57,7 @@ struct GzipCompress;
     interface = "handler@v1",
     summary = "Compress a file into gzip (.gz)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress a file (or any bytes) into a gzip (.gz) file, returned for download. level sets the deflate level 1-9 (default 6). The original filename is recorded in the gzip header and the output is named <input>.gz. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). Decompress again with gunzip.",
         parameters = schema_json()

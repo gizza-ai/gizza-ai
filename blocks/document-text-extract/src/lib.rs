@@ -91,6 +91,7 @@ struct DocumentTextExtract;
     interface = "handler@v1",
     summary = "Extract plain text from a PDF, DOCX, or EPUB document",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract the searchable plain text from a document, auto-detecting the format from the file. Supports PDF (the embedded text layer only — it does NOT OCR scanned/image-only pages), DOCX (Microsoft Word), and EPUB (e-book). Provide url (HTTP/HTTPS) or ref from a prior tool call. Returns the extracted text, its character count, and the detected format.",
         parameters = schema_json()

@@ -94,6 +94,7 @@ struct ImageShrinkForSharing;
     interface = "handler@v1",
     summary = "Downscale, strip metadata, and compress an image for sharing in one step.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Shrink an image for messaging or upload: downscale the longest side, strip EXIF/GPS metadata, and re-encode at a chosen quality (optionally converting format) in one pass. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Supports jpg/jpeg, png, webp.",
         parameters = schema_json()

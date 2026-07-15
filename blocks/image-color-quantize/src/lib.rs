@@ -49,6 +49,7 @@ struct ImageColorQuantize;
     interface = "handler@v1",
     summary = "Reduce an image to N colors (quantize)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Reduce an image to at most N colors using NeuQuant quantization — an optimal palette is derived from the image itself (a posterized / retro look, and often a smaller file). colors is 2-256 (default 16). Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

@@ -46,6 +46,7 @@ struct PdfRotate;
     interface = "handler@v1",
     summary = "Rotate pages of a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Rotate pages of a PDF by a multiple of 90 degrees (90, 180, 270, or -90), added to each page's current rotation. Choose which pages with `pages` (1-based, e.g. '1,3-5' or 'all'). Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

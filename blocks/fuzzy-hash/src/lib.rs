@@ -73,6 +73,7 @@ struct FuzzyHash;
     interface = "handler@v1",
     summary = "Compute an SSDEEP fuzzy hash (CTPH) of a file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compute an SSDEEP context-triggered piecewise hash (CTPH, a 'fuzzy hash') of a file, as blocksize:sig1:sig2. Unlike MD5/SHA, a fuzzy hash changes only slightly when the input changes slightly, so two fingerprints can be compared for similarity — useful for malware triage, near-duplicate detection, and spam clustering. Optionally pass compare (an existing ssdeep hash) to also get a 0-100 similarity score against the file's hash. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

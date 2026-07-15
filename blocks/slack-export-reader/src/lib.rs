@@ -90,6 +90,7 @@ struct SlackExportReader;
     interface = "handler@v1",
     summary = "Turn a Slack export ZIP into a readable Markdown or HTML transcript",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Turn a Slack workspace export (the ZIP of users.json, channels.json and \
             per-channel YYYY-MM-DD.json message files that Slack's 'Export data' produces) into a \

@@ -91,6 +91,7 @@ struct AudioEq;
     interface = "handler@v1",
     summary = "Equalize audio with bass, mid and treble gains",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Apply a three-band equalizer to an audio file. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). bass (low shelf ~100 Hz), mid (1 kHz peaking band) and treble (high shelf ~3 kHz) are gains in dB from -20 to 20; 0 leaves a band unchanged and at least one band must be non-zero. Typical fixes: bass 6 to warm a thin recording, mid -4 for a boxy voice, treble 4 to brighten a dull one. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
         parameters = schema_json()

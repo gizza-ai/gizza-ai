@@ -69,6 +69,7 @@ struct ImageDocumentShadowRemove;
     interface = "handler@v1",
     summary = "Remove shadows and uneven lighting from a document photo",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Remove cast shadows and uneven lighting from a phone photo or scan of a document, flattening it to a clean near-white page while keeping the text and ink sharp. mode 'color' preserves coloured ink/highlights (default), 'grayscale' gives a neutral gray page, 'blackwhite' produces a crisp 1-bit black-and-white scan (Otsu threshold). whiteness (0-100, default 55) sets how hard the paper background is snapped to pure white. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

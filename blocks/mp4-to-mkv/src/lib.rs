@@ -58,6 +58,7 @@ struct Mp4ToMkv;
     interface = "handler@v1",
     summary = "Remux an MP4 video into a Matroska (.mkv) container losslessly.",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remux an MP4 video into a Matroska (.mkv) container without re-encoding. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Every stream (video, all audio tracks, subtitles, data) is stream-copied with -map 0 -c copy: lossless, near-instant, no quality change. MKV holds every codec MP4 can, so this always succeeds — moving to MKV lets you later add soft subtitles or extra audio tracks. To change codec/quality, use video-transcode instead.",
         parameters = schema_json()

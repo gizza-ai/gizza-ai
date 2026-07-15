@@ -51,6 +51,7 @@ struct VideoMute;
     interface = "handler@v1",
     summary = "Remove the audio track from a video",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remove the audio track from a video, returning a silent copy. Lossless — the video is stream-copied (no re-encode), only the audio is dropped. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

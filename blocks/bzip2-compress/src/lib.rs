@@ -58,6 +58,7 @@ struct Bzip2Compress;
     interface = "handler@v1",
     summary = "Compress a file into bzip2 (.bz2)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress a file (or any bytes) into a bzip2 (.bz2) file, returned for download. bzip2 uses the Burrows–Wheeler transform and usually compresses text smaller than gzip (though slower). level sets the block size 1-9 (each unit is a 100 KB block; 9 = best ratio, default 9). The output is named <input>.bz2. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). Decompress again with any standard bunzip2 / bzip2 -d.",
         parameters = schema_json()

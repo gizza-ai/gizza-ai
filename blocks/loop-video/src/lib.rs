@@ -73,6 +73,7 @@ struct LoopVideo;
     interface = "handler@v1",
     summary = "Loop a video/GIF a number of times or to a duration",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Repeat a video or GIF into one continuous file — either a set number of times (count, 1-100, default 2) or until a target duration in seconds (duration, takes precedence when > 0). Stream-copied (no re-encode), keeps the input format. Provide the video as either url (HTTP/HTTPS) or ref. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
         parameters = schema_json()

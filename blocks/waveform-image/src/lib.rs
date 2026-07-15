@@ -115,6 +115,7 @@ struct WaveformImage;
     interface = "handler@v1",
     summary = "Render a static waveform PNG image from an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Render a static waveform PNG image from an audio file (any format ffmpeg decodes: mp3, wav, flac, ogg, m4a, opus, ...). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). width x height set the image size in pixels (default 1200x300); color is the wave's hex color (default #4f46e5; alpha via #RRGGBBAA; a comma-separated list colors split channels); color2 turns the wave into a horizontal color->color2 gradient; background is an optional hex (empty = transparent PNG); split_channels draws one lane per channel instead of a single mono wave; scale (lin|sqrt|cbrt|log) boosts quiet audio's visibility; sampling=peak draws the loudest sample per column for a fuller wave. Output is always a PNG image.",
         parameters = schema_json()

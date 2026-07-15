@@ -62,6 +62,7 @@ struct AddTextToImage;
     interface = "handler@v1",
     summary = "Overlay caption/watermark text on an image",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Overlay custom text (a caption, watermark, or meme line) onto an image and return a PNG. Set x/y for the top-left text position in pixels, font_size in pixels, and color as #rrggbb. Use \\n in text for multiple lines. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

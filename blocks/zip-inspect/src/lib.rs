@@ -59,6 +59,7 @@ struct ZipInspect;
     interface = "handler@v1",
     summary = "List the contents of a .zip archive without extracting",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "List the contents of a .zip archive WITHOUT extracting anything. Reads only the archive's central directory and returns every entry with its path, uncompressed size, compressed size, compression method (e.g. Stored, Deflated, Bzip2), CRC-32 checksum, and the percentage saved by compression — plus whether the entry is a directory or encrypted and its modification time when recorded. Also reports archive-wide totals (entry count, file/directory counts, total uncompressed and compressed size, overall compression ratio). Nothing is decompressed, so it works on any zip including ones using methods this tool can't extract. Provide the zip as either url (HTTP/HTTPS) or ref. Runs locally — the archive never leaves the device.",
         parameters = schema_json()

@@ -65,6 +65,7 @@ struct ColorChannelSplit;
     interface = "handler@v1",
     summary = "Extract a single colour channel (R/G/B/A) from an image as a PNG.",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Split an image into a single colour channel for steganography and colour analysis. channel = red (default), green, blue, alpha, or a CMYK separation cyan, magenta, yellow, key (black, derived from RGB). mode = grayscale (default) renders the channel value as a gray level (R=G=B=value) — the classic per-channel stego / forensics view; mode = color keeps the value in its own colour slot with the others zeroed (red→red-only image, alpha→opacity over black, CMYK→its ink colour). Output is a PNG the same size as the input. Provide the image as either url (HTTP/HTTPS) or ref.",
         parameters = schema_json()

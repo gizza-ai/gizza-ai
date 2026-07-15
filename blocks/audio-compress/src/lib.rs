@@ -73,6 +73,7 @@ struct AudioCompress;
     interface = "handler@v1",
     summary = "Shrink an audio file by re-encoding at a lower bitrate",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Reduce an audio file's size by re-encoding it at a lower lossy bitrate. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). bitrate is the target in kbps (32-320, default 96; 64 suits speech, 96-128 music) — out-of-range values are rejected, not clamped. format is mp3 (default), ogg or m4a; for lossless wav/flac use audio-convert instead. Embedded album art is dropped. If the source's bitrate is already at or below the target, the output won't get meaningfully smaller.",
         parameters = schema_json()

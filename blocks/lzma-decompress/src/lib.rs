@@ -48,6 +48,7 @@ struct LzmaDecompress;
     interface = "handler@v1",
     summary = "Decompress an LZMA / .xz file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decompress an LZMA file back to its original bytes, returned as a downloadable file. Handles both the modern .xz container (LZMA2, as produced by xz / lzma-compress / 7-Zip) and the legacy raw .lzma stream — the format is auto-detected. The output filename strips the .xz / .lzma suffix. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). To go the other way (compress into .xz) use lzma-compress.",
         parameters = schema_json()

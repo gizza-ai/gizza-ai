@@ -73,6 +73,7 @@ struct AudioNormalize;
     interface = "handler@v1",
     summary = "Normalize audio to a target loudness (LUFS)",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Level an audio file to a standard loudness using EBU R128 loudnorm (single pass, true peak -1.5 dBTP, loudness range 11 LU). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). lufs sets the target: -14 for Spotify/YouTube (default), -16 for podcasts, -23 for EU broadcast. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
         parameters = schema_json()

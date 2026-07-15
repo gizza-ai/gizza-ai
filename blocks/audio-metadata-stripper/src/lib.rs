@@ -64,6 +64,7 @@ struct AudioMetadataStripper;
     interface = "handler@v1",
     summary = "Strip metadata, tags and cover art from an audio file",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Remove every embedded tag from an audio file — ID3v1/ID3v2, Vorbis comments, RIFF/ASF INFO, chapters and (by default) the cover-art image — without re-encoding, so the audio stays bit-identical and the container/codec are preserved. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). cover_art defaults to remove; set it to keep to retain the embedded picture while still stripping all text tags. Works on mp3, wav, ogg, flac and m4a.",
         parameters = schema_json()

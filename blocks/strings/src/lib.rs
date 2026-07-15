@@ -75,6 +75,7 @@ struct Strings;
     interface = "handler@v1",
     summary = "Extract printable strings from a binary file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract printable string sequences from a binary file, like the Unix `strings` command. Finds runs of printable characters at least min_len long (default 4). encoding=ascii (default), utf16 (UTF-16 LE+BE), or all. Returns the list of strings and a count. Provide the file as either url (HTTP/HTTPS) or ref. Runs locally — the file never leaves the device.",
         parameters = schema_json()

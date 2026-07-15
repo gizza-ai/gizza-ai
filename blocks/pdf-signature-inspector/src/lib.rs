@@ -119,6 +119,7 @@ struct PdfSignatureInspector;
     interface = "handler@v1",
     summary = "Inspect embedded digital signatures in a PDF",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Extract the embedded digital signatures from a PDF and report, for each one: the signer (certificate subject and issuer Distinguished Names), the signing time, the signature handler/sub-filter, and whether the /ByteRange digest window is structurally intact (i.e. no bytes were appended or changed outside the signed region). Provide url (HTTP/HTTPS) or ref from a prior tool call. This is a structural inspection — it reads the PKCS#7/CMS signature metadata and checks the byte ranges; it does NOT cryptographically verify the digest against a trusted certificate chain.",
         parameters = schema_json()

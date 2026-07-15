@@ -49,6 +49,7 @@ struct RawInflate;
     interface = "handler@v1",
     summary = "Decompress a headerless raw DEFLATE file",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Decompress a file containing headerless raw DEFLATE (RFC 1951) back to its original bytes — no gzip and no zlib wrapper is expected, just the bare deflate bit stream. This is the inverse of raw-deflate / any DeflateEncoder output. The result is returned for download with any trailing .deflate/.raw/.zz extension stripped. A gzip- or zlib-wrapped stream (or corrupt/truncated data) is rejected with an error. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

@@ -185,6 +185,7 @@ struct CssSelectExtract;
     interface = "handler@v1",
     summary = "Fetch a page and extract content matching a CSS selector",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Fetch an http(s) page and extract content from every element matching a CSS selector. Returns a list of matches as their text content, inner HTML, or a named attribute's value.",
         parameters = schema_json()

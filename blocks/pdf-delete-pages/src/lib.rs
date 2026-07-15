@@ -54,6 +54,7 @@ struct PdfDeletePages;
     interface = "handler@v1",
     summary = "Remove specific pages from a PDF and keep the rest",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Remove specific pages from a PDF, keeping the rest. Give the pages to delete as a 1-based comma list with inclusive ranges, e.g. '2,5' or '3-7,10' (or 'odd'/'even'); the surviving pages keep their original order and the selection cannot cover every page. Provide the PDF as either a URL or a `ref` to an uploaded PDF attachment.",
         parameters = schema_json()

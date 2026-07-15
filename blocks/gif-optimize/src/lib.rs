@@ -70,6 +70,7 @@ struct GifOptimize;
     interface = "handler@v1",
     summary = "Shrink an animated GIF (scale, frames, colors)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Shrink an animated GIF. scale (0.01-1.0, default 1.0) resizes every frame; frame_step (default 1) keeps every Nth frame (timing preserved by rolling dropped delays forward); color_bits (1-8, default 8) does lossy per-channel color reduction. Returns the optimized GIF. Provide the GIF as either url (HTTP/HTTPS) or ref from a prior tool call.",
         parameters = schema_json()

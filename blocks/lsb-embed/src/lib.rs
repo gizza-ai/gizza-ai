@@ -62,6 +62,7 @@ struct LsbEmbed;
     interface = "handler@v1",
     summary = "Hide a secret message inside an image (LSB steganography)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Hide a secret text message inside an image using LSB (least-significant-bit) steganography and return a stego PNG that looks identical to the original. Set bits_per_channel 1-4 (default 1; higher hides more text but is slightly more visible). The output is always a lossless PNG so the hidden data survives. Provide the carrier image as either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
         parameters = schema_json()

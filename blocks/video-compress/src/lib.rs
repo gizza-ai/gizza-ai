@@ -67,6 +67,7 @@ struct VideoCompress;
     interface = "handler@v1",
     summary = "Shrink a video's file size with a single-pass CRF re-encode to H.264/AAC",
     requires = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"],
+    capabilities(network, callable_blocks = ["wafer-run/network", "gizza-ai/ffmpeg-runtime"]),
     skill(
         description = "Shrink a video's file size by re-encoding it at a chosen quality (CRF). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Single-pass H.264/AAC re-encode — higher crf = smaller file / lower quality. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. This is a quality knob, not a target-size guarantee (true target-byte-size needs a 2-pass encode).",
         parameters = schema_json()

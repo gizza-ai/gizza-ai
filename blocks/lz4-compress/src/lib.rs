@@ -49,6 +49,7 @@ struct Lz4Compress;
     interface = "handler@v1",
     summary = "Compress a file into LZ4 (.lz4)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress a file (or any bytes) into the standard LZ4 frame format (.lz4), returned for download. LZ4 is optimised for speed — it compresses and decompresses extremely fast at a modest ratio, ideal for logs, streaming, and real-time pipelines. LZ4 has a single fast mode, so there is no level/quality option. The output is named <input>.lz4. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). Decompress again with any standard lz4 -d / unlz4.",
         parameters = schema_json()

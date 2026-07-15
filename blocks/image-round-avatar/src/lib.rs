@@ -57,6 +57,7 @@ struct ImageRoundAvatar;
     interface = "handler@v1",
     summary = "Crop an image into a circle or rounded-square avatar",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Crop an image into a circular or rounded-square avatar with transparent corners, returned as a PNG. The image is center-cropped to a square first. shape is 'circle' (default) or 'rounded'; size sets the output square size in pixels; radius sets the corner radius for the rounded shape. Edges are anti-aliased. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()
