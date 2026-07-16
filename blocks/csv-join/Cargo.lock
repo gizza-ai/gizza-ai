@@ -852,7 +852,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#d834b34d00ac4bb5cbfadf2679ad5949ff4ccfcc"
+source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
 dependencies = [
  "async-trait",
  "chrono",
@@ -877,7 +877,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#d834b34d00ac4bb5cbfadf2679ad5949ff4ccfcc"
+source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -888,7 +888,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#d834b34d00ac4bb5cbfadf2679ad5949ff4ccfcc"
+source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
 dependencies = [
  "serde",
  "serde_json",
