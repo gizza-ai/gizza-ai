@@ -80,8 +80,15 @@ fn decode_xz(data: &[u8]) -> Result<Vec<u8>, String> {
 }
 
 fn decode_lzma_alone(data: &[u8]) -> Result<Vec<u8>, String> {
-    // new_mem_limit parses the .lzma header (props + dict + size). No memory cap.
-    let mut dec = LzmaReader::new_mem_limit(std::io::Cursor::new(data), u32::MAX, None)
+    // Cap the decoder's dictionary allocation. `new_mem_limit` sizes the
+    // dictionary from the .lzma header's declared dict-size field; with no cap a
+    // crafted header can declare a multi-GB dictionary that gets allocated up
+    // front — before any output — and OOM-traps the 64 MiB wasm sandbox, which
+    // the output `.take()` cap below cannot guard. 32 MiB comfortably covers any
+    // dictionary a file actually decodable within the sandbox could use; a larger
+    // declaration is rejected here as a clean error instead of trapping.
+    const MAX_DICT_BYTES: u32 = 32 * 1024 * 1024;
+    let mut dec = LzmaReader::new_mem_limit(std::io::Cursor::new(data), MAX_DICT_BYTES, None)
         .map_err(|e| format!("invalid .lzma header: {e}"))?;
     let mut out = Vec::new();
     (&mut dec)
