@@ -31,7 +31,7 @@ pub struct Extracted {
 
 /// Safety caps to avoid decompression bombs.
 const MAX_ENTRIES: usize = 10_000;
-const MAX_TOTAL_BYTES: u64 = 256 * 1024 * 1024; // 256 MiB uncompressed
+const MAX_TOTAL_BYTES: u64 = 16 * 1024 * 1024; // 16 MiB uncompressed (below the 64 MiB wasm sandbox)
 
 /// Normalize a tar member path to a safe, relative ZIP entry name: strip a
 /// leading `/`, drop `.`/`..` components and Windows drive prefixes. Returns

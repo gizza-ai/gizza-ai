@@ -7,8 +7,10 @@ use std::io::Read;
 
 use lz4_flex::frame::FrameDecoder;
 
-/// Max decompressed size (guards against LZ4 decompression bombs).
-const MAX_OUTPUT_BYTES: u64 = 256 * 1024 * 1024; // 256 MiB
+/// Max decompressed size (guards against LZ4 decompression bombs). Kept well
+/// below the 64 MiB wasm sandbox so a bomb returns a clean error instead of
+/// OOM-trapping while the bytes are base64-encoded into the output envelope.
+const MAX_OUTPUT_BYTES: u64 = 16 * 1024 * 1024; // 16 MiB
 
 /// Decompress an LZ4 **frame** stream. Validates the LZ4 frame magic number
 /// (0x184D2204, little-endian on the wire: `04 22 4D 18`) up front so a wrong

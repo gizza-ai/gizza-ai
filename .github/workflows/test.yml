@@ -53,8 +53,11 @@ jobs:
           set -euo pipefail
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             # Keep PR feedback fast: validate blocks touched by the PR head commit
-            # (checkout uses github.event.pull_request.head.sha). The full
-            # all-block build still runs on pushes to main.
+            # (checkout uses github.event.pull_request.head.sha).
+            # NOTE: on push to main the block list is empty (see the else branch
+            # below), so per-block cargo tests run ONLY on PRs — there is no
+            # all-block sweep on main yet. A nightly full `cargo test` over
+            # blocks/ is tracked separately in REMEDIATION_PLAN.md (item 2.2).
             if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
               diff_base="HEAD^"
             else

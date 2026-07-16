@@ -17,6 +17,11 @@ use std::io::Read;
 
 use lzma_rust2::{LzmaReader, XzReader};
 
+/// Max decompressed size (guards against xz/lzma decompression bombs). Kept well
+/// below the 64 MiB wasm sandbox so a bomb returns a clean error instead of
+/// OOM-trapping while the bytes are base64-encoded into the output envelope.
+const MAX_OUTPUT_BYTES: u64 = 16 * 1024 * 1024; // 16 MiB
+
 /// The `.xz` stream-header magic: `FD '7' 'z' 'X' 'Z' 00`.
 const XZ_MAGIC: [u8; 6] = [0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00];
 
@@ -64,18 +69,35 @@ fn decode_xz(data: &[u8]) -> Result<Vec<u8>, String> {
     // allow_multiple_streams = true → concatenated .xz streams decode as one.
     let mut dec = XzReader::new(std::io::Cursor::new(data), true);
     let mut out = Vec::new();
-    dec.read_to_end(&mut out)
+    (&mut dec)
+        .take(MAX_OUTPUT_BYTES + 1)
+        .read_to_end(&mut out)
         .map_err(|e| format!("xz decompression failed: {e}"))?;
+    if out.len() as u64 > MAX_OUTPUT_BYTES {
+        return Err("decompressed data is too large".into());
+    }
     Ok(out)
 }
 
 fn decode_lzma_alone(data: &[u8]) -> Result<Vec<u8>, String> {
-    // new_mem_limit parses the .lzma header (props + dict + size). No memory cap.
-    let mut dec = LzmaReader::new_mem_limit(std::io::Cursor::new(data), u32::MAX, None)
+    // Cap the decoder's dictionary allocation. `new_mem_limit` sizes the
+    // dictionary from the .lzma header's declared dict-size field; with no cap a
+    // crafted header can declare a multi-GB dictionary that gets allocated up
+    // front — before any output — and OOM-traps the 64 MiB wasm sandbox, which
+    // the output `.take()` cap below cannot guard. 32 MiB comfortably covers any
+    // dictionary a file actually decodable within the sandbox could use; a larger
+    // declaration is rejected here as a clean error instead of trapping.
+    const MAX_DICT_BYTES: u32 = 32 * 1024 * 1024;
+    let mut dec = LzmaReader::new_mem_limit(std::io::Cursor::new(data), MAX_DICT_BYTES, None)
         .map_err(|e| format!("invalid .lzma header: {e}"))?;
     let mut out = Vec::new();
-    dec.read_to_end(&mut out)
+    (&mut dec)
+        .take(MAX_OUTPUT_BYTES + 1)
+        .read_to_end(&mut out)
         .map_err(|e| format!("lzma decompression failed: {e}"))?;
+    if out.len() as u64 > MAX_OUTPUT_BYTES {
+        return Err("decompressed data is too large".into());
+    }
     Ok(out)
 }
 
@@ -112,6 +134,17 @@ mod tests {
         let (out, fmt) = lzma_decompress(&xz).unwrap();
         assert!(out.is_empty());
         assert_eq!(fmt, Format::Xz);
+    }
+
+    #[test]
+    fn rejects_decompression_bomb() {
+        // A highly compressible payload expands past the cap; must error cleanly
+        // rather than grow linear memory until the wasm sandbox OOM-traps.
+        let data = vec![0u8; MAX_OUTPUT_BYTES as usize + 1];
+        let xz = xz_compress(&data);
+        assert!(xz.len() < 1024 * 1024, "bomb input should stay tiny");
+        let err = lzma_decompress(&xz).unwrap_err();
+        assert!(err.contains("too large"), "got: {err}");
     }
 
     #[test]

@@ -22,7 +22,7 @@ use zip::CompressionMethod;
 
 /// Safety caps to avoid decompression bombs.
 const MAX_ENTRIES: usize = 10_000;
-const MAX_TOTAL_BYTES: u64 = 256 * 1024 * 1024; // 256 MiB uncompressed
+const MAX_TOTAL_BYTES: u64 = 16 * 1024 * 1024; // 16 MiB uncompressed (below the 64 MiB wasm sandbox)
 
 /// The 7z file signature: `7z\xBC\xAF\x27\x1C`.
 const SEVENZ_MAGIC: [u8; 6] = [0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C];
