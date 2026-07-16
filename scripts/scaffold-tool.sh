@@ -4,6 +4,15 @@
 # Usage: scripts/scaffold-tool.sh <slug> <pure|ffmpeg>
 set -euo pipefail
 
+# Portable in-place sed (GNU `sed -i` has no BSD/macOS equivalent: `sed -i`
+# without a suffix consumes the next arg on BSD). Write to a temp file and move
+# it back — identical behavior on GNU and BSD sed.
+sed_inplace() {
+  local expr="$1" file="$2" tmp
+  tmp="$(mktemp)"
+  sed "$expr" "$file" > "$tmp" && mv "$tmp" "$file"
+}
+
 slug="${1:?usage: scaffold-tool.sh <slug> <pure|ffmpeg>}"
 type="${2:?usage: scaffold-tool.sh <slug> <pure|ffmpeg>}"
 # kebab-case [a-z0-9-]; may start with a digit (e.g. 7z-extract) but not a hyphen,
@@ -343,6 +352,6 @@ fi
 
 # The quoted ('EOF') heredocs above can't expand $slug, so their templates use a
 # literal __SLUG__ token — substitute it everywhere in one pass here.
-grep -rl '__SLUG__' "$dir" | while read -r f; do sed -i "s/__SLUG__/${slug}/g" "$f"; done
+grep -rl '__SLUG__' "$dir" | while read -r f; do sed_inplace "s/__SLUG__/${slug}/g" "$f"; done
 
 echo "scaffolded blocks/$slug ($type). Next: implement core/src/lib.rs, src/lib.rs (skill schema), web/src/lib.rs, page/meta.toml, page/content.md."
