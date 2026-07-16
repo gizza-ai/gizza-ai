@@ -24,7 +24,7 @@ use zip::CompressionMethod;
 
 /// Safety caps to avoid decompression bombs.
 const MAX_ENTRIES: usize = 10_000;
-const MAX_TOTAL_BYTES: u64 = 256 * 1024 * 1024; // 256 MiB uncompressed
+const MAX_TOTAL_BYTES: u64 = 16 * 1024 * 1024; // 16 MiB uncompressed (below the 64 MiB wasm sandbox)
 
 /// The archive / compression format detected from the leading bytes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

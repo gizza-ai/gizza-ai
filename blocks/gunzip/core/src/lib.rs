@@ -7,8 +7,10 @@ use std::io::Read;
 
 use flate2::read::GzDecoder;
 
-/// Max decompressed size (guards against gzip bombs).
-const MAX_OUTPUT_BYTES: u64 = 256 * 1024 * 1024; // 256 MiB
+/// Max decompressed size (guards against gzip bombs). Kept well below the
+/// 64 MiB wasm sandbox so a bomb returns a clean error instead of OOM-trapping
+/// while the decompressed bytes are base64-encoded into the output envelope.
+const MAX_OUTPUT_BYTES: u64 = 16 * 1024 * 1024; // 16 MiB
 
 /// Decompress a single-member gzip stream. Returns the decompressed bytes and
 /// the original filename embedded in the gzip header (FNAME), if any.
