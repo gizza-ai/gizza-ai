@@ -1835,7 +1835,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1860,7 +1860,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1871,7 +1871,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-network"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "async-trait",
  "futures",
@@ -1889,7 +1889,7 @@ dependencies = [
 [[package]]
 name = "wafer-core"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1913,7 +1913,7 @@ dependencies = [
 [[package]]
 name = "wafer-flow"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "serde",
  "serde_json",
@@ -1923,7 +1923,7 @@ dependencies = [
 [[package]]
 name = "wafer-net-security"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "reqwest",
  "tokio",
@@ -1933,7 +1933,7 @@ dependencies = [
 [[package]]
 name = "wafer-run"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "async-trait",
  "base64ct",
@@ -1964,7 +1964,7 @@ dependencies = [
 [[package]]
 name = "wafer-schema"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "serde",
  "serde_json",
@@ -1974,7 +1974,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "serde",
  "serde_json",
@@ -1984,7 +1984,7 @@ dependencies = [
 [[package]]
 name = "wafer-sql-utils"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#aee5c6c631d5de9e40753d6b18673aaab569efd5"
+source = "git+https://github.com/wafer-run/wafer-run?branch=main#8c22d606224ed513c5eb5ec95240b5f6b1104c1f"
 dependencies = [
  "sea-query",
  "serde_json",
