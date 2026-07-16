@@ -1,0 +1,174 @@
+name: Nightly blocks
+
+# The on-PR/on-main "Test" workflow only runs per-block cargo tests for blocks a
+# PR touched (on push to main the changed-block list is empty), and only runs
+# calculator+clock through Playwright. So the full block cargo suite (~6k tests
+# across ~560 crates) and the full standalone tool-page suite (~393 specs) never
+# run on main. This nightly job sweeps both, sharded to stay tractable.
+
+on:
+  schedule:
+    # 03:00 UTC daily — off-peak, after the day's merges have landed on main.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-blocks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_HTTP_MULTIPLEXING: false
+  # One shared target dir per job (mirrors test.yml): compiles the common block
+  # dependency tree once and reuses it across every block crate in the shard,
+  # instead of a per-crate target/ that would blow the runner's disk.
+  CARGO_TARGET_DIR: /tmp/shared-cargo-target
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Full block cargo-test sweep, sharded across N runners. Each shard tests a
+  # deterministic slice of blocks/<slug>/ (and its core/ crate when present),
+  # mirroring the per-block invocation in test.yml's "Changed block Cargo tests".
+  # ---------------------------------------------------------------------------
+  block-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 10 shards. Bump SHARD_TOTAL and this list together to rebalance.
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    env:
+      SHARD_INDEX: ${{ matrix.shard }}
+      SHARD_TOTAL: 10
+    steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .
+          # The shared target dir grows to tens of GB across a shard's blocks;
+          # cache only the registry/git checkouts (matches test.yml).
+          cache-targets: false
+          # Keep shard caches from colliding.
+          key: nightly-block-tests-${{ matrix.shard }}
+
+      - name: Block cargo tests (shard ${{ matrix.shard }}/10)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t slugs < <(find blocks -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+          echo "Total blocks: ${#slugs[@]} — this shard: ${SHARD_INDEX}/${SHARD_TOTAL}"
+          i=0
+          ran=0
+          for slug in "${slugs[@]}"; do
+            if [ "$((i % SHARD_TOTAL))" -eq "$SHARD_INDEX" ]; then
+              [ -f "blocks/$slug/Cargo.toml" ] || { i=$((i + 1)); continue; }
+              echo "::group::block $slug"
+              if [ -f "blocks/$slug/core/Cargo.toml" ]; then
+                cargo test --manifest-path "blocks/$slug/core/Cargo.toml"
+              fi
+              cargo test --manifest-path "blocks/$slug/Cargo.toml"
+              echo "::endgroup::"
+              ran=$((ran + 1))
+            fi
+            i=$((i + 1))
+          done
+          echo "Shard ${SHARD_INDEX} tested ${ran} block(s)."
+
+  # ---------------------------------------------------------------------------
+  # Full standalone tool-page Playwright sweep, sharded. Each shard builds the
+  # web wasm for its slice of blocks, regenerates the tool pages, and runs that
+  # slice's tool-page-*.spec.ts under playwright.tool-pages.config.ts (parallel
+  # workers, 60s per-test timeout).
+  # ---------------------------------------------------------------------------
+  tool-pages-playwright:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    env:
+      SHARD_INDEX: ${{ matrix.shard }}
+      SHARD_TOTAL: 8
+    steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: 'v0.15.0'
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .
+          cache-targets: false
+          key: nightly-tool-pages-${{ matrix.shard }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build pages + run tool-page specs (shard ${{ matrix.shard }}/8)
+        working-directory: ${{ github.workspace }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t slugs < <(find blocks -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+          i=0
+          specs=()
+          for slug in "${slugs[@]}"; do
+            if [ "$((i % SHARD_TOTAL))" -eq "$SHARD_INDEX" ]; then
+              if [ -f "tests/tool-page-$slug.spec.ts" ]; then
+                if [ -d "blocks/$slug/web" ]; then
+                  echo "Building web wasm for $slug"
+                  wasm-pack build "blocks/$slug/web" --target web --release --out-dir pkg
+                fi
+                specs+=("tool-page-$slug.spec.ts")
+              fi
+            fi
+            i=$((i + 1))
+          done
+          if [ "${#specs[@]}" -eq 0 ]; then
+            echo "Shard ${SHARD_INDEX} has no tool-page specs; nothing to do."
+            exit 0
+          fi
+          # Regenerate every tool page into pkg/tools/<slug>/. The generator only
+          # emits interactive pages for tools whose web/pkg exists (built above);
+          # this shard only runs the specs it built, so that is sufficient.
+          cargo run --manifest-path tools/generator/Cargo.toml -- .
+          # Playwright + its deps live in tests/package.json (see test.yml).
+          cd tests
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npx playwright test --config=playwright.tool-pages.config.ts "${specs[@]}"

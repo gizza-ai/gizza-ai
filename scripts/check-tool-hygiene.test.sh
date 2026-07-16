@@ -2,6 +2,16 @@
 # Self-test for scripts/check-tool-hygiene.py — asserts the gate FAILS on a block
 # with a drifted manifest + plain-markdown FAQ, and PASSES once both are fixed.
 set -euo pipefail
+
+# Portable in-place sed (GNU `sed -i` has no BSD/macOS equivalent: `sed -i`
+# without a suffix consumes the next arg on BSD). Write to a temp file and move
+# it back — identical behavior on GNU and BSD sed.
+sed_inplace() {
+  local expr="$1" file="$2" tmp
+  tmp="$(mktemp)"
+  sed "$expr" "$file" > "$tmp" && mv "$tmp" "$file"
+}
+
 root="$(cd "$(dirname "$0")/.." && pwd)"
 slug="zzhygiene-scratch"
 dir="$root/blocks/$slug"
@@ -115,17 +125,17 @@ python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
 # Repo-wide mode must NOT gate on the strict checks (advisory only): break a
 # strict rule and confirm per-slug fails while the same block passes repo-wide
 # scanning. (Repo-wide still gates checks 1-4.)
-sed -i 's/placeholder = "hello world"/placeholder = ""/' "$dir/page/meta.toml"
+sed_inplace 's/placeholder = "hello world"/placeholder = ""/' "$dir/page/meta.toml"
 out3="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
 grep -q 'NO placeholder' <<<"$out3" || { echo "FAIL: strict mode missed a missing placeholder" >&2; exit 1; }
-sed -i 's/placeholder = ""$/placeholder = "hello world"/' "$dir/page/meta.toml"
+sed_inplace 's/placeholder = ""$/placeholder = "hello world"/' "$dir/page/meta.toml"
 # ^ also gives `mode` a placeholder — harmless, it renders as a <select> (enum)
 
 # Too-short SERP description fails strict.
-sed -i 's/^description = .*/description = "Too short."/' "$dir/page/meta.toml"
+sed_inplace 's/^description = .*/description = "Too short."/' "$dir/page/meta.toml"
 out4="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
 grep -q 'SERP snippet' <<<"$out4" || { echo "FAIL: strict mode missed a bad description length" >&2; exit 1; }
-sed -i 's/^description = .*/description = "Encode or decode data instantly in your browser — free, private, and offline-capable."/' "$dir/page/meta.toml"
+sed_inplace 's/^description = .*/description = "Encode or decode data instantly in your browser — free, private, and offline-capable."/' "$dir/page/meta.toml"
 
 # Fewer than 3 FAQ accordions fails strict.
 cat > "$dir/page/content.md" <<'EOF'
@@ -193,7 +203,8 @@ EOF
 # Site branding (check #8): a page/meta.toml title carrying the literal site
 # suffix must fail — pages must be generic, the site injects branding at
 # render time via SiteConfig.
-sed -i 's/^slug        = "zzhygiene-scratch"$/slug        = "zzhygiene-scratch"\ntitle       = "X — gizza.ai"/' "$dir/page/meta.toml"
+sed_inplace 's/^slug        = "zzhygiene-scratch"$/slug        = "zzhygiene-scratch"\
+title       = "X — gizza.ai"/' "$dir/page/meta.toml"
 out6="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1)" && {
   echo "FAIL: gate passed a block with site branding in page/meta.toml (should have failed)" >&2
   exit 1
@@ -201,7 +212,7 @@ out6="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1)" && {
 grep -q 'site branding' <<<"$out6" || { echo "FAIL: missing site-branding violation" >&2; exit 1; }
 
 # Fixing it (bare title, no brand string) must pass again.
-sed -i '/^title       = "X — gizza\.ai"$/d' "$dir/page/meta.toml"
+sed_inplace '/^title       = "X — gizza\.ai"$/d' "$dir/page/meta.toml"
 python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
   echo "FAIL: gate rejected a block with no site branding" >&2
   python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
