@@ -55,16 +55,19 @@ jobs:
             # Keep PR feedback fast: validate blocks touched by the PR head commit
             # (checkout uses github.event.pull_request.head.sha).
             # NOTE: on push to main the block list is empty (see the else branch
-            # below), so per-block cargo tests run ONLY on PRs — there is no
-            # all-block sweep on main yet. A nightly full `cargo test` over
-            # blocks/ is tracked separately in REMEDIATION_PLAN.md (item 2.2).
-            if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-              diff_base="HEAD^"
-            else
-              base_ref="${{ github.base_ref }}"
-              git fetch origin "$base_ref" --depth=1
-              diff_base="origin/$base_ref"
-            fi
+            # below), so per-block cargo tests run ONLY on PRs — this workflow does
+            # no all-block sweep on main. The full block cargo suite (and the full
+            # tool-page Playwright suite) is swept nightly, sharded, by
+            # .github/workflows/nightly-blocks.yml.
+            # Diff against the MERGE-BASE of the PR target branch and HEAD, not
+            # HEAD^. HEAD^ only sees the PR's final commit, so on a multi-commit
+            # PR block changes made in earlier commits escape detection (and their
+            # blocks never get rebuilt/re-tested). fetch-depth:0 (checkout above)
+            # gives full head history; fetch the base branch too (no --depth, so
+            # the common ancestor is reachable) and take the merge-base.
+            base_ref="${{ github.base_ref }}"
+            git fetch --no-tags origin "$base_ref"
+            diff_base="$(git merge-base "origin/$base_ref" HEAD)"
             # Only rebuild/re-test a block's wasm when a file that affects the
             # compiled output or its cargo tests changed. Doc/metadata edits —
             # page/ (rendered by tools/generator) and manifest.json (consumed by
@@ -198,6 +201,36 @@ jobs:
           if [ "$ran" -eq 0 ]; then
             echo "No block changes detected; skipping block-specific Cargo tests."
           fi
+
+      - name: Tool descriptor drift check
+        # scripts/sync-tool-manifest.py --check flags a block whose manifest.json
+        # tool.description / tool.parameters / summary has drifted from the LIVE
+        # descriptor (what chat and the page form actually consume). The tool
+        # hygiene gate above does NOT cover tool.description drift, so this is the
+        # only gate for it. Scoped to the PR's changed blocks: the corpus still
+        # carries pre-existing description drift, so a repo-wide gate would be red
+        # until it is backfilled — gating the changed blocks stops NEW/regressed
+        # drift from landing. `gizza describe` reads the descriptor embedded in
+        # the CLI (build.rs statically includes blocks/*/target/block.wasm), so we
+        # build it AFTER "Build changed skill wasms" copied the fresh wasm.
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          slugs=()
+          while IFS= read -r block; do
+            [ -n "$block" ] || continue
+            slugs+=("$block")
+          done <<< "${{ steps.changed.outputs.blocks }}"
+          if [ "${#slugs[@]}" -eq 0 ]; then
+            echo "No changed blocks; skipping descriptor drift check."
+            exit 0
+          fi
+          # Build the CLI (reusing the shared cargo target/registry cache) and put
+          # the `gizza` binary on PATH; the sync script shells out to `gizza`.
+          cargo build --release --manifest-path cli/Cargo.toml
+          export PATH="$CARGO_TARGET_DIR/release:$PATH"
+          python3 scripts/sync-tool-manifest.py --check "${slugs[@]}"
 
       - name: CLI tests
         run: cargo test --manifest-path cli/Cargo.toml
