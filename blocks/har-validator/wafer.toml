@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "har-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate a HAR (HTTP Archive) file's structure"
