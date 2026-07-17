@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-cell-diff"
+version = "0.1.0"
+abi = 1
+summary = "Compare two CSVs column-by-column and highlight every differing cell"

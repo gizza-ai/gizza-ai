@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/csv-cell-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two CSVs column-by-column and highlight every differing cell",
+  "role": "skill",
+  "tool": {
+    "description": "Align two CSVs column-by-column (by header name, so reordered columns still match) and compare them cell-by-cell, reporting every individual cell that changed with its old and new value, plus which rows and whole columns were added or removed. Pair rows by one or more key columns so reordered rows still match, or positionally when no key is given. Optional case- and whitespace-insensitive matching. Output as a readable table report, a structured JSON report, or a flat CSV change-log.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter used by both CSVs.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output: table (readable report), json (structured report), or csv (flat change-log).",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header and align columns by name (reordered columns still match). Turn off to align columns by position (col1, col2, …).",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare cell and key values case-insensitively while preserving original text in the output.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": false,
+          "description": "Normalize runs of whitespace when comparing while preserving original text in the output.",
+          "type": "boolean"
+        },
+        "key": {
+          "default": "",
+          "description": "Comma-separated key column name(s) (or 1-based index/indices) to pair rows by, so reordered rows still match. Leave empty to pair rows positionally by order. Example: id or first,last.",
+          "type": "string"
+        },
+        "left": {
+          "description": "The original/left CSV text.",
+          "type": "string"
+        },
+        "right": {
+          "description": "The updated/right CSV text.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "type": "object"
+    }
+  }
+}

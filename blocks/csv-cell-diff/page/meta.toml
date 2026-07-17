@@ -1,0 +1,79 @@
+slug          = "csv-cell-diff"
+title         = "CSV Cell Diff"
+description   = "Compare two CSVs column-by-column and highlight every individual cell that changed, plus added and removed rows and columns."
+tags          = ["csv", "diff", "compare", "data", "developer"]
+h1            = "CSV Cell Diff"
+hero_subtitle = "Paste two CSVs to align them column-by-column and see exactly which cells changed — with optional key-column row matching, all in your browser."
+wasm          = "gizza_ai_csv_cell_diff_web"
+export        = "run"
+live          = false
+output_label  = "Diff"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "Original CSV"
+placeholder = "id,name,price\n1,Apple,10\n2,Banana,20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Updated CSV"
+placeholder = "id,name,price\n1,Apple,12\n2,Banana,20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Key column(s)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace"
+source = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+table = "Table report"
+json  = "JSON report"
+csv   = "CSV change-log"
+
+[[example]]
+label  = "Price change (keyed by id)"
+params = { left = "id,name,price\n1,Apple,10\n2,Banana,20\n3,Cherry,30", right = "id,name,price\n1,Apple,12\n2,Banana,20\n3,Cherry,30", key = "id", format = "table" }
+
+[[example]]
+label  = "Added & removed rows"
+params = { left = "id,name\n1,Alice\n2,Bob\n3,Carol", right = "id,name\n1,Alice\n3,Carol\n4,Dave", key = "id", format = "table" }
+
+[[example]]
+label  = "Structured JSON report"
+params = { left = "sku,qty\nA1,5\nB2,7", right = "sku,qty\nA1,6\nB2,7", key = "sku", format = "json" }
