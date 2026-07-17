@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/image-horizon-tilt-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect a photo horizon or dominant vertical-line tilt and suggest a leveling rotation",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze an image and report the tilt angle of its dominant horizon (near-horizontal line) or vertical structure so the photo can be leveled. Params: reference=horizon|vertical (default horizon), max_angle in degrees (1–45, default 15), tolerance in degrees considered already level (0–10, default 1). Returns JSON with angle_degrees (positive = clockwise / right side lower), suggested_rotation_degrees (apply this with rotate-image to level), direction, is_level, confidence, and edges_analyzed. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "max_angle": {
+          "default": 15.0,
+          "description": "Maximum absolute tilt, in degrees, to search around the selected reference axis (default 15, range 1–45).",
+          "maximum": 45,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "reference": {
+          "default": "horizon",
+          "description": "Reference structure to analyze: horizon for near-horizontal lines, vertical for upright architecture or poles (default horizon).",
+          "enum": [
+            "horizon",
+            "vertical"
+          ],
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 1.0,
+          "description": "Angle in degrees considered already level; |angle| at or below this reports is_level=true (default 1).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
