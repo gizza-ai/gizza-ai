@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/telegram-export-reader",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a Telegram result.json export into a clean transcript plus per-sender message and word stats",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Telegram Desktop chat export (paste the contents of result.json — the Machine-readable JSON produced by \"Export chat history\") into a clean, dated transcript and/or per-sender statistics. The transcript renders one line per message ([2021-03-27 14:45:00] Alice: …), flattens formatted/entity text, shows readable placeholders for media ([photo], [sticker 🎉], [voice message], [file: name.pdf]), and can optionally include service lines (group created, members added). The stats report gives total messages, participants, word count, media/service counts, date range, a per-sender leaderboard of message and word counts with each sender's share, and the most-used words and emoji. Options: output (transcript/stats/both), include_service_messages, sender_filter (one person), and max_messages (cap for huge exports). Accepts single-chat exports, full-account exports (chats.list), and a bare message array. Fully local and deterministic — no AI model, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "export": {
+          "description": "Paste the entire contents of result.json from a Telegram Desktop export (a chat's ⋮ menu → Export chat history → format: Machine-readable JSON, or Settings → Advanced → Export Telegram data). Single-chat exports, full-account exports (chats.list), and a bare array of message objects are all accepted.",
+          "type": "string"
+        },
+        "include_service_messages": {
+          "default": false,
+          "description": "When true, include Telegram service/system lines (group created, members added, name changed, calls) in the transcript. Default false.",
+          "type": "boolean"
+        },
+        "max_messages": {
+          "default": 0,
+          "description": "Cap on how many messages to read from the export, applied after the service and sender filters (0 = no limit). Use it to preview a very large export. Default 0.",
+          "maximum": 500000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to return: transcript (one clean, dated line per message), stats (per-sender message and word counts with each sender's share, plus top words and emoji), or both (default).",
+          "enum": [
+            "transcript",
+            "stats",
+            "both"
+          ],
+          "type": "string"
+        },
+        "sender_filter": {
+          "description": "Optional: keep only messages from this exact display name (case-insensitive, e.g. `Alice`). Omit to include every sender.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "export"
+      ],
+      "type": "object"
+    }
+  }
+}

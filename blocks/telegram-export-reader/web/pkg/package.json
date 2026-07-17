@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-telegram-export-reader-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_telegram_export_reader_web_bg.wasm",
+    "gizza_ai_telegram_export_reader_web.js",
+    "gizza_ai_telegram_export_reader_web.d.ts"
+  ],
+  "main": "gizza_ai_telegram_export_reader_web.js",
+  "types": "gizza_ai_telegram_export_reader_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
