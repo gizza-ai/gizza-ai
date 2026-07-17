@@ -1,0 +1,135 @@
+slug          = "bulk-file-renamer"
+title         = "Bulk File Renamer — Preview Regex, Numbering & Case Rules"
+description   = "Preview old-to-new filename mappings with find/replace, regex, numbering, case conversion, prefix/suffix, and collision warnings."
+tags          = ["bulk file renamer", "rename files", "regex rename", "sequential numbering", "case conversion", "filename mapping", "collision check"]
+h1            = "Preview a Bulk File Rename"
+hero_subtitle = "Paste one filename per line, choose a rename rule, and get a deterministic old → new mapping before touching any files."
+wasm          = "gizza_ai_bulk_file_renamer_web"
+export        = "run"
+live          = false
+output_label  = "Rename mapping"
+format        = "text"
+
+[[input]]
+name        = "filenames"
+label       = "Filenames (one per line)"
+placeholder = "IMG_001.JPG\nIMG_002.JPG\nMy Report File.txt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Rename rule"
+source = "field"
+
+[input.labels]
+find_replace = "Find and replace"
+regex = "Regex replacement"
+sequential = "Sequential numbering"
+case = "Case conversion"
+
+[[input]]
+name        = "find"
+label       = "Find / regex pattern"
+placeholder = "IMG"
+source      = "field"
+
+[[input]]
+name        = "replace"
+label       = "Replacement"
+placeholder = "photo"
+source      = "field"
+
+[[input]]
+name   = "case_type"
+label  = "Case style"
+source = "field"
+
+[input.labels]
+lower = "lowercase"
+upper = "UPPERCASE"
+title = "Title Case"
+snake = "snake_case"
+kebab = "kebab-case"
+camel = "camelCase"
+pascal = "PascalCase"
+
+[[input]]
+name        = "pattern"
+label       = "Sequential pattern"
+placeholder = "file-{n}"
+source      = "field"
+
+[[input]]
+name        = "start"
+label       = "Start number"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "padding"
+label       = "Number padding"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Prefix"
+placeholder = "2026_"
+source      = "field"
+
+[[input]]
+name        = "suffix"
+label       = "Suffix"
+placeholder = "_final"
+source      = "field"
+
+[[input]]
+name   = "preserve_extension"
+label  = "Preserve file extensions"
+source = "field"
+
+[[example]]
+label = "Camera photos → photo_###"
+[example.params]
+filenames = "IMG_001.JPG\nIMG_002.JPG\nIMG_003.JPG"
+mode = "find_replace"
+find = "IMG"
+replace = "photo"
+case_type = "lower"
+pattern = "file-{n}"
+start = "1"
+padding = "3"
+prefix = ""
+suffix = ""
+preserve_extension = "true"
+
+[[example]]
+label = "Sequential vacation names"
+[example.params]
+filenames = "DSC_9001.jpg\nDSC_9002.jpg\nDSC_9003.jpg"
+mode = "sequential"
+find = ""
+replace = ""
+case_type = "lower"
+pattern = "vacation-{n}"
+start = "1"
+padding = "3"
+prefix = ""
+suffix = ""
+preserve_extension = "true"
+
+[[example]]
+label = "Convert names to kebab-case"
+[example.params]
+filenames = "My Report File.txt\nFinal Invoice 2026.pdf"
+mode = "case"
+find = ""
+replace = ""
+case_type = "kebab"
+pattern = "file-{n}"
+start = "1"
+padding = "1"
+prefix = ""
+suffix = ""
+preserve_extension = "true"

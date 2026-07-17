@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/bulk-file-renamer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Preview bulk filename renames with find/replace, regex, numbering, and case rules",
+  "role": "skill",
+  "tool": {
+    "description": "Compute a deterministic old -> new rename mapping for a newline-separated list of filenames. Supports find/replace, regex replacements with capture groups, sequential numbering patterns ({n}, {name}, {ext}), case conversions (lower, upper, title, snake, kebab, camel, pascal), optional prefix/suffix, extension preservation, and collision warnings. It is a safe preview engine only: it does not mutate files, upload archives, or create ZIP output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_type": {
+          "default": "lower",
+          "description": "Case conversion used when mode=case.",
+          "enum": [
+            "lower",
+            "upper",
+            "title",
+            "snake",
+            "kebab",
+            "camel",
+            "pascal"
+          ],
+          "type": "string"
+        },
+        "filenames": {
+          "description": "One filename per line. The tool computes a safe old -> new rename mapping only; it does not touch files or unzip archives.",
+          "type": "string"
+        },
+        "find": {
+          "default": "",
+          "description": "Text or regular expression to find. Required for regex mode; optional for find_replace.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "find_replace",
+          "description": "Rename rule to apply: find_replace, regex, sequential numbering, or case conversion.",
+          "enum": [
+            "find_replace",
+            "regex",
+            "sequential",
+            "case"
+          ],
+          "type": "string"
+        },
+        "padding": {
+          "default": 1,
+          "description": "Minimum digit width for {n} in sequential mode.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pattern": {
+          "default": "file-{n}",
+          "description": "Sequential numbering pattern for mode=sequential. Supports {n}, {name}, and {ext}.",
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "Optional text to prepend to every generated filename.",
+          "type": "string"
+        },
+        "preserve_extension": {
+          "default": true,
+          "description": "When true, transform only the filename stem and keep the original extension.",
+          "type": "boolean"
+        },
+        "replace": {
+          "default": "",
+          "description": "Replacement text. Regex mode supports capture references like $1 and $name.",
+          "type": "string"
+        },
+        "start": {
+          "default": 1,
+          "description": "Starting number for sequential mode.",
+          "maximum": 999999,
+          "minimum": -999999,
+          "type": "integer"
+        },
+        "suffix": {
+          "default": "",
+          "description": "Optional text to append before the preserved extension.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "filenames"
+      ],
+      "type": "object"
+    }
+  }
+}
