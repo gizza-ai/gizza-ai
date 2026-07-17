@@ -1,0 +1,63 @@
+slug          = "markdown-to-docx"
+title         = "Markdown to Word (.docx) Converter"
+description   = "Convert Markdown into a real Microsoft Word .docx document in your browser. Headings, lists, quotes, code blocks and inline formatting become editable Word content."
+tags          = ["markdown to docx", "markdown to word", "docx generator", "word converter", "markdown document"]
+h1            = "Markdown to Word (.docx)"
+hero_subtitle = "Paste Markdown and download a genuine editable Word document. Pick Letter or A4, choose a body font and size, and keep everything in-browser."
+wasm          = "gizza_ai_markdown_to_docx_web"
+export        = "run"
+live          = false
+output_label  = "Word document"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "# Project brief\n\nThis is **ready** for review.\n\n- Scope\n- Timeline\n\n> Keep a copy for stakeholders."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "title"
+label       = "Document title (optional)"
+placeholder = "Project Brief"
+source      = "field"
+
+[[input]]
+name   = "page_size"
+label  = "Page size"
+source = "field"
+labels = { letter = "Letter — 8.5 × 11 in", a4 = "A4 — 210 × 297 mm" }
+
+[[input]]
+name   = "font_family"
+label  = "Body font"
+source = "field"
+labels = { calibri = "Calibri", aptos = "Aptos", times_new_roman = "Times New Roman", arial = "Arial" }
+
+[[input]]
+name        = "font_size"
+label       = "Body font size"
+placeholder = "11"
+source      = "field"
+kind        = "slider"
+min         = "8"
+max         = "24"
+step        = "1"
+
+[[input]]
+name   = "page_break"
+label  = "Treat --- as a page break"
+source = "field"
+
+[[example]]
+label  = "Project brief"
+params = { markdown = "# Project brief\n\nThis is **ready** for review.\n\n- Scope\n- Timeline\n\n> Keep a copy for stakeholders.", title = "Project Brief", page_size = "letter", font_family = "calibri", font_size = "11" }
+
+[[example]]
+label  = "A4 handout"
+params = { markdown = "# Workshop notes\n\n## Agenda\n\n1. Introductions\n2. Hands-on lab\n\n```\nUse code blocks for commands.\n```", title = "Workshop Notes", page_size = "a4", font_family = "aptos", font_size = "12" }
+
+[[example]]
+label  = "Page-break report"
+params = { markdown = "# Executive summary\n\nFirst page.\n\n---\n\n# Appendix\n\nSecond page.", title = "Report", page_size = "letter", font_family = "times_new_roman", font_size = "11", page_break = "true" }

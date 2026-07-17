@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/markdown-to-docx",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Markdown text into a real Microsoft Word .docx document",
+  "role": "skill",
+  "tool": {
+    "description": "Convert Markdown text into a real binary Microsoft Word .docx document and return it as a download. Headings become Word heading styles, paragraphs keep bold/italic/inline-code/strikethrough, `-`/`1.` become bullet and numbered lists, `> ` becomes a block quote, fenced code blocks become monospace, and `---` becomes a rule or page break. Choose the page size (Letter/A4), body font (Calibri/Aptos/Times New Roman/Arial), font size (8–24pt), and whether `---` starts a new page. The output is a genuine OOXML .docx that Word, Google Docs, Pages and LibreOffice Writer open natively.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "font_family": {
+          "default": "calibri",
+          "description": "Body font family for the document: 'calibri' (default), 'aptos', 'times_new_roman', or 'arial'.",
+          "enum": [
+            "calibri",
+            "aptos",
+            "times_new_roman",
+            "arial"
+          ],
+          "type": "string"
+        },
+        "font_size": {
+          "default": 11,
+          "description": "Body font size in points (8–24). Defaults to 11. Headings scale relative to this.",
+          "maximum": 24,
+          "minimum": 8,
+          "type": "number"
+        },
+        "markdown": {
+          "description": "The document body in Markdown. Headings (`#`…`######`) become Word heading styles; paragraphs carry inline **bold**, *italic*, `code` and ~~strikethrough~~; `-`/`1.` become bullet/numbered lists; `> ` becomes a block quote; fenced ``` blocks become monospace code; and `---` becomes a horizontal rule (or page break). Example: `# Report\\n\\nRevenue is **up**.`.",
+          "type": "string"
+        },
+        "page_break": {
+          "default": false,
+          "description": "When true, a `---` thematic break inserts a page break instead of a horizontal rule. Defaults to false.",
+          "type": "boolean"
+        },
+        "page_size": {
+          "default": "letter",
+          "description": "Printed page size: 'letter' (default, 8.5×11in) or 'a4' (210×297mm).",
+          "enum": [
+            "letter",
+            "a4"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "description": "Optional document title. When set, it is added as a large title heading at the top and stored as the document's title metadata.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}
