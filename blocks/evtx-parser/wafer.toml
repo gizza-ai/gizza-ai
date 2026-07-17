@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "evtx-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse a Windows .evtx event log into filterable structured JSON"
