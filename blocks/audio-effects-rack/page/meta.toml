@@ -1,0 +1,95 @@
+slug          = "audio-effects-rack"
+title         = "Audio Effects Rack Online — Reverb, Echo, Chorus"
+description   = "Add reverb, echo, chorus, tremolo and compression to audio in your browser — chain effects in one pass and download MP3, WAV or more. No upload."
+tags          = ["audio", "effects", "reverb", "echo", "delay", "chorus", "tremolo", "compressor"]
+h1            = "Add Effects to an Audio File"
+hero_subtitle = "Pick an audio file, dial in reverb, echo, chorus, tremolo or compression, and get it back in your browser — nothing is uploaded."
+wasm          = "gizza_ai_audio_effects_rack_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Processed audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name   = "reverb"
+source = "field"
+label  = "Reverb"
+
+[input.labels]
+none  = "None"
+room  = "Room — tight small space"
+hall  = "Hall — big spacious tail"
+plate = "Plate — bright dense sheen"
+
+[[input]]
+name        = "echo"
+source      = "field"
+label       = "Echo delay (ms)"
+placeholder = "0"
+kind        = "slider"
+min         = "0"
+max         = "1000"
+step        = "10"
+
+[[input]]
+name   = "chorus"
+source = "field"
+label  = "Chorus"
+
+[input.labels]
+none  = "None"
+light = "Light — one gentle voice"
+deep  = "Deep — two detuned voices"
+
+[[input]]
+name        = "tremolo"
+source      = "field"
+label       = "Tremolo rate (Hz)"
+placeholder = "0"
+kind        = "slider"
+min         = "0"
+max         = "20"
+step        = "0.5"
+
+[[input]]
+name   = "compression"
+source = "field"
+label  = "Compression"
+
+[input.labels]
+none   = "None"
+light  = "Light"
+medium = "Medium"
+heavy  = "Heavy"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Hall reverb + slapback"
+[example.params]
+reverb = "hall"
+echo   = "250"
+format = "mp3"
+
+[[example]]
+label = "Warm & wide (chorus + compression)"
+[example.params]
+chorus      = "deep"
+compression = "medium"
+format      = "mp3"
+
+[[example]]
+label = "Lo-fi tremolo, wav"
+[example.params]
+tremolo = "6"
+reverb  = "room"
+format  = "wav"

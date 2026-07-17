@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-effects-rack"
+version = "0.1.0"
+abi = 1
+summary = "Apply reverb, echo, chorus, tremolo and compression to audio"
