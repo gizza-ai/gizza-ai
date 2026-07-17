@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/csv-type-inferrer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sniff a CSV's dialect and infer per-column types as JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Sniff a CSV's delimiter/quote dialect, detect whether the first row is a header, infer a type for every column (int, float, bool, date, datetime, string, or empty), and emit a JSON report plus typed JSON records. delimiter='auto' (default) sniffs comma/semicolon/tab/pipe; headers='auto' (default) detects the header row; null_tokens lists strings treated as missing (default 'NA,N/A,NULL,null,None,nan'); date_detection=true (default) recognizes common date/datetime formats; output='both' (default) returns the schema and the type-coerced records, 'schema' just the report, 'records' just the array. Zero-padded integers like '007' stay strings to preserve codes; whitespace around cells is trimmed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to analyze (paste the file contents, including the header row if there is one).",
+          "type": "string"
+        },
+        "date_detection": {
+          "default": true,
+          "description": "Recognize date columns (YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY and dash/slash variants) and datetime columns (YYYY-MM-DD[ T]HH:MM:SS, optional Z). Default true; set false to keep such columns as strings.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field delimiter. 'auto' (default) sniffs it from the data by testing comma, semicolon, tab and pipe for the most consistent column count; otherwise force one of comma, tab, semicolon, pipe.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "headers": {
+          "default": "auto",
+          "description": "Whether the first row holds column names. 'auto' (default) detects it (a text first row over typed data rows = header); 'present' forces the first row to be names; 'absent' generates column_1, column_2, ... and treats every row as data.",
+          "enum": [
+            "auto",
+            "present",
+            "absent"
+          ],
+          "type": "string"
+        },
+        "null_tokens": {
+          "default": "NA,N/A,NULL,null,None,nan",
+          "description": "Comma-separated tokens (in addition to the empty string) treated as missing/null when inferring types, e.g. 'NA,N/A,NULL'. Matching is exact and case-sensitive.",
+          "type": "string"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to emit. 'both' (default) = a schema report (dialect + per-column types/counts) plus the typed records; 'schema' = the report only; 'records' = just the array of type-coerced JSON objects.",
+          "enum": [
+            "both",
+            "schema",
+            "records"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

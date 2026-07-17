@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-type-inferrer"
+version = "0.1.0"
+abi = 1
+summary = "Sniff a CSV's dialect and infer per-column types as JSON."
