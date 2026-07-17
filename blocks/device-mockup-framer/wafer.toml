@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "device-mockup-framer"
+version = "0.1.0"
+abi = 1
+summary = "Frame a screenshot inside a clean phone, tablet, laptop, or browser-window mockup"

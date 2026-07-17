@@ -1,0 +1,21 @@
+DejaVuSansMono.ttf is part of the DejaVu Fonts project
+(https://dejavu-fonts.github.io/), derived from the Bitstream Vera Fonts.
+
+It is bundled here (embedded into the wasm via include_bytes!) so the
+code-screenshot renderer never touches the host filesystem — the chat runtime
+and the wasm sandbox have no font directory.
+
+License: Bitstream Vera Fonts Copyright + DejaVu changes (Arev fonts) — a
+permissive, freely-redistributable license. The fonts may be used, studied,
+modified and redistributed freely, including embedding in software. Full text:
+https://dejavu-fonts.github.io/License.html
+
+Bitstream Vera Fonts Copyright
+------------------------------
+Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved. Bitstream Vera is a
+trademark of Bitstream, Inc. Permission is granted to anyone to use, study,
+copy, modify, embed, and redistribute the fonts under the terms of that license.
+
+DejaVu changes are in the public domain (or covered by the same Bitstream Vera
+permission for the modified portions). Glyphs imported from Arev are
+(c) 2006 by Tavmjong Bah under the same permissive terms.
