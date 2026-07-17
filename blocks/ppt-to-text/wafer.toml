@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ppt-to-text"
+version = "0.1.0"
+abi = 1
+summary = "Extract plain text from a legacy PowerPoint 97-2003 .ppt file"

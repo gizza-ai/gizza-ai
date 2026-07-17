@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-ppt-to-text-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# A legacy .ppt is an OLE2 / Compound File Binary container. `cfb` is pure Rust
+# (byteorder + fnv + uuid, no getrandom) and instantiates under
+# `cargo build --target wasm32-wasip1 --release`. We read the `PowerPoint
+# Document` stream and walk its record tree by hand — no heavier PowerPoint
+# parser needed for text extraction. Same crate the sibling `doc-to-text` block
+# uses for legacy Word `.doc`.
+cfb = "0.10"
