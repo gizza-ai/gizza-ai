@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xlsx-sheet-diff"
+version = "0.1.0"
+abi = 1
+summary = "Compare two spreadsheet sheets cell-by-cell (value, formula, structural diffs)"

@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/xlsx-sheet-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two spreadsheet sheets cell-by-cell (value, formula, structural diffs)",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two worksheets of a spreadsheet (.xlsx, .xlsm, .xls, or .ods) cell-by-cell and report value changes, formula changes, and structural (added/removed row and column) differences. Provide the workbook via url (a public http/https link) or ref (an uploaded attachment id), and pick the two sheets by name or 0-based index (defaults to the first two). Output as a readable table, structured JSON, or a flat CSV change-log.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "compare_formulas": {
+          "default": true,
+          "description": "Also compare stored formula strings, so a rewritten formula is caught even when its cached result is unchanged.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output: table (readable report), json (structured report), or csv (flat change-log, one row per changed cell).",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare cell and formula text case-insensitively (original text is still shown).",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": false,
+          "description": "Collapse runs of whitespace before comparing (original text is still shown).",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sheet1": {
+          "description": "First worksheet to compare: a sheet name, or a 0-based index as a string (e.g. \"0\"). Defaults to the first sheet.",
+          "type": "string"
+        },
+        "sheet2": {
+          "description": "Second worksheet to compare: a sheet name, or a 0-based index as a string (e.g. \"1\"). Defaults to the second sheet.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

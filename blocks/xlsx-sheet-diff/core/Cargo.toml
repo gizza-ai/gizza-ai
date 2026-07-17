@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-xlsx-sheet-diff-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust spreadsheet reader (.xlsx/.xlsm/.xls/.ods). We read both the cell
+# VALUES (`worksheet_range`) and the FORMULA strings (`worksheet_formula`) so the
+# diff can report value and formula changes separately. default-features keeps
+# `dates` off; we stringify every cell ourselves. Compiles to wasm32 (no C deps).
+calamine = { version = "0.26", default-features = false }
+serde_json = "1"
+
+[dev-dependencies]
+# Generates tiny in-memory .xlsx fixtures (two sheets, values + formulas) for
+# the unit tests.
+rust_xlsxwriter = "0.79"
