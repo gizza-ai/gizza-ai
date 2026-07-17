@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/markdown-to-pptx",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Markdown outline into a real PowerPoint .pptx presentation",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Markdown outline into a real binary PowerPoint .pptx presentation and return it as a download. Headings become slide titles, list items and paragraphs become bullets, and thematic breaks (`---`) split slides. Choose where headings split slides (h1/h2/both), a light or dark theme, and a 16:9 or 4:3 aspect ratio. The output is a genuine OOXML .pptx package that PowerPoint, Keynote, Google Slides and LibreOffice Impress open natively.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "aspect_ratio": {
+          "default": "16:9",
+          "description": "Slide aspect ratio: '16:9' (default) widescreen or '4:3' standard.",
+          "enum": [
+            "16:9",
+            "4:3"
+          ],
+          "type": "string"
+        },
+        "markdown": {
+          "description": "The presentation outline in Markdown. Headings become slide titles, list items and paragraphs become bullets, and a thematic break (`---`) starts a new slide. Example: `# Intro\\n- First point\\n- Second point`.",
+          "type": "string"
+        },
+        "split_level": {
+          "default": "h1",
+          "description": "Where headings cut the outline into slides: 'h1' (default) starts a slide at each `#`, 'h2' at each `##`, 'both' at every `#` and `##`. Thematic breaks (`---`) always start a new slide.",
+          "enum": [
+            "h1",
+            "h2",
+            "both"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Slide color theme: 'light' (default) is dark text on a white background; 'dark' is light text on a near-black background.",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "description": "Optional deck title. When set, it is added as a centered title slide at the front and stored as the document's title.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}

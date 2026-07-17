@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-to-pptx"
+version = "0.1.0"
+abi = 1
+summary = "Convert a Markdown outline into a real PowerPoint .pptx presentation"
