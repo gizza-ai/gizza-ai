@@ -309,3 +309,5 @@ pdf-outline-extract  # file-input PDF outline extraction needs wafer network/att
 exif-photo-organizer  # uploaded-photo input with text/JSON filename-plan output has no verified page/CLI surface in current gizza loop (binary file input + non-media output); scaffold not built
 
 env-json-converter  # duplicate of blocks/dotenv-manager (json output parses .env to JSON; normalized/example modes cover reverse-ish .env rendering)
+
+csv-join-report  # duplicate of blocks/csv-join (csv-join already joins two CSVs on key columns with inner/left/right/full outer join modes; matched/left-only/right-only counts and samples are reporting on the same joined row sets, not a distinct tool)
