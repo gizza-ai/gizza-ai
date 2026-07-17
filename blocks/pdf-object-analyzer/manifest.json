@@ -1,0 +1,32 @@
+{
+  "name": "gizza-ai/pdf-object-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Map a PDF's object tree and flag JavaScript, embedded files, and auto-run triggers",
+  "role": "skill",
+  "tool": {
+    "description": "Statically map a PDF's object tree and flag the structural indicators used in malicious-document triage: automatic actions that fire on open (/OpenAction, /AA), embedded JavaScript (/JS, /JavaScript), /Launch actions that start an external program, embedded files (/EmbeddedFile, /Filespec), object streams (/ObjStm) and other obfuscation, and outbound links (/URI, /SubmitForm, /GoToR). Reports the PDF version, object/stream/page counts, encryption, every indicator with its category, count, and the object ids it appeared in, extracted JavaScript snippets, embedded-file and /Launch targets, referenced URLs, and a coarse risk level (none/low/medium/high) with reasons. detail=summary omits the JavaScript source and object-id lists. Provide pdf_base64 containing the PDF bytes (a data:application/pdf;base64,... prefix is accepted). This is static structural analysis: it does NOT execute, sandbox, or render the PDF, and it is NOT a malware verdict.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "default": "full",
+          "description": "Report depth. 'full' (default) includes extracted JavaScript source snippets and the object-id list behind each indicator; 'summary' returns only the structural overview, indicator keys/counts, risk level, and launch/URL/embedded-file targets.",
+          "enum": [
+            "full",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "pdf_base64": {
+          "description": "Base64-encoded PDF bytes. A data:application/pdf;base64,... prefix is accepted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pdf_base64"
+      ],
+      "type": "object"
+    }
+  }
+}
