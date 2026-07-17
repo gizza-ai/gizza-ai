@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/epub-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract an EPUB's chapters, titles, and metadata as structured text",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Extract the chapter structure and readable text from an EPUB e-book. Reads the EPUB's OPF spine for reading order and its table of contents (NCX / EPUB3 nav, with heading-detection fallback) to title each chapter. Returns the book metadata (title, author, language, publisher, date) plus an ordered list of chapters, each with its index, title, word count, and (optionally) plain text — so you can search, summarize, or quote a specific chapter. Set include_text=false for a lightweight table of contents. Provide the EPUB as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "include_metadata": {
+          "default": true,
+          "description": "Include book metadata — author, language, publisher, publication date — alongside the title (default true).",
+          "type": "boolean"
+        },
+        "include_text": {
+          "default": true,
+          "description": "Include each chapter's readable plain text (default true). Set false for a structure-only table of contents: chapter titles and word counts, no body text.",
+          "type": "boolean"
+        },
+        "max_chapters": {
+          "default": 0,
+          "description": "Maximum number of chapters to return, in reading order. 0 (default) returns every chapter.",
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
