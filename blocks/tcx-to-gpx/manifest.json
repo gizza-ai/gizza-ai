@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/tcx-to-gpx",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Garmin TCX workout files into GPX, preserving trackpoints and timestamps",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Garmin Training Center XML (TCX) workout file into a GPX 1.1 document. Each <Activity> (or <Course>) becomes one <trk>, each TCX <Track> becomes one <trkseg>, and each <Trackpoint> with a <Position> becomes a <trkpt lat lon> carrying <ele> (from AltitudeMeters) and <time> (from Time) when present. The Sport attribute becomes the track's <type>, a Course's <Name> (or an Activity's <Id>) becomes the track's <name>, and the earliest trackpoint time becomes <metadata><time>. With include_extensions=true (the default), each trackpoint's heart rate and cadence are emitted as Garmin TrackPointExtension elements (<gpxtpx:hr>/<gpxtpx:cad>), which is where GPX consumers expect them — GPX 1.1 has no core element for either; set include_extensions=false for plain GPX with only latitude/longitude/elevation/time. Trackpoints without a position are skipped (a GPX <trkpt> requires lat/lon). Paste the TCX XML as text. Runs fully locally, no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_extensions": {
+          "default": true,
+          "description": "Emit each trackpoint's heart rate and cadence as Garmin TrackPointExtension elements (<gpxtpx:hr>/<gpxtpx:cad>) — where GPX consumers expect them, since GPX 1.1 has no core element for either. Set false to output plain GPX with only latitude/longitude/elevation/time. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The TCX (Garmin Training Center XML) document to convert, pasted as text (the contents of a .tcx file — a <TrainingCenterDatabase> with <Activities>/<Activity> or <Courses>/<Course> holding <Track>/<Trackpoint> elements).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
