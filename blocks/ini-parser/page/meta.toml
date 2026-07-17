@@ -1,0 +1,66 @@
+slug          = "ini-parser"
+title         = "INI Parser — Convert INI / conf Files to JSON & Find Duplicate Keys"
+description   = "Convert INI/conf files to structured JSON, handle sections, comments and quoted values, and report duplicate keys locally in your browser."
+tags          = ["ini parser", "ini to json", "conf to json", "config parser", "parse ini", "ini file viewer", "ini converter", "duplicate keys", "config file", "key value parser", "ini reader", "cfg parser"]
+h1            = "INI Parser"
+hero_subtitle = "Paste an INI or .conf file and get clean, structured JSON. Handles [sections], key=value and key:value pairs, ; and # comments, quoted values and section-less globals — and reports duplicate keys with an explicit last / first / array / error policy. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_ini_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed JSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "ini"
+label       = "INI / conf text"
+placeholder = "[server]\nhost = localhost\nport = 8080  ; listen port\n\n[db]\nname = main"
+source      = "field"
+multiline   = true
+
+# output / duplicate_keys / comments render as <select> — the option lists come
+# from the descriptor schema (manifest.json); `labels` only enriches the visible
+# text (values stay canonical for deep-links / CLI).
+[[input]]
+name        = "output"
+label       = "Output as"
+source      = "field"
+labels      = { json = "Nested JSON (config)", flat = "Flat dotted keys", report = "Report (+ duplicates & stats)" }
+
+[[input]]
+name        = "duplicate_keys"
+label       = "Duplicate keys"
+source      = "field"
+labels      = { last = "Keep last value", first = "Keep first value", array = "Collect into an array", error = "Error on duplicate" }
+
+[[input]]
+name        = "detect_types"
+label       = "Detect booleans & numbers"
+source      = "field"
+
+[[input]]
+name        = "comments"
+label       = "Comment prefixes"
+source      = "field"
+labels      = { both = "; and #", semicolon = "; only", hash = "# only" }
+
+[[input]]
+name        = "inline_comments"
+label       = "Strip inline comments (value ; note)"
+source      = "field"
+
+[[example]]
+label  = "Basic config → JSON"
+params = { ini = "app = demo\n\n[server]\nhost = localhost\nport = 8080\n\n[db]\nname = main\nuser = admin" }
+
+[[example]]
+label  = "Detect types + inline comments"
+params = { ini = "[server]\nhost = localhost\nport = 8080     ; listen port\ndebug = true\nratio = 0.75", detect_types = "true", inline_comments = "true" }
+
+[[example]]
+label  = "Report duplicate keys"
+params = { ini = "[db]\nhost = primary\nhost = replica\nport = 5432", output = "report" }
+
+[[example]]
+label  = "Collect duplicates into arrays"
+params = { ini = "[hosts]\nserver = a\nserver = b\nserver = c", duplicate_keys = "array" }

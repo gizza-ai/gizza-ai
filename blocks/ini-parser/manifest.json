@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/ini-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse INI/conf files into structured JSON and report duplicate keys.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse INI / .conf text into structured JSON and report duplicate keys. Handles '[section]' headers (nested objects), 'key = value' and 'key: value' pairs, ';' and '#' comments, section-less 'global' keys, and quoted values. output='json' (default) is a nested config object, 'flat' is dotted keys, 'report' adds a duplicates list and stats. duplicate_keys controls repeated keys (last/first/array/error). Set detect_types=true to coerce booleans and numbers, inline_comments=true to strip trailing ' ; note' comments, and comments to choose which prefixes count.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": "both",
+          "description": "Which characters start a comment line. 'both' (default) treats ';' and '#' as comments; 'semicolon' only ';'; 'hash' only '#'. A line whose comment char is disabled is parsed as data.",
+          "enum": [
+            "both",
+            "semicolon",
+            "hash"
+          ],
+          "type": "string"
+        },
+        "detect_types": {
+          "default": false,
+          "description": "When true, convert unquoted values to JSON types: true/false/yes/no/on/off → boolean, integers and decimals → number. Quoted values always stay strings. Default false (every value stays a string, lossless).",
+          "type": "boolean"
+        },
+        "duplicate_keys": {
+          "default": "last",
+          "description": "How to handle a key repeated within one section. 'last' (default) keeps the last value; 'first' keeps the first; 'array' collects all values into an array; 'error' fails on any duplicate. Duplicates are always listed when output='report'.",
+          "enum": [
+            "last",
+            "first",
+            "array",
+            "error"
+          ],
+          "type": "string"
+        },
+        "ini": {
+          "description": "The INI / .conf text to parse. Sections are '[name]' headers; entries are 'key = value' or 'key: value'; lines starting with ';' or '#' are comments. Keys before the first section are 'global'.",
+          "type": "string"
+        },
+        "inline_comments": {
+          "default": false,
+          "description": "When true, also strip a trailing comment from a value (a ';' or '#' preceded by whitespace, e.g. 'port = 8080 ; note'). Default false — trailing text is kept as part of the value.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output shape. 'json' (default) is a nested config object (global keys at the root, each section a nested object); 'flat' is a flat map of dotted keys ('section.key'); 'report' adds a 'duplicates' list and a 'stats' block (sections/keys/comments/duplicates).",
+          "enum": [
+            "json",
+            "flat",
+            "report"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "ini"
+      ],
+      "type": "object"
+    }
+  }
+}
