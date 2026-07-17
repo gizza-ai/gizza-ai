@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/vcard-normalize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Normalize emails, phone numbers, and names in vCard address books.",
+  "role": "skill",
+  "tool": {
+    "description": "Normalize a vCard/.vcf address book while preserving unknown properties and card structure. EMAIL values are trimmed and lowercased by default. TEL values are conservatively reformatted toward E.164 when they parse and validate, using optional default_country for national numbers. FN, N, and NICKNAME whitespace is tidied and can be recased with name_case=keep/title/upper/lower. Folded lines are unfolded, CRLF/LF style is preserved, invalid phone numbers are left untouched, and malformed input without a vCard returns an error.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "Raw vCard / .vcf text containing one or more BEGIN:VCARD ... END:VCARD blocks. Folded lines are unfolded before normalization.",
+          "type": "string"
+        },
+        "default_country": {
+          "default": "",
+          "description": "Optional ISO-3166 alpha-2 country/region hint (for example US, GB, DE) used to parse phone numbers that do not start with '+'. Leave blank to only normalize already-international numbers.",
+          "type": "string"
+        },
+        "lowercase_email": {
+          "default": true,
+          "description": "Trim and lowercase EMAIL values. Default true; set false to preserve mailbox case while still trimming surrounding spaces.",
+          "type": "boolean"
+        },
+        "name_case": {
+          "default": "keep",
+          "description": "How to recase FN, N, and NICKNAME values after whitespace cleanup. 'keep' (default) preserves case; 'title' title-cases each word; 'upper' uppercases; 'lower' lowercases.",
+          "enum": [
+            "keep",
+            "title",
+            "upper",
+            "lower"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

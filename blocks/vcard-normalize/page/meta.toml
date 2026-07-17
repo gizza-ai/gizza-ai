@@ -1,0 +1,63 @@
+slug          = "vcard-normalize"
+title         = "vCard Normalize — clean emails, phones, and names in VCF"
+description   = "Normalize vCard address books locally: lowercase emails, format valid phone numbers, tidy names, and preserve custom fields."
+tags          = ["vcard normalize", "vcf cleaner", "address book", "contact cleanup", "e164 phone", "email lowercase", "vcard formatter", "contacts"]
+h1            = "Normalize vCard Contacts"
+hero_subtitle = "Clean a pasted .vcf address book in one pass — trim and lowercase emails, format valid phone numbers with an optional country hint, tidy contact names, and keep custom vCard fields intact."
+wasm          = "gizza_ai_vcard_normalize_web"
+export        = "run"
+live          = false
+output_label  = "Normalized vCard"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "vCard / VCF data"
+placeholder = "BEGIN:VCARD\nVERSION:3.0\nFN: jane   DOE\nN:DOE;jane;;;\nTEL;TYPE=CELL:(415) 555-2671\nEMAIL: Jane.DOE@Example.COM \nEND:VCARD"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "default_country"
+label       = "Default country for national phone numbers"
+placeholder = "US"
+source      = "field"
+
+[[input]]
+name   = "name_case"
+label  = "Name casing"
+source = "field"
+
+[input.labels]
+keep  = "Keep case; tidy spacing only"
+title = "Title Case"
+upper = "UPPERCASE"
+lower = "lowercase"
+
+[[input]]
+name   = "lowercase_email"
+label  = "Lowercase email addresses"
+source = "field"
+
+[[example]]
+label = "US contacts — title names, lower emails"
+[example.params]
+data = "BEGIN:VCARD\nVERSION:3.0\nFN: jane   DOE\nN:DOE;jane;;;\nTEL;TYPE=CELL:(415) 555-2671\nEMAIL: Jane.DOE@Example.COM \nEND:VCARD"
+default_country = "US"
+name_case = "title"
+lowercase_email = "true"
+
+[[example]]
+label = "Keep name case, only trim/lowercase email"
+[example.params]
+data = "BEGIN:VCARD\nVERSION:4.0\nFN:McDonald   Family\nEMAIL: INFO@Example.ORG \nEND:VCARD"
+name_case = "keep"
+lowercase_email = "true"
+
+[[example]]
+label = "International phone already has + prefix"
+[example.params]
+data = "BEGIN:VCARD\nVERSION:3.0\nFN:London Office\nTEL:+44 20 7183 8750\nEMAIL:Office@Example.co.uk\nEND:VCARD"
+name_case = "keep"
+lowercase_email = "true"
