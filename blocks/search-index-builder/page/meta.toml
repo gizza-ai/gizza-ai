@@ -1,0 +1,87 @@
+slug          = "search-index-builder"
+title         = "Search Index Builder — full-text inverted index JSON for static sites"
+description   = "Build an offline full-text search index JSON from documents. Pick fields, store result data, set boosts, and run privately in your browser."
+tags          = ["search index builder", "inverted index", "full text search", "static site search", "offline search", "tf-idf index", "json search index", "client side search"]
+h1            = "Build a Search Index"
+hero_subtitle = "Turn a JSON array of documents into a serialized inverted-index JSON a static site can load to search offline — no server. Pick the fields to index, store display fields, set per-field boosts. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_search_index_builder_web"
+export        = "run"
+live          = false
+output_label  = "Search index (JSON)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "documents"
+label       = "Documents (JSON array of objects)"
+placeholder = "[{\"id\":\"home\",\"title\":\"Home\",\"url\":\"/\",\"body\":\"Welcome to the demo\"},{\"id\":\"about\",\"title\":\"About\",\"url\":\"/about\",\"body\":\"We build offline search\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "fields"
+label       = "Fields to index (comma-separated; blank = every string field)"
+placeholder = "title,body"
+source      = "field"
+
+[[input]]
+name        = "id_field"
+label       = "Id field (supplies each document's ref)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "store_fields"
+label       = "Store fields for display (comma-separated)"
+placeholder = "title,url"
+source      = "field"
+
+[[input]]
+name        = "boosts"
+label       = "Per-field boosts (field:weight, comma-separated)"
+placeholder = "title:3,body:1"
+source      = "field"
+
+[[input]]
+name   = "lowercase"
+label  = "Lowercase tokens (case-insensitive search)"
+source = "field"
+
+[[input]]
+name   = "remove_stopwords"
+label  = "Remove common English stop words"
+source = "field"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum token length (1–20)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print the JSON"
+source = "field"
+
+[[example]]
+label = "Index a small docs site (store title + url)"
+[example.params]
+documents = "[{\"id\":\"home\",\"title\":\"Home\",\"url\":\"/\",\"body\":\"Welcome to the search demo\"},{\"id\":\"about\",\"title\":\"About us\",\"url\":\"/about\",\"body\":\"We build fast offline search\"}]"
+store_fields = "title,url"
+
+[[example]]
+label = "Boost titles, drop stop words, pretty JSON"
+[example.params]
+documents = "[{\"id\":\"1\",\"title\":\"Fast full text search\",\"body\":\"Build an inverted index for a static site\"}]"
+fields = "title,body"
+boosts = "title:3,body:1"
+remove_stopwords = "true"
+pretty = "true"
+
+[[example]]
+label = "Case-sensitive, minimum token length 3"
+[example.params]
+documents = "[{\"id\":\"a\",\"body\":\"Go GoLang goroutine API HTTP\"}]"
+fields = "body"
+lowercase = "false"
+min_length = "3"
