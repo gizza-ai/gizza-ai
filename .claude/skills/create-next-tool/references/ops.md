@@ -46,3 +46,11 @@ pre-read remaining budget from disk; it must react to a limit error (back off / 
 - The page generator prints a "web/pkg not found (skipping WASM copy)" warning per block whose
   wasm-pack output is missing — in a fresh checkout that's ~300 warnings. Harmless for the tool
   you're building (its own page still renders); noisy but expected without the baseline build.
+
+**wafer-run git rev drift (2026-07-18):** a new block lockfile resolved
+`wafer-block`/`wafer-block-macro`/`wafer-sdk` to wafer-run rev `10eb4e3d`, which compiled but made
+`wafer build` validation fail with `skill parameters JSON parse error` / `expected value at line 1
+column 1` from `__wafer_info()`. Existing validated blocks used rev `a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189`.
+Fix new blocks with:
+`cargo update -p wafer-sdk --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189 && cargo update -p wafer-block --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189 && cargo update -p wafer-block-macro --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189`,
+then rerun `cargo test --workspace` and `wafer build`.
