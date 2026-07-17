@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/video-strip-metadata",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove embedded metadata from a video without re-encoding",
+  "role": "skill",
+  "tool": {
+    "description": "Strip embedded metadata from a video by remuxing with ffmpeg stream copy. Removes global tags, per-stream tags, chapters by default, GPS/location/device/timestamp/comment/title-style metadata, and avoids writing a fresh encoder tag. Provide a video as url or ref. Params: container=keep|mp4 (default keep), chapters=remove|keep (default remove). No re-encode, so quality is preserved; forcing mp4 requires MP4-compatible streams.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "chapters": {
+          "default": "remove",
+          "description": "Chapter metadata handling: remove drops chapter markers (default); keep preserves them.",
+          "enum": [
+            "remove",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "container": {
+          "default": "keep",
+          "description": "Output container: keep preserves the input container (default, best compatibility); mp4 remuxes to .mp4 without re-encoding and requires MP4-compatible streams.",
+          "enum": [
+            "keep",
+            "mp4"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

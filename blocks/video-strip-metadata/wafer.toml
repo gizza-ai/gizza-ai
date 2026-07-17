@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-strip-metadata"
+version = "0.1.0"
+abi = 1
+summary = "Remove embedded metadata from a video without re-encoding"
