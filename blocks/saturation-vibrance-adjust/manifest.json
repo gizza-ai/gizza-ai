@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/saturation-vibrance-adjust",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Selective vibrance + saturation for an image",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Boost or mute an image's colour intensity. vibrance (-1..1, 0 = no change) is a SELECTIVE, nonlinear push: positive lifts muted colours strongly while leaving already-vivid pixels alone, and by default protects skin tones so faces don't turn orange. saturation (-1..1, 0 = no change, -1 = grayscale, 1 = double) is the classic flat scale applied to every pixel. Set protect_skin=false to boost skin too. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "vibrance": { "type": "number", "minimum": -1, "maximum": 1, "default": 0.0, "description": "Selective saturation, -1 to 1 (0 = no change). Positive boosts muted colours hard while barely touching already-vivid pixels; negative mutes." },
+        "saturation": { "type": "number", "minimum": -1, "maximum": 1, "default": 0.0, "description": "Flat global saturation, -1 to 1 (0 = no change, -1 = grayscale, 1 = 2×). Applied uniformly to every pixel, on top of vibrance." },
+        "protect_skin": { "type": "boolean", "default": true, "description": "Spare skin-tone hues from the vibrance boost so faces stay natural. Default on." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
