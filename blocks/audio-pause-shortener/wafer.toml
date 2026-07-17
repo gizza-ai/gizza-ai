@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-pause-shortener"
+version = "0.1.0"
+abi = 1
+summary = "Shorten over-long pauses in a recording down to a fixed maximum"
