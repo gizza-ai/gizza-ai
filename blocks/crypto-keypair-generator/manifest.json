@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/crypto-keypair-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a crypto wallet keypair + address",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh cryptographic keypair and wallet address for a blockchain — bitcoin, ethereum, or solana — entirely offline. Returns the private key (hex, plus the chain-native export: Bitcoin WIF, Ethereum 0x-hex, or Solana base58 keypair), the public key (hex), and the wallet address in the chain's canonical encoding (Bitcoin legacy P2PKH base58check, Ethereum EIP-55 checksummed hex, or Solana base58). Keys are generated locally with a cryptographic RNG; nothing is sent anywhere. Default chain is bitcoin.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "chain": {
+          "default": "bitcoin",
+          "description": "Blockchain to generate a keypair for: bitcoin (secp256k1, legacy P2PKH address + WIF), ethereum (secp256k1, EIP-55 address), or solana (Ed25519, base58 address). Default bitcoin.",
+          "enum": [
+            "bitcoin",
+            "ethereum",
+            "solana"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

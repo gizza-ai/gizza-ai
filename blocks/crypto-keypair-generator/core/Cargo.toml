@@ -1,0 +1,21 @@
+[package]
+name = "gizza-ai-crypto-keypair-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# secp256k1 (Bitcoin, Ethereum) — pure-Rust RustCrypto, same family as the
+# proven p256. `arithmetic` gives the public-key point + SEC1 encoding. Key
+# generation draws from getrandom (WASI random_get on wasm32-wasip1), so this
+# runs on every backend.
+k256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
+# Ed25519 (Solana).
+ed25519-dalek = { version = "2", default-features = false, features = ["rand_core"] }
+rand = { version = "0.8", default-features = false, features = ["getrandom"] }
+# Address hashing + encoding.
+sha2 = { version = "0.10", default-features = false }   # SHA-256: Bitcoin hash160 + base58check
+sha3 = { version = "0.10", default-features = false }   # Keccak-256: Ethereum address
+ripemd = { version = "0.1", default-features = false }  # RIPEMD-160: Bitcoin hash160
+bs58 = { version = "0.5", default-features = false, features = ["alloc"] }  # base58: Solana + Bitcoin base58check
+serde = { version = "1", features = ["derive"] }
