@@ -63,3 +63,12 @@ Pinning the new block lockfile to the rev used by already-valid neighboring bloc
 If an ffmpeg skill also fails under that older macro with ``capabilities(...)` and `skill(...)` are
 mutually exclusive`, the local `wafer` CLI is older than some existing source patterns; prefer
 skiplisting a page-unverifiable HEVC/libx265-style tool rather than shipping an unvalidated block.
+
+**No-page URL/ref tools must pass BOTH wafer validation and runtime CLI (2026-07-18).** For a new
+PDF Document-source tool, rev `915d9925` compiled the required `capabilities(network, ...)` form but
+`wafer build` validation failed with empty `__wafer_info()` (`expected value at line 1 column 1`).
+Removing `capabilities(...)` let the wasm validate at rev `48926f4f`, but `gizza tool ... url=...`
+then failed at runtime with `stream_init failed for wafer-run/network` (the same failure existing
+no-page PDF URL/ref blocks show on this box). Treat this as not verifiable for new no-page
+Document/File URL/ref tools until the wafer validation/runtime revs align; clean the scaffold and
+skiplist rather than committing a block that only passes one side of the gate.
