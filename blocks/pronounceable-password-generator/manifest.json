@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/pronounceable-password-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a pronounceable, easy-to-type password",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a pronounceable password locally with a cryptographic RNG. `length` letters strictly alternate consonant/vowel (starting with a consonant) so the core is always speakable (e.g. `bofuka`); `digits` random digits and `symbols` random symbols are then appended, and `capitalize` upper-cases the first letter. Returns the generated value and its entropy in bits.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "type": "integer",
+          "minimum": 4,
+          "maximum": 64,
+          "description": "Number of pronounceable letters (alternating consonant/vowel). 4–64, default 12."
+        },
+        "capitalize": {
+          "type": "boolean",
+          "default": true,
+          "description": "Capitalize the first letter. Default true."
+        },
+        "digits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Random digits appended to the end. 0–12, default 2."
+        },
+        "symbols": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "Random symbols (from !@#$%&*?-_+=) appended after the digits. 0–12, default 1."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
