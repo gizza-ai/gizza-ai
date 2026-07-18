@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "iban-extractor-validator"
+version = "0.1.0"
+abi = 1
+summary = "Find IBANs in text and validate each with mod-97"

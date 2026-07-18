@@ -1,0 +1,28 @@
+slug          = "iban-extractor-validator"
+title         = "Extract & Validate IBANs from Text"
+description   = "Paste an invoice, email or statement and pull out every IBAN, each checked with the ISO 13616 mod-97 checksum — in your browser. Nothing is uploaded."
+tags          = ["extract iban", "iban validator", "find iban", "mod-97 checksum", "iso 13616", "bulk iban check", "iban parser"]
+h1            = "Extract & Validate IBANs"
+hero_subtitle = "Paste any text and pull out every IBAN — each checked with the ISO 13616 mod-97 checksum, deduplicated, and split into valid and invalid. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_iban_extractor_validator_web"
+export        = "run"
+live          = false
+output_label  = "IBANs"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to scan"
+placeholder = "Paste an invoice, email, or statement containing IBANs…"
+source      = "field"
+multiline   = true
+
+[[example]]
+label  = "Invoice snippet"
+[example.params]
+text = "Please remit payment to GB82 WEST 1234 5698 7654 32. Our old account DE89 3704 0044 0532 0130 00 is no longer in use."
+
+[[example]]
+label  = "Spot the typo"
+[example.params]
+text = "Beneficiary IBAN: FR14 2004 1010 0505 0001 3M02 606 — backup GB82 WEST 1234 5698 7654 31"
