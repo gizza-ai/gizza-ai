@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/video-remove-embedded-subs",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove all embedded subtitle streams from a video without re-encoding",
+  "role": "skill",
+  "tool": {
+    "description": "Strip every embedded subtitle/caption stream from a video by remuxing with ffmpeg stream copy, keeping the video and audio streams intact. Uses -map 0 -map -0:s -sn -c copy so soft (stream-based) subtitles are dropped while attachments and data streams are preserved. Provide a video as url or ref. Param: container=keep|mp4|mkv (default keep). No re-encode, so quality is preserved. Only soft subtitles are removed — hardcoded/burned-in subtitles are baked into the pixels and cannot be removed by remuxing.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "container": {
+          "default": "keep",
+          "description": "Output container: keep preserves the input container/extension (default, best compatibility); mp4 remuxes to .mp4 (requires MP4-compatible streams); mkv remuxes to Matroska .mkv (accepts nearly any codec). No re-encode.",
+          "enum": [
+            "keep",
+            "mp4",
+            "mkv"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
