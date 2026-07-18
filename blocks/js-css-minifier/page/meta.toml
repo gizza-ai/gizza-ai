@@ -1,0 +1,70 @@
+slug          = "js-css-minifier"
+title         = "JS & CSS Minifier — compress JavaScript or CSS online"
+description   = "Minify JavaScript or CSS and see byte savings. Auto-detects language, strips comments and whitespace, keeps license banners, runs locally."
+tags          = ["js minifier", "css minifier", "javascript minifier", "minify css", "compress javascript", "compress css", "code minifier", "minify online"]
+h1            = "JavaScript & CSS Minifier"
+hero_subtitle = "Paste JavaScript or CSS and shrink it by stripping comments, whitespace and line breaks — with a one-line before/after size report. Auto-detects the language, keeps license banners, and never rewrites values. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_js_css_minifier_web"
+export        = "run"
+live          = false
+output_label  = "Minified code"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "JavaScript or CSS"
+placeholder = ".card {\n  margin: 0 auto;\n  color: #ff0000;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+css  = "CSS"
+js   = "JavaScript"
+
+[[input]]
+name   = "remove_comments"
+label  = "Remove comments"
+source = "field"
+
+[[input]]
+name   = "report"
+label  = "Prepend size report"
+source = "field"
+
+[[example]]
+label = "CSS → minified"
+[example.params]
+code = ".card {\n  margin: 0 auto;\n  color: #ff0000;\n}\n\n.card > .title {\n  font-weight: bold;\n}"
+language = "css"
+remove_comments = "true"
+report = "true"
+
+[[example]]
+label = "JavaScript → minified"
+[example.params]
+code = "function greet(name) {\n  // say hello\n  return 'Hi ' + name;\n}"
+language = "js"
+remove_comments = "true"
+report = "true"
+
+[[example]]
+label = "Keep comments, no report"
+[example.params]
+code = "/* theme */\nbody { background: white; }"
+language = "css"
+remove_comments = "false"
+report = "false"
+
+[[example]]
+label = "Auto-detect language"
+[example.params]
+code = "const total = items.reduce((a, b) => a + b, 0);"
+language = "auto"
+remove_comments = "true"
+report = "true"

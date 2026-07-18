@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/js-css-minifier",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Minify JavaScript or CSS and report before/after byte sizes",
+  "role": "skill",
+  "tool": {
+    "description": "Minify JavaScript or CSS and report the before/after byte sizes. Removes unnecessary whitespace, line breaks and comments to shrink the source without changing behavior. The JavaScript path is token-aware (strings, template literals and regular expressions kept verbatim, identifiers never renamed, ASI-preserving); the CSS path is structural-only (whitespace + comments + redundant separators) and protects strings, url(...) and calc()/parenthesized expressions, so the output is guaranteed equivalent. language (default 'auto') detects CSS vs JS from the source, or force it with 'css'/'js'. remove_comments (default true) strips comments but always keeps /*! … */ / @license / @preserve banners. report (default true) prepends a one-line size-report comment. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The JavaScript or CSS source to minify.",
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Which language to minify as. 'auto' (default) detects CSS vs JavaScript from the source; set 'css' or 'js' to force it.",
+          "enum": [
+            "auto",
+            "css",
+            "js"
+          ],
+          "type": "string"
+        },
+        "remove_comments": {
+          "default": true,
+          "description": "Strip comments. License/banner comments (/*! … */, @license, @preserve) are always kept. Default true.",
+          "type": "boolean"
+        },
+        "report": {
+          "default": true,
+          "description": "Prepend a one-line size-report comment (original vs minified bytes and percent smaller). Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}
