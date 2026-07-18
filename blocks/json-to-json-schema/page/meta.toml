@@ -1,0 +1,75 @@
+slug          = "json-to-json-schema"
+title         = "JSON to JSON Schema Generator"
+description   = "Paste JSON and get a JSON Schema — types, required fields, unions, and formats (email, uri, date-time, uuid) inferred. Draft 2020-12 or Draft-07, in-browser, free."
+tags          = ["json to json schema", "json schema generator", "infer json schema", "schema from json", "draft-07", "draft 2020-12"]
+h1            = "JSON to JSON Schema"
+hero_subtitle = "Paste a JSON object or array and get a JSON Schema — types, required fields, unions, and string formats inferred. Draft 2020-12 or Draft-07. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_json_to_json_schema_web"
+export        = "run"
+live          = false
+output_label  = "JSON Schema"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON sample"
+placeholder = "{ \"name\": \"Ada\", \"email\": \"ada@example.com\", \"roles\": [\"admin\"] }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "draft"
+label  = "Schema draft"
+source = "field"
+
+[input.labels]
+"2020-12" = "Draft 2020-12 (latest)"
+"draft-07" = "Draft-07"
+
+[[input]]
+name   = "additional_properties"
+label  = "Allow extra properties"
+source = "field"
+
+[[input]]
+name   = "required"
+label  = "Mark seen keys required"
+source = "field"
+
+[[input]]
+name   = "detect_formats"
+label  = "Detect string formats"
+source = "field"
+
+[[input]]
+name        = "title"
+label       = "Root title (optional)"
+placeholder = "User"
+source      = "field"
+
+[[example]]
+label = "Object with formats"
+[example.params]
+json = "{ \"id\": \"12345678-1234-1234-1234-1234567890ab\", \"name\": \"Ada\", \"email\": \"ada@example.com\", \"created\": \"2020-01-02T03:04:05Z\" }"
+draft = "2020-12"
+additional_properties = "false"
+required = "true"
+detect_formats = "true"
+
+[[example]]
+label = "Array → merged item schema"
+[example.params]
+json = "[{ \"a\": 1 }, { \"a\": 2, \"b\": \"x\" }]"
+draft = "2020-12"
+additional_properties = "false"
+required = "true"
+detect_formats = "true"
+
+[[example]]
+label = "Draft-07, permissive"
+[example.params]
+json = "{ \"name\": \"Ada\", \"age\": 30, \"active\": true }"
+draft = "draft-07"
+additional_properties = "true"
+required = "true"
+detect_formats = "true"

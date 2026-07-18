@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/json-to-json-schema",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Infer a JSON Schema from JSON examples",
+  "role": "skill",
+  "tool": {
+    "description": "Infer a JSON Schema (Draft 2020-12 or Draft-07) from a pasted JSON object or array sample. Nested objects/arrays are inferred recursively; when the root (or a nested array) holds multiple elements they are merged so keys missing in some become optional and differing types become unions (e.g. [\"integer\",\"string\"]). Options: draft (2020-12 default, or draft-07), additional_properties (false default = strict, emits additionalProperties:false), required (true default, lists keys seen in all samples), detect_formats (true default, tags strings as email/uri/date-time/date/uuid/ipv4), and an optional root title. Returns the pretty-printed schema.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "additional_properties": {
+          "default": false,
+          "description": "Allow properties beyond those seen. false (default) emits 'additionalProperties: false' on objects for strict validation; true omits it (permissive).",
+          "type": "boolean"
+        },
+        "detect_formats": {
+          "default": true,
+          "description": "Detect string 'format' hints (email, uri, date-time, date, uuid, ipv4). Default true.",
+          "type": "boolean"
+        },
+        "draft": {
+          "default": "2020-12",
+          "description": "JSON Schema dialect to emit. '2020-12' (default) or 'draft-07'. Affects the $schema URL and whether a 'uuid' format is emitted (Draft-07 has no uuid format).",
+          "enum": [
+            "2020-12",
+            "draft-07"
+          ],
+          "type": "string"
+        },
+        "json": {
+          "description": "A JSON object or array sample to infer a schema from. If the root is an array, its elements are merged so keys missing in some become optional and differing types become unions.",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "description": "List every key present in all merged samples of an object under 'required'. Default true.",
+          "type": "boolean"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional 'title' for the root schema. Empty (default) omits it.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
