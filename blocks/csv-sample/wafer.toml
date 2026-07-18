@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-sample"
+version = "0.1.0"
+abi = 1
+summary = "Sample rows from a CSV (random, systematic, top/bottom-N, or stratified)"
