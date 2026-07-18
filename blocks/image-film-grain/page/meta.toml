@@ -1,0 +1,59 @@
+slug          = "image-film-grain"
+title         = "Add Film Grain to an Image Online — Analog Noise Overlay"
+description   = "Add realistic analog film grain to a photo, right in your browser — adjustable amount, neutral or colored grain, optional format convert. Nothing is uploaded, free."
+tags          = ["image", "film grain", "grain", "noise", "analog", "photo", "effects", "vintage", "35mm", "texture", "filter", "png", "jpg", "webp"]
+h1            = "Add Film Grain to an Image"
+hero_subtitle = "Pick an image and an amount — analog film grain is applied in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_film_grain_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Grained image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# amount, monochrome, format.
+[[input]]
+name        = "amount"
+source      = "field"
+label       = "Grain amount (0–100)"
+placeholder = "20"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "monochrome"
+source = "field"
+label  = "Monochrome grain (neutral, film-like)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"keep" = "keep — same format as the input"
+"png"  = "png — lossless"
+"jpg"  = "jpg — small file, no transparency"
+"webp" = "webp — modern, small"
+
+[[example]]
+label  = "Subtle (20)"
+params = { amount = "20" }
+
+[[example]]
+label  = "35mm look (40)"
+params = { amount = "40", monochrome = "true" }
+
+[[example]]
+label  = "Heavy grain (70)"
+params = { amount = "70" }
+
+[[example]]
+label  = "Colored ISO grain"
+params = { amount = "40", monochrome = "false" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-film-grain"
+version = "0.1.0"
+abi = 1
+summary = "Overlay adjustable analog film grain on an image — neutral monochrome or colored, with an optional format convert."
