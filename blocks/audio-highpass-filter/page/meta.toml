@@ -1,0 +1,64 @@
+slug          = "audio-highpass-filter"
+title         = "High-Pass Filter Audio Online"
+description   = "Apply a high-pass (low-cut) filter to audio in your browser — set a cutoff frequency to strip rumble, hum, and handling noise."
+tags          = ["audio", "high-pass", "low-cut", "filter", "rumble", "hum", "cutoff", "cleanup"]
+h1            = "High-Pass Filter Audio"
+hero_subtitle = "Pick an audio file, set a cutoff frequency, and cut low-frequency rumble/hum in your browser — nothing is uploaded."
+wasm          = "gizza_ai_audio_highpass_filter_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Filtered audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "cutoff"
+source      = "field"
+label       = "Cutoff frequency (Hz)"
+placeholder = "80"
+kind        = "slider"
+min         = "10"
+max         = "2000"
+step        = "1"
+
+[[input]]
+name   = "rolloff"
+source = "field"
+label  = "Rolloff (steepness)"
+
+[input.labels]
+6  = "6 dB/oct — gentle"
+12 = "12 dB/oct — natural (default)"
+24 = "24 dB/oct — tight"
+48 = "48 dB/oct — steep"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Voice rumble cut (80 Hz)"
+[example.params]
+cutoff  = "80"
+rolloff = "12"
+format  = "mp3"
+
+[[example]]
+label = "Studio hum removal (100 Hz, steep)"
+[example.params]
+cutoff  = "100"
+rolloff = "24"
+format  = "wav"
+
+[[example]]
+label = "Podcast clean-up (120 Hz)"
+[example.params]
+cutoff  = "120"
+rolloff = "12"
+format  = "mp3"
