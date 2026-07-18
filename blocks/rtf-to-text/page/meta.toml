@@ -1,0 +1,41 @@
+slug          = "rtf-to-text"
+title         = "RTF to Text — Convert Rich Text Format to Plain Text"
+description   = "Convert RTF (Rich Text Format) markup to clean plain text in your browser. Strips control words, tables, and formatting; decodes Unicode and hex escapes. Free, private."
+tags          = ["rtf to text", "rtf to txt", "convert rtf", "rich text format", "strip rtf", "rtf converter", "rtf to plain text", "extract text from rtf", "rtf parser"]
+h1            = "RTF to Text"
+hero_subtitle = "Paste RTF (Rich Text Format) markup and get back clean plain text — control words, font and color tables, and formatting are stripped, Unicode and hex escapes decoded. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_rtf_to_text_web"
+export        = "run"
+live          = false
+output_label  = "Plain text"
+format        = "text"
+
+[[input]]
+name        = "rtf"
+label       = "RTF source"
+placeholder = "{\\rtf1\\ansi Hello, \\b world\\b0 !\\par}"
+source      = "field"
+multiline   = true
+
+# line_breaks renders as a <select> — options come from the descriptor schema
+# (manifest.json), so the friendly labels live here.
+[[input]]
+name        = "line_breaks"
+label       = "Line breaks"
+source      = "field"
+
+[input.labels]
+preserve = "Preserve paragraphs (newlines & tabs)"
+collapse = "Collapse to one line"
+
+[[example]]
+label = "Formatted paragraph"
+[example.params]
+rtf = "{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Arial;}}\\pard The quick \\b brown\\b0  fox jumps.\\par Caf\\'e9 costs 5\\'80.\\par}"
+line_breaks = "preserve"
+
+[[example]]
+label = "Flatten for search"
+[example.params]
+rtf = "{\\rtf1\\ansi First line.\\par Second line.\\par Third line.\\par}"
+line_breaks = "collapse"

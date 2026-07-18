@@ -1,0 +1,32 @@
+{
+  "name": "gizza-ai/rtf-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert RTF markup to plain Unicode text",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an RTF (Rich Text Format) document to plain text. Pass the raw RTF markup — the {\\rtf … } source — as 'rtf'. Control words (\\b, \\f0, \\fs24, …), font/color tables, stylesheets, metadata, pictures, and \\* ignorable destinations are stripped, leaving only the readable text. \\par/\\line/\\sect become newlines, \\tab/\\cell become tabs, and \\'hh (Windows-1252) and \\uN Unicode escapes are decoded so accents, smart quotes, the euro sign, emoji, and non-Latin scripts survive. line_breaks='preserve' (default) keeps the paragraph layout; line_breaks='collapse' flattens everything to one space-separated line. Returns an error if the input does not begin with {\\rtf.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "line_breaks": {
+          "default": "preserve",
+          "description": "How to render paragraph and line breaks. 'preserve' (default) turns \\par/\\line/\\sect into newlines and \\tab/\\cell into tabs, keeping the document's layout. 'collapse' flattens every run of whitespace to a single space, producing one clean line — useful for search indexing or feeding the text to an LLM.",
+          "enum": [
+            "preserve",
+            "collapse"
+          ],
+          "type": "string"
+        },
+        "rtf": {
+          "description": "The RTF document source — the raw {\\rtf … } markup (as you'd see if you opened a .rtf file in a text editor). Control words, groups, and formatting are stripped; the visible text is returned.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rtf"
+      ],
+      "type": "object"
+    }
+  }
+}

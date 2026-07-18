@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rtf-to-text"
+version = "0.1.0"
+abi = 1
+summary = "Convert RTF markup to plain Unicode text"
