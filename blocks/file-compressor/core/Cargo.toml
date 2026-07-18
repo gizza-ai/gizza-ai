@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-file-compressor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# flate2: gzip (RFC 1952) deflate, pure-Rust (miniz_oxide backend), wasm32-safe.
+flate2 = "1"
+# lzma-rust2: pure-Rust LZMA2/XZ codec (port of tukaani xz-for-java). Produces &
+# reads standard `.xz` streams; no C bindings, wasm32-safe. Same crate the
+# lzma-compress / lzma-decompress blocks use.
+lzma-rust2 = "0.16"
+# brotli: pure-Rust Brotli (RFC 7932) encoder + decoder, wasm32-safe.
+brotli = { version = "8", default-features = false, features = ["std"] }
+# ruzstd: pure-Rust Zstandard DECODER (the C zstd library can't build to
+# wasm32-wasip1 without a wasi C toolchain, so zstd compression is out-of-model;
+# decompression is fully supported here).
+ruzstd = "0.8"

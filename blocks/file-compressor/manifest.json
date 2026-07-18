@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/file-compressor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress or decompress a file (gzip, xz, brotli, zstd)",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Compress or decompress a file with a chosen general-purpose codec, returned for download. operation is compress or decompress (default compress). format is gzip (.gz), xz (.xz / LZMA2, usually the smallest), brotli (.br), or zstd (.zst). level sets the compression level 1-9 (default 6; higher = smaller but slower; ignored when decompressing). On compress the output is named <input><suffix>; on decompress the matching suffix is stripped. zstd is decompress-only — zstd + compress returns an error (compress with gzip, xz, or brotli instead). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "operation": { "type": "string", "enum": ["compress", "decompress"], "default": "compress", "description": "Whether to compress or decompress the file (default compress)." },
+        "format": { "type": "string", "enum": ["gzip", "xz", "brotli", "zstd"], "default": "gzip", "description": "Codec: gzip (.gz), xz (.xz/LZMA2), brotli (.br), or zstd (.zst). zstd is decompress-only; zstd + compress returns an error." },
+        "level": { "type": "integer", "minimum": 1, "maximum": 9, "default": 6, "description": "Compression level 1-9 (1 = fastest, 9 = smallest; default 6). Ignored when decompressing." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
