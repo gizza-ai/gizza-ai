@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gpx-merge"
+version = "0.1.0"
+abi = 1
+summary = "Merge multiple GPX files into one, ordered chronologically by timestamp"
