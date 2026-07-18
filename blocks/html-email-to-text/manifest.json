@@ -1,0 +1,40 @@
+{
+  "name": "gizza-ai/html-email-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an HTML email body to clean plain text.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an HTML email body into clean, readable plain text — tags stripped, entities decoded, paragraphs and lists preserved. Pass the HTML as `html`. Control hyperlinks with `links`: 'text' (link text only), 'inline' (text + URL in parentheses, the default), or 'footnote' (numbered links with a reference list at the bottom). Set `wrap` to a column count (e.g. 72) to hard-wrap lines for a plain-text email, or 0 to leave lines unwrapped.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "html": {
+          "description": "The HTML email body to convert to plain text. Paste the full <html> document or just the <body> fragment.",
+          "type": "string"
+        },
+        "links": {
+          "default": "inline",
+          "description": "How to render hyperlinks: 'text' keeps only the link text and drops the URL; 'inline' (default) writes the text followed by the URL in parentheses, e.g. 'click here (https://example.com)'; 'footnote' numbers each link like 'click here[1]' and lists the URLs in a '[1] https://example.com' reference block at the bottom.",
+          "enum": [
+            "text",
+            "inline",
+            "footnote"
+          ],
+          "type": "string"
+        },
+        "wrap": {
+          "default": 0,
+          "description": "Hard-wrap output lines to at most this many columns on word boundaries; 0 (default) disables wrapping. Use 72 for the classic plain-text-email width. Long words such as URLs are never split.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}
