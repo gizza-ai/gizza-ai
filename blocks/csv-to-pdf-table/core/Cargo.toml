@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-csv-to-pdf-table-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Delimited-text parser (comma/tab/semicolon/pipe), pure Rust.
+csv = "1"
+

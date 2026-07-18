@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/csv-to-pdf-table",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render CSV table data as a formatted, paginated PDF table",
+  "role": "skill",
+  "tool": {
+    "description": "Render CSV (or TSV / semicolon- / pipe-delimited) table data as a clean, paginated PDF table and return it as a download. The first row can be a bold header repeated on every page; columns are auto-sized to fit the page, numeric columns are right-aligned, and long cells are truncated with an ellipsis. Configure the delimiter, page size (letter/a4/legal), orientation, font size (5–24), an optional title, zebra row banding and cell grid lines. Uses the built-in Helvetica font (Latin-1). Runs locally — the data never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The table as delimited text: CSV, TSV, semicolon- or pipe-delimited. Example: `name,age\\nAlice,30`.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter: comma, tab, semicolon, or pipe. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "font_size": {
+          "default": 10.0,
+          "description": "Table font size in points (5–24, default 10).",
+          "maximum": 24,
+          "minimum": 5,
+          "type": "number"
+        },
+        "grid": {
+          "default": true,
+          "description": "Draw cell grid lines around every cell (default true).",
+          "type": "boolean"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header (default true): it is drawn bold and repeated at the top of every page. Off treats every row as data.",
+          "type": "boolean"
+        },
+        "orientation": {
+          "default": "portrait",
+          "description": "Page orientation: portrait (default) or landscape (wider, good for many columns).",
+          "enum": [
+            "portrait",
+            "landscape"
+          ],
+          "type": "string"
+        },
+        "page_size": {
+          "default": "letter",
+          "description": "Page size: letter (US, default), a4 or legal.",
+          "enum": [
+            "letter",
+            "a4",
+            "legal"
+          ],
+          "type": "string"
+        },
+        "row_banding": {
+          "default": true,
+          "description": "Shade alternate data rows a light gray for readability (default true).",
+          "type": "boolean"
+        },
+        "title": {
+          "description": "Optional heading drawn in bold above the table on the first page. Leave blank for no title.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
