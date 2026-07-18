@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/audio-time-stretch",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Speed audio up or down without changing the pitch",
+  "role": "skill",
+  "tool": {
+    "description": "Speed an audio file up or slow it down by a playback factor without changing its pitch (a time stretch): make a podcast play at 1.5x, slow a solo to half speed for transcription, or hit a target BPM. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). factor is the speed multiplier: 2 = twice as fast, 0.5 = half speed, 1.5 = 50% faster (150%); as BPM, factor = target BPM / source BPM. Range 0.25 to 4 (1 is rejected as a no-op). Pitch is preserved via ffmpeg's atempo WSOLA time-stretch; output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "factor": {
+          "description": "Playback-speed multiplier (tempo/BPM factor). 2 = twice as fast (half the duration), 0.5 = half speed (double the duration), 1.5 = 50% faster. As a percentage, 150% = 1.5; as BPM, factor = target BPM / source BPM. Range 0.25 to 4; 1 is rejected as a no-op. Pitch is preserved.",
+          "maximum": 4,
+          "minimum": 0.25,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "factor"
+      ],
+      "type": "object"
+    }
+  }
+}
