@@ -1,0 +1,124 @@
+slug          = "csv-to-ledger"
+title         = "CSV to Ledger — convert a bank CSV to ledger-cli / hledger journal entries"
+description   = "Convert a bank or credit-card CSV export into double-entry ledger/hledger journal transactions. Auto-detects columns, guesses accounts, runs in your browser."
+tags          = ["csv to ledger", "bank csv to hledger", "ledger cli import", "plain text accounting", "csv to journal", "hledger import", "double entry from csv", "bank statement to ledger"]
+h1            = "CSV to Ledger"
+hero_subtitle = "Turn a bank or credit-card CSV export into double-entry ledger-cli / hledger journal transactions. Columns are auto-detected and accounts are guessed from the payee. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_csv_to_ledger_web"
+export        = "run"
+live          = false
+output_label  = "Ledger journal"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Bank / credit-card CSV (with a header row)"
+placeholder = "Date,Description,Amount\n2024-01-15,Starbucks Coffee,-4.50\n2024-01-16,ACME Payroll,2000.00"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "date_column"
+label       = "Date column (blank = auto-detect)"
+placeholder = "Date"
+source      = "field"
+
+[[input]]
+name        = "description_column"
+label       = "Description / payee column (blank = auto-detect)"
+placeholder = "Description"
+source      = "field"
+
+[[input]]
+name        = "amount_column"
+label       = "Signed amount column (blank = auto-detect)"
+placeholder = "Amount"
+source      = "field"
+
+[[input]]
+name        = "debit_column"
+label       = "Debit / money-out column (if split into two)"
+placeholder = "Debit"
+source      = "field"
+
+[[input]]
+name        = "credit_column"
+label       = "Credit / money-in column (if split into two)"
+placeholder = "Credit"
+source      = "field"
+
+[[input]]
+name        = "asset_account"
+label       = "Asset / bank account (blank = Assets:Bank:Checking)"
+placeholder = "Assets:Bank:Checking"
+source      = "field"
+
+[[input]]
+name        = "default_expense_account"
+label       = "Default expense account (blank = Expenses:Unknown)"
+placeholder = "Expenses:Unknown"
+source      = "field"
+
+[[input]]
+name        = "default_income_account"
+label       = "Default income account (blank = Income:Unknown)"
+placeholder = "Income:Unknown"
+source      = "field"
+
+[[input]]
+name        = "account_rules"
+label       = "Account rules (one 'pattern = Account' per line)"
+placeholder = "starbucks = Expenses:Coffee\nrent = Expenses:Rent"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "currency"
+label       = "Currency ($ prefix or USD suffix; blank = none)"
+placeholder = "$"
+source      = "field"
+default     = "$"
+
+# date_format renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "date_format"
+label  = "Date format"
+source = "field"
+
+# output_format renders as a <select>.
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+# delimiter renders as a <select>.
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[[input]]
+name   = "invert_amount"
+label  = "Invert amounts (bank exports spending as positive)"
+source = "field"
+
+[[example]]
+label = "Signed amount column, auto-detected accounts"
+[example.params]
+data = "Date,Description,Amount\n2024-01-15,Starbucks Coffee,-4.50\n2024-01-16,ACME Payroll,2000.00"
+
+[[example]]
+label = "Separate debit / credit columns (US dates)"
+[example.params]
+data = "Date,Payee,Debit,Credit\n01/15/2024,Rent,1500.00,\n01/20/2024,Refund,,25.00"
+
+[[example]]
+label = "European CSV → hledger, custom rule"
+[example.params]
+data = "Date;Description;Amount\n15.01.2024;Supermarkt REWE;-42,90"
+date_format = "dmy"
+delimiter = "semicolon"
+currency = "€"
+output_format = "hledger"
+account_rules = "rewe = Expenses:Groceries"
