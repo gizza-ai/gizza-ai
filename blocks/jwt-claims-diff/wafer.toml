@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "jwt-claims-diff"
+version = "0.1.0"
+abi = 1
+summary = "Diff the claims of two JWTs offline"
