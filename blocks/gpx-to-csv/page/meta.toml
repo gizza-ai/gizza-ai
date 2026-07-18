@@ -1,0 +1,72 @@
+slug          = "gpx-to-csv"
+title         = "GPX to CSV Converter — Track, Route & Waypoint Points to Spreadsheet"
+description   = "Convert a GPX track, route or waypoints to clean CSV in your browser — latitude, longitude, elevation, time, derived speed and sensor data. Free, private, no upload."
+tags          = ["gpx to csv", "gpx to spreadsheet", "gpx track to csv", "waypoints to csv", "extract gpx coordinates", "gpx elevation csv", "convert gpx", "gps track to csv"]
+h1            = "GPX to CSV Converter"
+hero_subtitle = "Turn a GPX track, route or set of waypoints into a clean CSV table — one row per point with latitude, longitude, elevation, timestamp, optional derived speed, and any heart-rate / cadence / power / temperature sensor columns. Runs entirely in your browser: nothing is uploaded."
+wasm          = "gizza_ai_gpx_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "gpx"
+label       = "GPX file contents"
+placeholder = "<gpx><trk><trkseg><trkpt lat=\"40.0\" lon=\"-105.0\"><ele>1600</ele><time>2024-03-09T08:00:00Z</time></trkpt></trkseg></trk></gpx>"
+source      = "field"
+multiline   = true
+
+# points / delimiter / time_format render as <select>s and the two toggles as
+# checkboxes — the control type + option list come from the descriptor schema
+# (manifest.json), so labels here stay short and options are NOT duplicated.
+[[input]]
+name        = "points"
+label       = "Point types to include"
+source      = "field"
+
+[input.labels]
+"all"      = "all — track, route & waypoints"
+"track"    = "track points only (<trkpt>)"
+"route"    = "route points only (<rtept>)"
+"waypoint" = "waypoints only (<wpt>)"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[input.labels]
+"comma"     = "comma  ,"
+"semicolon" = "semicolon  ;"
+"tab"       = "tab (TSV)"
+"pipe"      = "pipe  |"
+
+[[input]]
+name        = "header"
+label       = "Include header row"
+source      = "field"
+
+[[input]]
+name        = "time_format"
+label       = "Time column format"
+source      = "field"
+
+[input.labels]
+"iso"  = "ISO — keep 2024-03-09T08:00:00Z"
+"unix" = "Unix — epoch seconds"
+"none" = "none — drop the time column"
+
+[[input]]
+name        = "speed"
+label       = "Add derived speed (km/h) column"
+source      = "field"
+
+[[example]]
+label  = "Track with sensors"
+params = { gpx = "<gpx xmlns:gpxtpx=\"http://www.garmin.com/xmlschemas/TrackPointExtension/v1\"><trk><trkseg><trkpt lat=\"40.000000\" lon=\"-105.000000\"><ele>1600</ele><time>2024-03-09T08:00:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>128</gpxtpx:hr><gpxtpx:cad>84</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions></trkpt><trkpt lat=\"40.001000\" lon=\"-105.000000\"><ele>1610</ele><time>2024-03-09T08:01:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>140</gpxtpx:hr><gpxtpx:cad>86</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions></trkpt></trkseg></trk></gpx>", speed = "true" }
+
+[[example]]
+label  = "Waypoints only"
+params = { gpx = "<gpx><wpt lat=\"48.8584\" lon=\"2.2945\"><name>Eiffel Tower</name></wpt><wpt lat=\"48.8606\" lon=\"2.3376\"><name>Louvre</name></wpt></gpx>", points = "waypoint", time_format = "none" }
