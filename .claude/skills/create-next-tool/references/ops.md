@@ -54,3 +54,12 @@ column 1` from `__wafer_info()`. Existing validated blocks used rev `a5fa3ae30bd
 Fix new blocks with:
 `cargo update -p wafer-sdk --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189 && cargo update -p wafer-block --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189 && cargo update -p wafer-block-macro --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189`,
 then rerun `cargo test --workspace` and `wafer build`.
+
+**wafer CLI/local rev mismatch (2026-07-18):** on the continuation box, new pure/ffmpeg blocks
+resolved wafer-run rev `915d9925`, which compiled but made the installed `wafer` CLI fail validation
+with `Failed to deserialize BlockInfo from __wafer_info() output: expected value at line 1 column 1`.
+Pinning the new block lockfile to the rev used by already-valid neighboring blocks fixed validation:
+`cargo update -p wafer-sdk --precise 48926f4f && cargo update -p wafer-block --precise 48926f4f && cargo update -p wafer-block-macro --precise 48926f4f`. After pinning, rerun tests and `wafer build`.
+If an ffmpeg skill also fails under that older macro with ``capabilities(...)` and `skill(...)` are
+mutually exclusive`, the local `wafer` CLI is older than some existing source patterns; prefer
+skiplisting a page-unverifiable HEVC/libx265-style tool rather than shipping an unvalidated block.
