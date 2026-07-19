@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/text-encoding-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect a text file's character encoding and convert it between UTF-8, UTF-16, Shift_JIS, GBK, Big5, Latin-1 and other charsets",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the character encoding of a text file's RAW BYTES and convert it to another encoding (the iconv + chardet job): UTF-8 (with or without BOM), UTF-16LE/BE, UTF-32LE/BE input, Shift_JIS, EUC-JP, ISO-2022-JP, GBK, GB18030, Big5, EUC-KR, Windows-125x, ISO-8859-x/Latin-1, KOI8-R, Macintosh and every other WHATWG charset. mode=convert (default) returns the re-encoded file for download; mode=detect only reports: detected charset, how it was determined (BOM / pure ASCII / valid UTF-8 / chardetng statistical detector — no numeric confidence exists), any BOM, candidate multi-byte charsets whose byte sequences are all valid, and a decoded text preview. from defaults to 'auto' (BOM sniff, then UTF-8 validity, then statistical detection over the first 1 MiB); to defaults to 'utf-8'. errors=replace (default) substitutes U+FFFD/'?' and reports counts, errors=strict fails with the byte offset or character. bom=true adds a UTF-8 BOM (UTF-16 output always has one; input BOMs are always stripped). Input cap 4 MiB. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). For garbled text PASTED into chat (mojibake repair) use charset-transcode instead; for identifying binary file formats use detect-file-type.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bom": {
+          "default": false,
+          "description": "Prepend a byte-order mark to UTF-8 output (default false — plain UTF-8 is the modern convention). UTF-16 targets always get a BOM regardless; combining bom=true with a legacy target is an error. Input BOMs are always stripped before converting.",
+          "type": "boolean"
+        },
+        "errors": {
+          "default": "replace",
+          "description": "What to do with bytes invalid in 'from' or characters unencodable in 'to'. 'replace' (default) substitutes U+FFFD on decode / '?' on encode and reports the counts; 'strict' fails with the exact offset or character instead.",
+          "enum": [
+            "replace",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "from": {
+          "default": "auto",
+          "description": "Source charset of the file's bytes: 'auto' (default) sniffs a BOM (UTF-8/UTF-16/UTF-32, both endiannesses), then falls back to valid-UTF-8 detection and the chardetng statistical detector. Or any WHATWG label to override, e.g. 'shift_jis' (alias 'sjis'), 'euc-jp', 'iso-2022-jp', 'gbk', 'gb18030', 'big5', 'euc-kr', 'windows-1252', 'iso-8859-1' (alias 'latin1'), 'windows-1251', 'koi8-r', 'macintosh', 'utf-16le', 'utf-32le'.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "convert",
+          "description": "'convert' (default) re-encodes the file and returns it for download. 'detect' only reports the detected encoding (BOM, ASCII/UTF-8 validity, statistical guess, candidate charsets, text preview) without converting.",
+          "enum": [
+            "convert",
+            "detect"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "to": {
+          "default": "utf-8",
+          "description": "Target charset for the converted file (default 'utf-8'). Any WHATWG label with an encoder — e.g. 'utf-8', 'utf-16le', 'utf-16be', 'shift_jis', 'euc-jp', 'iso-2022-jp', 'gbk', 'gb18030', 'big5', 'euc-kr', 'windows-1252', 'iso-8859-15'. UTF-16 output always includes a BOM; UTF-32 output is not supported.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

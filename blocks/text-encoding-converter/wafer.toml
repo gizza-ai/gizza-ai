@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-encoding-converter"
+version = "0.1.0"
+abi = 1
+summary = "Detect a text file's character encoding and convert it between UTF-8, UTF-16, Shift_JIS, GBK, Big5, Latin-1 and other charsets"
