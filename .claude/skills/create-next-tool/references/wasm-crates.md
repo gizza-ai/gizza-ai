@@ -179,3 +179,20 @@ coords: integer-math DMS (`round(|deg|*3600*1e4)` then div/mod) avoids float car
 `Tag(Context::Tiff, 0x9c9d)` tuple-constructor works for XP* tags kamadak lacks constants for.
 Cross-verify outputs with PIL (`getexif().get_ifd(0x8825)` for GPS) — it decodes ASCII tags as
 latin-1, so UTF-8 values display mojibake'd but byte-correct (the exiftool-standard practice).
+
+**Charset detection + byte-level transcoding is wasm-proven (text-encoding-converter, 2026-07-20):**
+`chardetng = "0.1"` (Firefox's detector; pure table-driven Rust) + `encoding_rs = "0.8"` both
+instantiate under wasmi. Drive encoding_rs through the WITHOUT-replacement APIs
+(`Decoder::decode_to_string_without_replacement` / `Encoder::encode_from_utf8_to_vec_without_replacement`)
+to COUNT substitutions and report strict byte offsets (`Malformed(a,b)` → offset = pos−(a+b)) — the
+convenience API only yields a had-errors bool. encoding_rs has NO UTF-16 encoder (WHATWG rule:
+`for_label("utf-16le")` resolves but `new_encoder` would panic) — hand-roll UTF-16LE/BE writers via
+`str::encode_utf16`, and hand-roll UTF-32 decode (not a WHATWG encoding at all). Pushing `b'?'` for
+Unmappable is safe even for stateful ISO-2022-JP (the WHATWG encoder returns to ASCII state before
+reporting). Detection gotchas: chardetng gives NO confidence score (don't fake one; report a
+clean-decode candidates list instead), and SHORT repetitive CJK samples misdetect (~250 B of one
+repeated Shift_JIS sentence → windows-1251; ~1 KB of varied text → correct) — use varied ≥500 B
+fixtures in tests and advise explicit `from` for tiny files. BOM sniff must check UTF-32LE
+(`FF FE 00 00`) BEFORE UTF-16LE (`FF FE`). Real public legacy-encoded test files:
+`raw.githubusercontent.com/BYVoid/uchardet/master/test/<lang>/<charset>.txt` (ja/shift_jis, ja/euc-jp,
+zh/big5, ja/utf-16le — note the utf-16le one has NO BOM, good explicit-from case).
