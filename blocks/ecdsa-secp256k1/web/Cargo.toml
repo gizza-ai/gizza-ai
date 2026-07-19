@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-ecdsa-secp256k1-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-ecdsa-secp256k1-core = { path = "../core" }
+# operation=generate draws randomness via getrandom; on wasm32-unknown-unknown
+# (this crate's only target — wasm-pack --target web) getrandom needs the "js"
+# feature to use crypto.getRandomValues. The wafer/CLI builds of core never see
+# this feature (they build the wasm32-wasip1 workspace without this crate).
+getrandom = { version = "0.2", features = ["js"] }

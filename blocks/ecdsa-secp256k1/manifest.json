@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/ecdsa-secp256k1",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate secp256k1 keypairs and sign or verify messages with ECDSA",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a secp256k1 keypair, or sign/verify a message with ECDSA — the signature scheme behind Bitcoin and Ethereum keys. Signing is deterministic (RFC 6979) and low-S normalized, and returns the signature as compact r||s (hex + base64) and ASN.1 DER, plus the r/s components, the recovery id (and Ethereum-style v = 27 + id), and the derived public key. Verifying accepts compact or DER signatures and returns whether the signature is valid. Keys are accepted as raw hex (0x optional), base64, or PEM (SEC1/PKCS#8 private, SPKI public); messages can be utf8 text, hex, or base64, hashed with SHA-256 (default), Keccak-256 (Ethereum), SHA-384, SHA-512, or signed as a pre-hashed 32-byte digest (hash=none). Runs locally — keys and messages never leave the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "hash": {
+          "default": "sha256",
+          "description": "Digest applied to the message before signing/verifying: sha256 (default, Bitcoin-style), keccak256 (Ethereum), sha384, sha512, or none (the message IS the 32-byte digest, e.g. a transaction hash as hex).",
+          "enum": [
+            "sha256",
+            "keccak256",
+            "sha384",
+            "sha512",
+            "none"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "For sign: your secp256k1 private key — raw 32 bytes as hex (0x optional) or base64, or PEM (SEC1 'EC PRIVATE KEY' / PKCS#8 'PRIVATE KEY'). For verify: the signer's public key — SEC1 point, 33-byte compressed (02/03…) or 65-byte uncompressed (04…), as hex or base64, or SPKI PEM. Ignored for generate.",
+          "type": "string"
+        },
+        "message": {
+          "description": "The message to sign or verify (ignored for generate). Interpreted using message_encoding, then hashed with hash before ECDSA.",
+          "type": "string"
+        },
+        "message_encoding": {
+          "default": "utf8",
+          "description": "How to read the message into bytes: utf8 (plain text), hex (0x optional), or base64 (for binary payloads).",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "generate",
+          "description": "generate: create a fresh secp256k1 keypair (needs no other fields). sign: create an ECDSA signature for the message with a private key. verify: check a signature against the message with the signer's public key.",
+          "enum": [
+            "generate",
+            "sign",
+            "verify"
+          ],
+          "type": "string"
+        },
+        "signature": {
+          "description": "Required for verify: the signature to check — compact 64-byte r||s or ASN.1 DER, as hex or base64. Ignored for generate and sign.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
