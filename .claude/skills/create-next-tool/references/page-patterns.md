@@ -96,3 +96,12 @@ big cap-boundary fixtures set the value directly and dispatch the same event the
 to: `await page.locator('#in-data').evaluate((el, v) => { el.value = v; el.dispatchEvent(new
 Event('input', { bubbles: true })); }, big)` — identical trigger path (field listeners bind
 "input"), runs in ~100 ms. Normal-sized `page.fill` calls stay as-is.
+
+**ffmpeg `deshake` rx/ry must be a multiple of 16 (2026-07-20, video-stabilize):** the filter
+rejects any other radius at graph-init time ("rx must be a multiple of 16", exit 176) — docs say
+0–64 but only 16/32/48/64 actually initialize. A strength→radius map must SNAP to those steps
+(quartiles), not scale linearly; argv unit tests pass either way, so only a REAL ffmpeg run
+catches it (another advertised-values-matrix save). Also: filter-chain expressions like
+`scale=trunc(iw*1.068/2)*2:trunc(ih*1.068/2)*2,crop=trunc(iw/1.068/2)*2:trunc(ih/1.068/2)*2`
+(zoom-then-recrop to ~original even dims) work in both native ffmpeg and @ffmpeg/core, and give
+EXACT output dims to assert in Playwright (128→126 at z=1.068).
