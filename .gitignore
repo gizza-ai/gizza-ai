@@ -33,3 +33,6 @@ blocks/*/web/target/
 
 # Playwright MCP debug artifacts (console logs + page snapshots)
 .playwright-mcp/
+
+# Local-dev runtime data (`gizza` serve/chat creates .data/ with a dev db + storage)
+.data/
