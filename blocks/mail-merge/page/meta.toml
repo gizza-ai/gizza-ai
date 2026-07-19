@@ -1,0 +1,108 @@
+slug          = "mail-merge"
+title         = "Mail Merge — Fill a Template from CSV Rows Online"
+description   = "Fill a text or markdown template once per CSV row — {{name}} placeholders, comma/semicolon/tab data, custom separators. Batch form letters privately in-browser."
+tags          = ["mail merge", "form letters", "csv template", "template from csv", "bulk personalize", "merge fields", "batch text", "placeholder substitution"]
+h1            = "Mail Merge from CSV"
+hero_subtitle = "Paste a template with {{column}} placeholders and a CSV — get one filled-in document per row. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_mail_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged output"
+format        = "text"
+
+[[input]]
+name        = "template"
+label       = "Template (use {{Column}} placeholders)"
+placeholder = "Hi {{name}},\n\nYour invoice for ${{amount}} is due on {{due}}.\n\nThanks!"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "csv"
+label       = "CSV data (first row = column names)"
+placeholder = "name,amount,due\nAlice,120,2026-08-01\nBob,90,2026-08-05"
+source      = "field"
+multiline   = true
+
+# syntax / delimiter / on_missing / separator render as <select> and
+# case_insensitive as a checkbox — control types + option lists come from the
+# descriptor schema (manifest.json), so labels here stay short.
+[[input]]
+name   = "syntax"
+label  = "Placeholder style"
+source = "field"
+
+[input.labels]
+double_curly = "{{column}} — double curly (default)"
+single_curly = "{column} — single curly"
+double_angle = "<<column>> — double angle"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ,"
+semicolon = "Semicolon ;"
+tab       = "Tab"
+
+[[input]]
+name   = "on_missing"
+label  = "If a placeholder column is missing"
+source = "field"
+
+[input.labels]
+empty = "Replace with nothing"
+keep  = "Keep the {{placeholder}} text"
+error = "Show an error"
+
+[[input]]
+name   = "case_insensitive"
+label  = "Match column names case-insensitively"
+source = "field"
+
+[[input]]
+name   = "separator"
+label  = "Separator between documents"
+source = "field"
+
+[input.labels]
+divider    = "--- horizontal rule (default)"
+blank_line = "Blank line"
+newline    = "Single newline"
+form_feed  = "Page break (form feed)"
+none       = "None (concatenate)"
+
+[[example]]
+label = "Invoice reminders"
+[example.params]
+template = "Hi {{name}},\n\nYour invoice for ${{amount}} is due on {{due}}.\n\nThanks!"
+csv = "name,amount,due\nAlice,120,2026-08-01\nBob,90,2026-08-05"
+syntax = "double_curly"
+delimiter = "comma"
+on_missing = "empty"
+case_insensitive = "true"
+separator = "divider"
+
+[[example]]
+label = "European ; data → labels"
+[example.params]
+template = "{{first name}} {{last name}} — {{city}}"
+csv = "first name;last name;city\nAda;Lovelace;London\nGrace;Hopper;New York"
+syntax = "double_curly"
+delimiter = "semicolon"
+on_missing = "empty"
+case_insensitive = "true"
+separator = "newline"
+
+[[example]]
+label = "Spot typos (keep missing)"
+[example.params]
+template = "Dear {{name}}, ref {{ordr_id}}"
+csv = "name,order_id\nAlice,1001\nBob,1002"
+syntax = "double_curly"
+delimiter = "comma"
+on_missing = "keep"
+case_insensitive = "true"
+separator = "blank_line"
