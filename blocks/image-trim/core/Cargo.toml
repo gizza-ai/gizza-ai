@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-image-trim-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode/encode + crop. default-features off (no rayon/threads in wasm).
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
