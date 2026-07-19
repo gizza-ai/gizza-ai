@@ -126,3 +126,21 @@ needs 16+32 MiB and OOM-traps the 1024-page sandbox as a bare `wasm unreachable`
 105 s m4a; native run of the same bytes errored cleanly, which is the tell that it's memory, not
 logic). Fix: check the size cap BEFORE extending, then `reserve_exact` in fixed 4 MiB steps clamped
 to the cap. Applies to any block accumulating multi-MiB buffers in a loop.
+
+**Audio-from-VIDEO decode + hand-rolled FFT under wasmi (video-audio-sync-offset-finder, 2026-07-20):**
+symphonia with the media-info feature set (isomp4/mkv + aac/mp3/vorbis/pcm/...) DECODES the audio
+track out of MP4/MOV/MKV/WebM video containers under wasmi — video tracks appear as
+CODEC_TYPE_NULL; iterate tracks and take the first one `get_codecs().make(...)` succeeds on (a
+known-but-undecodable codec like Opus fails decoder construction — name it in the error). This
+extends the multi-AUDIO note: two-VIDEO-input pure-Rust tools are buildable chat+CLI, no page.
+A hand-rolled iterative radix-2 complex FFT (f32 data, f64 twiddles, ~50 lines) instantiates and
+runs fine under wasmi for N up to 2^19 — no rustfft needed for correlation-sized transforms.
+Cross-correlation gotchas that cost real debugging: (1) normalized per-lag NCC values are NOT
+comparable across lags (std ~ 1/sqrt(overlap)) — rank peaks and compute BBC-style z-scores on
+NCC×sqrt(overlap) or unrelated inputs score "medium"; (2) correlate the FIRST DIFFERENCE of the
+log-energy envelope (novelty), not the envelope itself — a smooth envelope correlates over a wide
+lag range and drowns the true peak's z-score (3.6 for a perfect match); (3) verify the top-K
+coarse envelope peaks with a waveform fine pass and let the best lock win — rescues ~0 dB SNR
+cases where the best envelope peak is wrong. Memory shape for 64 MiB: downmix+resample to 8 kHz
+mono INSIDE the symphonia packet loop (never hold native-rate PCM), consume the Vecs and
+mean-remove in place.
