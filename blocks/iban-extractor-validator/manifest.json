@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/iban-extractor-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find IBANs in text and validate each with mod-97",
+  "role": "skill",
+  "tool": {
+    "description": "Scan free-form text (invoices, emails, statements, logs) for IBANs and validate each with the ISO 13616 mod-97 checksum plus the country-specific length. Each candidate is anchored at a two-letter country code + two check digits, sized to that country's registered IBAN length, and normalized (spaces removed, upper-cased) before checking. Returns the valid IBANs (with country, 4-block formatting, and — for common countries — the bank code and account number parsed from the BBAN) and, separately, structurally IBAN-shaped candidates that failed the checksum, both deduplicated in first-seen order, plus counts. Does not look up bank names/BIC or verify that an account is open. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "description": "The text to scan for IBANs — an invoice, email, bank statement, or any pasted block. IBANs may be grouped in 4-character blocks or written contiguously; spaces and surrounding punctuation are handled.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

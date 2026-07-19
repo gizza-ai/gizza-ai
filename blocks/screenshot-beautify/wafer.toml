@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "screenshot-beautify"
+version = "0.1.0"
+abi = 1
+summary = "Wrap a screenshot in a padded, rounded, shadowed frame with a gradient backdrop"

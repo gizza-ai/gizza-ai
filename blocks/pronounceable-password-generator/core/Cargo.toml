@@ -1,0 +1,8 @@
+[package]
+name = "gizza-ai-pronounceable-password-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+getrandom = "0.2"

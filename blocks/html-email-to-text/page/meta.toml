@@ -1,0 +1,59 @@
+slug          = "html-email-to-text"
+title         = "HTML Email to Text — Convert HTML Email to Plain Text"
+description   = "Convert HTML email to readable plain text: strip tags, keep paragraphs and lists, render links inline or as footnotes, and optionally wrap lines."
+tags          = ["html email to text", "html to plain text", "email plain text version", "html email converter", "text alternative email", "strip html email"]
+h1            = "HTML Email to Text"
+hero_subtitle = "Paste an HTML email and get a clean plain-text version — tags removed, paragraphs and lists kept, links your way, optional 72-column wrap. Runs entirely in your browser."
+wasm          = "gizza_ai_html_email_to_text_web"
+export        = "run"
+live          = false
+output_label  = "Plain text"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML email body"
+placeholder = "<h1>Weekly update</h1><p>Read the <a href=\"https://example.com/post\">latest post</a>.</p>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "links"
+label   = "Links"
+source  = "field"
+default = "inline"
+
+[input.labels]
+text     = "Text only (drop URL)"
+inline   = "Inline — text (URL)"
+footnote = "Footnotes — text[1] + list"
+
+[[input]]
+name    = "wrap"
+label   = "Wrap width (columns, 0 = off)"
+source  = "field"
+kind    = "slider"
+default = "0"
+placeholder = "72"
+step    = "1"
+
+[[example]]
+label = "Newsletter → inline links"
+[example.params]
+html  = "<h2>This week</h2><p>Our <a href=\"https://example.com/blog\">new blog</a> is live. <a href=\"https://example.com/unsubscribe\">Unsubscribe</a>.</p>"
+links = "inline"
+wrap  = "0"
+
+[[example]]
+label = "Footnote references"
+[example.params]
+html  = "<p>See the <a href=\"https://example.com/docs\">docs</a> and <a href=\"https://example.com/pricing\">pricing</a>.</p>"
+links = "footnote"
+wrap  = "0"
+
+[[example]]
+label = "72-column plain-text email"
+[example.params]
+html  = "<p>Thanks for subscribing. This paragraph is long enough to demonstrate hard wrapping at the classic seventy-two column plain-text email width used by many mail clients.</p>"
+links = "text"
+wrap  = "72"

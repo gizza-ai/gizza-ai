@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/text-pipeline-playground",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run text through a chain of transforms (grep, replace, sort, unique, head…) with a tiny safe DSL.",
+  "role": "skill",
+  "tool": {
+    "description": "Run pasted text through a chain of safe, declarative text transforms — a browser-local, no-code-execution take on tools like Ultimate Plumber. The 'pipeline' is one operation per line, applied top to bottom: grep PATTERN (keep matching lines), reject PATTERN (drop matching lines), replace /old/new/ (regex replace on each line, $1 backrefs, any delimiter), prefix/suffix TEXT, lower, upper, trim, sort (or sort -r), unique, head N, tail N, reverse, split SEP (split each line into more lines; no SEP splits on whitespace), and join SEP (merge all lines into one). Blank lines and #comments in the pipeline are ignored. regex_mode makes grep/reject patterns regular expressions; case_insensitive folds case for all matching; limit caps output lines; on_error = stop|skip controls what happens on a malformed pipeline line. Does NOT execute Python or arbitrary code — only these fixed operations.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_insensitive": {
+          "default": false,
+          "description": "When true, all grep/reject/replace matching is case-insensitive. Default false.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 10000,
+          "description": "Maximum number of output lines (safety cap to keep runaway pipelines fast). Output is truncated to this many lines. Default 10000.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "on_error": {
+          "default": "stop",
+          "description": "What to do when a pipeline line cannot be parsed. 'stop' (default) returns an error naming the bad line; 'skip' ignores the bad line and runs the rest.",
+          "enum": [
+            "stop",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "pipeline": {
+          "default": "grep ERROR\nreplace /^\\S+ ERROR /!! /\nsort\nunique",
+          "description": "The transform pipeline: ONE operation per line, applied top to bottom. Blank lines and lines starting with '#' are ignored. Operations: 'grep PATTERN' keep matching lines; 'reject PATTERN' drop matching lines; 'replace /old/new/' regex-replace on each line ($1 backrefs, any delimiter e.g. replace |a|b|); 'prefix TEXT' / 'suffix TEXT' add text to each line; 'lower' / 'upper' change case; 'trim' strip surrounding whitespace; 'sort' (or 'sort -r' for descending); 'unique' drop duplicate lines; 'head N' / 'tail N' keep first/last N lines; 'reverse' flip line order; 'split SEP' split each line into more lines (no SEP = on whitespace); 'join SEP' merge all lines into one. Example: grep ERROR / sort / unique.",
+          "type": "string"
+        },
+        "regex_mode": {
+          "default": false,
+          "description": "When true, 'grep' and 'reject' patterns are treated as regular expressions (Rust regex syntax) instead of literal substrings. 'replace' always uses regex. Default false.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text to run through the pipeline, processed line by line.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "pipeline"
+      ],
+      "type": "object"
+    }
+  }
+}

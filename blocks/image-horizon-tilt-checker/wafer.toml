@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-horizon-tilt-checker"
+version = "0.1.0"
+abi = 1
+summary = "Detect a photo horizon or dominant vertical-line tilt and suggest a leveling rotation"

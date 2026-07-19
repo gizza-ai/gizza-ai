@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/extract-numbers-from-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pull every number out of text into a clean list",
+  "role": "skill",
+  "tool": {
+    "description": "Pull every numeric value out of prose, logs, or CSV-ish text into a clean list. Recognizes integers, decimals, scientific notation (6.022e23), signed numbers (-7, +5), and thousands-separator-grouped numbers (1,000,000); a hyphen glued to a preceding digit (as in a date like 2024-01-15) is treated as a separator, not a minus sign. Set mode to keep all numbers, only integers, or only decimals. Set unique=true to drop duplicate values (1,000 equals 1000). sort orders the output original/ascending/descending. delimiter joins the results (newline, comma, space, tab, or semicolon). Set stats=true to append count, sum, min, max, and average. Returns the joined output text plus the structured list and statistics. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "newline",
+          "description": "How to join the extracted numbers in the output text. Default newline.",
+          "enum": [
+            "newline",
+            "comma",
+            "space",
+            "tab",
+            "semicolon"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "all",
+          "description": "Which numbers to keep: all, only integers (no decimal point), or only decimals.",
+          "enum": [
+            "all",
+            "integers",
+            "decimals"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "original",
+          "description": "Output order: original (first-seen), ascending, or descending by numeric value.",
+          "enum": [
+            "original",
+            "ascending",
+            "descending"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": false,
+          "description": "When true, append a summary block: count, sum, min, max, and average.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text, log, or document to pull numbers out of.",
+          "type": "string"
+        },
+        "unique": {
+          "default": false,
+          "description": "When true, drop duplicate values (1,000 == 1000, +5 == 5); first-seen wins.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

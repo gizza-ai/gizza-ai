@@ -1,0 +1,117 @@
+{
+  "name": "gizza-ai/screenshot-beautify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Wrap a screenshot in a padded, rounded, shadowed frame with a gradient backdrop",
+  "role": "skill",
+  "tool": {
+    "description": "Wrap a raw screenshot in a share-ready frame. Adds padding around the shot, rounded corners, an optional soft drop shadow, an optional macOS window title bar (traffic-light dots), and a solid or linear-gradient backdrop. Pads out to an aspect ratio (auto/16:9/4:3/1:1/9:16) without ever cropping. Params: padding (px, default 64); corner_radius (px, default 16, 0=square); shadow (bool, default true) + shadow_blur (px) + shadow_opacity (0-1); background=gradient|solid; bg_color/bg_color2 (#rgb/#rrggbb/#rrggbbaa) + gradient_angle (degrees); titlebar=none|light|dark. Express any named gradient preset via the two colors + angle. Returns a PNG (alpha needed for the shadow/rounded corners). Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "aspect": {
+          "default": "auto",
+          "description": "Pad out to this aspect ratio (never crops); auto keeps the padded size (default auto).",
+          "enum": [
+            "auto",
+            "16:9",
+            "4:3",
+            "1:1",
+            "9:16"
+          ],
+          "type": "string"
+        },
+        "background": {
+          "default": "gradient",
+          "description": "Backdrop style: gradient (bg_color→bg_color2) or solid (bg_color).",
+          "enum": [
+            "gradient",
+            "solid"
+          ],
+          "type": "string"
+        },
+        "bg_color": {
+          "default": "#4f46e5",
+          "description": "Primary backdrop color as #rgb/#rrggbb/#rrggbbaa (default #4f46e5 indigo). For a named gradient preset use two colors, e.g. Sunset #ff512f→#dd2476.",
+          "type": "string"
+        },
+        "bg_color2": {
+          "default": "#9333ea",
+          "description": "Second gradient color as #rgb/#rrggbb/#rrggbbaa (default #9333ea violet); ignored when background=solid.",
+          "type": "string"
+        },
+        "corner_radius": {
+          "default": 16,
+          "description": "Rounded-corner radius on the shot in pixels; 0 = square (default 16).",
+          "maximum": 512,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "gradient_angle": {
+          "default": 135.0,
+          "description": "Gradient direction in degrees, 0=left→right, 90=top→bottom (default 135).",
+          "maximum": 360,
+          "minimum": 0,
+          "type": "number"
+        },
+        "padding": {
+          "default": 64,
+          "description": "Padding in pixels around the shot on every side (default 64).",
+          "maximum": 512,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "shadow": {
+          "default": true,
+          "description": "Draw a soft drop shadow behind the shot (default true).",
+          "type": "boolean"
+        },
+        "shadow_blur": {
+          "default": 24,
+          "description": "Drop-shadow blur radius in pixels (default 24).",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "shadow_opacity": {
+          "default": 0.35,
+          "description": "Drop-shadow opacity from 0 (invisible) to 1 (solid) (default 0.35).",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "titlebar": {
+          "default": "none",
+          "description": "macOS-style window title bar with traffic-light dots atop the shot (default none).",
+          "enum": [
+            "none",
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

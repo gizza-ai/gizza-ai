@@ -1,0 +1,110 @@
+{
+  "name": "gizza-ai/csv-to-ledger",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a bank/credit-card CSV export into double-entry ledger-cli / hledger journal entries",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a bank or credit-card CSV export into double-entry ledger-cli / hledger journal transactions. Pass the pasted CSV (with a header row) as 'data'. Each row becomes one balanced transaction: a posting to your asset/bank account and a balancing posting to a guessed counter-account. The date, description/payee, and amount columns are auto-detected (or name them with date_column/description_column/amount_column); a statement that splits money out and money in into two columns is handled via debit_column/credit_column. The counter-account is chosen by your own 'pattern = Account' account_rules first, then a built-in keyword table (groceries, transport, utilities, salary, …), then a sign-based fallback (default_expense_account for money out, default_income_account for money in). Set asset_account to the account the statement represents. currency prints as a $ prefix or a USD suffix; date_format is auto/ymd/mdy/dmy; output_format is ledger (explicit amounts) or hledger (compact); delimiter is auto/comma/semicolon/tab/pipe; invert_amount flips the sign when a bank exports spending as positive. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "account_rules": {
+          "default": "",
+          "description": "Your own categorization rules, one 'pattern = Account:Name' per line (case-insensitive substring match; '=', '=>' or '->' as the separator; '#' comments allowed). These override the built-in keyword table, e.g. 'starbucks = Expenses:Coffee'.",
+          "type": "string"
+        },
+        "amount_column": {
+          "default": "",
+          "description": "Header name of a single signed amount column (money out negative, money in positive). Blank (default) auto-detects amount/value, else falls back to debit_column/credit_column.",
+          "type": "string"
+        },
+        "asset_account": {
+          "default": "",
+          "description": "The bank/card account this statement represents, used as one leg of every transaction. Blank (default) uses 'Assets:Bank:Checking'.",
+          "type": "string"
+        },
+        "credit_column": {
+          "default": "",
+          "description": "Header name of the money-in column, paired with debit_column. Blank (default) auto-detects credit/deposit/paid in/inflow.",
+          "type": "string"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Commodity to print on amounts. A symbol ($, £, €) is prefixed ($-4.50); an alphabetic code (USD) is suffixed (-4.50 USD). Blank prints the bare number. Default '$'.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The bank or credit-card CSV export to convert, including its header row. Each row becomes one balanced ledger transaction.",
+          "type": "string"
+        },
+        "date_column": {
+          "default": "",
+          "description": "Header name of the transaction-date column. Blank (default) auto-detects a column named like date/posted/posting.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "auto",
+          "description": "How to read numeric dates: auto (detect), ymd (2024-01-31), mdy (US 01/31/2024), or dmy (EU 31/01/2024). Default auto.",
+          "enum": [
+            "auto",
+            "ymd",
+            "mdy",
+            "dmy"
+          ],
+          "type": "string"
+        },
+        "debit_column": {
+          "default": "",
+          "description": "Header name of the money-out column, when the statement splits amounts into two columns instead of one signed one. Blank (default) auto-detects debit/withdrawal/paid out/outflow.",
+          "type": "string"
+        },
+        "default_expense_account": {
+          "default": "",
+          "description": "Fallback counter-account for money-out rows that match no rule or keyword. Blank (default) uses 'Expenses:Unknown'.",
+          "type": "string"
+        },
+        "default_income_account": {
+          "default": "",
+          "description": "Fallback counter-account for money-in rows that match no rule or keyword. Blank (default) uses 'Income:Unknown'.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator of the CSV. Default auto sniffs it from the header row; set it explicitly when detection guesses wrong.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "description_column": {
+          "default": "",
+          "description": "Header name of the description/payee column. Blank (default) auto-detects description/payee/narration/details/memo/name/reference/particulars; missing → '(unknown)'.",
+          "type": "string"
+        },
+        "invert_amount": {
+          "default": false,
+          "description": "Flip the sign of every amount. Use when a statement exports spending as positive and income as negative (so amounts land on the correct expense/income side). Default false.",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "ledger",
+          "description": "Journal style: ledger prints an explicit amount on both postings (fully balanced); hledger omits the amount on the asset posting and lets the tool infer it (compact). Both are valid ledger-cli/hledger. Default ledger.",
+          "enum": [
+            "ledger",
+            "hledger"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

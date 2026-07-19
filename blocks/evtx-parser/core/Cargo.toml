@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-evtx-parser-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# evtx: pure-Rust Windows Event Log (.evtx) binary parser. default-features=false
+# drops the `multithreading` (rayon) + `evtx_dump` (clap/dialoguer) features so it
+# instantiates under wasm32-wasip1 — we only need the library, single-threaded.
+evtx = { version = "0.12", default-features = false }
+# jiff parses the ISO-8601 time-range bounds. It's the SAME crate `evtx` stamps
+# each record's timestamp with (evtx::Timestamp = jiff::Timestamp), so range
+# comparisons are exact instant ordering, not string-lexicographic. std default.
+jiff = { version = "0.2" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

@@ -1,0 +1,75 @@
+slug          = "csv-type-inferrer"
+title         = "CSV Type Inferrer — detect delimiter, header & column data types"
+description   = "Paste CSV and get a JSON schema: auto-detected delimiter, header row, and per-column types (int, float, bool, date, datetime, string). Runs in your browser."
+tags          = ["csv type inference", "detect csv delimiter", "csv schema", "infer column types", "csv to json", "csv header detection", "csv data types"]
+h1            = "CSV Type Inferrer"
+hero_subtitle = "Paste a CSV and get a JSON schema — the delimiter and header row are auto-detected and every column is typed as int, float, bool, date, datetime or string, with typed records. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_csv_type_inferrer_web"
+export        = "run"
+live          = false
+output_label  = "Schema + records (JSON)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV text"
+placeholder = "id,name,active,joined,score\n1,Alice,true,2021-05-01,9.5\n2,Bob,false,2022-11-30,7"
+source      = "field"
+multiline   = true
+
+# delimiter renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma ,"
+tab       = "Tab"
+semicolon = "Semicolon ;"
+pipe      = "Pipe |"
+
+[[input]]
+name        = "headers"
+label       = "Header row"
+source      = "field"
+
+[input.labels]
+auto    = "Auto-detect"
+present = "First row is a header"
+absent  = "No header (generate names)"
+
+[[input]]
+name        = "null_tokens"
+label       = "Null tokens (comma-separated)"
+placeholder = "NA,N/A,NULL,null,None,nan"
+source      = "field"
+
+[[input]]
+name        = "date_detection"
+label       = "Detect date & datetime columns"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+both    = "Schema + records"
+schema  = "Schema only"
+records = "Records only"
+
+[[example]]
+label  = "Typed sample"
+params = { data = "id,name,active,joined,score\n1,Alice,true,2021-05-01,9.5\n2,Bob,false,2022-11-30,7" }
+
+[[example]]
+label  = "Semicolon, no header"
+params = { data = "10;20;30\n40;50;60", delimiter = "auto" }
+
+[[example]]
+label  = "Schema only"
+params = { data = "ts,note\n2024-01-31T09:15:00,hello\n2024-02-01T10:00:00,world", output = "schema" }

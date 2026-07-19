@@ -1,0 +1,87 @@
+slug          = "regex-search"
+title         = "Regex Search — Grep Your Text for Matching Lines"
+description   = "Search pasted text with a regex or literal pattern and return matching lines with line numbers, context, invert, whole-word, and highlighting."
+tags          = ["regex search", "grep online", "search text", "grep text", "find lines", "regular expression search", "text grep", "line search"]
+h1            = "Regex Search"
+hero_subtitle = "Paste text, type a regular expression or literal string, and get back every line that matches — grep-style, with line numbers and surrounding context. Toggle case-insensitive, whole-word, invert, and highlighting. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_regex_search_web"
+export        = "run"
+live          = false
+output_label  = "Matching lines"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the text or log to search…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Pattern"
+placeholder = "e.g. ERROR|WARN"
+source      = "field"
+
+[[input]]
+name        = "literal"
+label       = "Literal (match the pattern as a fixed string)"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "whole_word"
+label       = "Whole word only"
+source      = "field"
+
+[[input]]
+name        = "invert"
+label       = "Invert (show non-matching lines)"
+source      = "field"
+
+[[input]]
+name        = "context"
+label       = "Context lines (before & after)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "line_numbers"
+label       = "Show line numbers"
+source      = "field"
+
+[[input]]
+name        = "highlight"
+label       = "Highlight matches"
+source      = "field"
+
+[[example]]
+label = "Find errors"
+[example.params]
+text = "starting up\nERROR disk full\nretrying\nERROR timeout\ndone"
+pattern = "ERROR"
+
+[[example]]
+label = "Case-insensitive task labels"
+[example.params]
+text = "task: refactor\nTASK: write tests\nfixed the bug\nTaSk: docs"
+pattern = "task"
+ignore_case = "true"
+
+[[example]]
+label = "Exclude comments"
+[example.params]
+text = "# a comment\nkeep this\n# another comment\nkeep that"
+pattern = "^#"
+invert = "true"
+
+[[example]]
+label = "Match with context"
+[example.params]
+text = "line 1\nline 2\ntarget\nline 4\nline 5"
+pattern = "target"
+context = "1"

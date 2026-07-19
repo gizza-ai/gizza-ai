@@ -1,0 +1,90 @@
+slug          = "text-pipeline-playground"
+title         = "Text Pipeline Playground — chain grep, replace, sort & more"
+description   = "Pipe pasted text through a chain of transforms — grep, reject, regex replace, sort, unique, head/tail, split, join — with a tiny safe DSL. Free, private, in your browser."
+tags          = ["text pipeline", "ultimate plumber", "grep online", "regex replace", "text transform chain", "sort unique lines", "sed online", "process text browser"]
+h1            = "Text Pipeline Playground"
+hero_subtitle = "Paste text, write a short pipeline — one operation per line — and chain grep, replace, sort, unique, head, split and more. Safe and declarative (no code execution); runs entirely in your browser."
+wasm          = "gizza_ai_text_pipeline_playground_web"
+export        = "run"
+live          = false
+output_label  = "Pipeline output"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste your text here — one record per line…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pipeline"
+label       = "Pipeline (one operation per line)"
+placeholder = "grep ERROR\nsort\nunique"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "regex_mode"
+label  = "Regex mode (grep/reject patterns are regular expressions)"
+source = "field"
+
+[[input]]
+name   = "case_insensitive"
+label  = "Case-insensitive matching"
+source = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max output lines"
+placeholder = "10000"
+source      = "field"
+
+[[input]]
+name   = "on_error"
+label  = "On a bad pipeline line"
+source = "field"
+
+[input.labels]
+stop = "Stop — report the bad line"
+skip = "Skip — ignore it and continue"
+
+[[example]]
+label = "Errors → dedupe (default)"
+[example.params]
+text = "2024-01-01 INFO started\n2024-01-01 ERROR disk full\n2024-01-02 ERROR disk full\n2024-01-02 WARN low memory\n2024-01-03 ERROR timeout"
+pipeline = "grep ERROR\nreplace /^\\S+ ERROR /!! /\nsort\nunique"
+regex_mode = "false"
+case_insensitive = "false"
+limit = "10000"
+on_error = "stop"
+
+[[example]]
+label = "Extract emails, sort, dedupe"
+[example.params]
+text = "Contact Ada <ada@example.com> or Bob (bob@example.com).\nEscalate to ada@example.com for billing."
+pipeline = "split\ngrep @\nreplace /[<>(),.]//\nlower\nsort\nunique"
+regex_mode = "false"
+case_insensitive = "false"
+limit = "10000"
+on_error = "stop"
+
+[[example]]
+label = "CSV column → markdown bullets"
+[example.params]
+text = "name,role\nAda,eng\nBob,design\nCy,eng"
+pipeline = "tail 3\nreplace /,/ — /\nprefix - "
+regex_mode = "false"
+case_insensitive = "false"
+limit = "10000"
+on_error = "stop"
+
+[[example]]
+label = "Case-insensitive regex filter"
+[example.params]
+text = "TASK: refactor\nnote: ship it\ntask: write tests\nDone: deploy"
+pipeline = "grep ^task\ntrim\nupper"
+regex_mode = "true"
+case_insensitive = "true"
+limit = "10000"
+on_error = "stop"

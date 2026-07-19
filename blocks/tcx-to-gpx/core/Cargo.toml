@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-tcx-to-gpx-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# quick-xml: pure-Rust, wasm-safe streaming XML reader (proven in gpx-to-geojson,
+# gpx-analyzer, xml-to-json). default-features=false drops the optional
+# async/encoding bits.
+quick-xml = { version = "0.40", default-features = false }

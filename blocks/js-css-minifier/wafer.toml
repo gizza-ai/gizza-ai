@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "js-css-minifier"
+version = "0.1.0"
+abi = 1
+summary = "Minify JavaScript or CSS and report before/after byte sizes"

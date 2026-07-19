@@ -1,0 +1,75 @@
+slug          = "cluster-similar-values"
+title         = "Cluster Similar Values — Fuzzy-Merge Near-Duplicate Text"
+description   = "Group near-duplicate values in a column (typos, casing, spacing) and get a canonical form per cluster. Runs in your browser, nothing is uploaded, free."
+tags          = ["cluster similar values", "fuzzy matching", "deduplicate text", "canonical form", "data cleaning", "fuzzy dedupe"]
+h1            = "Cluster Similar Values"
+hero_subtitle = "Fuzzy-group near-duplicate text (typos, casing, spacing) in one column and get a suggested canonical value per cluster. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_cluster_similar_values_web"
+export        = "run"
+live          = false
+output_label  = "Clusters"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Values (CSV, or one per line)"
+placeholder = "New York\nnew york\nNew  York\nNwe York\nBoston"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column (name or 1-based index; blank = the only column)"
+placeholder = "city"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name        = "threshold"
+label       = "Similarity threshold (0–100)"
+placeholder = "85"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "normalize_case"
+label  = "Ignore case (USA = usa)"
+source = "field"
+
+[[input]]
+name   = "normalize_spacing"
+label  = "Ignore extra spacing (New  York = New York)"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[[example]]
+label = "City list (typos + casing)"
+
+[example.params]
+data = "New York\nnew york\nNew  York\nNwe York\nBoston\nBoston\nboston"
+threshold = "70"
+output = "markdown"
+
+[[example]]
+label = "CSV column by name → mapping CSV"
+
+[example.params]
+data = "company,amount\nAcme Inc,100\nacme inc,90\nAcme  Inc,80\nGlobex,50"
+column = "company"
+header = "true"
+output = "csv"

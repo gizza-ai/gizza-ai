@@ -100,13 +100,16 @@ jobs:
 
       - name: Verify wafer-run pin consistency
         # Guards against a half-bumped pin: wafer-run-pin.txt vs the committed
-        # Cargo.lock files that pin the wafer-run git dep.
+        # Cargo.lock files that pin the wafer-run git dep. Block locks are
+        # gitignored by policy (blocks resolve fresh, pinned at build time
+        # below) — but a force-added one must still agree with the pin, or a
+        # block quietly builds against a different runtime rev than the CLI.
         shell: bash
         run: |
           set -euo pipefail
           pin="$(tr -d '[:space:]' < wafer-run-pin.txt)"
           fail=0
-          for lock in cli/Cargo.lock block-utils/Cargo.lock; do
+          for lock in cli/Cargo.lock block-utils/Cargo.lock $(git ls-files 'blocks/*/Cargo.lock'); do
             shas="$(grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lock" | sed 's/.*#//' | sort -u)"
             if [ "$shas" != "$pin" ]; then
               echo "::error::$lock pins wafer-run at '${shas:-<none>}' but wafer-run-pin.txt says '$pin'."
@@ -115,6 +118,8 @@ jobs:
           done
           if [ "$fail" -ne 0 ]; then
             echo "Bump procedure: update wafer-run-pin.txt, then run 'cargo update' in cli/ and block-utils/."
+            echo "For a blocks/*/Cargo.lock: prefer untracking it (block locks are gitignored by policy),"
+            echo "or re-pin it with: cargo update -p wafer-sdk -p wafer-block -p wafer-block-macro --precise <pin>."
             exit 1
           fi
           echo "All lockfiles agree with wafer-run-pin.txt ($pin)."
@@ -164,11 +169,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          pin="${{ steps.waferpin.outputs.wafer_sha }}"
           while IFS= read -r block; do
             [ -n "$block" ] || continue
             echo "Building changed block: $block"
             (
               cd "blocks/$block"
+              # Pin the wafer-run git deps to wafer-run-pin.txt before building.
+              # Block Cargo.locks are gitignored, so an unpinned build resolves
+              # wafer-run at today's main — which can drift from the CLI/runtime
+              # rev and break __wafer_info validation. `cargo update --precise`
+              # creates the lockfile if absent; per-crate failures are tolerated
+              # (not every block deps on all three) and the grep below asserts
+              # the end state is fully pinned.
+              for c in wafer-sdk wafer-block wafer-block-macro; do
+                cargo update -p "$c" --precise "$pin" 2>/dev/null || true
+              done
+              stray="$(grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' Cargo.lock | sed 's/.*#//' | sort -u | grep -v "^$pin\$" || true)"
+              if [ -n "$stray" ]; then
+                echo "::error::blocks/$block resolved wafer-run at '$stray' but wafer-run-pin.txt says '$pin'." >&2
+                exit 1
+              fi
               # With the shared CARGO_TARGET_DIR the artifact no longer lands
               # under the block's own target/ — take its path from cargo's
               # JSON message stream instead of find(1).

@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-device-mockup-framer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+# fontdue: pure-Rust TrueType rasterizer (no freetype / system fonts) — renders
+# the browser address-bar URL text. Already proven wasm32-safe in code-screenshot.
+fontdue = "0.9"

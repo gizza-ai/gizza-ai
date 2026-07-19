@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/har-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate a HAR (HTTP Archive) file's structure",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a HAR (HTTP Archive) file against the HAR 1.2 spec: checks the log/entries shape, every required request, response, content, cache, and timings field (with the exact JSON path of each problem), and — when check_timings is true (default) — that each entry's total time equals the sum of its timing phases. Reports ALL problems found, not just the first, and returns a readable report for both valid and invalid HARs (only non-JSON input is an error). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "check_timings": {
+          "default": true,
+          "description": "Also check that each entry's total time equals the sum of its timing phases (blocked, dns, connect, send, wait, receive); phases of -1 are excluded. Reported as warnings. Default true.",
+          "type": "boolean"
+        },
+        "har": {
+          "description": "The HAR (HTTP Archive) file contents as JSON text — a single { \"log\": … } object with entries.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "har"
+      ],
+      "type": "object"
+    }
+  }
+}

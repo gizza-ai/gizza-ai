@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-pdf-object-analyzer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# PDF parsing — pure-Rust, no native libs. default-features=false drops rayon
+# (threads) + the chrono/jiff/time date crates, keeping the tree thread-free so
+# it links to wasm32-wasip1 (the `wafer build` / `cargo build --target
+# wasm32-wasip1` target). We only walk the object model: enumerate every object,
+# read dictionary keys and action subtypes, and decode small script/name streams.
+lopdf = { version = "=0.36.0", default-features = false }
+# Serialize the analysis directly (the block flattens it into the response).
+serde = { version = "1", features = ["derive"] }

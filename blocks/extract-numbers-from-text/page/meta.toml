@@ -1,0 +1,69 @@
+slug          = "extract-numbers-from-text"
+title         = "Extract Numbers From Text — pull every number into a list"
+description   = "Extract numbers from text — integers, decimals, scientific notation, signed and comma-grouped values. Filter, de-dupe, sort, and get stats in your browser."
+tags          = ["extract numbers from text", "pull numbers from text", "number extractor", "get numbers out of text", "list numbers in text", "sum numbers in text"]
+h1            = "Extract Numbers From Text"
+hero_subtitle = "Pull every number out of prose, logs, or CSV-ish text into a clean list — filter, de-duplicate, sort, and total them. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_extract_numbers_from_text_web"
+export        = "run"
+live          = false
+output_label  = "Extracted numbers"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste prose, a log, or CSV rows to pull numbers from…"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "mode"
+label       = "Keep"
+source      = "field"
+
+[input.labels]
+all      = "All numbers"
+integers = "Integers only"
+decimals = "Decimals only"
+
+[[input]]
+name        = "unique"
+label       = "Remove duplicate values"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort order"
+source      = "field"
+
+[input.labels]
+original   = "Original (first-seen)"
+ascending  = "Ascending"
+descending = "Descending"
+
+[[input]]
+name        = "delimiter"
+label       = "Join output with"
+source      = "field"
+
+[input.labels]
+newline   = "Newline (one per line)"
+comma     = "Comma"
+space     = "Space"
+tab       = "Tab"
+semicolon = "Semicolon"
+
+[[input]]
+name        = "stats"
+label       = "Append summary (count, sum, min, max, average)"
+source      = "field"
+
+[[example]]
+label  = "Invoice totals"
+params = { text = "Item A $1,299.99, Item B $49.50, tax 8.25%, shipping $12. Total 1361.74.", stats = "true" }
+
+[[example]]
+label  = "Sorted unique integers"
+params = { text = "Scores: 88, 92, 88, 74, 100, 92, 65", mode = "integers", unique = "true", sort = "descending" }

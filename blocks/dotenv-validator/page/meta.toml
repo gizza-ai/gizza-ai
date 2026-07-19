@@ -1,0 +1,62 @@
+slug          = "dotenv-validator"
+title         = "Dotenv Validator — Lint .env Files for Duplicate Keys & Bad Interpolation"
+description   = "Paste a .env file to catch duplicate keys, unquoted spaces, malformed ${VAR} interpolation and undefined references. Runs locally in your browser."
+tags          = [".env validator", "dotenv linter", "env file checker", "duplicate keys", "unquoted values", "env interpolation", "undefined variable", "env lint json"]
+h1            = "Dotenv Validator"
+hero_subtitle = "Paste a .env file to lint it for duplicate keys, unquoted values containing spaces, malformed ${VAR} interpolation and references to variables that are never defined — with line numbers and severities. Get a readable report or JSON for CI. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_dotenv_validator_web"
+export        = "run"
+live          = false
+output_label  = "Lint result"
+format        = "text"
+
+[[input]]
+name        = "env"
+label       = ".env file contents"
+placeholder = "# database\nexport DB_HOST=localhost\nDB_PORT=5432\nGREETING=hello world\nURL=http://${DB_HOST}:${DB_PORT}/${MISSING}\nDB_HOST=127.0.0.1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "allow_undefined"
+label       = "Allow undefined (comma-separated externally-provided vars)"
+placeholder = "HOME,PATH,CI"
+source      = "field"
+
+[[input]]
+name   = "check_interpolation"
+label  = "Check ${VAR} interpolation (unclosed, empty, undefined refs)"
+source = "field"
+
+[[input]]
+name   = "require_quotes_for_spaces"
+label  = "Flag unquoted values that contain a space"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report — readable list with line numbers"
+json   = "JSON — structured result for CI"
+
+[[example]]
+label = "Lint a messy file"
+[example.params]
+env    = "# database\nexport DB_HOST=localhost\nDB_PORT=5432\nGREETING=hello world\nURL=http://${DB_HOST}:${DB_PORT}/${MISSING}\nDB_HOST=127.0.0.1"
+output = "report"
+
+[[example]]
+label = "Undefined + external vars"
+[example.params]
+env             = "PORT=8080\nBASE=http://${HOST}:${PORT}\nHOME_DIR=${HOME}/app"
+allow_undefined = "HOME"
+output          = "report"
+
+[[example]]
+label = "JSON for CI"
+[example.params]
+env    = "FOO=1\nFOO=2\nBAD=${UNCLOSED\n"
+output = "json"

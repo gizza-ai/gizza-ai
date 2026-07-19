@@ -1,0 +1,41 @@
+slug          = "tcx-to-gpx"
+title         = "TCX to GPX Converter — Garmin Workout to GPX"
+description   = "Convert Garmin TCX workout files into GPX 1.1 in your browser. Preserves trackpoints, elevation, timestamps, and heart rate/cadence. Free, private, no upload."
+tags          = ["tcx to gpx", "garmin tcx converter", "tcx to gpx online", "convert tcx to gpx", "workout file converter", "gpx converter"]
+h1            = "TCX to GPX Converter"
+hero_subtitle = "Turn a Garmin Training Center (.tcx) workout into a GPX 1.1 track — trackpoints, elevation, timestamps, and heart rate/cadence preserved. Paste the file; it converts in your browser, no upload."
+wasm          = "gizza_ai_tcx_to_gpx_web"
+export        = "run"
+live          = false
+output_label  = "GPX"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "TCX XML"
+placeholder = "<TrainingCenterDatabase><Activities><Activity Sport=\"Running\"><Id>2026-07-01T08:00:00Z</Id><Lap><Track><Trackpoint><Time>2026-07-01T08:00:00Z</Time><Position><LatitudeDegrees>52.1</LatitudeDegrees><LongitudeDegrees>5.1</LongitudeDegrees></Position><AltitudeMeters>10</AltitudeMeters></Trackpoint></Track></Lap></Activity></Activities></TrainingCenterDatabase>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "include_extensions"
+label       = "Keep heart rate & cadence (as GPX TrackPointExtension)"
+source      = "field"
+
+[[example]]
+label = "Run with HR & cadence → GPX"
+[example.params]
+input = "<?xml version=\"1.0\"?>\n<TrainingCenterDatabase><Activities><Activity Sport=\"Running\">\n<Id>2026-07-01T08:00:00Z</Id>\n<Lap StartTime=\"2026-07-01T08:00:00Z\"><Track>\n<Trackpoint><Time>2026-07-01T08:00:00Z</Time><Position><LatitudeDegrees>52.100</LatitudeDegrees><LongitudeDegrees>5.100</LongitudeDegrees></Position><AltitudeMeters>10</AltitudeMeters><HeartRateBpm><Value>120</Value></HeartRateBpm><Cadence>82</Cadence></Trackpoint>\n<Trackpoint><Time>2026-07-01T08:05:00Z</Time><Position><LatitudeDegrees>52.101</LatitudeDegrees><LongitudeDegrees>5.102</LongitudeDegrees></Position><AltitudeMeters>12</AltitudeMeters><HeartRateBpm><Value>130</Value></HeartRateBpm></Trackpoint>\n</Track></Lap></Activity></Activities></TrainingCenterDatabase>"
+include_extensions = "true"
+
+[[example]]
+label = "Plain GPX (no HR/cadence)"
+[example.params]
+input = "<?xml version=\"1.0\"?>\n<TrainingCenterDatabase><Activities><Activity Sport=\"Biking\">\n<Id>2026-07-01T09:00:00Z</Id>\n<Lap><Track>\n<Trackpoint><Time>2026-07-01T09:00:00Z</Time><Position><LatitudeDegrees>48.20</LatitudeDegrees><LongitudeDegrees>16.37</LongitudeDegrees></Position><AltitudeMeters>170</AltitudeMeters><HeartRateBpm><Value>110</Value></HeartRateBpm></Trackpoint>\n<Trackpoint><Time>2026-07-01T09:02:00Z</Time><Position><LatitudeDegrees>48.21</LatitudeDegrees><LongitudeDegrees>16.38</LongitudeDegrees></Position><AltitudeMeters>172</AltitudeMeters></Trackpoint>\n</Track></Lap></Activity></Activities></TrainingCenterDatabase>"
+include_extensions = "false"
+
+[[example]]
+label = "TCX course (route) → GPX"
+[example.params]
+input = "<?xml version=\"1.0\"?>\n<TrainingCenterDatabase><Courses><Course>\n<Name>Park Loop</Name>\n<Track>\n<Trackpoint><Position><LatitudeDegrees>37.421</LatitudeDegrees><LongitudeDegrees>-122.084</LongitudeDegrees></Position><AltitudeMeters>15</AltitudeMeters></Trackpoint>\n<Trackpoint><Position><LatitudeDegrees>37.422</LatitudeDegrees><LongitudeDegrees>-122.085</LongitudeDegrees></Position><AltitudeMeters>16</AltitudeMeters></Trackpoint>\n</Track>\n</Course></Courses></TrainingCenterDatabase>"
+include_extensions = "true"

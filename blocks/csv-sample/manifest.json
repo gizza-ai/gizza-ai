@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/csv-sample",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sample rows from a CSV (random, systematic, top/bottom-N, or stratified)",
+  "role": "skill",
+  "tool": {
+    "description": "Take a sample of a CSV's data rows. `method` is random (uniform), systematic (every k-th after a seeded start), top (first N), bottom (last N), or stratified (proportional across the distinct values of `stratify_column`). Size is `n` rows, or a `percent` (0–100) of the rows when percent > 0. Random draws are reproducible via `seed`. The header row is preserved and the input delimiter is used for the output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to sample rows from.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter of the input, also used for the output. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header (always kept, and used to resolve stratify_column names). Default true.",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "random",
+          "description": "Sampling method: random (uniform), systematic (every k-th after a seeded start), top (first N), bottom (last N), or stratified (proportional across the values of stratify_column). Default random.",
+          "enum": [
+            "random",
+            "systematic",
+            "top",
+            "bottom",
+            "stratified"
+          ],
+          "type": "string"
+        },
+        "n": {
+          "default": 10,
+          "description": "Number of data rows to sample. Ignored when percent > 0. Capped at the row count. Default 10.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "percent": {
+          "default": 0.0,
+          "description": "Sample this percentage (0–100) of data rows instead of n; 0 means use n. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the reproducible PRNG used by random/systematic/stratified sampling. Change it for a different draw. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stratify_column": {
+          "default": "",
+          "description": "For method=stratified: the column to stratify on — a header name (header=true) or a 1-based index. Each distinct value forms a stratum sampled in proportion to its size.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

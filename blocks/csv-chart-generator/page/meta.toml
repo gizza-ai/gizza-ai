@@ -1,0 +1,123 @@
+slug          = "csv-chart-generator"
+title         = "CSV Chart Generator — Bar, Line, Scatter & Histogram to SVG"
+description   = "Paste CSV data and generate a bar, line, scatter, or histogram chart as a clean, scalable SVG — in your browser, nothing uploaded. Pick columns, colors, and size."
+tags          = ["csv chart generator", "csv to chart", "csv to svg", "bar chart maker", "line chart from csv", "histogram generator", "scatter plot", "chart from data"]
+h1            = "Generate a Chart from CSV"
+hero_subtitle = "Paste CSV data, choose the columns to plot, and get a bar, line, scatter, or histogram chart as a clean, scalable SVG. Pick the color, title, and size. Pure-Rust rendering runs in your browser — nothing is uploaded."
+wasm          = "gizza_ai_csv_chart_generator_web"
+export        = "run"
+live          = false
+output_label  = "Chart SVG"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "month,revenue\nJan,1200\nFeb,1800\nMar,1500\nApr,2400\nMay,2100"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "chart_type"
+label  = "Chart type"
+source = "field"
+
+[input.labels]
+bar       = "Bar chart"
+line      = "Line chart"
+scatter   = "Scatter plot"
+histogram = "Histogram"
+
+[[input]]
+name        = "x_column"
+label       = "X column (header name or 1-based index)"
+placeholder = "month"
+source      = "field"
+
+[[input]]
+name        = "y_column"
+label       = "Y column (numeric; the binned column for a histogram)"
+placeholder = "revenue"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "Chart title (optional)"
+placeholder = "Monthly revenue"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "Width (px)"
+placeholder = "800"
+source      = "field"
+
+[[input]]
+name        = "height"
+label       = "Height (px)"
+placeholder = "400"
+source      = "field"
+
+[[input]]
+name        = "color"
+label       = "Series color (any CSS color)"
+placeholder = "#2563eb"
+source      = "field"
+
+[[input]]
+name        = "bins"
+label       = "Histogram bins (2–100)"
+placeholder = "10"
+source      = "field"
+
+[[example]]
+label = "Monthly revenue bar chart"
+[example.params]
+data = "month,revenue\nJan,1200\nFeb,1800\nMar,1500\nApr,2400\nMay,2100"
+chart_type = "bar"
+x_column = "month"
+y_column = "revenue"
+title = "Monthly revenue"
+width = "800"
+height = "400"
+color = "#2563eb"
+bins = "10"
+
+[[example]]
+label = "Signups over time (line)"
+[example.params]
+data = "day,signups\n1,20\n2,35\n3,30\n4,52\n5,60\n6,58\n7,80"
+chart_type = "line"
+x_column = "day"
+y_column = "signups"
+title = "Daily signups"
+width = "800"
+height = "400"
+color = "#16a34a"
+bins = "10"
+
+[[example]]
+label = "Height vs weight (scatter)"
+[example.params]
+data = "height,weight\n150,52\n160,61\n165,64\n170,70\n175,73\n180,81\n185,88"
+chart_type = "scatter"
+x_column = "height"
+y_column = "weight"
+title = "Height vs weight"
+width = "800"
+height = "400"
+color = "#db2777"
+bins = "10"
+
+[[example]]
+label = "Score distribution (histogram)"
+[example.params]
+data = "score\n55\n61\n62\n67\n70\n71\n72\n73\n74\n78\n80\n82\n85\n88\n91\n95"
+chart_type = "histogram"
+x_column = ""
+y_column = "score"
+title = "Score distribution"
+width = "800"
+height = "400"
+color = "#f59e0b"
+bins = "6"

@@ -92,10 +92,14 @@ pub fn tool_markdown(
 /// `url=…` plus a `key=value` sample for EVERY field input (derived from the
 /// same schema samples as the deep-link example — a file tool's fields are
 /// often required, so an example without them would just error). Pure field
-/// tools use the first field's placeholder as the bare positional (the CLI
-/// maps bare positionals against the schema's `required` list) — plus a
+/// tools with a REQUIRED first field use its placeholder as the bare positional
+/// (the CLI maps bare positionals against the schema's `required` list) — plus a
 /// `key=value` sample for every OTHER required field, because an example
-/// missing any required param errors verbatim ("missing required arg").
+/// missing any required param errors verbatim ("missing required arg"). Pure
+/// field tools whose first field is OPTIONAL (every param optional, e.g. a
+/// generator) can't use a bare positional at all — it maps against an empty
+/// `required` list and the CLI rejects it — so they show a single `key=value`
+/// sample instead (or no args when the field has no meaningful sample).
 /// Auto-only tools (e.g. clock) take no args.
 /// `pub(crate)` so `template.rs` renders the identical example on the page.
 pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
@@ -108,13 +112,25 @@ pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
         }
         format!("gizza tool {} {}", meta.slug, args.join(" "))
     } else if let Some(field) = meta.inputs.iter().find(|i| i.source == "field") {
-        let arg = if field.placeholder.is_empty() { "..." } else { field.placeholder.as_str() };
-        let mut cmd = format!("gizza tool {} \"{}\"", meta.slug, arg);
-        // The bare positional only covers the FIRST required scalar param.
-        // Every other required field needs an explicit key=value or the
-        // copy-pasted example fails. (With a stale/missing manifest the schema
-        // knows nothing — keep the legacy single-positional form.)
-        if schema.knows_params() && schema.is_required(&field.name) {
+        // A bare positional is matched left-to-right against the schema's
+        // `required` scalar fields, so it's only runnable when the FIRST field
+        // is required. When the first field is optional (every param optional,
+        // e.g. a generator), the CLI rejects a bare positional ("too many
+        // positional args; expected at most 0") — demonstrate usage with a
+        // `key=value` sample for the first field instead (or no args when it
+        // has no meaningful sample).
+        if schema.knows_params() && !schema.is_required(&field.name) {
+            match sample_value(&schema.control_for_input(field), &field.placeholder) {
+                Some(sample) => format!("gizza tool {} '{}={}'", meta.slug, field.name, sample),
+                None => format!("gizza tool {}", meta.slug),
+            }
+        } else {
+            let arg = if field.placeholder.is_empty() { "..." } else { field.placeholder.as_str() };
+            let mut cmd = format!("gizza tool {} \"{}\"", meta.slug, arg);
+            // The bare positional only covers the FIRST required scalar param.
+            // Every other required field needs an explicit key=value or the
+            // copy-pasted example fails. (With a stale/missing manifest the
+            // schema knows nothing — keep the legacy single-positional form.)
             for i in meta.inputs.iter().filter(|i| i.source == "field").skip(1) {
                 if !schema.is_required(&i.name) {
                     continue;
@@ -123,8 +139,8 @@ pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
                     cmd.push_str(&format!(" '{}={}'", i.name, sample));
                 }
             }
+            cmd
         }
-        cmd
     } else {
         format!("gizza tool {}", meta.slug)
     }
@@ -446,6 +462,53 @@ placeholder = "cotton, linen"
         assert_eq!(
             cli_example(&meta, &schema),
             "gizza tool cartesian-product \"red, blue, green\" 'list2=S, M, L'"
+        );
+    }
+
+    #[test]
+    fn pure_tool_with_optional_first_field_uses_key_value_sample() {
+        // A generator-style tool: every param is optional. A bare positional
+        // maps against the schema's (empty) `required` scalar list, so the CLI
+        // rejects it ("too many positional args; expected at most 0"). The
+        // example must use a `key=value` sample for the first field instead.
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "pronounceable-password-generator"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "run"
+output_label  = "o"
+format        = "text"
+
+[[input]]
+name        = "length"
+source      = "field"
+placeholder = "12"
+kind        = "slider"
+
+[[input]]
+name   = "capitalize"
+source = "field"
+
+[[input]]
+name        = "digits"
+source      = "field"
+placeholder = "2"
+kind        = "slider"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "length": { "type": "integer", "minimum": 4, "maximum": 64 },
+            "capitalize": { "type": "boolean", "default": true },
+            "digits": { "type": "integer", "minimum": 0, "maximum": 12 }
+        }));
+        assert_eq!(
+            cli_example(&meta, &schema),
+            "gizza tool pronounceable-password-generator 'length=12'"
         );
     }
 

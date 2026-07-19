@@ -1,0 +1,72 @@
+slug          = "csv-to-pdf-table"
+title         = "CSV to PDF Table — Browser PDF Table Generator"
+description   = "Render CSV, TSV, semicolon, or pipe-delimited data as a formatted PDF table with headers, pagination, page size, orientation, font size, grid, and banding controls."
+tags          = ["csv to pdf", "pdf table", "csv table", "printable csv", "table pdf"]
+h1            = "CSV to PDF Table"
+hero_subtitle = "Turn delimited rows into a clean, paginated PDF table. Auto-sized columns, repeated headers, grid lines, and zebra banding — all in your browser."
+wasm          = "gizza_ai_csv_to_pdf_table_web"
+export        = "run"
+live          = false
+output_label  = "PDF data URL"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV or delimited table"
+placeholder = "name,age,team\nAlice,30,East\nBob,25,West\nCarol,28,East"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "Optional PDF title"
+placeholder = "Team roster"
+source      = "field"
+
+[[input]]
+name        = "page_size"
+label       = "Page size"
+source      = "field"
+
+[[input]]
+name        = "orientation"
+label       = "Orientation"
+source      = "field"
+
+[[input]]
+name        = "font_size"
+label       = "Font size"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "row_banding"
+label       = "Shade alternate rows"
+source      = "field"
+
+[[input]]
+name        = "grid"
+label       = "Draw cell grid"
+source      = "field"
+
+[[example]]
+label  = "Roster PDF"
+params = { data = "name,age,team\nAlice,30,East\nBob,25,West\nCarol,28,East", title = "Team roster", delimiter = "comma", page_size = "letter", orientation = "portrait", font_size = "10" }
+
+[[example]]
+label  = "Landscape TSV"
+params = { data = "sku\tqty\tprice\nA-1\t12\t19.99\nB-2\t5\t42.00", delimiter = "tab", title = "Inventory", orientation = "landscape", font_size = "9" }
+
+[[example]]
+label  = "No header, no grid"
+params = { data = "Alice|30|East\nBob|25|West", delimiter = "pipe", header = "false", grid = "false", row_banding = "true" }

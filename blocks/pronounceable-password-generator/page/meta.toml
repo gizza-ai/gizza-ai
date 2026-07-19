@@ -1,0 +1,64 @@
+slug          = "pronounceable-password-generator"
+title         = "Pronounceable Password Generator"
+description   = "Generate pronounceable, easy-to-type passwords from consonant/vowel phonemes with length, capitalization, digit, and symbol controls."
+tags          = ["pronounceable password generator", "easy to remember password", "readable password", "phonetic password", "memorable password"]
+h1            = "Pronounceable Password Generator"
+hero_subtitle = "Make speakable, easy-to-type passwords from alternating consonant/vowel syllables with a cryptographic RNG. Runs entirely in your browser — nothing leaves your device."
+wasm          = "gizza_ai_pronounceable_password_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated"
+format        = "text"
+
+[[input]]
+name        = "length"
+label       = "Letters (4–64)"
+placeholder = "12"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "capitalize"
+label  = "Capitalize first letter"
+source = "field"
+
+[[input]]
+name        = "digits"
+label       = "Digits appended (0–12)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "symbols"
+label       = "Symbols appended (0–12)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label = "Memorable (12 + 2 digits)"
+[example.params]
+length     = "12"
+capitalize = "true"
+digits     = "2"
+symbols    = "1"
+
+[[example]]
+label = "Long & strong (20 letters)"
+[example.params]
+length     = "20"
+capitalize = "true"
+digits     = "3"
+symbols     = "2"
+
+[[example]]
+label = "Letters only, lowercase"
+[example.params]
+length     = "16"
+capitalize = "false"
+digits     = "0"
+symbols    = "0"

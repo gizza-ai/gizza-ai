@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-epub-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only (flate2-based) — read the EPUB (a ZIP container).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# quick-xml: parse the EPUB OPF (metadata/manifest/spine) + TOC (NCX / nav).
+quick-xml = { version = "0.40", default-features = false }
+# nanohtml2text: strip each chapter's XHTML down to plain readable text.
+nanohtml2text = "0.1"
+serde = { version = "1", features = ["derive"] }

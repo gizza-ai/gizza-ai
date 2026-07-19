@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mesh-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert 3D meshes between Wavefront OBJ and STL (ASCII or binary)"

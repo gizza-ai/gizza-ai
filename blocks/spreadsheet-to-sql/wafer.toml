@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "spreadsheet-to-sql"
+version = "0.1.0"
+abi = 1
+summary = "Convert a spreadsheet (.xlsx/.xls/.ods) to SQL CREATE TABLE + INSERT statements"

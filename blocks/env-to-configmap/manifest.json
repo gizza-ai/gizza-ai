@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/env-to-configmap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a .env file into a Kubernetes ConfigMap or Secret manifest",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a .env file (KEY=value lines; '#' comments, blank lines and a leading 'export ' are ignored, quoted values are unquoted) into a Kubernetes ConfigMap (default) or Secret YAML manifest. Set name/namespace/labels for metadata. Secret values are base64-encoded under 'data' by default, or kept plaintext under 'stringData'. Values that look like numbers/booleans are quoted so they stay strings. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "env": {
+          "description": "The .env file contents: KEY=value lines. '#' comments, blank lines and a leading 'export ' are ignored; quoted values are unquoted.",
+          "type": "string"
+        },
+        "kind": {
+          "default": "configmap",
+          "description": "Output manifest: 'configmap' (default) for non-sensitive config, or 'secret' for confidential values.",
+          "enum": [
+            "configmap",
+            "secret"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "default": "",
+          "description": "Optional metadata.labels as comma-separated key=value pairs, e.g. 'app=web,tier=backend'. Blank (default) adds no labels.",
+          "type": "string"
+        },
+        "name": {
+          "default": "app-config",
+          "description": "metadata.name of the manifest (RFC 1123: lowercase letters, digits, '-' and '.'). Default 'app-config'.",
+          "type": "string"
+        },
+        "namespace": {
+          "default": "",
+          "description": "metadata.namespace. Blank (default) omits the field so it applies to the current namespace.",
+          "type": "string"
+        },
+        "secret_encoding": {
+          "default": "data",
+          "description": "For a Secret: 'data' (default) base64-encodes each value; 'stringData' keeps plaintext and lets Kubernetes encode on apply. Ignored for a ConfigMap.",
+          "enum": [
+            "data",
+            "stringData"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+slug          = "text-normalizer"
+title         = "Text Normalizer — Unicode NFC/NFKC, accents, case, whitespace"
+description   = "Normalize text in one pass: Unicode form (NFC/NFD/NFKC/NFKD), case fold, strip accents, collapse whitespace, straighten punctuation. Free, private, in your browser."
+tags          = ["text normalizer", "unicode normalization", "nfc", "nfkc", "strip accents", "remove diacritics", "case fold", "collapse whitespace"]
+h1            = "Normalize Text"
+hero_subtitle = "Clean and normalize text in one pass — apply a Unicode form, fold case, strip accents, collapse whitespace, and straighten fancy punctuation. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_text_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text to normalize…"
+source      = "field"
+multiline   = true
+
+# form renders as a <select>; options derive from the descriptor schema enum.
+[[input]]
+name   = "form"
+label  = "Unicode form"
+source = "field"
+
+[input.labels]
+none = "None — leave code points untouched"
+nfc  = "NFC — canonical compose (web default)"
+nfd  = "NFD — canonical decompose"
+nfkc = "NFKC — compatibility compose (flatten fancy fonts, ﬁ→fi)"
+nfkd = "NFKD — compatibility decompose"
+
+[[input]]
+name   = "case"
+label  = "Case"
+source = "field"
+
+[input.labels]
+none  = "Keep case"
+lower = "lowercase"
+upper = "UPPERCASE"
+fold  = "Case fold (caseless matching, ß→ss)"
+
+[[input]]
+name   = "strip_accents"
+label  = "Strip accents / diacritics (café → cafe)"
+source = "field"
+
+[[input]]
+name   = "whitespace"
+label  = "Whitespace"
+source = "field"
+
+[input.labels]
+keep             = "Keep — leave whitespace untouched"
+trim             = "Trim ends only"
+collapse         = "Collapse every run to one space (default)"
+"collapse-lines" = "Collapse each line, keep line breaks"
+
+[[input]]
+name   = "punctuation"
+label  = "Straighten fancy punctuation (“ ” — … → \" - ...)"
+source = "field"
+
+[[example]]
+label = "NLP prep — fold, strip accents, flatten"
+[example.params]
+text = "  Café  “RÉSUMÉ”…  "
+form = "nfkc"
+case = "fold"
+strip_accents = "true"
+whitespace = "collapse"
+punctuation = "true"
+
+[[example]]
+label = "Search key — lowercase, no accents"
+[example.params]
+text = "Crème Brûlée"
+form = "nfc"
+case = "lower"
+strip_accents = "true"
+whitespace = "collapse"
+punctuation = "false"
+
+[[example]]
+label = "Straighten quotes & dashes"
+[example.params]
+text = "“Hello”—it’s a test…"
+form = "nfc"
+case = "none"
+strip_accents = "false"
+whitespace = "collapse"
+punctuation = "true"
+
+[[example]]
+label = "Flatten fancy fonts (NFKC)"
+[example.params]
+text = "𝐇𝐞𝐥𝐥𝐨 ﬁle ＡＢＣ"
+form = "nfkc"
+case = "none"
+strip_accents = "false"
+whitespace = "collapse"
+punctuation = "false"

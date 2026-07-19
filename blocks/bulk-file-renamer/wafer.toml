@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bulk-file-renamer"
+version = "0.1.0"
+abi = 1
+summary = "Preview bulk filename renames with find/replace, regex, numbering, and case rules"

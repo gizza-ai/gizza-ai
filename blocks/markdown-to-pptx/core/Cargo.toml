@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-markdown-to-pptx-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only (flate2/miniz_oxide backend) — drop the default
+# time/aes/bzip2/zstd features so it stays pure-Rust and wasm32-safe. The
+# default SimpleFileOptions stamps a fixed 1980 DOS timestamp (no clock needed),
+# so the same code instantiates under wafer's wasm32-wasip1 AND the browser's
+# wasm32-unknown-unknown build. Used to assemble the .pptx OOXML package.
+zip = { version = "8", default-features = false, features = ["deflate"] }

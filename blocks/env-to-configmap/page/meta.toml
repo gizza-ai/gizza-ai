@@ -1,0 +1,76 @@
+slug          = "env-to-configmap"
+title         = "env to ConfigMap — Convert a .env file to a Kubernetes ConfigMap or Secret"
+description   = "Convert a .env file into a Kubernetes ConfigMap or Secret YAML manifest, in your browser. Base64 Secret data, namespace and labels. Free, private, no upload."
+tags          = ["env to configmap", "dotenv kubernetes", "kubernetes secret generator", "env to secret yaml", "configmap yaml"]
+h1            = "env to Kubernetes ConfigMap / Secret"
+hero_subtitle = "Turn a .env file into a ready-to-apply Kubernetes ConfigMap or Secret manifest. Runs entirely in your browser — secrets never leave your machine."
+wasm          = "gizza_ai_env_to_configmap_web"
+export        = "run"
+live          = false
+output_label  = "YAML manifest"
+format        = "text"
+
+[[input]]
+name        = "env"
+label       = ".env file"
+placeholder = "DB_HOST=localhost\nDB_PORT=5432\nAPI_TOKEN=s3cr3t"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "kind"
+label       = "Manifest kind"
+source      = "field"
+
+[input.labels]
+configmap = "ConfigMap"
+secret    = "Secret"
+
+[[input]]
+name        = "name"
+label       = "metadata.name"
+placeholder = "app-config"
+source      = "field"
+
+[[input]]
+name        = "namespace"
+label       = "Namespace (optional)"
+placeholder = "default"
+source      = "field"
+
+[[input]]
+name        = "secret_encoding"
+label       = "Secret encoding (Secret only)"
+source      = "field"
+
+[input.labels]
+data       = "base64 (data)"
+stringData = "plaintext (stringData)"
+
+[[input]]
+name        = "labels"
+label       = "Labels (optional, key=value,…)"
+placeholder = "app=web,tier=backend"
+source      = "field"
+
+[[example]]
+label = "ConfigMap"
+[example.params]
+env  = "DB_HOST=localhost\nDB_PORT=5432\nLOG_LEVEL=info"
+kind = "configmap"
+name = "app-config"
+
+[[example]]
+label = "Secret (base64)"
+[example.params]
+env  = "API_TOKEN=s3cr3t\nDB_PASSWORD=hunter2"
+kind = "secret"
+name = "app-secrets"
+
+[[example]]
+label = "Secret (stringData)"
+[example.params]
+env             = "API_TOKEN=s3cr3t"
+kind            = "secret"
+name            = "app-secrets"
+secret_encoding = "stringData"

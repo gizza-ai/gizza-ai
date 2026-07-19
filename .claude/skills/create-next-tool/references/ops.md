@@ -46,3 +46,38 @@ pre-read remaining budget from disk; it must react to a limit error (back off / 
 - The page generator prints a "web/pkg not found (skipping WASM copy)" warning per block whose
   wasm-pack output is missing — in a fresh checkout that's ~300 warnings. Harmless for the tool
   you're building (its own page still renders); noisy but expected without the baseline build.
+
+**wafer-run git rev drift (2026-07-18):** a new block lockfile resolved
+`wafer-block`/`wafer-block-macro`/`wafer-sdk` to wafer-run rev `10eb4e3d`, which compiled but made
+`wafer build` validation fail with `skill parameters JSON parse error` / `expected value at line 1
+column 1` from `__wafer_info()`. Existing validated blocks used rev `a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189`.
+Fix new blocks with:
+`cargo update -p wafer-sdk --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189 && cargo update -p wafer-block --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189 && cargo update -p wafer-block-macro --precise a5fa3ae30bd9f05033dc9ec2d5934bc47b60c189`,
+then rerun `cargo test --workspace` and `wafer build`.
+
+**wafer CLI/local rev mismatch (2026-07-18):** on the continuation box, new pure/ffmpeg blocks
+resolved wafer-run rev `915d9925`, which compiled but made the installed `wafer` CLI fail validation
+with `Failed to deserialize BlockInfo from __wafer_info() output: expected value at line 1 column 1`.
+Pinning the new block lockfile to the rev used by already-valid neighboring blocks fixed validation:
+`cargo update -p wafer-sdk --precise 48926f4f && cargo update -p wafer-block --precise 48926f4f && cargo update -p wafer-block-macro --precise 48926f4f`. After pinning, rerun tests and `wafer build`.
+If an ffmpeg skill also fails under that older macro with ``capabilities(...)` and `skill(...)` are
+mutually exclusive`, the local `wafer` CLI is older than some existing source patterns; prefer
+skiplisting a page-unverifiable HEVC/libx265-style tool rather than shipping an unvalidated block.
+
+**No-page URL/ref tools must pass BOTH wafer validation and runtime CLI (2026-07-18).** For a new
+PDF Document-source tool, rev `915d9925` compiled the required `capabilities(network, ...)` form but
+`wafer build` validation failed with empty `__wafer_info()` (`expected value at line 1 column 1`).
+Removing `capabilities(...)` let the wasm validate at rev `48926f4f`, but `gizza tool ... url=...`
+then failed at runtime with `stream_init failed for wafer-run/network` (the same failure existing
+no-page PDF URL/ref blocks show on this box). Treat this as not verifiable for new no-page
+Document/File URL/ref tools until the wafer validation/runtime revs align; clean the scaffold and
+skiplist rather than committing a block that only passes one side of the gate.
+
+**Wafer rev drift RESOLVED at the root (2026-07-19).** The three 2026-07-18 notes above are
+superseded: the correct pin target is always `wafer-run-pin.txt` (repo root), never "the rev
+used by neighboring blocks". `scripts/scaffold-tool.sh` now pins a fresh block's lockfile to
+that pin automatically, and PR CI re-pins every changed block before building + fails if any
+committed `blocks/*/Cargo.lock` disagrees with the pin. If `wafer build` validation fails at
+the pin rev itself, that's a wafer-run bug to fix there (bump the pin via the procedure in
+the workspace memory), not something to route around with ad-hoc `--precise` revs. Block
+Cargo.locks stay gitignored/uncommitted; don't force-add them.

@@ -1,0 +1,67 @@
+slug          = "transcript-clean"
+title         = "Transcript Cleaner — Remove Fillers, Timestamps & Cue Markers"
+description   = "Paste a raw transcript or captions and clean it into readable prose: strip timestamps, remove filler words, merge speaker turns, and fix punctuation locally."
+tags          = ["transcript", "captions", "text", "cleanup", "speaker"]
+h1            = "Transcript Cleaner"
+hero_subtitle = "Paste speech-to-text output, SRT/VTT captions, or meeting notes and get a cleaner transcript with fillers, timestamps, cue markers, and repeated speaker turns tidied."
+wasm          = "gizza_ai_transcript_clean_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Raw transcript"
+placeholder = "[00:01:23] Alice: um i think we should ship this\n[00:01:26] Alice: uh it looks good [laughter]\nBob: like, agreed"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "filler_level"
+label       = "Filler removal"
+placeholder = "standard"
+source      = "field"
+
+[[input]]
+name        = "extra_fillers"
+label       = "Extra fillers"
+placeholder = "you know, right"
+source      = "field"
+
+[[input]]
+name   = "remove_timestamps"
+label  = "Remove timestamps"
+source = "field"
+
+[[input]]
+name   = "remove_brackets"
+label  = "Remove bracketed cues"
+source = "field"
+
+[[input]]
+name   = "merge_speakers"
+label  = "Merge same-speaker turns"
+source = "field"
+
+[[input]]
+name   = "fix_capitalization"
+label  = "Fix capitalization"
+source = "field"
+
+[[input]]
+name   = "fix_punctuation"
+label  = "Fix punctuation"
+source = "field"
+
+[[example]]
+label  = "Meeting excerpt"
+params = { input = "[00:01:23] Alice: um i think we should ship this\n[00:01:26] Alice: uh it looks good [laughter]\nBob: like, agreed", filler_level = "standard", remove_timestamps = "true", remove_brackets = "true", merge_speakers = "true", fix_capitalization = "true", fix_punctuation = "true" }
+
+[[example]]
+label  = "SRT captions"
+params = { input = "1\n00:00:01,000 --> 00:00:04,000\nWEBVTT\nuh hello there", filler_level = "standard" }
+
+[[example]]
+label  = "Aggressive cleanup"
+params = { input = "like, basically we you know need to actually decide", filler_level = "aggressive" }

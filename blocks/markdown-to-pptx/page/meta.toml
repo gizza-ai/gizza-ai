@@ -1,0 +1,56 @@
+slug          = "markdown-to-pptx"
+title         = "Markdown to PowerPoint (PPTX) Converter"
+description   = "Turn a Markdown outline into a real PowerPoint .pptx deck — headings become slides, lists become bullets. Light/dark themes, 16:9 or 4:3. In-browser, nothing uploaded."
+tags          = ["markdown to pptx", "markdown to powerpoint", "markdown to slides", "pptx generator", "outline to slides", "markdown presentation"]
+h1            = "Markdown to PowerPoint (.pptx)"
+hero_subtitle = "Paste a Markdown outline and download a real PowerPoint deck — headings become slide titles, bullets become bullets. Pick where slides split, a light or dark theme, and 16:9 or 4:3. Built in your browser; nothing is uploaded."
+wasm          = "gizza_ai_markdown_to_pptx_web"
+export        = "run"
+live          = false
+output_label  = "Presentation"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown outline"
+placeholder = "# Quarterly Review\n\n- Revenue up 24%\n- Two new markets\n\n# Next Steps\n\n- Hire 3 engineers\n- Ship v2"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "title"
+label       = "Deck title (optional)"
+placeholder = "Q3 Business Review"
+source      = "field"
+
+# split_level renders as a <select> (option list from the descriptor schema);
+# `labels` only enriches the visible text — values stay canonical for deep-links.
+[[input]]
+name   = "split_level"
+label  = "Split slides on"
+source = "field"
+labels = { h1 = "# headings (H1)", h2 = "## headings (H2)", both = "# and ## headings" }
+
+[[input]]
+name   = "theme"
+label  = "Theme"
+source = "field"
+labels = { light = "Light — dark text on white", dark = "Dark — light text on black" }
+
+[[input]]
+name   = "aspect_ratio"
+label  = "Aspect ratio"
+source = "field"
+labels = { "16:9" = "16:9 — widescreen", "4:3" = "4:3 — standard" }
+
+[[example]]
+label  = "Team update (H1 split)"
+params = { markdown = "# Quarterly Review\n\n- Revenue up 24%\n- Two new markets\n\n# Next Steps\n\n- Hire 3 engineers\n- Ship v2", split_level = "h1", theme = "light", aspect_ratio = "16:9" }
+
+[[example]]
+label  = "Sectioned deck (H2 split, dark)"
+params = { markdown = "# Product Launch\n\n## Problem\n\n- Users churn at onboarding\n\n## Solution\n\n- Guided setup\n- Templates\n\n## Timeline\n\n- Beta in March", split_level = "h2", theme = "dark", aspect_ratio = "16:9", title = "Launch Plan" }
+
+[[example]]
+label  = "Slides via --- breaks (4:3)"
+params = { markdown = "- Welcome to the workshop\n\n---\n\n- Agenda\n- Hands-on labs\n\n---\n\n- Questions?", split_level = "h1", theme = "light", aspect_ratio = "4:3" }

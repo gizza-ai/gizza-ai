@@ -1,0 +1,69 @@
+slug          = "csv-sample"
+title         = "CSV Sample — Random, Stratified & Top-N Row Sampler"
+description   = "Take a random, systematic, top-N, bottom-N, or stratified sample of rows from a large CSV. Reproducible by seed, in your browser — no upload, no sign-up."
+tags          = ["csv sample", "random sample csv", "stratified sample", "subsample csv", "sample rows"]
+h1            = "CSV Sample"
+hero_subtitle = "Grab a random, systematic, top/bottom-N, or stratified subset of your CSV rows. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_csv_sample_web"
+export        = "run"
+live          = false
+output_label  = "Sampled CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,group\nAlice,east\nBob,west\nCarol,east\nDan,west"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "method"
+label       = "Method"
+source      = "field"
+
+[[input]]
+name        = "n"
+label       = "Sample size (rows)"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "percent"
+label       = "Percent instead of size (0 = use size)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "stratify_column"
+label       = "Stratify column (for stratified)"
+placeholder = "group"
+source      = "field"
+
+[[input]]
+name        = "seed"
+label       = "Seed (change for a different draw)"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[[example]]
+label  = "Random 2 rows"
+params = { data = "name,group\nAlice,east\nBob,west\nCarol,east\nDan,west", method = "random", n = "2", seed = "42" }
+
+[[example]]
+label  = "Top 3 rows"
+params = { data = "name,group\nAlice,east\nBob,west\nCarol,east\nDan,west", method = "top", n = "3" }
+
+[[example]]
+label  = "Stratified by group"
+params = { data = "name,group\nAlice,east\nBob,west\nCarol,east\nDan,west", method = "stratified", n = "2", stratify_column = "group", seed = "1" }

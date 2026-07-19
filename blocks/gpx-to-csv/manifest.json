@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/gpx-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a GPX track, route, or waypoints into a clean CSV table.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a GPX document into a CSV table with one row per point — columns point_type, name, latitude, longitude, elevation_m, and time, plus a speed_kmh column (opt-in) and any Garmin-style sensor extension columns (heart_rate_bpm, cadence_rpm, power_w, temperature_c) that are present. points selects track/route/waypoint/all; delimiter picks the separator (comma/semicolon/tab/pipe); header toggles the header row; time_format writes the time column as iso/unix or drops it (none); speed adds derived ground speed. Coordinates and elevations are preserved verbatim; fields are RFC-4180 escaped. Paste the GPX contents in the 'gpx' field. Runs entirely in-browser; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "Output CSV field separator. Default comma. Use semicolon for comma-decimal locales, tab for TSV, or pipe.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "gpx": {
+          "description": "The GPX document to convert. Paste the whole file contents — an XML document with <trkpt> (track), <rtept> (route), and/or <wpt> (waypoint) elements carrying lat/lon attributes.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit the column-name header row. Default true; set false for a headerless CSV.",
+          "type": "boolean"
+        },
+        "points": {
+          "default": "all",
+          "description": "Which point types to include as rows. all (default) emits track, route, and waypoint points; or restrict to one of track, route, waypoint.",
+          "enum": [
+            "all",
+            "track",
+            "route",
+            "waypoint"
+          ],
+          "type": "string"
+        },
+        "speed": {
+          "default": false,
+          "description": "Add a speed_kmh column with ground speed derived from consecutive timestamps (haversine distance ÷ Δt) along each track segment / route. Default false.",
+          "type": "boolean"
+        },
+        "time_format": {
+          "default": "iso",
+          "description": "How the time column is written. iso (default) keeps the original ISO-8601 text; unix converts each timestamp to epoch seconds; none drops the time column entirely.",
+          "enum": [
+            "iso",
+            "unix",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "gpx"
+      ],
+      "type": "object"
+    }
+  }
+}

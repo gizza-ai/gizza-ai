@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/transcript-clean",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Clean transcripts: strip timestamps, fillers, and cue markers",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a raw transcript into clean, readable prose. Deterministic (no LLM, no network): it drops timestamps and caption scaffolding (SRT/VTT), strips non-verbal cue markers like [laughter], removes filler words and hyphenated stutters (I-I-I), merges consecutive same-speaker turns, collapses duplicate lines, and normalizes capitalization and punctuation. Filler removal has three levels (off/standard/aggressive) plus a custom word list; each cleanup step is an independent switch.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "extra_fillers": {
+          "default": "",
+          "description": "Comma-separated extra words/phrases to remove at ANY level, e.g. 'you know, right, so'. Matched whole-word, case-insensitive.",
+          "type": "string"
+        },
+        "filler_level": {
+          "default": "standard",
+          "description": "How much filler to strip. 'off' keeps all words. 'standard' removes only unambiguous non-word interjections (um, uh, erm, hmm, mm-hmm). 'aggressive' also removes discourse markers (like, basically, actually, you know, I mean, right) — deterministic, so it can over-strip genuine words.",
+          "enum": [
+            "off",
+            "standard",
+            "aggressive"
+          ],
+          "type": "string"
+        },
+        "fix_capitalization": {
+          "default": true,
+          "description": "Capitalize sentence starts and the standalone pronoun 'i' (i'm, i'll, …).",
+          "type": "boolean"
+        },
+        "fix_punctuation": {
+          "default": true,
+          "description": "Normalize spacing around punctuation, collapse repeated commas, and ensure each line ends with a terminal mark.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The raw transcript to clean — captions (SRT/VTT), a speech-to-text dump, or a pasted call/interview log. Keep one utterance or caption per line; `Name:` / `[Name]:` / `>> Name:` speaker labels are recognized and preserved.",
+          "type": "string"
+        },
+        "merge_speakers": {
+          "default": true,
+          "description": "Merge consecutive turns from the same speaker into one line. Turn off to keep every original turn separate.",
+          "type": "boolean"
+        },
+        "remove_brackets": {
+          "default": true,
+          "description": "Strip bracketed/parenthesized non-verbal cue markers like [laughter], (applause), [inaudible]. Speaker labels are extracted first, so a [Name]: label is kept.",
+          "type": "boolean"
+        },
+        "remove_timestamps": {
+          "default": true,
+          "description": "Strip clock timestamps ([00:01:23], 0:01), SRT sequence numbers, SRT/VTT '-->' cue lines, and the WEBVTT header.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ini-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse INI/conf files into structured JSON and report duplicate keys."

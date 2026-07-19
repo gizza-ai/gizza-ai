@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "file-compressor"
+version = "0.1.0"
+abi = 1
+summary = "Compress or decompress a file (gzip, xz, brotli, zstd)"

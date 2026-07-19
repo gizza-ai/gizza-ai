@@ -1,0 +1,115 @@
+{
+  "name": "gizza-ai/device-mockup-framer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Frame a screenshot inside a clean phone, tablet, laptop, or browser-window mockup",
+  "role": "skill",
+  "tool": {
+    "description": "Frame a screenshot inside a clean device mockup drawn with vector-style bezels, then drop it on a backdrop with an optional soft shadow. device=phone|tablet|laptop|browser. frame_color=black|white|silver (for browser this also picks dark vs light chrome). background=gradient|solid|transparent with bg_color/bg_color2 (#rgb/#rrggbb/#rrggbbaa) + gradient_angle (degrees). padding (px); shadow (bool) + shadow_blur (px) + shadow_opacity (0-1). browser_url sets the address-bar text in browser mode. Returns a PNG (alpha for the bezels/shadow/transparent backdrop). Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "gradient",
+          "description": "Backdrop behind the device: gradient (bg_color→bg_color2), solid (bg_color), or transparent (default gradient).",
+          "enum": [
+            "gradient",
+            "solid",
+            "transparent"
+          ],
+          "type": "string"
+        },
+        "bg_color": {
+          "default": "#6366f1",
+          "description": "Primary backdrop color as #rgb/#rrggbb/#rrggbbaa (default #6366f1 indigo); ignored when background=transparent.",
+          "type": "string"
+        },
+        "bg_color2": {
+          "default": "#a855f7",
+          "description": "Second gradient color as #rgb/#rrggbb/#rrggbbaa (default #a855f7 violet); used only when background=gradient.",
+          "type": "string"
+        },
+        "browser_url": {
+          "default": "example.com",
+          "description": "Address-bar text shown in the browser window's URL bar (default example.com); ignored for phone/tablet/laptop.",
+          "type": "string"
+        },
+        "device": {
+          "default": "phone",
+          "description": "Device shell to frame the shot in: phone, tablet, laptop, or browser window (default phone).",
+          "enum": [
+            "phone",
+            "tablet",
+            "laptop",
+            "browser"
+          ],
+          "type": "string"
+        },
+        "frame_color": {
+          "default": "black",
+          "description": "Device body/bezel color; for the browser it also sets a dark (black) or light (white/silver) chrome (default black).",
+          "enum": [
+            "black",
+            "white",
+            "silver"
+          ],
+          "type": "string"
+        },
+        "gradient_angle": {
+          "default": 135.0,
+          "description": "Gradient direction in degrees, 0=left→right, 90=top→bottom (default 135).",
+          "maximum": 360,
+          "minimum": 0,
+          "type": "number"
+        },
+        "padding": {
+          "default": 64,
+          "description": "Padding in pixels around the device on every side (default 64).",
+          "maximum": 512,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "shadow": {
+          "default": true,
+          "description": "Draw a soft drop shadow behind the device (default true).",
+          "type": "boolean"
+        },
+        "shadow_blur": {
+          "default": 40,
+          "description": "Drop-shadow blur radius in pixels (default 40).",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "shadow_opacity": {
+          "default": 0.35,
+          "description": "Drop-shadow opacity from 0 (invisible) to 1 (solid) (default 0.35).",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

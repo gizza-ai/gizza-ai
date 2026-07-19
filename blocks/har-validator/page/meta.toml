@@ -1,0 +1,24 @@
+slug          = "har-validator"
+title         = "HAR Validator — check an HTTP Archive file's structure"
+description   = "Validate a HAR file against the HAR 1.2 spec: log/entries shape, request/response/timing fields, exact JSON paths, and timing totals."
+tags          = ["har validator", "http archive validator", "validate har file", "har 1.2 spec", "har checker", "har lint"]
+h1            = "HAR Validator"
+hero_subtitle = "Paste a HAR file and check it against the HTTP Archive 1.2 spec — every missing or wrong-typed request, response, and timings field is listed with its exact JSON path, plus timing-total consistency. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_har_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "har"
+label       = "HAR file (JSON)"
+placeholder = "{\"log\":{\"version\":\"1.2\",\"creator\":{\"name\":\"WebInspector\",\"version\":\"537.36\"},\"entries\":[]}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "check_timings"
+label       = "Check timing totals (time = Σ phases)"
+placeholder = "true"
+source      = "field"

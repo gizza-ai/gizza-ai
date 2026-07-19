@@ -1,0 +1,53 @@
+slug          = "jwt-claims-diff"
+title         = "JWT Claims Diff — compare two JSON Web Tokens"
+description   = "Decode two JWTs offline and see exactly which claims were added, removed or changed — with human-readable expiry deltas. Nothing leaves your browser."
+tags          = ["jwt diff", "compare jwt", "jwt claims diff", "jwt compare", "diff two jwts", "jwt token compare"]
+h1            = "JWT Claims Diff"
+hero_subtitle = "Decode two JSON Web Tokens and see exactly which claims were added, removed or changed between them — including human-readable expiry deltas. Runs entirely in your browser; no token is uploaded and no signature is verified."
+wasm          = "gizza_ai_jwt_claims_diff_web"
+export        = "run"
+live          = false
+output_label  = "Claims diff report (JSON)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "left"
+label       = "First JWT (left / old)"
+placeholder = "Paste the old compact JWT (header.payload.signature)…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Second JWT (right / new)"
+placeholder = "Paste the new compact JWT to compare…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "include_header"
+label       = "Also diff the JOSE header (alg, typ, kid…)"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "Role & scope upgrade"
+[example.params]
+left  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJyb2xlIjoidXNlciIsInNjb3BlIjpbInJlYWQiXSwiZXhwIjoxNTE2MjM5MDIyfQ.sig"
+right = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJyb2xlIjoiYWRtaW4iLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwicGxhbiI6InBybyIsImV4cCI6MTUxNjI0MjYyMn0.sig"
+include_header = "true"
+indent = "2"
+
+[[example]]
+label = "Payload only"
+[example.params]
+left  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJyb2xlIjoidXNlciIsInNjb3BlIjpbInJlYWQiXSwiZXhwIjoxNTE2MjM5MDIyfQ.sig"
+right = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjMiLCJyb2xlIjoiYWRtaW4iLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwicGxhbiI6InBybyIsImV4cCI6MTUxNjI0MjYyMn0.sig"
+include_header = "false"
+indent = "2"

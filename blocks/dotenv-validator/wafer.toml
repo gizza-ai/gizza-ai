@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dotenv-validator"
+version = "0.1.0"
+abi = 1
+summary = "Lint a .env file for duplicate keys, unquoted spaces and bad interpolation."

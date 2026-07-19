@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-chart-generator"
+version = "0.1.0"
+abi = 1
+summary = "Turn CSV columns into a bar, line, scatter, or histogram chart as an SVG"

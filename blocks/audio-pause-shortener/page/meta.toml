@@ -1,0 +1,55 @@
+slug          = "audio-pause-shortener"
+title         = "Shorten Audio Pauses Online"
+description   = "Tighten speech pacing by shortening long silent gaps to a natural pause length in your browser. Nothing is uploaded, free."
+tags          = ["audio", "silence", "pause", "podcast", "speech", "ffmpeg", "editing"]
+h1            = "Shorten Long Audio Pauses"
+hero_subtitle = "Upload a recording, set the longest pause you want to keep, and tighten long silences locally in your browser."
+wasm          = "gizza_ai_audio_pause_shortener_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Tightened audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "threshold_db"
+source      = "field"
+label       = "Silence threshold (dB)"
+placeholder = "-30"
+
+[[input]]
+name        = "max_pause"
+source      = "field"
+label       = "Shorten pauses longer than (seconds)"
+placeholder = "1.5"
+
+[[input]]
+name        = "target_pause"
+source      = "field"
+label       = "Keep this much pause (seconds)"
+placeholder = "0.5"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+
+[input.labels]
+mp3  = "MP3"
+wav  = "WAV"
+ogg  = "OGG"
+flac = "FLAC"
+m4a  = "M4A"
+
+[[example]]
+label = "Podcast pacing"
+params = { threshold_db = "-30", max_pause = "1.5", target_pause = "0.5", format = "mp3" }
+
+[[example]]
+label = "Tight voice note"
+params = { threshold_db = "-35", max_pause = "1", target_pause = "0.25", format = "m4a" }

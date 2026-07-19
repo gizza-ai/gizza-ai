@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-pipeline-playground"
+version = "0.1.0"
+abi = 1
+summary = "Run text through a chain of transforms (grep, replace, sort, unique, head…) with a tiny safe DSL."

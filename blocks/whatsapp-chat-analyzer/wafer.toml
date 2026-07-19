@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "whatsapp-chat-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Analyze an exported WhatsApp chat for stats, busiest times, and top words/emoji"

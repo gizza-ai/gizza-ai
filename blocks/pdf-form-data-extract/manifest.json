@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/pdf-form-data-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract AcroForm field values from a PDF as JSON or CSV",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Read the filled values of an interactive (AcroForm) PDF and return each field's name, type, and value as JSON or CSV. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Field names are fully qualified (nested subform fields are dotted, e.g. `form1.first`) and types are classified as text, checkbox, radio, pushbutton, dropdown, listbox, or signature. Choose `format` (json/csv), a csv `delimiter` (comma/semicolon/tab), and whether to `include_empty` unfilled fields. Reads the AcroForm layer (incl. UTF-16BE field names on IRS-style forms); it does not parse pure XFA/XML-only forms, and a PDF with no form fields is reported as an error.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter for csv output: \"comma\" (.csv), \"semicolon\", or \"tab\" (.tsv). Ignored when format is json. Default \"comma\".",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "json",
+          "description": "Output format: \"json\" (array of {name, type, value} objects) or \"csv\" (delimited name,type,value rows). Default \"json\".",
+          "enum": [
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_empty": {
+          "default": true,
+          "description": "Include fields that have no value (unfilled text fields, unchecked boxes). Set false to return only filled fields. Default true.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

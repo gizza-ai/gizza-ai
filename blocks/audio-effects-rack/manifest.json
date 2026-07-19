@@ -1,0 +1,94 @@
+{
+  "name": "gizza-ai/audio-effects-rack",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Apply reverb, echo, chorus, tremolo and compression to audio",
+  "role": "skill",
+  "tool": {
+    "description": "Run an audio file through a five-stage effects rack in one pass. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Stages, applied in signal order: compression (none|light|medium|heavy — evens loudness), chorus (none|light|deep — detuned width), tremolo (0–20 Hz amplitude wobble, 0 = off), echo (0–1000 ms single repeat, 0 = off), reverb (none|room|hall|plate — ambience). Each stage left at none/0 is skipped; at least one must be active. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "chorus": {
+          "default": "none",
+          "description": "Chorus (detuned doubling for width): light adds one gentle voice, deep two for a lush shimmer. none skips the chorus stage.",
+          "enum": [
+            "none",
+            "light",
+            "deep"
+          ],
+          "type": "string"
+        },
+        "compression": {
+          "default": "none",
+          "description": "Dynamic-range compression (evens loud/quiet swings): light gently, heavy squashes hard for a loud, upfront sound. none skips it. This is loudness, not file-size, compression.",
+          "enum": [
+            "none",
+            "light",
+            "medium",
+            "heavy"
+          ],
+          "type": "string"
+        },
+        "echo": {
+          "default": 0.0,
+          "description": "Echo delay in milliseconds (single repeat): 250 is a quarter-second slapback, 500 a long doubling. 0 turns echo off. Max 1000 ms.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "reverb": {
+          "default": "none",
+          "description": "Reverb space (multi-tap ambience): room is a tight small space, hall a big spacious tail, plate a bright dense sheen. none skips the reverb stage.",
+          "enum": [
+            "none",
+            "room",
+            "hall",
+            "plate"
+          ],
+          "type": "string"
+        },
+        "tremolo": {
+          "default": 0.0,
+          "description": "Tremolo rate in Hz (amplitude wobble, 70% depth): 4 is a slow pulse, 8 a fast shimmer. 0 turns tremolo off. Range 0.1–20 Hz.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

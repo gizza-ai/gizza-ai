@@ -121,6 +121,13 @@ fn lookup(cc: &str) -> Option<(usize, &'static str)> {
         .map(|(_, len, name)| (*len, *name))
 }
 
+/// Expected total IBAN length for an ISO 3166-1 alpha-2 country code, from the
+/// SWIFT IBAN registry. Returns `None` for a country that has no IBAN. Public so
+/// text-scanning tools (e.g. iban-extractor-validator) can size each candidate.
+pub fn expected_length(country_code: &str) -> Option<usize> {
+    lookup(country_code).map(|(len, _)| len)
+}
+
 /// Bank / branch / account split for common countries with a well-known BBAN
 /// structure. Returns (bank_code, branch_code, account_number).
 fn split_bban(cc: &str, bban: &str) -> (Option<String>, Option<String>, Option<String>) {

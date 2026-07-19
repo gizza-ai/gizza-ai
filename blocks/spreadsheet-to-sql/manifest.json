@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/spreadsheet-to-sql",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a spreadsheet (.xlsx/.xls/.ods) to SQL CREATE TABLE + INSERT statements",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Read a spreadsheet (.xlsx, .xlsm, .xls, or .ods) and emit CREATE TABLE plus INSERT statements — one table per worksheet. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Pick the SQL `dialect` (mysql, postgres, sqlite, mssql). Optionally choose one `sheet` (name or 0-based index; omit for all sheets) and a `table` name. Toggle `create_table` (schema + inserts vs inserts only), `header_row` (first row as column names), `infer_types` (integer/float/boolean/text vs all-text), and `batch_insert` (one multi-row INSERT vs one per row). Empty cells become NULL.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "batch_insert": {
+          "default": true,
+          "description": "Emit one multi-row INSERT ... VALUES (...),(...) per sheet. When false, emit a separate INSERT per row. Default true.",
+          "type": "boolean"
+        },
+        "create_table": {
+          "default": true,
+          "description": "Emit a CREATE TABLE statement before the inserts. Set false for INSERT statements only. Default true.",
+          "type": "boolean"
+        },
+        "dialect": {
+          "default": "mysql",
+          "description": "Target SQL dialect. Sets identifier quoting (mysql=`backticks`, postgres/sqlite=\"quotes\", mssql=[brackets]), value escaping, and inferred column types. Default mysql.",
+          "enum": [
+            "mysql",
+            "postgres",
+            "sqlite",
+            "mssql"
+          ],
+          "type": "string"
+        },
+        "header_row": {
+          "default": true,
+          "description": "Treat each sheet's first row as column names. When false, columns are named col1..colN and the first row is inserted as data. Default true.",
+          "type": "boolean"
+        },
+        "infer_types": {
+          "default": true,
+          "description": "Infer column SQL types (integer/float/boolean/text) from the data. When false, every column is a text type. Default true.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sheet": {
+          "description": "Worksheet to convert: a sheet name, or a 0-based index as a string (e.g. \"0\"). Omit for every sheet (one CREATE TABLE + INSERT block per sheet).",
+          "type": "string"
+        },
+        "table": {
+          "description": "Base table name to use instead of the sheet name. With multiple sheets it becomes a prefix (`{table}_{sheet}`). Names are sanitized to safe identifiers.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

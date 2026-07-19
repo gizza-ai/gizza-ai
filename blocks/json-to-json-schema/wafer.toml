@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-json-schema"
+version = "0.1.0"
+abi = 1
+summary = "Infer a JSON Schema from JSON examples"

@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/csv-chart-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn CSV columns into a bar, line, scatter, or histogram chart as an SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Chart columns of a CSV as a standalone SVG. Paste CSV text, name the columns to plot, and get a bar, line, scatter, or histogram chart. Bar charts take a categorical X column and a numeric Y column; line and scatter take numeric X and Y (line sorts by X and joins the points); a histogram bins one numeric column (given as y_column) into 2–100 buckets. Columns are chosen by header name (case-insensitive) or 1-based index. Options: title, width and height in pixels, series color (any CSS color), and bins for histograms. The output is a self-contained SVG string — no plotting library, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "default": 10,
+          "description": "Number of buckets for a histogram (2–100). Ignored for other chart types. Default 10.",
+          "maximum": 100,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "chart_type": {
+          "default": "bar",
+          "description": "Chart to draw: 'bar' (categorical X, numeric Y), 'line' (numeric or ordered X, numeric Y, points joined), 'scatter' (numeric X vs numeric Y), or 'histogram' (bin one numeric column into buckets). Default bar.",
+          "enum": [
+            "bar",
+            "line",
+            "scatter",
+            "histogram"
+          ],
+          "type": "string"
+        },
+        "color": {
+          "default": "#2563eb",
+          "description": "Series color for bars, the line, or the points — any CSS color (e.g. `#2563eb`, `tomato`, `rgb(20,120,200)`). Default #2563eb.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text to chart. Include a header row when you can (e.g. `month,revenue`); a first row that is not entirely numeric is treated as headers. Quoted fields with embedded commas are handled.",
+          "type": "string"
+        },
+        "height": {
+          "default": 400,
+          "description": "SVG height in pixels (150–4000). Default 400.",
+          "maximum": 4000,
+          "minimum": 150,
+          "type": "integer"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn centered above the plot.",
+          "type": "string"
+        },
+        "width": {
+          "default": 800,
+          "description": "SVG width in pixels (200–4000). Default 800.",
+          "maximum": 4000,
+          "minimum": 200,
+          "type": "integer"
+        },
+        "x_column": {
+          "default": "",
+          "description": "Column for the X axis of bar/line/scatter charts: a header name (case-insensitive) or a 1-based column index. Not used for histograms.",
+          "type": "string"
+        },
+        "y_column": {
+          "description": "The numeric value column (Y axis) for bar/line/scatter. For a histogram this is the single numeric column whose values are binned. A header name (case-insensitive) or a 1-based column index.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "y_column"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-time-stretch"
+version = "0.1.0"
+abi = 1
+summary = "Speed audio up or down without changing the pitch"

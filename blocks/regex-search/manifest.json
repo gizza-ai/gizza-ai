@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/regex-search",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Grep-style search: return the text lines matching a regex or literal pattern",
+  "role": "skill",
+  "tool": {
+    "description": "Search text line by line and return the whole lines that match a pattern, grep-style. The pattern is a regular expression (Rust regex syntax) by default, or a literal fixed string when literal is on. Toggle ignore_case for case-insensitive matching, whole_word to match only complete words, and invert to return the NON-matching lines instead. Set context to include that many lines before and after each match, line_numbers to prefix lines with their number, and highlight to wrap matched substrings in angle-quote markers. Returns a grep-style listing with a count of matching lines. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "default": "0",
+          "description": "Also include this many lines of context before and after each matching line (like grep -C). Use a non-negative integer; default 0.",
+          "type": "string"
+        },
+        "highlight": {
+          "default": false,
+          "description": "Wrap each matched substring on a matching line in angle-quote markers.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match case-insensitively.",
+          "type": "boolean"
+        },
+        "invert": {
+          "default": false,
+          "description": "Return the lines that do NOT match instead (like grep -v).",
+          "type": "boolean"
+        },
+        "line_numbers": {
+          "default": true,
+          "description": "Prefix each line with its 1-based line number (':' for a match, '-' for a context line).",
+          "type": "boolean"
+        },
+        "literal": {
+          "default": false,
+          "description": "Treat the pattern as a literal fixed string (escape regex metacharacters) instead of a regular expression.",
+          "type": "boolean"
+        },
+        "pattern": {
+          "description": "The pattern to search for: a regular expression (Rust regex syntax), or a literal string when 'literal' is on.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to search, line by line.",
+          "type": "string"
+        },
+        "whole_word": {
+          "default": false,
+          "description": "Only match when the pattern forms a whole word (bounded by word boundaries).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

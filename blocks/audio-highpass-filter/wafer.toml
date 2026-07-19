@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-highpass-filter"
+version = "0.1.0"
+abi = 1
+summary = "High-pass filter an audio file to cut low-frequency rumble"

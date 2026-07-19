@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/audio-highpass-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "High-pass filter an audio file to cut low-frequency rumble",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a high-pass (low-cut) filter to an audio file with ffmpeg's highpass biquad: frequencies above the cutoff pass through, low-frequency rumble/hum/HVAC drone/handling noise below it is attenuated. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). cutoff is the corner frequency in Hz (10–2000, default 80). rolloff is the slope in dB/octave: 6, 12 (default), 24 or 48. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "cutoff": {
+          "default": 80.0,
+          "description": "Cutoff frequency in Hz: everything below this is attenuated, everything above passes. 80 is the standard rumble cut for voice; raise to 100–120 for stubborn hum. Range 10–2000, default 80.",
+          "maximum": 2000,
+          "minimum": 10,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rolloff": {
+          "default": "12",
+          "description": "Filter steepness below the cutoff, in dB/octave: 6 is gentle/transparent, 12 is the natural default for voice, 24 tightens the low end, 48 is a steep brick-wall cut (can thin the sound). Default 12.",
+          "enum": [
+            "6",
+            "12",
+            "24",
+            "48"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/search-index-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a serialized full-text inverted-index JSON from a JSON array of documents.",
+  "role": "skill",
+  "tool": {
+    "description": "Build a serialized full-text search index (an inverted index, as JSON) from a JSON array of document objects, so a static site can search offline with no server. Every indexed field is tokenized (split on non-alphanumeric boundaries) and the index maps each token to the documents it appears in, per field, with a document frequency (df) and a per-document term frequency — everything a client needs to rank with TF-IDF. Pass 'documents' as a JSON array like [{\"id\":\"1\",\"title\":\"Intro\",\"body\":\"Hello world\"}]. Choose which fields to index, which field is the id/ref, and which fields to store for display. Toggle lowercase folding, English stop-word removal, and a minimum token length; record optional per-field ranking boosts. Output is deterministic JSON.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "boosts": {
+          "default": "",
+          "description": "Optional per-field ranking weights recorded in the output for the query-time ranker, as a 'field:weight' list (e.g. 'title:2,body:1'). Empty (default) records no boosts.",
+          "type": "string"
+        },
+        "documents": {
+          "description": "A JSON array of document objects to index, e.g. [{\"id\":\"1\",\"title\":\"Intro\",\"body\":\"Hello world\"}]. This is the in-model stand-in for a folder of documents: a static-site build step reads the folder and passes the array here.",
+          "type": "string"
+        },
+        "fields": {
+          "default": "",
+          "description": "Comma-separated field names to full-text index (e.g. 'title,body'). Leave empty to index every string-valued field found across the documents, except the id field.",
+          "type": "string"
+        },
+        "id_field": {
+          "default": "id",
+          "description": "Which field supplies each document's ref (the identifier stored in the index). Default 'id'. When a document lacks this field, its 0-based position in the array is used instead. Refs must be unique.",
+          "type": "string"
+        },
+        "lowercase": {
+          "default": true,
+          "description": "Case-fold tokens to lowercase for case-insensitive search. Default true; set false to keep tokens case-sensitive.",
+          "type": "boolean"
+        },
+        "min_length": {
+          "default": 1,
+          "description": "Drop tokens shorter than this many characters, 1-20. Default 1 (keep all). Use 2 or 3 to skip single letters and short noise.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Pretty-print the index JSON with indentation. Default false (compact single line, smaller for shipping to a static site).",
+          "type": "boolean"
+        },
+        "remove_stopwords": {
+          "default": false,
+          "description": "Drop common English stop words (the, and, of, to, …) from the index. Default false.",
+          "type": "boolean"
+        },
+        "store_fields": {
+          "default": "",
+          "description": "Comma-separated fields to copy verbatim into the output 'documents' store for display alongside search results (e.g. 'title,url'). Empty (default) stores nothing but the ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "type": "object"
+    }
+  }
+}

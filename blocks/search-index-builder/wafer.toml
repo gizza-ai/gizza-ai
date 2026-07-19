@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "search-index-builder"
+version = "0.1.0"
+abi = 1
+summary = "Build a serialized full-text inverted-index JSON from a JSON array of documents."

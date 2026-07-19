@@ -1,0 +1,38 @@
+slug          = "video-remove-embedded-subs"
+title         = "Remove Embedded Subtitles From Video Online"
+description   = "Strip all soft subtitle and caption streams from a video locally with ffmpeg stream copy — keep the video and audio intact, no upload and no re-encode."
+tags          = ["video", "subtitles", "captions", "remove", "strip", "ffmpeg", "remux", "mkv"]
+h1            = "Remove Embedded Subtitles From Video"
+hero_subtitle = "Upload a video and remux it locally to drop every embedded subtitle track while keeping the original audio and video quality."
+wasm          = "gizza_ai_video_remove_embedded_subs_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Subtitle-free video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "container"
+source      = "field"
+label       = "Output container"
+placeholder = "keep"
+
+[input.labels]
+keep = "Keep input container"
+mp4  = "MP4 (.mp4)"
+mkv  = "Matroska (.mkv)"
+
+[[example]]
+label = "Keep container"
+[example.params]
+container = "keep"
+
+[[example]]
+label = "Convert to MP4"
+[example.params]
+container = "mp4"

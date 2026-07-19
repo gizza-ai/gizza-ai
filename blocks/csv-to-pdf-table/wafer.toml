@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-to-pdf-table"
+version = "0.1.0"
+abi = 1
+summary = "Render CSV table data as a formatted, paginated PDF table"

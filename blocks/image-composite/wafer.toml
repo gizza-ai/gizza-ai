@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-composite"
+version = "0.1.0"
+abi = 1
+summary = "Overlay one image onto another with position, scale, opacity, and blend modes."

@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/evtx-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a Windows .evtx event log into filterable structured JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Windows Event Log (.evtx) file into structured JSON. Decodes the binary EVTX chunks into a flat list of records — each with its record id, timestamp, event id, provider (source), level (with name), channel, computer, and the full parsed System/EventData object. Filter by event id, provider name, channel, and an inclusive ISO-8601 time range (after/before); cap results with max_records; or set summary=true for aggregate counts (by event id, provider, and level) plus the file's time span instead of the records — ideal for triaging a large log first. Provide the .evtx as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally, pure Rust.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "after": {
+          "description": "Only records at or after this instant. ISO-8601, e.g. \"2016-06-29T15:00:00Z\" or a bare date \"2016-06-29\" (start of that UTC day). Empty (default) = no lower bound.",
+          "type": "string"
+        },
+        "before": {
+          "description": "Only records at or before this instant. Same format as `after`. Empty (default) = no upper bound.",
+          "type": "string"
+        },
+        "channel": {
+          "description": "Only return records on this log channel, case-insensitive exact match, e.g. \"Security\", \"System\", \"Application\". Empty (default) matches all channels.",
+          "type": "string"
+        },
+        "event_ids": {
+          "description": "Only return records with these Windows Event IDs. Comma-separated list of numbers, e.g. \"4624,4634,4688\". Empty (default) returns every event.",
+          "type": "string"
+        },
+        "include_data": {
+          "default": true,
+          "description": "Include the full parsed record object (System + EventData) under `data` for each record (default true). Set false for a compact list of just the summary fields.",
+          "type": "boolean"
+        },
+        "max_records": {
+          "default": 100,
+          "description": "Maximum number of records to return, in file order (0 = all). Default 100 keeps output bounded; the response's `matched_records`/`truncated` tell you if more matched.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "providers": {
+          "description": "Only return records whose provider (source) name contains one of these, case-insensitive. Comma-separated, e.g. \"Security-Auditing,Sysmon\". Empty (default) matches all providers.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "summary": {
+          "default": false,
+          "description": "Return aggregate counts instead of the records: totals by event id, provider, and level, plus the earliest/latest timestamp over the matched records. Great for triaging a large log before drilling in.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

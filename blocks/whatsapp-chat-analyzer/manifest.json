@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/whatsapp-chat-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze an exported WhatsApp chat for stats, busiest times, and top words/emoji",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an exported WhatsApp chat (paste the _chat.txt from an iOS export or the .txt from an Android export) and return a plain-text report: total messages, participants, words, media and link counts; messages per person with each person's share; the busiest hours of the day and busiest days of the week; and the most-used words and emoji. Handles both the iOS bracketed format ([2024-01-05, 21:07:33] Alice: …) and the Android dash format (05/01/2024, 21:07 - Alice: …), folds multi-line messages, and skips system/notification lines. Options: date_format (auto/dmy/mdy/ymd for ambiguous dates), top (how many words/emoji to list), min_word_length, and ignore_stopwords. Fully local and deterministic — no AI model, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "chat": {
+          "description": "The exported WhatsApp chat text. Open the exported _chat.txt (iOS) or the .txt export (Android) and paste its full contents.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "auto",
+          "description": "How to read ambiguous numeric dates for the busiest-days breakdown: auto (detect), dmy (day/month/year), mdy (month/day/year), ymd (ISO year-month-day). Default auto.",
+          "enum": [
+            "auto",
+            "dmy",
+            "mdy",
+            "ymd"
+          ],
+          "type": "string"
+        },
+        "ignore_stopwords": {
+          "default": true,
+          "description": "When true (default), drop common English filler words (the, and, you, lol, …) from the word ranking.",
+          "type": "boolean"
+        },
+        "min_word_length": {
+          "default": 3,
+          "description": "Ignore words shorter than this many characters in the word ranking (1 = keep all). Default 3.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "top": {
+          "default": 10,
+          "description": "How many entries to list in the top-words and top-emoji rankings (0 = all). Default 10.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "chat"
+      ],
+      "type": "object"
+    }
+  }
+}

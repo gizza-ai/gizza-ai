@@ -1,0 +1,80 @@
+slug          = "gpx-merge"
+title         = "GPX Merge — Combine Multiple GPX Files Into One Track"
+description   = "Merge several GPX files, tracks, routes and waypoints into one GPX 1.1 file, ordered chronologically by timestamp. Runs in your browser; nothing is uploaded."
+tags          = ["gpx merge", "combine gpx files", "merge gpx tracks", "join gpx", "gpx combiner", "gps track merge", "gpx joiner online"]
+h1            = "GPX Merge"
+hero_subtitle = "Paste two or more GPX files and combine their tracks, routes and waypoints into a single GPX 1.1 file — ordered chronologically by timestamp. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_gpx_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged GPX"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "GPX files (paste one or more, one after another)"
+placeholder = "<?xml version=\"1.0\"?>\n<gpx version=\"1.1\"><trk><name>Morning</name><trkseg>\n  <trkpt lat=\"52.100\" lon=\"5.100\"><time>2024-01-01T08:00:00Z</time></trkpt>\n</trkseg></trk></gpx>"
+source      = "field"
+multiline   = true
+
+# merge_mode renders as a <select>; options derive from the descriptor enum.
+[[input]]
+name   = "merge_mode"
+label  = "Merge mode"
+source = "field"
+
+[input.labels]
+single-track                = "Single track (one continuous segment)"
+single-track-multi-segment  = "Single track, keep segment breaks"
+separate-tracks             = "Separate tracks (keep each source track)"
+
+[[input]]
+name   = "sort_by_time"
+label  = "Order chronologically by timestamp"
+source = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Drop duplicate points where files overlap"
+source = "field"
+
+[[input]]
+name   = "include_waypoints"
+label  = "Keep waypoints (<wpt>)"
+source = "field"
+
+[[input]]
+name        = "track_name"
+label       = "Merged track name"
+placeholder = "Merged track"
+source      = "field"
+
+[[example]]
+label = "Two runs → one chronological track"
+[example.params]
+input = "<?xml version=\"1.0\"?>\n<gpx version=\"1.1\"><trk><name>Morning</name><trkseg>\n<trkpt lat=\"52.100\" lon=\"5.100\"><ele>10</ele><time>2024-01-01T08:00:00Z</time></trkpt>\n<trkpt lat=\"52.101\" lon=\"5.102\"><time>2024-01-01T08:05:00Z</time></trkpt>\n</trkseg></trk></gpx>\n<?xml version=\"1.0\"?>\n<gpx version=\"1.1\"><trk><name>Evening</name><trkseg>\n<trkpt lat=\"52.090\" lon=\"5.090\"><time>2024-01-01T07:00:00Z</time></trkpt>\n<trkpt lat=\"52.110\" lon=\"5.110\"><time>2024-01-01T09:00:00Z</time></trkpt>\n</trkseg></trk></gpx>"
+merge_mode = "single-track"
+sort_by_time = "true"
+dedupe = "false"
+include_waypoints = "true"
+track_name = "Merged track"
+
+[[example]]
+label = "Keep each day as its own track"
+[example.params]
+input = "<gpx version=\"1.1\"><trk><name>Day 1</name><trkseg>\n<trkpt lat=\"46.00\" lon=\"7.00\"><time>2024-06-01T08:00:00Z</time></trkpt>\n<trkpt lat=\"46.01\" lon=\"7.01\"><time>2024-06-01T12:00:00Z</time></trkpt>\n</trkseg></trk></gpx>\n<gpx version=\"1.1\"><trk><name>Day 2</name><trkseg>\n<trkpt lat=\"46.05\" lon=\"7.05\"><time>2024-06-02T08:00:00Z</time></trkpt>\n<trkpt lat=\"46.06\" lon=\"7.06\"><time>2024-06-02T12:00:00Z</time></trkpt>\n</trkseg></trk></gpx>"
+merge_mode = "separate-tracks"
+sort_by_time = "true"
+dedupe = "false"
+include_waypoints = "true"
+track_name = "Merged track"
+
+[[example]]
+label = "Dedupe an overlapping join"
+[example.params]
+input = "<gpx><trk><trkseg>\n<trkpt lat=\"1.0\" lon=\"2.0\"><time>2024-01-01T08:00:00Z</time></trkpt>\n<trkpt lat=\"1.5\" lon=\"2.5\"><time>2024-01-01T08:05:00Z</time></trkpt>\n</trkseg></trk></gpx>\n<gpx><trk><trkseg>\n<trkpt lat=\"1.5\" lon=\"2.5\"><time>2024-01-01T08:05:00Z</time></trkpt>\n<trkpt lat=\"2.0\" lon=\"3.0\"><time>2024-01-01T08:10:00Z</time></trkpt>\n</trkseg></trk></gpx>"
+merge_mode = "single-track"
+sort_by_time = "true"
+dedupe = "true"
+include_waypoints = "true"
+track_name = "Combined route"

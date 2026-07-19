@@ -1,0 +1,73 @@
+slug          = "whatsapp-chat-analyzer"
+title         = "WhatsApp Chat Analyzer — Stats, Busiest Times, Top Words & Emoji"
+description   = "Paste an exported WhatsApp chat to count messages per person, busiest hours and days, and top words and emoji. Fully in-browser — nothing is uploaded."
+tags          = ["whatsapp chat analyzer", "chat statistics", "message counter", "emoji frequency", "word frequency", "busiest hours", "who texts most", "chat export"]
+h1            = "Analyze an Exported WhatsApp Chat"
+hero_subtitle = "Paste a WhatsApp chat export and see who sends the most, the busiest hours and days, and your most-used words and emoji. Runs locally in your browser — no upload, no account."
+wasm          = "gizza_ai_whatsapp_chat_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Chat summary"
+format        = "text"
+
+[[input]]
+name        = "chat"
+label       = "Exported chat text"
+placeholder = "[2024-01-05, 21:07:33] Alice: Hey Bob 😂😂 how are you?\n[2024-01-05, 21:08:01] Bob: good thanks! www.example.com\n[2024-01-06, 09:16:10] Bob: nice 😂"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "date_format"
+label  = "Date format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+dmy  = "Day / Month / Year"
+mdy  = "Month / Day / Year"
+ymd  = "Year-Month-Day (ISO)"
+
+[[input]]
+name        = "top"
+label       = "Top words / emoji to list"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "min_word_length"
+label       = "Minimum word length"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name   = "ignore_stopwords"
+label  = "Ignore common filler words"
+source = "field"
+
+[[example]]
+label = "iOS export (sample chat)"
+[example.params]
+chat = "[2024-01-05, 21:07:33] Alice: Hey Bob 😂😂 how are you?\n[2024-01-05, 21:08:01] Bob: good thanks! www.example.com\n[2024-01-06, 09:15:00] Alice: ‎image omitted\n[2024-01-06, 09:16:10] Bob: nice 😂"
+date_format = "auto"
+top = "10"
+min_word_length = "3"
+ignore_stopwords = "true"
+
+[[example]]
+label = "Android export (dash format)"
+[example.params]
+chat = "05/01/2024, 21:07 - Alice: pizza tonight? 🍕\n05/01/2024, 21:09 - Bob: yes please 🍕🍕\n06/01/2024, 08:00 - Alice: morning"
+date_format = "dmy"
+top = "10"
+min_word_length = "3"
+ignore_stopwords = "true"
+
+[[example]]
+label = "Keep every word (no filters)"
+[example.params]
+chat = "[2024-01-05, 21:07:33] Alice: Hey Bob 😂😂 how are you?\n[2024-01-05, 21:08:01] Bob: good thanks! www.example.com\n[2024-01-06, 09:16:10] Bob: nice 😂"
+date_format = "auto"
+top = "0"
+min_word_length = "1"
+ignore_stopwords = "false"

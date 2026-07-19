@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "vcard-normalize"
+version = "0.1.0"
+abi = 1
+summary = "Normalize emails, phone numbers, and names in vCard address books."

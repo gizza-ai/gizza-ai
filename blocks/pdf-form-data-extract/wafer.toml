@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-form-data-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract AcroForm field values from a PDF as JSON or CSV"

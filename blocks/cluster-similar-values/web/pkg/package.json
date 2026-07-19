@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-cluster-similar-values-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_cluster_similar_values_web_bg.wasm",
+    "gizza_ai_cluster_similar_values_web.js",
+    "gizza_ai_cluster_similar_values_web.d.ts"
+  ],
+  "main": "gizza_ai_cluster_similar_values_web.js",
+  "types": "gizza_ai_cluster_similar_values_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

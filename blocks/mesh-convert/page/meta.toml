@@ -1,0 +1,88 @@
+slug          = "mesh-convert"
+title         = "OBJ to STL Converter — convert Wavefront OBJ and STL meshes"
+description   = "Convert pasted OBJ or ASCII STL meshes to OBJ, ASCII STL, or binary STL data URLs. Supports scaling, Y-up/Z-up axis swaps, and triangulation."
+tags          = ["obj to stl", "stl to obj", "mesh converter", "3d model", "wavefront obj", "ascii stl", "binary stl", "3d printing"]
+h1            = "OBJ ↔ STL Mesh Converter"
+hero_subtitle = "Paste Wavefront OBJ or ASCII STL text, then convert it to OBJ, ASCII STL, or a saveable binary STL data URL. Scale vertices, swap Y-up/Z-up axes, and triangulate polygon faces locally in your browser."
+wasm          = "gizza_ai_mesh_convert_web"
+export        = "run"
+live          = false
+output_label  = "Converted mesh"
+format        = "text"
+
+[[input]]
+name        = "mesh"
+label       = "Mesh text (OBJ or ASCII STL)"
+placeholder = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "to"
+label  = "Convert to"
+source = "field"
+
+[input.labels]
+stl = "STL"
+obj = "OBJ"
+
+[[input]]
+name   = "stl_encoding"
+label  = "STL encoding"
+source = "field"
+
+[input.labels]
+ascii  = "ASCII STL"
+binary = "Binary STL data URL"
+
+[[input]]
+name        = "scale"
+label       = "Scale factor"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "axis"
+label  = "Axis conversion"
+source = "field"
+
+[input.labels]
+keep           = "Keep axes"
+y-up-to-z-up   = "Y-up → Z-up"
+z-up-to-y-up   = "Z-up → Y-up"
+
+[[input]]
+name        = "name"
+label       = "Mesh name"
+placeholder = "mesh"
+source      = "field"
+
+[[example]]
+label = "OBJ triangle → ASCII STL"
+[example.params]
+mesh = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3"
+to = "stl"
+stl_encoding = "ascii"
+scale = "1"
+axis = "keep"
+name = "triangle"
+
+[[example]]
+label = "ASCII STL → OBJ"
+[example.params]
+mesh = "solid tri\n facet normal 0 0 1\n  outer loop\n   vertex 0 0 0\n   vertex 1 0 0\n   vertex 0 1 0\n  endloop\n endfacet\nendsolid tri"
+to = "obj"
+stl_encoding = "ascii"
+scale = "1"
+axis = "keep"
+name = "tri"
+
+[[example]]
+label = "Scale for 3D printing"
+[example.params]
+mesh = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3"
+to = "stl"
+stl_encoding = "ascii"
+scale = "25.4"
+axis = "y-up-to-z-up"
+name = "scaled_triangle"

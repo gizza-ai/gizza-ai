@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/cluster-similar-values",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fuzzy-cluster near-duplicate text values in a column",
+  "role": "skill",
+  "tool": {
+    "description": "Fuzzy-cluster near-duplicate text values in one column and propose a canonical form per cluster. Feed a CSV (pick the `column` by header name or 1-based index) or a plain newline list (leave `column` blank). Values that differ only by typos, casing, or spacing are grouped by a normalized Levenshtein similarity: two values join when their similarity (0–100) is at least `threshold` (default 85). `normalize_case`/`normalize_spacing` fold case and whitespace before comparing. Each cluster's canonical suggestion is its most frequent original value. `output` is markdown (clusters + mapping table), csv (a flat original→canonical mapping), or json. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "default": "",
+          "description": "Which column to cluster: a header name (needs header=true) or a 1-based index. Blank uses the only column (e.g. a newline list).",
+          "type": "string"
+        },
+        "data": {
+          "description": "The values to cluster: a CSV table, or a plain list with one value per line.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator for CSV: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','; harmless for a newline list.",
+          "type": "string"
+        },
+        "header": {
+          "default": false,
+          "description": "Treat the first row as a header (skipped from clustering, and usable to name the column). Default false — leave off for a plain list of values.",
+          "type": "boolean"
+        },
+        "normalize_case": {
+          "default": true,
+          "description": "Ignore letter case when comparing (so 'USA' and 'usa' match). Default true.",
+          "type": "boolean"
+        },
+        "normalize_spacing": {
+          "default": true,
+          "description": "Collapse and trim whitespace when comparing (so 'New  York' and 'New York' match). Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "markdown",
+          "description": "Result format: markdown (clusters + a mapping table), csv (a flat original→canonical mapping), or json (structured clusters).",
+          "enum": [
+            "markdown",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 85,
+          "description": "Similarity cutoff 0–100 (edit-distance ratio). Values at or above it join the same cluster. Higher = stricter/tighter clusters. Default 85.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

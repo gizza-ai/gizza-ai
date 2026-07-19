@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/image-film-grain",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Overlay adjustable analog film grain on an image — neutral monochrome or colored, with an optional format convert.",
+  "role": "skill",
+  "tool": {
+    "description": "Add analog film grain to an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional amount 0-100 (default 20), monochrome true|false (default true — neutral luma-only grain vs colored grain), and format keep|png|jpg|webp (default keep).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "amount": {
+          "default": 20.0,
+          "description": "Grain amount, 0-100. 0 leaves the image unchanged, 20 (the default) is a subtle film-like speckle, 50+ is heavy, pushed-film grain, 100 is the maximum. Example: 40 for a noticeable analog look.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "keep",
+          "description": "Output format: keep (default) preserves the input format (and any animation); png, jpg or webp convert — an animated GIF keeps only its first frame when converting.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "monochrome": {
+          "default": true,
+          "description": "true (default) applies neutral gray grain to brightness only — the classic black-and-white film look that stays natural over color photos; false applies colored grain to every channel (RGB speckle), the look of pushed high-ISO color film.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

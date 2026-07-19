@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cluster-similar-values"
+version = "0.1.0"
+abi = 1
+summary = "Fuzzy-cluster near-duplicate text values in a column"

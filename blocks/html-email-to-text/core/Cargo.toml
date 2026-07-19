@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-html-email-to-text-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# nanohtml2text: tiny pure-Rust HTML -> clean plain text (strips tags, keeps
+# paragraph/list structure, decodes entities). wasm-safe (no html5ever / C deps).
+# We pre-rewrite <a href> anchors ourselves before handing the body to it so the
+# link-rendering mode (text / inline / footnote) is under our control.
+nanohtml2text = "0.2"

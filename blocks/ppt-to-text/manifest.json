@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/ppt-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract plain text from a legacy PowerPoint 97-2003 .ppt file",
+  "role": "skill",
+  "tool": {
+    "description": "Extract readable plain text from a legacy binary Microsoft PowerPoint .ppt (PowerPoint 97-2003) presentation. Give a presentation URL or an uploaded reference. Returns the slide (and optionally speaker-notes) plain text plus slide/word/paragraph counts. For the modern ZIP-based .pptx use a .pptx/Office Open XML tool instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "notes": {
+          "default": "include",
+          "description": "How to handle speaker notes: `include` (default) appends the notes text after the slide text; `exclude` returns slide text only; `only` returns the speaker notes and drops the slide text.",
+          "enum": [
+            "include",
+            "exclude",
+            "only"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "whitespace": {
+          "default": "clean",
+          "description": "How to post-process the extracted text: `clean` (default) collapses runs of blank lines to a single blank line and trims trailing spaces; `raw` returns the mapped text unchanged, preserving the original spacing.",
+          "enum": [
+            "clean",
+            "raw"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

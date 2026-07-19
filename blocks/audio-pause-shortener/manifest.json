@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/audio-pause-shortener",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shorten over-long pauses in a recording down to a fixed maximum",
+  "role": "skill",
+  "tool": {
+    "description": "Tighten the pacing of a speech recording by shortening over-long pauses (not removing them) with ffmpeg's silenceremove filter. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Audio quieter than threshold_db (default -30) counts as a pause; only pauses longer than max_pause seconds (default 1.5) are shortened, and each is collapsed to target_pause seconds (default 0.5, must be less than max_pause). Short pauses and leading silence are left untouched. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "max_pause": {
+          "description": "Only pauses longer than this many seconds are shortened (default 1.5). Shorter pauses are left untouched.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "target_pause": {
+          "description": "Each over-long pause is collapsed to this many seconds (default 0.5). Must be less than max_pause.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "threshold_db": {
+          "description": "Silence threshold in dB (default -30). Audio quieter than this counts as a pause.",
+          "maximum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

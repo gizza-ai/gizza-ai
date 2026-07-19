@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-remove-embedded-subs"
+version = "0.1.0"
+abi = 1
+summary = "Remove all embedded subtitle streams from a video without re-encoding"

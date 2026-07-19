@@ -1,0 +1,123 @@
+{
+  "name": "gizza-ai/image-composite",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Overlay one image onto another with position, scale, opacity, and blend modes.",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Overlay one image (the foreground) onto another (the background) into a single composite. The first image source is the base and defines the output canvas; the second is the overlay, scaled by `scale` percent, optionally flipped, and placed at `position` plus `offset_x`/`offset_y` pixels. `blend_mode` (normal, multiply, screen, overlay, darken, lighten, hard-light, soft-light, difference, exclusion, add) and `opacity` control how the two combine; `format` outputs png (keeps alpha) or jpeg. Provide images as an ordered list of two, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blend_mode": {
+          "default": "normal",
+          "description": "How the overlay's pixels combine with the base: normal (default, plain layering), multiply/darken (darken), screen/lighten/add (lighten), overlay/hard-light/soft-light (contrast), difference/exclusion (invert).",
+          "enum": [
+            "normal",
+            "multiply",
+            "screen",
+            "overlay",
+            "darken",
+            "lighten",
+            "hard-light",
+            "soft-light",
+            "difference",
+            "exclusion",
+            "add"
+          ],
+          "type": "string"
+        },
+        "flip": {
+          "default": "none",
+          "description": "Mirror the overlay before compositing: none (default), horizontal, vertical, or both.",
+          "enum": [
+            "none",
+            "horizontal",
+            "vertical",
+            "both"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format: png (default, preserves transparency) or jpeg (flattens transparency).",
+          "enum": [
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "images": {
+          "description": "Exactly two image sources (PNG/JPEG/WebP/GIF/BMP): the background (base) image first, the overlay (foreground) image second. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "offset_x": {
+          "default": 0,
+          "description": "Horizontal nudge in pixels from the anchor, positive = right, negative = left. Default 0.",
+          "maximum": 10000,
+          "minimum": -10000,
+          "type": "integer"
+        },
+        "offset_y": {
+          "default": 0,
+          "description": "Vertical nudge in pixels from the anchor, positive = down, negative = up. Default 0.",
+          "maximum": 10000,
+          "minimum": -10000,
+          "type": "integer"
+        },
+        "opacity": {
+          "default": 1.0,
+          "description": "Overlay opacity from 0.0 (invisible) to 1.0 (fully applied). Default 1.0.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "position": {
+          "default": "center",
+          "description": "Where the overlay is anchored on the base before offsets: center (default) or any edge/corner.",
+          "enum": [
+            "center",
+            "top-left",
+            "top",
+            "top-right",
+            "left",
+            "right",
+            "bottom-left",
+            "bottom",
+            "bottom-right"
+          ],
+          "type": "string"
+        },
+        "scale": {
+          "default": 100.0,
+          "description": "Overlay size as a percentage of its native dimensions, 1-1000. 100 keeps its original size; 50 halves it; 200 doubles it. Default 100.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}

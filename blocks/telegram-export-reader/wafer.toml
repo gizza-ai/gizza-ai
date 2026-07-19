@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "telegram-export-reader"
+version = "0.1.0"
+abi = 1
+summary = "Parse a Telegram result.json export into a clean transcript plus per-sender message and word stats"

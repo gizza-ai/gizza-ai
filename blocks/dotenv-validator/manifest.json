@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/dotenv-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint a .env file for duplicate keys, unquoted spaces and bad interpolation.",
+  "role": "skill",
+  "tool": {
+    "description": "Lint a .env (dotenv) file and report problems without rewriting it. Pass the file text in `env`; the tool parses KEY=VALUE lines (handling # comments, blank lines, single/double quotes, inline comments and an 'export ' prefix) and flags: duplicate keys (last value wins), unquoted values containing spaces, malformed ${VAR} interpolation (unclosed '${' or empty '${}'), and references to variables that are never defined in the file — plus invalid/lowercase key names, whitespace around '=', empty values, unterminated quotes and CRLF line endings. Each issue carries a line number, a severity (error/warning) and a rule name. Set `allow_undefined` to a comma-separated list of externally-provided variables (shell/CI) so their references are not reported. Turn off `check_interpolation` or `require_quotes_for_spaces` to silence those rule groups. `output` selects 'report' (default, human-readable) or 'json' (structured, for CI).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_undefined": {
+          "description": "Comma-separated variable names that are provided externally (from the shell or CI, e.g. 'HOME,PATH,CI') so references to them via ${VAR} are NOT reported as undefined. Matched case-sensitively. Default none.",
+          "type": "string"
+        },
+        "check_interpolation": {
+          "default": true,
+          "description": "Validate ${VAR}/$VAR interpolation: flag unclosed '${', empty '${}', and references to variables not defined in the file. Default true.",
+          "type": "boolean"
+        },
+        "env": {
+          "description": "The .env file contents to lint (KEY=VALUE lines; # comments, blank lines, quotes and an 'export ' prefix are understood). Nothing is uploaded — the file is only read to report issues.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output form: 'report' (default) a human-readable list of issues with line numbers and severities, or 'json' a structured {ok, keys, error_count, warning_count, issues[]} object for CI.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "require_quotes_for_spaces": {
+          "default": true,
+          "description": "Flag unquoted values that contain a space (most loaders keep only the first word unless the value is quoted). Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "type": "object"
+    }
+  }
+}
