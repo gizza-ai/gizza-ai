@@ -1,0 +1,78 @@
+slug          = "downsample-timeseries"
+title         = "Downsample Time-Series — LTTB Data Reduction to N Points"
+description   = "Reduce a large time-series to a target point count with LTTB, min/max, M4, or every-nth downsampling — shape preserved, in your browser, no upload."
+tags          = ["downsample time series", "lttb", "largest triangle three buckets", "reduce data points", "decimate data", "csv downsample"]
+h1            = "Downsample Time-Series (LTTB)"
+hero_subtitle = "Shrink thousands of points to a chartable few with Largest-Triangle-Three-Buckets, min/max, M4, or every-nth — original rows kept verbatim. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_downsample_timeseries_web"
+export        = "run"
+live          = false
+output_label  = "Downsampled data"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Time-series (CSV or JSON array)"
+placeholder = "t,v\n1,10\n2,12\n3,45\n4,11\n5,13\n6,12"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "points"
+label       = "Target points (2–100000)"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name   = "algorithm"
+label  = "Algorithm"
+source = "field"
+
+[input.labels]
+lttb   = "LTTB — best visual shape (default)"
+minmax = "Min/Max — keep spike envelopes"
+m4     = "M4 — first/min/max/last per bucket"
+nth    = "Every n-th — uniform stride"
+
+[[input]]
+name        = "x_column"
+label       = "x / time column (name, number, or 'index')"
+placeholder = "blank = first column"
+source      = "field"
+
+[[input]]
+name        = "y_column"
+label       = "y / value column (name or number)"
+placeholder = "blank = second column"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First non-numeric row is a header"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+points  = "Selected points (input's own format)"
+indices = "Kept row indices (JSON)"
+
+[[example]]
+label  = "LTTB: 20 points → 8, spikes kept"
+params = { data = "t,v\n1,10\n2,12\n3,11\n4,13\n5,45\n6,12\n7,10\n8,11\n9,13\n10,12\n11,14\n12,13\n13,12\n14,15\n15,13\n16,12\n17,80\n18,13\n19,12\n20,11", points = "8" }
+
+[[example]]
+label  = "Min/max envelope of the same series"
+params = { data = "t,v\n1,10\n2,12\n3,11\n4,13\n5,45\n6,12\n7,10\n8,11\n9,13\n10,12\n11,14\n12,13\n13,12\n14,15\n15,13\n16,12\n17,80\n18,13\n19,12\n20,11", points = "8", algorithm = "minmax" }
+
+[[example]]
+label  = "JSON list → kept indices"
+params = { data = "[10, 45, 12, 11, 13, 9]", points = "3", output = "indices" }
+
+[[example]]
+label  = "Daily close prices (ISO dates)"
+params = { data = "date,close\n2024-01-01,10\n2024-01-02,12\n2024-01-03,11\n2024-01-05,45\n2024-01-08,12\n2024-01-09,10", points = "4" }

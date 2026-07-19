@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "downsample-timeseries"
+version = "0.1.0"
+abi = 1
+summary = "Downsample a time-series to N points with LTTB, min/max, M4, or every-nth while preserving its shape"
