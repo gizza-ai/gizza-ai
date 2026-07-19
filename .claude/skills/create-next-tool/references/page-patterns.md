@@ -88,3 +88,11 @@ then regenerate pages so the copied runtime picks it up.
 single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.
 (Multi-IMAGE pure-Rust tools ARE buildable as chat+CLI, no page — see the gif-from-images entry in
 wasm-crates.md.)
+
+**Playwright `page.fill` on a many-line textarea is minutes-slow (2026-07-20, data-anonymizer):**
+filling a textarea with ~10k newline-separated rows routes through Chromium `insertText`, which
+took 4.5 MINUTES per fill (all wall-clock wait, ~0 CPU) — the spec passed but would drag CI. For
+big cap-boundary fixtures set the value directly and dispatch the same event the driver listens
+to: `await page.locator('#in-data').evaluate((el, v) => { el.value = v; el.dispatchEvent(new
+Event('input', { bubbles: true })); }, big)` — identical trigger path (field listeners bind
+"input"), runs in ~100 ms. Normal-sized `page.fill` calls stay as-is.
