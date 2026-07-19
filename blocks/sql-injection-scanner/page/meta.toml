@@ -1,0 +1,57 @@
+slug          = "sql-injection-scanner"
+title         = "SQL Injection Scanner — Find Unparameterized Queries in Code"
+description   = "Paste code and flag SQL built by string concatenation, f-strings, or format calls instead of bound parameters. Runs in your browser, nothing uploaded."
+tags          = ["sql injection scanner", "sqli static analysis", "unparameterized query detector", "sql string concatenation", "parameterized query checker", "secure code review", "sql injection linter", "prepared statement checker"]
+h1            = "SQL injection scanner"
+hero_subtitle = "Paste code that builds a SQL query and see where a variable is concatenated or interpolated into the SQL instead of passed as a bound parameter. Static heuristic, runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_sql_injection_scanner_web"
+export        = "run"
+live          = false
+output_label  = "Scan report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "code"
+label       = "Code snippet"
+placeholder = "query = \"SELECT * FROM users WHERE name = '\" + name + \"'\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+labels = { auto = "Auto (all syntaxes)", python = "Python", php = "PHP", javascript = "JavaScript", typescript = "TypeScript", java = "Java", csharp = "C#", go = "Go", ruby = "Ruby" }
+
+[[input]]
+name   = "min_severity"
+label  = "Show"
+source = "field"
+labels = { all = "All findings (high + medium)", high = "High severity only" }
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+labels = { text = "Readable report", json = "JSON" }
+
+[[example]]
+label  = "Python string concatenation"
+params = { code = "cursor.execute(\"SELECT * FROM users WHERE name = '\" + name + \"'\")", language = "python" }
+
+[[example]]
+label  = "Python f-string"
+params = { code = "cursor.execute(f\"DELETE FROM logs WHERE id = {log_id}\")", language = "python" }
+
+[[example]]
+label  = "PHP concatenation"
+params = { code = "$sql = \"SELECT * FROM users WHERE id = \" . $id;", language = "php" }
+
+[[example]]
+label  = "JS template literal"
+params = { code = "db.query(`SELECT * FROM users WHERE id = ${id}`)", language = "javascript" }
+
+[[example]]
+label  = "Safe parameterized (no findings)"
+params = { code = "cursor.execute(\"SELECT * FROM users WHERE id = %s\", (uid,))", language = "python" }
