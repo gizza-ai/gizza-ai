@@ -49,11 +49,11 @@
           "type": "string"
         },
         "threshold": {
-          "default": 85.0,
+          "default": 85,
           "description": "Similarity cutoff 0–100 (edit-distance ratio). Values at or above it join the same cluster. Higher = stricter/tighter clusters. Default 85.",
           "maximum": 100,
           "minimum": 0,
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [

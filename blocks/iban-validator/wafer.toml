@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "iban-validator"
 version = "0.1.0"
 abi = 1
-summary = "Validate an IBAN with the mod-97 checksum."
+summary = "Validate an IBAN with the mod-97 checksum"
