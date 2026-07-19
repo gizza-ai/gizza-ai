@@ -1,0 +1,76 @@
+slug          = "har-body-stripper"
+title         = "HAR Body Stripper — remove request & response bodies"
+description   = "Remove request and response bodies from a HAR capture to shrink it and clear payloads before sharing. Filter by side, mimeType, or size — all in your browser."
+tags          = ["har body stripper", "shrink har file", "remove response bodies from har", "har file too big", "clean har file", "har sanitizer", "http archive", "har privacy"]
+h1            = "HAR Body Stripper"
+hero_subtitle = "Paste a HAR capture and strip its bodies — request postData, response content, websocket payloads — while URLs, headers, timings, and sizes stay intact. Compact output, mime/size filters, and a dry-run summary. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_har_body_stripper_web"
+export        = "run"
+live          = false
+output_label  = "Stripped HAR / summary"
+format        = "text"
+
+[[input]]
+name        = "har"
+label       = "HAR file (JSON)"
+placeholder = '{"log":{"entries":[{"request":{"method":"POST","url":"https://example.com/api/login","postData":{"mimeType":"application/json","text":"{\"user\":\"alice\"}"}},"response":{"status":200,"content":{"size":20,"mimeType":"application/json","text":"{\"session\":\"abc123\"}"}}}]}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "strip"
+label  = "Strip"
+source = "field"
+
+[input.labels]
+both     = "Both sides (request + response)"
+request  = "Request bodies only"
+response = "Response bodies only"
+
+[[input]]
+name        = "only_mime"
+label       = "Only mime types (optional)"
+placeholder = "image/,font/"
+source      = "field"
+
+[[input]]
+name        = "min_bytes"
+label       = "Min body size (bytes)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+har     = "Stripped HAR (JSON)"
+summary = "Summary (dry run)"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print output"
+source = "field"
+
+[[example]]
+label = "Strip all bodies"
+[example.params]
+har = '{"log":{"version":"1.2","creator":{"name":"devtools","version":"1"},"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"POST","url":"https://example.com/api/login","postData":{"mimeType":"application/json","text":"{\"user\":\"alice\",\"password\":\"hunter2\"}"}},"response":{"status":200,"statusText":"OK","content":{"size":20,"mimeType":"application/json","text":"{\"session\":\"abc123\"}"},"bodySize":20}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":80,"request":{"method":"GET","url":"https://example.com/logo.png"},"response":{"status":200,"statusText":"OK","content":{"size":51200,"mimeType":"image/png","encoding":"base64","text":"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="},"bodySize":51234}}]}}'
+strip = "both"
+output = "har"
+
+[[example]]
+label = "Binary bodies only"
+[example.params]
+har = '{"log":{"version":"1.2","creator":{"name":"devtools","version":"1"},"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"POST","url":"https://example.com/api/login","postData":{"mimeType":"application/json","text":"{\"user\":\"alice\",\"password\":\"hunter2\"}"}},"response":{"status":200,"statusText":"OK","content":{"size":20,"mimeType":"application/json","text":"{\"session\":\"abc123\"}"},"bodySize":20}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":80,"request":{"method":"GET","url":"https://example.com/logo.png"},"response":{"status":200,"statusText":"OK","content":{"size":51200,"mimeType":"image/png","encoding":"base64","text":"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="},"bodySize":51234}}]}}'
+strip = "both"
+only_mime = "image/,font/,video/"
+output = "har"
+
+[[example]]
+label = "Dry-run summary"
+[example.params]
+har = '{"log":{"version":"1.2","creator":{"name":"devtools","version":"1"},"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"POST","url":"https://example.com/api/login","postData":{"mimeType":"application/json","text":"{\"user\":\"alice\",\"password\":\"hunter2\"}"}},"response":{"status":200,"statusText":"OK","content":{"size":20,"mimeType":"application/json","text":"{\"session\":\"abc123\"}"},"bodySize":20}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":80,"request":{"method":"GET","url":"https://example.com/logo.png"},"response":{"status":200,"statusText":"OK","content":{"size":51200,"mimeType":"image/png","encoding":"base64","text":"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="},"bodySize":51234}}]}}'
+strip = "both"
+output = "summary"
