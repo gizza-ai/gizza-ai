@@ -1,0 +1,75 @@
+slug          = "audio-ringtone"
+title         = "Ringtone Maker — Cut a Song into an iPhone (M4R) or Android (MP3) Ringtone"
+description   = "Make a phone ringtone from any song in your browser — pick a start and end (up to 40 s), boost loudness, add fades, save as iPhone m4r or Android mp3."
+tags          = ["audio", "ringtone", "m4r", "iphone", "android", "mp3", "cutter", "maker", "trim"]
+h1            = "Make a Phone Ringtone from a Song"
+hero_subtitle = "Pick a song and drag the selection onto the hook — it's cut, leveled and saved as m4r or mp3 in your browser; nothing is uploaded."
+wasm          = "gizza_ai_audio_ringtone_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Ringtone"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Song"
+
+[[input]]
+name        = "start"
+source      = "field"
+label       = "Start (seconds)"
+placeholder = "0"
+
+[[input]]
+name        = "end"
+source      = "field"
+label       = "End (seconds)"
+placeholder = "start + 30"
+
+[[input]]
+name  = "fade_in"
+source = "field"
+kind  = "slider"
+step  = "0.1"
+label = "Fade-in (seconds)"
+placeholder = "0.5"
+
+[[input]]
+name  = "fade_out"
+source = "field"
+kind  = "slider"
+step  = "0.1"
+label = "Fade-out (seconds)"
+placeholder = "0.5"
+
+[[input]]
+name   = "normalize"
+source = "field"
+label  = "Boost loudness (−14 LUFS)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+
+[input.labels]
+m4r = "m4r — iPhone"
+mp3 = "mp3 — Android & others"
+
+[waveform]
+start = "start"
+end   = "end"
+
+[[example]]
+label  = "Chorus at 45 s → iPhone m4r"
+params = { start = "45", format = "m4r" }
+
+[[example]]
+label  = "Android mp3, gentle 2 s fade-out"
+params = { format = "mp3", fade_out = "2" }
+
+[[example]]
+label  = "Raw cut — no boost, no fades"
+params = { normalize = "false", fade_in = "0", fade_out = "0" }

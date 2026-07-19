@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/audio-ringtone",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Cut a slice of a song into a phone ringtone (m4r for iPhone, mp3 for Android)",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a song into a phone ringtone: cut the [start, end] slice (end 0/omitted = start + 30 seconds; the slice must be 1-40 s — 40 s is iPhone's ringtone cap), optionally normalize loudness to -14 LUFS so it rings loud on a phone speaker, add short edge fades (0.5 s by default), and export as m4r (the AAC format iPhone requires) or mp3 (Android and most other phones), both at 192 kbps. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Times are in seconds.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "end": {
+          "description": "Where it ends, in seconds. 0 or omitted means start + 30 (a standard 30-second ringtone). The slice end - start must be 1-40 seconds; 40 s is iPhone's ringtone cap.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade_in": {
+          "default": 0.5,
+          "description": "Fade-in length in seconds (0-5). Default 0.5 — a short ramp that avoids a click at the cut. 0 disables.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade_out": {
+          "default": 0.5,
+          "description": "Fade-out length in seconds (0-5). Default 0.5 so the ringtone doesn't end abruptly. 0 disables.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "m4r",
+          "description": "m4r is the AAC format iPhone requires for ringtones; mp3 works on Android and most other phones. Both encode at 192 kbps. Default m4r.",
+          "enum": [
+            "m4r",
+            "mp3"
+          ],
+          "type": "string"
+        },
+        "normalize": {
+          "default": true,
+          "description": "Normalize loudness to -14 LUFS (EBU R128) so the ringtone rings loud and consistent on a phone speaker. Default true; disable to keep the source's original level.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "start": {
+          "default": 0.0,
+          "description": "Where the ringtone starts in the source, in seconds (e.g. 45.5 to begin at the chorus). Default 0 = the beginning.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

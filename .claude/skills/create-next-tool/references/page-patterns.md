@@ -75,6 +75,15 @@ Playwright assertions as OUTPUT-RMS ÷ INPUT-RMS ratios (decode both via WebAudi
 fixture amplitude. Absolute windows are fine only for loudness-normalizing tools (loudnorm
 targets absolute output loudness regardless of input).
 
+**Non-standard output extensions (`.m4r` — 2026-07-19):** ffmpeg cannot infer a muxer from an
+extension it doesn't know (`Unable to choose an output format for 'out.m4r'`) — pass the muxer
+explicitly (`-f ipod` for m4r; the ipod muxer is what `.m4a` already maps to, so it's present in
+both native ffmpeg and the page's @ffmpeg/core build). ALSO check the page runtime's `EXT_MIME`
+table in `tools/generator/assets/runtime/tool-ffmpeg.js`: an unknown output extension renders
+`application/octet-stream`, which silently breaks the `<audio>`/`<video>` preview even though
+ffmpeg succeeded — add the mapping (m4r → audio/mp4 is in now) + a `js/tool-ffmpeg.test.js` case,
+then regenerate pages so the copied runtime picks it up.
+
 **Multi-input ffmpeg (e.g. video-concat) is effectively un-buildable here:** the page file-input is a
 single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.
 (Multi-IMAGE pure-Rust tools ARE buildable as chat+CLI, no page — see the gif-from-images entry in

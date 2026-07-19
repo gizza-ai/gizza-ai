@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-ringtone"
+version = "0.1.0"
+abi = 1
+summary = "Cut a slice of a song into a phone ringtone (m4r for iPhone, mp3 for Android)"
