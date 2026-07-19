@@ -1,0 +1,58 @@
+slug          = "resume-to-json"
+title         = "Resume to JSON — Convert a Resume to JSON Resume Format"
+description   = "Paste a plain-text resume and get a JSON Resume (v1.0.0) document — or validate an existing resume.json against the schema. Runs in your browser."
+tags          = ["resume to json", "json resume", "resume parser", "cv to json", "resume json schema", "validate resume json", "jsonresume converter"]
+h1            = "Resume to JSON"
+hero_subtitle = "Turn a pasted resume into a standard JSON Resume (v1.0.0) document — canonical sections, ISO-8601 dates, LinkedIn/GitHub profile detection — or validate an existing resume.json against the schema. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_resume_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Resume text or resume.json"
+placeholder = "Jane Doe\nSenior Software Engineer\nSan Francisco, CA | jane.doe@example.com | (555) 123-4567 | linkedin.com/in/janedoe\n\nExperience\n\nSenior Software Engineer — Acme Corp\nJan 2020 – Present\n- Led migration to a service mesh across 40 services"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select> (enum from the descriptor schema); the booleans
+# render as checkboxes (schema_ref unchecked, pretty checked by default).
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[input.labels]
+auto     = "Auto-detect (JSON → validate, text → extract)"
+extract  = "Extract (resume text → JSON Resume)"
+validate = "Validate (resume.json → report)"
+
+[[input]]
+name        = "schema_ref"
+label       = "Include $schema reference and meta.version"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print (indent) the JSON"
+source      = "field"
+
+[[example]]
+label = "Sample resume → JSON Resume"
+[example.params]
+data = "Jane Doe\nSenior Software Engineer\nSan Francisco, CA | jane.doe@example.com | (555) 123-4567 | linkedin.com/in/janedoe\n\nSummary\nEngineer with 8 years of experience building distributed systems.\n\nExperience\n\nSenior Software Engineer — Acme Corp\nJan 2020 – Present | San Francisco, CA\n- Led migration to a service mesh across 40 services\n- Cut p99 latency by 45%\n\nSoftware Engineer — Beta Labs\nJun 2016 – Dec 2019\n- Built the billing pipeline in Rust\n\nEducation\n\nB.S. in Computer Science — State University\n2012 – 2016\nGPA: 3.8/4.0\n\nSkills\nLanguages: Rust, Python, TypeScript\nInfrastructure: Kubernetes, Terraform\n\nLanguages\nEnglish (Native), Spanish (Professional)"
+
+[[example]]
+label = "Validate a resume.json"
+[example.params]
+data = "{ \"basics\": { \"name\": \"Jane Doe\", \"email\": \"jane@example.com\" }, \"work\": [ { \"name\": \"Acme Corp\", \"position\": \"Engineer\", \"startDate\": \"Jan 2020\" } ], \"hobbies\": [\"chess\"] }"
+mode = "validate"
+
+[[example]]
+label = "Extract with $schema reference"
+[example.params]
+data       = "Alan Turing\nMathematician\nalan@example.com\n\nSkills\nMathematics, Cryptanalysis, Computer Science"
+mode       = "extract"
+schema_ref = "true"
