@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/har-request-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the request list from a HAR capture",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the request list from a HAR (HTTP Archive) capture: every request's method, URL, status code, content type, transferred size, and total time, as an aligned text table (with a count + bytes-transferred summary), CSV, JSON, or a plain URL list. Filter by status class (2xx/3xx/4xx/5xx/errors incl. failed status-0 requests), exact HTTP method, or a URL substring; sort by capture order, slowest first, or largest first. Only the request list is extracted — headers, cookies, and bodies are never output. Forgiving about incomplete entries; runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "table",
+          "description": "Output format. 'table' = aligned text columns with a summary line. 'csv' = spreadsheet-ready rows with a header (index,method,url,status,status_text,mime_type,size_bytes,time_ms,started). 'json' = array of request objects with the same fields. 'urls' = one URL per line.",
+          "enum": [
+            "table",
+            "csv",
+            "json",
+            "urls"
+          ],
+          "type": "string"
+        },
+        "har": {
+          "description": "The HAR (HTTP Archive) capture as JSON text — the { \"log\": { \"entries\": [ … ] } } object that browser DevTools export via Network tab → \"Save all as HAR\".",
+          "type": "string"
+        },
+        "method": {
+          "default": "",
+          "description": "Keep only requests with this HTTP method — case-insensitive exact match, e.g. GET, POST, PUT. Empty = all methods.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "order",
+          "description": "Row order: 'order' = capture order (default), 'slowest' = longest total time first, 'largest' = biggest response first. The # column always keeps each request's original capture position.",
+          "enum": [
+            "order",
+            "slowest",
+            "largest"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "default": "all",
+          "description": "Keep only requests in a status class: '2xx' success, '3xx' redirects, '4xx' client errors, '5xx' server errors, or 'errors' = 4xx + 5xx + failed requests recorded with status 0. Default 'all'.",
+          "enum": [
+            "all",
+            "2xx",
+            "3xx",
+            "4xx",
+            "5xx",
+            "errors"
+          ],
+          "type": "string"
+        },
+        "url_contains": {
+          "default": "",
+          "description": "Keep only requests whose URL contains this text (case-insensitive substring), e.g. /api/ or .png or example.com. Empty = no URL filter.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "har"
+      ],
+      "type": "object"
+    }
+  }
+}
