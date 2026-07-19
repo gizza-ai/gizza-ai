@@ -1,0 +1,59 @@
+slug          = "json-repair"
+title         = "JSON Repair — Fix Broken & Malformed JSON"
+description   = "Fix broken JSON automatically — trailing commas, single quotes, unquoted keys, missing commas, comments, truncated LLM output. Runs in your browser."
+tags          = ["json repair", "fix json", "broken json", "malformed json", "json fixer", "repair json online", "llm json", "trailing comma json"]
+h1            = "JSON Repair"
+hero_subtitle = "Paste broken JSON and get valid JSON back. Fixes trailing commas, single quotes, unquoted keys, missing commas, comments, Python literals, and truncated LLM output — locally in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_repair_web"
+export        = "run"
+live          = false
+output_label  = "Repaired JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "Broken JSON"
+placeholder = "{'name': 'John', age: 30,}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "indent"
+label  = "Output formatting"
+source = "field"
+
+[input.labels]
+"2"    = "2 spaces"
+"4"    = "4 spaces"
+tab    = "Tabs"
+minify = "Minified (one line)"
+
+[[example]]
+label = "Trailing commas + single quotes"
+[example.params]
+json   = "{'name': 'John', 'age': 30,}"
+indent = "2"
+
+[[example]]
+label = "Unquoted keys"
+[example.params]
+json   = "{name: \"gizza\", fast: true,}"
+indent = "2"
+
+[[example]]
+label = "Truncated LLM output"
+[example.params]
+json   = "```json\n{\"users\": [\"Alice\", \"Bob\"\n```"
+indent = "2"
+
+[[example]]
+label = "Python dict"
+[example.params]
+json   = "{'active': True, 'deleted': None, 'count': NaN}"
+indent = "2"
+
+[[example]]
+label = "Comments + missing commas"
+[example.params]
+json   = "{\n  // user record\n  \"a\": 1\n  \"b\": 2\n}"
+indent = "minify"

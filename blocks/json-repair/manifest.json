@@ -1,0 +1,34 @@
+{
+  "name": "gizza-ai/json-repair",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Repair malformed JSON into valid JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Repair broken or malformed JSON into valid JSON. Fixes trailing commas, single/smart quotes, unquoted keys and values, missing commas, // and /* */ comments, Python literals (True/False/None), undefined/NaN/Infinity (to null), raw newlines in strings, markdown ```json fences around LLM output, mismatched brackets, and truncated JSON (unclosed strings/arrays/objects are closed). Key order is preserved; duplicate keys keep the last value; nesting is capped at 200 levels. indent chooses output formatting: 2 or 4 spaces, tab, or minify. Deterministic and syntax-only (no LLM). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": "2",
+          "description": "Output formatting: '2' or '4' spaces of indentation per level, 'tab' for tab indentation, or 'minify' for a single compact line. Default 2.",
+          "enum": [
+            "2",
+            "4",
+            "tab",
+            "minify"
+          ],
+          "type": "string"
+        },
+        "json": {
+          "description": "The broken/malformed JSON text to repair. Handles trailing commas, single or smart quotes, unquoted keys and values, missing commas, // and /* */ comments, Python literals (True/False/None), undefined/NaN/Infinity, raw newlines inside strings, markdown ```json fences, mismatched brackets, and truncated output. Example: {'name': 'John', age: 30,}",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
