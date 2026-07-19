@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/video-stabilize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Smooth camera shake in a handheld video",
+  "role": "skill",
+  "tool": {
+    "description": "Smooth out camera shake in a handheld video using motion-detection stabilization (ffmpeg's single-pass deshake filter — best on mild to moderate shake). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus strength (1–100, sets the motion search radius; default 25) and borders (what fills the edges the stabilizing shift exposes: mirror = reflect, default; crop = zoom in slightly to hide them; blank = black bands; original = keep unstabilized edge pixels). The picture is re-encoded to H.264 (crf 20); audio is kept as-is. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "borders": {
+          "default": "mirror",
+          "description": "What fills the frame edges the stabilizing shift exposes: mirror (reflect the picture, no zoom, default), crop (zoom in slightly and center-crop so moving edges are hidden — the zoom grows with strength, up to 10%), blank (black bands), or original (keep the unstabilized source pixels at the edges).",
+          "enum": [
+            "mirror",
+            "crop",
+            "blank",
+            "original"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strength": {
+          "description": "How much camera shake to compensate, 1–100 — sets the motion search radius in four steps (1–25 → 16 px, 26–50 → 32 px, 51–75 → 48 px, 76–100 → 64 px). Higher smooths bigger shakes but risks edge artifacts and wobble on intentional pans. Default 25 (ffmpeg deshake's native default). Clamped to 1–100.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
