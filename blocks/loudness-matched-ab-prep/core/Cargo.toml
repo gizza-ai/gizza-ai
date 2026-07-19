@@ -1,0 +1,29 @@
+[package]
+name = "gizza-ai-loudness-matched-ab-prep-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust demuxers + DECODERS (unlike media-info we decode to PCM).
+# Same wasm-proven crate as blocks/media-info; features trimmed to the audio
+# formats we accept (wav/flac/mp3/ogg-vorbis/m4a).
+symphonia = { version = "0.5", default-features = false, features = [
+    "wav",
+    "pcm",
+    "flac",
+    "mp3",
+    "ogg",
+    "vorbis",
+    "isomp4",
+    "aac",
+    "alac",
+] }
+# ebur128: pure-Rust port of libebur128 — ITU-R BS.1770 / EBU R128 integrated
+# loudness, loudness range (LRA) and 4x-oversampled true peak.
+ebur128 = "0.1"
+# hound: pure-Rust WAV writer (16/24-bit int + 32-bit float) and test-side reader.
+hound = "3"
+# zip with no features: STORED-only writer (WAV is ~incompressible; stored keeps
+# the interpreted-wasm CPU cost near zero). Reading stored zips needs no feature.
+zip = { version = "8", default-features = false }
