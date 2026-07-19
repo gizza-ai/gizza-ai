@@ -81,3 +81,13 @@ committed `blocks/*/Cargo.lock` disagrees with the pin. If `wafer build` validat
 the pin rev itself, that's a wafer-run bug to fix there (bump the pin via the procedure in
 the workspace memory), not something to route around with ad-hoc `--precise` revs. Block
 Cargo.locks stay gitignored/uncommitted; don't force-add them.
+
+**Public AUDIO test URLs (2026-07-20):** kozco.com serves proper audio/* content-types and works with
+the SSRF-guarded fetch — `https://www.kozco.com/tech/piano2.wav` (6.3 s, 48 kHz stereo),
+`https://www.kozco.com/tech/organfinale.wav` (13 s, 44.1 kHz) and
+`https://www.kozco.com/tech/piano2-CoolEdit.mp3`; www2.cs.uic.edu is flaky/unreachable. Wikimedia
+(`upload.wikimedia.org`) 403s the fetcher's UA. filesamples.com works for m4a/ogg (audio/x-m4a,
+audio/ogg) but serves .flac as `application/octet-stream`, which the AssetKind::Audio MIME-class
+check rightly rejects — for flac/ogg/m4a SUCCESS coverage commit tiny generated fixtures (3.5 s
+lavfi sine via local ffmpeg, ~10-220 KB) under `core/tests/fixtures/` + an integration test
+(precedent: encrypted-zip's committed fixture).

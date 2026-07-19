@@ -108,3 +108,21 @@ unification turns the feature on for the copy of rust_xlsxwriter `core` uses in 
 produced workbook by reading it back with `calamine` (dev-dep) or unzipping `xl/sharedStrings.xml` /
 `xl/worksheets/sheet1.xml`. Binary output → the page needs `page/custom.js` `renderResult` to turn the
 base64 `data:` URL into a Download button (reuse the generator's `#tool-output-download` anchor).
+
+**Audio DECODE + loudness DSP is wasm-proven (loudness-matched-ab-prep, 2026-07-20):** `symphonia 0.5`
+(default-features=false, features wav/pcm/flac/mp3/ogg/vorbis/isomp4/aac/alac — same crate media-info
+uses demux-only) fully DECODES to f32 PCM under wasmi (standard probe→next_packet→SampleBuffer loop);
+`ebur128 = "0.1"` (pure-Rust libebur128 port: integrated LUFS + LRA + 4x true peak via
+`EbuR128::new(ch, rate, Mode::I|Mode::LRA|Mode::TRUE_PEAK)` + `add_frames_f32`) and `hound = "3"`
+(WAV write 16/24-bit int + 32f) both instantiate and were cross-checked against native ffmpeg's own
+ebur128 filter to 0.1 LU. This extends the multi-image note: a multi-AUDIO pure-Rust tool (two
+`Param::source_list` inputs, zip-of-WAVs out) is buildable chat+CLI, no page. Fixture gotcha: a sine's
+peak-to-loudness ratio is only ~3 dB, so "boost to target X" can never clip a sine for X ≤ -6 LUFS —
+clip tests need a spiky fixture (quiet sine + near-full-scale single-sample spikes).
+
+**64 MiB sandbox + multi-MiB Vec = bound the growth (2026-07-20):** `Vec::extend_from_slice`'s
+amortized DOUBLING holds old+new alive during realloc — a PCM buffer capped at 16 MiB transiently
+needs 16+32 MiB and OOM-traps the 1024-page sandbox as a bare `wasm unreachable` (seen decoding a
+105 s m4a; native run of the same bytes errored cleanly, which is the tell that it's memory, not
+logic). Fix: check the size cap BEFORE extending, then `reserve_exact` in fixed 4 MiB steps clamped
+to the cap. Applies to any block accumulating multi-MiB buffers in a loop.
