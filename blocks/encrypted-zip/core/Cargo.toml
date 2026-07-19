@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-encrypted-zip-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate + aes-crypto: AES-256/AES-128 (WinZip AE-2) write and
+# AES + legacy-ZipCrypto read. The default time/bzip2/zstd features stay off
+# so the crate remains wasm32-safe (same base config as create-zip/unzip).
+zip = { version = "8", default-features = false, features = ["deflate", "aes-crypto"] }
+base64 = "0.22"
+serde = { version = "1", features = ["derive"] }
