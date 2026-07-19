@@ -126,7 +126,7 @@ pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
             }
         } else {
             let arg = if field.placeholder.is_empty() { "..." } else { field.placeholder.as_str() };
-            let mut cmd = format!("gizza tool {} \"{}\"", meta.slug, arg);
+            let mut cmd = format!("gizza tool {} {}", meta.slug, shell_quote_positional(arg));
             // The bare positional only covers the FIRST required scalar param.
             // Every other required field needs an explicit key=value or the
             // copy-pasted example fails. (With a stale/missing manifest the
@@ -144,6 +144,32 @@ pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
     } else {
         format!("gizza tool {}", meta.slug)
     }
+}
+
+/// Shell-quote the example's bare positional so the printed command is
+/// copy-paste-runnable in bash. Double quotes by default (matches the
+/// historical examples), but a sample containing a double quote, `$`,
+/// backtick, or backslash — e.g. a pasted-JSON placeholder like
+/// har-validator's — must switch to single quotes, or bash strips/expands
+/// the characters and the copied example breaks. A sample with BOTH quote
+/// kinds keeps double quotes and backslash-escapes the specials.
+fn shell_quote_positional(arg: &str) -> String {
+    let needs_escaping =
+        arg.contains('"') || arg.contains('$') || arg.contains('`') || arg.contains('\\');
+    if !needs_escaping {
+        return format!("\"{arg}\"");
+    }
+    if !arg.contains('\'') {
+        return format!("'{arg}'");
+    }
+    let mut esc = String::with_capacity(arg.len() + 2);
+    for c in arg.chars() {
+        if matches!(c, '"' | '$' | '`' | '\\') {
+            esc.push('\\');
+        }
+        esc.push(c);
+    }
+    format!("\"{esc}\"")
 }
 
 /// Example deep-link URL for the "Query parameters" docs (markdown + page).
@@ -463,6 +489,53 @@ placeholder = "cotton, linen"
             cli_example(&meta, &schema),
             "gizza tool cartesian-product \"red, blue, green\" 'list2=S, M, L'"
         );
+    }
+
+    #[test]
+    fn pure_tool_json_placeholder_positional_is_single_quoted() {
+        // A pasted-JSON placeholder contains double quotes; wrapping it in
+        // double quotes would let bash strip them (and split on any space),
+        // breaking the copy-pasted example. It must be single-quoted.
+        let meta = ToolMeta::from_toml(
+            r#"
+slug          = "postman-collection-converter"
+title         = "t"
+description   = "d"
+h1            = "h"
+hero_subtitle = "s"
+wasm          = "w"
+export        = "run"
+output_label  = "o"
+format        = "text"
+
+[[input]]
+name        = "collection"
+source      = "field"
+placeholder = "{\"info\":{\"name\":\"Demo\"},\"item\":[]}"
+"#,
+        )
+        .unwrap();
+        let schema = ParamSchema::from_props_for_tests(serde_json::json!({
+            "collection": { "type": "string" }
+        }))
+        .with_required_for_tests(&["collection"]);
+        assert_eq!(
+            cli_example(&meta, &schema),
+            "gizza tool postman-collection-converter '{\"info\":{\"name\":\"Demo\"},\"item\":[]}'"
+        );
+    }
+
+    #[test]
+    fn shell_quote_positional_covers_all_three_forms() {
+        // Plain text keeps the historical double quotes.
+        assert_eq!(shell_quote_positional("red, blue"), "\"red, blue\"");
+        // Single quotes inside (no specials) stay double-quoted verbatim.
+        assert_eq!(shell_quote_positional("{'a': 1}"), "\"{'a': 1}\"");
+        // Double quotes / $ / backtick switch to single quotes.
+        assert_eq!(shell_quote_positional("{\"a\":1}"), "'{\"a\":1}'");
+        assert_eq!(shell_quote_positional("costs $5"), "'costs $5'");
+        // Both quote kinds: double quotes with escaped specials.
+        assert_eq!(shell_quote_positional("it's \"x\""), "\"it's \\\"x\\\"\"");
     }
 
     #[test]
