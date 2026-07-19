@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/regex-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse lines of text with a named-capture regex into JSON objects",
+  "role": "skill",
+  "tool": {
+    "description": "Parse each line of text with a regular expression that uses NAMED capture groups ((?<name>…) or (?P<name>…), Rust regex syntax) and emit one structured JSON object per line (or per match, with all_matches), keyed by group name in pattern order. Choose what happens to non-matching lines via unmatched (skip them, keep them as {\"_raw\": line}, or fail), optionally coerce number/boolean/null-looking captures into real JSON types with coerce_types, and pick the output shape with output (pretty JSON array, compact array, or NDJSON). Groups that did not participate in a match are emitted as null. Blank lines are ignored; input is capped at 1 MB. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "all_matches": {
+          "default": false,
+          "description": "Emit one JSON object for every match on a line instead of only the first — a line with three matches yields three objects (useful for key=value pairs).",
+          "type": "boolean"
+        },
+        "coerce_types": {
+          "default": false,
+          "description": "Convert captures that look like plain numbers (42, -3.14), true/false, or null into real JSON types instead of strings. Values with leading zeros (007) or scientific notation stay strings.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match case-insensitively.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output shape: 'json' = pretty-printed JSON array, 'compact' = single-line JSON array, 'ndjson' = one JSON object per line (JSON Lines).",
+          "enum": [
+            "json",
+            "compact",
+            "ndjson"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Regular expression (Rust regex syntax) with NAMED capture groups — (?<name>…) or (?P<name>…). Each named group becomes a JSON key, e.g. (?<level>[A-Z]+) (?<message>.*). Numbered groups are ignored.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to parse, one record per line (log lines, exports, command output). Blank lines are ignored; CRLF line endings are handled. Max 1 MB.",
+          "type": "string"
+        },
+        "unmatched": {
+          "default": "skip",
+          "description": "What to do with non-blank lines the pattern does not match: 'skip' drops them, 'keep' emits {\"_raw\": \"<line>\"} so no data is lost, 'fail' stops with an error naming the first unmatched line.",
+          "enum": [
+            "skip",
+            "keep",
+            "fail"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

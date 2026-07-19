@@ -1,0 +1,83 @@
+slug          = "regex-to-json"
+title         = "Regex to JSON — Parse Text Lines into Structured JSON"
+description   = "Parse each line of text with a named-capture regex and turn it into structured JSON — group names become keys. Type coercion, NDJSON output, in your browser."
+tags          = ["regex to json", "log to json", "named capture groups", "parse logs", "text to json", "ndjson", "structured data", "regex parser"]
+h1            = "Regex to JSON"
+hero_subtitle = "Paste lines of text, write a regex with named capture groups, and get one JSON object per line — group names become keys. Coerce numbers and booleans, keep or drop unmatched lines, and output a JSON array or NDJSON. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_regex_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON records"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text (one record per line)"
+placeholder = "10.0.0.5 GET /index.html 200 512\n10.0.0.9 POST /api/login 401 87"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Regex with named groups"
+placeholder = '(?<ip>\S+) (?<method>[A-Z]+) (?<path>\S+) (?<status>\d{3}) (?<bytes>\d+)'
+source      = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "all_matches"
+label  = "All matches per line (one object each)"
+source = "field"
+
+[[input]]
+name   = "unmatched"
+label  = "Unmatched lines"
+source = "field"
+
+[input.labels]
+skip = "Skip them"
+keep = "Keep as {\"_raw\": line}"
+fail = "Fail with an error"
+
+[[input]]
+name   = "coerce_types"
+label  = "Coerce numbers / booleans / null"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json    = "JSON array (pretty)"
+compact = "JSON array (compact)"
+ndjson  = "NDJSON — one object per line"
+
+[[example]]
+label = "Server log → JSON"
+[example.params]
+text         = "10.0.0.5 GET /index.html 200 512\n10.0.0.9 POST /api/login 401 87"
+pattern      = '(?<ip>\S+) (?<method>[A-Z]+) (?<path>\S+) (?<status>\d{3}) (?<bytes>\d+)'
+coerce_types = "true"
+output       = "json"
+
+[[example]]
+label = "App log → NDJSON"
+[example.params]
+text    = "2026-07-20 14:03:11 ERROR auth Failed login for alice\n2026-07-20 14:03:15 INFO http GET /health 200"
+pattern = '(?<date>\S+) (?<time>\S+) (?<level>[A-Z]+) (?<module>\S+) (?<message>.*)'
+output  = "ndjson"
+
+[[example]]
+label = "key=value pairs — every match"
+[example.params]
+text         = "host=web1 region=eu latency=42"
+pattern      = '(?<key>\w+)=(?<value>\S+)'
+all_matches  = "true"
+coerce_types = "true"
+output       = "compact"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Parse lines of text with a named-capture regex into JSON objects"
