@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/csv-structure-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint a CSV for ragged rows, unbalanced quotes, and stray delimiters",
+  "role": "skill",
+  "tool": {
+    "description": "Validate the structure of a CSV: scan the raw text for ragged rows (inconsistent column counts), unclosed quotes, stray quote characters, blank or all-empty rows, empty/duplicate header names, leading/trailing whitespace, and mixed line endings. Returns a report with valid true/false, the resolved delimiter and quote style, expected column count, row counts, error/warning totals, and every issue with its 1-based line number, severity (error|warning), machine code, and message. delimiter auto-detects comma/tab/semicolon/pipe by default; quote is double|single|none; comment optionally skips lines starting with a character like '#'; max_issues (1-1000, default 50) caps the listed issues. Report-only — the CSV is never modified. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "comment": {
+          "default": "",
+          "description": "Optional comment prefix: lines starting with this single character (e.g. '#') are skipped. Empty (default) treats no line as a comment.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text to validate.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator. 'auto' (default) detects comma/tab/semicolon/pipe from the first data line; or pick one explicitly.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header naming the columns; enables the empty/duplicate header-name checks. Default true.",
+          "type": "boolean"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of issues to list in the report (1-1000). Error/warning counts still cover the whole file; the report flags truncation. Default 50.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "quote": {
+          "default": "double",
+          "description": "Quote character the CSV uses: double (\") per RFC 4180 (default), single ('), or none to disable quote handling.",
+          "enum": [
+            "double",
+            "single",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

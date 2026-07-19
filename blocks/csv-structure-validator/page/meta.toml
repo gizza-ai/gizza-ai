@@ -1,0 +1,84 @@
+slug          = "csv-structure-validator"
+title         = "CSV Structure Validator — Find Ragged Rows, Bad Quotes & Stray Delimiters"
+description   = "Validate CSV structure online: find ragged rows, inconsistent column counts, unclosed quotes, and stray delimiters with line numbers. Free, private, in-browser."
+tags          = ["csv validator", "validate csv", "csv lint", "ragged rows", "unclosed quote", "csv checker", "malformed csv", "csv errors"]
+h1            = "Validate CSV structure"
+hero_subtitle = "Paste a CSV and get every structural fault — ragged rows, unclosed or stray quotes, blank rows, header problems — with line numbers and severities. Nothing is uploaded."
+wasm          = "gizza_ai_csv_structure_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV text"
+placeholder = "name,email,city\nAda,ada@example.com,Paris,extra\nBo,bo\"x,Rome\nCy,\"cy@example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma (,)"
+tab       = "Tab"
+semicolon = "Semicolon (;)"
+pipe      = "Pipe (|)"
+
+[[input]]
+name   = "quote"
+label  = "Quote character"
+source = "field"
+
+[input.labels]
+double = "Double quote (\")"
+single = "Single quote (')"
+none   = "None (no quoting)"
+
+[[input]]
+name        = "comment"
+label       = "Comment character (optional)"
+placeholder = "#"
+source      = "field"
+
+[[input]]
+name        = "max_issues"
+label       = "Max issues to list"
+placeholder = "50"
+source      = "field"
+
+[[example]]
+label = "Broken CSV — 3 errors"
+[example.params]
+data       = "name,email,city\nAda,ada@example.com,Paris,extra\nBo,bo\"x,Rome\nCy,\"cy@example.com"
+header     = "true"
+delimiter  = "auto"
+quote      = "double"
+max_issues = "50"
+
+[[example]]
+label = "Clean CSV"
+[example.params]
+data       = "name,email\nAda,ada@example.com\nBo,bo@example.com"
+header     = "true"
+delimiter  = "auto"
+quote      = "double"
+max_issues = "50"
+
+[[example]]
+label = "Semicolon file, auto-detected"
+[example.params]
+data       = "name;city\nAda;Paris\nBo;Rome;extra"
+header     = "true"
+delimiter  = "auto"
+quote      = "double"
+max_issues = "50"
