@@ -1,0 +1,107 @@
+slug          = "diceware-passphrase"
+title         = "Diceware Passphrase Generator — EFF Wordlist"
+description   = "Generate memorable diceware passphrases from the EFF wordlists in your browser — with entropy bits, crack-time estimates, separators and extras. Free and private."
+tags          = ["diceware", "passphrase generator", "eff wordlist", "diceware passphrase", "random passphrase", "memorable password", "correct horse battery staple"]
+h1            = "Diceware Passphrase Generator"
+hero_subtitle = "Generate memorable multi-word passphrases from the EFF wordlists with a cryptographic RNG — or type your own physical dice rolls. Everything runs in your browser; nothing leaves your device."
+wasm          = "gizza_ai_diceware_passphrase_web"
+export        = "run"
+live          = false
+output_label  = "Passphrase"
+format        = "text"
+
+[[input]]
+name        = "words"
+label       = "Words (2–20)"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "wordlist"
+label  = "Word list"
+source = "field"
+
+[input.labels]
+eff-long  = "EFF long list — 7,776 words, ~12.9 bits/word (default)"
+eff-short = "EFF short list — 1,296 shorter words, ~10.3 bits/word"
+
+[[input]]
+name   = "separator"
+label  = "Separator"
+source = "field"
+
+[input.labels]
+hyphen          = "hyphen (-)"
+space           = "space"
+underscore      = "underscore (_)"
+dot             = "dot (.)"
+none            = "none (words joined directly)"
+random-symbol   = "random symbol per gap (+3.6 bits each)"
+
+[[input]]
+name   = "capitalize"
+label  = "Capitalize each word"
+source = "field"
+
+[[input]]
+name   = "add_number"
+label  = "Append a random digit (+3.3 bits)"
+source = "field"
+
+[[input]]
+name   = "add_symbol"
+label  = "Append a random symbol (+3.6 bits)"
+source = "field"
+
+[[input]]
+name        = "count"
+label       = "How many passphrases"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "show_rolls"
+label  = "Show the dice roll for each word"
+source = "field"
+
+[[input]]
+name        = "rolls"
+label       = "Your own dice rolls (optional — makes the result deterministic)"
+placeholder = "e.g. 62315 14534 23633 31662 35553 44151"
+source      = "field"
+
+[[example]]
+label = "Recommended (6 words ≈ 77.5 bits)"
+[example.params]
+words     = "6"
+wordlist  = "eff-long"
+separator = "hyphen"
+rolls     = ""
+
+[[example]]
+label = "Vault key (8 words + symbol)"
+[example.params]
+words      = "8"
+wordlist   = "eff-long"
+separator  = "hyphen"
+add_symbol = "true"
+rolls      = ""
+
+[[example]]
+label = "Short words, spaces, capitalized"
+[example.params]
+words      = "6"
+wordlist   = "eff-short"
+separator  = "space"
+capitalize = "true"
+rolls      = ""
+
+[[example]]
+label = "From physical dice rolls"
+[example.params]
+wordlist   = "eff-long"
+separator  = "hyphen"
+rolls      = "62315 14534 23633 31662 35553 44151"
+show_rolls = "true"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "diceware-passphrase"
+version = "0.1.0"
+abi = 1
+summary = "Generate a memorable diceware passphrase from the EFF wordlist"
