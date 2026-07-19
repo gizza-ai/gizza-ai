@@ -110,3 +110,10 @@ audio/ogg) but serves .flac as `application/octet-stream`, which the AssetKind::
 check rightly rejects — for flac/ogg/m4a SUCCESS coverage commit tiny generated fixtures (3.5 s
 lavfi sine via local ffmpeg, ~10-220 KB) under `core/tests/fixtures/` + an integration test
 (precedent: encrypted-zip's committed fixture).
+
+**GitHub push protection blocks realistic secret fixtures (2026-07-20).** The secret-scanner
+build's first push was rejected because a Playwright spec contained a realistic fake
+`sk_live_…` Stripe token — push protection pattern-matches known token shapes regardless of
+context. For any tool whose tests need secret-shaped strings, use fixtures that are visibly
+fake to the scanner: private-key PEM headers, generic high-entropy strings, or provider
+prefixes with truncated/invalid bodies. Don't request a bypass URL; rewrite the fixture.
