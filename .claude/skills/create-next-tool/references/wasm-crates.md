@@ -127,6 +127,22 @@ needs 16+32 MiB and OOM-traps the 1024-page sandbox as a bare `wasm unreachable`
 logic). Fix: check the size cap BEFORE extending, then `reserve_exact` in fixed 4 MiB steps clamped
 to the cap. Applies to any block accumulating multi-MiB buffers in a loop.
 
+**Big-image decode in the 64 MiB sandbox: budget header-first, downscale streaming
+(document-skew-detector, 2026-07-20):** `image::ImageReader::new(Cursor).with_guessed_format()?
+.into_decoder()?` exposes `dimensions()`/`color_type()`/`total_bytes()` BEFORE any raster
+allocation — reject `input.len() + total_bytes (+ w*h if a grayscale copy is needed) > ~48 MB`
+with an actionable "re-export at lower resolution" error instead of a bare `wasm unreachable`
+OOM trap (a 4152×6172 scan trapped exactly this way via decode + `resize()` intermediates).
+For 8-bit color types, `decoder.read_image(&mut vec![0; total_bytes])` then a hand-rolled
+streaming luma + integer box-downscale (one output row of u32 accumulators) gets a 25.6-MP
+scan to ≤1400px analysis size with NO full-size intermediate beyond the decoded raster;
+16-bit/float types can fall back to `DynamicImage::from_decoder` + `into_luma8` with the copy
+counted in the budget. Also: document-skew via projection profile (score = Σ bin², bins =
+`y·cosθ − x·sinθ` with linear-interpolated binning) needs a VERTICAL-RUN filter (keep only ink
+pixels whose vertical run ≤ ~10 px at analysis scale) — raw ink lets a black scanner-bed
+background drown the text signal entirely (a real test scan read 0.0° until filtered), and
+two-pass count-then-fill sizing avoids the Vec-doubling OOM noted above.
+
 **Audio-from-VIDEO decode + hand-rolled FFT under wasmi (video-audio-sync-offset-finder, 2026-07-20):**
 symphonia with the media-info feature set (isomp4/mkv + aac/mp3/vorbis/pcm/...) DECODES the audio
 track out of MP4/MOV/MKV/WebM video containers under wasmi — video tracks appear as
