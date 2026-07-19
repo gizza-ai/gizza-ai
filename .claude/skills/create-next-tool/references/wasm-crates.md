@@ -160,3 +160,22 @@ coarse envelope peaks with a waveform fine pass and let the best lock win — re
 cases where the best envelope peak is wrong. Memory shape for 64 MiB: downmix+resample to 8 kHz
 mono INSIDE the symphonia packet loop (never hold native-rate PCM), consume the Vecs and
 mean-remove in place.
+
+**EXIF WRITING is wasm-proven (exif-edit, 2026-07-20):** `kamadak-exif = "0.6"`'s
+`exif::experimental::Writer` (push_field + `write(&mut Cursor, true /* little-endian */)`)
+rebuilds a full TIFF/EXIF payload under wasmi — pair with the already-proven `img-parts` to
+splice it back into the JPEG APP1 / PNG eXIf chunk. Recipe: read existing payload via
+img-parts `.exif()` → `Reader::read_raw` → carry over `Field { tag, ifd_num, value: v.clone() }`
+for In::PRIMARY fields, then push replacements. Gotchas that cost real debugging: (1)
+**img-parts 0.3's `Jpeg::set_exif` hardcodes `segments.insert(3, …)` and PANICS** on JPEGs
+with <3 segments — splice the APP1 yourself (`JpegSegment::new_with_contents(APP1,
+b"Exif\0\0" + payload)` inserted after a leading APP0; `JpegSegment::exif()` is pub(super), so
+match `marker()==APP1 && contents().starts_with(b"Exif\0\0")` manually); PNG's `set_exif`
+(insert before IEND) is safe. (2) Never carry over MakerNote (internal absolute offsets break
+silently on rewrite — drop + report), the thumbnail IFD (In::THUMBNAIL, offset-bearing), or
+Strip/Tile/JPEGInterchangeFormat offset tags. (3) Test segments must be inserted BEFORE the
+SOS segment — img-parts keeps post-SOS pushes un-reparseable inside the entropy data. GPS
+coords: integer-math DMS (`round(|deg|*3600*1e4)` then div/mod) avoids float carry bugs;
+`Tag(Context::Tiff, 0x9c9d)` tuple-constructor works for XP* tags kamadak lacks constants for.
+Cross-verify outputs with PIL (`getexif().get_ifd(0x8825)` for GPS) — it decodes ASCII tags as
+latin-1, so UTF-8 values display mojibake'd but byte-correct (the exiftool-standard practice).
