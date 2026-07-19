@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/budget-planner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a 50/30/20 or zero-based monthly budget and see what's left to allocate",
+  "role": "skill",
+  "tool": {
+    "description": "Build a monthly budget from take-home (after-tax) income. In `50-30-20` mode it splits income into needs/wants/savings target buckets (customize the shares with `split`, e.g. 60/30/10) and, if you list bucket-tagged expenses, compares planned spending against each target. In `zero-based` mode it allocates income across your expense categories (`Name: amount`, one per line) and reports the exact amount left to allocate — surplus, deficit, or a perfectly zeroed budget. All arithmetic is exact to the cent; returns bucket targets, per-category shares of income, totals, and a one-line summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol prefixed to amounts in the report (default `$`).",
+          "type": "string"
+        },
+        "expenses": {
+          "description": "Expense categories, one per line (newlines or `;` separate entries): `Name: amount`, e.g. `Rent: 1200`. Amounts may use `$` and thousands separators. In 50-30-20 mode each line must end with a bucket tag `(needs)`, `(wants)` or `(savings)` so planned spending is compared to the targets; in zero-based mode tags are optional. Optional in 50-30-20 mode, required for zero-based. Max 100 lines.",
+          "type": "string"
+        },
+        "income": {
+          "description": "Monthly take-home (after-tax) income — the amount that actually lands in your account each month, e.g. 4500. For an annual salary, divide by 12 first.",
+          "maximum": 1000000000,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "mode": {
+          "default": "50-30-20",
+          "description": "Budget method. `50-30-20` splits income into needs/wants/savings target buckets (adjust the shares with `split`); `zero-based` assigns income across your expense categories and shows what's left to allocate until every dollar has a job.",
+          "enum": [
+            "50-30-20",
+            "zero-based"
+          ],
+          "type": "string"
+        },
+        "split": {
+          "default": "50/30/20",
+          "description": "Needs/wants/savings percentage shares for 50-30-20 mode — three numbers summing to 100, e.g. `50/30/20`, `60/30/10`, or `80/0/20` for a two-bucket 80/20 plan. Separators can be `/`, commas or spaces. Ignored in zero-based mode.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "income"
+      ],
+      "type": "object"
+    }
+  }
+}
