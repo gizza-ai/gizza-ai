@@ -1,0 +1,91 @@
+{
+  "name": "gizza-ai/data-anonymizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generalize quasi-identifiers and report a CSV's k-anonymity",
+  "role": "skill",
+  "tool": {
+    "description": "Anonymize a CSV and measure how anonymous it really is. Direct-identifier columns (identifiers) are replaced with a fixed label; quasi-identifier columns (quasi) are generalized — numeric values into bins of width numeric_bin ('34' → '30-39'), ISO dates to the year, text to a kept prefix plus '*' padding — with optional per-column ':level' overrides ('zipcode:100'). Rows are then grouped by their generalized quasi-identifier combination and the report gives the achieved k-anonymity (smallest group size), the equivalence-class count, the share of rows below the target k, optional suppression of those rows, and — when a sensitive column is named — the distinct l-diversity. Handles up to 10000 data rows. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to anonymize.",
+          "type": "string"
+        },
+        "dates_to_year": {
+          "default": true,
+          "description": "Generalize ISO-date quasi-identifier columns (YYYY-MM-DD or YYYY-MM) to the year, e.g. '1987-04-12' → '1987' (default true). With false such columns fall back to text prefix masking.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header so columns can be named and the header row passes through unchanged (default true). With false, address columns by 1-based index.",
+          "type": "boolean"
+        },
+        "identifiers": {
+          "description": "Comma-separated direct-identifier columns (name, email, SSN…) whose every value is replaced by the label. Default none.",
+          "type": "string"
+        },
+        "k": {
+          "default": 2,
+          "description": "Target k for the report and for suppression: every row should share its generalized quasi-identifier combination with at least k-1 others, 2-100. Default 2.",
+          "maximum": 100,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "label": {
+          "default": "[REDACTED]",
+          "description": "The fixed string every identifier-column value becomes. Default '[REDACTED]'.",
+          "type": "string"
+        },
+        "numeric_bin": {
+          "default": 10.0,
+          "description": "Bin width for numeric quasi-identifier columns: 34 with width 10 becomes '30-39'. Must be positive; default 10.",
+          "minimum": 0.001,
+          "type": "number"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to return: 'both' = anonymized CSV plus the k-anonymity report (default), 'csv' = anonymized CSV only, 'report' = report only.",
+          "enum": [
+            "both",
+            "csv",
+            "report"
+          ],
+          "type": "string"
+        },
+        "quasi": {
+          "description": "Comma-separated quasi-identifier columns to generalize: names (when header=true) or 1-based indices, e.g. 'age,zipcode,gender'. Add ':level' to override one column's generalization (bin width for numeric, kept characters for text): 'age,zipcode:100'.",
+          "type": "string"
+        },
+        "sensitive": {
+          "description": "One column holding the sensitive attribute (e.g. diagnosis); the report then adds the distinct l-diversity (min distinct sensitive values per equivalence class). Default none.",
+          "type": "string"
+        },
+        "suppress": {
+          "default": false,
+          "description": "Drop every row whose equivalence class is smaller than k, so the remaining rows are k-anonymous; the report counts suppressed rows. Default false (keep all rows and report the risk instead).",
+          "type": "boolean"
+        },
+        "text_keep": {
+          "default": 3,
+          "description": "Leading characters kept in text quasi-identifier values; the rest become '*' ('London' with 3 → 'Lon***'). 0 replaces the whole value with a single '*'. Default 3.",
+          "maximum": 32,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data",
+        "quasi"
+      ],
+      "type": "object"
+    }
+  }
+}
