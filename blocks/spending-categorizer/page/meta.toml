@@ -1,0 +1,105 @@
+slug          = "spending-categorizer"
+title         = "Spending Categorizer — auto-categorize a bank CSV and summarize spending"
+description   = "Paste a bank or credit-card CSV export to auto-categorize every transaction by merchant keywords and summarize spending by category. Runs in your browser."
+tags          = ["spending categorizer", "bank csv categorizer", "expense categorizer", "categorize bank transactions", "spending by category", "budget from bank statement", "transaction categorization", "expense report from csv"]
+h1            = "Spending Categorizer"
+hero_subtitle = "Paste a bank or credit-card CSV export: every transaction is auto-categorized by merchant keywords (add your own rules to refine) and spending is summarized by category — totals, share and a bar chart, plus a categorized CSV you can download. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_spending_categorizer_web"
+export        = "run"
+live          = false
+output_label  = "Spending summary"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Bank / credit-card CSV (with a header row)"
+placeholder = "Date,Description,Amount\n2024-01-05,WALMART SUPERCENTER,-52.30\n2024-01-06,STARBUCKS #1234,-4.50\n2024-01-10,ACME PAYROLL,2000.00"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "description_column"
+label       = "Description / merchant column (blank = auto-detect)"
+placeholder = "Description"
+source      = "field"
+
+[[input]]
+name        = "amount_column"
+label       = "Signed amount column (blank = auto-detect)"
+placeholder = "Amount"
+source      = "field"
+
+[[input]]
+name        = "debit_column"
+label       = "Debit / money-out column (if split into two)"
+placeholder = "Debit"
+source      = "field"
+
+[[input]]
+name        = "credit_column"
+label       = "Credit / money-in column (if split into two)"
+placeholder = "Credit"
+source      = "field"
+
+[[input]]
+name        = "date_column"
+label       = "Date column (blank = auto-detect)"
+placeholder = "Date"
+source      = "field"
+
+[[input]]
+name        = "rules"
+label       = "Your rules (one 'keyword = Category' per line)"
+placeholder = "starbucks = Coffee\ngym = Health & Fitness"
+source      = "field"
+multiline   = true
+
+# output renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+both    = "Summary + categorized CSV"
+summary = "Summary only"
+csv     = "Categorized CSV only"
+
+[[input]]
+name        = "currency"
+label       = "Currency ($ prefix or USD suffix; blank = none)"
+placeholder = "$"
+source      = "field"
+default     = "$"
+
+# delimiter renders as a <select>.
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[[input]]
+name   = "invert_amount"
+label  = "Invert amounts (bank exports spending as positive)"
+source = "field"
+
+[[example]]
+label = "Signed amount column, built-in categories"
+[example.params]
+data = "Date,Description,Amount\n2024-01-05,WALMART SUPERCENTER,-52.30\n2024-01-06,STARBUCKS #1234,-4.50\n2024-01-07,SHELL GAS STATION,-48.90\n2024-01-08,NETFLIX.COM,-15.99\n2024-01-09,WALMART SUPERCENTER,-34.80\n2024-01-10,ACME PAYROLL,2000.00\n2024-01-11,CITY PARKING,-12.00"
+
+[[example]]
+label = "Debit / credit columns → categorized CSV"
+[example.params]
+data = "Date,Details,Debit,Credit\n01/05/2024,TESCO STORES,23.10,\n01/06/2024,UBER TRIP,11.20,\n01/06/2024,ACME SALARY,,1500.00"
+output = "csv"
+
+[[example]]
+label = "European CSV with your own rules"
+[example.params]
+data = "Datum;Beschreibung;Betrag\n15.01.2024;SUPERMARKT KAUFLAND;-42,90\n16.01.2024;STADTWERKE STROM;-65,00\n17.01.2024;REWE MARKT;-23,45"
+rules = "stadtwerke = Utilities & Phone"
+delimiter = "semicolon"
+currency = "€"
+output = "summary"

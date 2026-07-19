@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/spending-categorizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-categorize a bank/card CSV by merchant keywords and summarize spending by category",
+  "role": "skill",
+  "tool": {
+    "description": "Auto-categorize a bank or credit-card CSV export and summarize spending by category. Pass the pasted CSV (with a header row) as 'data'. The description/merchant, amount and date columns are auto-detected (or name them with description_column/amount_column/date_column); statements that split money out and money in into two columns are handled via debit_column/credit_column. Each row's category is chosen by your own 'keyword = Category' rules first, then a built-in merchant keyword table (groceries, dining, transport, fuel, subscriptions, utilities, rent, insurance, health, entertainment, travel, fees, transfers, …), then a sign-based fallback (Other for money out, Income for money in). output picks what comes back: summary (per-category totals, share of total spending, transaction counts and a proportional text bar chart, plus Total spending / Income / Net cash flow), csv (the original rows with a Category column appended, ready to import into a spreadsheet), or both (default). currency prints as a $ prefix or a USD suffix; delimiter is auto/comma/semicolon/tab/pipe; invert_amount flips signs when a bank exports spending as positive. Handles US (1,234.56) and EU (1.234,56) amounts, (parentheses) and DR/CR negatives. Max 10000 rows. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_column": {
+          "default": "",
+          "description": "Header name of a single signed amount column (money out negative, money in positive). Blank (default) auto-detects amount/value (plus Betrag, Bedrag, Montant, Importe), else falls back to debit_column/credit_column.",
+          "type": "string"
+        },
+        "credit_column": {
+          "default": "",
+          "description": "Header name of the money-in column, paired with debit_column. Blank (default) auto-detects credit/deposit/paid in/inflow.",
+          "type": "string"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency to print in the summary. A symbol ($, £, €) is prefixed ($42.50); an alphabetic code (USD) is suffixed (42.50 USD). Blank prints bare numbers. Default '$'.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The bank or credit-card CSV export to categorize, including its header row. Money out should be negative (set invert_amount if your bank exports spending as positive). Max 10000 rows.",
+          "type": "string"
+        },
+        "date_column": {
+          "default": "",
+          "description": "Header name of the transaction-date column, echoed into the categorized CSV. Blank (default) auto-detects a column named like date/posted/posting/datum/fecha; if none exists the output simply has no Date column.",
+          "type": "string"
+        },
+        "debit_column": {
+          "default": "",
+          "description": "Header name of the money-out column, when the statement splits amounts into two columns instead of one signed one. Blank (default) auto-detects debit/withdrawal/paid out/outflow.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator of the CSV. Default auto sniffs it from the header row; set it explicitly when detection guesses wrong.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "description_column": {
+          "default": "",
+          "description": "Header name of the description/merchant column. Blank (default) auto-detects description/payee/narration/details/memo/merchant/name/reference/particulars, plus common European names (Beschreibung, Omschrijving, Libellé, Concepto).",
+          "type": "string"
+        },
+        "invert_amount": {
+          "default": false,
+          "description": "Flip the sign of every amount. Use when a statement exports spending as positive and income as negative (common for card exports). Default false.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to return: summary (per-category totals, share of spending, txn counts and a bar chart), csv (the rows with a Category column appended, ready to import), or both. Default both.",
+          "enum": [
+            "both",
+            "summary",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "rules": {
+          "default": "",
+          "description": "Your own categorization rules, one 'keyword = Category' per line (case-insensitive substring match; '=', '=>' or '->' as the separator; '#' comments allowed). Checked before the built-in keyword table, e.g. 'starbucks = Coffee'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
