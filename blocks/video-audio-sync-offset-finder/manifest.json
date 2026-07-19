@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/video-audio-sync-offset-finder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find the audio time offset that aligns two recordings",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Cross-correlate the audio of two recordings of the same event — video or audio in any mix (two camera angles, or a camera plus a separate audio recorder) — and report the time offset that best aligns them. Provide files as a list of exactly two items (the reference first), each a url or a `ref` from a prior tool call; MP4/MOV/M4A, MKV/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3 and AAC-ADTS containers are read with the pure-Rust decoder (audio codecs AAC-LC, ALAC, MP3, Vorbis, FLAC, PCM, ADPCM — not Opus/AC-3/DTS), up to 10 MiB per file. A coarse pass cross-correlates 100 Hz loudness-change envelopes over every candidate lag, then a fine pass cross-correlates the 8 kHz waveforms around the top candidates: when the waveform locks the offset is reported to about a millisecond, otherwise the envelope result stands at ±10 ms (typical for two different microphones). offset_seconds > 0 means file 2 starts that many seconds AFTER file 1. The result includes a confidence label backed by a standard score (peak z-score across all candidate lags: >= 10 high, 5–10 medium; below 5 the envelope evidence alone is unreliable, so the label is low when the waveform pass still locks and otherwise none — meaning the recordings likely do not share audio), the normalized correlation at the peak, the aligned overlap length, a polarity-inversion flag, and a concrete align_hint (what to trim or delay, with ffmpeg -ss / -itsoffset values). analyze_seconds (default 120, 5–240) sets how much of each file is examined — the true offset must be smaller than that span; max_offset (default 0 = unlimited) restricts the search when the start difference is known to be small.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "analyze_seconds": {
+          "default": 120.0,
+          "description": "How many seconds from the start of each file to analyze (default 120, range 5–240). The true offset must be smaller than the analyzed span; a longer window correlates more reliably but runs longer.",
+          "maximum": 240,
+          "minimum": 5,
+          "type": "number"
+        },
+        "files": {
+          "description": "Exactly two recordings of the same event — video or audio in any mix (two camera angles, or a camera file plus an external audio recorder). The FIRST file is the reference timeline. Each item has exactly one of `url` or `ref`. Containers: MP4/MOV/M4A, MKV/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, AAC-ADTS; audio codecs: AAC-LC, ALAC, MP3, Vorbis, FLAC, PCM, ADPCM (Opus, AC-3 and DTS are not supported). Up to 10 MiB per file — compress or trim longer footage first.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "max_offset": {
+          "default": 0.0,
+          "description": "Largest absolute offset in seconds to consider; 0 (default) searches the whole analyzed range. Set it when the recordings are known to have started within a few seconds of each other — it suppresses spurious far-away correlation peaks.",
+          "maximum": 240,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  }
+}
