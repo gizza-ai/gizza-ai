@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/postman-collection-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Postman or Insomnia collection to curl, fetch, or axios code",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an API collection export into ready-to-run code. Paste a Postman Collection v2.0/v2.1 JSON export or an Insomnia JSON export (format 4) as collection (auto-detected) and pick target='curl' (default), 'fetch', or 'axios' to get one labeled snippet per request (folder path + request name as a comment). Covered per request: HTTP method, URL, headers (disabled entries skipped), body modes raw/JSON (--data-raw / JSON.stringify / axios data object), x-www-form-urlencoded (--data-urlencode / URLSearchParams), multipart form-data (-F / FormData, file fields as @path placeholders), file bodies, and GraphQL (wrapped as a JSON body), plus auth: basic (-u / base64 Authorization header / axios auth option), bearer token, and API key in a header or the query string — request-level or inherited from the collection. {{variable}} placeholders are filled from collection variables and Insomnia environments; pass variables (a Postman environment export JSON, a plain JSON object, or KEY=VALUE lines) to add or override values — unresolved placeholders stay verbatim. multiline=true (default) formats curl with backslash continuations. Limit: 200 requests per collection. Pre-request/test scripts and dynamic values like {{$guid}} are not executed. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collection": {
+          "description": "The exported collection JSON, pasted verbatim: a Postman Collection v2.0/v2.1 export or an Insomnia JSON export (format 4). The format is auto-detected. Up to 200 requests per collection.",
+          "type": "string"
+        },
+        "multiline": {
+          "default": true,
+          "description": "When true (default), format each curl command across multiple lines with backslash continuations (one flag per line); when false, one line per command. Ignored for fetch and axios output.",
+          "type": "boolean"
+        },
+        "target": {
+          "default": "curl",
+          "description": "Output language: 'curl' (default) emits one curl command per request; 'fetch' emits JavaScript fetch() snippets; 'axios' emits JavaScript axios() snippets.",
+          "enum": [
+            "curl",
+            "fetch",
+            "axios"
+          ],
+          "type": "string"
+        },
+        "variables": {
+          "default": "",
+          "description": "Optional values for {{placeholders}}: a Postman environment export JSON, a plain JSON object like {\"baseUrl\":\"https://api.example.com\"}, or KEY=VALUE lines (one per line). These override collection variables and Insomnia environment data; unresolved placeholders are left as-is.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "collection"
+      ],
+      "type": "object"
+    }
+  }
+}
