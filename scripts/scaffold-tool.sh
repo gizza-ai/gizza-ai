@@ -354,4 +354,17 @@ fi
 # literal __SLUG__ token — substitute it everywhere in one pass here.
 grep -rl '__SLUG__' "$dir" | while read -r f; do sed_inplace "s/__SLUG__/${slug}/g" "$f"; done
 
+# Pin the fresh block's wafer-run deps to wafer-run-pin.txt so its very first
+# build resolves the same runtime rev as the committed CLI — an unlocked crate
+# resolves wafer-run at today's main, and that rev drift is what breaks
+# `wafer build` validation with `__wafer_info()` JSON parse errors. The lock is
+# gitignored (block locks stay uncommitted by policy); this only makes local
+# builds deterministic. Best-effort: CI re-pins before building either way.
+if command -v cargo >/dev/null 2>&1 && [ -f "$root/wafer-run-pin.txt" ]; then
+  pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
+  for c in wafer-sdk wafer-block wafer-block-macro; do
+    (cd "$dir" && cargo update -p "$c" --precise "$pin" >/dev/null 2>&1) || true
+  done
+fi
+
 echo "scaffolded blocks/$slug ($type). Next: implement core/src/lib.rs, src/lib.rs (skill schema), web/src/lib.rs, page/meta.toml, page/content.md."
