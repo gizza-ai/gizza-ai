@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "camt053-parse"
+version = "0.1.0"
+abi = 1
+summary = "Parse an ISO 20022 camt.053 bank statement XML into JSON or CSV transactions and balances"

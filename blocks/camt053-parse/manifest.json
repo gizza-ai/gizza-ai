@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/camt053-parse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an ISO 20022 camt.053 bank statement XML into JSON or CSV transactions and balances",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an ISO 20022 CAMT bank statement XML — camt.053 (Bank-to-Customer Statement), camt.052 (Account Report), or camt.054 (Debit/Credit Notification), any schema version — into structured statements: account IBAN/currency/owner, every balance (OPBD opening, CLBD closing, OPAV/CLAV available, …), and each entry's booking & value dates, CRDT/DBIT direction, signed amount, status, bank transaction code, end-to-end & bank references, counterparty name/IBAN, remittance info, charges and FX rate. Batch entries (one <Ntry> with several <TxDtls>) can expand to one row per payment. Output full JSON (default) or a flat CSV transaction table; reformats dates (iso/us/eu/raw) and picks the CSV delimiter.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The camt.053 bank statement XML text (an ISO 20022 <Document> with <BkToCstmrStmt>). The sibling camt.052 account report and camt.054 notification messages are accepted too; any schema version (camt.053.001.02 … .13) works.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "iso",
+          "description": "How booking/value dates are rendered: 'iso' (YYYY-MM-DD), 'us' (MM/DD/YYYY), 'eu' (DD/MM/YYYY), or 'raw' (the source string verbatim, including any time part). Default 'iso'.",
+          "enum": [
+            "iso",
+            "us",
+            "eu",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field separator, used only when output='csv': 'comma', 'semicolon', 'tab', or 'pipe'. Default 'comma'.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "expand_details": {
+          "default": true,
+          "description": "When true, a batch entry (one <Ntry> holding several <TxDtls> payments) becomes one row per payment with its own amount and counterparty; when false, one row per entry with the batch total and a details_count. Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format: 'json' for full structured statements (account, balances, transactions) or 'csv' for a flat transaction table. Default 'json'.",
+          "enum": [
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "signed_amounts": {
+          "default": true,
+          "description": "When true, DBIT (money out) amounts and balances are negative and CRDT positive; when false, amounts stay positive and the CRDT/DBIT indicator carries the direction. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
