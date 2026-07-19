@@ -26,6 +26,7 @@ audio-gain-adjust      # duplicate of blocks/audio-volume-adjust (precise dB gai
 # Input enum + resolve_source/dispatch_ffmpeg model one media input — so a tool
 # that combines two uploads doesn't fit without a multi-input architecture change.
 add-audio-to-video     # needs two media inputs (video + audio); gizza ffmpeg model is single-input
+still-image-audio-video  # needs two media inputs (cover image + audio track); single-source ffmpeg dispatch + single-upload page + no ffmpeg in chat SW -> no viable surface (same skip as add-audio-to-video)
 
 # Two-opposite-IO-shapes: a single descriptor has ONE Input and one result shape.
 # A bidirectional file<->text converter is really two tools (encode: Input::File
