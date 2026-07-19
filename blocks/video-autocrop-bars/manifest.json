@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/video-autocrop-bars",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-detect and remove letterbox/pillarbox black bars from a video (two-pass cropdetect)",
+  "role": "skill",
+  "tool": {
+    "description": "Automatically detect and crop away letterbox (top/bottom) or pillarbox (left/right) black bars from a video. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Two-pass: ffmpeg cropdetect measures the bars over the whole clip (union box, so fades from black are safe), then the crop is applied with an H.264 CRF 18 re-encode; audio is stream-copied when the container is kept (mp4/mov/m4v/mkv, else the output switches to mp4 with AAC audio). threshold (0-255, default 24) sets how dark counts as black; round (2/4/8/16, default 2) snaps the cropped dimensions for encoder compatibility. Reports 'no black bars detected' instead of re-encoding a full-frame video.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "round": {
+          "default": "2",
+          "description": "Snap the cropped width/height to a multiple of this: 2 (default, removes the most bar while keeping H.264-legal even dimensions) / 4 / 8 / 16 (classic encoder-macroblock friendly).",
+          "enum": [
+            "2",
+            "4",
+            "8",
+            "16"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 24,
+          "description": "Black-detection threshold 0-255 (default 24). Bars darker than this count as black; raise it (e.g. 48) for grey-ish bars from heavy compression, lower it if dark scenes get cropped into.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+slug          = "video-autocrop-bars"
+title         = "Remove Black Bars from Video — Automatic Letterbox Crop"
+description   = "Auto-detect and crop letterbox or pillarbox black bars from a video. Two-pass ffmpeg cropdetect runs in your browser — nothing is uploaded."
+tags          = ["video", "black bars", "letterbox", "pillarbox", "autocrop", "crop", "cropdetect", "mp4", "ffmpeg"]
+h1            = "Remove Black Bars from a Video"
+hero_subtitle = "Detects letterbox and pillarbox bars automatically and crops the video to the real picture — right in your browser, no upload."
+wasm          = "gizza_ai_video_autocrop_bars_web"
+export        = "detect_argv"
+runtime       = "ffmpeg"
+output_label  = "Cropped video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "threshold"
+source      = "field"
+label       = "Black threshold (0–255)"
+placeholder = "24"
+kind        = "slider"
+min         = "0"
+max         = "255"
+step        = "1"
+
+[[input]]
+name   = "round"
+source = "field"
+label  = "Snap crop to multiple of"
+
+[input.labels]
+2  = "2 — exact (default)"
+4  = "4"
+8  = "8"
+16 = "16 — encoder friendly"
+
+[[example]]
+label = "Standard black bars"
+[example.params]
+threshold = "24"
+round     = "2"
+
+[[example]]
+label = "Dark grey bars (compressed source)"
+[example.params]
+threshold = "48"
+round     = "2"
+
+[[example]]
+label = "Encoder-friendly dimensions"
+[example.params]
+threshold = "24"
+round     = "16"
