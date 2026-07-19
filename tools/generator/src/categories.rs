@@ -60,7 +60,9 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["csv", "json", "yaml", "xml", "toml", "avro", "json query", "html table generator"],
         slug_words: &[
             "csv", "json", "jq", "jsonpath", "jsonata", "yaml", "xml", "xpath", "avro", "toml",
-            "plist", "protobuf", "bencode", "opml", "serialize", "unserialize",
+            "plist", "protobuf", "bencode", "opml", "serialize", "unserialize", "gpx", "tcx",
+            "geojson", "camt053", "mt940", "qif", "ofx", "iban", "ini", "vcard", "takeout",
+            "telegram", "whatsapp",
         ],
     },
     Category {
@@ -90,7 +92,8 @@ pub const CATEGORIES: &[Category] = &[
             "hotp", "otp", "otpauth", "pgp", "rsa", "ecdsa", "sm2", "sm4", "hmac", "cmac",
             "pbkdf2", "scrypt", "argon2", "hkdf", "evp", "bcrypt", "keccak", "sha1", "sha256",
             "sha3", "xor", "fernet", "bip39", "ja3", "ja4", "ioc", "ssh", "pem", "asn1", "luhn",
-            "token", "safelink", "aes", "des",
+            "token", "safelink", "aes", "des", "passphrase", "diceware", "privacy", "pii",
+            "anonymizer", "hd-key",
         ],
     },
     Category {
@@ -113,7 +116,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "ip", "ipv4", "ipv6", "cidr", "dns", "tcp", "udp", "tls", "http", "websocket", "url",
             "urls", "uri", "mac", "ethernet", "grpc", "magnet", "email", "eml", "domains", "link",
-            "header", "query",
+            "header", "query", "har", "curl",
         ],
     },
     Category {
@@ -152,7 +155,7 @@ pub const CATEGORIES: &[Category] = &[
             "truncate", "wrap", "unwrap", "split", "join", "sort", "dedupe", "duplicate",
             "replace", "censor", "substring", "string", "list", "todo", "task", "emoji",
             "readability", "summarize", "keywords", "chars", "tweet", "cleaner", "diff",
-            "frequency", "count", "ansi",
+            "frequency", "count", "ansi", "spell",
         ],
     },
     Category {
@@ -167,7 +170,8 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "regex", "sql", "css", "js", "javascript", "html", "uuid", "mock", "fake", "jinja2",
             "template", "typescript", "flask", "session", "php", "seo", "sitemap", "form",
-            "syntax", "autoprefixer", "playground", "tree", "gzip",
+            "syntax", "autoprefixer", "playground", "tree", "gzip", "dotenv", "env", "configmap",
+            "log", "postman",
         ],
     },
     Category {
@@ -317,7 +321,9 @@ format        = "text"
 
     #[test]
     fn unmatched_tool_falls_back_to_utilities() {
-        let m = tool("iban-validator", &["iban checker", "mod 97"]);
+        // a synthetic slug no rule can ever claim (real ex-examples like
+        // iban-validator keep gaining keywords as the fallback guard tightens)
+        let m = tool("frobnicate-gadget", &["frobnication", "gadgetry"]);
         let cats = categories_for(&m);
         assert_eq!(cats.len(), 1);
         assert_eq!(cats[0].slug, "utilities");
@@ -343,7 +349,7 @@ format        = "text"
         let metas = vec![
             tool("audio-convert", &["audio"]),
             tool("video-trim", &["video"]),
-            tool("iban-validator", &[]),
+            tool("frobnicate-gadget", &[]),
         ];
         let hubs = build_hubs(&metas);
         let slugs: Vec<&str> = hubs.iter().map(|h| h.category.slug).collect();
