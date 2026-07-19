@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-speech-segment-detector"
+version = "0.1.0"
+abi = 1
+summary = "Detect speech vs non-speech segments in a video and report the timestamps"

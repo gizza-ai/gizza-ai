@@ -1,0 +1,91 @@
+slug          = "video-speech-segment-detector"
+title         = "Detect Speech Segments in a Video — Speech vs Silence Timestamps"
+description   = "Run voice-activity detection on a video's audio in your browser and get speech vs non-speech timestamps as a report, CSV, SRT, or Audacity labels."
+tags          = ["speech detection", "voice activity detection", "vad", "speech segments", "silence detection", "timestamps", "srt", "audacity labels", "ffmpeg"]
+h1            = "Detect Speech Segments in a Video"
+hero_subtitle = "Pick a video — its audio is scanned for speech right in your browser (nothing is uploaded) and the speech / non-speech timestamps come back as a downloadable report."
+wasm          = "gizza_ai_video_speech_segment_detector_web"
+export        = "detect_argv"
+runtime       = "ffmpeg"
+output_label  = "Speech segments"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "threshold_db"
+source      = "field"
+label       = "Silence threshold (dB)"
+placeholder = "-30"
+kind        = "slider"
+min         = "-60"
+max         = "-10"
+step        = "1"
+
+[[input]]
+name        = "min_silence"
+source      = "field"
+label       = "Min pause to split segments (seconds)"
+placeholder = "0.5"
+
+[[input]]
+name        = "min_speech"
+source      = "field"
+label       = "Min burst to count as speech (seconds)"
+placeholder = "0.25"
+
+[[input]]
+name        = "pad"
+source      = "field"
+label       = "Padding around speech (seconds)"
+placeholder = "0"
+
+[[input]]
+name   = "voice_band"
+source = "field"
+label  = "Voice band only (200–3000 Hz)"
+
+[[input]]
+name   = "segments"
+source = "field"
+label  = "List"
+
+[input.labels]
+both         = "Both — full labeled timeline"
+speech       = "Speech segments only"
+"non-speech" = "Non-speech segments only"
+
+[[input]]
+name   = "output"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+report   = "Report — summary + numbered list"
+csv      = "CSV — start,end,duration,label"
+srt      = "SRT — subtitle-timed segments"
+audacity = "Audacity label track"
+
+[[example]]
+label = "Full speech/silence report"
+[example.params]
+threshold_db = "-30"
+segments     = "both"
+output       = "report"
+
+[[example]]
+label = "Subtitle prep (SRT, speech only, 0.2s pad)"
+[example.params]
+segments = "speech"
+output   = "srt"
+pad      = "0.2"
+
+[[example]]
+label = "Silence list (CSV)"
+[example.params]
+segments = "non-speech"
+output   = "csv"
