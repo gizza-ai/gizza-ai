@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/png-to-jpg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a PNG (or any image) to JPG, flattening transparency onto a chosen background color.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a PNG (or any image) to JPG. JPEG has no alpha channel, so transparent areas are flattened onto a chosen background color first — fully transparent pixels become that color and semi-transparent pixels blend onto it. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional background (CSS color name or hex like #FFFFFF / #FFF, default #ffffff white) and quality 1-100 (default 85). Animated inputs convert their first frame.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "#ffffff",
+          "description": "Background color that fills transparent areas (JPEG has no transparency): a CSS color name (white, black, navy, …) or hex like #FFFFFF / #FFF. Default #ffffff (white) — what browsers show a transparent PNG on.",
+          "type": "string"
+        },
+        "quality": {
+          "default": 85,
+          "description": "JPEG quality 1-100 (default 85). Higher keeps more detail but makes a bigger file; 100 is near-lossless, 60-80 is a good size/quality trade.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
