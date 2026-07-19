@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "exif-edit"
+version = "0.1.0"
+abi = 1
+summary = "Edit or strip individual EXIF fields (date, GPS, copyright) on a photo"
