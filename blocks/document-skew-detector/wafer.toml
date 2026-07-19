@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "document-skew-detector"
+version = "0.1.0"
+abi = 1
+summary = "Estimate the skew angle of a scanned document or text image and suggest the deskew rotation"
