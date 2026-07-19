@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-diff"
+version = "0.1.0"
+abi = 1
+summary = "Compare two PDFs and report text and visual differences page by page"
