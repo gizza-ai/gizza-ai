@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/calendar-freebusy-overlap",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two ICS calendars and list the free time slots common to both.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two pasted iCalendar (.ics) calendars and list the time windows where BOTH are free, inside chosen working hours. Pass each calendar's raw .ics text as 'calendar_a' / 'calendar_b' (VEVENTs incl. daily/weekly/monthly/yearly RRULEs with INTERVAL/COUNT/UNTIL/BYDAY, EXDATE, all-day events, VFREEBUSY periods; cancelled and transparent events don't block). Scan 'days' days (1-60, default 7) from 'start_date' (YYYY-MM-DD, empty = today), between 'day_start' and 'day_end' (HH:MM, default 09:00-17:00) in 'timezone' (IANA name, default UTC; event TZIDs are converted, DST-correct). 'weekends' false (default) skips Sat/Sun; 'min_minutes' (default 30) drops shorter gaps. 'output' = text (readable list), json (slots with ISO timestamps), or ics (a VFREEBUSY calendar of the free periods).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_a": {
+          "description": "The first calendar as raw iCalendar (.ics) text — paste the whole export, starting with BEGIN:VCALENDAR. Google Calendar: Settings → Import & export → Export. Outlook: Save calendar as .ics. Max 1 MiB.",
+          "type": "string"
+        },
+        "calendar_b": {
+          "description": "The second calendar as raw iCalendar (.ics) text, same format as calendar_a. Max 1 MiB.",
+          "type": "string"
+        },
+        "day_end": {
+          "default": "17:00",
+          "description": "Latest slot end each day, HH:MM 24-hour clock (up to 24:00 for end of day). Must be after day_start. Default 17:00.",
+          "type": "string"
+        },
+        "day_start": {
+          "default": "09:00",
+          "description": "Earliest slot start each day, HH:MM 24-hour clock in the selected timezone. Default 09:00.",
+          "type": "string"
+        },
+        "days": {
+          "default": 7,
+          "description": "How many consecutive days to scan, 1-60. Default 7 (one week); common presets are 7, 14, and 30.",
+          "maximum": 60,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_minutes": {
+          "default": 30,
+          "description": "Only report free windows at least this many minutes long, 5-720. Default 30; typical meeting lengths are 30, 45, 60, 90, 120.",
+          "maximum": 720,
+          "minimum": 5,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Result format: 'text' = readable slot list, 'json' = machine-readable slots with ISO timestamps, 'ics' = an RFC 5545 VFREEBUSY calendar of the free periods.",
+          "enum": [
+            "text",
+            "json",
+            "ics"
+          ],
+          "type": "string"
+        },
+        "start_date": {
+          "description": "First day to scan, as YYYY-MM-DD (e.g. 2026-07-20). Leave empty for today in the selected timezone.",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "UTC",
+          "description": "IANA timezone the working hours and the results are expressed in, e.g. Europe/Berlin, America/New_York, Asia/Tokyo, or UTC. Event times in the calendars are converted into this zone (DST-correct).",
+          "type": "string"
+        },
+        "weekends": {
+          "default": false,
+          "description": "Include Saturdays and Sundays in the scan. Default false (weekdays only).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "calendar_a",
+        "calendar_b"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,130 @@
+slug          = "calendar-freebusy-overlap"
+title         = "Calendar Free/Busy Overlap — Find Common Free Time in Two ICS Calendars"
+description   = "Paste two .ics calendars and list the time slots where both are free — working hours, minimum meeting length, timezones and DST handled. Free and in-browser."
+tags          = ["free busy calendar", "compare two calendars", "common free time", "ics overlap", "find meeting time", "icalendar free slots", "calendar availability checker", "vfreebusy", "meeting scheduler"]
+h1            = "Calendar Free/Busy Overlap"
+hero_subtitle = "Paste two iCalendar (.ics) exports and instantly see every time window where both calendars are free — with working hours, a minimum meeting length, weekends on or off, and DST-correct timezone handling. Nothing is uploaded; it all runs in your browser."
+wasm          = "gizza_ai_calendar_freebusy_overlap_web"
+export        = "run"
+live          = false
+output_label  = "Common free slots"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "calendar_a"
+label       = "Calendar A (.ics text)"
+placeholder = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:20260720T090000Z\nDTEND:20260720T100000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "calendar_b"
+label       = "Calendar B (.ics text)"
+placeholder = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:20260720T120000Z\nDTEND:20260720T130000Z\nSUMMARY:Lunch sync\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "start_date"
+label       = "First day to scan"
+placeholder = "2026-07-20"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[input]]
+name        = "days"
+label       = "Days to scan"
+placeholder = "7"
+source      = "field"
+kind        = "slider"
+step        = "1"
+default     = "7"
+
+[[input]]
+name        = "day_start"
+label       = "Earliest time (working hours start)"
+placeholder = "09:00"
+source      = "field"
+kind        = "time"
+default     = "09:00"
+
+[[input]]
+name        = "day_end"
+label       = "Latest time (working hours end)"
+placeholder = "17:00"
+source      = "field"
+kind        = "time"
+default     = "17:00"
+
+[[input]]
+name        = "min_minutes"
+label       = "Minimum slot length (minutes)"
+placeholder = "30"
+source      = "field"
+default     = "30"
+
+[[input]]
+name        = "timezone"
+label       = "Timezone (IANA name)"
+placeholder = "Europe/Berlin"
+source      = "field"
+options     = "timezones"
+default     = "local-timezone"
+
+[[input]]
+name        = "weekends"
+label       = "Include weekends"
+placeholder = ""
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+placeholder = ""
+source      = "field"
+
+[input.labels]
+"text" = "Slot list (readable)"
+"json" = "JSON (machine-readable)"
+"ics"  = "iCalendar free/busy (.ics)"
+
+[[example]]
+label = "One day, 30-min slots (UTC)"
+[example.params]
+calendar_a = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:standup@a\nDTSTART:20260720T090000Z\nDTEND:20260720T100000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+calendar_b = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:lunch@b\nDTSTART:20260720T120000Z\nDTEND:20260720T130000Z\nSUMMARY:Lunch sync\nEND:VEVENT\nEND:VCALENDAR"
+start_date = "2026-07-20"
+days       = "1"
+day_start  = "09:00"
+day_end    = "17:00"
+min_minutes = "30"
+timezone   = "UTC"
+output     = "text"
+
+[[example]]
+label = "Two weeks, 60-min meetings, Berlin"
+[example.params]
+calendar_a = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:weekly@a\nDTSTART:20260601T080000Z\nDTEND:20260601T100000Z\nSUMMARY:Weekly deep work\nRRULE:FREQ=WEEKLY;BYDAY=MO,WE\nEND:VEVENT\nEND:VCALENDAR"
+calendar_b = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:review@b\nDTSTART;TZID=Europe/Berlin:20260721T140000\nDTEND;TZID=Europe/Berlin:20260721T160000\nSUMMARY:Design review\nEND:VEVENT\nEND:VCALENDAR"
+start_date = "2026-07-20"
+days       = "14"
+day_start  = "09:00"
+day_end    = "17:00"
+min_minutes = "60"
+timezone   = "Europe/Berlin"
+output     = "text"
+
+[[example]]
+label = "Export the free time as .ics"
+[example.params]
+calendar_a = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:standup@a\nDTSTART:20260720T090000Z\nDTEND:20260720T100000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+calendar_b = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:lunch@b\nDTSTART:20260720T120000Z\nDTEND:20260720T130000Z\nSUMMARY:Lunch sync\nEND:VEVENT\nEND:VCALENDAR"
+start_date = "2026-07-20"
+days       = "1"
+day_start  = "09:00"
+day_end    = "17:00"
+min_minutes = "30"
+timezone   = "UTC"
+output     = "ics"
