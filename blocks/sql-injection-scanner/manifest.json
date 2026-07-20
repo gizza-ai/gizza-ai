@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/sql-injection-scanner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag SQL built by string concatenation or interpolation instead of parameters",
+  "role": "skill",
+  "tool": {
+    "description": "Statically scan a code snippet for SQL-injection-prone query construction. Flags SQL assembled from variables instead of bound parameters: string concatenation (\"… \" + name, PHP . $name), string interpolation (Python f-strings, JS/TS template literals ${…}, C# $\"…\", Ruby #{…}), and format/printf building (\"…\".format(), \"…\" % v, sprintf/Sprintf/String.Format). Also warns (medium) when a bare variable is passed to execute()/query(). Each finding reports line, column, severity, a rule id, and the offending line; parameterized calls like execute(sql, params) are recognized as safe. Params: code (the snippet), language (auto|python|php|javascript|typescript|java|csharp|go|ruby — scopes the patterns), min_severity (all|high), format (text|json). It never runs the code or connects to a database — a heuristic aid, not a guarantee. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The source code snippet to scan (one or more lines that build/run SQL).",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: text (default) a readable report, or json (structured findings).",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Language hint. auto (default) applies every syntax; a specific language restricts the concatenation/interpolation patterns to that language (fewer false positives) and tailors the fix example.",
+          "enum": [
+            "auto",
+            "python",
+            "php",
+            "javascript",
+            "typescript",
+            "java",
+            "csharp",
+            "go",
+            "ruby"
+          ],
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Which findings to report: all (default) shows high + medium; high shows only high-severity findings.",
+          "enum": [
+            "all",
+            "high"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}

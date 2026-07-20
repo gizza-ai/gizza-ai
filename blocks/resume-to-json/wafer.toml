@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "resume-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Convert a pasted resume to JSON Resume format and validate it"

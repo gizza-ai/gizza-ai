@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-exif-edit-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+img-parts = "0.3"
+kamadak-exif = "0.6"

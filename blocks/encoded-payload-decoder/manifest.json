@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/encoded-payload-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and decode base64, hex, and gzip/zlib payloads hidden in a file",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Scan a file for base64 and hex tokens and gzip/zlib compressed streams embedded anywhere in its bytes, decode/decompress each, and unwrap nested layers (e.g. base64 of gzip of text) up to max_depth (default 3). min_len (default 20) sets the shortest base64/hex run to consider. Each finding reports its encoding, byte offset, nesting depth, and decoded content — printable payloads as text, binaries with a detected file type (e.g. image/png), a hex preview, and surfaced readable strings. Random alphanumeric noise that decodes to nothing meaningful is ignored. Provide the file as either url (HTTP/HTTPS) or ref. Runs locally — the file never leaves the device.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "File URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "min_len": {
+          "type": "integer",
+          "minimum": 4,
+          "maximum": 4096,
+          "description": "Minimum length of a base64/hex token run to treat as a candidate (default 20). Lower finds shorter blobs but more noise."
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "description": "How many nested encoding layers to unwrap, e.g. base64 → gzip → text (default 3)."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}

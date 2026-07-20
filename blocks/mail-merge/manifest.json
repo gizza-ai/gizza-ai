@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/mail-merge",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fill a text template once per CSV row (mail merge)",
+  "role": "skill",
+  "tool": {
+    "description": "Mail merge: fill a text or markdown template once per CSV row and return the combined output. Each {{Column}} placeholder is replaced by that row's value for the matching CSV header column; the per-row results are joined by a separator. Set syntax to choose the placeholder style ({{col}}, {col}, <<col>>), delimiter for the CSV field separator (comma/semicolon/tab), on_missing for how to handle a placeholder whose column is absent (empty/keep/error), case_insensitive to match names loosely, and separator for what goes between documents. Plain named substitution only — no loops or conditionals (use render-template for those).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_insensitive": {
+          "default": true,
+          "description": "When true (default), {{First Name}} matches a header column named 'first name'. When false, names must match exactly.",
+          "type": "boolean"
+        },
+        "csv": {
+          "description": "CSV data. The first row is the header (column names); every following row renders one output. Quoted fields may contain the delimiter and newlines, e.g. \"name,amount\\nAlice,10\\nBob,20\".",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field delimiter: 'comma' (default), 'semicolon' (common in European exports), or 'tab' (TSV).",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "on_missing": {
+          "default": "empty",
+          "description": "What to do when a placeholder names a column not in the header: 'empty' (default) replaces it with nothing, 'keep' leaves the {{placeholder}} text, 'error' fails the merge. A column that exists but is blank for a row always renders empty.",
+          "enum": [
+            "empty",
+            "keep",
+            "error"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "divider",
+          "description": "Text inserted between each rendered row: 'divider' a --- rule (default), 'blank_line', 'newline', 'form_feed' (page break), or 'none' (concatenate).",
+          "enum": [
+            "divider",
+            "blank_line",
+            "newline",
+            "form_feed",
+            "none"
+          ],
+          "type": "string"
+        },
+        "syntax": {
+          "default": "double_curly",
+          "description": "Placeholder style: 'double_curly' {{col}} (default), 'single_curly' {col}, or 'double_angle' <<col>>.",
+          "enum": [
+            "double_curly",
+            "single_curly",
+            "double_angle"
+          ],
+          "type": "string"
+        },
+        "template": {
+          "description": "The template text, with {{Column}} placeholders that name CSV header columns, e.g. \"Hi {{name}}, your invoice for ${{amount}} is due {{due}}.\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template",
+        "csv"
+      ],
+      "type": "object"
+    }
+  }
+}

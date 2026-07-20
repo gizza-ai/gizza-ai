@@ -1,0 +1,56 @@
+slug          = "secret-scanner"
+title         = "Secret Scanner — Find Hardcoded API Keys, Tokens & Private Keys in Code"
+description   = "Paste code or config and flag hardcoded secrets — AWS, GitHub, Stripe, Google and other API keys, plus private-key headers. Runs in your browser, nothing uploaded."
+tags          = ["secret scanner", "hardcoded secrets detector", "api key finder", "credential scanner", "leaked token detector", "private key detector", "gitleaks alternative online", "secrets detection"]
+h1            = "Secret scanner"
+hero_subtitle = "Paste code, a config file, or an .env and see where API keys, tokens, and private keys are hardcoded — matched by known provider patterns and a keyword+entropy heuristic. Static check, runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_secret_scanner_web"
+export        = "run"
+live          = false
+output_label  = "Scan report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Code / config to scan"
+placeholder = "aws_secret_key = \"AKIAIOSFODNN7EXAMPLE\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "min_severity"
+label  = "Show"
+source = "field"
+labels = { all = "All findings (high + medium)", high = "High confidence only" }
+
+[[input]]
+name   = "redact"
+label  = "Redact matched secrets in output"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+labels = { text = "Readable report", json = "JSON" }
+
+[[example]]
+label  = "AWS access key"
+params = { text = "aws_secret_key = \"AKIAIOSFODNN7EXAMPLE\"" }
+
+[[example]]
+label  = "GitHub token"
+params = { text = "GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxyz" }
+
+[[example]]
+label  = "Private key header"
+params = { text = "-----BEGIN RSA PRIVATE KEY-----" }
+
+[[example]]
+label  = "Generic API-key assignment"
+params = { text = "api_key = \"f4Kd9xQ2pLm7Zt1Rv8Nw3Bc6Yh0Ge5J\"" }
+
+[[example]]
+label  = "Clean config (no secrets)"
+params = { text = "port = 8080\nhost = \"localhost\"\ndebug = true" }

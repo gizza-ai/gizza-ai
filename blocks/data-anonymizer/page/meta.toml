@@ -1,0 +1,104 @@
+slug          = "data-anonymizer"
+title         = "Data Anonymizer — K-Anonymity Checker & CSV Generalizer"
+description   = "Anonymize a CSV in your browser: redact identifier columns, generalize quasi-identifiers into bins, and get a k-anonymity report. Free, private, no upload."
+tags          = ["data anonymizer", "k-anonymity", "anonymize csv", "quasi-identifier generalization", "l-diversity", "de-identification", "csv anonymization", "privacy tool"]
+h1            = "Data anonymizer"
+hero_subtitle = "Redact identifier columns, generalize quasi-identifiers (age bins, zip prefixes, dates to years), and measure the k-anonymity you achieved. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_data_anonymizer_web"
+export        = "run"
+live          = false
+output_label  = "Anonymized CSV + report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age,zipcode,gender\nAda,34,13053,F\nBea,38,13068,F"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "quasi"
+label       = "Quasi-identifier columns to generalize (add :level per column)"
+placeholder = "age,zipcode:100,gender"
+source      = "field"
+
+[[input]]
+name        = "identifiers"
+label       = "Identifier columns to redact entirely (optional)"
+placeholder = "name,email"
+source      = "field"
+
+[[input]]
+name        = "sensitive"
+label       = "Sensitive column for l-diversity (optional, one column)"
+placeholder = "diagnosis"
+source      = "field"
+
+[[input]]
+name        = "k"
+label       = "Target k (each row should match at least k-1 others)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "numeric_bin"
+label       = "Bin width for numeric columns"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "text_keep"
+label       = "Characters kept in text columns (rest becomes *)"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "dates_to_year"
+label       = "Generalize ISO dates to the year"
+source      = "field"
+
+[[input]]
+name        = "suppress"
+label       = "Suppress rows in classes smaller than k"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "label"
+label       = "Replacement label for identifier columns"
+placeholder = "[REDACTED]"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { both = "Anonymized CSV + report", csv = "Anonymized CSV only", report = "Report only" }
+
+[[example]]
+label  = "Hospital demo (k = 2)"
+params = { data = "name,age,zipcode,gender,diagnosis\nAda,34,13053,F,Flu\nBea,38,13068,F,Cold\nCal,52,14850,M,Flu\nDan,57,14853,M,Fever", quasi = "age,zipcode:100,gender", identifiers = "name", sensitive = "diagnosis" }
+
+[[example]]
+label  = "Suppress unique rows"
+params = { data = "age,city\n34,London\n36,Lisbon\n71,Lagos", quasi = "age", suppress = "true" }
+
+[[example]]
+label  = "Audit only (report)"
+params = { data = "age,zipcode\n34,13053\n36,13068\n52,14850", quasi = "age,zipcode", output = "report" }

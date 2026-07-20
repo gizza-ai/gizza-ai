@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/exif-edit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Edit or strip individual EXIF fields (date, GPS, copyright) on a photo",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Write, edit, or selectively remove individual EXIF metadata fields on a JPEG or PNG photo without re-encoding the pixels (no quality loss). Set the date taken (DateTimeOriginal/Digitized/DateTime), GPS position (decimal-degree latitude+longitude, optional altitude), artist, copyright, description, camera make/model, or software; and/or remove field groups (gps, date, artist, copyright, description, software, camera, serials, xmp, iptc) while keeping the rest. At least one set or remove is required. When EXIF fields change, the EXIF block is rebuilt: the embedded thumbnail and MakerNote are dropped (reported). Non-ASCII text values (e.g. ©, accents) are written as UTF-8 bytes like common EXIF tooling does; strict spec-ASCII readers may mis-render them. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). JPEG and PNG only (TIFF/WebP/HEIC are not supported). To wipe ALL metadata instead, use strip-exif.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "altitude": {
+          "description": "GPS altitude in meters; negative = below sea level. Can be set alone or with latitude/longitude. Example: 35.",
+          "maximum": 20000,
+          "minimum": -11000,
+          "type": "number"
+        },
+        "artist": {
+          "description": "Creator name written to the EXIF Artist tag. Example: Jane Doe.",
+          "type": "string"
+        },
+        "copyright": {
+          "description": "Copyright notice written to the EXIF Copyright tag. Example: (c) 2026 Jane Doe.",
+          "type": "string"
+        },
+        "date_taken": {
+          "description": "New 'date taken' — writes DateTimeOriginal, DateTimeDigitized and DateTime together. Accepts YYYY-MM-DD HH:MM:SS, EXIF's YYYY:MM:DD HH:MM:SS, ISO YYYY-MM-DDTHH:MM:SS, or a bare YYYY-MM-DD (midnight). Example: 2024-06-01 14:30:00.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Caption written to the EXIF ImageDescription tag. Example: Sunset over the harbor.",
+          "type": "string"
+        },
+        "latitude": {
+          "description": "GPS latitude in decimal degrees (-90..90, negative = south). Must be given together with longitude. Example: 48.8584 (Eiffel Tower).",
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "longitude": {
+          "description": "GPS longitude in decimal degrees (-180..180, negative = west). Must be given together with latitude. Example: 2.2945.",
+          "maximum": 180,
+          "minimum": -180,
+          "type": "number"
+        },
+        "make": {
+          "description": "Camera make written to the EXIF Make tag. Example: Canon.",
+          "type": "string"
+        },
+        "model": {
+          "description": "Camera model written to the EXIF Model tag. Example: EOS R5.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "remove": {
+          "description": "Comma-separated metadata groups to remove while keeping everything else: gps (all GPS tags), date (DateTime*/SubSec*/OffsetTime*), artist, copyright, description (incl. UserComment + Windows XP* text tags), software, camera (Make/Model/Lens*), serials (body+lens serial numbers, owner name, unique id), xmp (whole XMP packet), iptc (whole IPTC/Photoshop block). Example: gps,serials.",
+          "type": "string"
+        },
+        "software": {
+          "description": "Software/app name written to the EXIF Software tag. Example: darktable 4.6.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

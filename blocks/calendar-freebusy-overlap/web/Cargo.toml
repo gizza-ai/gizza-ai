@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-calendar-freebusy-overlap-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+# js-sys for Date::now() — the page target (wasm32-unknown-unknown) has no std
+# clock; the core takes an explicit timestamp (see create-next-tool page-patterns).
+js-sys = "0.3"
+gizza-ai-calendar-freebusy-overlap-core = { path = "../core" }

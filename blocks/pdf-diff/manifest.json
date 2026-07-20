@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/pdf-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two PDFs and report text and visual differences page by page",
+  "role": "skill",
+  "tool": {
+    "description": "Compare an original and a revised PDF and report what changed, page by page — e.g. what changed between v1 and v2 of a contract. Provide files as a list of exactly two items (the ORIGINAL first, the revised second), each a url or a `ref` from a prior tool call, up to 8 MiB and 2000 pages per file. The selectable text layers are diffed word by word (mode=words, default) or line by line (mode=lines): every changed page gets add/remove/replace hunks with surrounding context, exact added/removed word counts and a 0–1 similarity score. Pages are paired by content similarity (align=auto, default, up to 200 pages) so an inserted or deleted page is reported as added/removed instead of shifting every later page; align=sequential forces page-N-vs-page-N. Object-level visual changes are reported per page — page size, rotation, embedded images added/removed/replaced (compared by content), and font-set changes — plus document metadata changes (/Info Title, Author, Producer, dates). pages restricts the comparison ('all' default, 'odd', 'even', or '1,3-5'); ignore_case ignores letter case; include_unchanged also lists unchanged page pairs. The result includes identical (true when nothing differs), a one-line summary, and per-document page totals with changed/unchanged/added/removed counts. Limits: compares the embedded selectable text layer only (no OCR — scanned/image-only pages compare as empty text, though their images still compare by content) and does not rasterize pages, so visual differences are object-level, not pixel-level; password-protected PDFs are rejected.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align": {
+          "default": "auto",
+          "description": "How pages are paired: 'auto' (default) aligns pages by content similarity so an inserted or deleted page is reported as added/removed instead of shifting every later page (documents up to 200 pages; beyond that it falls back to sequential); 'sequential' always compares page N with page N.",
+          "enum": [
+            "auto",
+            "sequential"
+          ],
+          "type": "string"
+        },
+        "files": {
+          "description": "Exactly two PDFs: the ORIGINAL (old) version first, the revised (new) version second. Each item has exactly one of `url` or `ref` (a reference id from a prior tool call). Up to 8 MiB and 2000 pages per file; password-protected PDFs are rejected — remove the password first.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Ignore letter case in the text comparison (default false). 'Payment' vs 'payment' stops counting as a change; the reported hunks still show the original spelling.",
+          "type": "boolean"
+        },
+        "include_unchanged": {
+          "default": false,
+          "description": "Also list the page pairs that did NOT change (default false — only changed pages, added/removed pages and summary counts are reported).",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "words",
+          "description": "Text diff granularity: 'words' (default) reports word-level add/remove/replace hunks — best for contracts and prose; 'lines' diffs whole extracted lines — better for code-like or tabular documents.",
+          "enum": [
+            "words",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "pages": {
+          "default": "all",
+          "description": "Which pages to compare, applied to both PDFs: 'all' (default), 'odd', 'even', or a 1-based list/range like '1,3-5'. Out-of-range pages are ignored per document.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  },
+  "requires": [
+    "wafer-run/network"
+  ]
+}

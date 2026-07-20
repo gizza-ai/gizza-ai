@@ -1,0 +1,105 @@
+slug          = "har-request-extract"
+title         = "HAR Request Extractor — list requests from an HTTP Archive"
+description   = "Extract every request from a HAR capture — method, URL, status, type, size, timing — as a table, CSV, JSON, or URL list. Filter and sort, all in your browser."
+tags          = ["har request extractor", "har to csv", "har file analyzer", "extract urls from har", "http archive requests", "har timing", "har viewer", "network capture list"]
+h1            = "HAR Request Extractor"
+hero_subtitle = "Paste a HAR capture and get its request list — method, URL, status, content type, size, and timing — as an aligned table, CSV, JSON, or plain URLs. Filter by status class, method, or URL; sort by slowest or largest. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_har_request_extract_web"
+export        = "run"
+live          = false
+output_label  = "Request list"
+format        = "text"
+
+[[input]]
+name        = "har"
+label       = "HAR file (JSON)"
+placeholder = '{"log":{"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"GET","url":"https://example.com/"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"text/html","size":5120},"bodySize":2048}}]}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+table = "Table (aligned text)"
+csv   = "CSV (spreadsheet)"
+json  = "JSON"
+urls  = "URL list (one per line)"
+
+[[input]]
+name   = "status"
+label  = "Status filter"
+source = "field"
+
+[input.labels]
+all    = "All statuses"
+"2xx"  = "2xx — success"
+"3xx"  = "3xx — redirects"
+"4xx"  = "4xx — client errors"
+"5xx"  = "5xx — server errors"
+errors = "Errors — 4xx, 5xx + failed"
+
+[[input]]
+name        = "method"
+label       = "Method filter"
+placeholder = "GET"
+source      = "field"
+
+[[input]]
+name        = "url_contains"
+label       = "URL contains"
+placeholder = "/api/"
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort"
+source = "field"
+
+[input.labels]
+order   = "Capture order"
+slowest = "Slowest first"
+largest = "Largest first"
+
+[[example]]
+label = "Full request table"
+[example.params]
+har = '{"log":{"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":102.5,"request":{"method":"GET","url":"https://example.com/"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"text/html","size":5120},"bodySize":2048}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":812,"request":{"method":"POST","url":"https://example.com/api/search"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"application/json","size":20480},"bodySize":-1,"_transferSize":10240}},{"startedDateTime":"2024-01-01T00:00:02.000Z","time":54,"request":{"method":"GET","url":"https://cdn.example.com/logo.png"},"response":{"status":404,"statusText":"Not Found","content":{"mimeType":"image/png","size":0},"bodySize":512}}]}}'
+format = "table"
+status = "all"
+sort = "order"
+
+[[example]]
+label = "Errors only"
+[example.params]
+har = '{"log":{"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":102.5,"request":{"method":"GET","url":"https://example.com/"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"text/html","size":5120},"bodySize":2048}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":812,"request":{"method":"POST","url":"https://example.com/api/search"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"application/json","size":20480},"bodySize":-1,"_transferSize":10240}},{"startedDateTime":"2024-01-01T00:00:02.000Z","time":54,"request":{"method":"GET","url":"https://cdn.example.com/logo.png"},"response":{"status":404,"statusText":"Not Found","content":{"mimeType":"image/png","size":0},"bodySize":512}}]}}'
+format = "table"
+status = "errors"
+sort = "order"
+
+[[example]]
+label = "Slowest first"
+[example.params]
+har = '{"log":{"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":102.5,"request":{"method":"GET","url":"https://example.com/"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"text/html","size":5120},"bodySize":2048}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":812,"request":{"method":"POST","url":"https://example.com/api/search"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"application/json","size":20480},"bodySize":-1,"_transferSize":10240}},{"startedDateTime":"2024-01-01T00:00:02.000Z","time":54,"request":{"method":"GET","url":"https://cdn.example.com/logo.png"},"response":{"status":404,"statusText":"Not Found","content":{"mimeType":"image/png","size":0},"bodySize":512}}]}}'
+format = "table"
+status = "all"
+sort = "slowest"
+
+[[example]]
+label = "API calls → CSV"
+[example.params]
+har = '{"log":{"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":102.5,"request":{"method":"GET","url":"https://example.com/"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"text/html","size":5120},"bodySize":2048}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":812,"request":{"method":"POST","url":"https://example.com/api/search"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"application/json","size":20480},"bodySize":-1,"_transferSize":10240}},{"startedDateTime":"2024-01-01T00:00:02.000Z","time":54,"request":{"method":"GET","url":"https://cdn.example.com/logo.png"},"response":{"status":404,"statusText":"Not Found","content":{"mimeType":"image/png","size":0},"bodySize":512}}]}}'
+format = "csv"
+status = "all"
+url_contains = "/api/"
+sort = "order"
+
+[[example]]
+label = "URL list"
+[example.params]
+har = '{"log":{"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":102.5,"request":{"method":"GET","url":"https://example.com/"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"text/html","size":5120},"bodySize":2048}},{"startedDateTime":"2024-01-01T00:00:01.000Z","time":812,"request":{"method":"POST","url":"https://example.com/api/search"},"response":{"status":200,"statusText":"OK","content":{"mimeType":"application/json","size":20480},"bodySize":-1,"_transferSize":10240}},{"startedDateTime":"2024-01-01T00:00:02.000Z","time":54,"request":{"method":"GET","url":"https://cdn.example.com/logo.png"},"response":{"status":404,"statusText":"Not Found","content":{"mimeType":"image/png","size":0},"bodySize":512}}]}}'
+format = "urls"
+status = "all"
+sort = "order"

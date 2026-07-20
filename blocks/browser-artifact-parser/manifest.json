@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/browser-artifact-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge browser history, cookies, downloads, and cache databases into one forensic timeline",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Parse an uploaded browser artifact database into one unified, searchable forensic timeline. Auto-detects and correlates every recognized artifact: Chrome/Edge/Chromium history (urls+visits) and downloads, Chrome/Edge cookies, Firefox places.sqlite history and legacy downloads, Firefox cookies.sqlite, Safari History.db, and Safari/WebKit Cache.db — by reading the on-disk SQLite file directly (no SQL engine, read-only). Each timeline event has a readable UTC timestamp, unix seconds, event kind (visit/download/cookie/cache), source (browser + artifact), URL/host, name (page title, filename, or cookie name), and info (visit type, download size, or cookie expiry). A single History file yields both visits and downloads, merged chronologically. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Filter by substring (`search`) or `kind`, sort newest or oldest (`order`), cap the rows (`limit`), and export as json or csv.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Output format: json (structured, the default) or csv (a spreadsheet-friendly table with a source column so exports from several artifact files merge).",
+          "enum": [
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "kind": {
+          "default": "all",
+          "description": "Restrict the timeline to one event kind: all (the default), visit (page history), download, cookie, or cache.",
+          "enum": [
+            "all",
+            "visit",
+            "download",
+            "cookie",
+            "cache"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of events to return; 0 means all events. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "order": {
+          "default": "newest",
+          "description": "Timeline sort order by event time: newest (most recent first, the default) or oldest.",
+          "enum": [
+            "newest",
+            "oldest"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "search": {
+          "description": "Only include events whose URL, host, title, or details contain this text (case-insensitive). Omit to return every event.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

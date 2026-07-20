@@ -20,7 +20,11 @@ the shell cwd resets, so always cd to the absolute repo path before those.
 URLs and localhost are rejected ("request to private/internal address is not allowed"), and GitHub
 `/archive/` URLs redirect (the fetcher doesn't follow) — use a direct host. Handy public test inputs:
 zip → `https://codeload.github.com/octocat/Hello-World/zip/refs/heads/master`; live QR PNG →
-`https://api.qrserver.com/v1/create-qr-code/?data=...&size=300x300`.
+`https://api.qrserver.com/v1/create-qr-code/?data=...&size=300x300`. Also (2026-07-20):
+`raw.githubusercontent.com` serves proper `image/png` (public repos' test images — e.g.
+`sbrunner/deskew/master/tests/deskew-N.png`, real skewed scans WITH published expected angles),
+and `https://dummyimage.com/900x300/ffffff/000000.jpg&text=hello` serves `image/jpg` (JPEG
+secondary-format + rendered-text cases; all-white `/ffffff/ffffff.png` = blank-input case).
 
 **Hardware / concurrency (probe, don't assume):** a single Rust release build (rustc + `wasm-opt` in
 wasm-pack + `cargo install cli`) peaks around 1–2 GB and saturates its cores. On a small box (the
@@ -81,3 +85,35 @@ committed `blocks/*/Cargo.lock` disagrees with the pin. If `wafer build` validat
 the pin rev itself, that's a wafer-run bug to fix there (bump the pin via the procedure in
 the workspace memory), not something to route around with ad-hoc `--precise` revs. Block
 Cargo.locks stay gitignored/uncommitted; don't force-add them.
+
+**Shared CARGO_TARGET_DIR makes `cp target/wasm32-wasip1/release/*.wasm` a trap (2026-07-20):**
+on boxes where cargo uses a shared target dir (e.g. `~/.cache/gizza-cargo-target`, the disk-space
+fix), `blocks/<slug>/target/wasm32-wasip1/` doesn't exist and a `*.wasm` glob against the SHARED
+release dir silently copies the alphabetically-first OTHER block's wasm into `target/block.wasm`
+(caught only by size mismatch). Copy by exact name — `gizza_ai_<slug_underscored>_block.wasm` —
+and `cmp` it against the source after copying. CI is unaffected (per-block target dirs).
+
+**Stale local `wafer` CLI false-fails validation (2026-07-20):** `wafer build` failing with
+`Failed to deserialize BlockInfo from __wafer_info()` on a NEW block whose Cargo.lock is at the
+`wafer-run-pin.txt` rev is not necessarily a block problem — verify by running `wafer build` on a
+known-good COMMITTED block (e.g. yesterday's shipped tool): if that fails identically, the local
+wafer CLI is stale and its verdict is not load-bearing (CI never runs it; `cargo test` + the
+wasm32-wasip1 build + `gizza tool` runtime execution are the real gates). Only if the pin-rev
+block fails while known-good blocks pass is it a real wafer-run bug (fix there, per the 07-19 note).
+
+**Public AUDIO test URLs (2026-07-20):** kozco.com serves proper audio/* content-types and works with
+the SSRF-guarded fetch — `https://www.kozco.com/tech/piano2.wav` (6.3 s, 48 kHz stereo),
+`https://www.kozco.com/tech/organfinale.wav` (13 s, 44.1 kHz) and
+`https://www.kozco.com/tech/piano2-CoolEdit.mp3`; www2.cs.uic.edu is flaky/unreachable. Wikimedia
+(`upload.wikimedia.org`) 403s the fetcher's UA. filesamples.com works for m4a/ogg (audio/x-m4a,
+audio/ogg) but serves .flac as `application/octet-stream`, which the AssetKind::Audio MIME-class
+check rightly rejects — for flac/ogg/m4a SUCCESS coverage commit tiny generated fixtures (3.5 s
+lavfi sine via local ffmpeg, ~10-220 KB) under `core/tests/fixtures/` + an integration test
+(precedent: encrypted-zip's committed fixture).
+
+**GitHub push protection blocks realistic secret fixtures (2026-07-20).** The secret-scanner
+build's first push was rejected because a Playwright spec contained a realistic fake
+`sk_live_…` Stripe token — push protection pattern-matches known token shapes regardless of
+context. For any tool whose tests need secret-shaped strings, use fixtures that are visibly
+fake to the scanner: private-key PEM headers, generic high-entropy strings, or provider
+prefixes with truncated/invalid bodies. Don't request a bypass URL; rewrite the fixture.

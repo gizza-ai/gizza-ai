@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ecdsa-secp256k1"
+version = "0.1.0"
+abi = 1
+summary = "Generate secp256k1 keypairs and sign or verify messages with ECDSA"

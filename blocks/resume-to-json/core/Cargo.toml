@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-resume-to-json-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+regex = "1"
+# preserve_order: extracted resume keys keep canonical JSON Resume section order.
+serde_json = { version = "1", features = ["preserve_order"] }

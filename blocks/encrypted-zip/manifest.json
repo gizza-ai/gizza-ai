@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/encrypted-zip",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Create or extract password-protected AES-encrypted ZIP archives",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Create a password-protected, AES-encrypted ZIP archive from one or more files, or decrypt and extract an existing password-protected ZIP — entirely in memory. mode='pack' (default) bundles the given files into one encrypted ZIP (WinZip AE-2; encryption='aes256' default or 'aes128'; deflate compression level 1-9, default 6) that opens in 7-Zip, WinZip, WinRAR, or The Unarchiver — note Windows Explorer cannot open AES zips, and entry NAMES stay visible without the password. mode='extract' decrypts a password-protected .zip supplied as the single files item: AES-256/192/128 and legacy ZipCrypto are auto-detected, a wrong password is rejected with a clear error, and each file is returned with its path, size, and content inline (text when UTF-8, otherwise base64; files past an 8 MiB total budget are listed without content). Limits: 8 MiB per input file, 32 MiB output ZIP, 32 MiB input archive. Each files item has exactly one of url (HTTP/HTTPS) or ref (id from a prior tool call). Runs locally — files and passwords never leave the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "encryption": {
+          "default": "aes256",
+          "description": "Pack only: AES key strength for the WinZip AE-2 encryption — aes256 (default) or aes128. Ignored on extract, where the method is auto-detected (AES-256/192/128 and legacy ZipCrypto archives are all supported).",
+          "enum": [
+            "aes256",
+            "aes128"
+          ],
+          "type": "string"
+        },
+        "files": {
+          "description": "Pack: the files to bundle and encrypt (each item has exactly one of `url` or `ref`; entry names come from each file's name, duplicates are made unique). Extract: exactly one item — the password-protected .zip archive.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "level": {
+          "default": 6,
+          "description": "Pack only: deflate compression level 1-9 (default 6; higher = smaller but slower). Ignored on extract.",
+          "maximum": 9,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "pack",
+          "description": "Whether to create an encrypted ZIP from the given files (pack, the default) or decrypt and extract an existing password-protected ZIP (extract).",
+          "enum": [
+            "pack",
+            "extract"
+          ],
+          "type": "string"
+        },
+        "password": {
+          "description": "The archive password. Pack: every entry is encrypted with it (pick a strong one — it is the only thing protecting the archive). Extract: the password the archive was created with.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "files",
+        "password"
+      ],
+      "type": "object"
+    }
+  }
+}

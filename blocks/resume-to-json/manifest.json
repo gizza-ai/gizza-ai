@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/resume-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a pasted resume to JSON Resume format and validate it",
+  "role": "skill",
+  "tool": {
+    "description": "Extract a pasted plain-text resume into the standard JSON Resume schema (jsonresume.org v1.0.0) — canonical sections (basics, work, education, skills, projects, languages, …), ISO-8601 partial dates (YYYY, YYYY-MM, YYYY-MM-DD), LinkedIn/GitHub profile detection — or validate an existing resume.json document against the schema. `mode` is 'extract', 'validate', or 'auto' (default: JSON object input → validate, anything else → extract). Validation returns {valid, errors, warnings, summary}: type mismatches and bad date patterns are errors; malformed email/URL formats and unknown keys are warnings. `schema_ref` adds the $schema URL + meta.version to extracted output; `pretty` (default true) indents the JSON. Heuristic English-heading parser; runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The resume as plain text (name and contact lines first, then sections like Experience, Education, Skills) — or an existing resume.json document to validate. Max 1 MiB.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "auto",
+          "description": "'extract' parses plain resume text into a JSON Resume (v1.0.0) document; 'validate' checks a pasted resume.json against the schema and returns {valid, errors, warnings, summary}; 'auto' (default) picks validate when the input is a JSON object, extract otherwise.",
+          "enum": [
+            "auto",
+            "extract",
+            "validate"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print (indent) the JSON output instead of emitting it on one line. Default true.",
+          "type": "boolean"
+        },
+        "schema_ref": {
+          "default": false,
+          "description": "Add the official $schema URL and a meta.version field to the extracted document (like the published JSON Resume samples). Only affects extraction; validation reports are unchanged. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "budget-planner"
+version = "0.1.0"
+abi = 1
+summary = "Build a 50/30/20 or zero-based monthly budget and see what's left to allocate"

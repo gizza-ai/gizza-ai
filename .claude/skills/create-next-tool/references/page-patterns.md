@@ -75,7 +75,33 @@ Playwright assertions as OUTPUT-RMS ÷ INPUT-RMS ratios (decode both via WebAudi
 fixture amplitude. Absolute windows are fine only for loudness-normalizing tools (loudnorm
 targets absolute output loudness regardless of input).
 
+**Non-standard output extensions (`.m4r` — 2026-07-19):** ffmpeg cannot infer a muxer from an
+extension it doesn't know (`Unable to choose an output format for 'out.m4r'`) — pass the muxer
+explicitly (`-f ipod` for m4r; the ipod muxer is what `.m4a` already maps to, so it's present in
+both native ffmpeg and the page's @ffmpeg/core build). ALSO check the page runtime's `EXT_MIME`
+table in `tools/generator/assets/runtime/tool-ffmpeg.js`: an unknown output extension renders
+`application/octet-stream`, which silently breaks the `<audio>`/`<video>` preview even though
+ffmpeg succeeded — add the mapping (m4r → audio/mp4 is in now) + a `js/tool-ffmpeg.test.js` case,
+then regenerate pages so the copied runtime picks it up.
+
 **Multi-input ffmpeg (e.g. video-concat) is effectively un-buildable here:** the page file-input is a
 single upload and ffmpeg can't run in the chat SW, so it'd be CLI-only — skiplist + defer.
 (Multi-IMAGE pure-Rust tools ARE buildable as chat+CLI, no page — see the gif-from-images entry in
 wasm-crates.md.)
+
+**Playwright `page.fill` on a many-line textarea is minutes-slow (2026-07-20, data-anonymizer):**
+filling a textarea with ~10k newline-separated rows routes through Chromium `insertText`, which
+took 4.5 MINUTES per fill (all wall-clock wait, ~0 CPU) — the spec passed but would drag CI. For
+big cap-boundary fixtures set the value directly and dispatch the same event the driver listens
+to: `await page.locator('#in-data').evaluate((el, v) => { el.value = v; el.dispatchEvent(new
+Event('input', { bubbles: true })); }, big)` — identical trigger path (field listeners bind
+"input"), runs in ~100 ms. Normal-sized `page.fill` calls stay as-is.
+
+**ffmpeg `deshake` rx/ry must be a multiple of 16 (2026-07-20, video-stabilize):** the filter
+rejects any other radius at graph-init time ("rx must be a multiple of 16", exit 176) — docs say
+0–64 but only 16/32/48/64 actually initialize. A strength→radius map must SNAP to those steps
+(quartiles), not scale linearly; argv unit tests pass either way, so only a REAL ffmpeg run
+catches it (another advertised-values-matrix save). Also: filter-chain expressions like
+`scale=trunc(iw*1.068/2)*2:trunc(ih*1.068/2)*2,crop=trunc(iw/1.068/2)*2:trunc(ih/1.068/2)*2`
+(zoom-then-recrop to ~original even dims) work in both native ffmpeg and @ffmpeg/core, and give
+EXACT output dims to assert in Playwright (128→126 at z=1.068).

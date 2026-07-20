@@ -1,0 +1,45 @@
+slug          = "png-to-jpg"
+title         = "PNG to JPG Converter — Pick the Background Color for Transparency"
+description   = "Convert PNG to JPG in your browser: transparency is flattened onto a background color you choose, with adjustable JPEG quality. Free and private — no upload."
+tags          = ["png to jpg", "png", "jpg", "jpeg", "convert", "image converter", "transparency", "background color", "flatten", "compress"]
+h1            = "PNG to JPG Converter"
+hero_subtitle = "Turn a PNG into a JPG right in your browser — choose the color that fills transparent areas and set the JPEG quality. Your image never leaves your device."
+wasm          = "gizza_ai_png_to_jpg_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "JPG image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "PNG image (any image format works)"
+
+# Field order MUST equal web/src/lib.rs build_argv param order: background, quality.
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Background color for transparent areas"
+placeholder = "#ffffff or white"
+kind        = "color"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "JPEG quality (1–100)"
+placeholder = "85"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "White background"
+params = { background = "#ffffff", quality = "85" }
+
+[[example]]
+label  = "Black background"
+params = { background = "#000000", quality = "85" }
+
+[[example]]
+label  = "Smaller file (quality 70)"
+params = { background = "#ffffff", quality = "70" }

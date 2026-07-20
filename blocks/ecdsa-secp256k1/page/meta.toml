@@ -1,0 +1,99 @@
+slug          = "ecdsa-secp256k1"
+title         = "ECDSA secp256k1 — generate keys, sign & verify messages"
+description   = "Generate secp256k1 keypairs and sign or verify messages with ECDSA (the Bitcoin/Ethereum curve). RFC 6979 deterministic, DER + compact — in your browser."
+tags          = ["secp256k1", "ecdsa sign", "ecdsa verify", "bitcoin curve", "ethereum signature", "keccak256", "recovery id", "elliptic curve", "digital signature", "crypto"]
+h1            = "ECDSA secp256k1 sign & verify"
+hero_subtitle = "Generate a secp256k1 keypair, sign a message, or verify a signature — the ECDSA scheme behind Bitcoin and Ethereum keys. Deterministic RFC 6979 signing, hex/base64/PEM keys, compact or DER signatures. Runs in your browser — keys never leave your device."
+wasm          = "gizza_ai_ecdsa_secp256k1_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# operation, message_encoding and hash render as <select>; option lists derive
+# from the descriptor schema via the manifest.
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[input.labels]
+generate = "Generate (new keypair)"
+sign     = "Sign (create a signature)"
+verify   = "Verify (check a signature)"
+
+[[input]]
+name        = "message"
+label       = "Message (sign / verify)"
+placeholder = "The message to sign or verify — ignored when generating"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "message_encoding"
+label       = "Message encoding"
+source      = "field"
+
+[input.labels]
+utf8   = "UTF-8 text"
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name        = "hash"
+label       = "Hash"
+source      = "field"
+
+[input.labels]
+sha256    = "SHA-256 (default)"
+keccak256 = "Keccak-256 (Ethereum)"
+sha384    = "SHA-384"
+sha512    = "SHA-512"
+none      = "None (message is the 32-byte digest)"
+
+[[input]]
+name        = "key"
+label       = "Key (private to sign, public to verify)"
+placeholder = "32-byte private key hex (0x ok) to sign  ·  compressed 02…/uncompressed 04… public key hex to verify  ·  PEM also works"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "signature"
+label       = "Signature (verify only)"
+placeholder = "compact 64-byte r||s or DER, as hex or base64 — required when verifying"
+source      = "field"
+multiline   = true
+
+[[example]]
+label = "Generate a keypair"
+[example.params]
+operation = "generate"
+
+[[example]]
+label = "Sign a message"
+[example.params]
+operation = "sign"
+message = "Satoshi Nakamoto"
+message_encoding = "utf8"
+hash = "sha256"
+key = "0000000000000000000000000000000000000000000000000000000000000001"
+
+[[example]]
+label = "Verify a signature"
+[example.params]
+operation = "verify"
+message = "Satoshi Nakamoto"
+message_encoding = "utf8"
+hash = "sha256"
+key = "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+signature = "934b1ea10a4b3c1757e2b0c017d0b6143ce3c9a7e6a4a49860d7a6ab210ee3d82442ce9d2b916064108014783e923ec36b49743e2ffa1c4496f01a512aafd9e5"
+
+[[example]]
+label = "Ethereum-style Keccak-256"
+[example.params]
+operation = "sign"
+message = "hello ethereum"
+message_encoding = "utf8"
+hash = "keccak256"
+key = "0000000000000000000000000000000000000000000000000000000000000001"

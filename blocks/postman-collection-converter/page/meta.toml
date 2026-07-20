@@ -1,0 +1,70 @@
+slug          = "postman-collection-converter"
+title         = "Postman Collection Converter — export to curl, fetch or axios"
+description   = "Paste a Postman Collection v2 or Insomnia export and get curl commands, JavaScript fetch() or axios code for every request, with variables filled in. Browser-only."
+tags          = ["postman collection to curl", "postman to curl converter", "insomnia export to curl", "postman collection to fetch", "postman collection to axios", "convert postman collection", "api collection to code", "postman export converter"]
+h1            = "Postman / Insomnia Collection Converter"
+hero_subtitle = "Paste a Postman Collection v2 or Insomnia export (JSON) and get ready-to-run curl commands, JavaScript fetch() calls, or axios calls for every request — folders flattened, auth and bodies included, {{variables}} filled in. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_postman_collection_converter_web"
+export        = "run"
+live          = false
+output_label  = "Generated code"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "collection"
+label       = "Collection export (JSON)"
+placeholder = '{"info":{"name":"Demo"},"item":[{"name":"Get user","request":{"method":"GET","url":"https://api.example.com/users/1"}}]}'
+source      = "field"
+multiline   = true
+
+# Renders as a <select> (control type comes from the descriptor enum in
+# manifest.json); labels map the canonical values to friendly names.
+[[input]]
+name   = "target"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+curl  = "cURL commands"
+fetch = "JavaScript fetch()"
+axios = "JavaScript axios"
+
+[[input]]
+name        = "variables"
+label       = "Variables (optional)"
+placeholder = "baseUrl=https://api.example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "multiline"
+label  = "Multi-line curl (backslash continuations)"
+source = "field"
+
+# Preset chips — competitors ship per-request code panels and sample inputs;
+# these prefill a real collection in one click.
+[[example]]
+label = "Postman → curl"
+[example.params]
+collection = '{"info":{"name":"Demo API"},"item":[{"name":"Create user","request":{"method":"POST","url":"https://api.example.com/users","auth":{"type":"bearer","bearer":[{"key":"token","value":"abc123"}]},"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}}]}'
+target     = "curl"
+
+[[example]]
+label = "Postman → fetch()"
+[example.params]
+collection = '{"info":{"name":"Demo API"},"item":[{"name":"Create user","request":{"method":"POST","url":"https://api.example.com/users","auth":{"type":"bearer","bearer":[{"key":"token","value":"abc123"}]},"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}}]}'
+target     = "fetch"
+
+[[example]]
+label = "Insomnia → axios"
+[example.params]
+collection = '{"_type":"export","__export_format":4,"resources":[{"_id":"env_1","_type":"environment","data":{"base_url":"https://api.example.com"}},{"_id":"req_1","_type":"request","name":"List users","method":"GET","url":"{{ _.base_url }}/users","headers":[{"name":"Accept","value":"application/json"}]}]}'
+target     = "axios"
+
+[[example]]
+label = "Fill {{variables}}"
+[example.params]
+collection = '{"info":{"name":"Demo API"},"item":[{"name":"Ping","request":{"method":"GET","url":"{{baseUrl}}/ping"}}]}'
+target     = "curl"
+variables  = "baseUrl=https://api.example.com"

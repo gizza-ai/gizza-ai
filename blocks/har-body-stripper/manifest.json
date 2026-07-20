@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/har-body-stripper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip request/response bodies out of a HAR capture",
+  "role": "skill",
+  "tool": {
+    "description": "Remove the request and response bodies from a HAR (HTTP Archive) capture to drastically shrink it and clear payload data before sharing: request postData (form fields, JSON uploads), response content text, and Chrome websocket frame payloads. URLs, headers, cookies, timings, and size metadata are untouched, so the capture stays analyzable and diff-able (key order preserved). Choose the side with strip=both/request/response, limit by mimeType substrings (only_mime=image/,font/) or size (min_bytes), and get the stripped HAR JSON (compact by default, pretty=true to indent) or a dry-run summary (output=summary) with counts, bytes removed, and before/after size. Note: cookies and auth headers are NOT redacted — this tool only removes bodies. Runs locally; max 10000 entries.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "har": {
+          "description": "The HAR (HTTP Archive) capture as JSON text — the { \"log\": { \"entries\": [ … ] } } object that browser DevTools export via Network tab → \"Save all as HAR\". Max 10000 entries.",
+          "type": "string"
+        },
+        "min_bytes": {
+          "default": 0,
+          "description": "Only strip bodies at least this many bytes, e.g. 10240 to keep small API JSON but drop big blobs. Response bodies measure content.size when recorded (decoded size), else the stored text length; request bodies measure the stored postData length. Default 0 = strip all.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "only_mime": {
+          "default": "",
+          "description": "Comma-separated case-insensitive mimeType substrings, e.g. image/,font/,video/ — only bodies whose recorded mimeType contains one are stripped. Empty (default) strips every body. Bodies with no recorded mimeType are kept when a filter is set.",
+          "type": "string"
+        },
+        "output": {
+          "default": "har",
+          "description": "'har' (default) returns the stripped capture as JSON, ready to save as a .har file. 'summary' is a dry-run report instead: entries scanned, bodies stripped per side with bytes removed, and the before → after size.",
+          "enum": [
+            "har",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Pretty-print the output HAR with 2-space indentation. Default false = compact single-line JSON, which shrinks the file the most (DevTools exports are pretty-printed).",
+          "type": "boolean"
+        },
+        "strip": {
+          "default": "both",
+          "description": "Which bodies to remove: 'both' (default) request AND response payloads, 'request' only uploaded postData (form fields, JSON payloads), 'response' only downloaded content. Websocket frame data follows the side: sent frames count as request, received as response.",
+          "enum": [
+            "both",
+            "request",
+            "response"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "har"
+      ],
+      "type": "object"
+    }
+  }
+}

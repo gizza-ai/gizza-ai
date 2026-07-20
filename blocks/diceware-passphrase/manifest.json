@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/diceware-passphrase",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a memorable diceware passphrase from the EFF wordlist",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a memorable multi-word diceware passphrase from the EFF wordlists with a cryptographic RNG, entirely locally. Pick the word count (default 6 ≈ 77.5 bits), the wordlist (EFF long or short), and the separator; optionally capitalize words, append a random digit/symbol, generate a batch, show the dice roll for each word, or supply your own physical dice rolls for a deterministic lookup. Returns the passphrase(s) plus entropy bits, a strength label, and an offline crack-time estimate.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "add_number": {
+          "default": false,
+          "description": "Append one random digit 0-9 to the passphrase (~3.3 extra bits). Default false.",
+          "type": "boolean"
+        },
+        "add_symbol": {
+          "default": false,
+          "description": "Append one random symbol from !@#$%^&*-+=? to the passphrase (~3.6 extra bits). Default false.",
+          "type": "boolean"
+        },
+        "capitalize": {
+          "default": false,
+          "description": "Capitalize the first letter of every word (e.g. Abacus-Abdomen). Readability only — adds no entropy. Default false.",
+          "type": "boolean"
+        },
+        "count": {
+          "default": 1,
+          "description": "How many passphrases to generate (1-20, default 1; one per line). Must be 1 when 'rolls' is provided.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "rolls": {
+          "default": "",
+          "description": "Optional physical dice rolls, digits 1-6 (spaces/commas between words allowed): 5 digits per word for eff-long (e.g. '62315 14534'), 4 for eff-short. When set, words are looked up deterministically instead of using the RNG.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "hyphen",
+          "description": "How words are joined: 'hyphen' (-, default), 'space', 'underscore' (_), 'dot' (.), 'none' (joined directly), or 'random-symbol' (a random symbol between each pair of words, ~3.6 extra bits per gap).",
+          "enum": [
+            "hyphen",
+            "space",
+            "underscore",
+            "dot",
+            "none",
+            "random-symbol"
+          ],
+          "type": "string"
+        },
+        "show_rolls": {
+          "default": false,
+          "description": "Also list the dice roll for each word (e.g. '62315  tiger') so you can verify against a printed wordlist. Default false.",
+          "type": "boolean"
+        },
+        "wordlist": {
+          "default": "eff-long",
+          "description": "Word list: 'eff-long' (EFF long list, 7,776 words, 5 dice per word, ~12.9 bits/word, default) or 'eff-short' (EFF short list, 1,296 shorter words, 4 dice per word, ~10.3 bits/word).",
+          "enum": [
+            "eff-long",
+            "eff-short"
+          ],
+          "type": "string"
+        },
+        "words": {
+          "default": 6,
+          "description": "Number of words in the passphrase (2-20, default 6 ≈ 77.5 bits with the EFF long list; use 8+ for vaults/master keys). Ignored when 'rolls' is provided.",
+          "maximum": 20,
+          "minimum": 2,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

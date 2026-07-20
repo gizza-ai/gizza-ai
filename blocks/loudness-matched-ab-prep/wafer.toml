@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "loudness-matched-ab-prep"
+version = "0.1.0"
+abi = 1
+summary = "Loudness-match two audio files for fair A/B comparison"

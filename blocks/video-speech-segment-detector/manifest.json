@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/video-speech-segment-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect speech vs non-speech segments in a video and report the timestamps",
+  "role": "skill",
+  "tool": {
+    "description": "Run voice-activity detection on a video's audio track and report the timestamps of speech vs non-speech segments (no transcription; the video is not modified). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). threshold_db is the loudness cutoff in dB (default -30), min_silence the shortest pause that splits segments (default 0.5s), min_speech the shortest burst kept as speech (default 0.25s), pad extra seconds kept around each speech segment (default 0), voice_band restricts detection to the 200-3000 Hz band (default true). segments picks both/speech/non-speech rows; output picks report/csv/srt/audacity. Energy-based (ffmpeg silencedetect), not an ML transcriber.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "min_silence": {
+          "default": 0.5,
+          "description": "Shortest pause in seconds that splits two speech segments (default 0.5). Smaller values split on every breath; larger values keep whole sentences together.",
+          "maximum": 30,
+          "minimum": 0.05,
+          "type": "number"
+        },
+        "min_speech": {
+          "default": 0.25,
+          "description": "Shortest burst in seconds that still counts as speech (default 0.25). Detected bursts shorter than this — clicks, coughs, door slams — are folded back into the surrounding non-speech.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: report (human-readable summary + numbered list, default), csv (start,end,duration,label), srt (subtitle-timed segments, handy as a transcription scaffold), or audacity (tab-separated label track importable via its label-track import).",
+          "enum": [
+            "report",
+            "csv",
+            "srt",
+            "audacity"
+          ],
+          "type": "string"
+        },
+        "pad": {
+          "default": 0.0,
+          "description": "Seconds added before and after every speech segment (default 0). Use 0.1–0.3 to protect soft word edges when the timestamps drive a cutter; padded segments that overlap are merged.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "segments": {
+          "default": "both",
+          "description": "Which segments to list: both (full labeled timeline, default), speech only, or non-speech only. The report's summary always covers both classes.",
+          "enum": [
+            "both",
+            "speech",
+            "non-speech"
+          ],
+          "type": "string"
+        },
+        "threshold_db": {
+          "default": -30.0,
+          "description": "Loudness threshold in dB below which audio counts as non-speech (default -30). Raise it (e.g. -20) for noisy recordings so hiss stops counting as speech; lower it (e.g. -45) for quiet speakers.",
+          "maximum": 0,
+          "minimum": -90,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "voice_band": {
+          "default": true,
+          "description": "Measure loudness only in the 200–3000 Hz voice band (default true), so low rumble and high hiss don't count as speech. Disable to detect any sound (music, effects).",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

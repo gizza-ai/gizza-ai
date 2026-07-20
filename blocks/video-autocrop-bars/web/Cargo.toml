@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-video-autocrop-bars-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+gizza-ai-block-utils = { path = "../../../block-utils" }
+gizza-ai-video-autocrop-bars-core = { path = "../core" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-autocrop-bars"
+version = "0.1.0"
+abi = 1
+summary = "Auto-detect and remove letterbox/pillarbox black bars from a video (two-pass cropdetect)"

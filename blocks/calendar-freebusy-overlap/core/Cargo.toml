@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-calendar-freebusy-overlap-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# chrono for date arithmetic + formatting; alloc-only, no clock needed (each
+# surface supplies its own "now" — see run()'s now_utc_secs).
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
+# chrono-tz provides the IANA tz database (DST rules baked in), pure-Rust, no I/O.
+chrono-tz = { version = "0.10", default-features = false }

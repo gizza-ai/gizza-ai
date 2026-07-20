@@ -1,0 +1,84 @@
+{
+  "name": "gizza-ai/image-trim",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-crop uniform borders or whitespace around an image",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Auto-crop uniform borders or whitespace around an image (like ImageMagick -trim): detects the border — transparent padding or a solid color sampled from the 4 corners, or a color you give — and removes matching edge rows/columns. tolerance (0-255, default 16) absorbs anti-aliasing/JPEG noise, padding keeps N border pixels around the content, background_percent trims noisy borders with stray pixels. Returns PNG (JPEG input stays JPEG by default) and reports the pixels removed per side. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background_percent": {
+          "default": 100,
+          "description": "An edge row/column is trimmed only while at least this percent of its pixels match the border (50-100, default 100 = every pixel). Lower slightly (e.g. 95) to trim borders containing stray noise pixels.",
+          "maximum": 100,
+          "minimum": 50,
+          "type": "integer"
+        },
+        "color": {
+          "description": "Border color as hex, #rgb or #rrggbb (e.g. #fff or #ffffff). Required with mode=color; with mode=auto it overrides corner detection; not used with mode=transparent.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Output format: auto (default) keeps JPEG input as JPEG and everything else as PNG (transparency preserved); png forces PNG; jpeg forces JPEG quality 90 (transparency flattened onto white).",
+          "enum": [
+            "auto",
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "auto",
+          "description": "What counts as the border to trim: auto (default) samples the 4 corner pixels — mostly-transparent corners trim by alpha, otherwise the majority corner color; transparent trims fully/nearly transparent edges; color trims edges matching the color parameter.",
+          "enum": [
+            "auto",
+            "transparent",
+            "color"
+          ],
+          "type": "string"
+        },
+        "padding": {
+          "default": 0,
+          "description": "Pixels of the original border to keep on every side around the detected content, clamped to the image edges (0-500, default 0 = tight crop).",
+          "maximum": 500,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 16,
+          "description": "How far a pixel may differ from the border (max per-channel distance, 0-255) and still be trimmed. 0 = exact match only; default 16 absorbs anti-aliasing and JPEG artifacts; large values can eat into the subject.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

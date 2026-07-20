@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "browser-artifact-parser"
+version = "0.1.0"
+abi = 1
+summary = "Merge browser history, cookies, downloads, and cache databases into one forensic timeline"

@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/woff2-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a font between TTF, OTF, WOFF and WOFF2",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Convert a font file between the TTF, OTF, WOFF and WOFF2 container formats, returned for download. The input format is auto-detected from the file's bytes. format is the target: woff2 (smallest web font, Brotli — best for the web), woff (older web font, zlib), ttf or otf (uncompressed desktop font, i.e. decompress a web font). WOFF2 uses the glyf/loca transform for TrueType fonts and a null-transform Brotli container for CFF/OpenType fonts. The glyph outline technology (TrueType or PostScript/CFF) is preserved — ttf↔otf changes the container/extension, it does NOT re-outline glyphs. Font collections (.ttc), and legacy inputs (EOT, SVG, Type1) are not supported. Provide the font as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "File URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "woff2",
+            "woff",
+            "ttf",
+            "otf"
+          ],
+          "description": "Target font container: woff2 (best-compressed web font, Brotli), woff (older web font, zlib), ttf or otf (uncompressed desktop font). The input format (TTF/OTF/WOFF/WOFF2) is auto-detected. The glyph outline technology is preserved — ttf↔otf changes the container/extension, it does not re-outline glyphs."
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}

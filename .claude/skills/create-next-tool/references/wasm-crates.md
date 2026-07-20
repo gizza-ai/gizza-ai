@@ -108,3 +108,91 @@ unification turns the feature on for the copy of rust_xlsxwriter `core` uses in 
 produced workbook by reading it back with `calamine` (dev-dep) or unzipping `xl/sharedStrings.xml` /
 `xl/worksheets/sheet1.xml`. Binary output → the page needs `page/custom.js` `renderResult` to turn the
 base64 `data:` URL into a Download button (reuse the generator's `#tool-output-download` anchor).
+
+**Audio DECODE + loudness DSP is wasm-proven (loudness-matched-ab-prep, 2026-07-20):** `symphonia 0.5`
+(default-features=false, features wav/pcm/flac/mp3/ogg/vorbis/isomp4/aac/alac — same crate media-info
+uses demux-only) fully DECODES to f32 PCM under wasmi (standard probe→next_packet→SampleBuffer loop);
+`ebur128 = "0.1"` (pure-Rust libebur128 port: integrated LUFS + LRA + 4x true peak via
+`EbuR128::new(ch, rate, Mode::I|Mode::LRA|Mode::TRUE_PEAK)` + `add_frames_f32`) and `hound = "3"`
+(WAV write 16/24-bit int + 32f) both instantiate and were cross-checked against native ffmpeg's own
+ebur128 filter to 0.1 LU. This extends the multi-image note: a multi-AUDIO pure-Rust tool (two
+`Param::source_list` inputs, zip-of-WAVs out) is buildable chat+CLI, no page. Fixture gotcha: a sine's
+peak-to-loudness ratio is only ~3 dB, so "boost to target X" can never clip a sine for X ≤ -6 LUFS —
+clip tests need a spiky fixture (quiet sine + near-full-scale single-sample spikes).
+
+**64 MiB sandbox + multi-MiB Vec = bound the growth (2026-07-20):** `Vec::extend_from_slice`'s
+amortized DOUBLING holds old+new alive during realloc — a PCM buffer capped at 16 MiB transiently
+needs 16+32 MiB and OOM-traps the 1024-page sandbox as a bare `wasm unreachable` (seen decoding a
+105 s m4a; native run of the same bytes errored cleanly, which is the tell that it's memory, not
+logic). Fix: check the size cap BEFORE extending, then `reserve_exact` in fixed 4 MiB steps clamped
+to the cap. Applies to any block accumulating multi-MiB buffers in a loop.
+
+**Big-image decode in the 64 MiB sandbox: budget header-first, downscale streaming
+(document-skew-detector, 2026-07-20):** `image::ImageReader::new(Cursor).with_guessed_format()?
+.into_decoder()?` exposes `dimensions()`/`color_type()`/`total_bytes()` BEFORE any raster
+allocation — reject `input.len() + total_bytes (+ w*h if a grayscale copy is needed) > ~48 MB`
+with an actionable "re-export at lower resolution" error instead of a bare `wasm unreachable`
+OOM trap (a 4152×6172 scan trapped exactly this way via decode + `resize()` intermediates).
+For 8-bit color types, `decoder.read_image(&mut vec![0; total_bytes])` then a hand-rolled
+streaming luma + integer box-downscale (one output row of u32 accumulators) gets a 25.6-MP
+scan to ≤1400px analysis size with NO full-size intermediate beyond the decoded raster;
+16-bit/float types can fall back to `DynamicImage::from_decoder` + `into_luma8` with the copy
+counted in the budget. Also: document-skew via projection profile (score = Σ bin², bins =
+`y·cosθ − x·sinθ` with linear-interpolated binning) needs a VERTICAL-RUN filter (keep only ink
+pixels whose vertical run ≤ ~10 px at analysis scale) — raw ink lets a black scanner-bed
+background drown the text signal entirely (a real test scan read 0.0° until filtered), and
+two-pass count-then-fill sizing avoids the Vec-doubling OOM noted above.
+
+**Audio-from-VIDEO decode + hand-rolled FFT under wasmi (video-audio-sync-offset-finder, 2026-07-20):**
+symphonia with the media-info feature set (isomp4/mkv + aac/mp3/vorbis/pcm/...) DECODES the audio
+track out of MP4/MOV/MKV/WebM video containers under wasmi — video tracks appear as
+CODEC_TYPE_NULL; iterate tracks and take the first one `get_codecs().make(...)` succeeds on (a
+known-but-undecodable codec like Opus fails decoder construction — name it in the error). This
+extends the multi-AUDIO note: two-VIDEO-input pure-Rust tools are buildable chat+CLI, no page.
+A hand-rolled iterative radix-2 complex FFT (f32 data, f64 twiddles, ~50 lines) instantiates and
+runs fine under wasmi for N up to 2^19 — no rustfft needed for correlation-sized transforms.
+Cross-correlation gotchas that cost real debugging: (1) normalized per-lag NCC values are NOT
+comparable across lags (std ~ 1/sqrt(overlap)) — rank peaks and compute BBC-style z-scores on
+NCC×sqrt(overlap) or unrelated inputs score "medium"; (2) correlate the FIRST DIFFERENCE of the
+log-energy envelope (novelty), not the envelope itself — a smooth envelope correlates over a wide
+lag range and drowns the true peak's z-score (3.6 for a perfect match); (3) verify the top-K
+coarse envelope peaks with a waveform fine pass and let the best lock win — rescues ~0 dB SNR
+cases where the best envelope peak is wrong. Memory shape for 64 MiB: downmix+resample to 8 kHz
+mono INSIDE the symphonia packet loop (never hold native-rate PCM), consume the Vecs and
+mean-remove in place.
+
+**EXIF WRITING is wasm-proven (exif-edit, 2026-07-20):** `kamadak-exif = "0.6"`'s
+`exif::experimental::Writer` (push_field + `write(&mut Cursor, true /* little-endian */)`)
+rebuilds a full TIFF/EXIF payload under wasmi — pair with the already-proven `img-parts` to
+splice it back into the JPEG APP1 / PNG eXIf chunk. Recipe: read existing payload via
+img-parts `.exif()` → `Reader::read_raw` → carry over `Field { tag, ifd_num, value: v.clone() }`
+for In::PRIMARY fields, then push replacements. Gotchas that cost real debugging: (1)
+**img-parts 0.3's `Jpeg::set_exif` hardcodes `segments.insert(3, …)` and PANICS** on JPEGs
+with <3 segments — splice the APP1 yourself (`JpegSegment::new_with_contents(APP1,
+b"Exif\0\0" + payload)` inserted after a leading APP0; `JpegSegment::exif()` is pub(super), so
+match `marker()==APP1 && contents().starts_with(b"Exif\0\0")` manually); PNG's `set_exif`
+(insert before IEND) is safe. (2) Never carry over MakerNote (internal absolute offsets break
+silently on rewrite — drop + report), the thumbnail IFD (In::THUMBNAIL, offset-bearing), or
+Strip/Tile/JPEGInterchangeFormat offset tags. (3) Test segments must be inserted BEFORE the
+SOS segment — img-parts keeps post-SOS pushes un-reparseable inside the entropy data. GPS
+coords: integer-math DMS (`round(|deg|*3600*1e4)` then div/mod) avoids float carry bugs;
+`Tag(Context::Tiff, 0x9c9d)` tuple-constructor works for XP* tags kamadak lacks constants for.
+Cross-verify outputs with PIL (`getexif().get_ifd(0x8825)` for GPS) — it decodes ASCII tags as
+latin-1, so UTF-8 values display mojibake'd but byte-correct (the exiftool-standard practice).
+
+**Charset detection + byte-level transcoding is wasm-proven (text-encoding-converter, 2026-07-20):**
+`chardetng = "0.1"` (Firefox's detector; pure table-driven Rust) + `encoding_rs = "0.8"` both
+instantiate under wasmi. Drive encoding_rs through the WITHOUT-replacement APIs
+(`Decoder::decode_to_string_without_replacement` / `Encoder::encode_from_utf8_to_vec_without_replacement`)
+to COUNT substitutions and report strict byte offsets (`Malformed(a,b)` → offset = pos−(a+b)) — the
+convenience API only yields a had-errors bool. encoding_rs has NO UTF-16 encoder (WHATWG rule:
+`for_label("utf-16le")` resolves but `new_encoder` would panic) — hand-roll UTF-16LE/BE writers via
+`str::encode_utf16`, and hand-roll UTF-32 decode (not a WHATWG encoding at all). Pushing `b'?'` for
+Unmappable is safe even for stateful ISO-2022-JP (the WHATWG encoder returns to ASCII state before
+reporting). Detection gotchas: chardetng gives NO confidence score (don't fake one; report a
+clean-decode candidates list instead), and SHORT repetitive CJK samples misdetect (~250 B of one
+repeated Shift_JIS sentence → windows-1251; ~1 KB of varied text → correct) — use varied ≥500 B
+fixtures in tests and advise explicit `from` for tiny files. BOM sniff must check UTF-32LE
+(`FF FE 00 00`) BEFORE UTF-16LE (`FF FE`). Real public legacy-encoded test files:
+`raw.githubusercontent.com/BYVoid/uchardet/master/test/<lang>/<charset>.txt` (ja/shift_jis, ja/euc-jp,
+zh/big5, ja/utf-16le — note the utf-16le one has NO BOM, good explicit-from case).

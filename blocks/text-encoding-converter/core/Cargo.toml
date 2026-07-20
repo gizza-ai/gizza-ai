@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-text-encoding-converter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# WHATWG Encoding Standard decode/encode — the proven charset engine
+# (charset-transcode uses the same crate; instantiates under wasmi).
+encoding_rs = "0.8"
+# Firefox's statistical charset detector (pure Rust, table-driven, no I/O).
+chardetng = "0.1"

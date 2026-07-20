@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/downsample-timeseries",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Downsample a time-series to N points with LTTB, min/max, M4, or every-nth while preserving its shape",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce a large time-series (CSV text or a JSON array) to a target number of `points` while preserving its visual shape. `algorithm` is lttb (Largest-Triangle-Three-Buckets, default — best shape preservation), minmax (min + max per bucket, keeps spikes), m4 (first/min/max/last per bucket), or nth (uniform every-n-th point). Every algorithm selects original points — no interpolation — so rows come back verbatim with all columns and the header preserved. x may be numbers or ISO-8601 timestamps (sorted ascending); pick columns with `x_column`/`y_column`. `output` returns the points themselves or the kept 0-based indices.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "lttb",
+          "description": "Downsampling algorithm: lttb (Largest-Triangle-Three-Buckets, best visual shape preservation), minmax (min + max per bucket, keeps spike envelopes), m4 (first/min/max/last per bucket; needs points >= 4), or nth (uniform every-n-th point incl. both endpoints). Default lttb.",
+          "enum": [
+            "lttb",
+            "minmax",
+            "m4",
+            "nth"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "The time-series to downsample: CSV text (comma, tab, or semicolon delimited; optional header; one value per line also works) or a JSON array of numbers, [x, y] pairs, or objects with time/value keys. Max 2,000,000 bytes.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat a non-numeric first CSV row as a header (kept in the output). A fully numeric first row is always data. Set false to force the first row to be data. Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "points",
+          "description": "What to return: points = the selected rows/elements verbatim in the input's own format (all columns kept, header preserved), or indices = a JSON array of the 0-based data-row indices that were kept. Default points.",
+          "enum": [
+            "points",
+            "indices"
+          ],
+          "type": "string"
+        },
+        "points": {
+          "default": 100,
+          "description": "Target number of points to keep (2-100000). lttb and nth return exactly this many; minmax/m4 round down to whole buckets. A series already at or below this count is returned unchanged. Default 100.",
+          "maximum": 100000,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "x_column": {
+          "default": "",
+          "description": "Which column/key holds x (time): a header name, a 1-based column number, or 'index' to use the row number. Values may be numbers or ISO-8601 dates/times and must be sorted ascending. Blank = the first column when there are 2+ columns, else the row index.",
+          "type": "string"
+        },
+        "y_column": {
+          "default": "",
+          "description": "Which column/key holds the y value (must be numeric): a header name or a 1-based column number. Blank = the second column when there are 2+ columns, else the only column.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

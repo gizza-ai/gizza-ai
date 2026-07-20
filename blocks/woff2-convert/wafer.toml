@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "woff2-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert a font between TTF, OTF, WOFF and WOFF2"

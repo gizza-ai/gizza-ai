@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/loudness-matched-ab-prep",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Loudness-match two audio files for fair A/B comparison",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Measure the integrated loudness (EBU R128 / ITU-R BS.1770) of two audio files and return gain-matched WAV copies of both — zipped as a-matched.wav + b-matched.wav + report.txt — so they can be A/B compared without the louder-sounds-better bias. Provide files as a list of exactly two items (A then B), each a url or a `ref` (wav, flac, mp3, ogg-Vorbis or m4a; mono/stereo; 3 s to ~45 s and 10 MiB max each — trim longer masters to a representative section first). mode=quieter (default) turns the louder file down to the quieter one (never boosts); mode=target gains both to target_lufs (-14 streaming, -16 podcasts, -23 broadcast; linear gain only — no limiter; int output hard-clamps, and clipped samples are counted in the report). bit_depth picks the output WAV format: 16 (default), 24, or 32f (float — preserves boosted peaks). The report also lists each file's true peak (dBTP), loudness range (LRA) and RMS, plus the LU difference and the exact gain applied. Both files are re-encoded through the identical pipeline, so the comparison path is codec-fair. Output is capped at 10 MiB of WAV (~30 s per file at 16-bit 44.1 kHz stereo).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bit_depth": {
+          "default": "16",
+          "description": "Output WAV sample format: 16 (default, smallest — fits ~30 s per file in the output cap), 24 (mastering-grade, ~20 s per file), or 32f (32-bit float — boosted peaks are preserved instead of clamped, ~15 s per file).",
+          "enum": [
+            "16",
+            "24",
+            "32f"
+          ],
+          "type": "string"
+        },
+        "files": {
+          "description": "Exactly two audio sources to loudness-match — A first, then B. Each item has exactly one of `url` or `ref`. Formats: wav, flac, mp3, ogg (Vorbis) or m4a (AAC-LC/ALAC); mono or stereo; 3 s to ~45 s each (10 MiB max per file). Trim longer masters to a representative section first.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "mode": {
+          "default": "quieter",
+          "description": "quieter (default): turn the LOUDER file down to the quieter one's loudness — never boosts, so there is no clipping risk. target: gain BOTH files to target_lufs (may boost; linear gain only, no limiter — int output hard-clamps and the report counts clipped samples).",
+          "enum": [
+            "quieter",
+            "target"
+          ],
+          "type": "string"
+        },
+        "target_lufs": {
+          "default": -16.0,
+          "description": "Loudness target in LUFS for mode=target (ignored for mode=quieter). Common values: -14 streaming (Spotify/YouTube), -16 podcasts (default), -23 EBU R128 broadcast. Range -36 to -6.",
+          "maximum": -6,
+          "minimum": -36,
+          "type": "number"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  }
+}

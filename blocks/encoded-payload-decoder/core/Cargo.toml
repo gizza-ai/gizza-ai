@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-encoded-payload-decoder-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# base64: standard + url-safe decoding, pure-Rust, wasm32-safe.
+base64 = "0.22"
+# flate2: gzip + zlib decompression via pure-Rust miniz_oxide, wasm32-safe.
+flate2 = "1"
+# regex: scan for base64 / hex token runs.
+regex = "1"
+serde = { version = "1", features = ["derive"] }

@@ -1,0 +1,68 @@
+slug          = "budget-planner"
+title         = "Budget Planner — 50/30/20 & Zero-Based Budget Calculator"
+description   = "Plan a monthly budget from take-home pay: 50/30/20 needs/wants/savings targets with custom splits, or a zero-based plan showing what's left to allocate."
+tags          = ["budget planner", "50/30/20 budget calculator", "zero-based budget", "budget calculator", "needs wants savings", "monthly budget planner", "money management", "left to allocate"]
+h1            = "Budget Planner"
+hero_subtitle = "Turn monthly take-home pay into a plan: 50/30/20 needs/wants/savings targets (with custom splits like 60/30/10), or a zero-based budget that assigns every dollar and shows exactly what's left to allocate. Runs in your browser — nothing is uploaded."
+wasm          = "gizza_ai_budget_planner_web"
+export        = "run"
+live          = false
+output_label  = "Budget plan"
+format        = "text"
+
+[[input]]
+name        = "income"
+label       = "Monthly take-home income"
+placeholder = "4500"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Budget method"
+placeholder = ""
+source      = "field"
+
+[input.labels]
+"50-30-20"   = "50/30/20 rule (needs / wants / savings)"
+"zero-based" = "Zero-based (assign every dollar)"
+
+[[input]]
+name        = "split"
+label       = "Needs/wants/savings split (%)"
+placeholder = "50/30/20"
+source      = "field"
+
+[[input]]
+name        = "expenses"
+label       = "Expense categories (one per line)"
+placeholder = "Rent: 1200 (needs)\nGroceries: 400 (needs)\nStreaming: 30 (wants)\nEmergency fund: 300 (savings)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+
+[[example]]
+label = "50/30/20 on $4,500"
+[example.params]
+income = "4500"
+mode   = "50-30-20"
+split  = "50/30/20"
+
+[[example]]
+label = "60/30/10 with expenses"
+[example.params]
+income   = "5200"
+mode     = "50-30-20"
+split    = "60/30/10"
+expenses = "Rent: $1,800 (needs)\nGroceries: 550 (needs)\nCar insurance: 420 (needs)\nDining out: 260 (wants)\nStreaming: 40 (wants)\nRoth IRA: 500 (savings)"
+
+[[example]]
+label = "Zero-based paycheck plan"
+[example.params]
+income   = "4200"
+mode     = "zero-based"
+expenses = "Rent: 1400\nGroceries: 450\nUtilities: 180\nCar payment: 320\nGas: 120\nInsurance: 150\nDining out: 200\nSubscriptions: 45\nEmergency fund: 400\nRetirement: 500\nDebt payoff: 300"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "png-to-jpg"
+version = "0.1.0"
+abi = 1
+summary = "Convert a PNG (or any image) to JPG, flattening transparency onto a chosen background color."

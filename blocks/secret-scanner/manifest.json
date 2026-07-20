@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/secret-scanner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect hardcoded API keys, tokens, and private keys in code by provider pattern + entropy",
+  "role": "skill",
+  "tool": {
+    "description": "Statically scan a code/config/text snippet for hardcoded secrets. Matches known provider prefixes — AWS access key IDs (AKIA…), GitHub tokens (ghp_…, github_pat_…), GitLab PATs (glpat-…), Slack tokens (xox…) and webhooks, Stripe keys (sk_live_…/sk_test_…), Google API keys (AIza…), OpenAI keys (sk-…), Twilio, SendGrid, npm, Shopify, and Square tokens — plus PEM private-key headers (-----BEGIN … PRIVATE KEY-----). It also flags JWT-shaped strings (medium) and generic keyword assignments (api_key/password/secret/token = \"…\") whose value has high Shannon entropy and isn't an obvious placeholder (medium). Each finding reports line, column, severity, a rule id, and the provider; matched values are redacted by default. Params: text (the snippet), min_severity (all|high), redact (bool, default true), format (text|json). It never runs the code, never contacts any provider, and never verifies whether a credential is live — a heuristic aid, not a guarantee. A clean result means nothing matched, not that the code is secret-free. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "text",
+          "description": "Output format: text (default) a readable report, or json (structured findings).",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Which findings to report: all (default) shows high (named provider keys, private-key headers) plus medium (generic keyword+entropy assignments, JWT-shaped strings); high shows only the high-confidence findings.",
+          "enum": [
+            "all",
+            "high"
+          ],
+          "type": "string"
+        },
+        "redact": {
+          "default": true,
+          "description": "When true (default), matched secret values are masked in the output — only a short non-secret prefix is shown. Set false to reveal the full matched value.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The code, config, or text to scan for hardcoded secrets (one or more lines).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "har-body-stripper"
+version = "0.1.0"
+abi = 1
+summary = "Strip request/response bodies out of a HAR capture"

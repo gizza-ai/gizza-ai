@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sql-injection-scanner"
+version = "0.1.0"
+abi = 1
+summary = "Flag SQL built by string concatenation or interpolation instead of parameters"

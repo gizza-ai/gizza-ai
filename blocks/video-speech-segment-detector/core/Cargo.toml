@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-video-speech-segment-detector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Shared detect-pass pieces (Silence, log parsing, keep_segments, fmt_num) —
+# same pass-1 as video-silence-cut; that tool cuts, this one reports.
+gizza-ai-video-silence-cut-core = { path = "../../video-silence-cut/core" }
