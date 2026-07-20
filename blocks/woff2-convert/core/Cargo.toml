@@ -1,0 +1,21 @@
+[package]
+name = "gizza-ai-woff2-convert-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# wuff: pure-Rust WOFF and WOFF2 decoder (glyf + CFF), wasm32-safe. Reconstructs
+# the SFNT from either web-font container. Default features enable brotli (woff2)
+# and z/flate2 (woff1) decode.
+wuff = "0.2"
+# ttf2woff2: pure-Rust TrueType(glyf) -> WOFF2 encoder with the glyf/loca
+# transform + Brotli, for smallest output. Rejects CFF/OTF, so CFF fonts take
+# the hand-rolled null-transform path below.
+ttf2woff2 = { version = "0.13", default-features = false }
+# flate2: zlib deflate for the WOFF v1 (per-table) container writer, pure-Rust
+# (miniz_oxide backend), wasm32-safe.
+flate2 = "1"
+# brotli: pure-Rust Brotli (RFC 7932) encoder for the null-transform WOFF2 path
+# (CFF fonts and any non-glyf SFNT), wasm32-safe.
+brotli = { version = "8", default-features = false, features = ["std"] }
