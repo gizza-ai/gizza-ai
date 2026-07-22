@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-sd-png-metadata-reader-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# flate2: zTXt / compressed-iTXt zlib inflate — pure-Rust (miniz_oxide backend), wasm32-safe.
+flate2 = "1"
+serde = { version = "1", features = ["derive"] }

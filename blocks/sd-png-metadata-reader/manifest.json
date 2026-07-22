@@ -1,0 +1,20 @@
+{
+  "name": "gizza-ai/sd-png-metadata-reader",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Read Stable Diffusion generation parameters from a PNG's text chunks",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Read the Stable Diffusion generation parameters embedded in a PNG's text chunks (tEXt/iTXt/zTXt, including zlib-compressed ones). Parses the AUTOMATIC1111 'parameters' format into structured fields — positive prompt, negative prompt, steps, sampler, CFG scale, seed, size (split into width/height), model and model hash — and keeps every other settings key (Schedule type, VAE, Clip skip, Denoising strength, Hires upscale/steps/upscaler, Lora hashes, Version, ControlNet, …) in a params map. Also detects the generator (AUTOMATIC1111, ComfyUI, NovelAI, InvokeAI) and returns every raw text chunk (keyword + type + text) so you get both the parsed values and the raw view. Load-by-URL is supported. Returns has_sd_metadata:false (with the raw chunks) for a PNG that carries no SD metadata; errors on non-PNG input. Provide the PNG as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
