@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-totp-secret-setup-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+base32 = "0.5"
+gizza-ai-otpauth-uri-core = { path = "../../otpauth-uri/core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
