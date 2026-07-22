@@ -1,0 +1,80 @@
+slug          = "audio-bleep-censor"
+title         = "Bleep or Mute Words in Audio Online"
+description   = "Censor an audio file in your browser — bleep, mute, or duck the exact time regions you pick. Set a tone frequency and output format. Nothing is uploaded, free."
+tags          = ["audio", "bleep", "censor", "mute", "beep", "profanity", "redact", "silence"]
+h1            = "Bleep or Mute Regions of an Audio File"
+hero_subtitle = "Pick an audio file and the time regions to censor — each one is bleeped, muted, or ducked in your browser. Nothing is uploaded."
+wasm          = "gizza_ai_audio_bleep_censor_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Censored audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "regions"
+source      = "field"
+label       = "Regions to censor (start-end)"
+placeholder = "1.5-2.0, 0:07-0:08.5"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Censor mode"
+
+[input.labels]
+bleep = "Bleep — mix a tone over it"
+mute  = "Mute — silence it"
+duck  = "Duck — lower the volume"
+
+[[input]]
+name        = "tone_hz"
+source      = "field"
+label       = "Bleep tone (Hz)"
+placeholder = "1000"
+kind        = "slider"
+min         = "100"
+max         = "8000"
+step        = "10"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Bleep a word (1 kHz)"
+[example.params]
+regions = "1.5-2.0"
+mode    = "bleep"
+tone_hz = "1000"
+format  = "mp3"
+
+[[example]]
+label = "Mute a section"
+[example.params]
+regions = "0:07-0:08.5"
+mode    = "mute"
+tone_hz = "1000"
+format  = "mp3"
+
+[[example]]
+label = "Duck sensitive info"
+[example.params]
+regions = "3-5"
+mode    = "duck"
+tone_hz = "1000"
+format  = "mp3"
+
+[[example]]
+label = "Two regions, higher tone"
+[example.params]
+regions = "1-2, 5-6"
+mode    = "bleep"
+tone_hz = "1500"
+format  = "wav"
