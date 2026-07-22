@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "import-graph-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract the import/dependency graph from pasted source files."
