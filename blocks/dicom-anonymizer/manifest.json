@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/dicom-anonymizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove patient-identifying (PHI) data from a DICOM file",
+  "role": "skill",
+  "tool": {
+    "description": "Anonymize a DICOM (.dcm) medical-imaging file by overwriting patient-identifying (PHI) data elements — PatientName, PatientID, birth date, sex, age, address, phone, referring/operator physician names, institution, accession number, study/series descriptions, and more — while preserving the pixel data and file structure byte-for-byte (redacted values keep their exact length, so nothing is re-encoded). Supports Explicit and Implicit VR Little Endian DICOM. Set profile=strict to also wipe private (vendor-defined) tags. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call). Returns a sanitized .dcm file. Not a certified de-identification per DICOM PS3.15 Annex E — it covers the common direct identifiers, not burned-in pixel text.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "placeholder": {
+          "default": "ANON",
+          "description": "Text written into redacted string fields (space-padded to the original length so no byte offsets change). Binary/numeric fields are always zeroed. Default \"ANON\".",
+          "type": "string"
+        },
+        "profile": {
+          "default": "basic",
+          "description": "How aggressively to redact. \"basic\" wipes the common patient-identifying tags (name, ID, birth date, sex, age, address, phone, referring/operator names, institution, accession number, study/series descriptions). \"strict\" also wipes every private (vendor-defined, odd-group) data element. Default \"basic\".",
+          "enum": [
+            "basic",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

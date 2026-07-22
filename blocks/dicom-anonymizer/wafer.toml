@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dicom-anonymizer"
+version = "0.1.0"
+abi = 1
+summary = "Remove patient-identifying (PHI) data from a DICOM file"
