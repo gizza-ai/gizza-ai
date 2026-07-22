@@ -1,0 +1,101 @@
+slug          = "image-perspective-warp"
+title         = "Perspective Warp an Image Online — Keystone Correction & Tilt"
+description   = "Apply a four-corner perspective transform to a photo — straighten skewed documents or add tilt with pixel corners and W/H edge constants."
+tags          = ["image", "perspective", "warp", "keystone", "skew correction", "deskew", "four-corner", "transform", "tilt", "distort", "document", "photo"]
+h1            = "Perspective Warp an Image"
+hero_subtitle = "Pick an image and set the four corner positions — straighten a skewed shot or add a tilt, applied in your browser. Nothing is uploaded."
+wasm          = "gizza_ai_image_perspective_warp_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Warped image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# tl_x, tl_y, tr_x, tr_y, bl_x, bl_y, br_x, br_y, mode, interpolation.
+[[input]]
+name        = "tl_x"
+source      = "field"
+label       = "Top-left X"
+placeholder = "0"
+
+[[input]]
+name        = "tl_y"
+source      = "field"
+label       = "Top-left Y"
+placeholder = "0"
+
+[[input]]
+name        = "tr_x"
+source      = "field"
+label       = "Top-right X"
+placeholder = "W"
+
+[[input]]
+name        = "tr_y"
+source      = "field"
+label       = "Top-right Y"
+placeholder = "0"
+
+[[input]]
+name        = "bl_x"
+source      = "field"
+label       = "Bottom-left X"
+placeholder = "0"
+
+[[input]]
+name        = "bl_y"
+source      = "field"
+label       = "Bottom-left Y"
+placeholder = "H"
+
+[[input]]
+name        = "br_x"
+source      = "field"
+label       = "Bottom-right X"
+placeholder = "W"
+
+[[input]]
+name        = "br_y"
+source      = "field"
+label       = "Bottom-right Y"
+placeholder = "H"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Mode"
+
+[input.labels]
+"correct" = "correct — straighten a skewed rectangle (keystone)"
+"distort" = "distort — push the corners to add a tilt"
+
+[[input]]
+name   = "interpolation"
+source = "field"
+label  = "Interpolation"
+
+[input.labels]
+"linear" = "linear — faster"
+"cubic"  = "cubic — smoother edges"
+
+[[example]]
+label  = "Identity (no change)"
+params = { tl_x = "0", tl_y = "0", tr_x = "W", tr_y = "0", bl_x = "0", bl_y = "H", br_x = "W", br_y = "H", mode = "correct" }
+
+[[example]]
+label  = "Deskew 640px photo (correct)"
+params = { tl_x = "80", tl_y = "50", tr_x = "560", tr_y = "50", bl_x = "15", bl_y = "610", br_x = "625", br_y = "610", mode = "correct" }
+
+[[example]]
+label  = "Tilt right 640px (distort)"
+params = { tl_x = "0", tl_y = "64", tr_x = "W", tr_y = "0", bl_x = "0", bl_y = "576", br_x = "W", br_y = "H", mode = "distort" }
+
+[[example]]
+label  = "Inset 64px frame (distort)"
+params = { tl_x = "12", tl_y = "12", tr_x = "56", tr_y = "12", bl_x = "12", bl_y = "56", br_x = "56", br_y = "56", mode = "distort" }

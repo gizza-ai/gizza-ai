@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/image-perspective-warp",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Apply a four-corner perspective transform to an image.",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a free four-corner perspective transform to an image (keystone / skew correction, or deliberate perspective distortion). Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Corners are pixel coordinates or W/H frame constants.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bl_x": {
+          "default": "0",
+          "description": "X of the bottom-left corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default 0.",
+          "type": "string"
+        },
+        "bl_y": {
+          "default": "H",
+          "description": "Y of the bottom-left corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default H.",
+          "type": "string"
+        },
+        "br_x": {
+          "default": "W",
+          "description": "X of the bottom-right corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default W.",
+          "type": "string"
+        },
+        "br_y": {
+          "default": "H",
+          "description": "Y of the bottom-right corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default H.",
+          "type": "string"
+        },
+        "interpolation": {
+          "description": "Pixel interpolation: linear (faster) or cubic (smoother edges). Default: linear.",
+          "enum": [
+            "linear",
+            "cubic"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "description": "correct = the four corners mark a rectangle in the photo and are stretched to fill the frame (keystone/skew correction); distort = the image corners are pushed to the four points (add a tilt). Default: correct.",
+          "enum": [
+            "correct",
+            "distort"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "tl_x": {
+          "default": "0",
+          "description": "X of the top-left corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default 0.",
+          "type": "string"
+        },
+        "tl_y": {
+          "default": "0",
+          "description": "Y of the top-left corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default 0.",
+          "type": "string"
+        },
+        "tr_x": {
+          "default": "W",
+          "description": "X of the top-right corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default W.",
+          "type": "string"
+        },
+        "tr_y": {
+          "default": "0",
+          "description": "Y of the top-right corner coordinate for ffmpeg perspective. Use a pixel number, or W/H for the image width/height edge. Default 0.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
