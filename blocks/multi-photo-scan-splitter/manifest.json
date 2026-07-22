@@ -1,0 +1,84 @@
+{
+  "name": "gizza-ai/multi-photo-scan-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a multi-photo flatbed scan into separate straightened images (ZIP)",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the separate photos on one flatbed scan, auto-straighten (deskew) and crop each, and return them bundled in a ZIP. background is the scanner bed colour (auto samples the scan border, or force white/black). straighten (default true) rotates each photo upright. min_size ignores regions smaller than this many pixels in either dimension (dust/speckle). edge_trim shaves that many pixels inward on every side of each crop. format sets the per-photo encoding (png/jpeg/webp/bmp), prefix names the files (photo -> photo_1.png, photo_2.png, …), and max_photos keeps only the largest N. Works when the photos have a clear gap between them and the bed contrasts with them; touching photos merge into one region. Provide the scan as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "auto",
+          "description": "Scanner bed colour. auto samples the scan border; set white or black to force it.",
+          "enum": [
+            "auto",
+            "white",
+            "black"
+          ],
+          "type": "string"
+        },
+        "edge_trim": {
+          "default": 0,
+          "description": "Trim this many pixels inward on every side of each crop to shave bed bleed.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "png",
+          "description": "Per-photo image format. png/webp/bmp are lossless; jpeg is smaller/opaque.",
+          "enum": [
+            "png",
+            "jpeg",
+            "webp",
+            "bmp"
+          ],
+          "type": "string"
+        },
+        "max_photos": {
+          "description": "Keep only the this-many largest photos (default: every photo detected).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_size": {
+          "default": 48,
+          "description": "Ignore detected regions whose width OR height is under this many pixels (dust/speckle).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "prefix": {
+          "default": "photo",
+          "description": "Filename base for each photo, e.g. photo -> photo_1.png, photo_2.png.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "straighten": {
+          "default": true,
+          "description": "Auto-rotate each detected photo upright to remove scan skew (deskew).",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
