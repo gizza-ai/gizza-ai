@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ini-env-diff"
+version = "0.1.0"
+abi = 1
+summary = "Diff two .env or .ini config files key-by-key: added, removed and changed settings."
