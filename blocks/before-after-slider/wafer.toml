@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "before-after-slider"
+version = "0.1.0"
+abi = 1
+summary = "Generate a self-contained interactive before/after image comparison slider (HTML)."

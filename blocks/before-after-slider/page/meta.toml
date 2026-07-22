@@ -1,0 +1,95 @@
+slug          = "before-after-slider"
+title         = "Before / After Image Slider Generator — self-contained HTML"
+description   = "Turn two images into an interactive before/after comparison slider: one self-contained HTML file with inline CSS + JS, no libraries."
+tags          = ["before after slider", "image comparison slider", "before after image", "image reveal slider", "before after generator", "compare two images"]
+h1            = "Before / after image slider generator"
+hero_subtitle = "Give two image URLs (or data URIs) and get a self-contained, interactive before/after comparison slider — one HTML file with inline CSS + JS, no dependencies. Drag, hover, or arrow-key the divider to wipe between them."
+wasm          = "gizza_ai_before_after_slider_web"
+export        = "run"
+live          = false
+output_label  = "Slider HTML"
+format        = "text"
+
+[[input]]
+name        = "before"
+label       = "Before image (URL or data URI)"
+placeholder = "https://picsum.photos/id/1015/900/600"
+source      = "field"
+
+[[input]]
+name        = "after"
+label       = "After image (URL or data URI)"
+placeholder = "https://picsum.photos/id/1016/900/600"
+source      = "field"
+
+[[input]]
+name        = "before_label"
+label       = "Before label (blank to hide)"
+placeholder = "Before"
+source      = "field"
+
+[[input]]
+name        = "after_label"
+label       = "After label (blank to hide)"
+placeholder = "After"
+source      = "field"
+
+# orientation renders as <select>; option list derives from the descriptor schema.
+[[input]]
+name        = "orientation"
+label       = "Wipe direction"
+source      = "field"
+
+[input.labels]
+horizontal = "Horizontal (drag left ↔ right)"
+vertical   = "Vertical (drag up ↕ down)"
+
+[[input]]
+name        = "start_position"
+label       = "Start position (%)"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "width"
+label       = "Max width in px (0 = responsive)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "move_on_hover"
+label       = "Move on hover (no drag needed)"
+source      = "field"
+
+[[input]]
+name        = "handle_color"
+label       = "Handle / divider color"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+# output renders as <select>; option list derives from the descriptor schema.
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+document = "Standalone HTML page (save as .html)"
+embed    = "Embed snippet (paste into a page)"
+
+[[example]]
+label  = "Classic horizontal wipe"
+params = { before = "https://picsum.photos/id/1015/900/600", after = "https://picsum.photos/id/1016/900/600", before_label = "Before", after_label = "After", orientation = "horizontal", start_position = "50", output = "document" }
+
+[[example]]
+label  = "Vertical, start near the top"
+params = { before = "https://picsum.photos/id/1015/900/600", after = "https://picsum.photos/id/1016/900/600", before_label = "Original", after_label = "Edited", orientation = "vertical", start_position = "25", output = "document" }
+
+[[example]]
+label  = "Embed snippet, hover to wipe"
+params = { before = "https://picsum.photos/id/1015/900/600", after = "https://picsum.photos/id/1016/900/600", orientation = "horizontal", move_on_hover = "true", handle_color = "#ff3366", output = "embed" }
