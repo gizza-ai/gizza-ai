@@ -1,0 +1,79 @@
+slug          = "csv-column-type-validator"
+title         = "CSV Column Type Validator"
+description   = "Validate CSV columns against declared types like int, float, bool, date, and enum, with row/line reports for every offending cell."
+tags          = ["csv validator", "csv type checker", "column validation", "data quality", "csv schema", "csv errors", "csv lint"]
+h1            = "CSV Column Type Validator"
+hero_subtitle = "Declare each CSV column's expected type, then find the exact rows and cells that do not match. Supports int, float, bool, date, enum values, headers or column indexes, delimiter auto-detect, and JSON output."
+wasm          = "gizza_ai_csv_column_type_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "name,age,score,active,joined,plan\nAda,34,9.5,true,2021-06-01,pro\nBo,twelve,8,yes,2021/06/02,gold"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "types"
+label       = "Column types"
+placeholder = "age:int, score:float, active:bool, joined:date, plan:enum(free|pro)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[[input]]
+name   = "date_format"
+label  = "Date format"
+source = "field"
+
+[[input]]
+name   = "empty_ok"
+label  = "Allow blank cells"
+source = "field"
+
+[[input]]
+name        = "max_issues"
+label       = "Max issues to list"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[[example]]
+label = "Find type errors"
+[example.params]
+data = "name,age,score,active,joined,plan\nAda,34,9.5,true,2021-06-01,pro\nBo,twelve,8,yes,2021/06/02,gold"
+types = "age:int, score:float, active:bool, joined:date, plan:enum(free|pro)"
+
+[[example]]
+label = "Headerless pipe file"
+[example.params]
+data = "Ada|34|pro\nBo|x|gold"
+types = "2:int, 3:enum(free|pro)"
+header = "false"
+delimiter = "pipe"
+
+[[example]]
+label = "JSON report"
+[example.params]
+data = "id,paid\n1,true\n2,maybe"
+types = "id:int, paid:bool"
+format = "json"
