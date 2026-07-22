@@ -41,6 +41,7 @@ subtitle-translator    # core function is translation = needs an ML model (trans
 video-convert          # duplicate of blocks/video-transcode (converts video format/container; mov/mkv targets would be a video-transcode improvement)
 video-merge            # needs >1 media input (concat several clips); block-utils dispatch_ffmpeg is single-input + page driver takes one file
 photo-slideshow-video  # needs multiple image inputs plus optional audio track; gizza ffmpeg/page model supports one media upload and single-source dispatch only
+ken-burns-slideshow-video  # multi-image ffmpeg->video (zoompan pan/zoom + xfade crossfades over a SET of images): page file-input is single-upload only and ffmpeg cannot run in the chat SW -> CLI-only; not pure-Rust (needs ffmpeg) so the multi-IMAGE chat+CLI escape hatch doesn't apply. Same blocker as photo-slideshow-video / video-concat. Deferred.
 
 # audio-only family — Input::Audio + AssetKind::Audio landed 2026-07-02, so plain-ffmpeg
 # single-audio-input tools are buildable now (page accept="audio/*", format="audio").
