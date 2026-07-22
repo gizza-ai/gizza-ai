@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-email-list-cleaner-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+gizza-ai-email-validator-core = { path = "../../email-validator/core" }
+gizza-ai-email-normalizer-core = { path = "../../email-normalizer/core" }

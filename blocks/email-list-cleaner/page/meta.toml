@@ -1,0 +1,56 @@
+slug          = "email-list-cleaner"
+title         = "Email List Cleaner"
+description   = "Clean pasted email lists: validate syntax, trim and lowercase, remove duplicates, flag malformed rows, and export a copy-ready list."
+tags          = ["email list cleaner", "email validator", "dedupe emails", "clean email addresses", "email hygiene"]
+h1            = "Email List Cleaner"
+hero_subtitle = "Paste a messy email list and get valid, normalized, de-duplicated addresses plus a report of invalid rows and likely typos."
+wasm          = "gizza_ai_email_list_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned emails"
+format        = "text"
+
+[[input]]
+name        = "emails"
+label       = "Email list"
+placeholder = "Alice@example.com\nBob <bob@example.com>\nalice@example.com\nnot-an-email"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "canonicalize"
+label   = "Fold provider aliases before de-duping"
+source  = "field"
+default = "false"
+
+[[input]]
+name    = "sort"
+label   = "Output order"
+source  = "field"
+default = "input"
+
+[[input]]
+name    = "format"
+label   = "Output format"
+source  = "field"
+default = "report"
+
+[[example]]
+label = "Basic cleanup"
+[example.params]
+emails = "Alice@example.com\nBob <bob@example.com>\nalice@example.com\nnot-an-email"
+format = "report"
+
+[[example]]
+label = "Clean list only"
+[example.params]
+emails = "zeta@example.com, alpha@example.com; zeta@example.com"
+sort = "alpha"
+format = "clean"
+
+[[example]]
+label = "Gmail alias folding"
+[example.params]
+emails = "john.doe+news@gmail.com\njohndoe@gmail.com\nJohnDoe@googlemail.com"
+canonicalize = "true"
+format = "report"

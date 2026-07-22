@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/email-list-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Clean, validate, and de-duplicate pasted email address lists",
+  "role": "skill",
+  "tool": {
+    "description": "Clean a pasted email address list: split multiline/comma/semicolon entries, trim and lowercase addresses, validate syntax, remove duplicates, optionally fold provider aliases, and report invalid rows plus likely typo suggestions.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "canonicalize": {
+          "default": false,
+          "description": "When true, apply provider canonicalization before de-duplicating (for example, Gmail dot removal and +tag folding). Leave false to only trim and lowercase.",
+          "type": "boolean"
+        },
+        "emails": {
+          "description": "Email address list to clean. Paste one address per line, or separate entries with commas or semicolons. Display-name wrappers and mailto: prefixes are accepted.",
+          "type": "string"
+        },
+        "format": {
+          "default": "report",
+          "description": "Output format: 'report' includes counts, invalid rows, and typo suggestions; 'clean' returns one address per line; 'comma' returns a comma-separated list.",
+          "enum": [
+            "report",
+            "clean",
+            "comma"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Output order: 'input' preserves first-seen order, while 'alpha' sorts the cleaned unique addresses alphabetically.",
+          "enum": [
+            "input",
+            "alpha"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "emails"
+      ],
+      "type": "object"
+    }
+  }
+}
