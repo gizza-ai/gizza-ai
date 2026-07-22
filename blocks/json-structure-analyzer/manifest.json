@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/json-structure-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze a JSON document's structure: depth, key frequency, per-path types, array stats",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze the structure of a JSON document (however large) without transforming it. Parses the input and reports: max nesting depth; node counts by type (objects, arrays, strings, numbers, booleans, nulls) plus total/unique keys, total values, and empty values (nulls, empty strings, empty containers); a key-frequency ranking (how often each key name occurs, recurring names counted each time); a per-path type distribution (each path with the JSON types seen there, with array indices collapsed to [] so all elements of an array share one path); array-length stats (count, min/max/avg length, total elements); byte size (raw vs minified, plus compression potential); and quality warnings (deep nesting > 5 levels, recurring keys, empty values). Options: format (json default, or text for a human-readable summary), top_keys (cap the key-frequency list, 0 = all, default 30), top_paths (cap the path list, 0 = all, default 50).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Output shape. 'json' (default) returns a structured report; 'text' returns a human-readable plain-text summary of the same data.",
+          "enum": [
+            "json",
+            "text"
+          ],
+          "type": "string"
+        },
+        "json": {
+          "description": "The JSON document to analyze (object, array, or any JSON value). Parsed once; structural statistics are computed over every node.",
+          "type": "string"
+        },
+        "top_keys": {
+          "default": 30,
+          "description": "Max entries in the key-frequency ranking (keys sorted by how often the name occurs). 0 lists every key. Default 30.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "top_paths": {
+          "default": 50,
+          "description": "Max entries in the per-path type distribution (paths sorted by node count; array indices collapse to []). 0 lists every path. Default 50.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

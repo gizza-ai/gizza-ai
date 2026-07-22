@@ -1,0 +1,48 @@
+slug          = "json-structure-analyzer"
+title         = "JSON Structure Analyzer — depth, keys, types, array stats"
+description   = "Analyze a JSON document's structure: max nesting depth, node counts, key frequency, per-path types, and array stats — in your browser. Free, private, no upload."
+tags          = ["json structure", "json analyzer", "json depth", "json key frequency", "json stats", "json schema explorer"]
+h1            = "JSON structure analyzer"
+hero_subtitle = "Report a JSON document's structure — nesting depth, node counts, key frequency, per-path types, and array stats. Runs in your browser, no upload."
+wasm          = "gizza_ai_json_structure_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Structure report"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "{ \"users\": [ { \"id\": 1, \"name\": \"Ada\" }, { \"id\": 2, \"name\": \"Bo\" } ] }"
+source      = "field"
+multiline   = true
+
+# format renders as <select>; option list derives from the descriptor schema.
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+json = "JSON report"
+text = "Plain text"
+
+[[input]]
+name        = "top_keys"
+label       = "Max keys in frequency list (0 = all)"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name        = "top_paths"
+label       = "Max paths in type distribution (0 = all)"
+placeholder = "50"
+source      = "field"
+
+[[example]]
+label  = "Nested API response"
+params = { json = "{ \"users\": [ { \"id\": 1, \"name\": \"Ada\", \"roles\": [\"admin\"] }, { \"id\": 2, \"name\": \"Bo\", \"roles\": [] } ], \"page\": 1, \"total\": 2 }", format = "text" }
+
+[[example]]
+label  = "Deeply nested config"
+params = { json = "{ \"a\": { \"b\": { \"c\": { \"d\": { \"e\": { \"f\": 1 } } } } } }", format = "text" }
