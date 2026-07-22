@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/video-audio-compress-dynamics",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Even out a video's loud and quiet audio",
+  "role": "skill",
+  "tool": {
+    "description": "Apply dynamic-range compression to a video's audio so quiet and loud passages sit closer together (evens out the sound; this is NOT file-size compression). The picture is copied losslessly; only the audio is re-encoded. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). preset picks how hard to level: light, medium (default) or heavy. makeup (on by default) restores the overall loudness the compressor pulled down; turn it off to tame peaks without raising the level. The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "makeup": {
+          "default": true,
+          "description": "Apply make-up gain to restore the overall loudness the compressor pulled down. Default on; turn off to tame peaks without raising the level.",
+          "type": "boolean"
+        },
+        "preset": {
+          "default": "medium",
+          "description": "How hard to even out the audio: light keeps most of the natural dynamics, medium is a balanced broadcast-style levelling (default), heavy pulls quiet and loud parts close together.",
+          "enum": [
+            "light",
+            "medium",
+            "heavy"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
