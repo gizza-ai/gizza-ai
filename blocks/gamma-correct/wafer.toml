@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gamma-correct"
+version = "0.1.0"
+abi = 1
+summary = "Brighten or darken an image's midtones with a gamma curve, with optional per-channel gamma and highlight protection."

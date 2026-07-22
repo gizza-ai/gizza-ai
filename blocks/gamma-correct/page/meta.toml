@@ -1,0 +1,84 @@
+slug          = "gamma-correct"
+title         = "Gamma Correct an Image Online — Brighten or Darken Midtones"
+description   = "Apply gamma correction to image midtones in your browser, with per-channel gamma, highlight protection and PNG/JPG/WebP output options."
+tags          = ["image", "gamma", "midtone", "brightness", "color correction", "photo", "exposure", "highlight protection", "rgb", "ffmpeg"]
+h1            = "Gamma Correct an Image"
+hero_subtitle = "Brighten or darken image midtones without clipping black or white. Adjust overall or per-channel gamma, locally in your browser."
+wasm          = "gizza_ai_gamma_correct_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Gamma-corrected image"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "gamma"
+source      = "field"
+label       = "Overall gamma"
+placeholder = "1.8"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "gamma_r"
+source      = "field"
+label       = "Red gamma"
+placeholder = "1"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "gamma_g"
+source      = "field"
+label       = "Green gamma"
+placeholder = "1"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "gamma_b"
+source      = "field"
+label       = "Blue gamma"
+placeholder = "1"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "gamma_weight"
+source      = "field"
+label       = "Highlight protection"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"keep" = "keep input format"
+"png"  = "PNG"
+"jpg"  = "JPG"
+"webp" = "WebP"
+
+[[example]]
+label  = "Brighten dark photo"
+params = { gamma = "1.8", gamma_r = "1", gamma_g = "1", gamma_b = "1", gamma_weight = "1", format = "keep" }
+
+[[example]]
+label  = "Darken washed-out midtones"
+params = { gamma = "0.6", gamma_r = "1", gamma_g = "1", gamma_b = "1", gamma_weight = "1", format = "keep" }
+
+[[example]]
+label  = "Warm color cast"
+params = { gamma = "1", gamma_r = "1.25", gamma_g = "1", gamma_b = "0.85", gamma_weight = "1", format = "png" }
+
+[[example]]
+label  = "Protect highlights"
+params = { gamma = "2.2", gamma_r = "1", gamma_g = "1", gamma_b = "1", gamma_weight = "0.35", format = "jpg" }
