@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fuzzy-dedupe"
+version = "0.1.0"
+abi = 1
+summary = "Remove near-duplicate rows or lines by fuzzy similarity"

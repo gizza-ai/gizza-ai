@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/fuzzy-dedupe",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove near-duplicate rows or lines by fuzzy similarity",
+  "role": "skill",
+  "tool": {
+    "description": "Find and remove near-duplicate rows/lines that exact de-duplication misses — typos, casing, and spacing differences. Feed a CSV (pick `columns` by header name or 1-based index) or a plain newline list (leave `columns` blank). Rows are grouped by a normalized Levenshtein similarity: two rows merge when their similarity (0–100) is at least `threshold` (default 85). `normalize_case`/`normalize_spacing` fold case and whitespace before comparing. `keep` chooses each group's survivor: first, longest, or most_frequent. `output` is deduped (the cleaned data), removed (only the dropped rows), or json (groups + stats). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Which columns to match on: comma-separated header names (needs header=true) or 1-based indices. Blank matches the whole row/line.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The rows to de-duplicate: a CSV table, or a plain list with one value per line.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator for CSV: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','; harmless for a newline list.",
+          "type": "string"
+        },
+        "header": {
+          "default": false,
+          "description": "Treat the first row as a header (re-emitted verbatim, and usable to name columns). Default false — leave off for a plain list of values.",
+          "type": "boolean"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which row of each near-duplicate group survives: first (earliest), longest (most information), or most_frequent (the exact value seen most). Default first.",
+          "enum": [
+            "first",
+            "longest",
+            "most_frequent"
+          ],
+          "type": "string"
+        },
+        "normalize_case": {
+          "default": true,
+          "description": "Ignore letter case when comparing (so 'USA' and 'usa' match). Default true.",
+          "type": "boolean"
+        },
+        "normalize_spacing": {
+          "default": true,
+          "description": "Collapse and trim whitespace when comparing (so 'New  York' and 'New York' match). Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "deduped",
+          "description": "Result: deduped (the cleaned data), removed (only the dropped near-duplicate rows), or json (structured groups + stats).",
+          "enum": [
+            "deduped",
+            "removed",
+            "json"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 85,
+          "description": "Similarity cutoff 0–100 (edit-distance ratio). Rows at or above it are treated as the same. Higher = stricter (fewer merges). Default 85.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
