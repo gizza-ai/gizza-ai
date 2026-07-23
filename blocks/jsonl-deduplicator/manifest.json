@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/jsonl-deduplicator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove duplicate records from an NDJSON/JSONL stream",
+  "role": "skill",
+  "tool": {
+    "description": "Remove duplicate records from NDJSON/JSONL text (one JSON value per line) and return the de-duplicated text plus total/kept/removed record counts. Leave keys blank to de-duplicate by whole-line equality (exact line text); set keys to a comma-separated list like \"id\" or \"user.id,email\" to de-duplicate by those fields (dot-notation reaches nested fields; a numeric segment indexes an array). By default the first occurrence of each record is kept and original order is preserved; set keep=\"last\" to keep the last. ignore_case=true compares case-insensitively. In key-field mode, on_invalid controls lines that aren't valid JSON: error (default, names the line), skip (drop), or keep. Blank lines are ignored. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The NDJSON/JSONL text to de-duplicate: one JSON value per line. Blank lines are ignored.",
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare records case-insensitively (e.g. so \"A@X.com\" and \"a@x.com\" collapse). Applies to the whole line or to the chosen key values.",
+          "type": "boolean"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which occurrence of a duplicated record to keep: the first (default) or the last. Original stream order is preserved either way.",
+          "enum": [
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "keys": {
+          "default": "",
+          "description": "Comma-separated key fields to de-duplicate on, e.g. \"id\" or \"user.id,email\" (dot-notation reaches nested fields; a numeric segment like \"tags.0\" indexes an array). Leave blank to compare by whole-line equality (the exact text of each line).",
+          "type": "string"
+        },
+        "on_invalid": {
+          "default": "error",
+          "description": "What to do with a line that is not valid JSON when de-duplicating by key fields: error (stop and name the line, default), skip (drop it), or keep (keep it, matched by its raw text). Ignored in whole-line mode, which never parses JSON.",
+          "enum": [
+            "error",
+            "skip",
+            "keep"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
