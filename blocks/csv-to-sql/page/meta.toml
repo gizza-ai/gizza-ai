@@ -1,0 +1,102 @@
+slug          = "csv-to-sql"
+title         = "CSV to SQL — CREATE TABLE and INSERT Generator"
+description   = "Convert CSV or JSON rows into SQL CREATE TABLE and INSERT statements with inferred column types for MySQL, PostgreSQL, SQLite, SQL Server, or ANSI SQL. Free, in-browser."
+tags          = ["csv to sql", "csv insert", "create table generator", "sql insert generator", "json to sql", "mysql insert", "postgres insert", "sqlite insert", "sql server insert"]
+h1            = "CSV to SQL"
+hero_subtitle = "Paste CSV or JSON rows and generate SQL CREATE TABLE plus INSERT statements. Infer column types, pick a SQL dialect, choose literal or placeholder values, and keep everything local in your browser."
+wasm          = "gizza_ai_csv_to_sql_web"
+export        = "run"
+live          = false
+output_label  = "SQL"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSV or JSON table"
+placeholder = "id,name,score,active,joined\n1,Alice,9.5,true,2024-01-02\n2,Bob,7,false,2024-02-10"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[[input]]
+name        = "has_header"
+label       = "First CSV row is a header"
+source      = "field"
+
+[[input]]
+name        = "table"
+label       = "Table name"
+placeholder = "users"
+source      = "field"
+
+[[input]]
+name        = "dialect"
+label       = "SQL dialect"
+source      = "field"
+
+[[input]]
+name        = "values"
+label       = "Value mode"
+source      = "field"
+
+[[input]]
+name        = "multi_row"
+label       = "Multi-row INSERT"
+source      = "field"
+
+[[input]]
+name        = "create_table"
+label       = "Include CREATE TABLE"
+source      = "field"
+
+[[input]]
+name        = "drop_table"
+label       = "Include DROP TABLE IF EXISTS"
+source      = "field"
+
+[[input]]
+name        = "primary_key"
+label       = "Primary key column"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "quote_identifiers"
+label       = "Quote identifiers"
+source      = "field"
+
+[[input]]
+name        = "null_handling"
+label       = "Blank/null cells"
+source      = "field"
+
+[[input]]
+name        = "infer_types"
+label       = "Infer column types"
+source      = "field"
+
+[[input]]
+name        = "detect_dates"
+label       = "Detect date/time columns"
+source      = "field"
+
+[[example]]
+label  = "MySQL CREATE + INSERT"
+params = { input = "id,name,score,active,joined\n1,Alice,9.5,true,2024-01-02\n2,Bob,7,false,2024-02-10", table = "users", primary_key = "id" }
+
+[[example]]
+label  = "Postgres placeholders"
+params = { input = "id,name\n1,Alice\n2,Bob", table = "public.users", dialect = "postgres", values = "placeholder", create_table = "false" }
+
+[[example]]
+label  = "JSON rows to SQLite"
+params = { input = "[{\"id\":1,\"name\":\"Alice\"},{\"id\":2,\"name\":\"Bob\"}]", format = "json", table = "users", dialect = "sqlite" }
