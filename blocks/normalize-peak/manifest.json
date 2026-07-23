@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/normalize-peak",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Normalize an audio file to a target sample peak (dBFS)",
+  "role": "skill",
+  "tool": {
+    "description": "Sample-peak normalize an audio file: measure its loudest single sample (sample peak, in dBFS) and apply one constant gain so that peak lands exactly on a target dBFS. Dynamics are untouched — only the overall level changes. This is NOT loudness (LUFS) normalization and NOT a fixed-dB volume change: it measures the peak and computes the exact gain, then reports the measured peak, the applied gain and the resulting peak. target is the goal peak in dBFS (-60 to 0, default -1.0; 0 maximizes, -1 leaves encoder headroom). remove_dc (default false) subtracts each channel's DC offset before scaling. per_channel (default false = linked) scales both stereo channels by one common gain to preserve the L/R balance; true scales each channel independently. bit_depth picks the output WAV format: 16 (default), 24, or 32f (float). Input may be wav, flac, mp3, ogg (Vorbis) or m4a (mono or stereo); output is always WAV. Refuses digital silence (no peak to normalize). Provide the audio as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bit_depth": {
+          "default": "16",
+          "description": "Output WAV sample format: 16 (default, CD-quality int), 24 (mastering-grade int), or 32f (32-bit float). Output is always WAV; input may be wav/flac/mp3/ogg/m4a.",
+          "enum": [
+            "16",
+            "24",
+            "32f"
+          ],
+          "type": "string"
+        },
+        "per_channel": {
+          "default": false,
+          "description": "How stereo is scaled. false (default = linked): one common gain is applied to both channels so the L/R balance is preserved and only the loudest channel reaches the target. true: each channel is scaled independently so both hit the target, which can shift the stereo image.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "remove_dc": {
+          "default": false,
+          "description": "Subtract each channel's average (DC offset) before scaling so the waveform is centred on 0 (default false). Enable when a waveform looks vertically off-centre or a click is audible at the start/end; leave off for a pure, predictable peak scale.",
+          "type": "boolean"
+        },
+        "target": {
+          "default": -1.0,
+          "description": "Target sample-peak level in dBFS (range -60 to 0, default -1.0). The file's loudest sample is scaled to land exactly here. -1.0 leaves headroom for downstream encoders; 0 maximizes (peak at full scale); -3 or -6 is more conservative.",
+          "maximum": 0,
+          "minimum": -60,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
