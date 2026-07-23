@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "debt-payoff"
+version = "0.1.0"
+abi = 1
+summary = "Plan a debt payoff with the snowball or avalanche method"

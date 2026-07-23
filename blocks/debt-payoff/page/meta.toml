@@ -1,0 +1,70 @@
+slug          = "debt-payoff"
+title         = "Debt Payoff Calculator — Snowball vs Avalanche Planner"
+description   = "Plan how to pay off multiple debts with the snowball or avalanche method. See your debt-free date, total interest, payoff order and the savings from an extra payment."
+tags          = ["debt payoff calculator", "debt snowball", "debt avalanche", "snowball vs avalanche", "debt free date", "pay off debt", "credit card payoff", "extra payment calculator", "rollover method"]
+h1            = "Debt Payoff Planner"
+hero_subtitle = "List your debts, pick the snowball or avalanche method, and add any extra you can pay each month. See your debt-free date, the payoff order, total interest, and how much you save over minimum-only payments — snowball vs avalanche side by side. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_debt_payoff_web"
+export        = "run"
+live          = false
+output_label  = "Payoff plan (JSON)"
+format        = "text"
+wide          = true
+
+# Field ORDER must match the web `run(...)` param order exactly — tool.js passes
+# each field value positionally: debts, method, extra_payment, start_date. The
+# control type + enum options are derived from the descriptor schema
+# (manifest.json), so labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "debts"
+label       = "Your debts (one per line: name, balance, APR%, minimum payment)"
+placeholder = "Visa, 2500, 19.99, 75\nCar Loan, 8000, 6.5, 200\nStore Card, 600, 24.99, 25"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "method"
+label       = "Method"
+source      = "field"
+
+[input.labels]
+snowball  = "Snowball — smallest balance first"
+avalanche = "Avalanche — highest APR first"
+
+[[input]]
+name        = "extra_payment"
+label       = "Extra monthly payment ($)"
+placeholder = "300"
+source      = "field"
+
+[[input]]
+name        = "start_date"
+label       = "Start date"
+placeholder = "2026-01-01"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[example]]
+label = "Snowball + $300 extra"
+[example.params]
+debts = "Visa, 2500, 19.99, 75\nCar Loan, 8000, 6.5, 200\nStore Card, 600, 24.99, 25"
+method = "snowball"
+extra_payment = "300"
+start_date = "2026-01-01"
+
+[[example]]
+label = "Avalanche (least interest)"
+[example.params]
+debts = "Visa, 2500, 19.99, 75\nCar Loan, 8000, 6.5, 200\nStore Card, 600, 24.99, 25"
+method = "avalanche"
+extra_payment = "300"
+start_date = "2026-01-01"
+
+[[example]]
+label = "Minimums only (no extra)"
+[example.params]
+debts = "Credit Card, 4000, 22.9, 120\nPersonal Loan, 6000, 11.5, 180"
+method = "snowball"
+extra_payment = "0"
+start_date = "2026-01-01"
