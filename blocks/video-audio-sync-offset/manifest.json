@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/video-audio-sync-offset",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shift a video's audio earlier or later to fix lip-sync",
+  "role": "skill",
+  "tool": {
+    "description": "Shift a video's audio track earlier or later relative to the picture by a fixed time offset, to correct lip-sync drift. The picture is kept untouched (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). offset is in milliseconds by default (200 delays the audio, -200 advances it; range ±60000) or in seconds with unit=seconds (0.2, -0.2). A positive offset delays the audio (plays later, fixing audio that runs ahead); a negative offset advances it (plays earlier, fixing audio that lags). The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "offset": {
+          "description": "How far to shift the audio relative to the picture. Positive DELAYS the audio (plays later — fixes audio that runs ahead of the video); negative ADVANCES it (plays earlier — fixes audio that lags). In the chosen unit; range ±60000 ms (±60 s); 0 not allowed. Example: 200 with unit=ms, or 0.2 with unit=seconds.",
+          "maximum": 60000,
+          "minimum": -60000,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "unit": {
+          "default": "ms",
+          "description": "How offset is interpreted: milliseconds (default) or seconds. 200 ms = 0.2 seconds.",
+          "enum": [
+            "ms",
+            "seconds"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "offset"
+      ],
+      "type": "object"
+    }
+  }
+}
