@@ -129,6 +129,7 @@ image-metadata-dumper  # duplicate of blocks/image-metadata-viewer (already read
 photo-geotag-extractor  # duplicate of blocks/image-metadata-viewer (already decodes EXIF GPS latitude/longitude and lists GPS fields; altitude/bearing/DMS are improvements to that block)
 javascript-beautifier  # near-duplicate of blocks/js-beautify (formats JavaScript with indentation)
 json-formatter  # near-duplicate of blocks/json-beautify (validate + pretty-print + minify(indent=0) JSON with error reporting; same scope)
+json-format  # duplicate of blocks/json-beautify + blocks/json-repair: json-beautify already validates, pretty-prints, and minifies JSON with configurable indent while preserving key order; json-repair already tolerantly fixes trailing commas and duplicate keys keep the last value. A separate "pretty/minify/sort keys with optional duplicate-key and trailing-comma repair" tool would only combine existing formatter/repair surfaces; key sorting or duplicate-key warnings belong as small options on those blocks, not as a new near-duplicate block.
 json-minify  # near-duplicate of blocks/json-beautify (indent=0 minifies JSON to smallest single line; same scope)
 json-prettify  # duplicate of blocks/json-beautify (pretty-prints/minifies JSON with configurable indentation, validation, and preserved key order/spacing; same scope)
 json-stringify  # near-duplicate of blocks/json-escape (escape mode + quotes=true wraps text into a JSON string literal; same scope)
