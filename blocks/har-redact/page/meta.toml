@@ -1,0 +1,95 @@
+slug          = "har-redact"
+title         = "HAR Redactor — mask cookies, tokens & auth headers in a HAR"
+description   = "Replace HAR cookies, auth headers, query tokens, and bodies with a placeholder while keeping the capture valid and viewer-friendly."
+tags          = ["har redact", "har sanitizer", "redact har file", "remove cookies from har", "har privacy", "sanitize har before sharing", "http archive", "mask auth headers har"]
+h1            = "HAR Redactor"
+hero_subtitle = "Paste a HAR capture and replace its secrets — cookies, Authorization and API-key headers, query-string tokens, and bodies — with a placeholder, while URLs, methods, status codes, timings, and sizes stay intact so the capture still opens in any viewer. Choose what to redact and get the sanitized HAR or a dry-run summary. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_har_redact_web"
+export        = "run"
+live          = false
+output_label  = "Redacted HAR / summary"
+format        = "text"
+
+[[input]]
+name        = "har"
+label       = "HAR file (JSON)"
+placeholder = '{"log":{"entries":[{"request":{"method":"POST","url":"https://example.com/api/login?token=SECRET123","headers":[{"name":"Authorization","value":"Bearer eyJhbGc.payload.sig"}],"cookies":[{"name":"sessionid","value":"topsecretsession"}]},"response":{"status":200,"content":{"size":24,"mimeType":"application/json","text":"{\"session\":\"privatetok\"}"}}}]}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "cookies"
+label  = "Redact cookies"
+source = "field"
+
+[[input]]
+name   = "auth_headers"
+label  = "Redact auth / API-key headers"
+source = "field"
+
+[[input]]
+name        = "extra_headers"
+label       = "Extra header names (optional)"
+placeholder = "x-tenant-id,x-trace"
+source      = "field"
+
+[[input]]
+name   = "query_params"
+label  = "Redact sensitive query params"
+source = "field"
+
+[[input]]
+name        = "sensitive_params"
+label       = "Extra param names (optional)"
+placeholder = "account_id,tenant"
+source      = "field"
+
+[[input]]
+name   = "bodies"
+label  = "Redact bodies"
+source = "field"
+
+[input.labels]
+none     = "None"
+request  = "Request bodies only"
+response = "Response bodies only"
+both     = "Both request + response"
+
+[[input]]
+name        = "placeholder"
+label       = "Placeholder text"
+placeholder = "[REDACTED]"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+har     = "Redacted HAR (JSON)"
+summary = "Summary (dry run)"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print output"
+source = "field"
+
+[[example]]
+label = "Redact a login capture"
+[example.params]
+har = '{"log":{"version":"1.2","creator":{"name":"devtools","version":"1"},"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"POST","url":"https://example.com/api/login?token=SECRET123&page=2","headers":[{"name":"Cookie","value":"sid=abcdef; theme=dark"},{"name":"Authorization","value":"Bearer eyJhbGc.payload.sig"},{"name":"Accept","value":"application/json"}],"cookies":[{"name":"sessionid","value":"topsecretsession"},{"name":"theme","value":"dark"}],"queryString":[{"name":"token","value":"SECRET123"},{"name":"page","value":"2"}],"postData":{"mimeType":"application/x-www-form-urlencoded","text":"user=alice&password=hunter2"}},"response":{"status":200,"statusText":"OK","headers":[{"name":"Set-Cookie","value":"sid=newsecret; HttpOnly"},{"name":"Content-Type","value":"application/json"}],"cookies":[{"name":"sid","value":"newsecret"}],"content":{"size":24,"mimeType":"application/json","text":"{\"session\":\"privatetok\"}"}}}]}}'
+output = "har"
+
+[[example]]
+label = "Redact everything, incl. request body"
+[example.params]
+har = '{"log":{"version":"1.2","creator":{"name":"devtools","version":"1"},"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"POST","url":"https://example.com/api/login?token=SECRET123&page=2","headers":[{"name":"Cookie","value":"sid=abcdef; theme=dark"},{"name":"Authorization","value":"Bearer eyJhbGc.payload.sig"},{"name":"Accept","value":"application/json"}],"cookies":[{"name":"sessionid","value":"topsecretsession"},{"name":"theme","value":"dark"}],"queryString":[{"name":"token","value":"SECRET123"},{"name":"page","value":"2"}],"postData":{"mimeType":"application/x-www-form-urlencoded","text":"user=alice&password=hunter2"}},"response":{"status":200,"statusText":"OK","headers":[{"name":"Set-Cookie","value":"sid=newsecret; HttpOnly"},{"name":"Content-Type","value":"application/json"}],"cookies":[{"name":"sid","value":"newsecret"}],"content":{"size":24,"mimeType":"application/json","text":"{\"session\":\"privatetok\"}"}}}]}}'
+bodies = "both"
+pretty = "true"
+
+[[example]]
+label = "Dry-run summary"
+[example.params]
+har = '{"log":{"version":"1.2","creator":{"name":"devtools","version":"1"},"entries":[{"startedDateTime":"2024-01-01T00:00:00.000Z","time":120,"request":{"method":"POST","url":"https://example.com/api/login?token=SECRET123&page=2","headers":[{"name":"Cookie","value":"sid=abcdef; theme=dark"},{"name":"Authorization","value":"Bearer eyJhbGc.payload.sig"},{"name":"Accept","value":"application/json"}],"cookies":[{"name":"sessionid","value":"topsecretsession"},{"name":"theme","value":"dark"}],"queryString":[{"name":"token","value":"SECRET123"},{"name":"page","value":"2"}],"postData":{"mimeType":"application/x-www-form-urlencoded","text":"user=alice&password=hunter2"}},"response":{"status":200,"statusText":"OK","headers":[{"name":"Set-Cookie","value":"sid=newsecret; HttpOnly"},{"name":"Content-Type","value":"application/json"}],"cookies":[{"name":"sid","value":"newsecret"}],"content":{"size":24,"mimeType":"application/json","text":"{\"session\":\"privatetok\"}"}}}]}}'
+output = "summary"
