@@ -1,0 +1,21 @@
+[package]
+name = "gizza-ai-search-in-documents-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Location-aware extraction over the proven, wasm-safe format stack:
+# - lopdf (pure Rust, no native libs) for per-page PDF text, default-features
+#   = false to drop rayon/date crates so the tree stays thread-free on wasm
+#   (same pin as pdf-extract-text-core).
+lopdf = { version = "=0.36.0", default-features = false }
+# - zip (deflate only) for DOCX / EPUB / generic-archive containers, and
+#   quick-xml for the DOCX WordprocessingML pull-parse. Both instantiate under
+#   `wafer build` (wasm32-wasip1).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+quick-xml = { version = "0.40", default-features = false }
+# - epub-to-markdown-core (zip + htmd/nanohtml2text) for EPUB reading-order text.
+gizza-ai-epub-to-markdown-core = { path = "../../epub-to-markdown/core" }
+# regex engine, shared with regex-search (proven wasm-safe).
+regex = "1"

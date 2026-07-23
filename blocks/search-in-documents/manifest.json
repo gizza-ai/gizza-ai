@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/search-in-documents",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Search a regex or keyword inside a PDF, DOCX, EPUB, or ZIP archive",
+  "role": "skill",
+  "tool": {
+    "description": "Search a regex or keyword INSIDE a PDF, DOCX, EPUB, or ZIP archive and return each match with the document and location it came from. Provide url (HTTP/HTTPS) or ref from a prior tool call, and a pattern. By default the pattern is a literal, case-insensitive substring; set regex to treat it as a regular expression, case_sensitive to match case exactly, and whole_word to match whole words only. PDF matches report the page number; DOCX/EPUB/text report the line number; ZIP archives search each PDF/text entry and tag matches with the entry path. Extracts embedded text only (no OCR of scanned pages). Returns the matching lines with each hit wrapped in guillemets («…»).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "pattern": { "type": "string", "description": "The keyword or regular expression to search for." },
+        "regex": { "type": "boolean", "default": false, "description": "Treat the pattern as a regular expression. When off (default), it is matched as a literal substring." },
+        "case_sensitive": { "type": "boolean", "default": false, "description": "Match case exactly. When off (default), the search is case-insensitive." },
+        "whole_word": { "type": "boolean", "default": false, "description": "Only match whole words (word boundaries on both sides)." },
+        "max_matches": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 200, "description": "Maximum number of matching lines to return (1–1000)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ],
+      "required": ["pattern"]
+    }
+  }
+}
