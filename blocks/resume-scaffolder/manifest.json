@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/resume-scaffolder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a clean, print-ready HTML résumé from structured details",
+  "role": "skill",
+  "tool": {
+    "description": "Turn structured résumé details (a JSON object) into a clean, print-ready HTML résumé — a self-contained document with embedded styling and a print stylesheet, ready to open and Print → Save-as-PDF from the browser. Unlike an ATS/Markdown resume, this is a visually formatted document. `data` is a JSON object: name (required), title, email, phone, location, links[], summary, experience[{role,company,location,dates,bullets[]}], education[{degree,school,location,dates,details}], skills[], and optional sections[{heading,items[]}]. Style with theme (classic|modern|compact), accent (hex or CSS color name), font (sans|serif), and page_size (letter|a4). All résumé text is HTML-escaped.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "accent": {
+          "default": "#2563eb",
+          "description": "Accent color for section titles and rules. A hex value like #2563eb or a plain CSS color name like navy. Default #2563eb (blue). Ignored visually by the 'classic' theme, which uses ink-black rules.",
+          "type": "string"
+        },
+        "data": {
+          "description": "A JSON object of résumé fields. Recognized: name (required), title, email, phone, location, links[], summary, experience[{role,company,location,dates,bullets[]}], education[{degree,school,location,dates,details}], skills[], and sections[{heading,items[]}] for extras like Projects/Certifications.",
+          "type": "string"
+        },
+        "font": {
+          "default": "sans",
+          "description": "Body font family. 'sans' (default) or 'serif'.",
+          "enum": [
+            "sans",
+            "serif"
+          ],
+          "type": "string"
+        },
+        "page_size": {
+          "default": "letter",
+          "description": "Print page size for the embedded @page rule. 'letter' (US Letter, default) or 'a4'.",
+          "enum": [
+            "letter",
+            "a4"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "modern",
+          "description": "Layout style. 'classic' = serif, centered header, ink-ruled section titles. 'modern' (default) = sans, left header, an accent bar beside each section. 'compact' = tighter spacing to fit more on one page.",
+          "enum": [
+            "classic",
+            "modern",
+            "compact"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

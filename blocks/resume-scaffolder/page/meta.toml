@@ -1,0 +1,74 @@
+slug          = "resume-scaffolder"
+title         = "Résumé Scaffolder — Structured Details to Print-Ready HTML"
+description   = "Turn structured JSON details — contact, experience, education, skills — into a clean, print-ready HTML résumé you can Print to PDF. Free, private, no sign-up."
+tags          = ["resume builder", "cv builder", "html resume", "print resume", "resume to pdf", "resume generator", "json to resume", "printable cv"]
+h1            = "Résumé Scaffolder"
+hero_subtitle = "Paste your details as JSON and get a clean, print-ready HTML résumé — pick a theme, accent color, font, and page size, then Print → Save-as-PDF. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_resume_scaffolder_web"
+export        = "run"
+live          = false
+output_label  = "HTML résumé"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Résumé details (JSON)"
+placeholder = "{\"name\":\"Ada Lovelace\",\"title\":\"Software Engineer\",\"email\":\"ada@example.com\",\"location\":\"London\",\"summary\":\"Pioneering engineer.\",\"experience\":[{\"role\":\"Engineer\",\"company\":\"Analytical Co\",\"dates\":\"1843–1852\",\"bullets\":[\"Wrote the first algorithm\"]}],\"education\":[{\"degree\":\"Mathematics\",\"school\":\"Home tutoring\",\"dates\":\"1830s\"}],\"skills\":[\"Algorithms\",\"Mathematics\"]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "theme"
+label       = "Theme"
+placeholder = "modern"
+source      = "field"
+
+[input.labels]
+classic = "Classic (serif, centered)"
+modern  = "Modern (accent bar)"
+compact = "Compact (one-page fit)"
+
+[[input]]
+name        = "accent"
+label       = "Accent color"
+placeholder = "#2563eb or navy"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "font"
+label       = "Body font"
+placeholder = "sans"
+source      = "field"
+
+[input.labels]
+sans  = "Sans-serif"
+serif = "Serif"
+
+[[input]]
+name        = "page_size"
+label       = "Page size"
+placeholder = "letter"
+source      = "field"
+
+[input.labels]
+letter = "US Letter"
+a4     = "A4"
+
+[[example]]
+label = "Modern (blue)"
+[example.params]
+data      = "{\"name\":\"Ada Lovelace\",\"title\":\"Software Engineer\",\"email\":\"ada@example.com\",\"location\":\"London\",\"summary\":\"Pioneering engineer who wrote the first published algorithm.\",\"experience\":[{\"role\":\"Engineer\",\"company\":\"Analytical Co\",\"dates\":\"1843–1852\",\"bullets\":[\"Wrote the first algorithm\",\"Designed loop constructs\"]}],\"education\":[{\"degree\":\"Mathematics\",\"school\":\"Private tutoring\",\"dates\":\"1830s\"}],\"skills\":[\"Algorithms\",\"Mathematics\",\"Technical writing\"]}"
+theme     = "modern"
+accent    = "#2563eb"
+font      = "sans"
+page_size = "letter"
+
+[[example]]
+label = "Classic (A4)"
+[example.params]
+data      = "{\"name\":\"Grace Hopper\",\"title\":\"Computer Scientist\",\"email\":\"grace@example.com\",\"summary\":\"Pioneer of machine-independent programming languages.\",\"experience\":[{\"role\":\"Programmer\",\"company\":\"Harvard\",\"dates\":\"1944–1949\",\"bullets\":[\"Programmed the Mark I\"]}],\"skills\":[\"COBOL\",\"Compilers\"]}"
+theme     = "classic"
+accent    = "navy"
+font      = "serif"
+page_size = "a4"
