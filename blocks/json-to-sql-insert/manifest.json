@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/json-to-sql-insert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate SQL INSERT statements from JSON rows.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a JSON object or an array of row objects into SQL INSERT statements. Keys become columns (the union of all rows' keys, in first-seen order unless sort_columns=true); a key missing from a row is treated as null. Pick a dialect (mysql, postgres, sqlite, mssql, ansi) to control identifier quoting, boolean/string literals, and placeholder syntax. Set values='placeholder' for parameterized/prepared-statement output (? or $N) with the bound values in a trailing comment. multi_row=true (default) batches every row into one INSERT ... VALUES (...),(...); false emits one INSERT per row. Optionally emit a CREATE TABLE (create_table=true, with inferred column types and an optional primary_key) and a DROP TABLE IF EXISTS (drop_table=true). null_handling chooses NULL, DEFAULT, or '' for nulls; quote_identifiers can be turned off for bare, validated identifiers.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "create_table": {
+          "default": false,
+          "description": "Also emit a CREATE TABLE before the inserts, with column types inferred from the data (integer/float/boolean/text). Default false.",
+          "type": "boolean"
+        },
+        "dialect": {
+          "default": "mysql",
+          "description": "SQL dialect. Sets identifier quoting (mysql=`backticks`, postgres/sqlite/ansi=\"double quotes\", mssql=[brackets]), boolean literals (postgres/ansi=TRUE/FALSE, others=1/0), string escaping (mysql also escapes backslashes), placeholder syntax, and CREATE TABLE column types. Default mysql.",
+          "enum": [
+            "mysql",
+            "postgres",
+            "sqlite",
+            "mssql",
+            "ansi"
+          ],
+          "type": "string"
+        },
+        "drop_table": {
+          "default": false,
+          "description": "Prepend a DROP TABLE IF EXISTS statement. Default false.",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "The data: a JSON object (one row) or an array of objects (one row each). Keys become columns; the column list is the union of all row keys. A key missing from a row is treated as null. Example: [{\"id\":1,\"name\":\"Alice\"},{\"id\":2,\"name\":\"Bob\"}].",
+          "type": "string"
+        },
+        "multi_row": {
+          "default": true,
+          "description": "Emit one multi-row INSERT ... VALUES (...),(...) instead of a separate INSERT per row. Default true.",
+          "type": "boolean"
+        },
+        "null_handling": {
+          "default": "null",
+          "description": "How a JSON null (or a column missing from a row) is written: 'null' → NULL (default), 'default' → the SQL keyword DEFAULT (use the column's own default), 'empty-string' → an empty string ''. Default null.",
+          "enum": [
+            "null",
+            "default",
+            "empty-string"
+          ],
+          "type": "string"
+        },
+        "primary_key": {
+          "description": "Name of the column to mark as PRIMARY KEY in the generated CREATE TABLE (only used when create_table is true). Must be one of the columns. Optional.",
+          "type": "string"
+        },
+        "quote_identifiers": {
+          "default": true,
+          "description": "Quote table and column identifiers for the dialect. When false, identifiers are emitted bare and validated as safe (letters, digits, underscores; not starting with a digit) — an unsafe name errors. Default true.",
+          "type": "boolean"
+        },
+        "sort_columns": {
+          "default": false,
+          "description": "Order columns alphabetically instead of by first appearance in the input. Default false (first-seen order).",
+          "type": "boolean"
+        },
+        "table": {
+          "default": "my_table",
+          "description": "Target table name (default \"my_table\"). May be schema-qualified like \"public.users\" — each dot-separated part is quoted independently.",
+          "type": "string"
+        },
+        "values": {
+          "default": "literal",
+          "description": "Value output mode. 'literal' (default) inlines escaped SQL literals. 'placeholder' emits positional placeholders for a prepared statement (? for mysql/sqlite/mssql-as-@pN, $N for postgres) and lists the bound values in a trailing '-- params:' comment. Default literal.",
+          "enum": [
+            "literal",
+            "placeholder"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,110 @@
+slug          = "json-to-sql-insert"
+title         = "JSON to SQL INSERT Generator"
+description   = "Turn JSON objects or arrays into SQL INSERT statements — MySQL, Postgres, SQLite, SQL Server, or ANSI, with literals or placeholders."
+tags          = ["json to sql", "sql insert generator", "json to insert", "sql from json", "prepared statement", "batch insert", "create table", "mysql postgres sqlite"]
+h1            = "JSON → SQL INSERT Generator"
+hero_subtitle = "Paste a JSON object or an array of rows and get ready-to-run SQL INSERT statements — choose the dialect, literal or placeholder values, batch or per-row, optional CREATE TABLE. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_json_to_sql_insert_web"
+export        = "run"
+live          = false
+output_label  = "SQL"
+format        = "text"
+
+# Field ORDER must match the web `run(...)` param order exactly — tool.js passes
+# each field value positionally: json, table, dialect, values, multi_row,
+# create_table, drop_table, primary_key, quote_identifiers, null_handling,
+# sort_columns. Control type + enum options are derived from the descriptor
+# schema (manifest.json), so labels here stay short and option lists are NOT
+# duplicated.
+[[input]]
+name        = "json"
+label       = "JSON (object or array of rows)"
+placeholder = "[{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "table"
+label       = "Table name"
+placeholder = "users"
+source      = "field"
+
+[[input]]
+name        = "dialect"
+label       = "SQL dialect"
+source      = "field"
+
+[[input]]
+name        = "values"
+label       = "Values"
+source      = "field"
+
+[[input]]
+name        = "multi_row"
+label       = "Batch rows into one multi-row INSERT"
+source      = "field"
+
+[[input]]
+name        = "create_table"
+label       = "Also emit CREATE TABLE (inferred types)"
+source      = "field"
+
+[[input]]
+name        = "drop_table"
+label       = "Prepend DROP TABLE IF EXISTS"
+source      = "field"
+
+[[input]]
+name        = "primary_key"
+label       = "Primary key column (for CREATE TABLE)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "quote_identifiers"
+label       = "Quote table & column identifiers"
+source      = "field"
+
+[[input]]
+name        = "null_handling"
+label       = "Nulls become"
+source      = "field"
+
+[[input]]
+name        = "sort_columns"
+label       = "Sort columns alphabetically"
+source      = "field"
+
+[[example]]
+label = "Two rows → MySQL"
+[example.params]
+json = "[{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]"
+table = "users"
+dialect = "mysql"
+values = "literal"
+multi_row = "true"
+
+[[example]]
+label = "Postgres + CREATE TABLE"
+[example.params]
+json = "[{\"id\": 1, \"email\": \"a@x.com\", \"active\": true}, {\"id\": 2, \"email\": \"b@x.com\", \"active\": false}]"
+table = "accounts"
+dialect = "postgres"
+create_table = "true"
+primary_key = "id"
+
+[[example]]
+label = "Prepared statement (placeholders)"
+[example.params]
+json = "{\"id\": 7, \"title\": \"O'Brien\", \"tags\": [\"a\", \"b\"]}"
+table = "posts"
+dialect = "postgres"
+values = "placeholder"
+
+[[example]]
+label = "One INSERT per row"
+[example.params]
+json = "[{\"sku\": \"A1\", \"qty\": 3}, {\"sku\": \"B2\", \"qty\": 5}]"
+table = "orders"
+dialect = "sqlite"
+multi_row = "false"

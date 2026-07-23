@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-sql-insert"
+version = "0.1.0"
+abi = 1
+summary = "Generate SQL INSERT statements from JSON rows."
