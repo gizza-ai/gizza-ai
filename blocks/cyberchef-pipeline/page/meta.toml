@@ -1,0 +1,85 @@
+slug          = "cyberchef-pipeline"
+title         = "Recipe Pipeline — chain Base64, hex, gzip, XOR & more"
+description   = "Chain byte-level decode/transform steps — Base64, hex, URL, gzip/zlib, XOR, ROT13 — into one recipe, applied top to bottom. Free, private, runs entirely in your browser."
+tags          = ["cyberchef alternative", "decode pipeline", "base64 gunzip xor", "xor decoder online", "gzip inflate online", "rot13 online", "hex decode chain", "malware string decoder"]
+h1            = "Decode/Transform Recipe Pipeline"
+hero_subtitle = "Paste data, write a short recipe — one operation per line — and chain Base64, hex, URL, gzip/zlib, XOR, ROT13 and byte-math transforms. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_cyberchef_pipeline_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input"
+placeholder = "Paste the data to decode/transform…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "recipe"
+label       = "Recipe (one operation per line)"
+placeholder = "from-base64\ngunzip\nxor 2a"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output_format"
+label  = "Output rendering"
+source = "field"
+
+[input.labels]
+auto   = "Auto — text if printable, else hex"
+utf8   = "UTF-8 text (lossy)"
+hex    = "Hex"
+base64 = "Base64"
+
+[[example]]
+label = "Decode Base64"
+[example.params]
+input = "SGVsbG8sIHdvcmxkIQ=="
+recipe = "from-base64"
+output_format = "auto"
+
+[[example]]
+label = "Hex → text"
+[example.params]
+input = "48656c6c6f2c20776f726c6421"
+recipe = "from-hex"
+output_format = "auto"
+
+[[example]]
+label = "URL-decode → Base64 (chain)"
+[example.params]
+input = "SGVsbG8sIHdvcmxkIQ%3D%3D"
+recipe = "url-decode\nfrom-base64"
+output_format = "auto"
+
+[[example]]
+label = "XOR decode (from-hex → xor 2a)"
+[example.params]
+input = "624f464645060a5d4558464e0b"
+recipe = "from-hex\nxor 2a"
+output_format = "auto"
+
+[[example]]
+label = "ROT13"
+[example.params]
+input = "Uryyb, jbeyq!"
+recipe = "rot13"
+output_format = "auto"
+
+[[example]]
+label = "Encode to Base64"
+[example.params]
+input = "Hello, world!"
+recipe = "to-base64"
+output_format = "auto"
+
+[[example]]
+label = "Reverse bytes → hex"
+[example.params]
+input = "Hi"
+recipe = "reverse"
+output_format = "hex"

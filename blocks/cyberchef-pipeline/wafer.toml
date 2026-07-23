@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cyberchef-pipeline"
+version = "0.1.0"
+abi = 1
+summary = "Chain byte-level decode/transform steps (Base64, hex, gzip, XOR…) into one client-side recipe."
