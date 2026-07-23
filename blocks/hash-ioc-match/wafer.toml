@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hash-ioc-match"
+version = "0.1.0"
+abi = 1
+summary = "Hash a file and flag it against a blocklist of known-bad IOC hashes."
