@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-bake-rotation"
+version = "0.1.0"
+abi = 1
+summary = "Bake a video's rotation metadata into upright pixels"
