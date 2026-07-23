@@ -1,0 +1,125 @@
+slug          = "compound-interest-calculator"
+title         = "Compound Interest Calculator"
+description   = "Compute savings future value with compound interest, optional deposits, APY, total interest and a year-by-year schedule."
+tags          = ["compound interest", "future value", "savings calculator", "investment growth", "APY", "annuity", "regular contributions", "effective annual rate", "time to double", "finance"]
+h1            = "Compound Interest Calculator"
+hero_subtitle = "See how a lump sum plus regular deposits grow with compound interest. Pick any compounding and contribution frequency and get future value, total interest, effective annual rate and a year-by-year breakdown. Runs locally in your browser."
+wasm          = "gizza_ai_compound_interest_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "principal"
+label       = "Initial principal"
+placeholder = "1000"
+default     = "1000"
+source      = "field"
+
+[[input]]
+name        = "annual_rate"
+label       = "Annual interest rate (%)"
+placeholder = "5"
+default     = "5"
+source      = "field"
+kind        = "slider"
+min         = 0.0
+max         = 20.0
+step        = "0.1"
+[input.labels]
+low  = "0%"
+high = "20%"
+
+[[input]]
+name        = "years"
+label       = "Years"
+placeholder = "10"
+default     = "10"
+source      = "field"
+
+[[input]]
+name        = "months"
+label       = "Extra months"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "compounding"
+label       = "Compounding frequency"
+source      = "field"
+default     = "monthly"
+[input.labels]
+annually      = "Annually (1×/yr)"
+semiannually  = "Semi-annually (2×/yr)"
+quarterly     = "Quarterly (4×/yr)"
+monthly       = "Monthly (12×/yr)"
+weekly        = "Weekly (52×/yr)"
+daily         = "Daily (365×/yr)"
+continuously  = "Continuously"
+
+[[input]]
+name        = "contribution"
+label       = "Regular contribution"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "contribution_frequency"
+label       = "Contribution frequency"
+source      = "field"
+default     = "monthly"
+[input.labels]
+annually      = "Annually"
+semiannually  = "Semi-annually"
+quarterly     = "Quarterly"
+monthly       = "Monthly"
+biweekly      = "Bi-weekly (26×/yr)"
+weekly        = "Weekly"
+
+[[input]]
+name        = "contribution_timing"
+label       = "Contribution timing"
+source      = "field"
+default     = "end"
+[input.labels]
+end   = "End of period (ordinary)"
+start = "Start of period (annuity-due)"
+
+[[example]]
+label = "Starter savings"
+[example.params]
+principal = "1000"
+annual_rate = "5"
+years = "10"
+months = "0"
+compounding = "monthly"
+contribution = "0"
+contribution_frequency = "monthly"
+contribution_timing = "end"
+
+[[example]]
+label = "Retirement drip"
+[example.params]
+principal = "10000"
+annual_rate = "7"
+years = "30"
+months = "0"
+compounding = "monthly"
+contribution = "500"
+contribution_frequency = "monthly"
+contribution_timing = "end"
+
+[[example]]
+label = "Lump sum, continuous"
+[example.params]
+principal = "5000"
+annual_rate = "7"
+years = "10"
+months = "0"
+compounding = "continuously"
+contribution = "0"
+contribution_frequency = "monthly"
+contribution_timing = "end"
