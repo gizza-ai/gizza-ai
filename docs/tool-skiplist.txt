@@ -27,6 +27,7 @@ audio-bass-adjust      # duplicate of blocks/audio-eq (bass param is a low-shelf
 # Input enum + resolve_source/dispatch_ffmpeg model one media input — so a tool
 # that combines two uploads doesn't fit without a multi-input architecture change.
 add-audio-to-video     # needs two media inputs (video + audio); gizza ffmpeg model is single-input
+video-mux-audio        # duplicate/not viable for same reason as add-audio-to-video: adding an audio track to a video requires two media inputs (video + audio), while gizza ffmpeg page/dispatch currently accepts one source
 still-image-audio-video  # needs two media inputs (cover image + audio track); single-source ffmpeg dispatch + single-upload page + no ffmpeg in chat SW -> no viable surface (same skip as add-audio-to-video)
 
 # Two-opposite-IO-shapes: a single descriptor has ONE Input and one result shape.
