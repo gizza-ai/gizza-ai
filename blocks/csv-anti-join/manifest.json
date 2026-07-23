@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/csv-anti-join",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Return rows in CSV A with no key match in CSV B (anti-join)",
+  "role": "skill",
+  "tool": {
+    "description": "Return the rows of CSV A whose key has no match in CSV B — the SQL LEFT ANTI JOIN / NOT IN primitive — and optionally the reverse. `key`/`key_b` are header names or 1-based indices (comma-separated for a composite key) matched on VALUES, so the key columns may be named differently in A and B (blank key_b reuses key). `direction` is a-only (rows in A not in B), b-only (the reverse), or both (symmetric difference with a leading '_source' A/B column). B is treated as a key SET, so duplicate keys never multiply output rows and every unmatched A row is kept. delimiter is a single char or comma/tab/semicolon/pipe; case_sensitive and trim_keys control key matching. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "description": "CSV A (the first/left table) text; the first row is its header.",
+          "type": "string"
+        },
+        "b": {
+          "description": "CSV B (the second/right table) text; the first row is its header.",
+          "type": "string"
+        },
+        "case_sensitive": {
+          "default": true,
+          "description": "Match key VALUES case-sensitively. false makes 'A1' and 'a1' match. Default true.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "direction": {
+          "default": "a-only",
+          "description": "Which unmatched rows to return: 'a-only' rows in A not in B; 'b-only' the reverse (rows in B not in A); 'both' the symmetric difference with a leading '_source' A/B column. Default 'a-only'.",
+          "enum": [
+            "a-only",
+            "b-only",
+            "both"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "Key column(s) in A — a header name or 1-based column index. Use a comma-separated list for a composite key (e.g. 'first,last').",
+          "type": "string"
+        },
+        "key_b": {
+          "default": "",
+          "description": "Key column(s) in B — header names or 1-based indices. Matched on VALUES, so they may be named differently than in A. Blank reuses `key`. Must have the same number of columns as `key`.",
+          "type": "string"
+        },
+        "trim_keys": {
+          "default": false,
+          "description": "Trim surrounding whitespace on key values before matching, so ' 1 ' matches '1'. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "key"
+      ],
+      "type": "object"
+    }
+  }
+}

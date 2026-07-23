@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-anti-join"
+version = "0.1.0"
+abi = 1
+summary = "Return rows in CSV A with no key match in CSV B (anti-join)"

@@ -1,0 +1,99 @@
+slug          = "csv-anti-join"
+title         = "CSV Anti-Join — Rows in A Not in B"
+description   = "Return rows in CSV A whose key has no match in CSV B, or the reverse, with composite keys, alternate delimiters, and browser-local processing."
+tags          = ["csv anti join", "csv rows not in other csv", "csv not in", "csv left anti join", "csv compare by key", "csv symmetric difference", "csv unmatched rows", "csv key diff", "csv set difference"]
+h1            = "Find CSV rows with no matching key"
+hero_subtitle = "Paste two CSV tables and return the rows from A whose key is absent from B — or B-only / both directions. Match by header name or column index, use composite keys, and keep all unmatched duplicates."
+wasm          = "gizza_ai_csv_anti_join_web"
+export        = "run"
+live          = false
+output_label  = "Anti-join result CSV"
+format        = "text"
+
+[[input]]
+name        = "a"
+label       = "CSV A (left table)"
+placeholder = "id,name\n1,Alice\n2,Bob\n3,Carol"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "b"
+label       = "CSV B (right table)"
+placeholder = "id,city\n2,Berlin\n3,Cairo\n4,Delhi"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Key column(s) in A"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "key_b"
+label       = "Key column(s) in B (blank = same as A)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name   = "direction"
+label  = "Rows to return"
+source = "field"
+
+[input.labels]
+a-only = "A only (left anti-join)"
+b-only = "B only (reverse)"
+both   = "Both sides (symmetric difference)"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive key matching"
+source = "field"
+
+[[input]]
+name   = "trim_keys"
+label  = "Trim whitespace around key values"
+source = "field"
+
+[[example]]
+label = "A rows missing from B"
+[example.params]
+a = "id,name\n1,Alice\n2,Bob\n3,Carol"
+b = "id,city\n2,Berlin\n3,Cairo\n4,Delhi"
+key = "id"
+key_b = ""
+direction = "a-only"
+delimiter = ","
+case_sensitive = "true"
+trim_keys = "false"
+
+[[example]]
+label = "Reverse: B rows missing from A"
+[example.params]
+a = "id,name\n1,Alice\n2,Bob\n3,Carol"
+b = "id,city\n2,Berlin\n3,Cairo\n4,Delhi"
+key = "id"
+key_b = ""
+direction = "b-only"
+delimiter = ","
+case_sensitive = "true"
+trim_keys = "false"
+
+[[example]]
+label = "Composite key, both sides"
+[example.params]
+a = "first,last,plan\nAda,Lovelace,pro\nAlan,Turing,basic"
+b = "first,last,plan\nAda,Lovelace,pro\nGrace,Hopper,team"
+key = "first,last"
+key_b = ""
+direction = "both"
+delimiter = ","
+case_sensitive = "true"
+trim_keys = "false"
