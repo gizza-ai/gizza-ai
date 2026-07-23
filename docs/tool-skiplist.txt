@@ -20,6 +20,7 @@ image-to-webp          # duplicate of blocks/image-convert (already does format=
 image-pad-to-square    # duplicate of blocks/image-contain-fit (set width=height for square padding; arbitrary WxH/aspect padding already covered)
 jpg-compressor         # duplicate of blocks/image-compress (re-encodes jpg at a quality, keeps dimensions)
 audio-gain-adjust      # duplicate of blocks/audio-volume-adjust (precise dB gain via volume=NdB + optional alimiter soft-clip, on by default)
+audio-bass-adjust      # duplicate of blocks/audio-eq (bass param is a low-shelf gain around 100 Hz with -20..20 dB boost/cut; same user function plus mid/treble controls)
 
 # Architecture-fit skips: need MORE THAN ONE media input. The page driver
 # (site/tool.js) handles a single source="file" upload, and the descriptor
