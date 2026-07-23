@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-fit-to-length"
+version = "0.1.0"
+abi = 1
+summary = "Pad with silence or trim an audio file to an exact duration"

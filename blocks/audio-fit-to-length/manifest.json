@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/audio-fit-to-length",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pad with silence or trim an audio file to an exact duration",
+  "role": "skill",
+  "tool": {
+    "description": "Fit an audio clip to an exact total length. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call) plus duration (seconds, default 30, max 3600). If the clip is shorter than duration it is padded with silence to reach exactly that length; if longer it is trimmed to exactly that length. pad = end (default, silence after the clip) or start (silence before the clip); a longer clip is trimmed from the end either way. The audio is re-encoded, so silence joins cleanly (no container-copy clicks). Output format mp3 (192 kbps, default), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "duration": {
+          "default": 30.0,
+          "description": "Exact target length in seconds (default 30, max 3600). If the clip is shorter it is padded with silence; if longer it is trimmed. Example: 60 makes any clip exactly one minute.",
+          "maximum": 3600,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "pad": {
+          "default": "end",
+          "description": "Where silence is added when the clip is shorter than the target: 'end' (default) appends silence after the clip; 'start' prepends it before the clip. When the clip is longer than the target it is trimmed from the end regardless.",
+          "enum": [
+            "end",
+            "start"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
