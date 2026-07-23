@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fit-file-decoder"
+version = "0.1.0"
+abi = 1
+summary = "Decode a base64 FIT activity file to a summary, CSV, or GPX"

@@ -1,0 +1,39 @@
+slug          = "fit-file-decoder"
+title         = "FIT File Decoder — Summary, CSV, or GPX from a .fit Activity"
+description   = "Decode a Garmin/ANT .fit activity file (pasted as base64) into a readable summary, a per-record CSV, or a GPX track — locally in your browser, no upload."
+tags          = ["fit file decoder", "fit to csv", "fit to gpx", "garmin fit decoder", "decode fit file", "fit activity parser", "fit file viewer"]
+h1            = "FIT File Decoder"
+hero_subtitle = "Paste a base64-encoded Garmin/ANT .fit activity and get a readable session summary, a per-record CSV, or a GPX track with heart-rate, cadence and power extensions — all decoded locally, without uploading your ride."
+wasm          = "gizza_ai_fit_file_decoder_web"
+export        = "run"
+live          = false
+output_label  = "Decoded output"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "FIT file (base64)"
+placeholder = "Base64 of your .fit file — starts with DhB… and decodes to bytes beginning with the .FIT header signature"
+source      = "field"
+multiline   = true
+
+# format renders as a <select>; the option list comes from the descriptor's
+# schema via manifest.json. `labels` only enriches the visible text (values stay
+# canonical for deep-links / CLI).
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+labels      = { summary = "Summary — session totals & averages", csv = "CSV — one row per record", gpx = "GPX — track with sensor extensions" }
+
+[[example]]
+label  = "Ride summary"
+params = { data = "DhBcCMAAAAAuRklUz5dAAAAUAAn9BIYABIUBBIUCAoQFBIYGAoQDAQIEAQIHAoQAAMtOQBzHcRxVVVW1BCkAAAAAiBN4UJYAADzLTkC39XEcVVVVtTYpXCsAAHAXjFXIAAB4y05AUSRyHLsmVbVoKahhAABYG5ZY+gBBAAASAA79BIYFAQACBIYHBIYIBIYJBIYLAoQOAoQPAoQQAQIRAQIUAoQVAoQWAoQBeMtOQAIAy05AwNQBAMDUAQCoYQAAKgBwF1gbiZbIAPoAFAAPJg==", format = "summary" }
+
+[[example]]
+label  = "Records to CSV"
+params = { data = "DhBcCMAAAAAuRklUz5dAAAAUAAn9BIYABIUBBIUCAoQFBIYGAoQDAQIEAQIHAoQAAMtOQBzHcRxVVVW1BCkAAAAAiBN4UJYAADzLTkC39XEcVVVVtTYpXCsAAHAXjFXIAAB4y05AUSRyHLsmVbVoKahhAABYG5ZY+gBBAAASAA79BIYFAQACBIYHBIYIBIYJBIYLAoQOAoQPAoQQAQIRAQIUAoQVAoQWAoQBeMtOQAIAy05AwNQBAMDUAQCoYQAAKgBwF1gbiZbIAPoAFAAPJg==", format = "csv" }
+
+[[example]]
+label  = "Track to GPX"
+params = { data = "DhBcCMAAAAAuRklUz5dAAAAUAAn9BIYABIUBBIUCAoQFBIYGAoQDAQIEAQIHAoQAAMtOQBzHcRxVVVW1BCkAAAAAiBN4UJYAADzLTkC39XEcVVVVtTYpXCsAAHAXjFXIAAB4y05AUSRyHLsmVbVoKahhAABYG5ZY+gBBAAASAA79BIYFAQACBIYHBIYIBIYJBIYLAoQOAoQPAoQQAQIRAQIUAoQVAoQWAoQBeMtOQAIAy05AwNQBAMDUAQCoYQAAKgBwF1gbiZbIAPoAFAAPJg==", format = "gpx" }
