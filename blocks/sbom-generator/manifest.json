@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/sbom-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an npm, Cargo, or pip lockfile into a CycloneDX or SPDX software bill of materials.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a resolved dependency lockfile into a Software Bill of Materials (SBOM). Pass lockfile (the file contents): an npm package-lock.json (v1 dependencies tree or v2/v3 packages map), a Cargo.lock, or a pip requirements.txt — the ecosystem is auto-detected unless input_format (auto/npm/cargo/pip) is set. output selects the SBOM format: cyclonedx-json (CycloneDX 1.6 JSON, default), spdx-json (SPDX 2.3 JSON), or spdx-tag (SPDX 2.3 tag-value text). Every dependency becomes a component with a package URL (pkg:npm/…, pkg:cargo/…, pkg:pypi/…); components are de-duplicated and sorted so output is deterministic. Options: component_name / component_version override the root project's identity, include_dev keeps npm dev/optional deps, timestamp stamps an RFC-3339 creation time (blank = fixed placeholder for reproducible output), pretty pretty-prints JSON. Returns the SBOM as text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "component_name": {
+          "default": "",
+          "description": "Name of the root/primary component (the project itself). Blank = use the name recorded in the lockfile, if any (npm/cargo record it; pip does not).",
+          "type": "string"
+        },
+        "component_version": {
+          "default": "",
+          "description": "Version of the root/primary component. Blank = use the version recorded in the lockfile, if any.",
+          "type": "string"
+        },
+        "include_dev": {
+          "default": true,
+          "description": "Include dev/optional dependencies (npm only — cargo/pip lockfiles do not distinguish them here). Default true.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "Which lockfile format to parse: auto (detect from the content), npm (package-lock.json), cargo (Cargo.lock), or pip (requirements.txt). Default auto.",
+          "enum": [
+            "auto",
+            "npm",
+            "cargo",
+            "pip"
+          ],
+          "type": "string"
+        },
+        "lockfile": {
+          "description": "The resolved dependency lockfile to convert. Paste the file contents: an npm package-lock.json (v1 or v2/v3), a Cargo.lock, or a pip requirements.txt. The ecosystem is auto-detected unless input_format is set.",
+          "type": "string"
+        },
+        "output": {
+          "default": "cyclonedx-json",
+          "description": "SBOM format to emit: cyclonedx-json (CycloneDX 1.6 JSON), spdx-json (SPDX 2.3 JSON), or spdx-tag (SPDX 2.3 tag-value text). Default cyclonedx-json.",
+          "enum": [
+            "cyclonedx-json",
+            "spdx-json",
+            "spdx-tag"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print JSON output (ignored for spdx-tag). Default true.",
+          "type": "boolean"
+        },
+        "timestamp": {
+          "default": "",
+          "description": "RFC-3339 creation time to stamp in the SBOM metadata, e.g. 2026-07-24T12:00:00Z. Blank = a fixed placeholder so identical input yields byte-identical output.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lockfile"
+      ],
+      "type": "object"
+    }
+  }
+}
