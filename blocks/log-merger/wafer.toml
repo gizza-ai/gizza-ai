@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-merger"
+version = "0.1.0"
+abi = 1
+summary = "Merge multiple logs into one timeline sorted by timestamp"
