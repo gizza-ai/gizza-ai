@@ -1,0 +1,63 @@
+slug          = "http-header-parser"
+title         = "HTTP Header Parser — headers to a clean JSON map"
+description   = "Paste a raw HTTP request or response header block and get a structured, case-normalized JSON map. Fold duplicates, pick the name casing. Free, in your browser."
+tags          = ["http header parser", "headers to json", "parse http headers", "http headers to map", "normalize header names", "set-cookie parser", "response headers", "request headers"]
+h1            = "HTTP Header Parser"
+hero_subtitle = "Paste a raw HTTP request or response header block and get a structured, case-normalized map of every header. Choose the name casing, fold repeated headers your way, and keep Set-Cookie as a list. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_http_header_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed headers (JSON)"
+format        = "text"
+
+[[input]]
+name        = "headers"
+label       = "HTTP header block"
+placeholder = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8\nCache-Control: max-age=60\nSet-Cookie: id=1; Path=/\nSet-Cookie: sess=xyz; HttpOnly"
+source      = "field"
+multiline   = true
+
+# case renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "case"
+label  = "Header-name casing"
+source = "field"
+
+[input.labels]
+canonical = "Canonical (Content-Type)"
+lower     = "lowercase (content-type)"
+upper     = "UPPERCASE (CONTENT-TYPE)"
+original  = "Original (as pasted)"
+
+# duplicates renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "duplicates"
+label  = "Repeated headers"
+source = "field"
+
+[input.labels]
+combine = "Combine (join with ', ')"
+list    = "List (JSON array)"
+first   = "Keep first"
+last    = "Keep last"
+
+[[example]]
+label = "Response headers"
+[example.params]
+headers = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=utf-8\nCache-Control: max-age=60\nServer: nginx"
+case = "canonical"
+duplicates = "combine"
+
+[[example]]
+label = "Duplicates + Set-Cookie"
+[example.params]
+headers = "Set-Cookie: id=1; Path=/\nSet-Cookie: sess=xyz; HttpOnly\nx-custom: a\nX-CUSTOM: b"
+case = "canonical"
+duplicates = "combine"
+
+[[example]]
+label = "Request headers, lowercase"
+[example.params]
+headers = "GET /index.html?q=1 HTTP/1.1\nHost: example.com\nAccept: */*\nUser-Agent: curl/8.0"
+case = "lower"
+duplicates = "combine"

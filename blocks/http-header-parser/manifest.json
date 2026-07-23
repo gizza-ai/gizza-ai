@@ -1,0 +1,45 @@
+{
+  "name": "gizza-ai/http-header-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a raw HTTP header block into a case-normalized map",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a raw HTTP request or response header block into a structured, case-normalized JSON map of name → value. Accepts a bare header block or one led by a request/status line (captured separately). Header names are folded case-insensitively and re-cased via `case`: canonical Title-Case like Content-Type (default), lower, upper, or original. Repeated headers are folded via `duplicates`: combine joins values with ', ' per RFC 7230 while keeping Set-Cookie as a list (default), list keeps every occurrence as an array, or first/last keeps one. Tolerates CRLF or bare-LF endings and obsolete folded continuation lines, stops at the first blank line, and reports the detected kind, header count, line count, and which names were duplicated. Returns JSON. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case": {
+          "default": "canonical",
+          "description": "How to re-case header names in the map (names are always folded case-insensitively): canonical HTTP Title-Case like Content-Type (default), lower, upper, or original (keep the first-seen casing).",
+          "enum": [
+            "canonical",
+            "lower",
+            "upper",
+            "original"
+          ],
+          "type": "string"
+        },
+        "duplicates": {
+          "default": "combine",
+          "description": "How to fold repeated headers: combine joins values with ', ' per RFC 7230 while keeping Set-Cookie as a list (default); list keeps every occurrence as a JSON array; first or last keeps only that occurrence.",
+          "enum": [
+            "combine",
+            "list",
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "headers": {
+          "description": "The raw HTTP header block to parse — one 'Name: value' per line. A leading request line (GET /p HTTP/1.1) or status line (HTTP/1.1 200 OK) is optional and captured separately. CRLF or bare-LF line endings and obsolete folded continuation lines are accepted; parsing stops at the first blank line.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "headers"
+      ],
+      "type": "object"
+    }
+  }
+}

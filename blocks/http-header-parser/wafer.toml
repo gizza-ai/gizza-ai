@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "http-header-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse a raw HTTP header block into a case-normalized map"
