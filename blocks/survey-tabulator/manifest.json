@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/survey-tabulator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Tabulate survey CSV answers into frequency tables and crosstabs with chi-square stats.",
+  "role": "skill",
+  "tool": {
+    "description": "Tabulate a survey-response CSV into a frequency table or a two-way cross-tabulation. Pass data (CSV: first row = question headers, each later row = one respondent). mode=overview gives a count + percent table for every question column (or one, if question is set); mode=crosstab builds a contingency table of question (rows) against by (columns) with row/column/total percentages, marginal totals, and — with stats=true — a chi-square test, degrees of freedom, Cramér's V, and p-value. Columns are named by 1-based index or header. Options: percent (total/row/column/none), include_blanks, sort (count/label), top (keep the N most frequent categories in overview), delimiter (comma/tab/semicolon/pipe). Returns a monospaced text table.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "by": {
+          "default": "",
+          "description": "crosstab only: the column variable (table columns), as a 1-based index or header name. Must differ from question.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The survey CSV to tabulate. First row = question headers, each later row = one respondent's answers. Also accepts tab/semicolon/pipe-separated data (set delimiter).",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field delimiter of the input: a single character or one of comma, tab, semicolon, pipe. Default comma.",
+          "type": "string"
+        },
+        "include_blanks": {
+          "default": false,
+          "description": "Count blank/empty answers as their own '(blank)' category instead of dropping them. Default false.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "overview",
+          "description": "overview = a frequency table (count + %) for every question column (or one, if question is set). crosstab = a two-way table of question (rows) against by (columns). Default overview.",
+          "enum": [
+            "overview",
+            "crosstab"
+          ],
+          "type": "string"
+        },
+        "percent": {
+          "default": "total",
+          "description": "crosstab only: what each cell's percentage is out of — total (grand total), row, column, or none (counts only). Default total.",
+          "enum": [
+            "total",
+            "row",
+            "column",
+            "none"
+          ],
+          "type": "string"
+        },
+        "question": {
+          "default": "",
+          "description": "Which column to tabulate: a 1-based index or a header name. In overview, blank means tabulate every column; in crosstab this is the row variable (required).",
+          "type": "string"
+        },
+        "sort": {
+          "default": "count",
+          "description": "Order categories by count (descending, ties by label) or label (alphabetical). Default count.",
+          "enum": [
+            "count",
+            "label"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": false,
+          "description": "crosstab only: append a chi-square test of independence with degrees of freedom, Cramér's V effect size, and an upper-tail p-value. Default false.",
+          "type": "boolean"
+        },
+        "top": {
+          "default": 0,
+          "description": "overview only: keep only the N most frequent categories per question (0 = all). Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

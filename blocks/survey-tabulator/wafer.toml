@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "survey-tabulator"
+version = "0.1.0"
+abi = 1
+summary = "Tabulate survey CSV answers into frequency tables and crosstabs with chi-square stats."
