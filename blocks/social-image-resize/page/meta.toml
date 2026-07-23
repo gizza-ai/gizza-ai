@@ -1,0 +1,98 @@
+slug          = "social-image-resize"
+title         = "Social Image Resizer"
+description   = "Resize and crop one image to Instagram, Facebook, X, LinkedIn, YouTube, Pinterest, or TikTok preset sizes in your browser."
+tags          = ["social image resizer", "instagram image size", "twitter image size", "linkedin image size", "youtube thumbnail", "facebook cover", "crop", "resize"]
+h1            = "Social Image Resizer"
+hero_subtitle = "Pick a platform preset and resize/crop one image to the right dimensions — cover crop, padded contain, or stretch, all in your browser."
+wasm          = "gizza_ai_social_image_resize_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Resized image"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name    = "target"
+source  = "field"
+label   = "Target size"
+default = "instagram-square"
+
+[input.labels]
+instagram-square   = "Instagram square — 1080×1080"
+instagram-portrait = "Instagram portrait — 1080×1350"
+instagram-story    = "Instagram story/reel — 1080×1920"
+facebook-post      = "Facebook / Open Graph post — 1200×630"
+facebook-cover     = "Facebook cover — 820×312"
+twitter-post       = "X/Twitter post — 1600×900"
+twitter-header     = "X/Twitter header — 1500×500"
+linkedin-post      = "LinkedIn post — 1200×627"
+linkedin-cover     = "LinkedIn cover — 1584×396"
+youtube-thumbnail  = "YouTube thumbnail — 1280×720"
+pinterest-pin      = "Pinterest pin — 1000×1500"
+tiktok-video       = "TikTok vertical — 1080×1920"
+
+[[input]]
+name    = "fit"
+source  = "field"
+label   = "Fit"
+default = "cover"
+
+[input.labels]
+cover   = "Cover — fill & crop"
+contain = "Contain — fit & pad"
+stretch = "Stretch — exact size"
+
+[[input]]
+name    = "gravity"
+source  = "field"
+label   = "Crop from (cover only)"
+default = "center"
+
+[input.labels]
+center = "Center"
+top    = "Top"
+bottom = "Bottom"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Pad colour (contain only)"
+kind        = "color"
+placeholder = "#ffffff"
+default     = "#ffffff"
+
+[[example]]
+label = "Instagram square"
+[example.params]
+target = "instagram-square"
+fit    = "cover"
+
+[[example]]
+label = "Instagram story"
+[example.params]
+target = "instagram-story"
+fit    = "cover"
+
+[[example]]
+label = "YouTube thumbnail"
+[example.params]
+target = "youtube-thumbnail"
+fit    = "cover"
+
+[[example]]
+label = "LinkedIn contain"
+[example.params]
+target     = "linkedin-post"
+fit        = "contain"
+background = "#ffffff"
+
+[[example]]
+label = "Pinterest pin"
+[example.params]
+target = "pinterest-pin"
+fit    = "cover"
