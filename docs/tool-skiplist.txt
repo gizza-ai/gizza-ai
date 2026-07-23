@@ -22,6 +22,7 @@ jpg-compressor         # duplicate of blocks/image-compress (re-encodes jpg at a
 audio-gain-adjust      # duplicate of blocks/audio-volume-adjust (precise dB gain via volume=NdB + optional alimiter soft-clip, on by default)
 audio-bass-adjust      # duplicate of blocks/audio-eq (bass param is a low-shelf gain around 100 Hz with -20..20 dB boost/cut; same user function plus mid/treble controls)
 true-peak-checker      # not viable in current gizza surfaces: needs audio decode + 4x oversampled true-peak analysis returning numeric dBTP/log output; ffmpeg page/chat path returns media files, pure path has no audio decoder
+gps-track-stats        # duplicate of blocks/gpx-analyzer (already reports GPX distance, duration, speed/pace, max speed, elevation gain/loss; GeoJSON support is a gpx-analyzer/gpx-to-geojson improvement, not a distinct tool)
 
 # Architecture-fit skips: need MORE THAN ONE media input. The page driver
 # (site/tool.js) handles a single source="file" upload, and the descriptor
