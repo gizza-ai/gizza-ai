@@ -1,0 +1,27 @@
+{
+  "name": "gizza-ai/password-pwned-check",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check whether a password appears in known breaches via the Have I Been Pwned k-anonymity range API.",
+  "role": "skill",
+  "tool": {
+    "description": "Check whether a password appears in known data breaches via the Have I Been Pwned Pwned Passwords k-anonymity range API. The password is SHA-1 hashed locally and only the first 5 hex chars of the hash are sent; the suffix match happens locally, so the password and full hash never leave the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "padding": {
+          "description": "If true, request padded responses (adds the 'Add-Padding: true' header) so an observer can't infer the queried hash prefix from the response size. Default: false.",
+          "type": "boolean"
+        },
+        "password": {
+          "description": "The password to check. It is SHA-1 hashed locally; only the first 5 hex chars of that hash are sent to the API — never the password or the full hash.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "password"
+      ],
+      "type": "object"
+    }
+  }
+}

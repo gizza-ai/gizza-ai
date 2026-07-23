@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "password-pwned-check"
+version = "0.1.0"
+abi = 1
+summary = "Check whether a password appears in known breaches via the Have I Been Pwned k-anonymity range API."
