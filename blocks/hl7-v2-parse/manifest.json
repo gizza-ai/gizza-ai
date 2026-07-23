@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/hl7-v2-parse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a pipe-delimited HL7 v2.x message into named segments, fields and components as JSON or CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a pipe-delimited HL7 v2.x message (MSH, PID, OBX, PV1, OBR, EVN, …) into a structured hierarchy of segments, fields, components, subcomponents and repetitions. Reads the field/component/repetition/subcomponent delimiters from the MSH segment (handling the MSH-1 field-separator / MSH-2 encoding-characters offset), decodes HL7 escape sequences (\\F\\ \\S\\ \\T\\ \\R\\ \\E\\ \\Xhh\\ \\.br\\), and attaches human-readable segment/field names for common segments. Output full nested JSON (default) or a flat 'Segment, Location, Value' CSV leaf table. Runs fully locally — no PHI leaves the browser.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The raw HL7 v2.x message (pipe-delimited segments — MSH, PID, OBX, …). Segments may be separated by carriage returns or newlines; the field/component/repetition/subcomponent delimiters are read from the MSH segment (default '|', '^', '~', '&').",
+          "type": "string"
+        },
+        "include_descriptions": {
+          "default": true,
+          "description": "When true, attach human-readable names to each segment (e.g. PID → Patient Identification) and to fields of the common segments (MSH, PID, OBX, PV1, OBR, …). Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format: 'json' for the full nested hierarchy (segments → fields → components → subcomponents, with repetitions) or 'csv' for a flat 'Segment, Location, Value' leaf table. Default 'json'.",
+          "enum": [
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "unescape": {
+          "default": true,
+          "description": "When true, decode HL7 escape sequences (\\F\\ → field sep, \\S\\ → component, \\T\\ → subcomponent, \\R\\ → repetition, \\E\\ → escape, \\Xhh\\ → hex bytes, \\.br\\ → line break) into their literal characters. When false, leaf values are kept verbatim. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
