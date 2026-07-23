@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/tabs-to-spaces",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert tabs to spaces or spaces to tabs, respecting tab stops.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert tabs to spaces or spaces back to tabs, respecting tab stops. Use direction='expand' (default) to turn tabs into spaces, or direction='unexpand' to turn runs of spaces into tabs. tab_width (1-16, default 4) sets the columns per tab stop: a tab advances to the next multiple of this width, so a tab after 'ab' fills only 2 spaces to reach column 4 — not a fixed count. scope='all' (default) converts leading indentation and inline whitespace; scope='leading' converts only the indentation before the first non-blank character on each line. Each line is processed independently and line breaks are preserved.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "expand",
+          "description": "Direction: 'expand' (default) turns tabs into spaces; 'unexpand' turns runs of spaces back into tabs.",
+          "enum": [
+            "expand",
+            "unexpand"
+          ],
+          "type": "string"
+        },
+        "scope": {
+          "default": "all",
+          "description": "Which whitespace to convert. 'all' (default) converts leading indentation and inline whitespace; 'leading' converts only the indentation before the first non-blank character on each line, leaving the rest untouched.",
+          "enum": [
+            "all",
+            "leading"
+          ],
+          "type": "string"
+        },
+        "tab_width": {
+          "default": 4,
+          "description": "Columns per tab stop, 1-16 (default 4). A tab advances to the next multiple of this width — e.g. at width 4 a tab after 'ab' fills only 2 spaces to reach column 4. Common values: 2, 4, 8 (the Unix default).",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The text or code to convert. Each line is handled independently and line breaks are preserved.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

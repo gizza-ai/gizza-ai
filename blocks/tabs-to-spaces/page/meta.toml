@@ -1,0 +1,76 @@
+slug          = "tabs-to-spaces"
+title         = "Tabs to Spaces — convert indentation, respecting tab stops"
+description   = "Convert tabs to spaces or spaces back to tabs online, respecting tab stops. Pick tab width, direction, and leading-only scope. Private in-browser tool."
+tags          = ["tabs to spaces", "spaces to tabs", "expand tabs", "unexpand", "convert indentation", "tab width", "detab", "entab"]
+h1            = "Tabs to Spaces"
+hero_subtitle = "Convert tabs to spaces or spaces back to tabs, respecting tab stops. Choose the tab width and whether to touch only the leading indentation. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_tabs_to_spaces_web"
+export        = "run"
+live          = false
+output_label  = "Converted text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text or code"
+placeholder = "Paste text or code to convert…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+expand   = "Tabs → spaces (expand)"
+unexpand = "Spaces → tabs (unexpand)"
+
+[[input]]
+name        = "tab_width"
+label       = "Tab width (columns per tab stop)"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "scope"
+label  = "Scope"
+source = "field"
+
+[input.labels]
+all     = "All whitespace (leading + inline)"
+leading = "Leading indentation only"
+
+[[example]]
+label = "Tabs → 4 spaces"
+[example.params]
+text = "\tif (ok) {\n\t\treturn 1;\n\t}"
+direction = "expand"
+tab_width = "4"
+scope = "all"
+
+[[example]]
+label = "Tabs → 2 spaces"
+[example.params]
+text = "\tif (ok) {\n\t\treturn 1;\n\t}"
+direction = "expand"
+tab_width = "2"
+scope = "all"
+
+[[example]]
+label = "Spaces → tabs"
+[example.params]
+text = "    if (ok) {\n        return 1;\n    }"
+direction = "unexpand"
+tab_width = "4"
+scope = "all"
+
+[[example]]
+label = "Indentation only"
+[example.params]
+text = "\tname\t= value"
+direction = "expand"
+tab_width = "4"
+scope = "leading"
