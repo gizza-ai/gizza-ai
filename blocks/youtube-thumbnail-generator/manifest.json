@@ -1,0 +1,114 @@
+{
+  "name": "gizza-ai/youtube-thumbnail-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a thumbnail PNG from a video frame with outlined headline text",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a YouTube-style thumbnail PNG from a single video frame. Provide a video by url or ref, a headline, optional timestamp, output width/height (default 1280x720), headline position, font size, text and outline colors, and an accent bar color/position/size. The frame is scaled/cropped to the target canvas, a colored accent bar is drawn, and the headline is rendered with a bundled bold font via ffmpeg drawtext using textfile/fontfile (no inline text escaping). Returns a PNG image. Note: runs on the standalone page and CLI; chat ffmpeg is unavailable.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "accent_color": {
+          "default": "#ffcc00",
+          "description": "Accent bar color as a CSS color name or hex. Default #ffcc00.",
+          "type": "string"
+        },
+        "accent_position": {
+          "default": "bottom",
+          "description": "Accent bar placement: bottom, top, left, right, or none. Default bottom.",
+          "enum": [
+            "bottom",
+            "top",
+            "left",
+            "right",
+            "none"
+          ],
+          "type": "string"
+        },
+        "accent_size": {
+          "default": 22,
+          "description": "Accent bar thickness in pixels. Use 0 or accent_position=none to hide it. Default 22.",
+          "maximum": 1024,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "font_size": {
+          "default": 96,
+          "description": "Headline font size in pixels (16-220). Default 96.",
+          "maximum": 220,
+          "minimum": 16,
+          "type": "integer"
+        },
+        "headline": {
+          "description": "Large headline text to draw on the thumbnail. Drawn literally from a text file, so punctuation is safe. Keep it short (max 120 characters).",
+          "type": "string"
+        },
+        "height": {
+          "default": 720,
+          "description": "Output thumbnail height in pixels. Default 720 (YouTube 16:9).",
+          "maximum": 4096,
+          "minimum": 180,
+          "type": "integer"
+        },
+        "outline_color": {
+          "default": "#000000",
+          "description": "Headline outline color as a CSS color name or hex. Default black.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "text_color": {
+          "default": "#ffffff",
+          "description": "Headline fill color as a CSS color name or hex (#ffffff, #fc0). Default white.",
+          "type": "string"
+        },
+        "text_position": {
+          "default": "bottom",
+          "description": "Where to anchor the outlined headline: bottom, top, or center. Default bottom.",
+          "enum": [
+            "bottom",
+            "top",
+            "center"
+          ],
+          "type": "string"
+        },
+        "timestamp": {
+          "default": 0.0,
+          "description": "Seconds into the video to capture the source frame. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 1280,
+          "description": "Output thumbnail width in pixels. Default 1280 (YouTube 16:9).",
+          "maximum": 4096,
+          "minimum": 320,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "headline"
+      ],
+      "type": "object"
+    }
+  }
+}

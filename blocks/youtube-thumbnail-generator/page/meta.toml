@@ -1,0 +1,126 @@
+slug          = "youtube-thumbnail-generator"
+title         = "YouTube Thumbnail Generator"
+description   = "Create a thumbnail PNG from a video frame with bold outlined headline text, a crop-to-canvas layout, and an optional accent bar."
+tags          = ["youtube thumbnail", "video thumbnail", "thumbnail generator", "headline image", "video frame", "png", "ffmpeg", "social image"]
+h1            = "YouTube Thumbnail Generator"
+hero_subtitle = "Pick a video frame, crop it to a 16:9 thumbnail, add a bold outlined headline and accent bar, then download a PNG. Runs locally in your browser."
+wasm          = "gizza_ai_youtube_thumbnail_generator_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Thumbnail PNG"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "headline"
+source      = "field"
+label       = "Headline"
+placeholder = "BIG IDEA IN 10 MINUTES"
+
+[[input]]
+name        = "timestamp"
+source      = "field"
+label       = "Frame time (seconds)"
+placeholder = "1.0"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Width (px)"
+placeholder = "1280"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height (px)"
+placeholder = "720"
+
+[[input]]
+name   = "text_position"
+source = "field"
+label  = "Headline position"
+
+[input.labels]
+bottom = "Bottom"
+top    = "Top"
+center = "Center"
+
+[[input]]
+name        = "font_size"
+source      = "field"
+label       = "Font size (px)"
+placeholder = "96"
+
+[[input]]
+name        = "text_color"
+source      = "field"
+label       = "Text color"
+placeholder = "#ffffff"
+kind        = "color"
+
+[[input]]
+name        = "outline_color"
+source      = "field"
+label       = "Outline color"
+placeholder = "#000000"
+kind        = "color"
+
+[[input]]
+name        = "accent_color"
+source      = "field"
+label       = "Accent bar color"
+placeholder = "#ffcc00"
+kind        = "color"
+
+[[input]]
+name   = "accent_position"
+source = "field"
+label  = "Accent bar position"
+
+[input.labels]
+bottom = "Bottom"
+top    = "Top"
+left   = "Left"
+right  = "Right"
+none   = "None"
+
+[[input]]
+name        = "accent_size"
+source      = "field"
+label       = "Accent bar thickness (px)"
+placeholder = "22"
+
+[[example]]
+label = "Classic 1280×720 bottom headline"
+[example.params]
+headline = "BIG IDEA IN 10 MINUTES"
+timestamp = "1"
+width = "1280"
+height = "720"
+text_position = "bottom"
+font_size = "96"
+text_color = "#ffffff"
+outline_color = "#000000"
+accent_color = "#ffcc00"
+accent_position = "bottom"
+accent_size = "22"
+
+[[example]]
+label = "Top headline + left accent"
+[example.params]
+headline = "WATCH THIS NEXT"
+timestamp = "0.5"
+width = "1280"
+height = "720"
+text_position = "top"
+font_size = "88"
+text_color = "#ffffff"
+outline_color = "#000000"
+accent_color = "#ff3366"
+accent_position = "left"
+accent_size = "28"
