@@ -36,6 +36,7 @@ still-image-audio-video  # needs two media inputs (cover image + audio track); s
 # url/ref oneOf, which the decode direction has no use for.
 base64-file-converter  # bidirectional file<->base64 = two IO shapes; split into base64-encode-file / base64-decode-file
 data-uri-codec  # duplicate of blocks/data-uri-encode + blocks/data-uri-decode (same bidirectional encode/decode of pasted text/base64 bytes to/from data: URIs)
+credit-card-validate  # duplicate of blocks/luhn-validate (offline Luhn validation plus best-effort card brand/network by prefix and length: Visa, Mastercard, Amex, Discover, JCB, Diners)
 csv-to-json            # duplicate of blocks/csv-json-convert (already parses CSV->JSON with header/delimiter options + type inference)
 image-watermark        # text mode duplicates blocks/add-text-to-image (which covers caption/watermark text overlay); opacity+position are add-text-to-image improvements; the logo-overlay mode needs 2 media inputs (out of model)
 jpg-to-png             # duplicate of blocks/image-convert (already does format=png)
