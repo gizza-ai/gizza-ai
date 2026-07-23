@@ -1,0 +1,65 @@
+slug          = "mbox-dedup"
+title         = "MBOX Dedup — remove duplicate emails by Message-ID"
+description   = "Paste an mbox archive and remove duplicate messages by Message-ID. Keep first or last, handle ID-less messages, and download the cleaned mbox locally."
+tags          = ["mbox dedup", "mbox duplicate remover", "message-id dedupe", "email archive cleanup", "mailbox deduplicate", "remove duplicate emails", "mbox cleaner", "email message id"]
+h1            = "MBOX Dedup"
+hero_subtitle = "Paste an mbox archive and get a cleaned mbox with duplicate Message-IDs removed. Choose whether to keep the first or last copy, decide what to do with ID-less drafts, and keep everything local in your browser."
+wasm          = "gizza_ai_mbox_dedup_web"
+export        = "run"
+live          = false
+output_label  = "Deduplicated mbox"
+format        = "text"
+
+[[input]]
+name        = "mbox"
+label       = "MBOX text"
+placeholder = "From alice@example.com Mon Sep 03 10:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Hello\nMessage-ID: <a1@example.com>\n\nfirst copy\n\nFrom alice@example.com Mon Sep 03 11:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Hello again\nMessage-ID: <a1@example.com>\n\nduplicate copy"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "keep"
+label  = "Keep duplicate occurrence"
+source = "field"
+
+[input.labels]
+first = "Keep first copy"
+last  = "Keep last copy"
+
+[[input]]
+name   = "ignore_case"
+label  = "Compare Message-IDs case-insensitively"
+source = "field"
+
+[[input]]
+name   = "no_message_id"
+label  = "Messages without Message-ID"
+source = "field"
+
+[input.labels]
+keep = "Keep ID-less messages"
+drop = "Drop ID-less messages"
+
+[[example]]
+label = "Keep first duplicate"
+[example.params]
+mbox = "From a@example.com Mon Sep 03 10:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Hello\nMessage-ID: <same@example.com>\n\nfirst copy\n\nFrom b@example.com Mon Sep 03 11:00:00 2018\nFrom: Bob <bob@example.com>\nSubject: Other\nMessage-ID: <other@example.com>\n\nunique message\n\nFrom c@example.com Mon Sep 03 12:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Hello again\nMessage-ID: <same@example.com>\n\nduplicate copy"
+keep = "first"
+ignore_case = "false"
+no_message_id = "keep"
+
+[[example]]
+label = "Keep last duplicate"
+[example.params]
+mbox = "From a@example.com Mon Sep 03 10:00:00 2018\nMessage-ID: <same@example.com>\n\nolder copy\n\nFrom c@example.com Mon Sep 03 12:00:00 2018\nMessage-ID: <same@example.com>\n\nnewer copy"
+keep = "last"
+ignore_case = "false"
+no_message_id = "keep"
+
+[[example]]
+label = "Drop ID-less drafts"
+[example.params]
+mbox = "From draft@example.com Mon Sep 03 10:00:00 2018\nSubject: Draft without ID\n\ndraft body\n\nFrom sent@example.com Mon Sep 03 11:00:00 2018\nMessage-ID: <sent@example.com>\n\nsent body"
+keep = "first"
+ignore_case = "false"
+no_message_id = "drop"
