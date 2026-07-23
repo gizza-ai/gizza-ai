@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/data-reshape",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reshape JSON/YAML/CSV/XML with a JSONata query",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a document in JSON, YAML, CSV, or XML and reshape it with a JSONata expression into a new structured result (JSON or YAML). JSONata is one language for both querying (navigate paths, filter with predicates, aggregate with $sum/$count/$max) and templating (construct new objects/arrays like '{ \"total\": $sum(lines.amount) }'). CSV parses to an array of row objects (numeric/boolean cells coerced); XML/YAML map to nested objects. Set input_format=auto to sniff the format. A query that matches nothing returns null. Runs locally, pure-Rust engine.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The source document to reshape (JSON, YAML, CSV, or XML).",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "Format of the input document. 'auto' sniffs it (< → XML, {/[ → JSON, a comma header → CSV, else YAML).",
+          "enum": [
+            "auto",
+            "json",
+            "yaml",
+            "csv",
+            "xml"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "json",
+          "description": "Format of the reshaped result. Default json.",
+          "enum": [
+            "json",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Indent the JSON output (ignored for YAML). Default true.",
+          "type": "boolean"
+        },
+        "query": {
+          "description": "The JSONata expression that queries and/or templates the data, e.g. '$sum(items.price)', 'items[price > 10].name', or '{ \"total\": $sum(lines.amount) }'. CSV rows arrive as an array of objects; XML/YAML map to nested objects.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "query"
+      ],
+      "type": "object"
+    }
+  }
+}

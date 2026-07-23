@@ -1,0 +1,96 @@
+slug          = "data-reshape"
+title         = "Data Reshape — Query & Transform JSON, YAML, CSV, XML"
+description   = "Parse JSON, YAML, CSV, or XML and reshape it with JSONata into new JSON or YAML — filter, aggregate, and restructure in one browser-local step."
+tags          = ["data reshape", "jsonata", "transform json", "csv to json", "xml to json", "yaml transform", "query data", "restructure data", "data transformer"]
+h1            = "Reshape JSON, YAML, CSV & XML with a query"
+hero_subtitle = "Paste any JSON, YAML, CSV, or XML document and reshape it with a JSONata expression — filter, aggregate, and build a new structure, output as JSON or YAML. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_data_reshape_web"
+export        = "run"
+live          = false
+output_label  = "Reshaped output"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Input document"
+placeholder = "name,price\napple,2\nbanana,3\ncherry,5"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "query"
+label       = "JSONata query / template"
+placeholder = "{ \"total\": $sum($.price), \"items\": $count($) }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+json = "JSON"
+yaml = "YAML"
+csv  = "CSV"
+xml  = "XML"
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json = "JSON"
+yaml = "YAML"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[example]]
+label = "CSV → totals"
+[example.params]
+data = "name,price\napple,2\nbanana,3\ncherry,5"
+query = "{ \"total\": $sum($.price), \"items\": $count($) }"
+input_format = "csv"
+output_format = "json"
+pretty = "true"
+
+[[example]]
+label = "JSON → reshape objects"
+[example.params]
+data = "{ \"orders\": [ { \"id\": 1, \"lines\": [ { \"amount\": 4 }, { \"amount\": 6 } ] } ] }"
+query = "orders.{ \"id\": id, \"total\": $sum(lines.amount) }"
+input_format = "json"
+output_format = "json"
+pretty = "true"
+
+[[example]]
+label = "CSV → filter rows"
+[example.params]
+data = "name,price\napple,2\nbanana,20\ncherry,30"
+query = "$[price > 10].name"
+input_format = "csv"
+output_format = "json"
+pretty = "false"
+
+[[example]]
+label = "YAML → JSON"
+[example.params]
+data = "user:\n  first: Ada\n  last: Lovelace"
+query = "{ \"name\": user.first & \" \" & user.last }"
+input_format = "yaml"
+output_format = "json"
+pretty = "true"
+
+[[example]]
+label = "XML → aggregate"
+[example.params]
+data = "<order><item><price>10</price></item><item><price>15</price></item></order>"
+query = "$sum(order.item.price)"
+input_format = "xml"
+output_format = "json"
+pretty = "false"
