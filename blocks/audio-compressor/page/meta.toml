@@ -1,0 +1,52 @@
+slug          = "audio-compressor"
+title         = "Audio Compressor Online (Dynamic Range)"
+description   = "Even out loud and quiet parts of an audio file in your browser with threshold, ratio, attack, release and make-up gain. Local and private."
+tags          = ["audio", "compressor", "dynamic range", "acompressor", "threshold", "ratio", "attack", "release", "makeup", "level"]
+h1            = "Compress Audio Dynamic Range"
+hero_subtitle = "Pick an audio file, set threshold, ratio, attack, release and make-up gain — it's compressed in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_compressor_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Compressed audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "threshold"
+source      = "field"
+label       = "Threshold (dB)"
+placeholder = "-20"
+
+[[input]]
+name        = "ratio"
+source      = "field"
+label       = "Ratio (:1)"
+placeholder = "4"
+
+[[input]]
+name        = "attack"
+source      = "field"
+label       = "Attack (ms)"
+placeholder = "20"
+
+[[input]]
+name        = "release"
+source      = "field"
+label       = "Release (ms)"
+placeholder = "250"
+
+[[input]]
+name        = "makeup"
+source      = "field"
+label       = "Make-up gain (dB)"
+placeholder = "0"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
