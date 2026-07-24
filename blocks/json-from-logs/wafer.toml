@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-from-logs"
+version = "0.1.0"
+abi = 1
+summary = "Extract each embedded JSON object/array from mixed log text, pretty-printed and validated."
