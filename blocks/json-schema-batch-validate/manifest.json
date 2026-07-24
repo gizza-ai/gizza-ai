@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/json-schema-batch-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate a JSON array or NDJSON batch of records against one JSON Schema and get a pass/fail summary plus a per-record error list.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a whole BATCH of JSON records against ONE JSON Schema and return a pass/fail summary plus a per-record error list. 'records' can be a JSON array of records, a single JSON value (one record), or an NDJSON stream (one JSON value per line) — set input_format to auto (default), json, or ndjson. Each error carries the failing value's JSON Pointer path, the schema keyword that rejected it (type, required, minimum, enum, pattern, …), and a message. Set draft to auto (detect from the schema's $schema, else draft2020-12) or force draft4/draft6/draft7/draft2019-09/draft2020-12. max_errors caps how many errors are listed (counts stay exact). Set output to text (default, human report) or json (machine-readable report). Runs locally; no network, no $ref fetching.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "schema": { "type": "string", "description": "The JSON Schema to validate every record against, as a JSON object. Example: {\"type\":\"object\",\"required\":[\"id\"],\"properties\":{\"id\":{\"type\":\"integer\"}}}. If it carries a \"$schema\" URI and draft is 'auto', the draft is detected from it." },
+        "records": { "type": "string", "description": "The batch of records to validate. Accepts a JSON array of records ([{...},{...}]), a single JSON value (validated as one record), or an NDJSON stream (one JSON value per line, blank lines skipped). See input_format to force one interpretation." },
+        "input_format": { "type": "string", "enum": ["auto", "json", "ndjson"], "default": "auto", "description": "How to parse records. 'auto' (default) tries whole-document JSON first (an array becomes the batch, any other value is one record), then falls back to NDJSON. 'json' forces JSON, 'ndjson' forces one-JSON-value-per-line." },
+        "draft": { "type": "string", "enum": ["auto", "draft4", "draft6", "draft7", "draft2019-09", "draft2020-12"], "default": "auto", "description": "The JSON Schema draft to validate with. 'auto' (default) reads the schema's \"$schema\" URI and falls back to draft2020-12 if absent/unrecognized. Otherwise force one of draft4, draft6, draft7, draft2019-09, draft2020-12." },
+        "max_errors": { "type": "integer", "minimum": 1, "default": 50, "description": "Cap on how many individual errors are LISTED across the whole batch (default 50). Per-record and total error COUNTS are always exact and uncapped; when more errors exist than are listed the report is marked truncated." },
+        "output": { "type": "string", "enum": ["text", "json"], "default": "text", "description": "Output format. 'text' (default) is a human-readable PASS/FAIL summary with a per-record error breakdown. 'json' is the full machine-readable report object (valid, draft, input_format, total, passed, failed, total_errors, records[], truncated)." }
+      },
+      "required": ["schema", "records"],
+      "additionalProperties": false
+    }
+  }
+}
