@@ -1,0 +1,66 @@
+slug          = "ics-to-csv"
+title         = "ICS to CSV Converter — Calendar Events to a Spreadsheet"
+description   = "Convert an .ics calendar file to CSV in your browser — one row per event with summary, start, end, location and description. Free, private, nothing uploaded."
+tags          = ["ics to csv", "ical to csv", "ics to spreadsheet", "calendar to csv", "convert ics", "ical to excel", "vevent to csv", "ics converter"]
+h1            = "ICS to CSV Converter"
+hero_subtitle = "Flatten the events in an iCalendar (.ics) file into a clean CSV table — one row per event with summary, start, end, location and description, plus status, categories and UID when present. Paste the file contents; everything runs in your browser and nothing is uploaded."
+wasm          = "gizza_ai_ics_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "ics"
+label       = ".ics file contents"
+placeholder = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Team Standup\nDTSTART:20240309T081530Z\nDTEND:20240309T083000Z\nLOCATION:Room 4\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+# delimiter / date_format render as <select>s and the three toggles as
+# checkboxes — the control type + option list come from the descriptor schema
+# (manifest.json), so labels here stay short and options are NOT duplicated.
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[input.labels]
+"comma"     = "comma  ,"
+"semicolon" = "semicolon  ;"
+"tab"       = "tab (TSV)"
+"pipe"      = "pipe  |"
+
+[[input]]
+name        = "header"
+label       = "Include header row"
+source      = "field"
+
+[[input]]
+name        = "date_format"
+label       = "Date column format"
+source      = "field"
+
+[input.labels]
+"iso"  = "ISO — 2024-03-09T08:15:30Z"
+"raw"  = "raw — keep 20240309T081530Z"
+"unix" = "Unix — epoch seconds"
+
+[[input]]
+name        = "include_location"
+label       = "Include location column"
+source      = "field"
+
+[[input]]
+name        = "include_description"
+label       = "Include description column"
+source      = "field"
+
+[[example]]
+label  = "Meeting with location"
+params = { ics = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nUID:evt-1@example.com\nSUMMARY:Team Standup\nDTSTART:20240309T081530Z\nDTEND:20240309T083000Z\nLOCATION:Room 4\nDESCRIPTION:Daily sync\nEND:VEVENT\nEND:VCALENDAR" }
+
+[[example]]
+label  = "All-day, dates only"
+params = { ics = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Independence Day\nDTSTART;VALUE=DATE:20240704\nDTEND;VALUE=DATE:20240705\nCATEGORIES:Holiday\nEND:VEVENT\nEND:VCALENDAR", include_location = "false", include_description = "false" }
