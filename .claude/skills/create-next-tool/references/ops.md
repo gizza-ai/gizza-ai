@@ -4,11 +4,10 @@
 with: `for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name block.wasm -exec rm -rf
 {} +; done` (keeps the committed `block.wasm` the CLI build embeds).
 
-**NEVER delete `blocks/<slug>/web/pkg`** during cleanup — the page generator copies each tool's
-`web/pkg/*` into `pkg/tools/<slug>/`, so deleting one tool's pkg makes the *next* generator run fail
-(`No such file or directory` copying that slug). The disk-cleanup loop above only touches `target/`,
-which is correct; do not additionally `rm -rf` any `web/pkg`. If a pkg does go missing, rebuild it with
-`wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` before re-running the generator.
+**`blocks/<slug>/web/pkg` is disposable and MUST NOT be committed.** Keep it during a tool-loop
+session because the page generator copies it into `pkg/tools/<slug>/` and rebuilding hundreds of
+browser packages is expensive. If cleanup removes one, rebuild it with `wasm-pack build
+blocks/<slug>/web --target web --release --out-dir pkg` before re-running the generator.
 
 **cwd gotcha:** `cargo build --target wasm32-wasip1 --release` (the block-wasm build; optional
 equivalent shorthand `wafer build` if you have the `wafer` CLI installed from a sibling `wafer-run`
@@ -42,11 +41,10 @@ pre-read remaining budget from disk; it must react to a limit error (back off / 
 - `tests/package-lock.json` is deliberately gitignored — use `npm install` in `tests/` (what CI
   does), NOT `npm ci` (which hard-requires a lockfile and fails).
 - `cargo install --path cli` embeds only the blocks whose `target/block.wasm` exists. A fresh
-  checkout has just the ~33 COMMITTED wasm fixtures, so the install produces (and globally
-  overwrites `~/.cargo/bin/gizza` with) a CLI missing most tools. Either run the baseline per-block
-  build loop first (`for dir in blocks/*/; do (cd "$dir" && cargo build --target wasm32-wasip1
-  --release && mkdir -p target && cp target/wasm32-wasip1/release/*.wasm target/block.wasm); done` —
-  see `docs/TOOLCHAIN-SETUP.md` step 7), or reinstall from the full checkout when done.
+  checkout has only the COMMITTED wasm fixtures, so the install produces (and globally overwrites
+  `~/.cargo/bin/gizza` with) a CLI missing legacy tools. Either run the baseline per-block build loop
+  first (`for dir in blocks/*/; do scripts/build-block-wasm.sh "$(basename "$dir")"; done` — see
+  `docs/TOOLCHAIN-SETUP.md` step 7), or reinstall from the full checkout when done.
 - The page generator prints a "web/pkg not found (skipping WASM copy)" warning per block whose
   wasm-pack output is missing — in a fresh checkout that's ~300 warnings. Harmless for the tool
   you're building (its own page still renders); noisy but expected without the baseline build.
@@ -77,14 +75,13 @@ no-page PDF URL/ref blocks show on this box). Treat this as not verifiable for n
 Document/File URL/ref tools until the wafer validation/runtime revs align; clean the scaffold and
 skiplist rather than committing a block that only passes one side of the gate.
 
-**Wafer rev drift RESOLVED at the root (2026-07-19).** The three 2026-07-18 notes above are
-superseded: the correct pin target is always `wafer-run-pin.txt` (repo root), never "the rev
-used by neighboring blocks". `scripts/scaffold-tool.sh` now pins a fresh block's lockfile to
-that pin automatically, and PR CI re-pins every changed block before building + fails if any
-committed `blocks/*/Cargo.lock` disagrees with the pin. If `wafer build` validation fails at
-the pin rev itself, that's a wafer-run bug to fix there (bump the pin via the procedure in
-the workspace memory), not something to route around with ad-hoc `--precise` revs. Block
-Cargo.locks stay gitignored/uncommitted; don't force-add them.
+**Wafer rev drift RESOLVED at the root (2026-07-19; artifact policy tightened 2026-07-24).**
+The correct pin target is always `wafer-run-pin.txt`, never a neighboring block's revision.
+`scripts/build-block-wasm.sh` refreshes that pin, builds with the complete lock, and writes the
+canonical artifact. New or changed blocks force-add both `Cargo.lock` and `target/block.wasm`;
+CI uses `--locked` and byte-compares the result. Legacy blocks remain ignored/unmigrated until
+next changed. If the pinned build itself fails, fix Wafer and bump the pin centrally rather than
+routing around it with an ad-hoc revision.
 
 **Shared CARGO_TARGET_DIR makes `cp target/wasm32-wasip1/release/*.wasm` a trap (2026-07-20):**
 on boxes where cargo uses a shared target dir (e.g. `~/.cache/gizza-cargo-target`, the disk-space

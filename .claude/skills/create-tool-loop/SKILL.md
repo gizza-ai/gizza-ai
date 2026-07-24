@@ -62,8 +62,8 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 > Build the next gizza backlog tool end-to-end. Working dir `<REPO>` (a gizza-ai checkout — the
 > public MIT toolkit: blocks + `gizza` CLI + the generic tool-page generator; no app, no branding, no
 > deploy — those live in a private site repo that consumes this one at a pin), branch `<BRANCH>`.
-> Use absolute paths; `source $HOME/.cargo/env` in every bash command; `cargo build --target
-> wasm32-wasip1 --release` runs from INSIDE blocks/<slug>/; cwd resets after /tmp commands.
+> Use absolute paths; `source $HOME/.cargo/env` in every bash command;
+> `scripts/build-block-wasm.sh <slug>` runs from the repo root; cwd resets after /tmp commands.
 >
 > CRITICAL — NO BACKGROUND JOBS / NO TASK LEAKS: Run every build in the FOREGROUND with a generous
 > timeout (the Bash tool supports timeout up to 600000 ms = 10 min; cargo test / cargo build --target
@@ -97,11 +97,10 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 >    control kinds (slider/color/tag-list/date/time, `[input.labels]`, `[[example]]` preset chips —
 >    see create-next-tool references/page-patterns.md) — the right control at build time, chips
 >    whenever competitors ship presets. Fill EVERY scaffold TODO.
-> 6. **Verify (all foreground):** `cargo test --workspace` (in blocks/<slug>/) → `cargo build
->    --target wasm32-wasip1 --release && mkdir -p target && cp target/wasm32-wasip1/release/*.wasm
->    target/block.wasm` (in blocks/<slug>/ — exactly what CI's "Build changed skill wasms" step
->    runs; `wafer build` is an optional equivalent shorthand if the `wafer` CLI happens to be
->    installed) → `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` →
+> 6. **Verify (all foreground):** `cargo test --workspace` (in blocks/<slug>/) → from the repo
+>    root `scripts/build-block-wasm.sh <slug>` (canonical committed `Cargo.lock` +
+>    `target/block.wasm`; the same locked, pinned-toolchain build CI byte-compares) →
+>    `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` →
 >    `cargo install --path cli` → `python3 scripts/sync-tool-manifest.py <slug>` (generates
 >    manifest.json tool.* from the live descriptor — never hand-edit those) → `cargo run
 >    --manifest-path tools/generator/Cargo.toml -- .` (renders the page GENERIC — no site config in
@@ -123,9 +122,14 @@ here or nowhere (a second copy WILL drift — it did once, re-introducing banned
 > 8. **Honesty gate:** can't build+verify in ≤3 fix attempts → `git clean -fd blocks/<slug>`,
 >    skiplist or report FAILED. NEVER commit broken.
 > 9. **Cleanup:** `for d in blocks/*/target; do find "$d" -mindepth 1 -maxdepth 1 ! -name
->    block.wasm -exec rm -rf {} + ; done`. NEVER delete any web/pkg.
-> 10. **Ship:** ONE commit for the tool + wasm artifacts + spec (a separate commit for the
->    competitor-analysis doc is fine); `git add -A && git commit && git push origin <BRANCH>`.
+>    block.wasm -exec rm -rf {} + ; done`. Keep `web/pkg` as a local generator cache during the
+>    loop, but never commit it.
+> 10. **Ship:** ONE commit for the tool + canonical CLI/MCP artifacts + spec (a separate commit
+>    for the competitor-analysis doc is fine). Stage narrowly: `git add -- blocks/<slug>
+>    docs/checks/<TODAY>-improve-<slug>-competitor-analysis.md
+>    ':(exclude)blocks/<slug>/web/pkg/**'`; if the page spec exists, add it separately; then
+>    `git add -f blocks/<slug>/Cargo.lock blocks/<slug>/target/block.wasm`. Fail if
+>    `git diff --cached --name-only` contains `/web/pkg/`. Commit and push to `<BRANCH>`.
 >    (This does not publish to gizza.ai — that's a separate pin-bump PR in the private site repo,
 >    out of scope here.)
 >
@@ -235,10 +239,11 @@ transcript FIRST, before any repo-activity heuristics. Frozen size+mtime across 
 in one evening (mid-Bash-call, no error notification — likely terminal API errors); the fix is
 just TaskStop → clean → redispatch, and the elapsed detection time already serves as the back-off.
 
-**Commit dispatcher SKILL.md edits BEFORE dispatching the next builder (2026-07-02).** Builders
-ship with `git add -A` at repo root — any uncommitted findings-log edit you've made gets silently
-swept into the next tool's commit. Self-update this file, then commit it immediately (own commit,
-`chore(skills): …`), then dispatch.
+**Commit dispatcher SKILL.md edits BEFORE dispatching the next builder (2026-07-02; staging
+risk fixed 2026-07-24).** Older builders used `git add -A` at repo root, which swept uncommitted
+findings into the next tool. The canonical prompt now stages only the selected block, its analysis,
+its optional spec, and force-adds the locked CLI artifact; it explicitly rejects `web/pkg/`.
+Dispatcher self-updates should still be committed before dispatch so branch state stays obvious.
 
 **Explicit-pick dispatches work; restate the one-liner rule when customizing (2026-07-03).** For
 curated variety (image/video/audio slots), replace BUILDER PROMPT steps 1–2 with the given

@@ -9,11 +9,13 @@ steps below; `scripts/bootstrap-toolchain.sh` automates most of them.
 ## wafer-run pin
 
 Each block crate, the `gizza` CLI, and `tools/generator` pull `wafer-sdk`/
-`wafer-block`/`wafer-run` straight from git (`branch = "main"`); `cli/` and
-`block-utils/` additionally commit their `Cargo.lock`, which pins that git dep
-to the SHA in `wafer-run-pin.txt` (CI's "Verify wafer-run pin consistency" step
-enforces the two agree). Bumping wafer-run = edit `wafer-run-pin.txt` + `cargo
-update` in `cli/` and `block-utils/`.
+`wafer-block`/`wafer-run` straight from git (`branch = "main"`). `cli/` and
+`block-utils/` commit their lockfiles, and every new or changed block now
+commits its own `Cargo.lock` alongside `target/block.wasm`. CI verifies that
+all tracked locks resolve Wafer at `wafer-run-pin.txt` and that changed block
+WASM byte-matches its locked canonical build. Bumping Wafer therefore requires
+updating the pin, the root lockfiles, and any block artifacts changed in the
+same PR.
 
 ## Steps
 
@@ -25,8 +27,11 @@ update` in `cli/` and `block-utils/`.
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
    . "$HOME/.cargo/env"
-   rustup target add wasm32-unknown-unknown wasm32-wasip1
+   rustup toolchain install 1.94.0 --profile minimal \
+     --component clippy --component rustfmt \
+     --target wasm32-unknown-unknown --target wasm32-wasip1
    ```
+   The repository's `rust-toolchain.toml` selects this exact version.
    Blocks compile to **wasm32-wasip1** (the native/CLI artifact,
    `target/block.wasm`); each block's `web/` crate (browser bindings) uses
    **wasm32-unknown-unknown** via `wasm-pack`.
@@ -36,10 +41,9 @@ update` in `cli/` and `block-utils/`.
    ```bash
    cargo install --path cli --locked   # → gizza
    ```
-5. **Optional: `wafer` CLI** — an alternative to `cargo build --target
-   wasm32-wasip1 --release` for building a block's wasm (auto-discovers
-   `blocks/*`). Not required; every block also builds with plain cargo, which
-   is what CI and `scripts/bootstrap-toolchain.sh` use.
+5. **Optional: `wafer` CLI** — useful for Wafer-specific inspection and
+   fixture commands. The committed CLI/MCP artifact must still be produced by
+   `scripts/build-block-wasm.sh`, which is the same canonical path CI checks.
    ```bash
    git clone https://github.com/wafer-run/wafer-run ../wafer-run
    cargo install --path ../wafer-run/crates/wafer-cli --locked   # → wafer
@@ -53,9 +57,7 @@ update` in `cli/` and `block-utils/`.
    # per block: native/CLI wasm
    for dir in blocks/*/; do
      block="$(basename "$dir")"
-     (cd "$dir" && cargo build --target wasm32-wasip1 --release)
-     mkdir -p "$dir/target"
-     cp "$dir/target/wasm32-wasip1/release"/*.wasm "$dir/target/block.wasm"
+     scripts/build-block-wasm.sh "$block"
    done
    # per block: browser wasm (needed before rendering tool pages)
    for dir in blocks/*/page; do

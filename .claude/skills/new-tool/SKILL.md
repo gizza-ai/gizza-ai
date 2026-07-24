@@ -77,11 +77,11 @@ the build/test/PR commands. Follow these steps in order:
      **Summaries:** write ONE clean one-line summary in the macro (no vestigial `"… skill"`
      suffix) — the sync script owns the other two copies. Fill every scaffold `TODO` (title,
      h1, hero, descriptions); the gate fails on any leftover `TODO`.
-7. **Build (in this order):** `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release`
-   then `mkdir -p target && cp target/wasm32-wasip1/release/*.wasm target/block.wasm` (exactly what
-   CI's "Build changed skill wasms" step runs; `wafer build` is an optional equivalent shorthand
-   only if you have the `wafer` CLI installed from a sibling `wafer-run` checkout — not required
-   here); `cargo test --workspace` (from `blocks/<slug>/`); `wasm-pack build blocks/<slug>/web
+7. **Build (in this order):** from the repo root run `scripts/build-block-wasm.sh <slug>` — this
+   refreshes the complete `Cargo.lock`, pins Wafer to `wafer-run-pin.txt`, locates the exact output
+   even with a shared Cargo target dir, and writes `target/block.wasm`; these are the canonical
+   CLI/MCP artifacts CI byte-compares. Then run `cargo test --workspace` (from `blocks/<slug>/`);
+   `wasm-pack build blocks/<slug>/web
    --target web --release --out-dir pkg` (from repo root); `cargo install --path cli --force`;
    `python3 scripts/sync-tool-manifest.py <slug>` (regenerates manifest `tool.*` + summaries from
    the live descriptor — required BEFORE the generator, which reads the manifest); `cargo run
@@ -119,7 +119,10 @@ the build/test/PR commands. Follow these steps in order:
    must fail gracefully at the fetch with args parsed (two shipped pages had un-runnable
    examples: a missing required param and a leaked prose placeholder). Fix gaps before
    committing.
-9. **Ship:** commit, `git push -u origin feat/tool-<slug>`, `gh pr create` with a body that
+9. **Ship:** stage source without browser build output, then force-stage the two intentionally
+   ignored canonical artifacts: `git add -- blocks/<slug> ':(exclude)blocks/<slug>/web/pkg/**'` and
+   `git add -f blocks/<slug>/Cargo.lock blocks/<slug>/target/block.wasm`. Confirm
+   `git diff --cached --name-only` contains no `web/pkg/`, commit, push, and create the PR with a body that
    states: the tool type, the derived assumptions, what was tested + results, and any
    limitation (e.g. "gpu: no page, no headless verification"; "ffmpeg: chat path is
    non-functional — runs only on the standalone page / CLI, see the SW-ffmpeg note"). Merging this

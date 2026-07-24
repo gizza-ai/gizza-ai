@@ -26,9 +26,9 @@ Follow these steps in order:
    --release`, only buildable from a sibling `wafer-run` checkout — not required here, and CI never
    uses it). If any required tool is missing, bootstrap once with `scripts/bootstrap-toolchain.sh`
    (details + gotchas in `docs/TOOLCHAIN-SETUP.md`); the very first run also needs a baseline pass
-   building every existing block's `target/block.wasm` (`cargo build --target wasm32-wasip1
-   --release` per block, copied in) + `web/pkg/` (`wasm-pack build blocks/<slug>/web --target web
-   --release --out-dir pkg` per block) — else the generator skips blocks missing `web/pkg/` and
+   building every existing block's `target/block.wasm` (`scripts/build-block-wasm.sh <slug>` per
+   block) + `web/pkg/` (`wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg`
+   per block) — else the generator skips blocks missing `web/pkg/` and
    `gizza list` is incomplete.
 
 1. **Pick the next tool.** From the gizza-ai repo root:
@@ -59,9 +59,9 @@ Follow these steps in order:
    after `cargo install --path cli`, run `python3 scripts/sync-tool-manifest.py <slug>` (see
    "Manifest sync + hygiene gate" below).
 
-   **Throughput note (verified):** the per-tool validation is `cd blocks/<slug> && cargo build
-   --target wasm32-wasip1 --release` (then copy the produced wasm to `target/block.wasm` — exactly
-   what CI's "Build changed skill wasms" step runs) + `cargo test --workspace` + `wasm-pack build
+   **Throughput note (verified):** the per-tool validation is
+   `scripts/build-block-wasm.sh <slug>` (canonical locked CLI/MCP artifact, from repo root) +
+   `cargo test --workspace` + `wasm-pack build
    blocks/<slug>/web --target web --release --out-dir pkg` + `cargo run --manifest-path
    tools/generator/Cargo.toml -- .` (renders the page, GENERIC — no site config here) + `gizza tool`
    (CLI) + Playwright. These are all minutes, and there is no whole-app build to amortize in this
@@ -79,11 +79,18 @@ Follow these steps in order:
    + branch" step and **Phase 6** (PR). Its rules carry over: **NEVER copy competitor
    copy/branding/trademarks**; list out-of-model features, don't build them.
 
-4. **Commit + push** on the CURRENT branch (no PR). Two commits keep history clear:
+4. **Commit + push** on the CURRENT branch (no PR). Browser `web/pkg/` is disposable and must
+   never be committed; the locked CLI/MCP artifact must be. Two commits keep history clear:
    ```bash
-   git add blocks/<slug> tests/
+   git add -- blocks/<slug> tests/ ':(exclude)blocks/<slug>/web/pkg/**'
+   git add -f blocks/<slug>/Cargo.lock blocks/<slug>/target/block.wasm
    git commit -m "feat(<slug>): new tool"
-   git add blocks/<slug> tests/ docs/checks/
+   git add -- blocks/<slug> tests/ docs/checks/ ':(exclude)blocks/<slug>/web/pkg/**'
+   git add -f blocks/<slug>/Cargo.lock blocks/<slug>/target/block.wasm
+   if git diff --cached --name-only | grep -q '/web/pkg/'; then
+     echo 'web/pkg must not be committed' >&2
+     exit 1
+   fi
    git commit -m "feat(<slug>): competitor improvements + analysis"
    git push
    ```
@@ -140,7 +147,7 @@ gate repo-wide.
 - `references/page-patterns.md` — how params render on the page (select/checkbox/textarea),
   boolean checkbox defaults, drift-guard `N.0` gotcha, clocks across surfaces, recurring tool
   shapes, page output formats (incl. audio), what's un-buildable (audio-input, multi-input ffmpeg).
-- `references/ops.md` — disk cleanup, the never-delete-web/pkg rule, cwd resets, SSRF-guarded CLI
+- `references/ops.md` — disk cleanup, the local web/pkg cache policy, cwd resets, SSRF-guarded CLI
   fetch + public test URLs, hardware/concurrency reality, usage limits.
 
 When you resolve a NOVEL build-level finding (a new wasm-safe crate, a page pattern, an ops

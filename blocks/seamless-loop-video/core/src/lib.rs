@@ -1,185 +1,248 @@
 //! gizza-ai/seamless-loop-video core — pure ffmpeg argv construction shared by
-//! the chat skill block and the standalone web page. No wafer/wasm-bindgen deps.
+//! the chat block and standalone page.
 //!
-//! Makes a clip loop seamlessly by crossfading (alpha-overlaying) its tail back
-//! into its head. The output is ONE clip `crossfade` seconds SHORTER whose first
-//! frame equals the source frame at `D - crossfade`, so repeating it reads as
-//! continuous motion — the loop join becomes invisible.
-//!
-//! The filtergraph is a straight alpha crossfade via `overlay` (not `xfade`,
-//! which needs a constant frame rate the trim/setpts branches don't satisfy):
+//! A plain repeated clip still jumps from its last frame back to its first.
+//! This planner rotates the clip at its midpoint, then cross-dissolves the
+//! original end into the original beginning in the middle of the output:
 //!
 //! ```text
-//! [0:v]split[s1][s2];
-//! [s1]reverse,trim=start=X,setpts=PTS-STARTPTS,reverse[base];   # source[0, D-X]
-//! [s2]reverse,trim=end=X,setpts=PTS-STARTPTS,reverse,           # tail source[D-X, D]
-//!     format=yuva420p,fade=t=out:st=0:d=X:alpha=1[tail];        # tail fades out over first X
-//! [base][tail]overlay=eof_action=pass[v]                        # first X = crossfade tail->head
+//! input:   [ beginning ........ midpoint ........ end ]
+//! output:  [ midpoint .... end ] xfade [ beginning .... midpoint ]
 //! ```
 //!
-//! Probe-free by design: the graph never learns the clip duration `D`. The
-//! `reverse` + front/back `trim` locate the clip END (drop the last / first
-//! `crossfade` seconds) without needing `D`, so it behaves identically on the
-//! page (@ffmpeg/core) and the CLI. Cost: the clip is buffered to reverse it, so
-//! this suits SHORT clips — very long / high-resolution inputs can exhaust
-//! browser memory. Output is silent (there is no audio crossfade — see the
-//! competitor analysis).
+//! The output's outer boundary is therefore two adjacent frames from the
+//! source midpoint, while the discontinuous end→beginning boundary is hidden
+//! inside the clip by the dissolve. The result stays approximately the source
+//! duration and can repeat indefinitely without a hard cut.
 
-/// Default crossfade (overlap) length in seconds — a subtle, standard blend.
-pub const DEFAULT_CROSSFADE: f64 = 0.5;
-/// Minimum crossfade the page slider offers; below it the join is a hard cut.
-pub const MIN_CROSSFADE: f64 = 0.1;
-/// Maximum crossfade — long overlaps eat most of a short clip and stress browser
-/// memory, so the tool caps here.
-pub const MAX_CROSSFADE: f64 = 5.0;
+pub const MIN_DURATION: f64 = 0.5;
+pub const MAX_DURATION: f64 = 600.0;
+pub const MIN_CROSSFADE: f64 = 0.05;
+pub const MAX_CROSSFADE: f64 = 10.0;
 
-/// Default encode quality (≈ CRF 23 — a good size/quality balance).
-pub const DEFAULT_QUALITY: u8 = 75;
-/// Lowest CRF the quality knob maps to (`quality = 100`) — "visually lossless"
-/// for libx264; deliberately not 0 (true-lossless blows past output caps).
-pub const MIN_CRF: f32 = 18.0;
-/// Highest CRF the quality knob maps to (`quality = 1`) — small, low quality.
-pub const MAX_CRF: f32 = 40.0;
-
-/// Map web-conventional quality 1-100 (high → better) to a practical libx264 CRF
-/// (low → better): `100` → CRF 18, `1` → CRF 40, default 75 ≈ CRF 23.
-pub fn quality_to_crf(q: u8) -> u8 {
-    let q = q.clamp(1, 100) as f32;
-    let crf = MAX_CRF - (q - 1.0) * (MAX_CRF - MIN_CRF) / 99.0;
-    crf.round().clamp(MIN_CRF, MAX_CRF) as u8
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AudioMode {
+    Remove,
+    Crossfade,
 }
 
-/// The seamless-loop crossfade filtergraph (see the module docs). `x` is the
-/// crossfade length in seconds: `base` = source[0, D-x], `tail` = source[D-x, D]
-/// alpha-faded out over its own length and overlaid onto base's first `x`
-/// seconds. Output length = D - x; output frame 0 == source frame at D-x.
-pub fn filter_complex(x: f64) -> String {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Quality {
+    High,
+    Balanced,
+    Small,
+}
+
+impl Quality {
+    fn crf(self) -> &'static str {
+        match self {
+            Self::High => "18",
+            Self::Balanced => "23",
+            Self::Small => "28",
+        }
+    }
+}
+
+pub fn parse_audio_mode(value: &str) -> Result<AudioMode, String> {
+    match value.trim().to_ascii_lowercase().as_str() {
+        "" | "remove" => Ok(AudioMode::Remove),
+        "crossfade" => Ok(AudioMode::Crossfade),
+        other => Err(format!(
+            "audio {other:?} not supported; expected remove or crossfade"
+        )),
+    }
+}
+
+pub fn parse_quality(value: &str) -> Result<Quality, String> {
+    match value.trim().to_ascii_lowercase().as_str() {
+        "high" => Ok(Quality::High),
+        "" | "balanced" => Ok(Quality::Balanced),
+        "small" => Ok(Quality::Small),
+        other => Err(format!(
+            "quality {other:?} not supported; expected high, balanced, or small"
+        )),
+    }
+}
+
+/// Compact, locale-independent ffmpeg number formatting.
+pub fn fmt_num(value: f64) -> String {
+    if value.fract() == 0.0 && value.is_finite() {
+        return format!("{}", value as i64);
+    }
+    let text = format!("{value:.6}");
+    text.trim_end_matches('0').trim_end_matches('.').to_string()
+}
+
+fn video_filter(duration: f64, crossfade: f64) -> String {
+    let midpoint = duration / 2.0;
+    let head_end = midpoint + crossfade;
+    let fade_offset = midpoint - crossfade;
     format!(
-        "[0:v]split[s1][s2];\
-         [s1]reverse,trim=start={x},setpts=PTS-STARTPTS,reverse[base];\
-         [s2]reverse,trim=end={x},setpts=PTS-STARTPTS,reverse,format=yuva420p,fade=t=out:st=0:d={x}:alpha=1[tail];\
-         [base][tail]overlay=eof_action=pass[v]"
+        "[0:v]split=2[tail_src][head_src];\
+         [tail_src]trim=start={}:end={},setpts=PTS-STARTPTS[tail];\
+         [head_src]trim=start=0:end={},setpts=PTS-STARTPTS[head];\
+         [tail][head]xfade=transition=fade:duration={}:offset={},format=yuv420p[v]",
+        fmt_num(midpoint),
+        fmt_num(duration),
+        fmt_num(head_end),
+        fmt_num(crossfade),
+        fmt_num(fade_offset),
     )
 }
 
-/// Build the ffmpeg argv (no leading `ffmpeg`): apply the crossfade filtergraph,
-/// map only the composed video (`-an`, the output is silent), and re-encode to
-/// universally-playable H.264 / yuv420p MP4 with `+faststart`.
-pub fn build_argv(in_name: &str, out_name: &str, crossfade: f64, crf: u8) -> Vec<String> {
-    vec![
+fn audio_filter(duration: f64, crossfade: f64) -> String {
+    let midpoint = duration / 2.0;
+    let head_end = midpoint + crossfade;
+    format!(
+        "[0:a]asplit=2[atail_src][ahead_src];\
+         [atail_src]atrim=start={}:end={},asetpts=PTS-STARTPTS[atail];\
+         [ahead_src]atrim=start=0:end={},asetpts=PTS-STARTPTS[ahead];\
+         [atail][ahead]acrossfade=d={}:c1=tri:c2=tri[a]",
+        fmt_num(midpoint),
+        fmt_num(duration),
+        fmt_num(head_end),
+        fmt_num(crossfade),
+    )
+}
+
+fn validate(duration: f64, crossfade: f64) -> Result<(), String> {
+    if !duration.is_finite() || !(MIN_DURATION..=MAX_DURATION).contains(&duration) {
+        return Err(format!(
+            "duration must be a finite source-clip length between {MIN_DURATION} and {MAX_DURATION} seconds, got {duration}"
+        ));
+    }
+    if !crossfade.is_finite() || !(MIN_CROSSFADE..=MAX_CROSSFADE).contains(&crossfade) {
+        return Err(format!(
+            "crossfade must be between {MIN_CROSSFADE} and {MAX_CROSSFADE} seconds, got {crossfade}"
+        ));
+    }
+    if crossfade >= duration / 2.0 {
+        return Err(format!(
+            "crossfade must be shorter than half the clip duration ({:.3} seconds for this clip), got {crossfade}",
+            duration / 2.0
+        ));
+    }
+    Ok(())
+}
+
+/// Build one foreground ffmpeg invocation. Output is always H.264/AAC MP4 for
+/// consistent decoding across the page and CLI.
+pub fn plan(
+    in_name: &str,
+    duration: f64,
+    crossfade: f64,
+    audio: &str,
+    quality: &str,
+) -> Result<(Vec<String>, String), String> {
+    validate(duration, crossfade)?;
+    let audio = parse_audio_mode(audio)?;
+    let quality = parse_quality(quality)?;
+
+    let mut filter = video_filter(duration, crossfade);
+    if audio == AudioMode::Crossfade {
+        filter.push(';');
+        filter.push_str(&audio_filter(duration, crossfade));
+    }
+
+    let out_name = "out.mp4".to_string();
+    let mut argv = vec![
         "-i".into(),
         in_name.into(),
         "-filter_complex".into(),
-        filter_complex(crossfade),
+        filter,
         "-map".into(),
         "[v]".into(),
-        "-an".into(),
+    ];
+    match audio {
+        AudioMode::Remove => argv.push("-an".into()),
+        AudioMode::Crossfade => {
+            argv.extend(["-map".into(), "[a]".into(), "-c:a".into(), "aac".into()]);
+        }
+    }
+    argv.extend([
         "-c:v".into(),
         "libx264".into(),
-        "-pix_fmt".into(),
-        "yuv420p".into(),
-        "-crf".into(),
-        crf.to_string(),
         "-preset".into(),
         "medium".into(),
+        "-crf".into(),
+        quality.crf().into(),
         "-movflags".into(),
         "+faststart".into(),
-        out_name.into(),
-    ]
-}
-
-/// Validate `crossfade` (finite, > 0, ≤ [`MAX_CROSSFADE`]) and `quality` (1-100),
-/// then build `(argv, out_name)` for an input file. The output is ALWAYS
-/// re-encoded H.264 MP4, so `out_name` is always `out.mp4`. Single source shared
-/// by the chat block (`src/lib.rs`) and the web page (`web/src/lib.rs`).
-pub fn plan(crossfade: f64, quality: u8, in_name: &str) -> Result<(Vec<String>, String), String> {
-    if !crossfade.is_finite() || crossfade <= 0.0 {
-        return Err(format!(
-            "crossfade must be > 0 and finite, got {crossfade}"
-        ));
-    }
-    if crossfade > MAX_CROSSFADE {
-        return Err(format!(
-            "crossfade must be <= {MAX_CROSSFADE}s (long overlaps consume most of a short clip), got {crossfade}"
-        ));
-    }
-    if !(1..=100).contains(&quality) {
-        return Err(format!("quality must be 1-100, got {quality}"));
-    }
-    let crf = quality_to_crf(quality);
-    let out_name = "out.mp4".to_string();
-    Ok((build_argv(in_name, &out_name, crossfade, crf), out_name))
+        out_name.clone(),
+    ]);
+    Ok((argv, out_name))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    fn filter(argv: &[String]) -> &str {
+        let index = argv
+            .iter()
+            .position(|arg| arg == "-filter_complex")
+            .unwrap();
+        &argv[index + 1]
+    }
+
     #[test]
-    fn plan_builds_crossfade_graph_and_reencodes_to_mp4() {
-        let (argv, out) = plan(DEFAULT_CROSSFADE, DEFAULT_QUALITY, "in.webm").unwrap();
+    fn rotates_at_midpoint_and_crossfades_original_seam() {
+        let (argv, out) = plan("in.mp4", 8.0, 1.0, "remove", "balanced").unwrap();
         assert_eq!(out, "out.mp4");
-        assert_eq!(argv.first().map(String::as_str), Some("-i"));
-        assert_eq!(argv.last().map(String::as_str), Some("out.mp4"));
-        // Silent, H.264/yuv420p/faststart re-encode invariants.
-        assert!(argv.iter().any(|a| a == "-an"));
-        assert!(argv.windows(2).any(|w| w[0] == "-c:v" && w[1] == "libx264"));
-        assert!(argv.windows(2).any(|w| w[0] == "-pix_fmt" && w[1] == "yuv420p"));
-        assert!(argv.windows(2).any(|w| w[0] == "-map" && w[1] == "[v]"));
-        assert!(argv.windows(2).any(|w| w[0] == "-movflags" && w[1] == "+faststart"));
+        assert_eq!(
+            filter(&argv),
+            "[0:v]split=2[tail_src][head_src];[tail_src]trim=start=4:end=8,setpts=PTS-STARTPTS[tail];[head_src]trim=start=0:end=5,setpts=PTS-STARTPTS[head];[tail][head]xfade=transition=fade:duration=1:offset=3,format=yuv420p[v]"
+        );
+        assert!(argv.iter().any(|arg| arg == "-an"));
+        assert!(argv.windows(2).any(|w| w == ["-crf", "23"]));
     }
 
     #[test]
-    fn filtergraph_has_the_expected_stages() {
-        let g = filter_complex(0.5);
-        assert!(g.contains("[0:v]split[s1][s2]"));
-        assert!(g.contains("reverse,trim=start=0.5"));
-        assert!(g.contains("reverse,trim=end=0.5"));
-        assert!(g.contains("format=yuva420p"));
-        assert!(g.contains("fade=t=out:st=0:d=0.5:alpha=1[tail]"));
-        assert!(g.contains("[base][tail]overlay=eof_action=pass[v]"));
+    fn crossfades_audio_when_requested() {
+        let (argv, _) = plan("in.mov", 6.0, 0.5, "crossfade", "high").unwrap();
+        let graph = filter(&argv);
+        assert!(graph.contains("[0:a]asplit=2"));
+        assert!(graph.contains("acrossfade=d=0.5:c1=tri:c2=tri[a]"));
+        assert!(argv.windows(2).any(|w| w == ["-map", "[a]"]));
+        assert!(argv.windows(2).any(|w| w == ["-c:a", "aac"]));
+        assert!(argv.windows(2).any(|w| w == ["-crf", "18"]));
     }
 
     #[test]
-    fn crossfade_value_flows_into_every_branch() {
-        // A single crossfade value drives both trims and the fade — a mismatch
-        // would make output frame 0 not equal the loop point.
-        let g = filter_complex(1.25);
-        assert_eq!(g.matches("1.25").count(), 3);
+    fn accepts_secondary_container_and_small_quality() {
+        let (argv, out) = plan("clip.webm", 2.0, 0.25, "remove", "small").unwrap();
+        assert_eq!(out, "out.mp4");
+        assert_eq!(argv[1], "clip.webm");
+        assert!(argv.windows(2).any(|w| w == ["-crf", "28"]));
     }
 
     #[test]
-    fn quality_to_crf_endpoints_and_default() {
-        assert_eq!(quality_to_crf(100), 18);
-        assert_eq!(quality_to_crf(1), 40);
-        let crf = quality_to_crf(DEFAULT_QUALITY);
-        assert!((22..=24).contains(&crf), "expected CRF 22-24, got {crf}");
+    fn exact_duration_and_fade_caps_are_accepted() {
+        assert!(plan("in.mp4", MAX_DURATION, MAX_CROSSFADE, "remove", "high").is_ok());
+        assert!(plan("in.mp4", 1.0, MIN_CROSSFADE, "remove", "small").is_ok());
     }
 
     #[test]
-    fn plan_maps_quality_into_crf_arg() {
-        let (argv, _) = plan(0.5, 100, "in.mp4").unwrap();
-        let i = argv.iter().position(|a| a == "-crf").unwrap();
-        assert_eq!(argv[i + 1], "18");
+    fn rejects_invalid_ranges_with_actionable_errors() {
+        assert!(plan("in.mp4", 0.4, 0.1, "remove", "balanced")
+            .unwrap_err()
+            .contains("duration"));
+        assert!(plan("in.mp4", 2.0, 1.0, "remove", "balanced")
+            .unwrap_err()
+            .contains("shorter than half"));
+        assert!(plan("in.mp4", 2.0, 0.01, "remove", "balanced")
+            .unwrap_err()
+            .contains("crossfade"));
+        assert!(plan("in.mp4", f64::NAN, 0.1, "remove", "balanced").is_err());
     }
 
     #[test]
-    fn plan_rejects_nonpositive_or_nonfinite_crossfade() {
-        assert!(plan(0.0, 75, "in.mp4").is_err());
-        assert!(plan(-1.0, 75, "in.mp4").is_err());
-        assert!(plan(f64::NAN, 75, "in.mp4").is_err());
-        assert!(plan(f64::INFINITY, 75, "in.mp4").is_err());
-    }
-
-    #[test]
-    fn plan_rejects_crossfade_over_cap() {
-        assert!(plan(MAX_CROSSFADE + 0.01, 75, "in.mp4").is_err());
-        assert!(plan(MAX_CROSSFADE, 75, "in.mp4").is_ok());
-    }
-
-    #[test]
-    fn plan_rejects_out_of_range_quality() {
-        assert!(plan(0.5, 0, "in.mp4").is_err());
-        assert!(plan(0.5, 101, "in.mp4").is_err());
+    fn rejects_unknown_fixed_choices() {
+        assert!(plan("in.mp4", 2.0, 0.2, "copy", "balanced")
+            .unwrap_err()
+            .contains("remove or crossfade"));
+        assert!(plan("in.mp4", 2.0, 0.2, "remove", "lossless")
+            .unwrap_err()
+            .contains("high, balanced, or small"));
     }
 }
