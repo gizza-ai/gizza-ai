@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-average-color"
+version = "0.1.0"
+abi = 1
+summary = "Compute the single mean color of an image (with a gamma-correct variant)"
