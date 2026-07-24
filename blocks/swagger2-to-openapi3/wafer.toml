@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "swagger2-to-openapi3"
+version = "0.1.0"
+abi = 1
+summary = "Upgrade a Swagger 2.0 spec to OpenAPI 3.0."
