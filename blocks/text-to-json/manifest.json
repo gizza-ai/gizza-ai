@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/text-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse pasted INI, key=value, logfmt, CSV, or passwd-style text into JSON, with format auto-detection.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse pasted structured text into JSON. Auto-detects (or you pin via 'format') one of: INI/.conf ('[section]' → nested object), key=value config / .env / .properties (flat object), logfmt ('k=v k2=\"a b\"' → array of objects, one per line, with quoted values and bare boolean keys), CSV/TSV (header row → array of objects; the , ; tab | delimiter is auto-sniffed, RFC-4180 quotes honored), or /etc/passwd-style colon lines (→ array with named fields name/password/uid/gid/gecos/home/shell, or 4-field group). detect_types (default true) coerces booleans/numbers and empty→null; set false to keep strings. pretty (default true) toggles indentation. output='json' (default), 'ndjson' (JSON-Lines), or 'report' (adds detected_format + record_count). Runs entirely in the sandbox — nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "detect_types": {
+          "default": true,
+          "description": "When true (default), coerce unquoted values to JSON types: 'true'/'false' → boolean, integers and decimals → number, an empty value → null. Quoted values always stay strings. Set false to keep every value a lossless string (e.g. to preserve leading zeros like '007').",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Input format. 'auto' (default) detects it and, with output='report', tells you which was chosen; pin one of 'ini', 'keyvalue', 'logfmt', 'csv', or 'passwd' to override the guess (e.g. force single-column CSV or a colon file that isn't 7-field passwd).",
+          "enum": [
+            "auto",
+            "ini",
+            "keyvalue",
+            "logfmt",
+            "csv",
+            "passwd"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output shape. 'json' (default) is the parsed value (a nested object for INI/keyvalue, an array of objects for logfmt/CSV/passwd); 'ndjson' emits one compact JSON record per line (JSON-Lines); 'report' wraps the data in '{ detected_format, record_count, data }' so you can see what auto-detect chose.",
+          "enum": [
+            "json",
+            "ndjson",
+            "report"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "When true (default), pretty-print the JSON with 2-space indentation; false minifies to one line. Ignored for output='ndjson' (each record is always compact on its own line).",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The structured text to parse. Supported shapes: INI/.conf ('[section]' headers + 'key = value'), key=value config / .env / .properties (one pair per line), logfmt ('level=info msg=\"hi\" code=200' — many pairs per line, one record per line), CSV/TSV (a header row then rows; delimiter auto-sniffed from , ; tab |), and /etc/passwd-style colon-delimited lines. Lines starting with '#' or ';' are comments.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

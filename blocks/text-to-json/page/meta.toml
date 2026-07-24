@@ -1,0 +1,68 @@
+slug          = "text-to-json"
+title         = "Text to JSON — Convert INI, key=value, logfmt, CSV & passwd to JSON"
+description   = "Paste INI, key=value / .env, logfmt, CSV, or /etc/passwd-style text and get clean JSON. Auto-detects the format, infers types, and runs entirely in your browser."
+tags          = ["text to json", "ini to json", "env to json", "key value to json", "logfmt to json", "csv to json", "passwd parser", "config to json", "properties to json", "logfmt parser", "structured text parser", "json converter"]
+h1            = "Text to JSON"
+hero_subtitle = "Paste INI/conf, key=value (.env / .properties), logfmt, CSV/TSV, or /etc/passwd-style text and get clean, structured JSON. The format is auto-detected (switch the Report output to see which was chosen), types are inferred, and everything runs locally in your browser — nothing is uploaded."
+wasm          = "gizza_ai_text_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Text to parse"
+placeholder = "level=info msg=\"server started\" port=8080\nlevel=error msg=\"connection refused\" code=502"
+source      = "field"
+multiline   = true
+
+# format / output render as <select> — the option lists come from the descriptor
+# schema (manifest.json); `labels` only enriches the visible text (values stay
+# canonical for deep-links / CLI).
+[[input]]
+name        = "format"
+label       = "Input format"
+source      = "field"
+labels      = { auto = "Auto-detect", ini = "INI / conf", keyvalue = "key=value / .env", logfmt = "logfmt", csv = "CSV / TSV", passwd = "/etc/passwd" }
+
+[[input]]
+name        = "detect_types"
+label       = "Detect booleans & numbers"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print (2-space indent)"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output as"
+source      = "field"
+labels      = { json = "JSON", ndjson = "NDJSON (one record per line)", report = "Report (+ detected format)" }
+
+[[example]]
+label  = "logfmt logs → JSON"
+params = { text = "level=info msg=\"server started\" port=8080\nlevel=error msg=\"connection refused\" code=502" }
+
+[[example]]
+label  = ".env / key=value → JSON"
+params = { text = "# app config\nexport HOST=localhost\nPORT=8080\nDEBUG=true", format = "keyvalue" }
+
+[[example]]
+label  = "INI config → nested JSON"
+params = { text = "app = demo\n\n[server]\nhost = localhost\nport = 8080\n\n[db]\nname = main", format = "ini" }
+
+[[example]]
+label  = "CSV → array of objects"
+params = { text = "name,age,admin\nAlice,30,true\nBob,25,false", format = "csv" }
+
+[[example]]
+label  = "/etc/passwd → named fields"
+params = { text = "root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin", format = "passwd" }
+
+[[example]]
+label  = "Auto-detect report"
+params = { text = "host=a env=prod\nhost=b env=dev", output = "report" }
