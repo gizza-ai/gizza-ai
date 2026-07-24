@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/yaml-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten a YAML list (or mapping) of records into a CSV with a unioned header.",
+  "role": "skill",
+  "tool": {
+    "description": "Flatten a YAML list of records (or a top-level mapping whose values are records) into CSV. Columns are the union of every record's keys in first-seen order; nested mappings flatten to dot-paths (user.name); arrays render per array_mode ('json' compact string, 'joined' comma-joined, or 'columns' dot-indexed). delimiter is comma/tab/semicolon/pipe; header toggles the header row; quote_all forces quoting; key_column names the extra column that keeps a mapping entry's key. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The YAML text: a top-level list of records, or a mapping whose values are records (or all scalars = one record)." },
+        "delimiter": { "type": "string", "enum": ["comma", "tab", "semicolon", "pipe"], "default": "comma", "description": "Column separator for the CSV output. Default 'comma'." },
+        "header": { "type": "boolean", "default": true, "description": "Emit the column-name header row (default true). false writes data rows only." },
+        "array_mode": { "type": "string", "enum": ["json", "joined", "columns"], "default": "json", "description": "How array fields render: 'json' (default) writes the whole array as a compact JSON string in one cell; 'joined' joins scalar arrays with ', ' in one cell; 'columns' expands each element into its own dot-indexed column (tags.0, tags.1)." },
+        "quote_all": { "type": "boolean", "default": false, "description": "Wrap every field in double quotes, not just the ones that need it (commas, quotes, newlines). Default false." },
+        "key_column": { "type": "string", "default": "key", "description": "For a top-level mapping of records, the header of the extra column holding each entry's key (e.g. 'id'). Blank omits it. Ignored for a top-level list. Default 'key'." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

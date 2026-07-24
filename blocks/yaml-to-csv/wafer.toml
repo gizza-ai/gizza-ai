@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "yaml-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Flatten a YAML list (or mapping) of records into a CSV with a unioned header."
