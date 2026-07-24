@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/sbom-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Diff two dependency lockfiles or SBOMs and list added, removed, and version-bumped packages.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two resolved dependency lockfiles or SBOMs and report which dependencies were added, removed, or version-bumped between them. Pass old (the before file) and new (the after file) as file contents: an npm package-lock.json (v1 or v2/v3), a Cargo.lock, a pip requirements.txt, or an existing CycloneDX/SPDX SBOM (cyclonedx-json, spdx-json, spdx-tag). Each side's format is auto-detected unless old_format / new_format (auto/npm/cargo/pip/cyclonedx-json/spdx-json/spdx-tag) is set, and the two sides may use different formats. The diff is a pure set comparison of the resolved dependency inventories — no resolver and no network — so output is deterministic; version bumps are classified as upgraded, downgraded, or changed. output selects the report: text (grouped human report, default), markdown (a PR/CI table), or json (a summary plus added/removed/changed lists). include_dev keeps npm dev/optional deps on both sides. Returns the diff report as text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_dev": {
+          "default": true,
+          "description": "Include npm dev/optional dependencies on both sides (npm lockfile input only — cargo/pip and SBOM inputs do not distinguish them here). Default true.",
+          "type": "boolean"
+        },
+        "new": {
+          "description": "The NEW (after) file contents to compare with the old side. Same accepted inputs as old; the two sides may even use different formats. The format is auto-detected unless new_format is set.",
+          "type": "string"
+        },
+        "new_format": {
+          "default": "auto",
+          "description": "Format of the new side: auto (detect from the content), npm, cargo, pip, cyclonedx-json, spdx-json, or spdx-tag. Default auto.",
+          "enum": [
+            "auto",
+            "npm",
+            "cargo",
+            "pip",
+            "cyclonedx-json",
+            "spdx-json",
+            "spdx-tag"
+          ],
+          "type": "string"
+        },
+        "old": {
+          "description": "The OLD (before) file contents to diff against. Paste a resolved dependency lockfile — an npm package-lock.json (v1 or v2/v3), a Cargo.lock, or a pip requirements.txt — or an existing CycloneDX/SPDX SBOM. The format is auto-detected unless old_format is set.",
+          "type": "string"
+        },
+        "old_format": {
+          "default": "auto",
+          "description": "Format of the old side: auto (detect from the content), npm (package-lock.json), cargo (Cargo.lock), pip (requirements.txt), cyclonedx-json (CycloneDX JSON SBOM), spdx-json (SPDX JSON SBOM), or spdx-tag (SPDX tag-value SBOM). Default auto.",
+          "enum": [
+            "auto",
+            "npm",
+            "cargo",
+            "pip",
+            "cyclonedx-json",
+            "spdx-json",
+            "spdx-tag"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Report format: text (grouped human-readable report, default), markdown (a PR/CI-friendly table), or json (a machine-readable change report with a summary and added/removed/changed lists).",
+          "enum": [
+            "text",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "old",
+        "new"
+      ],
+      "type": "object"
+    }
+  }
+}
