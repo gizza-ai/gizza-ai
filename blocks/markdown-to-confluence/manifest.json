@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/markdown-to-confluence",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Markdown into Confluence storage format or wiki markup.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Markdown document into Confluence markup. Choose format='storage' (default) for the XHTML-based storage format the Cloud REST API consumes — with <ac:structured-macro> code blocks (language tag preserved) and info/note/warning/tip panels — or format='wiki' for legacy Data Center / Server wiki markup. Supports headings h1-h6 (demote every heading with heading_offset 0-5, capped at h6), bold/italic/strikethrough/inline code, links and images, ordered/unordered and nested lists, fenced code with a language tag, GitHub pipe tables, thematic breaks, and blockquotes. When panel_blockquotes=true (default), a blockquote whose first line starts 'Note:'/'Warning:'/'Info:'/'Tip:' becomes the matching Confluence panel macro. Output is escaped so prose is safe by construction.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "storage",
+          "description": "Output dialect. 'storage' (default) emits Confluence storage format — the XHTML-based markup the Cloud REST API consumes, with <ac:…> structured macros for code blocks and info/note/warning/tip panels. 'wiki' emits legacy wiki markup for the Data Center / Server 'Insert markup' dialog.",
+          "enum": [
+            "storage",
+            "wiki"
+          ],
+          "type": "string"
+        },
+        "heading_offset": {
+          "default": 0,
+          "description": "Demote every heading by this many levels, 0-5. For example 1 turns a Markdown '#' from h1 into h2 — useful when pasting under an existing page title. Levels are capped at h6. Default 0.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The Markdown document to convert to Confluence markup.",
+          "type": "string"
+        },
+        "panel_blockquotes": {
+          "default": true,
+          "description": "When true (default), a blockquote whose first line starts 'Note:', 'Warning:', 'Info:' or 'Tip:' (case-insensitive) is converted to the matching Confluence panel macro and the prefix is stripped. When false, every blockquote stays a literal quote.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

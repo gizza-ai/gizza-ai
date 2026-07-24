@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-to-confluence"
+version = "0.1.0"
+abi = 1
+summary = "Convert Markdown into Confluence storage format or wiki markup."
