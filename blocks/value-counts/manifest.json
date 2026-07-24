@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/value-counts",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Count distinct values in a column with percentages",
+  "role": "skill",
+  "tool": {
+    "description": "Count the distinct values in one chosen column of a CSV/table, with each value's count and its percentage of the total, ranked most-frequent-first (the pandas value_counts idiom). `column` is a header name or 1-based index. `sort` is 'count' (default, most frequent first) or 'value' (ascending). `case_sensitive` (default true) controls whether values differing only in case are grouped; `include_empty` (default false) counts blank cells as '(empty)'. Returns a value,count,percent CSV table. Requires a header row. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": true,
+          "description": "When true (default), 'Apple' and 'apple' count separately; false groups them (first-seen spelling shown).",
+          "type": "boolean"
+        },
+        "column": {
+          "description": "Which column to count: a header name or a 1-based index (e.g. 'status' or '2').",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV/table text — the first row must be a header.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "include_empty": {
+          "default": false,
+          "description": "When true, blank cells are counted as an '(empty)' value (like pandas dropna=False); default false skips them.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "count",
+          "description": "Row order: 'count' (default) ranks most-frequent-first; 'value' sorts by the value ascending.",
+          "enum": [
+            "count",
+            "value"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "column"
+      ],
+      "type": "object"
+    }
+  }
+}

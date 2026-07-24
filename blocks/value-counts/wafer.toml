@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "value-counts"
+version = "0.1.0"
+abi = 1
+summary = "Count distinct values in a column with percentages"
