@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "seamless-loop-video"
+version = "0.1.0"
+abi = 1
+summary = "Make a video loop seamlessly with an end-to-start crossfade"

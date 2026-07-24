@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/seamless-loop-video",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Make a video loop seamlessly with an end-to-start crossfade",
+  "role": "skill",
+  "tool": {
+    "description": "Make one video cycle repeat seamlessly: rotate the clip at its midpoint, cross-dissolve the original end into the original beginning, and return an H.264 MP4 whose outer boundary is continuous. Provide the video as url or ref and its exact duration in seconds (0.5-600). crossfade is 0.05-10 seconds (default 1, and must be shorter than half the clip). audio is remove (default) or crossfade for a source with an audio track. quality is high, balanced (default), or small. Best for steady shots and repeating motion; large start/end differences can ghost during the dissolve. Runs on the standalone page and CLI; chat ffmpeg is unavailable.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio": {
+          "default": "remove",
+          "description": "Audio handling: remove (default, works for every video) or crossfade (rotates and blends an existing audio track too; errors if the source has no audio).",
+          "enum": [
+            "remove",
+            "crossfade"
+          ],
+          "type": "string"
+        },
+        "crossfade": {
+          "default": 1.0,
+          "description": "Seconds used to blend the original end into the beginning, from 0.05 to 10 (default 1). Must be shorter than half the clip duration; try 5-15% of the duration.",
+          "maximum": 10,
+          "minimum": 0.05,
+          "type": "number"
+        },
+        "duration": {
+          "description": "Exact source clip duration in seconds, from 0.5 to 600. The tool rotates at half this value, so enter the real duration (for example 2 for a 2-second clip).",
+          "maximum": 600,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "quality": {
+          "default": "balanced",
+          "description": "H.264 output quality: high (CRF 18), balanced (CRF 23, default), or small (CRF 28). Higher quality makes a larger file.",
+          "enum": [
+            "high",
+            "balanced",
+            "small"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "duration"
+      ],
+      "type": "object"
+    }
+  }
+}

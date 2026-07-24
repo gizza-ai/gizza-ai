@@ -1,0 +1,62 @@
+slug          = "seamless-loop-video"
+title         = "Make a Seamless Loop Video Online"
+description   = "Blend a video's ending back into its beginning for a smooth, endlessly repeatable MP4. Adjust the crossfade and quality locally in your browser."
+tags          = ["seamless loop", "loop video", "crossfade video", "video background", "endless video", "smooth loop", "MP4"]
+h1            = "Make a Video Loop Seamlessly"
+hero_subtitle = "Hide the jump between the last and first frame with an adjustable crossfade — processed in your browser."
+wasm          = "gizza_ai_seamless_loop_video_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Seamless loop video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "duration"
+source      = "field"
+label       = "Exact clip duration (seconds)"
+placeholder = "2"
+
+[[input]]
+name        = "crossfade"
+source      = "field"
+label       = "Crossfade (seconds)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name   = "audio"
+source = "field"
+label  = "Audio"
+
+[input.labels]
+remove    = "Remove — reliable for silent clips (default)"
+crossfade = "Crossfade — rotate and blend the existing audio track"
+
+[[input]]
+name   = "quality"
+source = "field"
+label  = "Output quality"
+
+[input.labels]
+high     = "High — CRF 18, larger file"
+balanced = "Balanced — CRF 23 (default)"
+small    = "Small — CRF 28, smaller file"
+
+[[example]]
+label  = "2 s clip · quick blend"
+params = { duration = "2", crossfade = "0.25", audio = "remove", quality = "balanced" }
+
+[[example]]
+label  = "8 s background · soft blend"
+params = { duration = "8", crossfade = "1", audio = "remove", quality = "high" }
+
+[[example]]
+label  = "20 s clip · keep audio"
+params = { duration = "20", crossfade = "2", audio = "crossfade", quality = "balanced" }
