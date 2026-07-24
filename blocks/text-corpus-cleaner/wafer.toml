@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-corpus-cleaner"
+version = "0.1.0"
+abi = 1
+summary = "Clean a line-oriented text corpus: normalize, dedupe, and filter lines"
