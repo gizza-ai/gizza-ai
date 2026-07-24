@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/html-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract text, HTML, or attributes from HTML by CSS selector",
+  "role": "skill",
+  "tool": {
+    "description": "Run a CSS selector over pasted HTML and extract from every match. Set extract='text' (default, visible text), 'inner-html' (children as HTML), 'outer-html' (the element itself), or 'attr' plus an attr name (e.g. href) to read an attribute. limit caps matches (default 100, min 1); trim (default true) normalizes whitespace. Returns JSON with the match count and an array of values.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "attr": {
+          "description": "Attribute name to read when extract=attr, e.g. href, src, or class. Required for attr mode; ignored otherwise.",
+          "type": "string"
+        },
+        "extract": {
+          "default": "text",
+          "description": "What to pull from each match: text (visible text, default), inner-html (children as HTML), outer-html (the element itself as HTML), or attr (a named attribute's value).",
+          "enum": [
+            "text",
+            "inner-html",
+            "outer-html",
+            "attr"
+          ],
+          "type": "string"
+        },
+        "html": {
+          "description": "The raw HTML to search.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 100,
+          "description": "Maximum number of matches to return (default 100, minimum 1).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "selector": {
+          "description": "A CSS selector, e.g. 'a.link', 'h2', or 'div#main > p'.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Normalize whitespace: collapse runs of spaces/newlines in text and attributes and trim HTML ends. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "html",
+        "selector"
+      ],
+      "type": "object"
+    }
+  }
+}
