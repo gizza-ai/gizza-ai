@@ -1,0 +1,118 @@
+slug          = "aws-sigv4-signer"
+title         = "AWS Signature V4 Signer — SigV4 Canonical Request & Authorization Header"
+description   = "Generate AWS SigV4 canonical requests, strings to sign, signatures, and Authorization headers locally for S3, IAM, and AWS APIs."
+tags          = ["aws", "sigv4", "signature-v4", "aws4-hmac-sha256", "authorization-header", "canonical-request", "string-to-sign", "aws-signing", "s3", "iam", "hmac-sha256", "api-request", "sts", "session-token"]
+h1            = "AWS Signature V4 Signer"
+hero_subtitle = "Compute an AWS Signature Version 4 (AWS4-HMAC-SHA256) request signature — the canonical request, string to sign, signature, and final Authorization header — from a request and your credentials. Runs entirely in your browser, no server, no sign-up; your secret key is never uploaded."
+wasm          = "gizza_ai_aws_sigv4_signer_web"
+export        = "run"
+live          = false
+output_label  = "SigV4 result"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "Request URL"
+placeholder = "https://examplebucket.s3.amazonaws.com/test.txt"
+source      = "field"
+
+[[input]]
+name        = "region"
+label       = "Region"
+placeholder = "us-east-1"
+source      = "field"
+
+[[input]]
+name        = "service"
+label       = "Service"
+placeholder = "s3"
+source      = "field"
+
+[[input]]
+name        = "access_key"
+label       = "Access key ID"
+placeholder = "AKIAIOSFODNN7EXAMPLE"
+source      = "field"
+
+[[input]]
+name        = "secret_key"
+label       = "Secret access key"
+placeholder = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+source      = "field"
+
+# method / unsigned_payload / sign_content_sha256 / output render as
+# <select>/checkbox — control type + option lists come from the descriptor schema
+# (manifest.json), so labels stay short and options are not duplicated here.
+[[input]]
+name        = "method"
+label       = "HTTP method"
+source      = "field"
+
+[[input]]
+name        = "session_token"
+label       = "Session token (optional)"
+placeholder = "STS temporary-credential token, or leave blank"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "payload"
+label       = "Request body / payload"
+placeholder = "Leave blank for GET/HEAD"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "headers"
+label       = "Extra headers (one Name: Value per line)"
+placeholder = "content-type: application/json"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "amz_date"
+label       = "Timestamp (blank = now)"
+placeholder = "20150830T123600Z"
+source      = "field"
+
+[[input]]
+name        = "unsigned_payload"
+label       = "Unsigned payload (UNSIGNED-PAYLOAD)"
+source      = "field"
+
+[[input]]
+name        = "sign_content_sha256"
+label       = "Add x-amz-content-sha256 (S3)"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[[example]]
+label  = "S3 GET Object (doc example)"
+[example.params]
+url                 = "https://examplebucket.s3.amazonaws.com/test.txt"
+region              = "us-east-1"
+service             = "s3"
+access_key          = "AKIAIOSFODNN7EXAMPLE"
+secret_key          = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+method              = "GET"
+headers             = "range: bytes=0-9"
+amz_date            = "20130524T000000Z"
+sign_content_sha256 = "true"
+output              = "all"
+
+[[example]]
+label  = "IAM ListUsers (doc example)"
+[example.params]
+url        = "https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08"
+region     = "us-east-1"
+service    = "iam"
+access_key = "AKIDEXAMPLE"
+secret_key = "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY"
+method     = "GET"
+headers    = "content-type: application/x-www-form-urlencoded; charset=utf-8"
+amz_date   = "20150830T123600Z"
+output     = "authorization"

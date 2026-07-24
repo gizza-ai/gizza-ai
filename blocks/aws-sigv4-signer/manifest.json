@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/aws-sigv4-signer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute an AWS Signature Version 4 (SigV4) request signature — canonical request, string to sign, and Authorization header",
+  "role": "skill",
+  "tool": {
+    "description": "Compute an AWS Signature Version 4 (AWS4-HMAC-SHA256) request signature. Given the request (url, method, headers, payload), the AWS region and service, and your credentials (access_key, secret_key, optional STS session_token), it builds the canonical request, the string to sign, the credential scope, the signature, and the final Authorization header — plus the full set of headers to send and a ready-to-run cURL command (choose with the `output` param). Set amz_date to reproduce a fixed timestamp or leave it blank for the current UTC time; set unsigned_payload for S3 streaming uploads and sign_content_sha256 to add S3's x-amz-content-sha256 header. All HMAC/SHA-256 runs locally — the secret key is never transmitted. This is header-based SigV4 auth; SigV4a (ECDSA) and query-string presigned URLs are not produced.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "access_key": {
+          "description": "AWS access key ID, e.g. AKIAIOSFODNN7EXAMPLE. Appears in the Credential of the Authorization header.",
+          "type": "string"
+        },
+        "amz_date": {
+          "description": "Request timestamp in ISO-8601 basic UTC 'YYYYMMDDTHHMMSSZ' (e.g. 20150830T123600Z); the extended form '2015-08-30T12:36:00Z' is also accepted. Leave blank to use the current UTC time. Provide a fixed value to reproduce a known signature.",
+          "type": "string"
+        },
+        "headers": {
+          "description": "Additional request headers to sign, one 'Name: Value' per line (e.g. 'content-type: application/json'). Host and x-amz-date are added automatically; add any other x-amz-* or content-type headers you will send. Values are lowercased-name, whitespace-trimmed, and sorted per the SigV4 rules.",
+          "type": "string"
+        },
+        "method": {
+          "default": "GET",
+          "description": "HTTP request method. Default GET.",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "HEAD",
+            "OPTIONS"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "all",
+          "description": "Which artifact to return. 'all' (default) is a labelled multi-section report; 'authorization' is just the Authorization header value; 'headers' is every header to send; 'canonical-request' / 'string-to-sign' / 'signature' are the individual signing artifacts; 'curl' is a ready-to-run cURL command.",
+          "enum": [
+            "all",
+            "authorization",
+            "headers",
+            "canonical-request",
+            "string-to-sign",
+            "signature",
+            "curl"
+          ],
+          "type": "string"
+        },
+        "payload": {
+          "description": "Request body used to compute the SHA-256 payload hash. Leave blank for bodyless requests (GET/HEAD) — the hash of the empty string is used. Ignored when unsigned_payload is true.",
+          "type": "string"
+        },
+        "region": {
+          "description": "AWS region code the request targets, e.g. us-east-1, eu-west-1. Used in the credential scope and signing-key derivation.",
+          "type": "string"
+        },
+        "secret_key": {
+          "description": "AWS secret access key. Used only to derive the signing key locally; it never appears in the output. Runs entirely in your browser / locally — nothing is uploaded.",
+          "type": "string"
+        },
+        "service": {
+          "description": "AWS service code, e.g. s3, iam, execute-api, dynamodb, ec2. Used in the credential scope. 's3' also switches on S3's raw-path (no dot-segment normalization) rule.",
+          "type": "string"
+        },
+        "session_token": {
+          "description": "Optional AWS STS session token for temporary credentials. When set, it is added as the x-amz-security-token header and included in the signature. Leave blank for long-term credentials.",
+          "type": "string"
+        },
+        "sign_content_sha256": {
+          "default": false,
+          "description": "Add and sign an x-amz-content-sha256 header (set to the payload hash or UNSIGNED-PAYLOAD). Required by Amazon S3. Default false.",
+          "type": "boolean"
+        },
+        "unsigned_payload": {
+          "default": false,
+          "description": "Sign with the literal 'UNSIGNED-PAYLOAD' instead of hashing the body. Common for large S3 uploads. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Full request URL including path and query string, e.g. https://examplebucket.s3.amazonaws.com/test.txt or https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08. The Host header, canonical URI, and canonical query string are derived from this.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "region",
+        "service",
+        "access_key",
+        "secret_key"
+      ],
+      "type": "object"
+    }
+  }
+}
