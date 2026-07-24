@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/pdf-search",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Search a PDF for a word or phrase and list matching pages with context",
+  "role": "skill",
+  "tool": {
+    "description": "Search a PDF for a literal word or phrase and list every matching page with surrounding context. Provide url (HTTP/HTTPS) or ref from a prior tool call, and a query. Options: case_sensitive (default false), whole_word (default false), context characters per side (default 60), max_matches (default 100). Each hit returns its 1-based page and a snippet with the match wrapped in «…». Searches the embedded selectable text layer only — it does not OCR scanned/image-only PDFs, and the query is literal text, not a regular expression.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Document URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "query": { "type": "string", "description": "The literal word or phrase to search for. Whitespace is normalized, so a multi-word phrase still matches where the PDF split it across lines. Not a regular expression." },
+        "case_sensitive": { "type": "boolean", "default": false, "description": "Match the exact case. Default false (case-insensitive)." },
+        "whole_word": { "type": "boolean", "default": false, "description": "Only match whole words (alphanumeric word boundaries on both sides), so \"cat\" does not match \"category\". Default false." },
+        "context": { "type": "integer", "default": 60, "minimum": 0, "maximum": 500, "description": "Number of characters of surrounding context to show on each side of a match. Default 60." },
+        "max_matches": { "type": "integer", "default": 100, "minimum": 1, "maximum": 1000, "description": "Maximum number of match snippets to return. total_matches still counts every occurrence and truncated flags when the list is capped. Default 100." }
+      },
+      "additionalProperties": false,
+      "required": ["query"],
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}
