@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/ipynb-to-script",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the code cells of a Jupyter .ipynb into a clean script",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the code cells of a Jupyter `.ipynb` notebook (paste its JSON) into a clean Python script, dropping outputs and execution counts. Cell order is preserved. output='script' (default) gives a .py file with code verbatim and markdown cells as # comments; output='markdown' gives a .md file with markdown verbatim and code in fenced blocks. include_markdown=false drops markdown/raw cells (code only). include_outputs=true appends stored text outputs as comments. cell_markers=true adds `# %%` VS Code/Jupytext markers before each cell. Returns the converted text. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "cell_markers": {
+          "default": false,
+          "description": "Emit `# %%` markers before each cell (VS Code / Jupytext 'percent' format) in script mode. Ignored in markdown mode. Default false.",
+          "type": "boolean"
+        },
+        "include_markdown": {
+          "default": true,
+          "description": "Keep markdown/raw cells (as # comments in script mode, verbatim in markdown mode). When false they are dropped, leaving code only. Default true.",
+          "type": "boolean"
+        },
+        "include_outputs": {
+          "default": false,
+          "description": "Append each code cell's stored text outputs (as # comments in script mode, fenced blocks in markdown mode). Default false — outputs and execution counts are dropped.",
+          "type": "boolean"
+        },
+        "notebook": {
+          "description": "The full contents of a Jupyter `.ipynb` file (its JSON). Paste the file's text.",
+          "type": "string"
+        },
+        "output": {
+          "default": "script",
+          "description": "Output format: 'script' for a Python .py file (code verbatim, markdown as # comments), or 'markdown' for a .md document (markdown verbatim, code in fenced blocks). Default 'script'.",
+          "enum": [
+            "script",
+            "markdown"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "notebook"
+      ],
+      "type": "object"
+    }
+  }
+}
