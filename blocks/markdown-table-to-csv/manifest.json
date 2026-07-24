@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/markdown-table-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Markdown or pipe-delimited table into clean CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Markdown (or pipe-delimited) table back into clean CSV. Strips the alignment/separator row (`---`, `:--`, `--:`, `:-:`) and cell padding, honors optional outer pipes, and unescapes `\\|` into a literal pipe inside a cell. delimiter sets the output field separator (single char or comma/tab/semicolon/pipe/space; 'tab' gives TSV; default ','). header=true (default) keeps the first row; header=false drops it and emits data rows only. quote=minimal (default) quotes only fields that need it (RFC-4180); quote=all wraps every field. newline=lf (default) or crlf sets the row line ending; bom=true prepends a UTF-8 BOM for Excel. Ragged rows are padded to the widest row. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bom": {
+          "default": false,
+          "description": "Prepend a UTF-8 byte-order mark (BOM) so Excel opens the CSV as UTF-8. Default false.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Output field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'/'space'. Use 'tab' for TSV. Default ','.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Whether the table's first row is a header to keep (default true). Set false to drop the header row and output only the data rows.",
+          "type": "boolean"
+        },
+        "markdown": {
+          "description": "The Markdown or pipe-delimited table text. Outer pipes are optional; the alignment/separator row and cell padding are stripped, and `\\|` is treated as a literal pipe inside a cell.",
+          "type": "string"
+        },
+        "newline": {
+          "default": "lf",
+          "description": "Output line ending between rows: 'lf' (default, `\\n`, Unix/macOS) or 'crlf' (`\\r\\n`, Windows/Excel).",
+          "enum": [
+            "lf",
+            "crlf"
+          ],
+          "type": "string"
+        },
+        "quote": {
+          "default": "minimal",
+          "description": "CSV quoting: 'minimal' (default) quotes a field only when it contains the delimiter, a quote, or a newline; 'all' wraps every field in double quotes.",
+          "enum": [
+            "minimal",
+            "all"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}
