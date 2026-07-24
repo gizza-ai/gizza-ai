@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/multiple-regression",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "OLS multiple linear regression: coefficients, R², p-values, F-test",
+  "role": "skill",
+  "tool": {
+    "description": "Fit an ordinary least-squares multiple linear regression on a pasted data matrix (one observation per line; columns split on commas, tabs, semicolons or spaces). Choose which column is the response with response ('last' default, 'first', or a 1-based index) — every other column is a predictor — and optionally name the columns with labels. Returns the fitted equation and a coefficient table (estimate, standard error, t-statistic, two-tailed p-value and confidence interval at conf_level) plus R², adjusted R², residual standard error with its degrees of freedom, and the overall F-test with its p-value. Set intercept=false to force a zero Y-intercept. format='json' additionally returns the per-observation fitted values and residuals. Predictors must be numeric and not perfectly collinear. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "conf_level": {
+          "default": 0.95,
+          "description": "Confidence level for the coefficient confidence intervals, between 0.5 and 0.9999 (default 0.95). The two-tailed significance level is α = 1 − conf_level.",
+          "maximum": 0.9999,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "data": {
+          "description": "The data matrix: one observation per line, columns separated by commas, tabs, semicolons or spaces. Every row must have the same number of columns and at least two columns (one or more predictors plus the response), e.g. '1,6\\n2,8\\n3,11'.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: 'text' (default) = a formatted regression summary with the equation, coefficient table and model statistics; 'json' = the full result as JSON, additionally including the per-observation fitted values and residuals.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "intercept": {
+          "default": true,
+          "description": "Fit a constant (Intercept) term (default true). Set false to force the regression line through the origin (zero Y-intercept).",
+          "type": "boolean"
+        },
+        "labels": {
+          "description": "Optional comma-separated column names, one per column in data order (e.g. 'sqft,rooms,price'). They name the coefficient rows and the response. Default v1, v2, … .",
+          "type": "string"
+        },
+        "response": {
+          "default": "last",
+          "description": "Which column is the response (dependent) variable Y: 'last' (default, the rightmost column), 'first', or a 1-based column number. Every other column is treated as a predictor.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

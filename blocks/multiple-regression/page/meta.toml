@@ -1,0 +1,60 @@
+slug          = "multiple-regression"
+title         = "Multiple Linear Regression Calculator — OLS Coefficients, R² & p-values"
+description   = "Paste a numeric data matrix and fit an OLS multiple regression: coefficients, p-values, confidence intervals, R², adjusted R² and F-test."
+tags          = ["multiple regression calculator", "multiple linear regression", "ols regression", "regression coefficients", "r-squared", "adjusted r-squared", "p-value", "f-test", "confidence interval", "statistics calculator"]
+h1            = "Multiple linear regression calculator"
+hero_subtitle = "Paste rows of numbers and fit an ordinary least-squares regression: the fitted equation, a coefficient table with standard errors, t-stats, p-values and confidence intervals, plus R², adjusted R² and the overall F-test. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_multiple_regression_web"
+export        = "run"
+live          = false
+output_label  = "Regression summary"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data matrix (one observation per line; columns split on comma, tab, semicolon or space)"
+placeholder = "1,6\n2,8\n3,11\n4,14\n5,18\n6,20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "response"
+label       = "Response column (Y): last, first, or a 1-based number"
+placeholder = "last"
+source      = "field"
+
+[[input]]
+name        = "labels"
+label       = "Column names (optional, comma-separated, in data order)"
+placeholder = "sqft,rooms,price"
+source      = "field"
+
+[[input]]
+name        = "intercept"
+label       = "Fit an intercept (uncheck to force a zero Y-intercept)"
+source      = "field"
+
+[[input]]
+name        = "conf_level"
+label       = "Confidence level for the intervals"
+placeholder = "0.95"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+labels = { text = "Formatted summary", json = "JSON (with fitted + residuals)" }
+
+[[example]]
+label  = "House prices (sqft, rooms → price)"
+params = { data = "1,1,6\n2,1,8\n3,2,11\n4,2,14\n5,3,18\n6,3,20", labels = "sqft,rooms,price" }
+
+[[example]]
+label  = "Simple fit (x → y)"
+params = { data = "1,2\n2,4\n3,5\n4,4\n5,5" }
+
+[[example]]
+label  = "No intercept (through the origin)"
+params = { data = "1,2\n2,4.1\n3,5.9\n4,8.2", intercept = "false" }

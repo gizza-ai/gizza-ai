@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "multiple-regression"
+version = "0.1.0"
+abi = 1
+summary = "OLS multiple linear regression: coefficients, R², p-values, F-test"
