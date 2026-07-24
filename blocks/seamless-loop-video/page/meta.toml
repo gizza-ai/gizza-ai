@@ -1,0 +1,49 @@
+slug          = "seamless-loop-video"
+title         = "Make a Video Loop Seamlessly"
+description   = "Turn a short clip into a perfect loop — crossfade its tail back into its head so the join is invisible. Runs in your browser, nothing is uploaded, free."
+tags          = ["seamless loop", "loop video", "crossfade", "perfect loop", "video loop", "boomerang", "background loop"]
+h1            = "Make a Video Loop Seamlessly"
+hero_subtitle = "Pick a short clip and crossfade its tail back into its head — you get one perfectly-looping MP4, made in your browser with nothing uploaded."
+wasm          = "gizza_ai_seamless_loop_video_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Seamless loop (MP4)"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "crossfade"
+source      = "field"
+label       = "Crossfade (seconds)"
+placeholder = "0.5"
+kind        = "slider"
+min         = "0.1"
+max         = "5"
+step        = "0.1"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (1–100)"
+placeholder = "75"
+kind        = "slider"
+min         = "1"
+max         = "100"
+step        = "1"
+
+[[example]]
+label  = "Subtle blend (0.3 s)"
+params = { crossfade = "0.3", quality = "75" }
+
+[[example]]
+label  = "Standard loop (0.5 s)"
+params = { crossfade = "0.5", quality = "75" }
+
+[[example]]
+label  = "Long dissolve (1 s)"
+params = { crossfade = "1", quality = "85" }

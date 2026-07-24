@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/seamless-loop-video",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Make a video loop seamlessly by crossfading its tail into its head.",
+  "role": "skill",
+  "tool": {
+    "description": "Make a short video clip loop seamlessly: crossfade (alpha-overlay) the clip's tail back into its head so the loop join is invisible. Returns ONE clip that is `crossfade` seconds shorter, re-encoded to H.264/yuv420p MP4, whose first frame equals the source frame at (duration - crossfade) — so repeating it reads as continuous motion. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). crossfade is seconds (default 0.5, range 0.1-5). quality is 1-100 (default 75) mapped to libx264 CRF. The output is SILENT (there is no audio crossfade). Best for SHORT clips — the clip is buffered to reverse it, so very long / high-resolution inputs can exhaust memory. To then repeat the seamless clip N times or fill a duration, chain it into loop-video.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "crossfade": {
+          "default": 0.5,
+          "description": "Crossfade (overlap) length in seconds — how long the clip's tail is blended back into its head to hide the loop join (default 0.5, range 0.1-5). The output is exactly this many seconds SHORTER than the input, and its first frame equals the source frame at (duration - crossfade), so repeating it is seamless. Longer = smoother but eats more of a short clip; keep it well below the clip's own length.",
+          "maximum": 5,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Encode quality 1-100 (default 75; higher = better quality, larger file). The output is always re-encoded to H.264/yuv420p MP4 (the crossfade compositing rules out a lossless stream copy). Maps to libx264 CRF (100 = visually lossless CRF 18, 75 ≈ CRF 23, 1 = small CRF 40).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
