@@ -145,11 +145,10 @@ The block has a unit test pinning `derived == authored` (e.g. url-encode's
 `/improve-tool` schema change is INTENTIONAL, so:
 
 **Ordering (bit two runs):** after any descriptor change run, in this order, before trusting
-manifest state: (0) `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release` (copy the
-wasm to `target/block.wasm`; `wafer build` is an equivalent optional shorthand) — the sync script
-reads the descriptor embedded in the BUILT wasm/CLI, so syncing against stale wasm reports a silent
-"already in sync"; (1) `cargo install --path cli --force`; (2) `python3 scripts/sync-tool-manifest.py
-<slug>` **from the repo root** (it resolves paths relative to cwd). Those are the only three
+manifest state: (0) from the repo root, `scripts/build-block-wasm.sh <slug>`; (1) `cargo install
+--path cli --force`; (2) `python3 scripts/sync-tool-manifest.py <slug>` **from the repo root** (it
+resolves paths relative to cwd). The CLI must embed the canonical artifact before the sync; using a
+stale artifact can silently report "already in sync". Those are the only three
 CLI-reinstall/sync points — Phase 1 baseline, post-descriptor-change, and Phase 5 re-test all
 reuse this same sequence.
 
@@ -183,10 +182,9 @@ Do NOT delete the drift-guard test — it stays as the migration guard for the N
   installed (sibling `wafer-run` checkout); otherwise say so and skip — not CI-enforced.
   Recipe: `python3 -c "import json;print(list(json.dumps({'<param>':'<v>'}).encode()))"` →
   the byte list goes in `{"kind":"invoke","data":[…],"meta":[]}`.
-- `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release && mkdir -p target && cp
-  target/wasm32-wasip1/release/*.wasm target/block.wasm` — wasm32 chat block (from INSIDE the dir;
-  exactly what CI's "Build changed skill wasms" step runs; `wafer build` is an optional equivalent
-  shorthand if that CLI happens to be installed).
+- `scripts/build-block-wasm.sh <slug>` (from the repo root) — refreshes the canonical locked
+  wasm32-wasip1 chat/CLI artifact. CI rebuilds it with the pinned toolchain and byte-compares it;
+  ad-hoc Cargo or `wafer build` output is only a development check.
 - `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` (from repo root).
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders `pkg/tools/<slug>/`,
   GENERIC (no `--site-config`; this repo has none — the private site repo that consumes this one

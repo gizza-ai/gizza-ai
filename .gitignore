@@ -3,9 +3,11 @@
 /node_modules
 node_modules/
 **/target
-# Block crates resolve fresh (dev-time builds; the committed wasm is what
-# ships), but the CI-critical cargo roots commit their lockfiles so the
-# wafer-run git deps can't float past the sha in wafer-run-pin.txt.
+# Block build trees stay ignored because a full local baseline creates hundreds
+# of them. For every NEW OR CHANGED block, Cargo.lock and target/block.wasm are
+# intentional committed artifacts and must be staged explicitly with `git add
+# -f`; scripts/build-block-wasm.sh prints the exact command. Existing blocks are
+# migrated to this policy when next changed.
 Cargo.lock
 !/cli/Cargo.lock
 !/block-utils/Cargo.lock
@@ -27,7 +29,8 @@ tests/test-results/
 # native worktree tool
 .claude/worktrees/
 
-# per-tool web wasm build output
+# Per-tool browser WASM is disposable build output. Never force-add web/pkg;
+# CI/deploy rebuild it from web/src and the page generator copies it to /pkg.
 blocks/*/web/pkg/
 blocks/*/web/target/
 

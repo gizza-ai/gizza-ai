@@ -6,13 +6,12 @@ This is the public toolkit repo — no app, no branding, no deploy (those live i
 repo that consumes this one at a pin). Building/testing here never touches that repo.
 
 - `cd blocks/<slug> && cargo test --workspace` — core + block unit tests
-- `cd blocks/<slug> && cargo build --target wasm32-wasip1 --release && mkdir -p target && cp
-  target/wasm32-wasip1/release/*.wasm target/block.wasm` — wasm32 chat block → target/block.wasm
-  (run from INSIDE the dir; exactly what CI's "Build changed skill wasms" step runs). It does NOT
-  generate/update `manifest.json` — that file is scaffold-generated and hand-synced (build.rs
-  requires it). (Optional equivalent shorthand: `wafer build`, only if you have the `wafer` CLI
-  installed from a sibling `wafer-run` checkout — not required in this repo.)
-- `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — from repo root → web/pkg/<wasm>.js + _bg.wasm
+- `scripts/build-block-wasm.sh <slug>` — from repo root, refreshes the complete locked dependency
+  resolution and writes the exact wasm32-wasip1 CLI/MCP artifact to `target/block.wasm`, safely even
+  when Cargo uses a shared target dir. Commit both ignored outputs with `git add -f
+  blocks/<slug>/Cargo.lock blocks/<slug>/target/block.wasm`; CI rebuilds and byte-compares them.
+  It does NOT generate/update `manifest.json`; run the sync command below for that.
+- `wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg` — from repo root → disposable `web/pkg/<wasm>.js` + `_bg.wasm`; never commit `web/pkg/`
 - `cargo run --manifest-path tools/generator/Cargo.toml -- .` — renders pkg/tools/<slug>/, GENERIC
   (no `--site-config`; this repo has none — the private site repo renders its own branded copy at
   ITS build time).
@@ -134,7 +133,7 @@ size via the element (`media.duration > 0`) after `loadedmetadata` — not just 
 - `f64` not `i64` for wasm-bindgen numeric params (else a JS BigInt error at runtime).
 - ffmpeg: meta.toml field order = `build_argv` param order.
 - Each `blocks/<slug>/` and `tools/generator` are separate workspaces → `cd` into the dir; do NOT use `-p <crate>` from the repo root.
-- `cargo build --target wasm32-wasip1 --release` (or the optional `wafer build`) is run from INSIDE `blocks/<slug>/`.
+- Use `scripts/build-block-wasm.sh <slug>` from the repo root for the final committed CLI/MCP artifact; ad-hoc Cargo/wafer builds are development checks only.
 - **CHAT ffmpeg is non-functional**: the runtime runs in a Service Worker where `import()` and `Worker` are spec-forbidden, so ffmpeg can't run in-chat. ffmpeg tools work via their standalone PAGE + the CLI only. State this in ffmpeg tool PRs.
 - **The chat UI itself can't be exercised in this repo** — it lives in the private site repo that
   consumes this one at a pin. What's verifiable here is the descriptor/schema (`cargo test

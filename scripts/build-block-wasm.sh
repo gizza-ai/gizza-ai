@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# Build the canonical CLI/MCP WASM artifact for one block.
+#
+# Usage:
+#   scripts/build-block-wasm.sh <slug>          # refresh Cargo.lock + target/block.wasm
+#   scripts/build-block-wasm.sh <slug> --check  # rebuild with the committed lock and compare
+set -euo pipefail
+
+slug="${1:?usage: build-block-wasm.sh <slug> [--check]}"
+mode="${2:-write}"
+[[ "$slug" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]] || {
+  echo "slug must be kebab-case [a-z0-9-], no leading/trailing hyphen" >&2
+  exit 2
+}
+[[ "$mode" == "write" || "$mode" == "--check" ]] || {
+  echo "usage: build-block-wasm.sh <slug> [--check]" >&2
+  exit 2
+}
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+block_dir="$root/blocks/$slug"
+artifact="$block_dir/target/block.wasm"
+lockfile="$block_dir/Cargo.lock"
+pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
+expected="gizza_ai_${slug//-/_}_block.wasm"
+
+[[ -f "$block_dir/Cargo.toml" ]] || {
+  echo "blocks/$slug/Cargo.toml not found" >&2
+  exit 2
+}
+command -v cargo >/dev/null || {
+  echo "cargo is required" >&2
+  exit 2
+}
+command -v jq >/dev/null || {
+  echo "jq is required to locate Cargo's WASM artifact" >&2
+  exit 2
+}
+
+if [[ "$mode" == "--check" ]]; then
+  git -C "$root" ls-files --error-unmatch "blocks/$slug/Cargo.lock" >/dev/null 2>&1 || {
+    echo "::error::blocks/$slug/Cargo.lock must be committed for reproducible WASM builds." >&2
+    echo "Run scripts/build-block-wasm.sh $slug, then stage Cargo.lock and target/block.wasm." >&2
+    exit 1
+  }
+  git -C "$root" ls-files --error-unmatch "blocks/$slug/target/block.wasm" >/dev/null 2>&1 || {
+    echo "::error::blocks/$slug/target/block.wasm must be committed for CLI/MCP discovery." >&2
+    echo "Run scripts/build-block-wasm.sh $slug, then stage Cargo.lock and target/block.wasm." >&2
+    exit 1
+  }
+else
+  (
+    cd "$block_dir"
+    [[ -f Cargo.lock ]] || cargo generate-lockfile
+    # Keep the three Wafer crates aligned with the runtime pin. Some blocks do
+    # not depend on every crate directly, so a missing package is harmless.
+    for crate in wafer-sdk wafer-block wafer-block-macro; do
+      cargo update -p "$crate" --precise "$pin" 2>/dev/null || true
+    done
+  )
+fi
+
+[[ -f "$lockfile" ]] || {
+  echo "::error::blocks/$slug/Cargo.lock is missing." >&2
+  exit 1
+}
+
+stray="$(
+  grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lockfile" \
+    | sed 's/.*#//' \
+    | sort -u \
+    | grep -v "^$pin\$" || true
+)"
+if [[ -n "$stray" ]]; then
+  echo "::error::blocks/$slug/Cargo.lock resolves wafer-run at '$stray'; expected '$pin'." >&2
+  if [[ "$mode" == "--check" ]]; then
+    echo "Run scripts/build-block-wasm.sh $slug to refresh the canonical artifact." >&2
+  fi
+  exit 1
+fi
+
+build_json="$(mktemp)"
+trap 'rm -f "$build_json"' EXIT
+(
+  cd "$block_dir"
+  cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
+)
+wasm="$(
+  jq -r 'select(.reason == "compiler-artifact") | .filenames[]? | select(endswith(".wasm"))' \
+    "$build_json" \
+    | while IFS= read -r candidate; do
+        if [[ "$(basename "$candidate")" == "$expected" ]]; then
+          printf '%s\n' "$candidate"
+        fi
+      done \
+    | tail -n 1
+)"
+[[ -n "$wasm" && -f "$wasm" ]] || {
+  echo "::error::Cargo did not produce the expected $expected for blocks/$slug." >&2
+  exit 1
+}
+
+if [[ "$mode" == "--check" ]]; then
+  [[ -f "$artifact" ]] || {
+    echo "::error::$artifact is missing." >&2
+    exit 1
+  }
+  if ! cmp -s "$wasm" "$artifact"; then
+    echo "::error::blocks/$slug/target/block.wasm does not match the canonical locked build." >&2
+    echo "Run scripts/build-block-wasm.sh $slug and commit the refreshed artifact." >&2
+    exit 1
+  fi
+  echo "verified blocks/$slug/target/block.wasm"
+else
+  mkdir -p "$(dirname "$artifact")"
+  cp "$wasm" "$artifact"
+  echo "wrote blocks/$slug/Cargo.lock"
+  echo "wrote blocks/$slug/target/block.wasm"
+  echo "stage both ignored artifacts with:"
+  echo "  git add -f blocks/$slug/Cargo.lock blocks/$slug/target/block.wasm"
+fi

@@ -40,7 +40,7 @@ if [ -d "$parent/wafer-run" ]; then
 else
   echo "no ../wafer-run checkout — skipping pin sync. Blocks, cli/, and tools/generator" \
        "all pull wafer-sdk/wafer-block/wafer-run straight from git, pinned via" \
-       "wafer-run-pin.txt in cli/Cargo.lock and block-utils/Cargo.lock — a tools-only" \
+       "wafer-run-pin.txt in committed locks and canonical block builds — a tools-only" \
        "clone builds fine without this sibling; it's only needed to build the" \
        "optional 'wafer' CLI from source."
 fi

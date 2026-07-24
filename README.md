@@ -3,10 +3,10 @@
 A library of small, single-purpose compute tools — calculators, converters,
 text/data utilities, crypto, image and video (ffmpeg-backed), and more — each
 implemented once as a [WAFER](https://github.com/wafer-run/wafer-run) WASM
-block and exposed identically through three surfaces: a headless CLI, an MCP
-server for agents, and a static, SEO-friendly web page. There is a single
-source of truth per tool (the block's `info()`/schema); nothing is
-reimplemented per surface.
+block and exposed through a headless CLI, an MCP server for agents, and, where
+applicable, a static SEO-friendly web page. The block's `info()`/schema drives
+the CLI and MCP surfaces; the page generator consumes its synchronized
+manifest plus page-specific presentation metadata.
 
 The hosted, browser-based version of these tools — chat UI, model picker, and
 more — lives at **[gizza.ai](https://gizza.ai)**. This repository is the
@@ -36,14 +36,17 @@ Bootstrap the toolchain (Rust + wasm targets, `wasm-pack`, Node, ffmpeg):
 scripts/bootstrap-toolchain.sh
 ```
 
-Build a block's WASM (repeat per tool, or loop over `blocks/*`):
+Build the canonical CLI/MCP WASM for a block:
 
 ```bash
-cd blocks/<slug>
-cargo build --target wasm32-wasip1 --release
-mkdir -p target
-cp target/wasm32-wasip1/release/*.wasm target/block.wasm
+scripts/build-block-wasm.sh <slug>
+# New/changed blocks commit both ignored canonical artifacts:
+git add -f blocks/<slug>/Cargo.lock blocks/<slug>/target/block.wasm
 ```
+
+The script uses the pinned Rust toolchain, the committed dependency resolution,
+and `wafer-run-pin.txt`. CI rebuilds and byte-compares the artifact. Browser
+`web/pkg/` output is deliberately not committed.
 
 Build the CLI:
 
@@ -51,12 +54,16 @@ Build the CLI:
 cargo build --manifest-path cli/Cargo.toml --release   # → cli/target/release/gizza
 ```
 
-Render generic (unbranded) static tool pages from every block's `page/`
-metadata:
+Build one tool's browser WASM, then render generic (unbranded) static pages:
 
 ```bash
+wasm-pack build blocks/<slug>/web --target web --release --out-dir pkg
 cargo run --manifest-path tools/generator/Cargo.toml -- .   # → pkg/tools/<slug>/
 ```
+
+`scripts/bootstrap-toolchain.sh` builds browser WASM for every page-backed tool
+before rendering the full catalog. Both `blocks/*/web/pkg/` and `/pkg` are
+ignored build output.
 
 Serve them locally:
 
@@ -90,9 +97,10 @@ Exit codes: `0` ok · `1` tool error · `2` usage/bad args · `3` unsupported in
 CLI. Image/video tools shell out to the system `ffmpeg` (install it to use them);
 GPU-only tools (e.g. `imagine`) need a browser GPU and so return an
 `unsupported_in_cli` error here. `gizza list`/`gizza tool` only cover blocks
-with a committed `target/block.wasm` artifact — currently a subset of
-`blocks/`; blocks without committed wasm still ship pages but aren't yet
-runnable from the CLI.
+with a committed `Cargo.lock` + `target/block.wasm`. The existing corpus is
+being migrated incrementally, so legacy blocks without those artifacts can
+still ship pages but are not available in a clean-checkout CLI. Every new or
+changed block is required to commit and verify both files.
 
 ### MCP server
 
