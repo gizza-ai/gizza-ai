@@ -1,0 +1,84 @@
+{
+  "name": "gizza-ai/date-column-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check every value in a CSV date column against a chosen format.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate that every value in one CSV date column parses against a chosen date format. Pick the column by header name or 0-based index, then check it against a preset (ISO YYYY-MM-DD, US MM/DD/YYYY, EU DD/MM/YYYY, ISO date-time, or RFC 3339) or a custom chrono/strftime pattern. Impossible calendar dates (month 13, Feb 30, bad leap days) are rejected, not just malformed shapes. Reports total checked, valid count, invalid count, and a capped list of offending rows with their line number, value, and reason. Supports delimiter auto-detection, header or headerless CSV, optional blank-cell rejection, text output, and JSON output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_blank": {
+          "default": true,
+          "description": "Treat blank cells as valid (skipped). Default true; set false to report every blank cell in the column as invalid.",
+          "type": "boolean"
+        },
+        "column": {
+          "description": "Which column to validate: a header name (for example `joined`) when the first row is a header, or a 0-based column index (for example `1` for the second column). A numeric value is always read as a 0-based index.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV data to check. Paste rows as text; quoted fields and quoted newlines are supported. The first row is treated as a header by default.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV delimiter. `auto` (default) detects comma, tab, semicolon, or pipe from the first non-blank line.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "%Y-%m-%d",
+          "description": "Custom chrono/strftime pattern, used only when preset=custom (for example `%d-%b-%Y` for `01-Jun-2021`, `%Y%m%d`, or `%H:%M:%S`). Common specifiers: %Y year, %m month, %d day, %b short month name, %H:%M:%S time. Ignored for the non-custom presets.",
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first row as a header naming the columns. Default true; set false to select the column by 0-based index only.",
+          "type": "boolean"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of invalid values to list (1-1000, default 50). The summary still reports the full invalid count.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: `text` for a readable report (default) or `json` for a structured report with total_checked, valid, invalid, truncated, and invalid_rows.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "preset": {
+          "default": "iso-date",
+          "description": "Date format to check against. `iso-date` = YYYY-MM-DD (default), `us-date` = MM/DD/YYYY, `eu-date` = DD/MM/YYYY, `iso-datetime` = YYYY-MM-DDThh:mm:ss, `rfc3339` = full RFC 3339 date-time. Choose `custom` to supply your own pattern in `format`.",
+          "enum": [
+            "iso-date",
+            "us-date",
+            "eu-date",
+            "iso-datetime",
+            "rfc3339",
+            "custom"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "column"
+      ],
+      "type": "object"
+    }
+  }
+}
