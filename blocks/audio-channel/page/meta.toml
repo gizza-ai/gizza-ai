@@ -1,0 +1,52 @@
+slug          = "audio-channel"
+title         = "Audio Channel Tool: Swap, Mono, Stereo, Isolate"
+description   = "Swap left/right channels, downmix stereo to mono, up-mix mono to stereo, or copy one side onto both — right in your browser. Nothing is uploaded, free."
+tags          = ["audio", "channel", "swap", "mono", "stereo", "left", "right", "downmix"]
+h1            = "Audio Channel Tool"
+hero_subtitle = "Swap left/right, convert stereo to mono (or back), or copy one side onto both — processed in your browser, nothing uploaded."
+wasm          = "gizza_ai_audio_channel_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Processed audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name   = "operation"
+source = "field"
+label  = "Operation"
+
+[input.labels]
+swap   = "Swap left / right"
+mono   = "Stereo → mono (downmix)"
+stereo = "Mono → stereo (duplicate)"
+left   = "Left channel → both sides"
+right  = "Right channel → both sides"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Swap left / right"
+[example.params]
+operation = "swap"
+format    = "mp3"
+
+[[example]]
+label = "Stereo to mono"
+[example.params]
+operation = "mono"
+format    = "mp3"
+
+[[example]]
+label = "Fix one-sided recording (left → both)"
+[example.params]
+operation = "left"
+format    = "wav"
