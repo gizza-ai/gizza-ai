@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/data-normalize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scale numeric CSV columns with min-max, z-score, or robust normalization",
+  "role": "skill",
+  "tool": {
+    "description": "Normalize (feature-scale) the numeric columns of a CSV. Methods: 'min_max' rescales each column into [range_min, range_max]; 'z_score' standardizes to mean 0 / unit stddev (ddof selects population vs sample stddev, and a zero stddev yields 0); 'robust' centers on the median and scales by the interquartile range (with_centering / with_scaling toggle each, and a zero IQR divides by 1). Only numeric columns (every present value parses as a finite number) are scaled; text columns are copied and blank cells stay blank. Restrict to specific columns by header name or 1-based index, or leave blank to scale every numeric column. Delimiters accept comma/tab/semicolon/pipe.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Comma-separated columns to scale — header names (needs a header) or 1-based indexes (e.g. 'age,income' or '2,3'). Blank scales every numeric column.",
+          "type": "string"
+        },
+        "ddof": {
+          "default": 0,
+          "description": "Delta degrees of freedom for the method='z_score' standard deviation: 0 = population, 1 = sample (Bessel-corrected). Default 0.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator of the input (and output): 'comma', 'tab', 'semicolon', or 'pipe'. Default 'comma'.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header: keep it verbatim and use its names for the 'columns' selector. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The CSV text whose numeric columns should be scaled.",
+          "type": "string"
+        },
+        "method": {
+          "default": "min_max",
+          "description": "Scaling method: 'min_max' rescales each column into [range_min, range_max]; 'z_score' standardizes to mean 0 and unit stddev; 'robust' centers on the median and scales by the interquartile range. Default 'min_max'.",
+          "enum": [
+            "min_max",
+            "z_score",
+            "robust"
+          ],
+          "type": "string"
+        },
+        "range_max": {
+          "default": 1.0,
+          "description": "Upper bound of the target range for method='min_max'. Must be greater than range_min. Default 1.",
+          "type": "number"
+        },
+        "range_min": {
+          "default": 0.0,
+          "description": "Lower bound of the target range for method='min_max'. Must be less than range_max. Default 0.",
+          "type": "number"
+        },
+        "with_centering": {
+          "default": true,
+          "description": "For method='robust', subtract the column median before scaling. Default true.",
+          "type": "boolean"
+        },
+        "with_scaling": {
+          "default": true,
+          "description": "For method='robust', divide by the interquartile range (IQR); a zero IQR divides by 1. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

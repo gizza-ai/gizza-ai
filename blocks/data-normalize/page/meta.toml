@@ -1,0 +1,98 @@
+slug          = "data-normalize"
+title         = "Data Normalizer — Scale CSV Columns (Min-Max, Z-Score, Robust)"
+description   = "Normalize CSV columns with min-max, z-score, or robust (median/IQR) scaling. Pick columns and delimiter. Runs entirely in your browser, free — nothing uploaded."
+tags          = ["data normalization", "feature scaling", "min max scaler", "z-score standardize", "robust scaler"]
+h1            = "Data Normalizer"
+hero_subtitle = "Feature-scale the numeric columns of a CSV with min-max, z-score (standardization), or robust (median/IQR) normalization — choose the method, range, and columns. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_data_normalize_web"
+export        = "run"
+live          = false
+output_label  = "Normalized CSV"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSV"
+placeholder = "name,height,weight\nAlice,150,50\nBob,160,60\nCarol,170,70"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "method"
+label       = "Normalization method"
+source      = "field"
+
+[input.labels]
+min_max = "Min-max (rescale to a range)"
+z_score = "Z-score (standardize: mean 0, unit stddev)"
+robust  = "Robust (median center, IQR scale)"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (kept, used for column names)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name        = "columns"
+label       = "Columns to scale (blank = all numeric)"
+placeholder = "height,weight"
+source      = "field"
+
+[[input]]
+name        = "range_min"
+label       = "Range minimum (min-max)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "range_max"
+label       = "Range maximum (min-max)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "ddof"
+label       = "Std-dev degrees of freedom (z-score): 0 = population, 1 = sample"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "with_centering"
+label       = "Subtract the median (robust)"
+source      = "field"
+
+[[input]]
+name        = "with_scaling"
+label       = "Divide by the IQR (robust)"
+source      = "field"
+
+[[example]]
+label = "Min-max scale to 0–1"
+[example.params]
+input  = "name,height,weight\nAlice,150,50\nBob,160,60\nCarol,170,70"
+method = "min_max"
+
+[[example]]
+label = "Z-score standardize (sample stddev)"
+[example.params]
+input  = "score\n1\n2\n3"
+method = "z_score"
+ddof   = "1"
+
+[[example]]
+label = "Robust scale a single column"
+[example.params]
+input   = "v\n1\n2\n3\n4\n5"
+method  = "robust"
+columns = "v"

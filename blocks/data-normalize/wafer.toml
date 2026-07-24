@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "data-normalize"
+version = "0.1.0"
+abi = 1
+summary = "Scale numeric CSV columns with min-max, z-score, or robust normalization"
