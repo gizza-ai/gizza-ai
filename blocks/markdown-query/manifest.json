@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/markdown-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract headings, links, images, code blocks, or tables from Markdown",
+  "role": "skill",
+  "tool": {
+    "description": "Query a Markdown document like jq for markup. Set extract to headings (default), links, images, code_blocks, or tables to pull out that element. format is text (human-readable, default), json (structured {count, items}), or markdown (reconstructed Markdown). include_line_numbers annotates each item with its 1-based source line. Returns the extracted items in the chosen format.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "markdown": {
+          "description": "The Markdown document to query.",
+          "type": "string"
+        },
+        "extract": {
+          "default": "headings",
+          "description": "Which elements to pull out: headings (default), links, images, code_blocks, or tables.",
+          "enum": [
+            "headings",
+            "links",
+            "images",
+            "code_blocks",
+            "tables"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: text (human-readable, default), json (structured {count, items}), or markdown (reconstructed Markdown for each item).",
+          "enum": [
+            "text",
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "include_line_numbers": {
+          "default": false,
+          "description": "Annotate each item with the 1-based source line it starts on. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}

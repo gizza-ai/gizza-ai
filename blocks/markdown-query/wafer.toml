@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-query"
+version = "0.1.0"
+abi = 1
+summary = "Extract headings, links, images, code blocks, or tables from Markdown"
