@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/photo-gps-mapper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract GPS coordinates from photos as GeoJSON, CSV, GPX, KML, or a list",
+  "role": "skill",
+  "tool": {
+    "description": "Extract EXIF GPS coordinates from a batch of photos and return a mapping-friendly report. Provide `images` as a list of one or more sources (each a url or a `ref`). `format` chooses geojson (default FeatureCollection), csv, gpx, kml, or list; `precision` controls decimal places (0-10, default 6). The result includes total photos, how many had GPS, names without GPS, parsed locations with optional altitude/timestamp, and the requested export text. Photos without GPS are reported; the tool errors only when none of the inputs contain coordinates. Interactive map rendering and reverse geocoding are intentionally out of scope.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "geojson",
+          "description": "Mapping export format: geojson (default FeatureCollection), csv, gpx waypoints, kml placemarks, or a plain list.",
+          "enum": [
+            "geojson",
+            "csv",
+            "gpx",
+            "kml",
+            "list"
+          ],
+          "type": "string"
+        },
+        "images": {
+          "description": "One or more photo sources (JPEG/TIFF/PNG/WebP, depending on embedded EXIF support) to scan for GPS coordinates. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "precision": {
+          "default": 6,
+          "description": "Decimal places for latitude, longitude, and altitude in the formatted output (0-10, default 6).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}

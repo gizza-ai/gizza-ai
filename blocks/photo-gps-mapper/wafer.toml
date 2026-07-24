@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "photo-gps-mapper"
+version = "0.1.0"
+abi = 1
+summary = "Extract GPS coordinates from photos as GeoJSON, CSV, GPX, KML, or a list"
