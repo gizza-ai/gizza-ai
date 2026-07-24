@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/before-after-slider",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a self-contained interactive before/after image comparison slider (HTML).",
+  "role": "skill",
+  "tool": {
+    "description": "Build a self-contained interactive before/after image comparison slider from two image sources. Output is a single HTML blob (inline CSS + JS, no external libraries) that overlays the two images and lets the viewer drag a divider to wipe between them — supports pointer + touch drag, keyboard arrows, a start position, optional per-side labels, horizontal or vertical wipe, custom handle color, and multiple sliders on one page. Images are embedded by URL or data: URI. Choose 'document' output for a save-as-.html page or 'embed' for a paste-anywhere snippet.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "description": "The 'after' image source shown on the right (horizontal) or bottom (vertical). Same accepted forms as 'before'. Works best when both images share the same dimensions. Example: https://picsum.photos/id/1016/900/600",
+          "type": "string"
+        },
+        "after_label": {
+          "default": "After",
+          "description": "Caption badge over the 'after' side. Set to an empty string to hide it. Default 'After'.",
+          "type": "string"
+        },
+        "before": {
+          "description": "The 'before' image source shown on the left (horizontal) or top (vertical). Pass an http(s):// URL, a relative path, or a data:image/...;base64,... URI. Embedded verbatim into the generated HTML. Example: https://picsum.photos/id/1015/900/600",
+          "type": "string"
+        },
+        "before_label": {
+          "default": "Before",
+          "description": "Caption badge over the 'before' side. Set to an empty string to hide it. Default 'Before'.",
+          "type": "string"
+        },
+        "handle_color": {
+          "default": "#ffffff",
+          "description": "Color of the divider line and round handle. Any CSS color: #rgb, #rrggbb, or a named color like 'white'. Default #ffffff.",
+          "type": "string"
+        },
+        "move_on_hover": {
+          "default": false,
+          "description": "If true, the divider follows the mouse on hover (no click needed). If false (default), the user drags or presses to move it. Touch always drags.",
+          "type": "boolean"
+        },
+        "orientation": {
+          "default": "horizontal",
+          "description": "Wipe direction. 'horizontal' (default) = a vertical divider that drags left↔right. 'vertical' = a horizontal divider that drags up↕down.",
+          "enum": [
+            "horizontal",
+            "vertical"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "document",
+          "description": "Output shape. 'document' (default) = a complete, save-as-.html standalone page. 'embed' = just the <style>+<div>+<script> snippet to paste into an existing web page.",
+          "enum": [
+            "document",
+            "embed"
+          ],
+          "type": "string"
+        },
+        "start_position": {
+          "default": 50.0,
+          "description": "Initial divider position as a percent (0–100). 50 puts it in the middle. Clamped into range. Default 50.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "width": {
+          "default": 0,
+          "description": "Maximum widget width in CSS pixels. 0 (default) = fluid: the slider fills its container and stays responsive. Set e.g. 720 to cap the width.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "before",
+        "after"
+      ],
+      "type": "object"
+    }
+  }
+}

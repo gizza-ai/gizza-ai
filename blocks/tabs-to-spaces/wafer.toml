@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tabs-to-spaces"
+version = "0.1.0"
+abi = 1
+summary = "Convert tabs to spaces or spaces to tabs, respecting tab stops."

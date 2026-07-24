@@ -1,0 +1,77 @@
+slug          = "sbom-diff"
+title         = "SBOM Diff — compare two lockfiles or SBOMs for dependency changes"
+description   = "Diff two package-lock.json, Cargo.lock, requirements.txt, or CycloneDX/SPDX SBOMs and see added, removed, and version-bumped dependencies. Runs locally in your browser."
+tags          = ["sbom diff", "dependency diff", "lockfile diff", "package-lock diff", "cargo lock diff", "cyclonedx", "spdx", "supply chain", "version bump", "software bill of materials"]
+h1            = "SBOM Diff"
+hero_subtitle = "Paste two resolved dependency files — old and new — and see exactly which packages were added, removed, or version-bumped. Supports npm package-lock.json, Cargo.lock, requirements.txt, and CycloneDX / SPDX SBOMs, with text, markdown, or JSON output."
+wasm          = "gizza_ai_sbom_diff_web"
+export        = "run"
+live          = false
+output_label  = "Dependency diff"
+format        = "text"
+
+[[input]]
+name        = "old"
+label       = "Old file (before)"
+placeholder = "{\n  \"name\": \"my-app\",\n  \"lockfileVersion\": 3,\n  \"packages\": {\n    \"\": { \"name\": \"my-app\", \"version\": \"1.0.0\" },\n    \"node_modules/chalk\": { \"version\": \"4.1.2\" }\n  }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "new"
+label       = "New file (after)"
+placeholder = "{\n  \"name\": \"my-app\",\n  \"lockfileVersion\": 3,\n  \"packages\": {\n    \"\": { \"name\": \"my-app\", \"version\": \"1.1.0\" },\n    \"node_modules/chalk\": { \"version\": \"5.0.0\" }\n  }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "old_format"
+label       = "Old format"
+source      = "field"
+default     = "auto"
+
+[[input]]
+name        = "new_format"
+label       = "New format"
+source      = "field"
+default     = "auto"
+
+[[input]]
+name        = "include_dev"
+label       = "Include npm dev / optional dependencies"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+default     = "text"
+
+[[example]]
+label = "npm version bump"
+[example.params]
+old = "{\"name\":\"my-app\",\"version\":\"1.0.0\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"my-app\",\"version\":\"1.0.0\"},\"node_modules/chalk\":{\"version\":\"4.1.2\"},\"node_modules/left-pad\":{\"version\":\"1.3.0\"}}}"
+new = "{\"name\":\"my-app\",\"version\":\"1.1.0\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"my-app\",\"version\":\"1.1.0\"},\"node_modules/chalk\":{\"version\":\"5.0.0\"},\"node_modules/lodash\":{\"version\":\"4.17.21\"}}}"
+old_format = "npm"
+new_format = "npm"
+include_dev = "true"
+output = "text"
+
+[[example]]
+label = "Cargo add / remove"
+[example.params]
+old = "[[package]]\nname = \"demo\"\nversion = \"0.1.0\"\n\n[[package]]\nname = \"serde\"\nversion = \"1.0.200\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\n"
+new = "[[package]]\nname = \"demo\"\nversion = \"0.1.0\"\n\n[[package]]\nname = \"serde\"\nversion = \"1.0.210\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\n\n[[package]]\nname = \"anyhow\"\nversion = \"1.0.86\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\n"
+old_format = "cargo"
+new_format = "cargo"
+output = "markdown"
+
+[[example]]
+label = "CycloneDX JSON"
+[example.params]
+old = "{\"bomFormat\":\"CycloneDX\",\"specVersion\":\"1.6\",\"components\":[{\"type\":\"library\",\"name\":\"lodash\",\"version\":\"4.17.20\",\"purl\":\"pkg:npm/lodash@4.17.20\"}]}"
+new = "{\"bomFormat\":\"CycloneDX\",\"specVersion\":\"1.6\",\"components\":[{\"type\":\"library\",\"name\":\"lodash\",\"version\":\"4.17.21\",\"purl\":\"pkg:npm/lodash@4.17.21\"}]}"
+old_format = "cyclonedx-json"
+new_format = "cyclonedx-json"
+output = "json"

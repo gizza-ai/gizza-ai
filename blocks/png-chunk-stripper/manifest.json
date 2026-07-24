@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/png-chunk-stripper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Losslessly strip ancillary PNG chunks (metadata/text/color hints), pixels unchanged",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Losslessly remove ancillary chunks from a PNG by walking the chunk stream at the byte level — the pixel data (IDAT) is never decoded or re-encoded, so the displayed image is bit-for-bit identical. mode is all|metadata|text (default all): all strips every ancillary chunk including color hints (gAMA/cHRM/sRGB/iCCP) for the smallest file; metadata strips text/EXIF/timestamps but keeps color-management + physical-size chunks so appearance and DPI are preserved; text strips only the text and EXIF privacy carriers. keep is a comma-separated list of 4-character chunk types to always preserve (e.g. iCCP,pHYs), overriding mode. Critical chunks (IHDR/PLTE/IDAT/IEND) and transparency (tRNS) are always kept. Non-PNG input is rejected. Provide the PNG as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "keep": {
+          "description": "Comma-separated list of 4-character PNG chunk types to always preserve, overriding mode (e.g. \"iCCP,pHYs\"). Case-sensitive. Leave blank to keep nothing extra.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "all",
+          "description": "Which ancillary chunks to remove: all (default — every ancillary chunk incl. color hints gAMA/cHRM/sRGB/iCCP; smallest file, but on-screen colors may shift), metadata (text tEXt/zTXt/iTXt + EXIF eXIf + timestamp tIME; keeps color-management and physical-size chunks so appearance and DPI are preserved), or text (only the privacy carriers — text chunks + EXIF). Critical chunks (IHDR/PLTE/IDAT/IEND) and transparency (tRNS) are always kept. Default \"all\".",
+          "enum": [
+            "all",
+            "metadata",
+            "text"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

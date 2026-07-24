@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-enex-to-markdown-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_enex_to_markdown_web_bg.wasm",
+    "gizza_ai_enex_to_markdown_web.js",
+    "gizza_ai_enex_to_markdown_web.d.ts"
+  ],
+  "main": "gizza_ai_enex_to_markdown_web.js",
+  "types": "gizza_ai_enex_to_markdown_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

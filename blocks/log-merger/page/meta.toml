@@ -1,0 +1,73 @@
+slug          = "log-merger"
+title         = "Log Merger — interleave multiple logs into one timeline"
+description   = "Merge multiple log files into one timeline sorted by timestamp, with a [source] tag on every line. Free, private, runs in your browser — nothing uploaded."
+tags          = ["log merger", "merge logs", "interleave logs", "combine log files", "unified timeline", "sort logs by timestamp", "log timeline"]
+h1            = "Log Merger"
+hero_subtitle = "Paste two or more logs and get one timeline sorted by each line's timestamp, tagged by source. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_log_merger_web"
+export        = "run"
+live          = false
+output_label  = "Merged timeline"
+format        = "text"
+
+[[input]]
+name        = "logs"
+label       = "Logs"
+placeholder = "# api.log\n2024-06-01T10:00:02Z GET /users 200\n# worker.log\n2024-06-01T10:00:01Z job started"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "source_mode"
+label  = "How to split sources"
+source = "field"
+
+[input.labels]
+header = "Header lines (--- name ---, ==> name <==, # name)"
+blank  = "Blank-line-separated blocks"
+
+[[input]]
+name   = "order"
+label  = "Order"
+source = "field"
+
+[input.labels]
+asc  = "Oldest first"
+desc = "Newest first"
+
+[[input]]
+name   = "dedupe"
+label  = "Drop duplicate lines (same timestamp + text)"
+source = "field"
+
+[[input]]
+name   = "align"
+label  = "Align [source] tags into a column"
+source = "field"
+
+[[example]]
+label = "Merge API + worker logs"
+[example.params]
+logs = "# api.log\n2024-06-01T10:00:02Z GET /users 200\n2024-06-01T10:00:05Z GET /orders 200\n# worker.log\n2024-06-01T10:00:01Z job started\n2024-06-01T10:00:04Z job done"
+source_mode = "header"
+order = "asc"
+dedupe = "false"
+align = "true"
+
+[[example]]
+label = "Newest first"
+[example.params]
+logs = "# api.log\n2024-06-01T10:00:02Z GET /users 200\n# worker.log\n2024-06-01T10:00:01Z job started\n2024-06-01T10:00:04Z job done"
+source_mode = "header"
+order = "desc"
+dedupe = "false"
+align = "true"
+
+[[example]]
+label = "Blank-line blocks + dedupe"
+[example.params]
+logs = "2024-06-01T10:00:02Z b\n2024-06-01T10:00:03Z dup\n\n2024-06-01T10:00:01Z a\n2024-06-01T10:00:03Z dup"
+source_mode = "blank"
+order = "asc"
+dedupe = "true"
+align = "true"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-edge-silence-trimmer"
+version = "0.1.0"
+abi = 1
+summary = "Trim only the leading and trailing silence from an audio recording"

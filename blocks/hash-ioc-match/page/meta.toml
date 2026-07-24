@@ -1,0 +1,49 @@
+slug          = "hash-ioc-match"
+title         = "Hash IOC Matcher — Flag a File Against a Known-Bad Hash Blocklist"
+description   = "Hash text, hex or base64 content and match its MD5/SHA-1/SHA-256/SHA-512 against a pasted blocklist of known-bad IOC hashes. Free, private, in-browser."
+tags          = ["hash", "ioc", "blocklist", "known bad hashes", "malware", "md5", "sha1", "sha256", "sha512", "threat intelligence", "cti", "soc", "file reputation", "indicator match"]
+h1            = "Hash IOC Matcher"
+hero_subtitle = "Paste a file's content and a blocklist of known-bad hashes to check whether the file is a known indicator of compromise. Its MD5, SHA-1, SHA-256 and SHA-512 digests are computed and looked up in your blocklist — FLAGGED if any matches, CLEAN if not. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_hash_ioc_match_web"
+export        = "run"
+live          = false
+output_label  = "Match result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "File content"
+placeholder = "Paste the file's content here — e.g. abc"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "blocklist"
+label       = "Known-bad hash blocklist"
+placeholder = "Paste known-bad hashes, one per line or any format — e.g.\nMD5: 900150983cd24fb0d6963f7d28e17f72 , dropper.exe\n# sha256 feed\nba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+source      = "field"
+multiline   = true
+
+# input_encoding renders as a <select> — control type + options are derived from
+# the descriptor's schema (manifest.json), so the label stays short and the
+# option list is NOT duplicated here.
+[[input]]
+name        = "input_encoding"
+label       = "Interpret input as"
+source      = "field"
+
+[[example]]
+label  = "MD5 match (FLAGGED)"
+params = { input = "abc", blocklist = "900150983cd24fb0d6963f7d28e17f72" }
+
+[[example]]
+label  = "No match (CLEAN)"
+params = { input = "hello", blocklist = "900150983cd24fb0d6963f7d28e17f72" }
+
+[[example]]
+label  = "Base64 input"
+params = { input = "YWJj", blocklist = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", input_encoding = "base64" }
+
+[[example]]
+label  = "Hex input"
+params = { input = "616263", blocklist = "a9993e364706816aba3e25717850c26c9cd0d89d", input_encoding = "hex" }

@@ -1,0 +1,63 @@
+slug          = "gpx-split"
+title         = "GPX Splitter — Split Tracks by Distance, Time, or Stops"
+description   = "Split a GPX track into multiple segments by distance, elapsed time, or detected stop gaps. Output a new GPX or a per-segment summary locally in your browser."
+tags          = ["gpx splitter", "gpx split", "split gpx track", "gpx distance split", "gpx time split", "gpx stop detection", "gps track segments"]
+h1            = "GPX Splitter"
+hero_subtitle = "Paste a GPX track and split it into segments by distance, elapsed time, or pause gaps. Export a new multi-track GPX or inspect a segment summary — all locally, without uploads."
+wasm          = "gizza_ai_gpx_split_web"
+export        = "run"
+live          = false
+output_label  = "Split GPX / summary"
+format        = "text"
+
+[[input]]
+name        = "gpx"
+label       = "GPX XML"
+placeholder = "<gpx><trk><name>Ride</name><trkseg><trkpt lat=\"0\" lon=\"0\"/><trkpt lat=\"0.01\" lon=\"0\"/></trkseg></trk></gpx>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Split mode"
+source      = "field"
+
+[[input]]
+name        = "distance"
+label       = "Distance per segment"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "unit"
+label       = "Distance unit"
+source      = "field"
+
+[[input]]
+name        = "time_min"
+label       = "Minutes per segment"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name        = "stop_gap_s"
+label       = "Stop gap seconds"
+placeholder = "120"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[[example]]
+label  = "Every 1 km"
+params = { gpx = "<gpx><trk><name>Demo</name><trkseg><trkpt lat=\"0.000\" lon=\"0\"><time>2024-01-01T00:00:00Z</time></trkpt><trkpt lat=\"0.010\" lon=\"0\"><time>2024-01-01T00:10:00Z</time></trkpt><trkpt lat=\"0.020\" lon=\"0\"><time>2024-01-01T00:20:00Z</time></trkpt></trkseg></trk></gpx>", mode = "distance", distance = "1", unit = "km", output = "summary" }
+
+[[example]]
+label  = "Every 10 minutes"
+params = { gpx = "<gpx><trk><name>Demo</name><trkseg><trkpt lat=\"0.000\" lon=\"0\"><time>2024-01-01T00:00:00Z</time></trkpt><trkpt lat=\"0.005\" lon=\"0\"><time>2024-01-01T00:10:00Z</time></trkpt><trkpt lat=\"0.010\" lon=\"0\"><time>2024-01-01T00:20:00Z</time></trkpt></trkseg></trk></gpx>", mode = "time", time_min = "10", output = "summary" }
+
+[[example]]
+label  = "Detect stops"
+params = { gpx = "<gpx><trk><name>Demo</name><trkseg><trkpt lat=\"0.000\" lon=\"0\"><time>2024-01-01T00:00:00Z</time></trkpt><trkpt lat=\"0.001\" lon=\"0\"><time>2024-01-01T00:01:00Z</time></trkpt><trkpt lat=\"0.002\" lon=\"0\"><time>2024-01-01T00:21:00Z</time></trkpt><trkpt lat=\"0.003\" lon=\"0\"><time>2024-01-01T00:22:00Z</time></trkpt></trkseg></trk></gpx>", mode = "stops", stop_gap_s = "120", output = "summary" }

@@ -1,0 +1,28 @@
+[package]
+name = "gizza-ai-loudness-spec-compliance-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust demuxers + DECODERS — decode any supported container to
+# f32 PCM so ebur128 can measure it. Same wasm-proven crate as media-info /
+# loudness-matched-ab-prep; features trimmed to the audio formats we accept.
+symphonia = { version = "0.5", default-features = false, features = [
+    "wav",
+    "pcm",
+    "flac",
+    "mp3",
+    "ogg",
+    "vorbis",
+    "isomp4",
+    "aac",
+    "alac",
+] }
+# ebur128: pure-Rust port of libebur128 — ITU-R BS.1770 / EBU R128 gated
+# integrated loudness (LUFS), loudness range (LRA) and 4x-oversampled true peak.
+ebur128 = "0.1"
+
+[dev-dependencies]
+# hound: pure-Rust WAV writer — used only by tests to synthesize fixtures.
+hound = "3"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "png-chunk-stripper"
+version = "0.1.0"
+abi = 1
+summary = "Losslessly strip ancillary PNG chunks (metadata/text/color hints), pixels unchanged"

@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/totp-secret-setup",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a random TOTP secret + otpauth:// enrollment URI",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh, cryptographically random TOTP (2FA) secret locally and assemble its standard `otpauth://` enrollment URI for authenticator apps (Google Authenticator, Authy, 1Password, etc.). Set `issuer` (recommended) and `account` (required) to label the entry; `secret_bytes` (10–64, default 20 = 160 bits) sets the secret strength; `digits` (6–8, default 6), `period` (default 30 s), and `algorithm` (sha1/sha256/sha512, default sha1) match what the service expects. Returns the base32 secret, the otpauth:// URI, and the secret strength in bits. The secret is generated on-device and never sent to a server.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "description": "The account name / username the codes are for (e.g. an email address). Required; must not contain a colon.",
+          "type": "string"
+        },
+        "algorithm": {
+          "default": "sha1",
+          "description": "HMAC hash algorithm (default sha1, the authenticator-app standard). Only change it if the service explicitly requires sha256 or sha512.",
+          "enum": [
+            "sha1",
+            "sha256",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "digits": {
+          "default": 6,
+          "description": "Number of digits in the generated codes (6, 7, or 8; default 6).",
+          "maximum": 8,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "issuer": {
+          "description": "The provider/organization name shown in the authenticator app (e.g. 'GitHub'). Optional but recommended so the entry is easy to identify.",
+          "type": "string"
+        },
+        "period": {
+          "default": 30,
+          "description": "TOTP time step in seconds (default 30).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "secret_bytes": {
+          "default": 20,
+          "description": "Length of the random secret in bytes (10–64; default 20 = 160 bits, the RFC 4226 recommendation for SHA1).",
+          "maximum": 64,
+          "minimum": 10,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "account"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "content-trim-bounds-detector"
+version = "0.1.0"
+abi = 1
+summary = "Detect an image's tight content bounding box and report the crop that trims the uniform or transparent margin"

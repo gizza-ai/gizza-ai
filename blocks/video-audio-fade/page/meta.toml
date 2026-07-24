@@ -1,0 +1,54 @@
+slug          = "video-audio-fade"
+title         = "Fade Video Audio In or Out Online"
+description   = "Add fade-in and fade-out ramps to a video's audio while copying the picture untouched. Free, private, and runs in your browser."
+tags          = ["video audio fade", "fade audio in video", "fade in audio", "fade out audio", "audio fade", "ffmpeg"]
+h1            = "Fade Video Audio In or Out"
+hero_subtitle = "Pick a video and fade its sound in, out, or both — the picture is copied untouched and nothing is uploaded."
+wasm          = "gizza_ai_video_audio_fade_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Video with faded audio"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST match web/src/lib.rs build_argv: fade_in, fade_out.
+[[input]]
+name        = "fade_in"
+source      = "field"
+label       = "Fade in (seconds)"
+placeholder = "3"
+kind        = "slider"
+min         = "0"
+max         = "30"
+step        = "0.5"
+
+[[input]]
+name        = "fade_out"
+source      = "field"
+label       = "Fade out (seconds)"
+placeholder = "3"
+kind        = "slider"
+min         = "0"
+max         = "30"
+step        = "0.5"
+
+[[example]]
+label  = "Gentle 3s in + out"
+params = { fade_in = "3", fade_out = "3" }
+
+[[example]]
+label  = "Quick 1s fade-in"
+params = { fade_in = "1", fade_out = "0" }
+
+[[example]]
+label  = "Fade out only"
+params = { fade_in = "0", fade_out = "4" }
+
+[[example]]
+label  = "Cinematic 5s tails"
+params = { fade_in = "5", fade_out = "5" }

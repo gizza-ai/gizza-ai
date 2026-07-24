@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/ini-env-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Diff two .env or .ini config files key-by-key: added, removed and changed settings.",
+  "role": "skill",
+  "tool": {
+    "description": "Diff two .env or .ini/.conf config files key-by-key. Pass the first (old/base) file in `left` and the second (new/compared) file in `right`; the tool parses both — handling KEY=VALUE and 'key = value'/'key: value' pairs, # and ; comments, blank lines, single/double quotes, inline comments, an 'export ' prefix, and [section] headers (flattened to dotted 'section.key') — then reports keys that were added (only in `right`), removed (only in `left`), changed (in both with a different value, shown old -> new), and unchanged, with a count summary. `format` picks the parser (auto|env|ini; auto detects [section] headers). Set `ignore_case` to compare key names case-insensitively. Set `mask_secrets` to redact values of sensitive-looking keys so the diff can be shared. `output` selects 'report' (default, grouped human summary) or 'json' (structured). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "auto",
+          "description": "How to parse both files: 'auto' (default) uses INI parsing if either file has a [section] header, otherwise env; 'env' forces flat KEY=VALUE (dotenv); 'ini' forces [section]-aware parsing with dotted section.key names.",
+          "enum": [
+            "auto",
+            "env",
+            "ini"
+          ],
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare key names case-insensitively, so DB_HOST and db_host are treated as the same key. Default false (case-sensitive).",
+          "type": "boolean"
+        },
+        "left": {
+          "description": "The first (old/base) config file contents. Accepts .env or .ini/.conf text: KEY=VALUE or 'key = value'/'key: value' pairs, # and ; comments, blank lines, single/double quotes, inline comments, an 'export ' prefix, and [section] headers (become dotted 'section.key').",
+          "type": "string"
+        },
+        "mask_secrets": {
+          "default": false,
+          "description": "Mask values of sensitive-looking keys (names containing SECRET, TOKEN, PASSWORD, KEY, AUTH, etc.) in the output so a diff can be shared safely. Default false (show raw values).",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output form: 'report' (default) a grouped human summary with Added/Removed/Changed/Unchanged sections and counts; 'json' a structured object { format, summary, added, removed, changed, unchanged }.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "right": {
+          "description": "The second (new/compared) config file contents, in the same syntax as `left`. Keys only in `right` are reported as added, keys only in `left` as removed, and keys in both with different values as changed.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "type": "object"
+    }
+  }
+}

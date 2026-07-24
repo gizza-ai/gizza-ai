@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/import-graph-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the import/dependency graph from pasted source files.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the import/require/use dependency graph from pasted source code. Paste one or more files, separated by `=== path ===` (or `--- path ---`) header lines; supports JavaScript/TypeScript (import, dynamic import, export-from, require), Python (import, from, relative imports), Rust (use, mod, extern crate), and Go (import). Resolves file-to-file edges for JS/TS relative paths and Python dotted modules, and reports external dependencies, dependents (who imports each file), orphan and leaf files, and circular dependencies. Choose format=text (default), json, dot (Graphviz), or mermaid; toggle include_external and detect_cycles.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "detect_cycles": {
+          "default": true,
+          "description": "Detect and report circular dependencies (import cycles) between the pasted files. Default true.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format. 'text' (default) is a human-readable report; 'json' is a structured graph object; 'dot' is Graphviz DOT; 'mermaid' is a Mermaid flowchart. Paste dot/mermaid into any renderer for a picture.",
+          "enum": [
+            "text",
+            "json",
+            "dot",
+            "mermaid"
+          ],
+          "type": "string"
+        },
+        "include_external": {
+          "default": true,
+          "description": "Include third-party packages and standard-library modules (e.g. react, lodash, os, fmt) in the report and graph. Default true; set false to focus only on file-to-file edges.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Source code to analyze. Paste one or more files; separate multiple files with a header line like `=== src/app.js ===` or `--- src/app.js ---` (the path sets each file's name and, in auto mode, its language from the extension). With no headers the whole input is treated as one file and its name is inferred from `language`.",
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Source language. 'auto' (default) detects each file from its header extension, or sniffs a single headerless file. Force 'javascript' (JS/TS/JSX/TSX), 'python', 'rust', or 'go' to treat every pasted file as that language.",
+          "enum": [
+            "auto",
+            "javascript",
+            "python",
+            "rust",
+            "go"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

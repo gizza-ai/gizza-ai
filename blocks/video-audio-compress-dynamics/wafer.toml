@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-compress-dynamics"
+version = "0.1.0"
+abi = 1
+summary = "Even out a video's loud and quiet audio"

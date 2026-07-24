@@ -1,0 +1,49 @@
+slug          = "audio-edge-silence-trimmer"
+title         = "Trim Leading & Trailing Silence from Audio Online"
+description   = "Cut dead air at the start and end of a recording while leaving middle pauses untouched — set a threshold and edge pad. Runs locally, nothing uploaded."
+tags          = ["audio", "silence", "trim", "edge", "leading", "trailing", "dead air", "podcast", "voice"]
+h1            = "Trim Leading & Trailing Silence"
+hero_subtitle = "Pick a recording — only the silence at the very start and end is trimmed, in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_edge_silence_trimmer_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Edge-trimmed audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "threshold_db"
+source      = "field"
+label       = "Silence threshold (dB)"
+placeholder = "-50"
+
+[[input]]
+name        = "pad"
+source      = "field"
+label       = "Pad kept at each edge (seconds)"
+placeholder = "0.1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+
+[input.labels]
+mp3  = "MP3"
+wav  = "WAV"
+ogg  = "OGG"
+flac = "FLAC"
+m4a  = "M4A"
+
+[[example]]
+label = "Voice memo cleanup"
+params = { threshold_db = "-50", pad = "0.1", format = "mp3" }
+
+[[example]]
+label = "Hard cut to WAV"
+params = { threshold_db = "-45", pad = "0", format = "wav" }

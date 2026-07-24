@@ -1,0 +1,19 @@
+{
+  "name": "gizza-ai/fit-file-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a base64 FIT activity file to a summary, CSV, or GPX",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a binary Garmin/ANT FIT activity file (supplied as base64) into readable output. Choose summary for the protocol/profile version, record count, time range, GPS bounding box and the session totals and averages (sport, distance, time, calories, speed, heart rate, power, ascent/descent); csv for one row per record with timestamp, latitude, longitude, altitude, distance, speed, heart rate, cadence and power; or gpx for a GPX 1.1 track with <ele>, <time> and heart-rate/cadence/power extensions. Handles little- and big-endian FIT, compressed timestamps, and developer fields (skipped). Positions are converted from semicircles to degrees; unknown messages are ignored, not errored. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": { "type": "string", "description": "The .fit file contents encoded as base64 (standard or URL-safe alphabet, whitespace tolerated). Decode the binary FIT activity file to base64 first; the raw bytes must start with the 12-byte FIT header carrying the \".FIT\" signature. Maximum 8 MiB decoded." },
+        "format": { "type": "string", "enum": ["summary", "csv", "gpx"], "default": "summary", "description": "Output shape: summary (header, record count, time range, GPS bounding box and the session totals/averages), csv (one row per record with timestamp, position, altitude, distance, speed, heart rate, cadence and power), or gpx (a GPX 1.1 track with elevation, time and heart-rate/cadence/power extensions). Default summary." }
+      },
+      "additionalProperties": false
+    }
+  }
+}

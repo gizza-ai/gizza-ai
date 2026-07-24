@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-enex-to-markdown-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# quick-xml: parse the ENEX (Evernote export) XML — notes, tags, resources.
+quick-xml = { version = "0.40", default-features = false }
+# htmd: pure-Rust HTML/ENML -> Markdown (html5ever), wasm32-safe.
+htmd = "0.5"
+# nanohtml2text: lightweight HTML -> plain text for the "text" output mode.
+nanohtml2text = "0.1"
+serde = { version = "1", features = ["derive"] }

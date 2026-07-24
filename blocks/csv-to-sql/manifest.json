@@ -1,0 +1,120 @@
+{
+  "name": "gizza-ai/csv-to-sql",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate SQL CREATE TABLE and INSERT statements from a CSV or JSON table.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a CSV (or JSON) table into runnable SQL: a CREATE TABLE with a type inferred for every column plus INSERT statements. Accepts delimited text with a header row (delimiter auto-sniffed, or set comma/tab/semicolon/pipe) or JSON (an object = one row, an array = one row per object). Type inference recognizes integer, float, boolean, date, and datetime columns (zero-padded codes like ZIP codes stay text) and maps them to the chosen dialect's SQL types (mysql, postgres, sqlite, mssql, ansi). Pick literal or placeholder/prepared-statement values, one multi-row INSERT or per-row inserts, an optional PRIMARY KEY and DROP TABLE IF EXISTS, and how blank cells become NULL/DEFAULT/''.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "create_table": {
+          "default": true,
+          "description": "Emit a CREATE TABLE before the inserts, with each column's type inferred from the data (integer/float/boolean/date/datetime/text). Default true.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV field delimiter. 'auto' (default) sniffs comma/semicolon/tab/pipe by picking the most consistent column count. Ignored for JSON input. Default auto.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "detect_dates": {
+          "default": true,
+          "description": "When inferring types, also recognize date (YYYY-MM-DD, MM/DD/YYYY, …) and datetime (YYYY-MM-DD HH:MM:SS, ISO 8601) columns and map them to SQL DATE/TIMESTAMP types. When false, date-looking columns stay text. Only used when infer_types is true. Default true.",
+          "type": "boolean"
+        },
+        "dialect": {
+          "default": "mysql",
+          "description": "SQL dialect. Sets identifier quoting (mysql=`backticks`, postgres/sqlite/ansi=\"double quotes\", mssql=[brackets]), boolean literals (postgres/ansi=TRUE/FALSE, others=1/0), string escaping (mysql also escapes backslashes), placeholder syntax, and CREATE TABLE column types (e.g. dates → DATE, datetimes → TIMESTAMP/DATETIME). Default mysql.",
+          "enum": [
+            "mysql",
+            "postgres",
+            "sqlite",
+            "mssql",
+            "ansi"
+          ],
+          "type": "string"
+        },
+        "drop_table": {
+          "default": false,
+          "description": "Prepend a DROP TABLE IF EXISTS statement. Default false.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to parse the input. 'auto' (default) treats text starting with { or [ as JSON, otherwise CSV. Force 'csv' or 'json' to override. Default auto.",
+          "enum": [
+            "auto",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first CSV row as column names. When false, columns are named column_1, column_2, … Ignored for JSON input (keys are always the columns). Default true.",
+          "type": "boolean"
+        },
+        "infer_types": {
+          "default": true,
+          "description": "Infer a type per column (integer/float/boolean/date/datetime/text) from the values, driving CREATE TABLE column types and whether numbers/booleans are emitted unquoted. When false, every column is text and every value is a quoted string. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The table data: CSV/delimited text with a header row, or JSON (an object = one row, or an array of row objects). Example CSV: \"id,name\\n1,Alice\\n2,Bob\". Column names come from the header (CSV) or object keys (JSON).",
+          "type": "string"
+        },
+        "multi_row": {
+          "default": true,
+          "description": "Emit one multi-row INSERT ... VALUES (...),(...) instead of a separate INSERT per row. Default true.",
+          "type": "boolean"
+        },
+        "null_handling": {
+          "default": "null",
+          "description": "How a blank cell (or JSON null / missing key) is written: 'null' → NULL (default), 'default' → the SQL keyword DEFAULT (use the column's own default), 'empty-string' → an empty string ''. Default null.",
+          "enum": [
+            "null",
+            "default",
+            "empty-string"
+          ],
+          "type": "string"
+        },
+        "primary_key": {
+          "description": "Name of the column to mark as PRIMARY KEY in the generated CREATE TABLE (only used when create_table is true). Must be one of the columns. Optional.",
+          "type": "string"
+        },
+        "quote_identifiers": {
+          "default": true,
+          "description": "Quote table and column identifiers for the dialect. When false, identifiers are emitted bare and validated as safe (letters, digits, underscores; not starting with a digit) — an unsafe name errors. Default true.",
+          "type": "boolean"
+        },
+        "table": {
+          "default": "my_table",
+          "description": "Target table name (default \"my_table\"). May be schema-qualified like \"public.users\" — each dot-separated part is quoted independently.",
+          "type": "string"
+        },
+        "values": {
+          "default": "literal",
+          "description": "Value output mode. 'literal' (default) inlines escaped SQL literals. 'placeholder' emits positional placeholders for a prepared statement (? for mysql/sqlite, @pN for mssql, $N for postgres) and lists the bound values in a trailing '-- params:' comment. Default literal.",
+          "enum": [
+            "literal",
+            "placeholder"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

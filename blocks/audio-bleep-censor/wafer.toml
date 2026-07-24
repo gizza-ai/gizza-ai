@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-bleep-censor"
+version = "0.1.0"
+abi = 1
+summary = "Bleep, mute or duck time regions of an audio file to censor words"

@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/gamma-correct",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Brighten or darken an image's midtones with a gamma curve, with optional per-channel gamma and highlight protection.",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a gamma (power-law) correction to an image's midtones. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional gamma 0.1-10 (default 1; above 1 brightens midtones, below 1 darkens, 1 = no change), per-channel gamma_r/gamma_g/gamma_b 0.1-10 (default 1) to correct a color cast, gamma_weight 0-1 (default 1) to protect highlights from blowout, and format keep|png|jpg|webp (default keep). Black and white stay fixed so midtones move without clipping.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "keep",
+          "description": "Output format: keep (default) preserves the input format (and any animation); png, jpg or webp convert — an animated GIF keeps only its first frame when converting.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "gamma": {
+          "default": 1.0,
+          "description": "Overall gamma, 0.1-10. Above 1 brightens the midtones (lift a dark photo), below 1 darkens them; 1 (the default) leaves the image unchanged. Pure black and white stay fixed, so midtones move without clipping. Example: 1.8 to brighten an underexposed photo.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "gamma_b": {
+          "default": 1.0,
+          "description": "Blue-channel gamma, 0.1-10 (default 1 = no change). Raise or lower just the blue midtones to correct a color cast; composes with the overall gamma.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "gamma_g": {
+          "default": 1.0,
+          "description": "Green-channel gamma, 0.1-10 (default 1 = no change). Raise or lower just the green midtones to correct a color cast; composes with the overall gamma.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "gamma_r": {
+          "default": 1.0,
+          "description": "Red-channel gamma, 0.1-10 (default 1 = no change). Raise or lower just the red midtones to correct a color cast; composes with the overall gamma.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "gamma_weight": {
+          "default": 1.0,
+          "description": "Highlight-protection weight, 0-1 (default 1 = full correction everywhere). Lower it to fade the gamma out on the brightest pixels so a strong gamma doesn't blow out highlights; 0 leaves the brightest areas untouched.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

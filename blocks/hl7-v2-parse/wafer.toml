@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hl7-v2-parse"
+version = "0.1.0"
+abi = 1
+summary = "Parse a pipe-delimited HL7 v2.x message into named segments, fields and components as JSON or CSV"

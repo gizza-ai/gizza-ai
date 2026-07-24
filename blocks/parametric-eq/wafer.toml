@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "parametric-eq"
+version = "0.1.0"
+abi = 1
+summary = "Apply a 3-band parametric EQ with adjustable frequency, gain and Q"

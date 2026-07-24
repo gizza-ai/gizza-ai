@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-perspective-warp"
+version = "0.1.0"
+abi = 1
+summary = "Apply a four-corner perspective transform to an image."

@@ -1,0 +1,58 @@
+slug          = "enex-to-markdown"
+title         = "ENEX to Markdown Converter"
+description   = "Convert Evernote ENEX exports to Markdown or plain text with titles, dates, tags, source URLs, and attachment summaries — locally in your browser."
+tags          = ["enex to markdown", "evernote export", "evernote to markdown", "enex converter", "enml to markdown", "notes migration", "obsidian import"]
+h1            = "ENEX to Markdown Converter"
+hero_subtitle = "Paste an Evernote .enex export and convert notes to Markdown or plain text with metadata, tags, source links, and attachment summaries. Runs locally in your browser."
+wasm          = "gizza_ai_enex_to_markdown_web"
+export        = "run"
+live          = false
+output_label  = "Markdown output"
+format        = "text"
+
+[[input]]
+name        = "enex"
+label       = "ENEX XML"
+placeholder = "Paste the contents of an Evernote .enex export…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown"
+text     = "Plain text"
+
+[[input]]
+name   = "metadata"
+label  = "Metadata style"
+source = "field"
+
+[input.labels]
+frontmatter = "YAML frontmatter"
+inline      = "Inline heading + tags"
+none        = "Title only"
+
+[[input]]
+name   = "attachments"
+label  = "List attachments"
+source = "field"
+
+[[example]]
+label = "Sample note with tag"
+[example.params]
+enex = "<en-export><note><title>Migration note</title><content><![CDATA[<en-note><h1>Hello</h1><p>Some <b>bold</b> text and a <a href=\"https://example.com\">link</a>.</p></en-note>]]></content><created>20230101T090000Z</created><tag>import</tag></note></en-export>"
+format = "markdown"
+metadata = "frontmatter"
+attachments = "true"
+
+[[example]]
+label = "Inline metadata"
+[example.params]
+enex = "<en-export><note><title>Reading list</title><content><![CDATA[<en-note><ul><li>One</li><li>Two</li></ul></en-note>]]></content><created>20240203T101112Z</created><tag>reading list</tag></note></en-export>"
+format = "markdown"
+metadata = "inline"
+attachments = "false"

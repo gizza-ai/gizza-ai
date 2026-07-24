@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/video-audio-fade",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fade a video's audio in at the start and/or out at the end",
+  "role": "skill",
+  "tool": {
+    "description": "Add an audio-only fade-in at the start and/or fade-out at the end of a video, without touching the picture (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). fade_in and fade_out are lengths in seconds (0–30); 0 skips that side, and at least one must be greater than 0. The output keeps the input container (mp4→mp4, webm→webm; webm audio becomes Opus, otherwise AAC). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "fade_in": {
+          "default": 0.0,
+          "description": "Length in seconds of the fade-in ramped up from silence at the START of the audio. 0 skips the fade-in. Range 0–30 s. At least one of fade_in / fade_out must be greater than 0.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade_out": {
+          "default": 0.0,
+          "description": "Length in seconds of the fade-out ramped down to silence at the END of the audio. 0 skips the fade-out. Range 0–30 s. At least one of fade_in / fade_out must be greater than 0.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

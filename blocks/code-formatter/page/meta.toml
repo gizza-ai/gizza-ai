@@ -1,0 +1,52 @@
+slug          = "code-formatter"
+title         = "Code Formatter — Beautify HTML, CSS, JavaScript & JSON"
+description   = "Beautify and re-indent minified or messy HTML, CSS, JavaScript, or JSON. Auto-detect the language, choose spaces or tabs, and format locally in your browser."
+tags          = ["code formatter", "code beautifier", "html formatter", "css formatter", "javascript formatter", "json formatter", "json pretty print", "js beautifier", "re-indent code"]
+h1            = "Code Formatter"
+hero_subtitle = "Paste minified or messy HTML, CSS, JavaScript, or JSON and get it cleanly re-indented. Auto-detect the language or pick one, choose spaces or tabs — all locally, nothing is uploaded."
+wasm          = "gizza_ai_code_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted code"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Code to format"
+placeholder = "Paste HTML, CSS, JavaScript, or JSON…"
+source      = "field"
+multiline   = true
+
+# language renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "language"
+label       = "Language"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Spaces per level (1–8)"
+placeholder = "2"
+source      = "field"
+
+# indent_char renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "indent_char"
+label       = "Indent character"
+source      = "field"
+
+[[example]]
+label  = "Pretty-print JSON"
+params = { code = "{\"name\":\"gizza\",\"tags\":[\"a\",\"b\"],\"nested\":{\"x\":1}}" }
+
+[[example]]
+label  = "Format CSS"
+params = { code = "a{color:red;margin:0}", language = "css" }
+
+[[example]]
+label  = "Minified HTML"
+params = { code = "<div><p>hi</p></div>", language = "html" }
+
+[[example]]
+label  = "JavaScript with tabs"
+params = { code = "function f(){return 1;}", language = "javascript", indent_char = "tab" }

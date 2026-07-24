@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-ken-burns"
+version = "0.1.0"
+abi = 1
+summary = "Animate a still image with a smooth pan-and-zoom (Ken Burns) effect into a short video clip."

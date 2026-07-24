@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/loudness-spec-compliance",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check an audio file's loudness (LUFS), true peak and LRA against a delivery spec",
+  "role": "skill",
+  "tool": {
+    "description": "Measure an audio file's ITU-R BS.1770 / EBU R128 integrated loudness (LUFS), 4×-oversampled true peak (dBTP) and loudness range (LRA), then check them against a named delivery spec and return a per-criterion PASS/FAIL verdict plus an overall pass. standard picks the spec: ebu-r128 (-23 LUFS ±1, ≤ -1 dBTP; EU broadcast), atsc-a85 (-24 LKFS ±2, ≤ -2 dBTP; US CALM Act), spotify / youtube / tidal (-14 LUFS ±1, ≤ -1 dBTP), amazon-music (-14 LUFS ±1, ≤ -2 dBTP), apple-music (-16 LUFS ±1, ≤ -1 dBTP), or custom (supply target_lufs, tolerance_lu, max_true_peak, and optionally max_lra > 0 to also cap loudness range). Integrated loudness passes when it is within target ± tolerance; true peak passes when at or below the ceiling; LRA is always reported and only pass/fail when a spec caps it. This tool MEASURES and reports only — it never rewrites the audio (use audio-normalize, normalize-peak or loudness-matched-ab-prep to actually hit a target). Input may be wav, flac, mp3, ogg (Vorbis) or m4a (AAC-LC/ALAC), mono or stereo, at least 1 s. Provide the audio as either url (HTTP/HTTPS) or ref (id from a prior tool call). Returns JSON: the resolved spec, the measured values, a checks[] array (criterion, measured, limit, pass, detail) and the overall pass boolean.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "max_lra": {
+          "default": 0.0,
+          "description": "Optional loudness-range (LRA) ceiling in LU for standard=custom (ignored for presets). 0 (default) = do not check LRA; any value > 0 adds a pass/fail loudness_range criterion. Range 0 to 60.",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "number"
+        },
+        "max_true_peak": {
+          "default": -1.0,
+          "description": "Maximum allowed true peak in dBTP for standard=custom (ignored for presets). The measured 4×-oversampled true peak must be at or below this. Range -20 to 0.",
+          "maximum": 0,
+          "minimum": -20,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "standard": {
+          "default": "ebu-r128",
+          "description": "Delivery spec to check against. ebu-r128 (default): -23 LUFS ±1, true peak ≤ -1 dBTP (EU broadcast). atsc-a85: -24 LKFS ±2, ≤ -2 dBTP (US CALM Act). spotify/youtube/tidal: -14 LUFS ±1, ≤ -1 dBTP. amazon-music: -14 LUFS ±1, ≤ -2 dBTP. apple-music: -16 LUFS ±1, ≤ -1 dBTP. custom: use the target_lufs / tolerance_lu / max_true_peak / max_lra values below.",
+          "enum": [
+            "ebu-r128",
+            "atsc-a85",
+            "spotify",
+            "youtube",
+            "apple-music",
+            "amazon-music",
+            "tidal",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "target_lufs": {
+          "default": -23.0,
+          "description": "Target integrated loudness in LUFS for standard=custom (ignored for every preset). Range -40 to 0.",
+          "maximum": 0,
+          "minimum": -40,
+          "type": "number"
+        },
+        "tolerance_lu": {
+          "default": 1.0,
+          "description": "Permitted ± deviation from target_lufs in LU, for standard=custom (ignored for presets). E.g. 1.0 = the file passes if it is within ±1 LU of the target. Range 0 to 12.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

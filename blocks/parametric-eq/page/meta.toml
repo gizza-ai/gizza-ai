@@ -1,0 +1,130 @@
+slug          = "parametric-eq"
+title         = "Parametric EQ Online"
+description   = "Free parametric equalizer in your browser — set the exact frequency, gain and Q of three bands, then save as MP3, WAV, OGG, FLAC or M4A. Nothing uploaded."
+tags          = ["audio", "parametric eq", "equalizer", "frequency", "gain", "bandwidth", "q factor", "peaking filter"]
+h1            = "Parametric Equalizer"
+hero_subtitle = "Dial in three bands by frequency, gain and Q, then equalize your audio right in the browser — nothing is uploaded."
+wasm          = "gizza_ai_parametric_eq_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Equalized audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "band1_freq"
+source      = "field"
+label       = "Band 1 frequency (Hz)"
+placeholder = "100"
+default     = "100"
+
+[[input]]
+name        = "band1_gain"
+source      = "field"
+kind        = "slider"
+label       = "Band 1 gain (dB)"
+placeholder = "0"
+default     = "0"
+min         = -20.0
+max         = 20.0
+step        = "1"
+
+[[input]]
+name        = "band1_q"
+source      = "field"
+kind        = "slider"
+label       = "Band 1 Q"
+placeholder = "1"
+default     = "1"
+min         = 0.1
+max         = 10.0
+step        = "0.1"
+
+[[input]]
+name        = "band2_freq"
+source      = "field"
+label       = "Band 2 frequency (Hz)"
+placeholder = "1000"
+default     = "1000"
+
+[[input]]
+name        = "band2_gain"
+source      = "field"
+kind        = "slider"
+label       = "Band 2 gain (dB)"
+placeholder = "0"
+default     = "0"
+min         = -20.0
+max         = 20.0
+step        = "1"
+
+[[input]]
+name        = "band2_q"
+source      = "field"
+kind        = "slider"
+label       = "Band 2 Q"
+placeholder = "1"
+default     = "1"
+min         = 0.1
+max         = 10.0
+step        = "0.1"
+
+[[input]]
+name        = "band3_freq"
+source      = "field"
+label       = "Band 3 frequency (Hz)"
+placeholder = "5000"
+default     = "5000"
+
+[[input]]
+name        = "band3_gain"
+source      = "field"
+kind        = "slider"
+label       = "Band 3 gain (dB)"
+placeholder = "0"
+default     = "0"
+min         = -20.0
+max         = 20.0
+step        = "1"
+
+[[input]]
+name        = "band3_q"
+source      = "field"
+kind        = "slider"
+label       = "Band 3 Q"
+placeholder = "1"
+default     = "1"
+min         = 0.1
+max         = 10.0
+step        = "0.1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Vocal presence"
+[example.params]
+band2_freq = "3000"
+band2_gain = "4"
+band2_q    = "1.5"
+
+[[example]]
+label = "Cut mud"
+[example.params]
+band1_freq = "250"
+band1_gain = "-5"
+band1_q    = "1.2"
+
+[[example]]
+label = "Add air"
+[example.params]
+band3_freq = "10000"
+band3_gain = "4"
+band3_q    = "0.7"

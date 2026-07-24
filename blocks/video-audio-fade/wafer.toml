@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-fade"
+version = "0.1.0"
+abi = 1
+summary = "Fade a video's audio in at the start and/or out at the end"

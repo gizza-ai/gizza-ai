@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/audio-bleep-censor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bleep, mute or duck time regions of an audio file to censor words",
+  "role": "skill",
+  "tool": {
+    "description": "Censor one or more time regions of an audio file. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). regions is a comma-separated list of start-end ranges (each time in seconds like 1.5, or mm:ss / hh:mm:ss like 0:07-0:08.5); up to 50 ranges. mode is bleep (default; mixes a tone over the region), mute (silences it) or duck (drops it to a quiet level). tone_hz sets the bleep frequency (100-8000 Hz, default 1000; bleep only). Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "bleep",
+          "description": "How each region is censored: bleep (mix a tone over it), mute (silence it), or duck (drop it to a quiet level). Default bleep.",
+          "enum": [
+            "bleep",
+            "mute",
+            "duck"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "regions": {
+          "description": "Time regions to censor, as a comma-separated list of start-end ranges. Each time is seconds (1.5) or mm:ss / hh:mm:ss (0:07, 1:02:03.5). Example: \"1.5-2.0, 0:07-0:08.5\". Up to 50 regions.",
+          "type": "string"
+        },
+        "tone_hz": {
+          "default": 1000.0,
+          "description": "Bleep tone frequency in Hz (100-8000, default 1000 = classic TV bleep). Only used when mode is bleep.",
+          "maximum": 8000,
+          "minimum": 100,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regions"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+slug          = "totp-secret-setup"
+title         = "TOTP Secret Setup Generator"
+description   = "Generate a fresh base32 TOTP secret and otpauth enrollment URI for authenticator apps — local, random, and copy-ready."
+tags          = ["totp secret generator", "2fa setup", "otpauth uri", "authenticator setup", "mfa secret"]
+h1            = "TOTP Secret Setup Generator"
+hero_subtitle = "Create a fresh random TOTP secret plus the otpauth:// enrollment URI an authenticator app can import. Everything runs locally."
+wasm          = "gizza_ai_totp_secret_setup_web"
+export        = "run"
+live          = false
+output_label  = "Generated secret and URI"
+format        = "text"
+
+[[input]]
+name        = "issuer"
+label       = "Issuer / service name"
+placeholder = "Example"
+source      = "field"
+
+[[input]]
+name        = "account"
+label       = "Account label"
+placeholder = "alice@example.com"
+source      = "field"
+
+[[input]]
+name        = "secret_bytes"
+label       = "Secret bytes"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "digits"
+label       = "Digits"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "period"
+label       = "Period seconds"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm (sha1|sha256|sha512)"
+placeholder = "sha1"
+source      = "field"

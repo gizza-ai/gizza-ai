@@ -1,0 +1,23 @@
+[package]
+name = "gizza-ai-normalize-peak-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust demuxers + DECODERS to interleaved PCM. Same wasm-proven
+# crate as blocks/loudness-matched-ab-prep; features trimmed to the accepted
+# input formats (wav/flac/mp3/ogg-vorbis/m4a).
+symphonia = { version = "0.5", default-features = false, features = [
+    "wav",
+    "pcm",
+    "flac",
+    "mp3",
+    "ogg",
+    "vorbis",
+    "isomp4",
+    "aac",
+    "alac",
+] }
+# hound: pure-Rust WAV writer (16/24-bit int + 32-bit float) and test-side reader.
+hound = "3"

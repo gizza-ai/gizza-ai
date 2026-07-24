@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-audio-fit-to-length-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_audio_fit_to_length_web_bg.wasm",
+    "gizza_ai_audio_fit_to_length_web.js",
+    "gizza_ai_audio_fit_to_length_web.d.ts"
+  ],
+  "main": "gizza_ai_audio_fit_to_length_web.js",
+  "types": "gizza_ai_audio_fit_to_length_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

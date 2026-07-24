@@ -1,0 +1,52 @@
+slug          = "audio-fit-to-length"
+title         = "Fit Audio to an Exact Length Online — Pad or Trim"
+description   = "Make any audio file an exact number of seconds — pad it with silence when it's short or trim it when it's long. Runs in your browser, nothing uploaded."
+tags          = ["audio", "pad", "silence", "trim", "duration", "exact length", "fit", "ffmpeg"]
+h1            = "Fit Audio to an Exact Length"
+hero_subtitle = "Pick a clip and a target length — it's padded with silence or trimmed to hit that exact duration, in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_fit_to_length_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Fitted audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+# Field order MUST match web/src/lib.rs build_argv: duration, pad, format.
+[[input]]
+name        = "duration"
+source      = "field"
+label       = "Target length (seconds)"
+placeholder = "30"
+
+[[input]]
+name   = "pad"
+source = "field"
+label  = "Pad silence at"
+labels = { end = "End (after the clip)", start = "Start (before the clip)" }
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+labels = { mp3 = "MP3", wav = "WAV", ogg = "OGG", flac = "FLAC", m4a = "M4A" }
+
+[[example]]
+label  = "15s ad slot"
+params = { duration = "15", pad = "end", format = "mp3" }
+
+[[example]]
+label  = "30s spot"
+params = { duration = "30", pad = "end", format = "mp3" }
+
+[[example]]
+label  = "60s exact minute"
+params = { duration = "60", pad = "end", format = "mp3" }
+
+[[example]]
+label  = "Lead-in silence to WAV"
+params = { duration = "20", pad = "start", format = "wav" }

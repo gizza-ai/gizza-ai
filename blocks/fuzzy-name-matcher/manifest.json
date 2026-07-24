@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/fuzzy-name-matcher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Match & deduplicate names with Jaro-Winkler, Levenshtein or Soundex",
+  "role": "skill",
+  "tool": {
+    "description": "Match and deduplicate person or organization names that refer to the same entity but are spelled differently — typos, casing, honorifics, and phonetic variants (Smith/Smyth, Jon/John). Paste `names` one per line (or a single-column CSV). Pick an `algorithm`: jaro_winkler (default, prefix-weighted for short names), levenshtein (edit-distance ratio), or soundex (phonetic — matches names that sound alike). `mode` = groups (cluster into match groups with a canonical name each) or pairs (every matching pair scored, best first). Two names are the 'same' when their similarity (0–100) is at least `threshold` (default 85). `normalize_case` folds case; `ignore_titles` drops honorifics (Mr/Dr…) and suffixes (Jr/III…) before comparing. `output` is table, csv, or json. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "jaro_winkler",
+          "description": "Similarity algorithm. jaro_winkler (default) = prefix-weighted, best for typos in short names; levenshtein = raw edit-distance ratio; soundex = phonetic, matches names that sound alike (Smith/Smyth) even when spelled differently.",
+          "enum": [
+            "jaro_winkler",
+            "levenshtein",
+            "soundex"
+          ],
+          "type": "string"
+        },
+        "ignore_titles": {
+          "default": true,
+          "description": "Ignore honorifics (Mr, Mrs, Dr, Prof…) and generational/credential suffixes (Jr, Sr, III, PhD…) when comparing, so 'Dr. John Adams' matches 'John Adams'. Default true.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "groups",
+          "description": "groups (default) = cluster the list into match groups with a canonical (most frequent) name each; pairs = list every matching name pair with its similarity score, best first.",
+          "enum": [
+            "groups",
+            "pairs"
+          ],
+          "type": "string"
+        },
+        "names": {
+          "description": "The names to match: one name per line, or a single-column CSV (the first field of each row is taken as the name). Person or organization names.",
+          "type": "string"
+        },
+        "normalize_case": {
+          "default": true,
+          "description": "Ignore letter case when comparing (so 'ACME' and 'acme' match). Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "table",
+          "description": "Result format: table (markdown groups/pairs + a mapping table), csv (a flat mapping you can join back), or json (structured groups/pairs with scores and counts).",
+          "enum": [
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 85,
+          "description": "Similarity cutoff 0–100. Names scoring at or above it are treated as the same entity. Higher = stricter. Default 85; drop toward 80 to catch more variants, raise it if unrelated names merge.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "names"
+      ],
+      "type": "object"
+    }
+  }
+}

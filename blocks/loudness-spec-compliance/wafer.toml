@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "loudness-spec-compliance"
+version = "0.1.0"
+abi = 1
+summary = "Check an audio file's loudness (LUFS), true peak and LRA against a delivery spec"

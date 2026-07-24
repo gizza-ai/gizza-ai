@@ -1,0 +1,102 @@
+{
+  "name": "gizza-ai/otpauth-qr-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a scannable 2FA (otpauth) QR code",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a scannable 2FA QR code from an otpauth:// provisioning URI, or from the individual fields (issuer, account, base32 secret, algorithm, digits, period/counter). Scanning it with an authenticator app (Google Authenticator, Authy, 1Password…) imports the account — no manual typing. Pass a full uri to encode it verbatim, or leave uri empty and supply account + secret. otp_type is totp (default) or hotp. Output is an SVG (default) or PNG image; error_correction (L/M/Q/H), size (PNG px), and dark/light colours are configurable. Returns an image. Runs locally — the secret never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "description": "The account label, usually the username or email (e.g. alice@example.com). Required when building from fields.",
+          "type": "string"
+        },
+        "algorithm": {
+          "default": "sha1",
+          "description": "HMAC hash algorithm (default sha1, the standard for authenticator apps).",
+          "enum": [
+            "sha1",
+            "sha256",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "counter": {
+          "description": "HOTP initial counter value (default 0; ignored for totp).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "dark": {
+          "description": "Foreground (module) colour as #rgb or #rrggbb hex (default #000000).",
+          "type": "string"
+        },
+        "digits": {
+          "description": "Number of digits in the generated code (6, 7, or 8; default 6).",
+          "maximum": 8,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "error_correction": {
+          "default": "M",
+          "description": "QR error-correction level: L (~7%), M (~15%, default), Q (~25%), or H (~30%). Higher survives more damage but makes a denser code.",
+          "enum": [
+            "L",
+            "M",
+            "Q",
+            "H"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "svg",
+          "description": "Output image format: svg (default, crisp at any size) or png.",
+          "enum": [
+            "svg",
+            "png"
+          ],
+          "type": "string"
+        },
+        "issuer": {
+          "description": "The service/company name shown in the authenticator app (e.g. GitHub).",
+          "type": "string"
+        },
+        "light": {
+          "description": "Background colour as #rgb or #rrggbb hex (default #ffffff).",
+          "type": "string"
+        },
+        "otp_type": {
+          "default": "totp",
+          "description": "OTP type when building from fields: totp (time-based, default) or hotp (counter-based).",
+          "enum": [
+            "totp",
+            "hotp"
+          ],
+          "type": "string"
+        },
+        "period": {
+          "description": "TOTP time step in seconds (default 30; ignored for hotp).",
+          "maximum": 600,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "secret": {
+          "description": "The base32-encoded shared secret (spaces and case are ignored). Required when building from fields.",
+          "type": "string"
+        },
+        "size": {
+          "description": "PNG image edge length in pixels (default 300; ignored for svg).",
+          "maximum": 2048,
+          "minimum": 64,
+          "type": "integer"
+        },
+        "uri": {
+          "description": "A full otpauth:// provisioning URI to encode verbatim (e.g. otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example). If given, the individual fields below are ignored.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

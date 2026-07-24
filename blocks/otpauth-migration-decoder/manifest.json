@@ -1,0 +1,32 @@
+{
+  "name": "gizza-ai/otpauth-migration-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode Google Authenticator migration exports into otpauth URIs",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a Google Authenticator otpauth-migration://offline?data=... export payload into standard otpauth:// provisioning URIs, one per account. Accepts either the full migration URI or the bare data value. Set format=uri for newline-separated otpauth:// links, or format=json for account fields plus each rebuilt URI. Secrets are parsed locally from the protobuf payload and base32-encoded without padding; TOTP entries get period=30 and HOTP entries preserve their counter.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "uri",
+          "description": "Output format: uri returns one otpauth:// URI per line; json returns a pretty-printed account array.",
+          "enum": [
+            "uri",
+            "json"
+          ],
+          "type": "string"
+        },
+        "payload": {
+          "description": "Google Authenticator migration payload: paste the full otpauth-migration://offline?data=... URI or just the data value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "payload"
+      ],
+      "type": "object"
+    }
+  }
+}

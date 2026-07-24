@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sd-png-metadata-reader"
+version = "0.1.0"
+abi = 1
+summary = "Read Stable Diffusion generation parameters from a PNG's text chunks"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "directory-tree-view"
+version = "0.1.0"
+abi = 1
+summary = "Turn a pasted file listing into a size-annotated directory tree."

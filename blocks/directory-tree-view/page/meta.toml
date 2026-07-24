@@ -1,0 +1,80 @@
+slug          = "directory-tree-view"
+title         = "Directory Tree View — Size-Annotated Folder Tree"
+description   = "Paste a du, find, or CSV file listing and get a clean indented tree with rolled-up folder sizes and file counts. Human, SI, or raw bytes. Free, in-browser."
+tags          = ["directory tree view", "size annotated tree", "tree du", "folder size tree", "du tree", "disk usage tree", "file size tree", "tree -s -h"]
+h1            = "Directory Tree View"
+hero_subtitle = "Paste a du, find, or CSV file listing and get a clean indented tree with per-folder sizes rolled up and file/sub-directory counts — like tree -s -h --du. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_directory_tree_view_web"
+export        = "run"
+live          = false
+output_label  = "Tree"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "File listing (path + size per line)"
+placeholder = "1024\tsrc/main.rs\n3072\tsrc/lib.rs\n512\tREADME.md\n4096\tdocs/guide.md"
+source      = "field"
+multiline   = true
+
+# format / units / sort render as <select>; root as a text field; the four
+# booleans as checkboxes; depth as a number field — control types are derived
+# from the descriptor schema in the manifest.
+[[input]]
+name        = "format"
+label       = "Line format"
+source      = "field"
+
+[[input]]
+name        = "units"
+label       = "Size units"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort entries"
+source      = "field"
+
+[[input]]
+name        = "root"
+label       = "Root label"
+placeholder = "."
+source      = "field"
+
+[[input]]
+name        = "ascii"
+label       = "Plain-ASCII connectors"
+source      = "field"
+
+[[input]]
+name        = "dirs_first"
+label       = "Directories first"
+source      = "field"
+
+[[input]]
+name        = "trailing_slash"
+label       = "Trailing slash on directories"
+source      = "field"
+
+[[input]]
+name        = "show_counts"
+label       = "Show per-directory counts"
+source      = "field"
+
+[[input]]
+name        = "depth"
+label       = "Max depth (0 = unlimited)"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label  = "du -ab listing"
+params = { input = "1024\tsrc/main.rs\n3072\tsrc/lib.rs\n512\tREADME.md\n4096\tdocs/guide.md" }
+
+[[example]]
+label  = "CSV, sort by size"
+params = { input = "src/main.rs,1024\nsrc/lib.rs,3072\nREADME.md,512\ndocs/guide.md,4096", format = "path-first", sort = "size-desc" }
+
+[[example]]
+label  = "Raw bytes, depth 1"
+params = { input = "1024\tsrc/main.rs\n3072\tsrc/lib.rs\n4096\tdocs/guide.md", units = "bytes", depth = "1" }

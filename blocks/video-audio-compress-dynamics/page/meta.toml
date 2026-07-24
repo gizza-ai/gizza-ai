@@ -1,0 +1,44 @@
+slug          = "video-audio-compress-dynamics"
+title         = "Compress Video Audio Dynamics Online"
+description   = "Even out a video's quiet and loud passages in your browser with ffmpeg dynamic-range compression. The picture is copied untouched."
+tags          = ["video audio compression", "dynamic range compression", "compress dynamics", "normalize video audio", "ffmpeg acompressor", "level audio"]
+h1            = "Compress a video's audio dynamics"
+hero_subtitle = "Make quiet and loud passages sit closer together with ffmpeg's dynamic-range compressor. Choose light, medium, or heavy levelling; the video track is copied unchanged."
+wasm          = "gizza_ai_video_audio_compress_dynamics_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Compressed-dynamics video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "preset"
+source = "field"
+label  = "Compression preset"
+
+[input.labels]
+light  = "Light — gentle levelling"
+medium = "Medium — balanced broadcast-style levelling"
+heavy  = "Heavy — aggressive levelling"
+
+[[input]]
+name   = "makeup"
+source = "field"
+label  = "Apply make-up gain"
+
+[[example]]
+label  = "Medium levelling"
+params = { preset = "medium", makeup = "true" }
+
+[[example]]
+label  = "Gentle peak taming"
+params = { preset = "light", makeup = "false" }
+
+[[example]]
+label  = "Heavy voice levelling"
+params = { preset = "heavy", makeup = "true" }

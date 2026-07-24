@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-data-reshape-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_yml = "0.0.12"
+csv = "1"
+gizza-ai-xml-to-json-core = { path = "../../xml-to-json/core" }

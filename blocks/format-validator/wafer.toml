@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "format-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate whether a string is a well-formed email, URL, IPv4/IPv6, phone, or credit card (Luhn), or auto-detect the format."

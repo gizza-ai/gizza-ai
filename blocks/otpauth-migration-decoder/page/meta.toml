@@ -1,0 +1,34 @@
+slug          = "otpauth-migration-decoder"
+title         = "Google Authenticator migration decoder"
+description   = "Decode an otpauth-migration export payload into standard otpauth provisioning URIs, offline."
+tags          = ["security", "otp", "totp", "authenticator"]
+h1            = "Decode otpauth-migration exports"
+hero_subtitle = "Paste a Google Authenticator migration payload and recover one standard otpauth:// URI per account."
+wasm          = "gizza_ai_otpauth_migration_decoder_web"
+export        = "run"
+live          = false
+output_label  = "Decoded otpauth URIs"
+format        = "text"
+
+[[input]]
+name        = "payload"
+label       = "Migration payload"
+placeholder = "otpauth-migration://offline?data=CikKBUhlbGxv... or just CikKBUhlbGxv..."
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+uri  = "otpauth:// URIs"
+json = "JSON account details"
+
+[[example]]
+label  = "Two accounts as URIs"
+params = { payload = "CikKBUhlbGxvEhFhbGljZUBleGFtcGxlLmNvbRoHRXhhbXBsZSABKAEwAgoaCgVXb3JsZBIDYm9iGgRBQ01FIAIoAjABOAUQAQ", format = "uri" }
+
+[[example]]
+label  = "Structured JSON"
+params = { payload = "otpauth-migration://offline?data=CikKBUhlbGxvEhFhbGljZUBleGFtcGxlLmNvbRoHRXhhbXBsZSABKAEwAgoaCgVXb3JsZBIDYm9iGgRBQ01FIAIoAjABOAUQAQ", format = "json" }

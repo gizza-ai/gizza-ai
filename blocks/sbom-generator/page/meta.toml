@@ -1,0 +1,78 @@
+slug          = "sbom-generator"
+title         = "SBOM Generator — CycloneDX & SPDX from lockfiles"
+description   = "Generate CycloneDX or SPDX SBOMs from package-lock.json, Cargo.lock, or requirements.txt. Runs locally in your browser."
+tags          = ["sbom", "cyclonedx", "spdx", "package-lock", "cargo lock", "requirements", "software bill of materials", "dependency inventory"]
+h1            = "SBOM Generator"
+hero_subtitle = "Paste a resolved dependency lockfile and generate a deterministic CycloneDX or SPDX software bill of materials with package URLs. Supports npm package-lock.json, Cargo.lock, and requirements.txt."
+wasm          = "gizza_ai_sbom_generator_web"
+export        = "run"
+live          = false
+output_label  = "SBOM"
+format        = "text"
+
+[[input]]
+name        = "lockfile"
+label       = "Lockfile contents"
+placeholder = "{\n  \"name\": \"my-app\",\n  \"version\": \"1.0.0\",\n  \"lockfileVersion\": 3,\n  \"packages\": { ... }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+default     = "auto"
+
+[[input]]
+name        = "output"
+label       = "SBOM output format"
+source      = "field"
+default     = "cyclonedx-json"
+
+[[input]]
+name        = "component_name"
+label       = "Root component name"
+placeholder = "my-service"
+source      = "field"
+
+[[input]]
+name        = "component_version"
+label       = "Root component version"
+placeholder = "1.0.0"
+source      = "field"
+
+[[input]]
+name        = "include_dev"
+label       = "Include npm dev / optional dependencies"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "timestamp"
+label       = "Creation timestamp (optional)"
+placeholder = "2026-07-24T12:00:00Z"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON"
+source      = "field"
+default     = "true"
+
+[[example]]
+label = "npm → CycloneDX"
+[example.params]
+lockfile = "{\"name\":\"my-app\",\"version\":\"1.0.0\",\"lockfileVersion\":3,\"packages\":{\"\":{\"name\":\"my-app\",\"version\":\"1.0.0\"},\"node_modules/lodash\":{\"version\":\"4.17.21\"},\"node_modules/@scope/pkg\":{\"version\":\"2.0.0\"}}}"
+input_format = "npm"
+output = "cyclonedx-json"
+include_dev = "true"
+pretty = "true"
+
+[[example]]
+label = "Cargo → SPDX tag"
+[example.params]
+lockfile = "[[package]]\nname = \"demo\"\nversion = \"0.1.0\"\n\n[[package]]\nname = \"serde\"\nversion = \"1.0.200\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\n"
+input_format = "cargo"
+output = "spdx-tag"
+component_name = "demo"
+component_version = "0.1.0"

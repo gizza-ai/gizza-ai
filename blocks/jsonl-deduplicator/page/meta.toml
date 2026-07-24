@@ -1,0 +1,75 @@
+slug          = "jsonl-deduplicator"
+title         = "JSONL Deduplicator — Remove Duplicate NDJSON Records"
+description   = "Remove duplicate records from JSONL / NDJSON text — de-duplicate by whole-line equality or chosen key fields, keep the first or last, all in your browser."
+tags          = ["jsonl deduplicator", "ndjson deduplicate", "remove duplicate json lines", "json dedupe by key", "unique jsonl", "deduplicate ndjson", "jsonl unique records", "remove duplicate records", "json lines dedup"]
+h1            = "Deduplicate JSONL / NDJSON records"
+hero_subtitle = "Paste line-delimited JSON (one record per line) and remove duplicates — match whole lines or chosen key fields like id or user.id, keep the first or last occurrence, in original order. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_jsonl_deduplicator_web"
+export        = "run"
+live          = false
+output_label  = "De-duplicated JSONL"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "JSONL / NDJSON (one JSON value per line)"
+placeholder = "{\"id\":1,\"name\":\"Ada\"}\n{\"id\":2,\"name\":\"Alan\"}\n{\"id\":1,\"name\":\"Ada\"}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "keys"
+label       = "Key fields (comma-separated; blank = whole-line match)"
+placeholder = "id   or   user.id,email"
+source      = "field"
+
+[[input]]
+name   = "keep"
+label  = "Keep which occurrence"
+source = "field"
+
+[input.labels]
+first = "First occurrence"
+last  = "Last occurrence"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case when matching"
+source = "field"
+
+[[input]]
+name   = "on_invalid"
+label  = "Line that isn't valid JSON"
+source = "field"
+
+[input.labels]
+error = "Error and name the line"
+skip  = "Skip (drop the line)"
+keep  = "Keep it (match by raw text)"
+
+[[example]]
+label = "Whole-line, keep first"
+[example.params]
+data = "{\"a\":1}\n{\"a\":2}\n{\"a\":1}"
+keys = ""
+keep = "first"
+ignore_case = "false"
+on_invalid = "error"
+
+[[example]]
+label = "By key id, keep last"
+[example.params]
+data = "{\"id\":1,\"v\":\"a\"}\n{\"id\":2,\"v\":\"b\"}\n{\"id\":1,\"v\":\"c\"}"
+keys = "id"
+keep = "last"
+ignore_case = "false"
+on_invalid = "error"
+
+[[example]]
+label = "By key, skip invalid lines"
+[example.params]
+data = "{\"id\":1}\nnot json\n{\"id\":2}\n{\"id\":1}"
+keys = "id"
+keep = "first"
+ignore_case = "false"
+on_invalid = "skip"

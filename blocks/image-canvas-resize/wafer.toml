@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-canvas-resize"
+version = "0.1.0"
+abi = 1
+summary = "Change an image canvas size without scaling pixels, padding or cropping by anchor"

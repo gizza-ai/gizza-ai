@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "compound-interest-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Future value with compound interest plus optional regular contributions."

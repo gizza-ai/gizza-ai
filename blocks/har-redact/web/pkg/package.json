@@ -1,0 +1,15 @@
+{
+  "name": "gizza-ai-har-redact-web",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "gizza_ai_har_redact_web_bg.wasm",
+    "gizza_ai_har_redact_web.js",
+    "gizza_ai_har_redact_web.d.ts"
+  ],
+  "main": "gizza_ai_har_redact_web.js",
+  "types": "gizza_ai_har_redact_web.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

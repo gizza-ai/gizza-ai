@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sbom-generator"
+version = "0.1.0"
+abi = 1
+summary = "Convert an npm, Cargo, or pip lockfile into a CycloneDX or SPDX software bill of materials."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-column-type-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate CSV columns against declared types."

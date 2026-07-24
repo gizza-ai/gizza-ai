@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "youtube-thumbnail-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a thumbnail PNG from a video frame with outlined headline text"

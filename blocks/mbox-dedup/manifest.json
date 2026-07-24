@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/mbox-dedup",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove duplicate mbox messages by Message-ID",
+  "role": "skill",
+  "tool": {
+    "description": "Find and remove duplicate messages in an mbox archive by their Message-ID header, returning the de-duplicated mbox text plus a summary (total/kept/removed message counts, how many had no Message-ID, and how many IDs were duplicated). Messages are split on the classic `From ` postmark lines and each surviving message is preserved verbatim. By default the first occurrence of each Message-ID is kept and original order is preserved; set keep=\"last\" to keep the last. Message-IDs are normalized (surrounding angle brackets and whitespace stripped) and compared case-sensitively unless ignore_case=true. Messages lacking a Message-ID are kept by default (never merged); set no_message_id=\"drop\" to remove them. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_case": {
+          "default": false,
+          "description": "Compare Message-IDs case-insensitively. RFC 5322 Message-IDs are case-sensitive, so this is off by default; turn it on if an exporter changed the case of otherwise-identical IDs.",
+          "type": "boolean"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which copy of each duplicated Message-ID to keep: the first occurrence (default) or the last. The surviving messages stay in their original order either way.",
+          "enum": [
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "mbox": {
+          "description": "The mbox archive text to de-duplicate. Messages are delimited by the classic `From ` postmark lines at the start of a line; a single pasted RFC 5322 message (no postmark) is treated as one message. Surviving messages are returned verbatim.",
+          "type": "string"
+        },
+        "no_message_id": {
+          "default": "keep",
+          "description": "What to do with a message that has no Message-ID header (e.g. drafts): keep every such message (default; distinct ID-less messages are never merged together) or drop them all.",
+          "enum": [
+            "keep",
+            "drop"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "mbox"
+      ],
+      "type": "object"
+    }
+  }
+}

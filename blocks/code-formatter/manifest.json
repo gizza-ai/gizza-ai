@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/code-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Beautify and re-indent HTML, CSS, JavaScript or JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Beautify and re-indent an HTML, CSS, JavaScript or JSON snippet. Set language to auto (detect), html, css, javascript or json; indent is spaces per nesting level (1-8, default 2), or set indent_char to 'tab' for tabs. HTML/CSS/JS are only re-whitespaced — nothing is renamed, reordered or dropped; JSON is validated and re-serialized with key order preserved. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The HTML, CSS, JavaScript or JSON snippet to beautify and re-indent (minified or messy input is fine).",
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level (1-8). Ignored when indent_char is 'tab'. Default 2.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "indent_char": {
+          "default": "space",
+          "description": "Indent with spaces or a tab character per level. Default space.",
+          "enum": [
+            "space",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Which formatter to use. 'auto' detects the language from the snippet; pick one explicitly if auto-detect guesses wrong. Default auto.",
+          "enum": [
+            "auto",
+            "html",
+            "css",
+            "javascript",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}

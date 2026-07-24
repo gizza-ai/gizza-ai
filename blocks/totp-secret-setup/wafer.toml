@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "totp-secret-setup"
+version = "0.1.0"
+abi = 1
+summary = "Generate a random TOTP secret + otpauth:// enrollment URI"

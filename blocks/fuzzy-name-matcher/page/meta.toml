@@ -1,0 +1,103 @@
+slug          = "fuzzy-name-matcher"
+title         = "Fuzzy Name Matcher Online"
+description   = "Match and deduplicate person or organization names with Jaro-Winkler, Levenshtein and Soundex. Paste names, tune the threshold, export groups, pairs, CSV or JSON."
+tags          = ["names", "fuzzy matching", "dedupe", "deduplication", "jaro winkler", "levenshtein", "soundex", "record linkage", "entity resolution", "csv", "data cleaning"]
+h1            = "Fuzzy Name Matcher"
+hero_subtitle = "Paste person or organization names, then cluster duplicates or list matched pairs with Jaro-Winkler, Levenshtein or Soundex scoring. Runs locally in your browser."
+wasm          = "gizza_ai_fuzzy_name_matcher_web"
+export        = "run"
+live          = false
+output_label  = "Matched names"
+format        = "text"
+
+[[input]]
+name        = "names"
+label       = "Names"
+placeholder = "Paste one name per line, or a single-column CSV:\nDr. John Adams\nJohn Adams Jr\nJon Adams\nAcme Corp\nACME Corporation"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Output mode"
+source      = "field"
+
+[[input]]
+name        = "threshold"
+label       = "Threshold (0-100)"
+placeholder = "85"
+default     = "85"
+source      = "field"
+kind        = "slider"
+min         = 0.0
+max         = 100.0
+step        = "1"
+[input.labels]
+low = "looser"
+high = "stricter"
+
+[[input]]
+name        = "normalize_case"
+label       = "Ignore letter case"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "ignore_titles"
+label       = "Ignore titles and suffixes"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "output"
+label       = "Result format"
+source      = "field"
+
+[[example]]
+label = "Deduplicate people"
+[example.params]
+names = "Dr. John Adams\nJohn Adams Jr\nJon Adams\nMaria Garcia"
+algorithm = "jaro_winkler"
+mode = "groups"
+threshold = "85"
+normalize_case = "true"
+ignore_titles = "true"
+output = "table"
+
+[[example]]
+label = "Organization aliases"
+[example.params]
+names = "Acme Corp\nACME Corporation\nAcme Co\nGlobex LLC"
+algorithm = "jaro_winkler"
+mode = "pairs"
+threshold = "82"
+normalize_case = "true"
+ignore_titles = "true"
+output = "table"
+
+[[example]]
+label = "Phonetic names"
+[example.params]
+names = "Smith\nSmyth\nRobert\nRupert\nGarcia"
+algorithm = "soundex"
+mode = "groups"
+threshold = "100"
+normalize_case = "true"
+ignore_titles = "true"
+output = "table"
+
+[[example]]
+label = "CSV mapping"
+[example.params]
+names = "Acme Corp,100\nAcme Corporation,90\nGlobex,50"
+algorithm = "jaro_winkler"
+mode = "groups"
+threshold = "85"
+normalize_case = "true"
+ignore_titles = "true"
+output = "csv"

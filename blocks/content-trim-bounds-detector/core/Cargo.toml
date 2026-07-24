@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-content-trim-bounds-detector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode + inspect. default-features off (no rayon/threads in wasm);
+# common web formats only. We never re-encode — this tool only measures a bounding box.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }

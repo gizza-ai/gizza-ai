@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/debt-payoff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Plan a debt payoff with the snowball or avalanche method",
+  "role": "skill",
+  "tool": {
+    "description": "Build a debt-payoff plan from a list of debts (name, balance, APR%, minimum payment). Choose the snowball method (smallest balance first) or avalanche (highest APR first); both use the rollover method where a cleared debt's payment cascades onto the next one. Add a constant extra monthly payment and a start date. Returns the chosen plan (payoff order with per-debt interest, total paid, months and payoff date), total months, debt-free date, total interest and total paid, a minimum-only baseline with interest and months saved, and a snowball-vs-avalanche comparison with a recommendation. Returns an actionable error when the budget can never clear the debts or the input is invalid.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "debts": {
+          "description": "Your debts, one per line as `name, balance, APR%, minimum payment` — e.g. `Visa, 2500, 19.99, 75`. Balance and minimum are dollar amounts; APR is the yearly interest rate as a percent. `$` and `%` symbols are ignored; do NOT use thousands separators (the comma splits the fields). Up to 50 debts.",
+          "type": "string"
+        },
+        "extra_payment": {
+          "default": 0.0,
+          "description": "Extra dollars you can pay every month on top of all the minimums. This is added to the target debt and cascades as debts are cleared. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "method": {
+          "default": "snowball",
+          "description": "Payoff strategy. 'snowball' targets the smallest balance first (fastest wins for motivation); 'avalanche' targets the highest APR first (least total interest). Both roll a cleared debt's payment onto the next one. Default snowball.",
+          "enum": [
+            "snowball",
+            "avalanche"
+          ],
+          "type": "string"
+        },
+        "start_date": {
+          "description": "The month the plan starts, as YYYY-MM-DD (e.g. 2026-01-01). Drives the debt-free date and each debt's payoff date. Defaults to today when omitted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "debts"
+      ],
+      "type": "object"
+    }
+  }
+}

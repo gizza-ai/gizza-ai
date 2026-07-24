@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/gpx-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a GPX track into segments by distance, time, or stops",
+  "role": "skill",
+  "tool": {
+    "description": "Split one GPX track into multiple segments and return a new GPX (one named track per segment) plus per-segment stats. Three modes: distance (a new segment every N km or miles covered), time (a new segment every N minutes of elapsed time), or stops (a new segment wherever the recording pauses — the time gap between two points exceeds a threshold). Reads <trkpt>, <rtept>, and <wpt> points; preserves <ele> elevation and <time> timestamps. Distances are great-circle (haversine). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "distance": {
+          "default": 5.0,
+          "description": "Segment length for distance mode, in the chosen unit. Default 5.",
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "gpx": {
+          "description": "The full GPX file contents (XML). Track points may include <ele> elevation and <time> timestamps; timestamps are required for the time and stops split modes.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "distance",
+          "description": "How to cut the track: distance (every N km/mi covered), time (every N minutes of elapsed time), or stops (start a new segment at each pause, i.e. a time gap between points). Default distance.",
+          "enum": [
+            "distance",
+            "time",
+            "stops"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "gpx",
+          "description": "What to return: gpx (a GPX document with one named track per segment) or summary (a per-segment table of distance, duration and point count). Default gpx.",
+          "enum": [
+            "gpx",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "stop_gap_s": {
+          "default": 120.0,
+          "description": "For stops mode: the minimum time gap between two consecutive points (in seconds) that starts a new segment. Default 120.",
+          "minimum": 1,
+          "type": "number"
+        },
+        "time_min": {
+          "default": 30.0,
+          "description": "Segment length for time mode, in minutes. Default 30.",
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "unit": {
+          "default": "km",
+          "description": "Distance unit for the distance-mode threshold: km or mi. Default km.",
+          "enum": [
+            "km",
+            "mi"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "gpx"
+      ],
+      "type": "object"
+    }
+  }
+}

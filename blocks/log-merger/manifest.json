@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/log-merger",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge multiple logs into one timeline sorted by timestamp",
+  "role": "skill",
+  "tool": {
+    "description": "Interleave multiple pasted log sources into one unified timeline, sorted by each line's parsed timestamp, with every line prefixed by a [source] tag. Sources inside the paste are delimited by header lines (`--- app.log ---`, `=== name ===`, GNU tail `==> name <==`, or markdown `# name`); set source_mode=blank to split on blank lines into source1, source2, … instead. Timestamps are auto-detected anywhere in a line (ISO 8601/RFC 3339, `YYYY-MM-DD HH:MM:SS`, syslog `Mon DD HH:MM:SS`, Apache `10/Oct/2000:13:55:36 -0700`, unix epoch seconds/ms); untimestamped lines inherit the previous line's timestamp so stack traces stay attached. order is asc (oldest first, default) or desc. dedupe drops repeated (timestamp, text) lines; align pads the [source] tags to a common width (default on). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align": {
+          "default": true,
+          "description": "When true, pad each [source] tag to a common width so messages line up in a column.",
+          "type": "boolean"
+        },
+        "dedupe": {
+          "default": false,
+          "description": "When true, drop later lines that repeat an already-emitted (timestamp, text) pair — useful for overlapping captures.",
+          "type": "boolean"
+        },
+        "logs": {
+          "description": "The concatenated log sources to interleave. Separate sources with header lines (`--- app.log ---`, `=== name ===`, GNU tail `==> name <==`, or markdown `# name`), or use source_mode=blank to split on blank lines.",
+          "type": "string"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Sort direction of the merged timeline: asc (oldest first) or desc (newest first).",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "source_mode": {
+          "default": "header",
+          "description": "How sources are split: header (delimit by header lines like `--- app.log ---`) or blank (split on blank lines into source1, source2, …).",
+          "enum": [
+            "header",
+            "blank"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "logs"
+      ],
+      "type": "object"
+    }
+  }
+}

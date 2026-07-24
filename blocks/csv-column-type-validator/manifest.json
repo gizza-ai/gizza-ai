@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/csv-column-type-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate CSV columns against declared types.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate CSV data against per-column declared types. Declare columns as `name:type` (or `1:type` with header=false), using int, float, bool, date, or enum(a|b|c). The tool checks every data cell in those columns and reports row, line, column, offending value, expected type, unknown declared columns, total cells checked, and truncation status. Supports delimiter auto-detection, header/headerless CSV, ISO/US/EU date formats, optional blank-cell requirements, text output, and JSON output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "CSV data to validate. Paste rows as text; quoted fields and quoted newlines are supported. The first row is treated as a header by default.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "iso",
+          "description": "Date style for columns declared as `date`: `iso` = YYYY-MM-DD (default), `us` = MM/DD/YYYY, `eu` = DD/MM/YYYY, `any` accepts all three.",
+          "enum": [
+            "iso",
+            "us",
+            "eu",
+            "any"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV delimiter. `auto` (default) detects comma, tab, semicolon, or pipe from the first non-blank line.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "empty_ok": {
+          "default": true,
+          "description": "Allow blank cells in checked columns. Default true; set false to require every checked cell to be non-empty and correctly typed.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: `text` for a readable report (default) or `json` for a structured validation report.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header row and resolve declarations by column name. Default true. Set false to reference columns by 1-based index in `types`.",
+          "type": "boolean"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of offending cells to list (1-1000, default 50). The summary still reports the full offending count.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "types": {
+          "description": "Column type declarations, comma- or newline-separated. Use `column:type` with header names (for example `age:int, joined:date, plan:enum(free|pro)`) or 1-based indexes when header=false (for example `2:int`). Supported types: int, float, bool, date, enum(a|b|c).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "types"
+      ],
+      "type": "object"
+    }
+  }
+}

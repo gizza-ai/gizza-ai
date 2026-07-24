@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sbom-diff"
+version = "0.1.0"
+abi = 1
+summary = "Diff two dependency lockfiles or SBOMs and list added, removed, and version-bumped packages."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "multi-photo-scan-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split a multi-photo flatbed scan into separate straightened images (ZIP)"

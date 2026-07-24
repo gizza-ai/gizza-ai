@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-cyberchef-pipeline-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# base64: standard + url-safe encode/decode, pure-Rust, wasm32-safe.
+base64 = "0.22"
+# flate2: gzip/zlib/raw DEFLATE via pure-Rust miniz_oxide, wasm32-safe.
+flate2 = "1"
+# percent-encoding: URL percent encode/decode, pure-Rust, wasm32-safe.
+percent-encoding = "2"

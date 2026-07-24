@@ -1,0 +1,86 @@
+slug          = "survey-tabulator"
+title         = "Survey Tabulator — frequency tables & crosstabs from CSV"
+description   = "Tabulate survey CSV responses into frequency tables and two-way cross-tabs with counts, percentages, and a chi-square test. Free, private, runs in your browser."
+tags          = ["survey tabulator", "cross tabulation", "crosstab", "frequency table", "chi-square test", "survey analysis"]
+h1            = "Survey Tabulator"
+hero_subtitle = "Paste survey-response CSV and get a frequency table for every question, or a two-way crosstab with percentages and a chi-square test. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_survey_tabulator_web"
+export        = "run"
+live          = false
+output_label  = "Tabulation"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Survey CSV (first row = question headers)"
+placeholder = "gender,satisfaction,region\nF,High,North\nM,Low,South\nF,High,North"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select> (options derive from the descriptor enum).
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[[input]]
+name        = "question"
+label       = "Question column (index or header; blank = all)"
+placeholder = "satisfaction"
+source      = "field"
+
+[[input]]
+name        = "by"
+label       = "By column (crosstab only)"
+placeholder = "gender"
+source      = "field"
+
+# percent renders as a <select>.
+[[input]]
+name        = "percent"
+label       = "Crosstab percentages"
+source      = "field"
+
+[[input]]
+name        = "include_blanks"
+label       = "Include blank answers as a category"
+source      = "field"
+
+[[input]]
+name        = "stats"
+label       = "Add chi-square association stats (crosstab)"
+source      = "field"
+
+# sort renders as a <select>.
+[[input]]
+name        = "sort"
+label       = "Sort categories by"
+source      = "field"
+
+[[input]]
+name        = "top"
+label       = "Top N categories (overview; 0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (comma, tab, semicolon, pipe)"
+placeholder = ","
+source      = "field"
+
+[[example]]
+label = "Frequency overview"
+[example.params]
+data = "gender,satisfaction,region\nF,High,North\nM,Low,South\nF,High,North\nF,Medium,North\nM,High,South\nM,Low,South\nF,,North"
+mode = "overview"
+
+[[example]]
+label = "Crosstab + chi-square"
+[example.params]
+data = "gender,satisfaction,region\nF,High,North\nM,Low,South\nF,High,North\nF,Medium,North\nM,High,South\nM,Low,South\nF,,North"
+mode = "crosstab"
+question = "gender"
+by = "satisfaction"
+percent = "row"
+stats = "true"

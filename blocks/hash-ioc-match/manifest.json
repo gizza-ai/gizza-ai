@@ -1,0 +1,38 @@
+{
+  "name": "gizza-ai/hash-ioc-match",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hash a file and flag it against a blocklist of known-bad IOC hashes.",
+  "role": "skill",
+  "tool": {
+    "description": "Hash a piece of content and check it against a blocklist of known-bad file hashes. Provide the `input` (a file's bytes as text, hex, or base64 via `input_encoding`) and a `blocklist` of known-bad hashes pasted in any format. The tool computes the input's MD5, SHA-1, SHA-256 and SHA-512 digests and reports FLAGGED if any of them appears in the blocklist, or CLEAN otherwise, listing every computed digest and which one matched. The blocklist is parsed leniently: labelled ('MD5: <hash>'), CSV ('<hash>,malware.exe'), '0x'-prefixed and '#'/';'-commented lines all work — any 32/40/64/128-char hex run (MD5/SHA-1/SHA-256/SHA-512 widths) is extracted, case-insensitively, and duplicates collapse. Use this to triage a sample against threat-intel IOC feeds. To just compute a hash use the hash-text tool; to pull hashes out of a report use the ioc-extract tool.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blocklist": {
+          "description": "Pasted list of known-bad hashes to match against — one per line or any format. Labelled ('MD5: <hash>'), CSV ('<hash>,name.exe'), '0x'-prefixed and '#'-commented lines are all parsed; only 32/40/64/128-char hex runs (MD5/SHA-1/SHA-256/SHA-512 widths) are kept, case-insensitively.",
+          "type": "string"
+        },
+        "input": {
+          "description": "The file content to hash and check, as text, hex, or base64 (set `input_encoding` to match). The tool computes its MD5, SHA-1, SHA-256 and SHA-512 digests.",
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "text",
+          "description": "How to interpret `input` before hashing. 'text' (default) hashes the UTF-8 bytes as-is; 'hex' decodes it from hexadecimal first; 'base64' decodes it from standard base64 first.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input",
+        "blocklist"
+      ],
+      "type": "object"
+    }
+  }
+}

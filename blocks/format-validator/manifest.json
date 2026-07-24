@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/format-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate whether a string is a well-formed email, URL, IPv4/IPv6, phone, or credit card (Luhn), or auto-detect the format.",
+  "role": "skill",
+  "tool": {
+    "description": "Check whether 'input' is a well-formed email address, URL, IPv4 or IPv6 address, phone number, or credit-card number (with a Luhn checksum). Set 'format' to 'auto' (default) to test every format and report which one it is (detection priority ipv4, ipv6, email, url, credit-card, phone) plus a per-format pass/fail table; or set it to one of 'email', 'url', 'ipv4', 'ipv6', 'ip', 'phone', 'credit-card' to validate against just that format and explain the verdict. This is a pure syntax/format check that runs entirely in the sandbox: it never performs DNS/MX lookups, reachability probes, or BIN lookups. Credit-card checks run the Luhn algorithm and report the brand (Visa, Mastercard, American Express, Discover, JCB, Diners Club). Set 'output' to 'text' (default) or 'json'.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "auto",
+          "description": "Which format to check against. 'auto' (default) tests every format, reports the detected format (priority ipv4, ipv6, email, url, credit-card, phone) and a per-format table. Otherwise validate against exactly one: 'email' (RFC-style syntax, no DNS/MX probe), 'url' (needs scheme://host; reports scheme + host), 'ipv4', 'ipv6', 'ip' (either family), 'phone' (7-15 digits, optional leading +, E.164-style), or 'credit-card' (Luhn check + brand, 12-19 digits).",
+          "enum": [
+            "auto",
+            "email",
+            "url",
+            "ipv4",
+            "ipv6",
+            "ip",
+            "phone",
+            "credit-card"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The single value to validate, e.g. 'user@example.com', 'https://example.com/path', '192.168.1.1', '2001:db8::1', '+1 (415) 555-2671', or '4111 1111 1111 1111'. Whitespace at the ends is trimmed. One value per call.",
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format. 'text' (default) is a human-readable report. 'json' is a machine-readable object: for a single format {input, format, valid, detail}; for auto {input, detected, checks:[{format, valid, detail}]}.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+slug          = "format-validator"
+title         = "Format Validator — Email, URL, IP, Phone, Card"
+description   = "Validate a value as an email address, URL, IPv4/IPv6 address, phone number, or credit card with Luhn check. Auto-detect formats locally in your browser."
+tags          = ["format validator", "email validator", "url validator", "ip validator", "ipv4 validator", "ipv6 validator", "phone validator", "credit card validator", "luhn check"]
+h1            = "Format Validator"
+hero_subtitle = "Check whether one value is a valid email, URL, IPv4/IPv6 address, phone number, or credit-card number. Auto-detect the format or validate a specific one — all locally, with no network lookups."
+wasm          = "gizza_ai_format_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Value to validate"
+placeholder = "user@example.com"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Format to check"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[example]]
+label  = "Auto-detect email"
+params = { input = "user.name+tag@example.co.uk" }
+
+[[example]]
+label  = "Credit card Luhn"
+params = { input = "4111 1111 1111 1111", format = "credit-card" }
+
+[[example]]
+label  = "JSON URL check"
+params = { input = "https://example.com/path?q=1", format = "url", output = "json" }

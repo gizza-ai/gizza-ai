@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/image-canvas-resize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Change an image canvas size without scaling pixels, padding or cropping by anchor",
+  "role": "skill",
+  "tool": {
+    "description": "Change an image canvas to an exact width x height without scaling the source pixels. If the canvas grows, new margins are filled with fill; if it shrinks, source pixels are cropped. anchor chooses where the source is pinned (center, top, bottom, left, right, top-left, top-right, bottom-left, bottom-right). fill accepts hex colours (#rgb, #rgba, #rrggbb, #rrggbbaa), common names, or transparent. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "anchor": {
+          "default": "center",
+          "description": "Where to pin the source image on the new canvas: controls padding when growing and what gets cropped when shrinking.",
+          "enum": [
+            "center",
+            "top",
+            "bottom",
+            "left",
+            "right",
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right"
+          ],
+          "type": "string"
+        },
+        "fill": {
+          "default": "#ffffff",
+          "description": "Fill colour for newly exposed canvas: #rgb, #rgba, #rrggbb, #rrggbbaa, white, black, red, green, blue, gray, or transparent.",
+          "type": "string"
+        },
+        "height": {
+          "description": "Output canvas height in pixels. Source pixels are not scaled.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "description": "Output canvas width in pixels. Source pixels are not scaled.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "type": "object"
+    }
+  }
+}

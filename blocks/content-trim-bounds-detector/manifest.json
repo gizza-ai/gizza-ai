@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/content-trim-bounds-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect an image's tight content bounding box and report the crop that trims the uniform or transparent margin",
+  "role": "skill",
+  "tool": {
+    "description": "Find the tight bounding box of the real content in an image (everything that is not the uniform background or fully transparent padding) and report the crop that would remove the surrounding empty margin — without producing a cropped image. Params: mode=auto|transparent|color (default auto: alpha if corners are transparent, else a solid color voted from the 4 corners), color = hex background like #fff/#ffffff (required for mode=color, optional override in auto), tolerance = 0-255 color/alpha match slack (default 16), background_percent = 50-100 fraction of an edge line that must match to trim it (default 100), padding = 0-500 px of margin to keep back in the suggested crop (default 0). Returns JSON with orig_width/height, has_content, the tight content_x/y/width/height, the suggested crop_x/y/width/height (after padding), per-side trim_left/top/right/bottom margins, needs_trim, content_fraction (0-1), and the detected background. This tool only MEASURES — pass the reported crop box to image-trim to actually crop. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background_percent": {
+          "default": 100,
+          "description": "Percent of a row/column that must match the background for that edge line to be trimmed, 50-100 (default 100 = every pixel must match). Lower it (e.g. 98) to trim through a few stray non-background pixels in an otherwise empty margin.",
+          "maximum": 100,
+          "minimum": 50,
+          "type": "integer"
+        },
+        "color": {
+          "description": "Background color as hex (#rgb or #rrggbb, e.g. #fff or #ffffff). Required for mode=color; optional in mode=auto to override the corner vote; must be omitted for mode=transparent.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "auto",
+          "description": "How to decide what is background: auto (default) reads the alpha channel if the corners are transparent, else votes a solid color from the 4 corners; transparent keys only on the alpha channel; color compares against the color parameter. Pass color in either auto or color mode to force a specific background.",
+          "enum": [
+            "auto",
+            "transparent",
+            "color"
+          ],
+          "type": "string"
+        },
+        "padding": {
+          "default": 0,
+          "description": "Pixels of the original margin to keep back around the detected content in the suggested crop, 0-500 (default 0 = tight box). Clamped to the image edges — no synthetic pixels are added.",
+          "maximum": 500,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 16,
+          "description": "Color/alpha match tolerance 0-255 (default 16): a pixel counts as background when its max per-channel distance from the background color (and its distance from fully opaque) is at or below this. 0 = exact match; raise it to absorb JPEG noise or anti-aliased edges.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

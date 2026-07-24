@@ -1,0 +1,57 @@
+slug          = "hl7-v2-parse"
+title         = "HL7 v2 Parser — Decode HL7 Messages to JSON or CSV"
+description   = "Parse an HL7 v2.x message into named segments, fields, components and subcomponents in your browser. MSH, PID, OBX and more, as JSON or CSV. No upload, free."
+tags          = ["hl7 parser", "hl7 v2 parser", "hl7 to json", "hl7 to csv", "hl7 message viewer"]
+h1            = "HL7 v2 Message Parser"
+hero_subtitle = "Paste a pipe-delimited HL7 v2.x message and get a clean, structured breakdown — every segment, field, component and subcomponent, with human-readable names for MSH, PID, OBX and more. Export as nested JSON or a flat CSV table. Everything runs in your browser; no message ever leaves your device."
+wasm          = "gizza_ai_hl7_v2_parse_web"
+export        = "run"
+live          = false
+output_label  = "Parsed message"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "HL7 v2 message"
+placeholder = "MSH|^~\\&|SENDINGAPP|SENDINGFAC|RECVAPP|RECVFAC|20240101120000||ADT^A01|MSG00001|P|2.5\nEVN|A01|20240101120000\nPID|1||123456^^^HOSPITAL^MR||DOE^JOHN^Q||19800101|M|||123 MAIN ST^^ANYTOWN^CA^90210\nPV1|1|I|ICU^101^1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+json = "JSON (nested hierarchy)"
+csv  = "CSV (flat leaf table)"
+
+[[input]]
+name        = "include_descriptions"
+label       = "Include segment/field names (MSH, PID, OBX, …)"
+source      = "field"
+
+[[input]]
+name        = "unescape"
+label       = "Decode HL7 escape sequences (\\F\\ \\S\\ \\T\\ \\R\\ \\X\\ \\.br\\)"
+source      = "field"
+
+[[example]]
+label = "ADT admit → JSON"
+[example.params]
+data   = "MSH|^~\\&|SENDINGAPP|SENDINGFAC|RECVAPP|RECVFAC|20240101120000||ADT^A01|MSG00001|P|2.5\nEVN|A01|20240101120000\nPID|1||123456^^^HOSPITAL^MR||DOE^JOHN^Q||19800101|M|||123 MAIN ST^^ANYTOWN^CA^90210\nPV1|1|I|ICU^101^1"
+output = "json"
+
+[[example]]
+label = "Lab result → CSV"
+[example.params]
+data   = "MSH|^~\\&|LAB|LABFAC|EHR|HOSP|20240102083000||ORU^R01|MSG42|P|2.5\nPID|1||987654^^^HOSP^MR||SMITH^JANE||19751212|F\nOBR|1||ORD123|CBC^Complete Blood Count\nOBX|1|NM|WBC^White Blood Cell Count||7.2|10*3/uL|4.0-11.0|N|||F\nOBX|2|NM|HGB^Hemoglobin||13.5|g/dL|12.0-16.0|N|||F"
+output = "csv"
+
+[[example]]
+label = "Raw values, no names"
+[example.params]
+data                 = "MSH|^~\\&|APP|FAC|||20240101||ADT^A04|MSG9|P|2.5\nPID|1||42^^^AUTH&2.16.840.1&ISO||DOE^JOHN"
+output               = "json"
+include_descriptions = "false"
+unescape             = "false"
