@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nacl-secretbox-encrypt"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt or decrypt NaCl secretbox data with XSalsa20-Poly1305"

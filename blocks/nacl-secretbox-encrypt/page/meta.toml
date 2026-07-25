@@ -1,0 +1,113 @@
+slug          = "nacl-secretbox-encrypt"
+title         = "NaCl Secretbox — XSalsa20-Poly1305 encrypt/decrypt"
+description   = "Encrypt or decrypt NaCl secretbox data with a 32-byte shared key and 24-byte nonce. Free, local, and browser-based."
+tags          = ["nacl secretbox", "xsalsa20 poly1305", "libsodium secretbox", "symmetric encryption", "authenticated encryption", "poly1305 tag"]
+h1            = "NaCl Secretbox encrypt/decrypt"
+hero_subtitle = "Seal or open NaCl secretbox messages (XSalsa20-Poly1305) with a shared 32-byte key, 24-byte nonce, and authenticated tag verification."
+wasm          = "gizza_ai_nacl_secretbox_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name   = "operation"
+label  = "Operation"
+source = "field"
+
+[input.labels]
+encrypt = "Encrypt / seal"
+decrypt = "Decrypt / open"
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "Plaintext for encrypt, or nonce+ciphertext+tag for decrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Shared key"
+placeholder = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff"
+source      = "field"
+
+[[input]]
+name        = "nonce"
+label       = "Nonce"
+placeholder = "000102030405060708090a0b0c0d0e0f1011121314151617"
+source      = "field"
+
+[[input]]
+name   = "key_encoding"
+label  = "Key encoding"
+source = "field"
+
+[input.labels]
+hex    = "Hex"
+base64 = "Base64"
+text   = "Text (UTF-8 bytes)"
+
+[[input]]
+name   = "nonce_encoding"
+label  = "Nonce encoding"
+source = "field"
+
+[input.labels]
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "data_encoding"
+label  = "Data encoding"
+source = "field"
+
+[input.labels]
+text   = "Text (encrypt default)"
+hex    = "Hex"
+base64 = "Base64 (decrypt default)"
+
+[[input]]
+name   = "output_encoding"
+label  = "Output encoding"
+source = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[example]]
+label = "Encrypt text → base64 box"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+key = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff"
+nonce = "000102030405060708090a0b0c0d0e0f1011121314151617"
+key_encoding = "hex"
+nonce_encoding = "hex"
+data_encoding = "text"
+output_encoding = "base64"
+
+[[example]]
+label = "Encrypt text → hex box"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+key = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff"
+nonce = "000102030405060708090a0b0c0d0e0f1011121314151617"
+key_encoding = "hex"
+nonce_encoding = "hex"
+data_encoding = "text"
+output_encoding = "hex"
+
+[[example]]
+label = "Decrypt combined base64 box"
+[example.params]
+operation = "decrypt"
+data = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXRW0mB2zfUpMbVb9qt3nRcUCZ66X999LGingCchiB"
+key = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff"
+nonce = ""
+key_encoding = "hex"
+nonce_encoding = "hex"
+data_encoding = "base64"
+output_encoding = "base64"
