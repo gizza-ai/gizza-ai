@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-dbf-table-parser-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# JSON output construction. Pure Rust, wasm-safe (already used across the workspace).
+# The DBF binary format is parsed by hand (no external reader crate) — the layout is a
+# fixed 32-byte header + 32-byte field descriptors + fixed-width records, so a hand-rolled
+# reader is small, dependency-free, and instantiates cleanly under wafer (wasm32-wasip1).
+serde_json = "1"

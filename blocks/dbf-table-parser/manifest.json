@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/dbf-table-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a dBase/.dbf table file into columns and rows (CSV or JSON)",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Parse a dBase / .dbf table file into its column definitions and rows, exportable as CSV or JSON. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Reads dBase III/IV and FoxPro DBFs: field types C (character), N/F (numeric), D (date → YYYY-MM-DD), L (logical → true/false), and I (4-byte integer); memo (M) cells emit empty because the sidecar .dbt/.fpt file isn't available to a single-file tool. Options: `format` (csv default, or json with typed cells + column defs), `delimiter` (csv; single char or \"tab\"), `header` (csv), `columns` (keep/reorder a subset by name or 0-based index), `include_deleted` (default false), `trim` (default true), `encoding` (auto/utf-8/latin1/cp1252), and `limit` (row cap for previews).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Comma-separated columns to keep and reorder, by name (case-insensitive) or 0-based index, e.g. \"NAME,2,PRICE\". Leave empty to keep every column in file order.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV field separator: a single character, or the word \"tab\" for a tab. Ignored for JSON. Defaults to a comma.",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "Text decoding for character fields. \"auto\" uses UTF-8 when valid else Latin-1; \"latin1\" (ISO-8859-1) and \"cp1252\" (Windows-1252) cover most legacy DBFs. Defaults to auto.",
+          "enum": [
+            "auto",
+            "utf-8",
+            "latin1",
+            "cp1252"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "csv",
+          "description": "Output format. \"csv\" writes the table as delimited text (header row + rows). \"json\" writes {columns:[{name,type,length,decimal}], row_count, rows:[{col:value}]} with numeric/logical/date cells typed. Defaults to csv.",
+          "enum": [
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Write a first CSV row of column names. Set false to omit it. Ignored for JSON. Defaults to true.",
+          "type": "boolean"
+        },
+        "include_deleted": {
+          "default": false,
+          "description": "Include records flagged as deleted in the .dbf (marked with a leading '*'). Defaults to false (skips them, like most viewers).",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of data rows to output; 0 (the default) writes every row. Use a small value to preview a large table.",
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Trim trailing padding spaces from fixed-width character fields. Set false to keep the original padding. Defaults to true.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

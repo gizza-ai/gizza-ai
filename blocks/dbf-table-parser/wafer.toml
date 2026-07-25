@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dbf-table-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse a dBase/.dbf table file into columns and rows (CSV or JSON)"
