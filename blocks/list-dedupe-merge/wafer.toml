@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "list-dedupe-merge"
+version = "0.1.0"
+abi = 1
+summary = "Merge two lists into one deduplicated list and count the overlap."

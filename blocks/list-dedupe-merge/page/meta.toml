@@ -1,0 +1,96 @@
+slug          = "list-dedupe-merge"
+title         = "Merge Two Lists & Remove Duplicates — Deduplicated Union"
+description   = "Merge two lists into one deduplicated list and see how many overlaps were collapsed. Append or interleave, ignore case, trim, and sort. Runs in your browser."
+tags          = ["list", "merge", "dedupe", "duplicate", "union", "text"]
+h1            = "Merge Two Lists & Remove Duplicates"
+hero_subtitle = "Paste two lists to get one clean deduplicated list — plus a count of the overlapping entries that were collapsed."
+wasm          = "gizza_ai_list_dedupe_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged list"
+format        = "text"
+
+[[input]]
+name        = "list_a"
+label       = "List A"
+placeholder = "apple\nbanana\ncherry"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "list_b"
+label       = "List B"
+placeholder = "banana\ncherry\ndate"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "separator"
+label       = "Separator"
+placeholder = "newline"
+source      = "field"
+
+[input.labels]
+"newline"   = "New line"
+"comma"     = "Comma"
+"tab"       = "Tab"
+"semicolon" = "Semicolon"
+"pipe"      = "Pipe"
+"space"     = "Space"
+
+[[input]]
+name        = "merge_order"
+label       = "Merge order"
+placeholder = "append"
+source      = "field"
+
+[input.labels]
+"append"     = "Append (A then B)"
+"interleave" = "Interleave (A, B, A, B…)"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace"
+source      = "field"
+
+[[input]]
+name        = "ignore_blank"
+label       = "Ignore blank items"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort order"
+placeholder = "input"
+source      = "field"
+
+[input.labels]
+"input" = "Input order"
+"asc"   = "A → Z"
+"desc"  = "Z → A"
+
+[[input]]
+name        = "ignore_leading_zeros"
+label       = "Ignore leading zeros"
+source      = "field"
+
+[[example]]
+label  = "Fruit lists"
+params = { list_a = "apple\nbanana\ncherry", list_b = "banana\ncherry\ndate" }
+
+[[example]]
+label  = "Emails, ignore case"
+params = { list_a = "Alice@x.com\nBob@x.com", list_b = "bob@x.com\ncarol@x.com", ignore_case = "true" }
+
+[[example]]
+label  = "IDs, ignore leading zeros"
+params = { list_a = "007\n042\n100", list_b = "7\n100\n250", ignore_leading_zeros = "true" }
+
+[[example]]
+label  = "Interleave two lists"
+params = { list_a = "1\n2\n3", list_b = "a\nb\nc", merge_order = "interleave" }
