@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ics-parse"
+version = "0.1.0"
+abi = 1
+summary = "Parse an iCalendar (.ics) file into a structured JSON list of events."

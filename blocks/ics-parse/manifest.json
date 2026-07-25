@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/ics-parse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an iCalendar (.ics) file into a structured JSON list of events.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an iCalendar (.ics) document into a JSON array of event objects — one per VEVENT, in document order. Each object carries uid, summary, start, end, an all_day flag (set for VALUE=DATE / date-only values), location, description, status, categories (a list), organizer and attendees (each name + email, parsed from the CN parameter and the mailto: value), and recurrence (the RRULE parsed into a structured object: freq/interval/count/until/byday/…). Empty or absent fields are omitted so the JSON stays clean. date_format writes start/end/until as iso (normalized ISO-8601, default), raw (original .ics text), or unix (epoch seconds; Z times exact, floating/TZID read as UTC). pretty toggles indented vs compact JSON; set include_description=false to drop the description field. Folded lines are unfolded, RFC 5545 TEXT escapes (\\n, \\,, \\;) are decoded, and VALARM/VTIMEZONE sub-components are skipped so their properties never leak into the event. Paste the .ics contents in the 'ics' field. Runs entirely in-browser; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "date_format": {
+          "default": "iso",
+          "description": "How the start/end (and RRULE UNTIL) date values are written. iso (default) normalizes to ISO-8601 (20240309T081530Z → 2024-03-09T08:15:30Z, 20240309 → 2024-03-09); raw keeps the original .ics value verbatim; unix converts to epoch seconds (Z/UTC times are exact, floating/TZID times are read as wall-clock UTC — no timezone database is shipped).",
+          "enum": [
+            "iso",
+            "raw",
+            "unix"
+          ],
+          "type": "string"
+        },
+        "ics": {
+          "description": "The iCalendar (.ics) document to parse. Paste the whole file contents — it starts with BEGIN:VCALENDAR and contains one or more BEGIN:VEVENT…END:VEVENT blocks. Folded lines are unfolded and RFC 5545 TEXT escapes are decoded. Only VEVENTs are parsed (task/journal/free-busy components are ignored).",
+          "type": "string"
+        },
+        "include_description": {
+          "default": true,
+          "description": "Include each event's DESCRIPTION field. Default true; set false to drop it (handy when descriptions are long).",
+          "type": "boolean"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print the JSON with indentation. Default true; set false for compact single-line JSON.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ics"
+      ],
+      "type": "object"
+    }
+  }
+}
