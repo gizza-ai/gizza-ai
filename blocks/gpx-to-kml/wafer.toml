@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gpx-to-kml"
+version = "0.1.0"
+abi = 1
+summary = "Convert a GPX GPS track, route, and waypoints into KML for Google Earth"

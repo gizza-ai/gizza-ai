@@ -1,0 +1,102 @@
+slug          = "gpx-to-kml"
+title         = "GPX to KML Converter for Google Earth (Styling & Altitude)"
+description   = "Convert GPX tracks, routes, and waypoints into KML for Google Earth. Set line color, width, opacity, waypoint color, and altitude mode locally."
+tags          = ["gpx to kml", "gpx to google earth", "kml converter", "gps track to kml", "gpx converter online", "gpx kml altitude"]
+h1            = "GPX to KML Converter"
+hero_subtitle = "Turn a GPX track, route, and waypoints into KML that opens straight in Google Earth — pick the line color, width, opacity, waypoint color, and altitude mode. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_gpx_to_kml_web"
+export        = "run"
+live          = false
+output_label  = "KML"
+format        = "text"
+
+[[input]]
+name        = "gpx"
+label       = "GPX XML"
+placeholder = "<gpx version='1.1'><trk><name>Morning Run</name><trkseg><trkpt lat='52.100' lon='5.100'><ele>10</ele></trkpt><trkpt lat='52.101' lon='5.102'><ele>12</ele></trkpt></trkseg></trk></gpx>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "line_color"
+label       = "Track/route line color"
+placeholder = "#ef4444"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "line_width"
+label       = "Line width (px)"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20"
+step        = "1"
+
+[[input]]
+name        = "line_opacity"
+label       = "Line opacity (%)"
+placeholder = "80"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "waypoint_color"
+label       = "Waypoint icon color"
+placeholder = "#3b82f6"
+source      = "field"
+kind        = "color"
+
+# altitude_mode renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "altitude_mode"
+label  = "Altitude mode"
+source = "field"
+
+[input.labels]
+clamp_to_ground    = "Clamp to ground (ignore altitude)"
+absolute           = "Absolute (metres above sea level)"
+relative_to_ground = "Relative to ground"
+
+[[input]]
+name        = "document_name"
+label       = "Document name (optional)"
+placeholder = "Falls back to the GPX metadata name"
+source      = "field"
+
+[[example]]
+label = "Track → KML (red, clamp to ground)"
+[example.params]
+gpx = "<?xml version=\"1.0\"?>\n<gpx version=\"1.1\"><metadata><name>Trip</name></metadata><trk><name>Morning Run</name><trkseg>\n<trkpt lat=\"52.100\" lon=\"5.100\"><ele>10</ele><time>2026-07-01T08:00:00Z</time></trkpt>\n<trkpt lat=\"52.101\" lon=\"5.102\"><ele>12</ele><time>2026-07-01T08:05:00Z</time></trkpt>\n</trkseg></trk></gpx>"
+line_color = "#ef4444"
+line_width = "4"
+line_opacity = "80"
+waypoint_color = "#3b82f6"
+altitude_mode = "clamp_to_ground"
+document_name = ""
+
+[[example]]
+label = "3D flight (absolute altitude, thick green line)"
+[example.params]
+gpx = "<gpx version=\"1.1\"><trk><name>Glider</name><trkseg>\n<trkpt lat=\"46.5\" lon=\"8.0\"><ele>1200</ele></trkpt>\n<trkpt lat=\"46.6\" lon=\"8.1\"><ele>1850</ele></trkpt>\n</trkseg></trk></gpx>"
+line_color = "#16a34a"
+line_width = "6"
+line_opacity = "100"
+waypoint_color = "#3b82f6"
+altitude_mode = "absolute"
+document_name = "Alpine glide"
+
+[[example]]
+label = "Waypoints only"
+[example.params]
+gpx = "<gpx version=\"1.1\"><wpt lat=\"48.8584\" lon=\"2.2945\"><name>Eiffel Tower</name><desc>Meet here</desc></wpt><wpt lat=\"48.8606\" lon=\"2.3376\"><name>Louvre</name></wpt></gpx>"
+line_color = "#ef4444"
+line_width = "4"
+line_opacity = "80"
+waypoint_color = "#f59e0b"
+altitude_mode = "clamp_to_ground"
+document_name = "Paris stops"
