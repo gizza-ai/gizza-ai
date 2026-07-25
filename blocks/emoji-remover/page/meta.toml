@@ -1,0 +1,61 @@
+slug          = "emoji-remover"
+title         = "Emoji Remover — Strip emoji & pictographic symbols from text"
+description   = "Remove emoji, flags, skin tones and pictographic symbols from text, in your browser. Delete them, leave a space, or use a placeholder. Nothing is uploaded."
+tags          = ["emoji remover", "remove emoji from text", "strip emoji", "emoji stripper", "clean text", "remove symbols"]
+h1            = "Emoji remover"
+hero_subtitle = "Strip emoji and pictographic symbols from text — families, flags, skin tones and keycaps come out cleanly and whole. Delete them, leave a single space, or drop in a placeholder. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_emoji_remover_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text with emoji here… e.g. Ship it 🚀🔥 team 👨‍👩‍👧‍👦🇬🇧"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Leave behind"
+placeholder = "remove"
+source      = "field"
+
+[input.labels]
+remove      = "Nothing (delete)"
+space       = "A single space"
+placeholder = "Custom placeholder"
+
+[[input]]
+name        = "placeholder"
+label       = "Placeholder text"
+placeholder = "[emoji]"
+source      = "field"
+
+[[input]]
+name        = "collapse_whitespace"
+label       = "Collapse whitespace"
+placeholder = "false"
+source      = "field"
+
+[[input]]
+name        = "keep_text_symbols"
+label       = "Keep © ® ™ and text symbols"
+placeholder = "false"
+source      = "field"
+
+[[example]]
+label = "Clean a hype post"
+[example.params]
+text  = "Ship it 🚀🔥 team 👨‍👩‍👧‍👦🇬🇧"
+mode  = "remove"
+collapse_whitespace = "true"
+
+[[example]]
+label = "Mark each emoji"
+[example.params]
+text  = "Great work 👏 everyone 🎉"
+mode  = "placeholder"
+placeholder = "[emoji]"

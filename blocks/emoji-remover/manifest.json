@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/emoji-remover",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip emoji and pictographic symbols from text",
+  "role": "skill",
+  "tool": {
+    "description": "Remove emoji and pictographic symbols from text. Detection is per Unicode grapheme cluster, so ZWJ families (👨‍👩‍👧‍👦), regional-indicator flags (🇬🇧), skin-tone modifiers (👍🏽), keycaps (1️⃣), and variation selectors come out cleanly and whole. `mode` chooses what to leave behind (remove / space / placeholder + `placeholder` text); `collapse_whitespace` tidies the gaps; `keep_text_symbols` preserves text-default symbols like © ® ™ and un-styled hearts. Runs locally — the text never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_whitespace": {
+          "default": false,
+          "description": "When true, collapse runs of whitespace (including gaps left where an emoji was deleted) into a single space, preserve paragraph breaks as one newline, and trim the ends. Default false.",
+          "type": "boolean"
+        },
+        "keep_text_symbols": {
+          "default": false,
+          "description": "When true, keep pictographic symbols that default to text presentation (©, ®, ™, and hearts/arrows without an emoji variation selector) instead of removing them. Emoji-styled symbols (with VS16), flags, keycaps, and skin-toned/ZWJ emoji are still removed. Default false.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "remove",
+          "description": "What to leave in place of each removed emoji. 'remove' (default) deletes it; 'space' leaves a single space; 'placeholder' inserts the `placeholder` string.",
+          "enum": [
+            "remove",
+            "space",
+            "placeholder"
+          ],
+          "type": "string"
+        },
+        "placeholder": {
+          "default": "",
+          "description": "Text inserted for each removed emoji when mode is 'placeholder' (e.g. '[emoji]'). Ignored for the other modes.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to strip emoji and pictographic symbols from.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
