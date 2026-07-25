@@ -1,0 +1,60 @@
+slug          = "currency-converter"
+title         = "Currency Converter — Convert Amounts With Your Own Exchange Rates"
+description   = "Convert an amount between currencies using an exchange-rate table you paste. Chains multi-leg rates, reverses rates automatically, no live data. Free & in-browser."
+tags          = ["currency converter", "exchange rate calculator", "convert currency", "custom exchange rates", "offline currency converter", "multi-leg conversion", "cross rate calculator", "money converter", "crypto rate converter"]
+h1            = "Currency Converter"
+hero_subtitle = "Convert an amount between currencies using an exchange-rate table you supply. Rates chain across currencies for multi-leg conversions, each rate works both ways by default, and everything runs in your browser — no live data, no account."
+wasm          = "gizza_ai_currency_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "amount"
+label       = "Amount"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "from"
+label       = "From currency"
+placeholder = "USD"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To currency"
+placeholder = "EUR"
+source      = "field"
+
+[[input]]
+name        = "rates"
+label       = "Exchange rates (one FROM TO RATE per line)"
+placeholder = "USD EUR 0.92\nEUR JPY 160"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "bidirectional"
+label       = "Use each rate in reverse (1/rate)"
+source      = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places (0–10)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "100 USD → EUR"
+params = { amount = "100", from = "USD", to = "EUR", rates = "USD EUR 0.92" }
+
+[[example]]
+label  = "USD → JPY (multi-leg)"
+params = { amount = "100", from = "USD", to = "JPY", rates = "USD EUR 0.9\nEUR JPY 160" }
+
+[[example]]
+label  = "1 BTC → USD"
+params = { amount = "1", from = "BTC", to = "USD", rates = "BTC USD 64000", precision = "2" }
