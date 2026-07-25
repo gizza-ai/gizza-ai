@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/data-clusterer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Cluster CSV data with KMeans, DBSCAN, or hierarchical methods and visualize it",
+  "role": "skill",
+  "tool": {
+    "description": "Cluster the numeric columns of a CSV/tabular dataset and visualize the result — entirely in the browser, nothing uploaded. Choose KMeans (k groups by nearest centroid), DBSCAN (density-based, with automatic outlier/noise detection via eps and min_samples), or hierarchical/agglomerative clustering (merged down to a target count, with average/complete/single/Ward linkage). Feature columns are chosen by header name or 1-based index, or auto-detected (every fully-numeric column); non-numeric rows are skipped. Features can be z-score standardized so mixed-scale columns compare fairly. Output is a self-contained SVG scatter plot coloured by cluster (with centroid markers and a legend; datasets with more than two features are projected to 2D with PCA), a CSV of each row plus its cluster label, or a JSON report with cluster sizes, centroids, and the silhouette quality score. Distance is Euclidean; results are deterministic.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "clusters": {
+          "default": 3,
+          "description": "Number of clusters: k for KMeans, or the target cluster count for hierarchical. Ignored by DBSCAN (which discovers the count). Default 3.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "columns": {
+          "default": "",
+          "description": "Comma-separated feature columns to cluster on: header names (case-insensitive) or 1-based indices (e.g. `height,weight` or `2,3`). Blank uses every fully-numeric column. Distance is Euclidean.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The tabular data to cluster, as CSV text. Include a header row when you can (e.g. `height,weight`); a first row that is not entirely numeric is treated as headers. Quoted fields with embedded commas are handled.",
+          "type": "string"
+        },
+        "eps": {
+          "default": 1.0,
+          "description": "DBSCAN only: neighbourhood radius. Two points are neighbours when their distance is ≤ eps (in standardized units when normalize is on). Larger eps merges more points. Default 1.0.",
+          "type": "number"
+        },
+        "height": {
+          "default": 500,
+          "description": "Chart height in pixels (150–4000). Default 500.",
+          "maximum": 4000,
+          "minimum": 150,
+          "type": "integer"
+        },
+        "linkage": {
+          "default": "average",
+          "description": "Hierarchical only: how cluster distances are combined when merging — 'average' (UPGMA), 'complete' (max), 'single' (min), or 'ward' (minimum variance). Default average.",
+          "enum": [
+            "average",
+            "complete",
+            "single",
+            "ward"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "kmeans",
+          "description": "Clustering algorithm: 'kmeans' (partition into `clusters` groups by nearest centroid), 'dbscan' (density-based; finds clusters via `eps`/`min_samples` and marks outliers as noise), or 'hierarchical' (agglomerative merging down to `clusters` groups). Default kmeans.",
+          "enum": [
+            "kmeans",
+            "dbscan",
+            "hierarchical"
+          ],
+          "type": "string"
+        },
+        "min_samples": {
+          "default": 4,
+          "description": "DBSCAN only: minimum neighbourhood size (including the point itself) for a core point. Higher values require denser regions and label more points as noise. Default 4.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "normalize": {
+          "default": true,
+          "description": "Standardize each feature to zero mean and unit variance before clustering so columns on different scales contribute comparably. Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "chart",
+          "description": "Result format: 'chart' (an SVG scatter plot coloured by cluster, with centroids and a legend; 2 features plot directly, more than 2 are projected to 2D via PCA), 'csv' (each row plus its cluster label), or 'json' (cluster sizes, centroids, and the silhouette score). Default chart.",
+          "enum": [
+            "chart",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn above the plot (chart output only).",
+          "type": "string"
+        },
+        "width": {
+          "default": 700,
+          "description": "Chart width in pixels (200–4000). Default 700.",
+          "maximum": 4000,
+          "minimum": 200,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

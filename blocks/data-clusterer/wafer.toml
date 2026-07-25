@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "data-clusterer"
+version = "0.1.0"
+abi = 1
+summary = "Cluster CSV data with KMeans, DBSCAN, or hierarchical methods and visualize it"
