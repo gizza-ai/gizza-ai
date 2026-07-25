@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "python-dict-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Convert a Python dict/list literal into valid JSON."
