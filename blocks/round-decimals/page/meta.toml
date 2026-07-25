@@ -1,0 +1,88 @@
+slug          = "round-decimals"
+title         = "Round Decimals — Round CSV Number Columns Online"
+description   = "Round the numeric columns of a CSV to N decimal places in your browser. Pick a rounding mode (half-up, banker's, ceil, floor, truncate). Free, no upload."
+tags          = ["round decimals", "round csv columns", "round numbers online", "bankers rounding", "truncate decimals"]
+h1            = "Round Decimals in a CSV"
+hero_subtitle = "Round the numeric columns of a CSV to any number of decimal places, with the rounding mode you choose — half-up, half-even (banker's), ceil, floor, or truncate. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_round_decimals_web"
+export        = "run"
+live          = false
+output_label  = "Rounded CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,price,qty\nApple,1.005,3.14159\nPear,2.5,10"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places (0–10)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Rounding mode"
+source      = "field"
+
+[input.labels]
+half_up   = "Half up — away from zero (2.5 → 3)"
+half_down = "Half down — toward zero (2.5 → 2)"
+half_even = "Half to even — banker's (2.5 → 2, 3.5 → 4)"
+ceil      = "Ceil — always up"
+floor     = "Floor — always down"
+truncate  = "Truncate — drop extra digits"
+
+[[input]]
+name        = "columns"
+label       = "Columns to round (names or 1-based numbers; blank = all)"
+placeholder = "price, 3"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (kept unrounded; enables column names)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter ( , tab ; | )"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "trailing_zeros"
+label       = "Pad to a fixed number of decimals (3 → 3.00)"
+source      = "field"
+
+[[example]]
+label = "Round every column to 2 places"
+[example.params]
+data     = "name,price,qty\nApple,1.005,3.14159\nPear,2.5,10"
+decimals = "2"
+mode     = "half_up"
+
+[[example]]
+label = "Banker's rounding to 0 places"
+[example.params]
+data     = "value\n0.5\n1.5\n2.5\n3.5"
+decimals = "0"
+mode     = "half_even"
+
+[[example]]
+label = "Only the price column, padded to 2dp"
+[example.params]
+data           = "name,price,qty\nApple,1.005,3.14159\nPear,2.555,10"
+decimals       = "2"
+columns        = "price"
+trailing_zeros = "true"
+
+[[example]]
+label = "Truncate to whole numbers"
+[example.params]
+data     = "value\n2.99\n-2.99\n9.5"
+decimals = "0"
+mode     = "truncate"
