@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-mute-section"
+version = "0.1.0"
+abi = 1
+summary = "Silence a video's audio over a chosen time range, keeping the rest"
