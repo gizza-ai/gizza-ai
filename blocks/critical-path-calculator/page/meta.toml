@@ -1,0 +1,42 @@
+slug          = "critical-path-calculator"
+title         = "Critical Path Method (CPM) Calculator"
+description   = "Find the critical path, project duration, earliest/latest start & finish, and slack from a task list — with PERT three-point estimates. Runs in your browser."
+tags          = ["critical path method", "cpm calculator", "project schedule", "earliest start", "latest start", "total float", "free float", "slack", "pert", "task dependencies"]
+h1            = "Critical Path Method Calculator"
+hero_subtitle = "Enter your tasks, durations, and dependencies to compute the critical path, total project duration, earliest/latest start & finish, and float. Supports PERT three-point estimates. Runs entirely in your browser."
+wasm          = "gizza_ai_critical_path_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Schedule"
+format        = "text"
+
+[[input]]
+name        = "tasks"
+label       = "Tasks (one per line: name, duration, predecessors)"
+placeholder = "A, 3\nB, 4, A\nC, 2, A\nD, 5, B, C\nE, 1, D"
+source      = "field"
+multiline   = true
+
+# Renders as a <select> — control + options come from the descriptor schema.
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[example]]
+label  = "Sample project (5 tasks)"
+[example.params]
+tasks  = "A, 3\nB, 4, A\nC, 2, A\nD, 5, B, C\nE, 1, D"
+format = "report"
+
+[[example]]
+label  = "PERT estimates (optimistic/likely/pessimistic)"
+[example.params]
+tasks  = "Design, 2/4/6\nBuild, 5/8/17, Design\nTest, 1/2/9, Build"
+format = "report"
+
+[[example]]
+label  = "JSON output"
+[example.params]
+tasks  = "A, 3\nB, 4, A\nC, 2, A\nD, 5, B, C\nE, 1, D"
+format = "json"
