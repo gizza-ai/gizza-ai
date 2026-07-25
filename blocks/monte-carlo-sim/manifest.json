@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/monte-carlo-sim",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Monte Carlo simulation of a user-defined probabilistic model",
+  "role": "skill",
+  "tool": {
+    "description": "Run a Monte Carlo simulation of a user-defined model. Declare uncertain input variables as probability distributions (one 'name = distribution(args)' per line — normal, uniform, triangular, lognormal, constant), combine them in a model formula (e.g. 'revenue - cost'), and sample `trials` outcomes (default 10000). Returns the outcome distribution (mean, std dev, min, max), percentiles P5–P99 (read as confidence levels, e.g. P90), an optional probability of meeting a `threshold` target (at-or-above / at-or-below), and a text histogram (`histogram_bins` rows, 0 to hide). Deterministic given a `seed`. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "histogram_bins": {
+          "default": 20,
+          "description": "Number of rows in the text histogram of the outcome distribution (default 20; 0 hides the histogram; max 40).",
+          "maximum": 40,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "model": {
+          "description": "The output formula combining the variables, evaluated once per trial. Supports + - * / ^, parentheses, functions (sin, cos, sqrt, abs, ln, exp, min, max, …) and constants (pi, e). Every name must be a declared variable. E.g. 'revenue - cost'.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Random seed for the deterministic PRNG (default 42). The same seed + inputs always produce identical results; change it to draw a different sample.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "threshold": {
+          "description": "Optional target value. When set, the report adds the probability that the outcome meets this target (P80/P95-style confidence). Omit to skip.",
+          "type": "number"
+        },
+        "threshold_direction": {
+          "default": "at-or-above",
+          "description": "Which side of the threshold counts as a success: 'at-or-above' = P(outcome >= threshold), 'at-or-below' = P(outcome <= threshold). Only used when threshold is set.",
+          "enum": [
+            "at-or-above",
+            "at-or-below"
+          ],
+          "type": "string"
+        },
+        "trials": {
+          "default": 10000,
+          "description": "Number of random trials to sample (default 10000; 100–1000000). More trials tighten the percentile estimates.",
+          "maximum": 1000000,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "variables": {
+          "description": "Uncertain input variables, one 'name = distribution(args)' per line. Supported distributions: normal(mean, std_dev), uniform(min, max), triangular(min, mode, max), lognormal(mu, sigma), constant(value). Blank lines and '#' comments are ignored. E.g. 'revenue = normal(1000, 200)\\ncost = uniform(400, 700)'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variables",
+        "model"
+      ],
+      "type": "object"
+    }
+  }
+}

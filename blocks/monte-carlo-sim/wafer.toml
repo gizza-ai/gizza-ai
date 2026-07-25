@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "monte-carlo-sim"
+version = "0.1.0"
+abi = 1
+summary = "Monte Carlo simulation of a user-defined probabilistic model"
