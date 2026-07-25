@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-bitcoin-address-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# secp256k1 public-key derivation — pure-Rust RustCrypto k256, proven wasm-safe
+# (same crate as crypto-keypair-generator). `arithmetic` gives the public-key
+# point + SEC1 (compressed/uncompressed) encoding.
+k256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
+sha2 = { version = "0.10", default-features = false }   # SHA-256: hash160 + base58check
+ripemd = { version = "0.1", default-features = false }  # RIPEMD-160: hash160
+bs58 = { version = "0.5", default-features = false, features = ["check", "alloc"] }
+hex = { version = "0.4", default-features = false, features = ["alloc"] }

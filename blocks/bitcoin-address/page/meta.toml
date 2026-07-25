@@ -1,0 +1,52 @@
+slug          = "bitcoin-address"
+title         = "Bitcoin Address Tool — derive P2PKH, SegWit, and WIF"
+description   = "Derive Bitcoin P2PKH, P2SH-P2WPKH, P2WPKH addresses and WIF from a secp256k1 private key. Supports hex or WIF input, mainnet and testnet."
+tags          = ["bitcoin address", "bitcoin wif", "p2pkh", "p2wpkh", "segwit address", "base58check", "bech32", "secp256k1"]
+h1            = "Bitcoin Address Tool"
+hero_subtitle = "Paste a secp256k1 private key as hex or WIF and derive legacy, wrapped SegWit, native SegWit addresses, public key, HASH160, and WIF locally."
+wasm          = "gizza_ai_bitcoin_address_web"
+export        = "run"
+live          = false
+output_label  = "Derived addresses"
+format        = "text"
+
+[[input]]
+name        = "key"
+label       = "Private key (hex or WIF)"
+placeholder = "0000000000000000000000000000000000000000000000000000000000000001"
+source      = "field"
+
+[[input]]
+name        = "network"
+label       = "Network for hex input"
+source      = "field"
+
+[input.labels]
+mainnet = "Mainnet"
+testnet = "Testnet"
+
+[[input]]
+name        = "compressed"
+label       = "Compressed public key / WIF"
+source      = "field"
+
+[[example]]
+label = "Mainnet compressed key"
+[example.params]
+key        = "0000000000000000000000000000000000000000000000000000000000000001"
+network    = "mainnet"
+compressed = "true"
+
+[[example]]
+label = "Testnet compressed key"
+[example.params]
+key        = "0000000000000000000000000000000000000000000000000000000000000001"
+network    = "testnet"
+compressed = "true"
+
+[[example]]
+label = "Uncompressed WIF"
+[example.params]
+key        = "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf"
+network    = "mainnet"
+compressed = "true"
