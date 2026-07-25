@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-column-split"
+version = "0.1.0"
+abi = 1
+summary = "Split a CSV column into several columns, or concatenate columns into one."

@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/csv-column-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a CSV column into several columns, or concatenate columns into one.",
+  "role": "skill",
+  "tool": {
+    "description": "Transform CSV columns in either direction: split one source column into several generated columns by a literal separator (like Text to Columns), or concatenate multiple source columns into one with a chosen separator. Select columns by header name or 1-based index, optionally keep the source columns, trim split values, control maximum split columns, and choose comma/tab/semicolon/pipe CSV delimiters. Returns transformed CSV text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Column or columns to use. In split mode, provide one header name or 1-based index. In concat mode, provide a comma-separated list of header names or 1-based indices in join order.",
+          "type": "string"
+        },
+        "data": {
+          "description": "Input CSV text to transform.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV field delimiter for both input and output: comma (default), tab, semicolon, or pipe.",
+          "enum": [
+            ",",
+            "tab",
+            ";",
+            "|"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first CSV row as a header row so columns can be selected by name. Default true.",
+          "type": "boolean"
+        },
+        "keep_source": {
+          "default": false,
+          "description": "Keep the original source column(s) as well as the new column(s). Default false replaces the source column(s).",
+          "type": "boolean"
+        },
+        "max_columns": {
+          "default": 0,
+          "description": "Split mode only: maximum number of output columns. 0 means split every occurrence; 2 means split on the first occurrence only. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "split",
+          "description": "Operation to perform: split one source column into multiple columns (default), or concat multiple source columns into one.",
+          "enum": [
+            "split",
+            "concat"
+          ],
+          "type": "string"
+        },
+        "names": {
+          "description": "Output column names. Split mode: comma-separated names for the generated columns (missing names auto-fill as <source>_1, <source>_2). Concat mode: the combined column name.",
+          "type": "string"
+        },
+        "separator": {
+          "default": ",",
+          "description": "Literal separator string. Split mode splits cell values on this string; concat mode joins source values with it. Default comma.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Split mode only: trim whitespace around each split value. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data",
+        "columns"
+      ],
+      "type": "object"
+    }
+  }
+}
