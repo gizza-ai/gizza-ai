@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/hex-byte-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect a hex/base64/text value: byte, bit & hex-char length, format conversions, and crypto-size hints",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect a value expressed as hex, base64 or text. Set input_format to 'hex' (default), 'base64', or 'text' to choose how 'input' is read into bytes. Reports the byte length, bit length and hex-char count; shows the same bytes converted between hex, base64 and printable text; and groups the hex group_size bytes per group (0 = continuous, default 4). Set uppercase=true for upper-case hex. When interpret=true (default) it appends a Matches block naming common cryptographic values whose canonical size equals that byte length (MD5 16 B, SHA-1 20 B, SHA-256 32 B, SHA-512 64 B, AES-128/192/256 keys, AES-GCM/ChaCha20 nonce 12 B, Ed25519 signature 64 B, secp256k1 pubkeys 33/65 B, etc.). The hex parser tolerates whitespace, ':' '-' ',' '_' delimiters and 0x / \\x prefixes. Returns a plain-text report. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "group_size": {
+          "default": 4,
+          "description": "Bytes per space-separated group in the Hex line. 0 = continuous (no grouping). Default 4. Clamped to 0-64.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The value to inspect. Read according to input_format: a hex string (whitespace, ':' '-' ',' '_' and 0x / \\x prefixes are ignored), a Base64 string, or literal UTF-8 text.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "hex",
+          "description": "How to read 'input' into bytes: 'hex' (default), 'base64', or 'text' (its UTF-8 bytes).",
+          "enum": [
+            "hex",
+            "base64",
+            "text"
+          ],
+          "type": "string"
+        },
+        "interpret": {
+          "default": true,
+          "description": "When true (default), append a Matches block listing common cryptographic values whose canonical size equals the byte length (hash digests, AES/ChaCha keys, Ed25519/secp256k1 keys & signatures, IVs).",
+          "type": "boolean"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "Uppercase the A-F hex digits in the output. Default false (lowercase).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
