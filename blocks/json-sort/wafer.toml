@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-sort"
+version = "0.1.0"
+abi = 1
+summary = "Recursively sort JSON object keys for stable, diff-friendly output"
