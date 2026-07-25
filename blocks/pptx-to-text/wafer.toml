@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pptx-to-text"
+version = "0.1.0"
+abi = 1
+summary = "Extract text and slide outline from a PowerPoint .pptx file."
