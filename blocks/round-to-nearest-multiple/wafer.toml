@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "round-to-nearest-multiple"
+version = "0.1.0"
+abi = 1
+summary = "Round the numeric cells of a CSV to the nearest multiple of a step (0.25, 5, 1000, …)"

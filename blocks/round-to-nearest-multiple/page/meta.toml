@@ -1,0 +1,88 @@
+slug          = "round-to-nearest-multiple"
+title         = "Round to Nearest Multiple — Round a CSV to Any Step Online"
+description   = "Round CSV numbers to the nearest multiple of any step — 0.25, 0.05, 5, 100, 1000. Pick nearest, up, down, or banker's ties. Browser-only, no upload."
+tags          = ["round to nearest multiple", "mround", "round to nearest 5", "round to nearest 0.25", "round to nearest 1000"]
+h1            = "Round to Nearest Multiple"
+hero_subtitle = "Round every number in a CSV to the nearest multiple of a step you choose — quarters (0.25), nickels (0.05), 5, 100, 1000, anything. Round to the nearest, always up, always down, or with banker's ties. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_round_to_nearest_multiple_web"
+export        = "run"
+live          = false
+output_label  = "Rounded CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,price,qty\nApple,1.23,7\nPear,2.42,11"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "step"
+label       = "Multiple / step (e.g. 0.25, 5, 1000)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Rounding mode"
+source      = "field"
+
+[input.labels]
+half_up   = "Nearest — ties away from zero (MROUND, 2.5 → 3)"
+half_down = "Nearest — ties toward zero (2.5 → 2)"
+half_even = "Nearest — banker's ties (2.5 → 2, 3.5 → 4)"
+ceil      = "Up — always to the next multiple"
+floor     = "Down — always to the previous multiple"
+truncate  = "Toward zero — drop to the lower-magnitude multiple"
+
+[[input]]
+name        = "columns"
+label       = "Columns to round (names or 1-based numbers; blank = all)"
+placeholder = "price, 3"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (kept unrounded; enables column names)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter ( , tab ; | )"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "trailing_zeros"
+label       = "Pad to the step's decimal places (0.25 → 1.00, 1.25)"
+source      = "field"
+
+[[example]]
+label = "Prices to the nearest 0.05"
+[example.params]
+data = "name,price\nApple,1.23\nPear,2.42"
+step = "0.05"
+mode = "half_up"
+
+[[example]]
+label = "Round to the nearest 5"
+[example.params]
+data = "value\n47\n82\n137\n276"
+step = "5"
+mode = "half_up"
+
+[[example]]
+label = "Nearest 0.25, padded to a fixed width"
+[example.params]
+data           = "value\n1\n1.1\n1.4"
+step           = "0.25"
+mode           = "half_up"
+trailing_zeros = "true"
+
+[[example]]
+label = "Always round up to the next 1000"
+[example.params]
+data = "value\n1234\n1500\n8100"
+step = "1000"
+mode = "ceil"
