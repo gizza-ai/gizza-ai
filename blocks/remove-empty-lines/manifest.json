@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/remove-empty-lines",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Delete blank or whitespace-only lines, compacting text",
+  "role": "skill",
+  "tool": {
+    "description": "Remove empty lines from text, compacting it. mode=remove (default) deletes every blank line; mode=collapse reduces runs of 2+ consecutive blank lines to a single blank line. whitespace_only=true (default) also deletes lines that contain only spaces/tabs; trim_lines=true trims leading/trailing whitespace from each kept line. Returns the compacted text plus total/removed/kept line counts. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "remove",
+          "description": "remove = delete every empty line (no gaps); collapse = reduce runs of 2+ consecutive empty lines to a single blank line (keeps paragraph spacing). Default remove.",
+          "enum": [
+            "remove",
+            "collapse"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to compact. Blank and (by default) whitespace-only lines are deleted.",
+          "type": "string"
+        },
+        "trim_lines": {
+          "default": false,
+          "description": "Trim leading and trailing whitespace from each kept line. Default false.",
+          "type": "boolean"
+        },
+        "whitespace_only": {
+          "default": true,
+          "description": "Also treat lines containing only spaces/tabs (or any whitespace) as empty, not just literally-empty lines. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
