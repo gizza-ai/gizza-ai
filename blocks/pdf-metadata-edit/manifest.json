@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/pdf-metadata-edit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "View and edit a PDF's title, author, subject, and keywords metadata",
+  "role": "skill",
+  "tool": {
+    "description": "View or edit a PDF's document metadata (the Title, Author, Subject, and Keywords stored in its Info dictionary). With `mode` = 'view', it reads and returns the PDF's current metadata (including read-only Creator/Producer) without changing anything. With `mode` = 'edit' (the default), it sets the fields you provide and returns the updated PDF: pass `title`, `author`, `subject`, and/or `keywords` (keywords is a comma-separated list). An omitted or empty field is left unchanged, so you can update one field without wiping the others; provide at least one field to edit. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "author": {
+          "description": "New document author (edit mode). Leave empty or omit to keep the existing author unchanged.",
+          "type": "string"
+        },
+        "keywords": {
+          "description": "New document keywords, as a comma-separated list (edit mode). Leave empty or omit to keep the existing keywords unchanged.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "edit",
+          "description": "What to do: 'edit' (default) sets the metadata fields you provide; 'view' reads and returns the PDF's current metadata without changing it.",
+          "enum": [
+            "edit",
+            "view"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "subject": {
+          "description": "New document subject (edit mode). Leave empty or omit to keep the existing subject unchanged.",
+          "type": "string"
+        },
+        "title": {
+          "description": "New document title (edit mode). Leave empty or omit to keep the existing title unchanged.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
