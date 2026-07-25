@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "owntracks-to-gpx"
+version = "0.1.0"
+abi = 1
+summary = "Convert an OwnTracks location export (JSON or .rec) into a GPX 1.1 track"

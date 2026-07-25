@@ -1,0 +1,68 @@
+slug          = "owntracks-to-gpx"
+title         = "OwnTracks to GPX Converter — JSON & .rec to Track XML"
+description   = "Convert OwnTracks JSON or Recorder .rec exports into GPX 1.1 tracks with timestamps, elevation, segments, and optional OwnTracks extensions."
+tags          = ["owntracks", "gpx", "location export", "recorder", "gps", "track", "json to gpx", "rec to gpx"]
+h1            = "Convert OwnTracks Exports to GPX"
+hero_subtitle = "Paste an OwnTracks JSON export or Recorder .rec log and get a standard GPX 1.1 track with timestamps, elevation, optional extensions, and segment splitting."
+wasm          = "gizza_ai_owntracks_to_gpx_web"
+export        = "run"
+live          = false
+output_label  = "GPX track"
+format        = "xml"
+
+[[input]]
+name        = "input"
+label       = "OwnTracks export"
+placeholder = "[{\"_type\":\"location\",\"lat\":52.1,\"lon\":5.1,\"tst\":1704110400,\"alt\":10,\"acc\":12}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "track_name"
+label       = "Track name (optional)"
+placeholder = "Sunday hike"
+source      = "field"
+
+[[input]]
+name   = "include_extensions"
+label  = "Include OwnTracks extensions (accuracy, velocity, course, battery, tracker id)"
+source = "field"
+
+[[input]]
+name        = "segment_gap_minutes"
+label       = "Split segments after gaps longer than (minutes)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_accuracy_meters"
+label       = "Drop fixes with accuracy worse than (metres)"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label = "JSON export → GPX with extensions"
+[example.params]
+input = "[{\"_type\":\"location\",\"tid\":\"5f\",\"acc\":12,\"batt\":56,\"vel\":9,\"cog\":180,\"lat\":52.1,\"lon\":5.1,\"alt\":10,\"tst\":1704110400},{\"_type\":\"location\",\"tid\":\"5f\",\"acc\":8,\"lat\":52.101,\"lon\":5.102,\"alt\":12,\"tst\":1704110700}]"
+track_name = "Morning walk"
+include_extensions = "true"
+segment_gap_minutes = "0"
+max_accuracy_meters = "0"
+
+[[example]]
+label = ".rec log, split trips at 20 minutes"
+[example.params]
+input = "2024-01-01T12:00:00Z\t*\t{\"_type\":\"location\",\"lat\":1.0,\"lon\":2.0}\n2024-01-01T12:05:00Z\t*\t{\"_type\":\"location\",\"lat\":1.1,\"lon\":2.1}\n2024-01-01T13:00:00Z\t*\t{\"_type\":\"location\",\"lat\":1.2,\"lon\":2.2}"
+track_name = "Recorder export"
+include_extensions = "false"
+segment_gap_minutes = "20"
+max_accuracy_meters = "0"
+
+[[example]]
+label = "Drop low-accuracy fixes"
+[example.params]
+input = "[{\"_type\":\"location\",\"lat\":48.2,\"lon\":16.37,\"acc\":8,\"tst\":1704110400},{\"_type\":\"location\",\"lat\":48.21,\"lon\":16.38,\"acc\":250,\"tst\":1704110700},{\"_type\":\"location\",\"lat\":48.22,\"lon\":16.39,\"tst\":1704111000}]"
+track_name = "Filtered track"
+include_extensions = "true"
+segment_gap_minutes = "0"
+max_accuracy_meters = "50"
