@@ -1,0 +1,69 @@
+slug          = "ansi-log-renderer"
+title         = "ANSI Log Renderer — convert terminal colors to HTML"
+description   = "Paste ANSI-colored terminal output or CI logs and render them as HTML, or strip escape codes to plain text. Handles 16-color, 256-color, and truecolor SGR codes."
+tags          = ["ansi to html", "ansi log renderer", "terminal colors", "ci log html", "ansi escape codes", "strip ansi", "xterm colors", "truecolor ansi"]
+h1            = "ANSI Log Renderer"
+hero_subtitle = "Turn colored terminal output into copyable HTML, or strip escape sequences to plain text. Supports common SGR colors and styles, runs locally in your browser."
+wasm          = "gizza_ai_ansi_log_renderer_web"
+export        = "run"
+live          = false
+output_label  = "Rendered result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Terminal output or log"
+placeholder = "\u001b[1;32m✓ build passed\u001b[0m\n\u001b[31mERROR\u001b[0m: missing file"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+html = "Colored HTML"
+text = "Plain text"
+
+[[input]]
+name        = "theme"
+label       = "HTML theme"
+source      = "field"
+
+[input.labels]
+dark  = "Dark terminal"
+light = "Light page"
+
+[[input]]
+name        = "styles"
+label       = "HTML style mode"
+source      = "field"
+
+[input.labels]
+inline  = "Inline styles"
+classes = "CSS classes + style block"
+
+[[example]]
+label = "CI error colors"
+[example.params]
+text   = "\u001b[1;31mERROR\u001b[0m: test failed\n\u001b[33mwarning\u001b[0m: unused import"
+output = "html"
+theme  = "dark"
+styles = "inline"
+
+[[example]]
+label = "Strip to plain text"
+[example.params]
+text   = "\u001b[32m✓ passed\u001b[0m\n\u001b[2J\u001b[Hdone"
+output = "text"
+theme  = "dark"
+styles = "inline"
+
+[[example]]
+label = "CSS classes"
+[example.params]
+text   = "\u001b[38;5;196mred\u001b[0m and \u001b[4munderlined\u001b[0m"
+output = "html"
+theme  = "light"
+styles = "classes"

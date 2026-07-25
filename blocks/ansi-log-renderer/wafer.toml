@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ansi-log-renderer"
+version = "0.1.0"
+abi = 1
+summary = "Render ANSI terminal output as colored HTML, or strip it to plain text"
