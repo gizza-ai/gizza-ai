@@ -1,0 +1,95 @@
+{
+  "name": "gizza-ai/table-to-image",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render CSV or JSON tables as a styled standalone SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Render CSV or JSON table data as a standalone SVG suitable for sharing in docs, chats, and issue comments. Supports CSV (custom delimiter), JSON arrays of objects or arrays, optional header styling, zebra rows, themes, accent colour, title, font size, cell padding, and left/center/right alignment. Output is deterministic SVG text — no uploads and no raster encoder required.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "accent": {
+          "default": "#2563eb",
+          "description": "CSS colour for the header band or minimal-theme underline, e.g. #2563eb, #16a34a, or tomato. Default #2563eb.",
+          "type": "string"
+        },
+        "align": {
+          "default": "left",
+          "description": "Text alignment for table cells: left, center, or right. Default left.",
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ],
+          "type": "string"
+        },
+        "cell_padding": {
+          "default": 10,
+          "description": "Horizontal and vertical padding inside each table cell in pixels (0–60). Default 10.",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV delimiter to use when parsing CSV input. Use ',', ';', '|', or '\\t' / 'tab'. Ignored for JSON. Default comma.",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 14,
+          "description": "Body font size in pixels (8–48). The title is drawn slightly larger. Default 14.",
+          "maximum": 48,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first CSV row or first JSON array row as a styled header. JSON object keys always become the header. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "CSV text or JSON table data to render. CSV may include quoted fields; JSON may be an array of flat objects, an array of arrays, or a single object.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse the table: auto sniffs JSON when the input starts with '[' or '{', otherwise CSV; csv and json force that parser. Default auto.",
+          "enum": [
+            "auto",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Visual theme for the SVG: light, dark, slate, blue, green, or minimal (transparent/border-light). Default light.",
+          "enum": [
+            "light",
+            "dark",
+            "slate",
+            "blue",
+            "green",
+            "minimal"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional title/caption drawn centered above the table.",
+          "type": "string"
+        },
+        "zebra": {
+          "default": true,
+          "description": "Shade alternating body rows for readability. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
