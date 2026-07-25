@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/chunk-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a long document into overlapping chunks by token, character, or word count for RAG and embedding pipelines.",
+  "role": "skill",
+  "tool": {
+    "description": "Split a long document into overlapping chunks for RAG / embedding pipelines. Each chunk is a contiguous substring of the source with character offsets. chunk_size and overlap are measured in unit='tokens' (default, estimated via chars_per_token), 'characters', or 'words'; overlap must be less than chunk_size. boundary controls where chunks end: 'word' (default, never splits a word), 'character' (hard cut), 'sentence', or 'paragraph', with recursive fallback to a finer boundary when a unit is larger than chunk_size. format='json' (default) returns a JSON array of {id, text, chars, tokens, start, end}; 'jsonl' is one object per line; 'plain' joins chunk texts with a '---' divider. Set trim=true to strip surrounding whitespace from each chunk.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary": {
+          "default": "word",
+          "description": "Where a chunk is allowed to end. 'word' (default) never splits a word; 'character' is a hard cut at the exact size; 'sentence' cuts on sentence ends (. ! ?); 'paragraph' cuts on blank lines. Coarser boundaries fall back to finer ones when a single unit is larger than chunk_size (recursive splitting).",
+          "enum": [
+            "word",
+            "character",
+            "sentence",
+            "paragraph"
+          ],
+          "type": "string"
+        },
+        "chars_per_token": {
+          "default": 4.0,
+          "description": "Approximate characters per token used to estimate token counts when unit='tokens'. Default 4.0 (a common English GPT estimate).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "chunk_size": {
+          "default": 500,
+          "description": "Maximum size of each chunk, measured in the chosen unit. Default 500.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "format": {
+          "default": "json",
+          "description": "Output format. 'json' (default) is a pretty JSON array of records with id, text, chars, tokens, start and end char offsets; 'jsonl' is one compact JSON object per line; 'plain' is the chunk texts separated by a '---' divider.",
+          "enum": [
+            "json",
+            "jsonl",
+            "plain"
+          ],
+          "type": "string"
+        },
+        "overlap": {
+          "default": 50,
+          "description": "How much each chunk overlaps the previous one, in the same unit. Must be less than chunk_size. Default 50 (10% of the default size). Overlap helps preserve context across chunk boundaries for retrieval.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The document text to split into chunks.",
+          "type": "string"
+        },
+        "trim": {
+          "default": false,
+          "description": "Trim leading/trailing whitespace from each chunk (whitespace-only chunks are dropped). Default false.",
+          "type": "boolean"
+        },
+        "unit": {
+          "default": "tokens",
+          "description": "How chunk_size and overlap are measured. 'tokens' (default) is an estimate of chars/chars_per_token (no real BPE tokenizer runs here — use the token-counter tool for exact counts); 'characters' counts Unicode characters; 'words' counts whitespace-separated words.",
+          "enum": [
+            "tokens",
+            "characters",
+            "words"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

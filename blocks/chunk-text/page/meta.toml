@@ -1,0 +1,68 @@
+slug          = "chunk-text"
+title         = "Chunk Text — Split Documents into Overlapping RAG Chunks"
+description   = "Split long text into overlapping chunks by token, character, or word count for RAG and embedding pipelines. Word, sentence, or paragraph boundaries. Runs in your browser."
+tags          = ["chunk text", "text splitter", "rag chunking", "text chunker", "chunk size overlap", "embedding chunks", "recursive text splitter", "token chunking"]
+h1            = "Chunk Text for RAG"
+hero_subtitle = "Split a long document into overlapping chunks by token, character, or word count — the way LangChain's RecursiveCharacterTextSplitter does — for retrieval-augmented generation and embedding pipelines. Word, sentence, and paragraph boundaries with recursive fallback. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_chunk_text_web"
+export        = "run"
+live          = false
+output_label  = "Chunks"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the document you want to split into chunks…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "chunk_size"
+label       = "Chunk size"
+placeholder = "500"
+source      = "field"
+
+[[input]]
+name        = "overlap"
+label       = "Overlap"
+placeholder = "50"
+source      = "field"
+
+[[input]]
+name        = "unit"
+label       = "Measure in"
+source      = "field"
+
+[[input]]
+name        = "boundary"
+label       = "Split on"
+source      = "field"
+
+[[input]]
+name        = "chars_per_token"
+label       = "Chars per token (estimate)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace from each chunk"
+source      = "field"
+
+[[example]]
+label  = "RAG 512/64 (tokens)"
+params = { text = "Retrieval-augmented generation grounds a language model in your own documents. First you split each document into chunks small enough to embed. Then you store the embeddings in a vector database. At query time you retrieve the most similar chunks and paste them into the prompt as context. Overlapping the chunks keeps a sentence that straddles a boundary from being lost. Choosing a good chunk size is a trade-off: larger chunks carry more context but dilute the embedding, while smaller chunks are precise but fragment the meaning.", chunk_size = "512", overlap = "64", unit = "tokens", boundary = "sentence", format = "json" }
+
+[[example]]
+label  = "Small chunks (200 chars, word-safe)"
+params = { text = "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! The five boxing wizards jump quickly.", chunk_size = "200", overlap = "0", unit = "characters", boundary = "word", trim = "true", format = "plain" }
+
+[[example]]
+label  = "Paragraph chunks (JSONL)"
+params = { text = "Introduction paragraph explaining the goal of the document in a couple of sentences.\n\nSecond paragraph with the main argument and some supporting detail for the reader.\n\nConclusion paragraph that wraps everything up neatly at the end.", chunk_size = "60", overlap = "0", unit = "words", boundary = "paragraph", format = "jsonl" }
