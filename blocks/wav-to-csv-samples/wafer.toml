@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wav-to-csv-samples"
+version = "0.1.0"
+abi = 1
+summary = "Export decoded WAV PCM samples to CSV, one column per channel."

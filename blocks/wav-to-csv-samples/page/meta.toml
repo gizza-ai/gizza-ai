@@ -1,0 +1,95 @@
+slug          = "wav-to-csv-samples"
+title         = "WAV to CSV — Export Audio Samples to CSV Online"
+description   = "Paste an uncompressed WAV as base64 or hex and export its decoded PCM samples to CSV: one column per channel, with a time or sample index. Runs in your browser."
+tags          = ["wav to csv", "wav to csv converter", "audio samples to csv", "pcm to csv", "export wav samples", "wav sample data export", "wav decoder", "audio to csv", "wav csv export", "extract wav samples"]
+h1            = "WAV to CSV Samples"
+hero_subtitle = "Paste an uncompressed WAV clip as base64 or hex and export its decoded PCM samples to CSV — one column per channel, optionally with a time (seconds) or sample-index column. Pick normalized float, raw integer, or dBFS values, the delimiter, and a frame window. Runs entirely in your browser; the audio is never uploaded."
+wasm          = "gizza_ai_wav_to_csv_samples_web"
+export        = "run"
+live          = false
+output_label  = "CSV samples"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "WAV bytes (base64 or hex)"
+placeholder = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+source      = "field"
+multiline   = true
+
+# input_format / value_scale / index_column / delimiter render as <select>; the
+# option lists come from the descriptor schema (manifest.json), not duplicated here.
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+
+[[input]]
+name        = "value_scale"
+label       = "Sample value scale"
+source      = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places (float / dB)"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "index_column"
+label       = "Index column(s)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+# header is a boolean → checkbox (checked by default).
+[[input]]
+name        = "header"
+label       = "Write a header row"
+source      = "field"
+
+[[input]]
+name        = "start_frame"
+label       = "Start frame"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_frames"
+label       = "Max frames"
+placeholder = "100000"
+source      = "field"
+
+# Preset chips — one click prefills a runnable example.
+[[example]]
+label = "Sample values (defaults)"
+[example.values]
+input        = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+
+[[example]]
+label = "Raw 16-bit integers"
+[example.values]
+input        = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+value_scale  = "int"
+index_column = "sample"
+
+[[example]]
+label = "Decibel levels (dBFS)"
+[example.values]
+input        = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+value_scale  = "db"
+
+[[example]]
+label = "Stereo, tab-separated"
+[example.values]
+input        = "UklGRjAAAABXQVZFZm10IBAAAAABAAIAgD4AAAD6AAAEABAAZGF0YQgAAAAAQADAAAD/fw=="
+input_format = "base64"
+value_scale  = "int"
+delimiter    = "tab"
+index_column = "none"
