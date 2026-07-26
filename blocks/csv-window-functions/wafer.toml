@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-window-functions"
+version = "0.1.0"
+abi = 1
+summary = "Add SQL window-function columns (running total, moving average, lag/lead, rank) to CSV rows."
