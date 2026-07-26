@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "code-chunker"
+version = "0.1.0"
+abi = 1
+summary = "Split source code into function- and class-aligned chunks for embedding or an LLM context window."

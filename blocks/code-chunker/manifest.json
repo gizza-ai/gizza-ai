@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/code-chunker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split source code into function- and class-aligned chunks for embedding or an LLM context window.",
+  "role": "skill",
+  "tool": {
+    "description": "Split source code into function-/class-aligned chunks suitable for embedding or an LLM context window (RAG over code). Boundaries come from a dependency-free heuristic: bracket balancing for brace languages (JS/TS/Rust/Go/Java/C/C++/C#/PHP/Swift, ignoring brackets in strings and comments) and indentation for Python; leading comments/decorators fold into the construct they precede. language='auto' (default) guesses the language. Consecutive constructs are packed into chunks up to max_lines (default 60); a construct larger than that is kept whole and flagged oversize (definitions are never split). format='json' (default) returns an array of {index, start_line, end_line, line_count, kind, name, oversize, text}; 'jsonl' is one object per line; 'text' banners each chunk. Chunks do not overlap.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The source code to split into function-/class-aligned chunks.",
+          "type": "string"
+        },
+        "format": {
+          "default": "json",
+          "description": "Output format. 'json' (default) is a pretty JSON array of {index, start_line, end_line, line_count, kind, name, oversize, text}; 'jsonl' is one compact object per line; 'text' is each chunk under a header banner.",
+          "enum": [
+            "json",
+            "jsonl",
+            "text"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Language of the code, which selects the boundary strategy. 'auto' (default) guesses: Python (indentation) vs a brace language (bracket balancing). Brace languages share one strategy; Rust is handled specially so lifetimes aren't mistaken for strings.",
+          "enum": [
+            "auto",
+            "python",
+            "javascript",
+            "typescript",
+            "rust",
+            "go",
+            "java",
+            "c",
+            "cpp",
+            "csharp",
+            "php",
+            "swift"
+          ],
+          "type": "string"
+        },
+        "max_lines": {
+          "default": 60,
+          "description": "Target maximum lines per chunk. Consecutive top-level constructs are packed together up to this many lines; a single construct larger than this is emitted whole (never split mid-definition) and flagged 'oversize'. Default 60.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}
