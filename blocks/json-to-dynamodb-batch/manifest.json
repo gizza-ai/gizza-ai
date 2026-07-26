@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/json-to-dynamodb-batch",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a DynamoDB BatchWriteItem payload from a JSON array",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a JSON array of objects into a DynamoDB BatchWriteItem request payload. Emits { \"RequestItems\": { table: [ ... ] } } with each object mapped to typed AttributeValues (S, N, BOOL, NULL, L, M). Choose put (PutRequest/Item) or delete (DeleteRequest/Key), and pretty or compact output. Numbers keep their exact JSON spelling. Errors on invalid JSON, a non-array root, a non-object item, an empty table name, or more than 25 items (the DynamoDB batch limit).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "json": {
+          "description": "JSON array of objects to convert. Each object becomes one write request (max 25 per DynamoDB BatchWriteItem call).",
+          "type": "string"
+        },
+        "operation": {
+          "default": "put",
+          "description": "put emits PutRequest/Item entries; delete emits DeleteRequest/Key entries (objects should hold only key attributes).",
+          "enum": [
+            "put",
+            "delete"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print the JSON output. Set false for compact single-line output.",
+          "type": "boolean"
+        },
+        "table_name": {
+          "description": "Target DynamoDB table name that the write requests are keyed under.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json",
+        "table_name"
+      ],
+      "type": "object"
+    }
+  }
+}
