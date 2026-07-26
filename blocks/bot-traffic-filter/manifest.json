@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/bot-traffic-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag and strip bot/crawler hits from a log by user-agent and report the human-vs-bot split.",
+  "role": "skill",
+  "tool": {
+    "description": "Classify each entry of an access log or event list as bot/crawler vs human by its user-agent, strip the bot hits, and report the human-versus-bot split. Detection matches the user-agent (case-insensitively) against a curated list of known crawlers/agents — search engines (Googlebot, Bingbot), AI crawlers (GPTBot, ClaudeBot, PerplexityBot), SEO tools (AhrefsBot, SemrushBot), monitoring probes, social/link-preview fetchers, generic HTTP libraries (curl, python-requests, Go-http-client), and headless browsers — plus the standard bot/crawl/spider/slurp token heuristic; a missing/'-' user-agent counts as a bot when empty_is_bot is true (default). format='auto' (default) pulls the UA from the last quoted field of an access-log line or treats the whole line as a UA. output='report' (default) summarizes the split and categories; 'table'/'json'/'csv' give per-hit rows; 'humans' returns the human lines only (bots stripped) and 'bots' the bot lines only. limit caps the row count (default 500). Runs locally: no DNS/IP-range/behavioural checks, so a spoofed user-agent is classified by what it declares.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "empty_is_bot": {
+          "default": true,
+          "description": "Treat a missing or '-' user-agent as a bot. Default true — scripts and scrapers often send no user-agent. Set false to count blank-UA hits as human.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read each line. 'auto' (default) uses the last quoted field as the user-agent when the line is an access-log entry, otherwise treats the whole line as a user-agent. 'combined' forces Apache/nginx Combined Log Format (UA = last quoted field). 'plain' treats every line as a bare user-agent string.",
+          "enum": [
+            "auto",
+            "combined",
+            "plain"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The access log or event list — one hit per line. Paste Apache/nginx Combined Log Format lines (the user-agent is the last quoted field) or a bare list of user-agent strings, one per line. Blank lines are skipped.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 500,
+          "description": "Maximum number of rows to output for the table/json/csv/humans/bots outputs (1-10000). Default 500. The 'report' summary always counts every line regardless of this cap.",
+          "maximum": 10000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "What to return. 'report' (default) is a summary: totals, the human/bot split with percentages, a per-category breakdown, and the top bots. 'table' is a Markdown table (one row per hit). 'json'/'csv' are per-hit data. 'humans' returns only the original human lines (bots stripped); 'bots' returns only the original bot lines.",
+          "enum": [
+            "report",
+            "table",
+            "json",
+            "csv",
+            "humans",
+            "bots"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
