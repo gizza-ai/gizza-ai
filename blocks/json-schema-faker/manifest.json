@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/json-schema-faker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate deterministic fake data from a JSON Schema",
+  "role": "skill",
+  "tool": {
+    "description": "Generate N fake records that conform to a supported JSON Schema subset. Handles object properties, arrays, scalar types, enum/const, required fields, common string formats (email, uuid, date, date-time, uri, ipv4), length/range/item bounds, deterministic seeds, and JSON/JSONL/CSV output. Unsupported assertion keywords such as $ref, oneOf/anyOf/allOf, pattern, patternProperties, dependencies, and conditionals are rejected with clear errors instead of being silently ignored.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "default": 1,
+          "description": "Number of records to generate (1–1000).",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format: JSON array, JSON Lines, or CSV (CSV requires object rows).",
+          "enum": [
+            "json",
+            "jsonl",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print JSON output. Ignored for JSON Lines and CSV.",
+          "type": "boolean"
+        },
+        "schema": {
+          "description": "JSON Schema object to generate data from. Supported subset: object/array/scalar types, properties, required, enum, const, common string formats, and basic length/range/item bounds.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 1,
+          "description": "Deterministic seed. Use the same non-zero seed to reproduce output; 0 uses the core fallback seed.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+slug          = "json-schema-faker"
+title         = "JSON Schema Faker — Generate Conforming Test Data"
+description   = "Generate deterministic fake JSON, JSONL, or CSV rows from a JSON Schema subset with formats, enums, ranges, arrays, and seeds."
+tags          = ["json schema faker", "fake json data", "mock data generator", "schema test data", "json schema mock", "synthetic data", "jsonl generator", "csv fake data"]
+h1            = "Generate fake data from a JSON Schema"
+hero_subtitle = "Paste a JSON Schema, choose a record count and seed, and generate browser-local JSON, JSON Lines, or CSV that conforms to the supported schema subset."
+wasm          = "gizza_ai_json_schema_faker_web"
+export        = "run"
+live          = false
+output_label  = "Generated data"
+format        = "text"
+
+[[input]]
+name        = "schema"
+label       = "JSON Schema"
+placeholder = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": { \"type\": \"integer\", \"minimum\": 1, \"maximum\": 999 },\n    \"email\": { \"type\": \"string\", \"format\": \"email\" },\n    \"role\": { \"enum\": [\"admin\", \"user\", \"guest\"] }\n  }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "count"
+label       = "Record count"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 1000
+step        = "1"
+
+[[input]]
+name        = "seed"
+label       = "Seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json  = "JSON array"
+jsonl = "JSON Lines"
+csv   = "CSV table"
+
+[[example]]
+label = "Users with emails and roles"
+[example.params]
+schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": { \"type\": \"integer\", \"minimum\": 1, \"maximum\": 99 },\n    \"email\": { \"type\": \"string\", \"format\": \"email\" },\n    \"role\": { \"enum\": [\"admin\", \"user\", \"guest\"] }\n  },\n  \"required\": [\"id\", \"email\"]\n}"
+count = "3"
+seed = "42"
+pretty = "true"
+output = "json"
+
+[[example]]
+label = "CSV products"
+[example.params]
+schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"sku\": { \"type\": \"string\", \"minLength\": 6, \"maxLength\": 6 },\n    \"price\": { \"type\": \"number\", \"minimum\": 10, \"maximum\": 50 },\n    \"active\": { \"type\": \"boolean\" }\n  }\n}"
+count = "5"
+seed = "7"
+pretty = "false"
+output = "csv"
+
+[[example]]
+label = "Events as JSON Lines"
+[example.params]
+schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"event_id\": { \"type\": \"string\", \"format\": \"uuid\" },\n    \"seen_at\": { \"type\": \"string\", \"format\": \"date-time\" },\n    \"tags\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"minItems\": 2, \"maxItems\": 2 }\n  }\n}"
+count = "2"
+seed = "9"
+pretty = "false"
+output = "jsonl"
