@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "target-mean-encoder"
+version = "0.1.0"
+abi = 1
+summary = "Target-encode a CSV categorical column by target mean"

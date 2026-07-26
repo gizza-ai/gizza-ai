@@ -1,0 +1,118 @@
+slug          = "target-mean-encoder"
+title         = "Target Mean Encoder — Encode CSV Categories by Target Mean"
+description   = "Replace a CSV categorical column with the per-category mean of a numeric target. Supports smoothing, leave-one-out, replace or append output, and unknown handling."
+tags          = ["target encoding", "mean encoding", "impact encoding", "categorical encoding", "feature engineering", "csv encoder", "machine learning preprocessing"]
+h1            = "Target-encode a CSV categorical column"
+hero_subtitle = "Paste CSV, pick a category and numeric target, and turn the category into its per-category target mean — with optional smoothing and leave-one-out."
+wasm          = "gizza_ai_target_mean_encoder_web"
+export        = "run"
+live          = false
+output_label  = "Encoded CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "city,churn\nA,1\nB,1\nA,0\nB,1\nC,1\nB,0"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "category"
+label       = "Category column (name or 1-based number)"
+placeholder = "city"
+source      = "field"
+
+[[input]]
+name        = "target"
+label       = "Target column (name or 1-based number)"
+placeholder = "churn"
+source      = "field"
+
+[[input]]
+name        = "smoothing"
+label       = "Smoothing (m)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name   = "leave_one_out"
+label  = "Leave-one-out (exclude own row)"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+replace = "Replace category column"
+append  = "Append new column"
+
+[[input]]
+name   = "unknown"
+label  = "Unknown / blank category"
+source = "field"
+
+[input.labels]
+global-mean = "Use global mean"
+nan         = "NaN"
+zero        = "Zero"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "15"
+step        = "1"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[example]]
+label = "Churn by city"
+[example.params]
+data = "city,churn\nA,1\nB,1\nA,0\nB,1\nC,1\nB,0"
+category = "city"
+target = "churn"
+smoothing = "0"
+leave_one_out = "false"
+output = "replace"
+unknown = "global-mean"
+decimals = "3"
+has_header = "true"
+delimiter = "comma"
+
+[[example]]
+label = "Smoothed, appended column"
+[example.params]
+data = "city,churn\nA,1\nB,1\nA,0\nB,1\nC,1\nB,0"
+category = "city"
+target = "churn"
+smoothing = "3"
+leave_one_out = "false"
+output = "append"
+unknown = "global-mean"
+decimals = "4"
+has_header = "true"
+delimiter = "comma"
