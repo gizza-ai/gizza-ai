@@ -1,0 +1,75 @@
+slug          = "ocr-text-cleaner"
+title         = "OCR Text Cleaner — Fix Ligatures, Confusables & Spacing"
+description   = "Clean OCR text by expanding ligatures, rejoining hyphenated line breaks, reflowing lines, fixing confusables, and normalizing spacing."
+tags          = ["ocr text cleaner", "fix ocr errors", "ocr correction", "ligature expander", "dehyphenate", "reflow text", "ocr confusables", "clean scanned text"]
+h1            = "Clean up OCR text"
+hero_subtitle = "Paste text pulled from a scan or PDF and fix the mechanical errors OCR leaves behind — ligatures, hyphenated line breaks, letter/number confusables, and spacing — with deterministic rules, right in your browser."
+wasm          = "gizza_ai_ocr_text_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "OCR text"
+placeholder = "The ﬁnal  report says HeIIo ,world .Next"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "fix_ligatures"
+label  = "Expand ligatures (ﬁ → fi)"
+source = "field"
+
+[[input]]
+name   = "join_hyphenated"
+label  = "Rejoin words hyphenated across line breaks"
+source = "field"
+
+[[input]]
+name   = "line_breaks"
+label  = "Line breaks"
+source = "field"
+
+[input.labels]
+keep       = "Keep as-is"
+paragraphs = "Reflow within paragraphs"
+all        = "Collapse to one line"
+
+[[input]]
+name   = "fix_confusables"
+label  = "Fix letter/number confusables (HeIIo → Hello, l00 → 100)"
+source = "field"
+
+[[input]]
+name   = "fix_rn"
+label  = "Undo rn → m merge error (aggressive)"
+source = "field"
+
+[[input]]
+name   = "fix_spacing"
+label  = "Normalize spacing around punctuation"
+source = "field"
+
+[[example]]
+label = "Ligatures, confusables & spacing"
+[example.params]
+text = "The ﬁnal  report says HeIIo ,world .Next"
+fix_ligatures = "true"
+join_hyphenated = "true"
+line_breaks = "keep"
+fix_confusables = "true"
+fix_rn = "false"
+fix_spacing = "true"
+
+[[example]]
+label = "Reflow a hyphenated, wrapped paragraph"
+[example.params]
+text = "This para-\ngraph was split\nacross lines."
+fix_ligatures = "true"
+join_hyphenated = "true"
+line_breaks = "paragraphs"
+fix_confusables = "true"
+fix_rn = "false"
+fix_spacing = "true"
