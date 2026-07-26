@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "msgpack-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Decode a MessagePack blob (hex or base64) into pretty-printed JSON."

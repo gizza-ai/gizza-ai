@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/msgpack-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a MessagePack blob (hex or base64) into pretty-printed JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a MessagePack binary blob into human-readable JSON, entirely in the browser/sandbox. Give the bytes as a hex or base64 string in 'input' (input_format='auto' detects which; force with 'hex' or 'base64'). indent sets spaces per nesting level (0-8, default 2; 0 minifies to one line). Field/element order is preserved and full uint64 precision is kept. MessagePack types JSON cannot hold natively are represented by convention: raw binary ('bin') and unknown extension ('ext') payloads are shown as a base64 (default) or hex string per binary_format — an ext becomes {\"$ext\": <type>, \"data\": \"<encoded>\"}; the reserved timestamp extension (type -1, 4/8/12-byte forms) becomes an RFC 3339 UTC string; non-string map keys are stringified. Several MessagePack values back-to-back are returned as a JSON array. Returns a clear error (with a byte offset) for invalid hex/base64 or malformed MessagePack.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "binary_format": {
+          "default": "base64",
+          "description": "How raw MessagePack binary ('bin') values and 'ext' payloads are shown in the JSON, since JSON has no binary type: 'base64' (default) or 'hex'.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level in the pretty-printed JSON (0-8, default 2). Set 0 to minify to a single compact line.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The MessagePack bytes, encoded as a hex or base64 string (e.g. from a network capture, a Redis value, or a driver's msgpack output). Several MessagePack values back-to-back are decoded as a JSON array.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How the input string is encoded: 'auto' (default; detect hex vs base64), 'hex' (whitespace, ':', '-', ',' and any '0x' markers ignored), or 'base64' (standard or URL-safe, padding optional).",
+          "enum": [
+            "auto",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
