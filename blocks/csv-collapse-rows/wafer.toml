@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-collapse-rows"
+version = "0.1.0"
+abi = 1
+summary = "Group CSV rows and collapse a column into one delimited cell"
