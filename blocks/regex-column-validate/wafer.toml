@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-column-validate"
+version = "0.1.0"
+abi = 1
+summary = "Validate CSV column values with a regex"
