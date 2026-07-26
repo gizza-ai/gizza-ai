@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/video-audio-bitrate-set",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-encode only a video's audio at a chosen bitrate to shrink an oversized soundtrack",
+  "role": "skill",
+  "tool": {
+    "description": "Re-encode ONLY a video's audio track at a chosen constant bitrate to shrink an oversized soundtrack, keeping the picture untouched (the video stream is copied losslessly; only the audio is re-encoded). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). bitrate is in kbps (64/96/128/160/192/256/320; default 128) — use 64–96 for speech/podcasts, 192–320 to preserve music. The audio codec matches the container (AAC for mp4/mov/mkv, Opus for webm). The output keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bitrate": {
+          "default": "128",
+          "description": "Target audio bitrate in kbps (constant/CBR). Lower = smaller file, lower quality; higher = larger, better. Default 128 (good for stereo music/speech); use 64–96 for voice/podcast, 192–320 to keep music quality. Only the audio is re-encoded; the video is copied untouched.",
+          "enum": [
+            "64",
+            "96",
+            "128",
+            "160",
+            "192",
+            "256",
+            "320"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
