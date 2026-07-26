@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "weighted-random-sampler"
+version = "0.1.0"
+abi = 1
+summary = "Draw a weighted random sample of rows from a CSV or JSON dataset, with or without replacement"

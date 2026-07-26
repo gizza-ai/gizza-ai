@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/weighted-random-sampler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Draw a weighted random sample of rows from a CSV or JSON dataset, with or without replacement",
+  "role": "skill",
+  "tool": {
+    "description": "Draw a weighted random sample of `n` rows from a CSV or JSON-array dataset. Each row is selected with probability proportional to a numeric `weight_field` (CSV header name / 1-based index, or JSON object key). `replacement=true` allows a row to be drawn more than once and lets `n` exceed the row count; `replacement=false` (default) draws each row at most once (capped at the positive-weight rows) and preserves the input order. Draws are reproducible via `seed`. The output is emitted in the same `format` as the input; for CSV the header and `delimiter` are preserved.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The dataset to sample from — CSV text (with header by default) or a JSON array of objects, matching `format`.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV only: field delimiter of the input, also used for the output. Ignored for JSON. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "csv",
+          "description": "Input/output format: csv (delimited rows) or json (an array of objects). The result is emitted in the same format. Default csv.",
+          "enum": [
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "CSV only: treat the first row as a header (kept in the output and used to resolve a named weight_field). Ignored for JSON. Default true.",
+          "type": "boolean"
+        },
+        "n": {
+          "default": 2,
+          "description": "Number of rows to draw. Without replacement it is capped at the count of positive-weight rows (error if larger); with replacement it may exceed the row count. Default 2.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "replacement": {
+          "default": false,
+          "description": "Sample WITH replacement (a row may be drawn more than once) when true; WITHOUT replacement (each row at most once, output in original order) when false. Default false.",
+          "type": "boolean"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the reproducible PRNG. The same seed + inputs always yields the same draw; change it for a different sample. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "weight_field": {
+          "description": "Field holding each row's weight. For CSV: a header name (header=true) or a 1-based column index. For JSON: the object key. Weights must be non-negative numbers; higher weight = more likely to be drawn.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "weight_field"
+      ],
+      "type": "object"
+    }
+  }
+}
