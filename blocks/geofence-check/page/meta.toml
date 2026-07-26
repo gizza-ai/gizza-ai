@@ -1,0 +1,81 @@
+slug          = "geofence-check"
+title         = "Point in Polygon Checker (Geofence Test)"
+description   = "Test latitude/longitude points against a polygon geofence. Paste GeoJSON or lat,lon lines, choose boundary handling, and export text, CSV, or JSON."
+tags          = ["point in polygon", "geofence", "point in polygon checker", "geojson", "latitude longitude", "inside polygon", "ray casting", "gis"]
+h1            = "Point in Polygon Checker"
+hero_subtitle = "Paste a boundary polygon and a list of latitude/longitude points to see which fall inside. GeoJSON or plain lat,lon lines, holes and multipolygons supported, results as text, CSV, or JSON."
+wasm          = "gizza_ai_geofence_check_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "polygon"
+label       = "Polygon boundary"
+placeholder = "0,0\n0,10\n10,10\n10,0   (or GeoJSON: {\"type\":\"Polygon\",\"coordinates\":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]})"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "points"
+label       = "Points to test (lat,lon per line)"
+placeholder = "40.0,-105.0,Depot\n41.25,-106.5,Warehouse"
+source      = "field"
+multiline   = true
+
+[[input]]
+name  = "coord_order"
+label = "Coordinate order (non-GeoJSON)"
+source = "field"
+
+[input.labels]
+lat_lon = "Latitude, Longitude"
+lon_lat = "Longitude, Latitude"
+
+[[input]]
+name  = "boundary"
+label = "On-boundary points count as"
+source = "field"
+
+[input.labels]
+inside   = "Inside"
+outside  = "Outside"
+boundary = "Boundary (own status)"
+
+[[input]]
+name  = "output"
+label = "Output format"
+source = "field"
+
+[input.labels]
+text = "Text summary"
+csv  = "CSV"
+json = "JSON"
+
+[[example]]
+label = "Simple square, two points"
+[example.params]
+polygon = "0,0\n0,10\n10,10\n10,0"
+points = "5,5,Inside\n20,20,Far away"
+coord_order = "lat_lon"
+boundary = "inside"
+output = "text"
+
+[[example]]
+label = "GeoJSON polygon with a hole"
+[example.params]
+polygon = "{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[10,0],[10,10],[0,10],[0,0]],[[3,3],[7,3],[7,7],[3,7],[3,3]]]}"
+points = "5,5,In the hole\n1,1,In the ring"
+coord_order = "lat_lon"
+boundary = "inside"
+output = "csv"
+
+[[example]]
+label = "Boundary point as its own status"
+[example.params]
+polygon = "0,0\n0,10\n10,10\n10,0"
+points = "0,5,On the edge"
+coord_order = "lat_lon"
+boundary = "boundary"
+output = "json"
