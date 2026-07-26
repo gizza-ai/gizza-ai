@@ -1,0 +1,66 @@
+slug          = "speech-audio-quality-checker"
+title         = "Speech Audio Quality Checker — ASR Readiness Preflight"
+description   = "Paste a short WAV clip as base64 or hex and check ASR readiness: sample rate, channels, SNR estimate, clipping, level, and verdict."
+tags          = ["speech audio", "asr", "transcription", "wav", "snr", "clipping", "audio quality", "speech to text"]
+h1            = "Speech audio quality checker"
+hero_subtitle = "Pre-flight a short WAV recording before transcription. Decode pasted base64 or hex WAV bytes and check sample rate, channel count, level, estimated SNR, clipping, and an overall ASR-readiness verdict."
+wasm          = "gizza_ai_speech_audio_quality_checker_web"
+export        = "run"
+live          = false
+output_label  = "Quality report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "WAV bytes (base64 or hex)"
+placeholder = "UklGRmQGAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YUAGAAAAAOkSIiQhMqY71j9TPj43OitZGwgJ6PWu4/zTOchxwUDAwMSMzsLcH+4TAfATBCXLMgc85z8SPrE2bSpfGvYH2PS44jbTtMc5wVrAK8U9z6rdKO8mAvUU5CVwM2U89D/MPSA2nSljGeUGyvPF4XPSM8cGwXnAmcXxz5PeMvA6A/gVwCYSNL08/D+DPYs1yyhmGNMFvPLT4LPRtsbXwJ3ADMao0H/fPvFNBPoWmiexNBI9/z80PfI09SdmF8AEr/Hj3/fQPcatwMXAg8Zj0W7gSvJfBfoXcShLNWI9/j/iPFU0HCdlFq0Do/D23j7QycWIwPLA/sYi0l/hWPNyBvkYRSniNa49+D+KPLUzQSZiFZoCmO8M3ojPWcVnwCPBfcfk0lLiZvSDB/YZFip0NvU97T8vPBEzYyVeFIcBju4j3dbO7cRKwFnBAcip00fjdvWVCPEa5CoDNzg+3j/PO2kygiRYE3MAhu0+3CfOhcQzwJTBiMhx1D7khvalCekbryuON3Y+yj9rO70xniNQEmH/f+xa23zNIcQgwNLBE8k81Tfll/e1CuAcdywVOLA+sT8DOw4xuCJIEU3+eet62tXMwsMRwBbCo8kL1jLmqPjFC9UdOy2XOOU+lD+WOlwwzyE+EDr9deqc2THMZ8MHwF7CNsrc1i/nuvnTDMge/S0WORY/cz8lOqUv5CAzDyf8cunB2JLLEcMCwKrCzcqx1y7ozPrgDbgfui6QOUI/TD+wOewu9x8nDhT7cejp1/bKv8IBwPvCaMuI2C/p3/vtDqYgdS8HOmk/Ij82OS8uBx8aDQL6cucU113KccIFwFDDB8xi2THq8vz4D5IhLDB5Oow/8j65OG4tFR4MDPD4dOZB1snJKMIOwKrDqsw/2jXrBf4CEXsi4DDmOqo/vj43OKssIR39Ct73eeVy1TnJ5MEbwAjEUM0f2zrsGf8LEmIjkDFQO8Q/hj6yN+QrKhztCc32fCL31h+Pd0yTIaMFEwNHEqM7n3EnuPwEZFCgl5TIWPOk/Bz6aNk0qOBrLB630kuIX05/HMcFfwDzFWc/O3VLvUgIeFQcmijNzPPU/wT0INnwpOxm5Bp/znuFU0h/H/sB/wKvFDtC53l3wZQMhFuMmLDTLPPw/dj1zNakoPRinBZHyreCV0aPG0MCjwB/GxtCl32jxeAQjF7wnyTQfPf8/Jz3ZNNMnPheVBITxvt/Z0CvGp8DMwJbGgdHw//r/AgAMABQAGwAfACAAHwAaABMACwABAPn/8P/o/+P/4P/g/+P/6f/x//r/AwAMABUAGwAfACAAHgAaABMACgABAPj/7//o/+L/4P/g/+T/6f/x//v/AwANABUAGwAfACAAHgAaABMACgAAAPf/7//n/+L/4P/g/+T/6v/y//v/BAANABYAHAAfACAAHgAZABIACQAAAPf/7v/n/+L/4P/h/+T/6v/y//z/BQAOABYAHAAfACAAHgAZABIACQAAAPb/7v/n/+L/4P/h/+T/6//z//z/BQAOABYAHAAgACAAHgAZABEACAAAAPb/7f/m/+L/4P/h/+X/6//z//3/BgAPABcAHQAgACAAHQAYABEACAD///X/7f/m/+H/4P/h/+X/7P/0//3/BgAPABcAHQAgACAAHQAYABAABwD+//X/7P/m/+H/4P/h/+X/7P/0//7/BwAQABcAHQAgACAAHQAXABAABwD+//T/7P/l/+H/4P/h/+b/7P/1//7/BwAQABgAHQAgACAAHQAXAA8ABgD9//T/6//l/+H/4P/h/+b/7f/1////CAARABgAHQAgACAAHQAXAA8ABgD9//P/6//l/+H/4P/i/+b/7f/2/wAACAARABkAHgAgACAAHAAWAA4ABQD8//P/6//k/+H/4P/i/+f/7v/2/wAACQASABkAHgAgAB8AHAAWAA4ABAD8//L/6v/k/+H/4P/i/+f/7v/3/wAACQASABkAHgAgAB8AHAAWAA0ABAD7//L/6v/k/+D/4P/i/+f/7//4/wAACgATABoAHgAgAB8AGwAVAA0AAwD7//H/6f/k/+D/4P/i/+j/7//4/wEACgATABoA"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "target_sample_rate"
+label       = "Target sample rate (Hz)"
+placeholder = "16000"
+source      = "field"
+
+[[input]]
+name        = "min_snr_db"
+label       = "Minimum SNR (dB)"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "max_clipping_pct"
+label       = "Max clipping (%)"
+placeholder = "1.0"
+source      = "field"
+
+[[input]]
+name        = "clipping_threshold"
+label       = "Clipping threshold (full scale)"
+placeholder = "0.99"
+source      = "field"
+
+[[example]]
+label = "Clean 16 kHz WAV → report"
+[example.values]
+input        = "UklGRmQGAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YUAGAAAAAOkSIiQhMqY71j9TPj43OitZGwgJ6PWu4/zTOchxwUDAwMSMzsLcH+4TAfATBCXLMgc85z8SPrE2bSpfGvYH2PS44jbTtMc5wVrAK8U9z6rdKO8mAvUU5CVwM2U89D/MPSA2nSljGeUGyvPF4XPSM8cGwXnAmcXxz5PeMvA6A/gVwCYSNL08/D+DPYs1yyhmGNMFvPLT4LPRtsbXwJ3ADMao0H/fPvFNBPoWmiexNBI9/z80PfI09SdmF8AEr/Hj3/fQPcatwMXAg8Zj0W7gSvJfBfoXcShLNWI9/j/iPFU0HCdlFq0Do/D23j7QycWIwPLA/sYi0l/hWPNyBvkYRSniNa49+D+KPLUzQSZiFZoCmO8M3ojPWcVnwCPBfcfk0lLiZvSDB/YZFip0NvU97T8vPBEzYyVeFIcBju4j3dbO7cRKwFnBAcip00fjdvWVCPEa5CoDNzg+3j/PO2kygiRYE3MAhu0+3CfOhcQzwJTBiMhx1D7khvalCekbryuON3Y+yj9rO70xniNQEmH/f+xa23zNIcQgwNLBE8k81Tfll/e1CuAcdywVOLA+sT8DOw4xuCJIEU3+eet62tXMwsMRwBbCo8kL1jLmqPjFC9UdOy2XOOU+lD+WOlwwzyE+EDr9deqc2THMZ8MHwF7CNsrc1i/nuvnTDMge/S0WORY/cz8lOqUv5CAzDyf8cunB2JLLEcMCwKrCzcqx1y7ozPrgDbgfui6QOUI/TD+wOewu9x8nDhT7cejp1/bKv8IBwPvCaMuI2C/p3/vtDqYgdS8HOmk/Ij82OS8uBx8aDQL6cucU113KccIFwFDDB8xi2THq8vz4D5IhLDB5Oow/8j65OG4tFR4MDPD4dOZB1snJKMIOwKrDqsw/2jXrBf4CEXsi4DDmOqo/vj43OKssIR39Ct73eeVy1TnJ5MEbwAjEUM0f2zrsGf8LEmIjkDFQO8Q/hj6yN+QrKhztCc32fCL31h+Pd0yTIaMFEwNHEqM7n3EnuPwEZFCgl5TIWPOk/Bz6aNk0qOBrLB630kuIX05/HMcFfwDzFWc/O3VLvUgIeFQcmijNzPPU/wT0INnwpOxm5Bp/znuFU0h/H/sB/wKvFDtC53l3wZQMhFuMmLDTLPPw/dj1zNakoPRinBZHyreCV0aPG0MCjwB/GxtCl32jxeAQjF7wnyTQfPf8/Jz3ZNNMnPheVBITxvt/Z0CvGp8DMwJbGgdHw//r/AgAMABQAGwAfACAAHwAaABMACwABAPn/8P/o/+P/4P/g/+P/6f/x//r/AwAMABUAGwAfACAAHgAaABMACgABAPj/7//o/+L/4P/g/+T/6f/x//v/AwANABUAGwAfACAAHgAaABMACgAAAPf/7//n/+L/4P/g/+T/6v/y//v/BAANABYAHAAfACAAHgAZABIACQAAAPf/7v/n/+L/4P/h/+T/6v/y//z/BQAOABYAHAAfACAAHgAZABIACQAAAPb/7v/n/+L/4P/h/+T/6//z//z/BQAOABYAHAAgACAAHgAZABEACAAAAPb/7f/m/+L/4P/h/+X/6//z//3/BgAPABcAHQAgACAAHQAYABEACAD///X/7f/m/+H/4P/h/+X/7P/0//3/BgAPABcAHQAgACAAHQAYABAABwD+//X/7P/m/+H/4P/h/+X/7P/0//7/BwAQABcAHQAgACAAHQAXABAABwD+//T/7P/l/+H/4P/h/+b/7P/1//7/BwAQABgAHQAgACAAHQAXAA8ABgD9//T/6//l/+H/4P/h/+b/7f/1////CAARABgAHQAgACAAHQAXAA8ABgD9//P/6//l/+H/4P/i/+b/7f/2/wAACAARABkAHgAgACAAHAAWAA4ABQD8//P/6//k/+H/4P/i/+f/7v/2/wAACQASABkAHgAgAB8AHAAWAA4ABAD8//L/6v/k/+H/4P/i/+f/7v/3/wAACQASABkAHgAgAB8AHAAWAA0ABAD7//L/6v/k/+D/4P/i/+f/7//4/wAACgATABoAHgAgAB8AGwAVAA0AAwD7//H/6f/k/+D/4P/i/+j/7//4/wEACgATABoA"
+input_format = "base64"
+output       = "report"
+
+[[example]]
+label = "Same clip → JSON"
+[example.values]
+input        = "UklGRmQGAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YUAGAAAAAOkSIiQhMqY71j9TPj43OitZGwgJ6PWu4/zTOchxwUDAwMSMzsLcH+4TAfATBCXLMgc85z8SPrE2bSpfGvYH2PS44jbTtMc5wVrAK8U9z6rdKO8mAvUU5CVwM2U89D/MPSA2nSljGeUGyvPF4XPSM8cGwXnAmcXxz5PeMvA6A/gVwCYSNL08/D+DPYs1yyhmGNMFvPLT4LPRtsbXwJ3ADMao0H/fPvFNBPoWmiexNBI9/z80PfI09SdmF8AEr/Hj3/fQPcatwMXAg8Zj0W7gSvJfBfoXcShLNWI9/j/iPFU0HCdlFq0Do/D23j7QycWIwPLA/sYi0l/hWPNyBvkYRSniNa49+D+KPLUzQSZiFZoCmO8M3ojPWcVnwCPBfcfk0lLiZvSDB/YZFip0NvU97T8vPBEzYyVeFIcBju4j3dbO7cRKwFnBAcip00fjdvWVCPEa5CoDNzg+3j/PO2kygiRYE3MAhu0+3CfOhcQzwJTBiMhx1D7khvalCekbryuON3Y+yj9rO70xniNQEmH/f+xa23zNIcQgwNLBE8k81Tfll/e1CuAcdywVOLA+sT8DOw4xuCJIEU3+eet62tXMwsMRwBbCo8kL1jLmqPjFC9UdOy2XOOU+lD+WOlwwzyE+EDr9deqc2THMZ8MHwF7CNsrc1i/nuvnTDMge/S0WORY/cz8lOqUv5CAzDyf8cunB2JLLEcMCwKrCzcqx1y7ozPrgDbgfui6QOUI/TD+wOewu9x8nDhT7cejp1/bKv8IBwPvCaMuI2C/p3/vtDqYgdS8HOmk/Ij82OS8uBx8aDQL6cucU113KccIFwFDDB8xi2THq8vz4D5IhLDB5Oow/8j65OG4tFR4MDPD4dOZB1snJKMIOwKrDqsw/2jXrBf4CEXsi4DDmOqo/vj43OKssIR39Ct73eeVy1TnJ5MEbwAjEUM0f2zrsGf8LEmIjkDFQO8Q/hj6yN+QrKhztCc32fCL31h+Pd0yTIaMFEwNHEqM7n3EnuPwEZFCgl5TIWPOk/Bz6aNk0qOBrLB630kuIX05/HMcFfwDzFWc/O3VLvUgIeFQcmijNzPPU/wT0INnwpOxm5Bp/znuFU0h/H/sB/wKvFDtC53l3wZQMhFuMmLDTLPPw/dj1zNakoPRinBZHyreCV0aPG0MCjwB/GxtCl32jxeAQjF7wnyTQfPf8/Jz3ZNNMnPheVBITxvt/Z0CvGp8DMwJbGgdHw//r/AgAMABQAGwAfACAAHwAaABMACwABAPn/8P/o/+P/4P/g/+P/6f/x//r/AwAMABUAGwAfACAAHgAaABMACgABAPj/7//o/+L/4P/g/+T/6f/x//v/AwANABUAGwAfACAAHgAaABMACgAAAPf/7//n/+L/4P/g/+T/6v/y//v/BAANABYAHAAfACAAHgAZABIACQAAAPf/7v/n/+L/4P/h/+T/6v/y//z/BQAOABYAHAAfACAAHgAZABIACQAAAPb/7v/n/+L/4P/h/+T/6//z//z/BQAOABYAHAAgACAAHgAZABEACAAAAPb/7f/m/+L/4P/h/+X/6//z//3/BgAPABcAHQAgACAAHQAYABEACAD///X/7f/m/+H/4P/h/+X/7P/0//3/BgAPABcAHQAgACAAHQAYABAABwD+//X/7P/m/+H/4P/h/+X/7P/0//7/BwAQABcAHQAgACAAHQAXABAABwD+//T/7P/l/+H/4P/h/+b/7P/1//7/BwAQABgAHQAgACAAHQAXAA8ABgD9//T/6//l/+H/4P/h/+b/7f/1////CAARABgAHQAgACAAHQAXAA8ABgD9//P/6//l/+H/4P/i/+b/7f/2/wAACAARABkAHgAgACAAHAAWAA4ABQD8//P/6//k/+H/4P/i/+f/7v/2/wAACQASABkAHgAgAB8AHAAWAA4ABAD8//L/6v/k/+H/4P/i/+f/7v/3/wAACQASABkAHgAgAB8AHAAWAA0ABAD7//L/6v/k/+D/4P/i/+f/7//4/wAACgATABoAHgAgAB8AGwAVAA0AAwD7//H/6f/k/+D/4P/i/+j/7//4/wEACgATABoA"
+input_format = "base64"
+output       = "json"
