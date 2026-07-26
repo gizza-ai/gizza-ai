@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "http-headers-diff"
+version = "0.1.0"
+abi = 1
+summary = "Diff two sets of HTTP headers: added, removed and changed header values."
