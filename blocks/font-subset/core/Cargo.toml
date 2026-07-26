@@ -1,0 +1,8 @@
+[package]
+name = "gizza-ai-font-subset-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+font-subset = { version = "0.1.0", features = ["woff2"] }

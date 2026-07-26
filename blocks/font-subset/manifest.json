@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/font-subset",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Subset an OpenType font to the glyphs used by text",
+  "role": "skill",
+  "tool": {
+    "description": "Subset a single OpenType/TTF/OTF font file to only the glyphs needed by the supplied text, returning a smaller downloadable font. Provide the source font as url (HTTP/HTTPS) or ref (id from a prior tool call). text is the sample text whose printable characters are retained. format is woff2 (default, compressed webfont) or opentype (raw SFNT/OpenType bytes). drop_variations optionally removes variable-font tables before subsetting. WOFF/WOFF2 input and font collections (.ttc/.otc) are not accepted; convert webfont containers to OpenType first with woff2-convert.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "drop_variations": {
+          "default": false,
+          "description": "Drop variable-font tables before subsetting. This can shrink variable fonts further, but loses variation axes. Off by default.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "woff2",
+          "description": "Output font container: woff2 for a compressed webfont (default) or opentype for raw SFNT/OpenType bytes. The input must be a single TTF/OTF/OpenType font, not WOFF/WOFF2 or a font collection.",
+          "enum": [
+            "woff2",
+            "opentype"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Text whose characters should be retained in the subset font. Control characters are ignored; at least one printable covered character is required.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
