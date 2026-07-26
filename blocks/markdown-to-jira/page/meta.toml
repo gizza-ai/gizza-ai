@@ -1,0 +1,62 @@
+slug          = "markdown-to-jira"
+title         = "Markdown to Jira Wiki Markup Converter"
+description   = "Convert Markdown to Jira wiki markup and back locally. Handles headings, lists, tables, code blocks, links, images, quotes, and common panels."
+tags          = ["markdown", "jira", "wiki markup", "atlassian", "converter", "documentation", "tables", "code blocks"]
+h1            = "Convert Markdown ↔ Jira Wiki Markup"
+hero_subtitle = "Paste Markdown or Jira wiki markup and convert it both ways — headings, lists, code blocks, links, tables, quotes, and panels — without uploading your text."
+wasm          = "gizza_ai_markdown_to_jira_web"
+export        = "run"
+live          = false
+output_label  = "Converted markup"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input markup"
+placeholder = "# Release notes\n\n**Fixed:** login timeout\n\n- Faster dashboard\n- Better export\n\n```js\nconsole.log('done')\n```"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+md-to-jira = "Markdown → Jira"
+jira-to-md = "Jira → Markdown"
+
+[[input]]
+name        = "heading_offset"
+label       = "Heading offset"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "panel_blockquotes"
+label  = "Convert Note/Info/Warning/Tip blockquotes as Jira panels"
+source = "field"
+
+[[example]]
+label = "Markdown release notes → Jira"
+[example.params]
+input = "# Release notes\n\n**Fixed:** login timeout\n\n- Faster dashboard\n- Better export\n\n```js\nconsole.log('done')\n```"
+direction = "md-to-jira"
+heading_offset = "0"
+panel_blockquotes = "true"
+
+[[example]]
+label = "Demote headings for a Jira page section"
+[example.params]
+input = "# API changes\n\n> Warning: Breaking field rename\n\n| Field | Change |\n| --- | --- |\n| userId | renamed to accountId |"
+direction = "md-to-jira"
+heading_offset = "1"
+panel_blockquotes = "true"
+
+[[example]]
+label = "Jira wiki markup → Markdown"
+[example.params]
+input = "h2. Release notes\n\n*Fixed:* login timeout\n\n* Faster dashboard\n* Better export\n\n{code:js}\nconsole.log('done')\n{code}"
+direction = "jira-to-md"
+heading_offset = "0"
+panel_blockquotes = "true"
