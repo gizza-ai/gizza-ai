@@ -1,0 +1,64 @@
+slug          = "bson-inspector"
+title         = "BSON Inspector — Decode BSON to a Typed Tree or Extended JSON"
+description   = "Paste BSON bytes as base64 or hex and inspect a typed tree or canonical MongoDB Extended JSON v2 with ObjectId, dates, binary, and int64 preserved."
+tags          = ["bson", "bson to json", "bson decoder", "mongodb", "extended json", "bsondump", "objectid", "decode bson", "bson inspector", "bson viewer"]
+h1            = "BSON Inspector"
+hero_subtitle = "Paste a BSON document as base64 or hex and see a typed element tree — or convert it to canonical MongoDB Extended JSON v2. ObjectId, dates, binary, int64, and decimal128 are all preserved. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_bson_inspector_web"
+export        = "run"
+live          = false
+output_label  = "Decoded BSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "BSON bytes (base64 or hex)"
+placeholder = "FgAAAAJoZWxsbwAGAAAAd29ybGQAAA=="
+source      = "field"
+multiline   = true
+
+# input_format/output render as <select> — the option lists are derived from the
+# descriptor schema (manifest.json), so they are not duplicated here.
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces, 0 = minify JSON)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "show_offsets"
+label       = "Show byte offsets (tree)"
+source      = "field"
+
+# Preset chips — one click prefills the fields with a runnable example.
+[[example]]
+label = "Hello world (base64 → tree)"
+[example.values]
+input        = "FgAAAAJoZWxsbwAGAAAAd29ybGQAAA=="
+input_format = "base64"
+output       = "tree"
+
+[[example]]
+label = "Hello world (base64 → JSON)"
+[example.values]
+input        = "FgAAAAJoZWxsbwAGAAAAd29ybGQAAA=="
+input_format = "base64"
+output       = "json"
+
+[[example]]
+label = "Typed doc (hex → tree, offsets)"
+[example.values]
+input        = "1e000000106900070000 00126c000900000000000000086200010a6e0000"
+input_format = "hex"
+output       = "tree"
+show_offsets = "true"

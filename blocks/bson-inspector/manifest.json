@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/bson-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse BSON bytes into a typed tree or canonical Extended JSON v2.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a BSON document (binary JSON, as used by MongoDB) into a human-readable form, entirely in the browser/sandbox. Give the document bytes as base64 (default) or hex in 'input' (set input_format='base64' or 'hex'). Choose output='tree' (default) for an indented, typed outline of every element — its field name, BSON type (Double, String, Document, Array, Binary, ObjectId, Boolean, DateTime, Null, Regex, DBPointer, JavaScript, Symbol, JavaScriptWithScope, Int32, Timestamp, Int64, Decimal128, MinKey, MaxKey, Undefined) and value — or output='json' for canonical MongoDB Extended JSON v2 (typed wrappers: $oid, $date, $binary, $numberInt, $numberLong, $numberDouble, $numberDecimal, $timestamp, $regularExpression, $code, $symbol, $dbPointer, $undefined, $minKey, $maxKey). indent sets spaces per level (0-8, default 2; 0 minifies the JSON). show_offsets prefixes each tree line with the element's byte offset. Field order is preserved. Returns a clear error for invalid base64/hex, a wrong document length, a missing terminator, an unknown element type, or a malformed string/element.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level (0-8, default 2). In 'json' mode, 0 minifies to a single compact line.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The BSON document bytes, encoded as a base64 or hex string (e.g. from a mongodump export or a MongoDB driver). A single top-level document is expected.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "How the input bytes are encoded: 'base64' (default; standard or URL-safe, padding optional) or 'hex' (whitespace, ':' and '-' separators ignored).",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "tree",
+          "description": "Output shape. 'tree' (default) is an indented, typed outline of every element (name, BSON type, value); 'json' is canonical MongoDB Extended JSON v2 (typed wrappers like $oid, $date, $numberLong, $numberDecimal).",
+          "enum": [
+            "tree",
+            "json"
+          ],
+          "type": "string"
+        },
+        "show_offsets": {
+          "default": false,
+          "description": "When true, prefix each line of the 'tree' output with the byte offset where that element begins. Ignored in 'json' mode.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

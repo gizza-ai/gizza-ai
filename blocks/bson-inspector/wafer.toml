@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bson-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Parse BSON bytes into a typed tree or canonical Extended JSON v2."
