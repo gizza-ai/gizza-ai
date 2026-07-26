@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/person-name-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a CSV column of full names into title/first/middle/last/suffix",
+  "role": "skill",
+  "tool": {
+    "description": "Split a CSV column of full person names into structured title, first, middle, last, and suffix columns using order-independent heuristics. Understands honorific titles (Mr, Ms, Dr, Prof), generational/credential suffixes (Jr, Sr, II, III, PhD, MD), surname particles (van, von, de, del, di, la, mac, mc), hyphenated and apostrophe names, and the `Last, First Middle` comma form. `name_column` is a header name or 1-based index (blank = first column). `output` is append (add the five columns), replace (swap the name column for them), or summary (a JSON count report listing rows that could not be split cleanly). Runs entirely locally; no network, no AI guessing.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text whose name column to split. Each row's name cell is parsed into title, first, middle, last, and suffix; every other cell is kept verbatim.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter of the CSV, used for both reading the input and writing the output. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header — kept in the output, used to resolve name_column names, and the source of the `<name>_title/_first/_middle/_last/_suffix` column names. Default true.",
+          "type": "boolean"
+        },
+        "name_column": {
+          "default": "",
+          "description": "Which column holds the full name: a header name (when header=true) or a 1-based column number. Blank = the first column. Default blank (first column).",
+          "type": "string"
+        },
+        "output": {
+          "default": "append",
+          "description": "What to return: append (keep every original column and add the five component columns at the end), replace (swap the name column in place for the five component columns), or summary (a JSON report of component counts and the rows that could not be split cleanly). Default append.",
+          "enum": [
+            "append",
+            "replace",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Trim surrounding whitespace from every cell before parsing. When false, cells keep their original padding (only the name being parsed is always trimmed). Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
