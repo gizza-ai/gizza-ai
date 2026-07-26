@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-bank-statement-reconcile-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+serde_json = "1"
