@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/nmap-output-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse nmap XML or greppable output into host/port tables",
+  "role": "skill",
+  "tool": {
+    "description": "Parse nmap scan output into a clean sortable table of hosts, hostnames, ports, protocols, states, services and detected versions. Paste XML from `nmap -oX` or greppable output from `nmap -oG`; format can auto-detect, xml, or greppable. output can be markdown, csv or json. sort_by can be host, port or service. open_only defaults true so closed/filtered ports are hidden unless explicitly requested. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "auto",
+          "description": "Input format: auto-detect (default), xml for nmap `-oX`, or greppable for nmap `-oG`.",
+          "enum": [
+            "auto",
+            "xml",
+            "greppable"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Raw nmap output to parse: XML from `nmap -oX` or greppable text from `nmap -oG`.",
+          "type": "string"
+        },
+        "open_only": {
+          "default": true,
+          "description": "Only include open/open|filtered ports. Turn off to include closed or filtered ports too.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "markdown",
+          "description": "Output format for the parsed port table: markdown (default), csv, or json.",
+          "enum": [
+            "markdown",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "host",
+          "description": "Sort rows by host (default; IPv4 numerically), port, or service.",
+          "enum": [
+            "host",
+            "port",
+            "service"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

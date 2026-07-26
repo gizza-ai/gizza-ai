@@ -1,0 +1,61 @@
+slug          = "nmap-output-parser"
+title         = "Nmap Output Parser — XML and Greppable to Tables"
+description   = "Parse nmap XML or greppable output into sortable host, port, service and version tables. Export Markdown, CSV or JSON."
+tags          = ["nmap parser", "nmap xml parser", "nmap greppable parser", "port scan table", "network scan report"]
+h1            = "Nmap Output Parser"
+hero_subtitle = "Turn nmap `-oX` XML or `-oG` greppable output into clean host/port tables. Runs in your browser."
+wasm          = "gizza_ai_nmap_output_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed table"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Nmap output"
+placeholder = "<?xml version=\"1.0\"?>\n<nmaprun>..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto       = "Auto-detect"
+xml        = "XML (-oX)"
+greppable  = "Greppable (-oG)"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+markdown = "Markdown table"
+csv      = "CSV"
+json     = "JSON"
+
+[[input]]
+name   = "sort_by"
+label  = "Sort by"
+source = "field"
+
+[input.labels]
+host    = "Host"
+port    = "Port"
+service = "Service"
+
+[[input]]
+name   = "open_only"
+label  = "Open ports only"
+source = "field"
+
+[[example]]
+label  = "XML to Markdown"
+params = { input = "<?xml version=\"1.0\"?>\n<nmaprun><host><address addr=\"10.0.0.10\" addrtype=\"ipv4\"/><hostnames><hostname name=\"web.local\" type=\"PTR\"/></hostnames><ports><port protocol=\"tcp\" portid=\"80\"><state state=\"open\"/><service name=\"http\" product=\"nginx\" version=\"1.18.0\"/></port><port protocol=\"tcp\" portid=\"443\"><state state=\"closed\"/><service name=\"https\"/></port></ports></host></nmaprun>", format = "xml", output = "markdown", sort_by = "port", open_only = "true" }
+
+[[example]]
+label  = "Greppable to CSV"
+params = { input = "Host: 10.0.0.9 (router.local)\tPorts: 22/open/tcp//ssh//OpenSSH 8.2p1/, 80/open/tcp//http//nginx 1.18.0/", format = "greppable", output = "csv", sort_by = "host", open_only = "true" }
