@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-enum-domain-check-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# pure-Rust, wasm-safe CSV reader (same crate the other csv-* column validators use).
+csv = "1"
