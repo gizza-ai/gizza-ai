@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "code-outline-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Outline the functions, classes, and methods in source code."

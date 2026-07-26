@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/code-outline-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Outline the functions, classes, and methods in source code.",
+  "role": "skill",
+  "tool": {
+    "description": "Produce a structured, nested outline of the functions, classes, and methods in pasted source code — a symbol tree / table of contents. Supports Python, JavaScript, TypeScript, Rust, Go, Java, C, C++, C#, PHP, and Swift; language='auto' (default) guesses from the code. Methods nest under their class. format='tree' (default) is an indented text outline, 'markdown' a nested bullet list, 'json' a nested array of {kind, name, line, signature, children}. Set signatures=true to show each entry's full header line instead of just its name; line_numbers defaults to true. Uses a dependency-free brace-depth / indentation heuristic (no full language parser), so unusual multi-line signatures may be missed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The source code to outline. Paste one file or a snippet.",
+          "type": "string"
+        },
+        "format": {
+          "default": "tree",
+          "description": "Output shape. 'tree' (default) is an indented text outline; 'markdown' is a nested bullet list (a table of contents); 'json' is a nested array of {kind, name, line, signature, children}.",
+          "enum": [
+            "tree",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Source language. 'auto' (default) guesses from the code (Python by indentation, everything else by braces). Set it explicitly if auto-detect picks wrong.",
+          "enum": [
+            "auto",
+            "python",
+            "javascript",
+            "typescript",
+            "rust",
+            "go",
+            "java",
+            "c",
+            "cpp",
+            "csharp",
+            "php",
+            "swift"
+          ],
+          "type": "string"
+        },
+        "line_numbers": {
+          "default": true,
+          "description": "When true (default), annotate each entry with its 1-based source line. Ignored by the json format, which always includes the line field.",
+          "type": "boolean"
+        },
+        "signatures": {
+          "default": false,
+          "description": "When true, show each entry's full header line (e.g. 'def add(a, b)') instead of just its name. Ignored by the json format, which always includes the signature field. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}
