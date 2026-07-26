@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-image-format-validator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode + magic-byte format detection. default-features off; common formats.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp", "tiff", "ico"] }
+serde = { version = "1", features = ["derive"] }
