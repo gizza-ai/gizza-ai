@@ -1,0 +1,38 @@
+{
+  "name": "gizza-ai/pem-bundle-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split PEM bundles into labeled blocks",
+  "role": "skill",
+  "tool": {
+    "description": "Split a multi-block PEM bundle into individual labeled blocks in input order. Reports the PEM label, friendly type, category counts, DER byte length, suggested filename, and optional SHA-256 fingerprint. Supports certificates, private/public keys, CSRs, params, PGP/OpenSSH blocks, and unknown PEM labels.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "fingerprints": {
+          "default": true,
+          "description": "Include a SHA-256 fingerprint of each block's decoded DER bytes.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: readable report, structured JSON, or cleaned individual PEM blocks.",
+          "enum": [
+            "report",
+            "json",
+            "pem"
+          ],
+          "type": "string"
+        },
+        "pem": {
+          "description": "Concatenated PEM bundle text containing one or more -----BEGIN ...----- / -----END ...----- blocks.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pem"
+      ],
+      "type": "object"
+    }
+  }
+}
