@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/pcap-grep",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Search .pcap/.pcapng packet payloads with a regex, ngrep-style",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Search the payloads of an uploaded libpcap (.pcap) or pcapng (.pcapng) network capture with a regular expression (or a hexadecimal byte string), ngrep-style, and return the matching packets. Each match reports the packet index, capture timestamp, protocol, source/destination addresses and ports, TCP flags, the payload length, the byte offset and text of the match, an ASCII rendering of the payload (non-printable bytes shown as '.'), and optionally a hex dump. Options mirror ngrep: ignore_case (-i), hex (-X, treat the pattern as hex), invert (-v, show non-matching packets), an optional port narrowing, show_hex (-x), and a limit on returned matches. Searches the application payload (bytes after the TCP/UDP header). Provide the capture as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "hex": {
+          "default": false,
+          "description": "Treat 'pattern' as a hexadecimal byte string instead of a regex (like ngrep -X), e.g. '47 45 54 20' to find the bytes 'GET '. Default false.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Case-insensitive matching for the regular expression (like ngrep -i). Has no effect in hex mode. Default false.",
+          "type": "boolean"
+        },
+        "invert": {
+          "default": false,
+          "description": "Invert the match: return packets whose payload does NOT match (like ngrep -v). Default false.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 100,
+          "description": "Maximum number of matching packets to return (1-1000, default 100). The total match count is always reported even when the list is truncated.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pattern": {
+          "description": "The expression to search packet payloads for. By default an extended regular expression (e.g. 'GET /\\S+', 'pass(word)?=', '(?:User-Agent|Host):'). With hex=true it is instead a hexadecimal byte string like '47455420' (spaces and colons are ignored). Matched against the application payload (bytes after the TCP/UDP header; after the IP header for other protocols).",
+          "type": "string"
+        },
+        "port": {
+          "description": "Optional TCP/UDP port narrowing: only search packets whose source OR destination port equals this (0-65535). Omit to search every packet.",
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "show_hex": {
+          "default": false,
+          "description": "Include a canonical hex + ASCII dump of each matching packet's payload (like ngrep -x), capped to the first 512 bytes. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}
