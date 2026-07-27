@@ -1,0 +1,64 @@
+slug          = "ics-merge-dedupe"
+title         = "ICS Merge & Dedupe — Combine Calendars, Remove Duplicate Events"
+description   = "Merge several .ics calendar files into one and remove duplicate events by UID or start+title — all in your browser. Free, private, nothing uploaded."
+tags          = ["merge ics", "combine ics files", "ics dedupe", "remove duplicate calendar events", "merge calendars", "combine ical", "ics merger", "dedupe ical"]
+h1            = "ICS Merge & Dedupe"
+hero_subtitle = "Combine one or more iCalendar (.ics) files into a single calendar and drop duplicate events — matched by UID, or by start time and title for the same event exported by different apps. Paste the file contents; everything runs in your browser and nothing is uploaded."
+wasm          = "gizza_ai_ics_merge_dedupe_web"
+export        = "run"
+live          = false
+output_label  = "Merged calendar"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "ics"
+label       = ".ics file contents (concatenate several to merge)"
+placeholder = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:evt-1@example.com\nDTSTART:20240309T081530Z\nSUMMARY:Team Standup\nEND:VEVENT\nEND:VCALENDAR\nBEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:evt-1@example.com\nDTSTART:20240309T081530Z\nSUMMARY:Team Standup\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+# dedupe_by / keep render as <select>s (options come from the descriptor schema in
+# manifest.json) and sort as a checkbox — labels here stay short, options are not
+# duplicated.
+[[input]]
+name        = "dedupe_by"
+label       = "Match duplicates by"
+source      = "field"
+
+[input.labels]
+"smart"       = "smart — UID, else start + title"
+"uid_start"   = "UID + start time"
+"start_title" = "start + title (ignore UID)"
+
+[[input]]
+name        = "keep"
+label       = "Keep which copy"
+source      = "field"
+
+[input.labels]
+"first"         = "first seen (document order)"
+"last_modified" = "newest LAST-MODIFIED / DTSTAMP"
+
+[[input]]
+name        = "sort"
+label       = "Sort events by start time"
+source      = "field"
+
+[[input]]
+name        = "calendar_name"
+label       = "Calendar name (optional)"
+placeholder = "Team Calendar"
+source      = "field"
+
+[[example]]
+label  = "Two files, shared UID"
+params = { ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:evt-1@example.com\nDTSTART:20240309T081530Z\nSUMMARY:Team Standup\nEND:VEVENT\nEND:VCALENDAR\nBEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:evt-1@example.com\nDTSTART:20240309T081530Z\nSUMMARY:Team Standup\nEND:VEVENT\nEND:VCALENDAR" }
+
+[[example]]
+label  = "Same event, different apps"
+params = { ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:google-abc\nDTSTART:20240704\nSUMMARY:Independence Day\nEND:VEVENT\nBEGIN:VEVENT\nUID:apple-xyz\nDTSTART:20240704\nSUMMARY:Independence Day\nEND:VEVENT\nEND:VCALENDAR", dedupe_by = "start_title" }
+
+[[example]]
+label  = "Keep the newest edit"
+params = { ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:e@x\nDTSTART:20240101T100000Z\nSUMMARY:Old Title\nLAST-MODIFIED:20240101T120000Z\nEND:VEVENT\nBEGIN:VEVENT\nUID:e@x\nDTSTART:20240101T100000Z\nSUMMARY:New Title\nLAST-MODIFIED:20240201T120000Z\nEND:VEVENT\nEND:VCALENDAR", keep = "last_modified" }
