@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sql-schema-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Parse CREATE TABLE / ALTER TABLE from a SQL dump into a clean table/column/constraint model."
