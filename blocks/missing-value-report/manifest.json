@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/missing-value-report",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Profile a CSV/table for missing values: per-column missing counts and percentages plus a missingness-pattern grid.",
+  "role": "skill",
+  "tool": {
+    "description": "Profile missing (blank or NA-token) values in a CSV/delimited table. Paste the table as text with a header row; it reports, for every column, how many cells are missing, how many are present, the total, and the missing percentage, plus total rows and how many rows are complete (no missing). When include_patterns is on (default) it also shows a missingness-pattern grid — each distinct present(1)/missing(0) combination and how many rows share it, most-common-first (the R mice::md.pattern idiom) — so you can see which columns tend to go missing together. delimiter accepts a single char or 'comma'/'tab'/'semicolon'/'pipe' (default comma). na_values is a case-insensitive comma-separated list of extra missing tokens (default 'NA,N/A,null,NaN,None,#N/A'; empty = blanks only). sort orders the column table by 'missing' (default), 'column', or 'name'. max_patterns caps the grid rows (default 10). Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single character or a name ('comma' (default), 'tab', 'semicolon', 'pipe'). Use 'tab' for TSV data.",
+          "type": "string"
+        },
+        "include_patterns": {
+          "default": true,
+          "description": "When true (default), append a missingness-pattern grid: each distinct present(1)/missing(0) combination across the columns with how many rows share it, most-common-first (the R mice::md.pattern idiom).",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The CSV/delimited table to profile, as text. The first row MUST be the header; every following row is a data row. Quoted fields with embedded commas/newlines (RFC 4180) are handled.",
+          "type": "string"
+        },
+        "max_patterns": {
+          "default": 10,
+          "description": "Maximum number of pattern rows to list in the grid (1-1000, default 10). Extra patterns are summarized as a '(N more…)' note. Only used when include_patterns is true.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "na_values": {
+          "default": "NA,N/A,null,NaN,None,#N/A",
+          "description": "Comma-separated tokens counted as missing in addition to blank/whitespace-only cells, matched case-insensitively after trimming. Default 'NA,N/A,null,NaN,None,#N/A'. Set empty to count ONLY blank cells as missing.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "missing",
+          "description": "Order of the per-column table: 'missing' (default, most-missing-first), 'column' (original header order), or 'name' (alphabetical by column name).",
+          "enum": [
+            "missing",
+            "column",
+            "name"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
