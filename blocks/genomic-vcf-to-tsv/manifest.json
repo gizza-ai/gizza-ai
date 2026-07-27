@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/genomic-vcf-to-tsv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten VCF variant records into tidy TSV with exploded INFO and optional sample genotype fields.",
+  "role": "skill",
+  "tool": {
+    "description": "Flatten genomic Variant Call Format (VCF 4.x) text into a tidy tab-separated table. The fixed CHROM/POS/ID/REF/ALT/QUAL/FILTER columns lead every row; INFO key/value pairs are expanded into columns; sample FORMAT/genotype fields can be emitted in long layout (one row per variant × sample) or wide layout (one row per variant with <sample>_<FORMATKEY> columns). Use info_fields to keep only selected INFO keys, pass_only to keep PASS/unfiltered calls, prefix_info to disambiguate INFO columns, missing to choose the empty-value placeholder, and header=false for no header row. Runs locally and does not validate reference genomes or normalize variants.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "header": {
+          "default": true,
+          "description": "Emit the TSV header row. Turn off for append-only pipelines that already have column names. Default true.",
+          "type": "boolean"
+        },
+        "include_info": {
+          "default": true,
+          "description": "Explode the INFO column into one TSV column per discovered INFO key. Default true.",
+          "type": "boolean"
+        },
+        "include_samples": {
+          "default": true,
+          "description": "Include per-sample FORMAT/genotype values when the VCF has sample columns. Default true.",
+          "type": "boolean"
+        },
+        "info_fields": {
+          "default": "",
+          "description": "Optional comma-separated whitelist of INFO keys to keep, in the requested order (for example 'DP,AF,AC'). Leave blank to include every discovered INFO key.",
+          "type": "string"
+        },
+        "input": {
+          "description": "VCF text to flatten. Paste tab-delimited Variant Call Format records, including optional ## metadata lines and a #CHROM header. Supports fixed VCF columns, INFO key/value pairs or flags, and sample FORMAT columns.",
+          "type": "string"
+        },
+        "layout": {
+          "default": "long",
+          "description": "How sample genotype columns are emitted. 'long' (default) outputs one row per variant per sample with a SAMPLE column; 'wide' outputs one row per variant with <sample>_<FORMATKEY> columns.",
+          "enum": [
+            "long",
+            "wide"
+          ],
+          "type": "string"
+        },
+        "missing": {
+          "default": ".",
+          "description": "Placeholder written when an INFO key, FORMAT key, or sample value is absent. Default '.'.",
+          "type": "string"
+        },
+        "pass_only": {
+          "default": false,
+          "description": "When true, keep only records whose FILTER is PASS or '.' and drop filtered calls such as q10. Default false.",
+          "type": "boolean"
+        },
+        "prefix_info": {
+          "default": false,
+          "description": "Prefix exploded INFO columns with INFO_ to avoid collisions with FORMAT keys such as DP. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
