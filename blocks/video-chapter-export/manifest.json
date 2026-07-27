@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/video-chapter-export",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Export a video's embedded chapter markers to CSV/JSON/CUE/text",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Parse the chapter markers embedded in a video and export them as CSV, JSON, a CUE sheet, or plain YouTube-style timestamp text — WITHOUT splitting or re-encoding the video. Reads MP4/M4V/M4A/MOV (Nero `chpl` chapter atom) and Matroska/WebM (.mkv/.webm EBML Chapters), returning each chapter's 1-based index, title, and start/end time (normalized to milliseconds and HH:MM:SS.mmm). Returns chapter_count:0 with empty content for a video that has no embedded chapters; errors on a file that is not a recognized MP4 or Matroska container. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Output format: json (structured array of chapters with start/end in HH:MM:SS.mmm and milliseconds), csv (spreadsheet columns index,start,end,start_seconds,end_seconds,title), cue (a CUE sheet with one TRACK per chapter), or text (YouTube-style `0:00 Title` timestamp lines). Default json.",
+          "enum": [
+            "json",
+            "csv",
+            "cue",
+            "text"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

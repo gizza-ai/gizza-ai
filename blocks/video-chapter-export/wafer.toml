@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-chapter-export"
+version = "0.1.0"
+abi = 1
+summary = "Export a video's embedded chapter markers to CSV/JSON/CUE/text"
