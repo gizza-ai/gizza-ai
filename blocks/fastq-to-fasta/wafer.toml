@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fastq-to-fasta"
+version = "0.1.0"
+abi = 1
+summary = "Convert FASTQ reads to clean FASTA, dropping the per-base quality lines."

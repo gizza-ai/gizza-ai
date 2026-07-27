@@ -1,0 +1,65 @@
+slug          = "geojson-to-csv"
+title         = "GeoJSON to CSV Converter"
+description   = "Flatten GeoJSON features into CSV rows with property columns, WKT or longitude/latitude geometry, nested-field flattening, and delimiter options."
+tags          = ["geojson to csv", "geojson converter", "gis csv", "wkt", "featurecollection", "flatten json", "coordinates"]
+h1            = "GeoJSON to CSV Converter"
+hero_subtitle = "Paste a FeatureCollection, Feature, or geometry and get a spreadsheet-ready CSV. Keep geometry as WKT, longitude/latitude columns, both, or properties only."
+wasm          = "gizza_ai_geojson_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+
+[[input]]
+name        = "geojson"
+label       = "GeoJSON"
+placeholder = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"Alpha\",\"pop\":1200},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-105,40]}}]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "geometry"
+label       = "Geometry columns"
+source      = "field"
+
+[[input]]
+name        = "nested"
+label       = "Nested properties"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "Include header row"
+source      = "field"
+
+[[example]]
+label = "Points to WKT CSV"
+[example.params]
+geojson = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"Alpha\",\"pop\":1200},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-105,40]}},{\"type\":\"Feature\",\"properties\":{\"name\":\"Beta\",\"pop\":800},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-106.5,41.25]}}]}"
+geometry = "wkt"
+nested = "json"
+delimiter = "comma"
+header = "true"
+
+[[example]]
+label = "Longitude/latitude columns"
+[example.params]
+geojson = "{\"type\":\"Feature\",\"properties\":{\"name\":\"Depot\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[10,20]}}"
+geometry = "lonlat"
+nested = "json"
+delimiter = "comma"
+header = "true"
+
+[[example]]
+label = "Flatten nested properties"
+[example.params]
+geojson = "{\"type\":\"Feature\",\"properties\":{\"name\":\"A\",\"address\":{\"city\":\"Denver\"}},\"geometry\":null}"
+geometry = "none"
+nested = "flatten"
+delimiter = "comma"
+header = "true"

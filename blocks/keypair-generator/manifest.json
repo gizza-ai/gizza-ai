@@ -1,0 +1,25 @@
+{
+  "name": "gizza-ai/keypair-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an X25519 or Ed25519 key pair",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh X25519 or Ed25519 key pair entirely offline and return it in hex, base64, and PEM. Choose ed25519 for EdDSA signing keys (SSH, OpenPGP, JWT EdDSA, TLS) or x25519 for Curve25519 ECDH keys used to establish secure channels (Noise, WireGuard, HPKE, age). Returns the private key (PKCS#8 PEM plus the raw 32-byte scalar in base64 and hex) and the public key (SPKI PEM plus the raw 32-byte point in base64 and hex). Keys are generated locally with a cryptographic RNG; nothing is sent anywhere. Default algorithm is ed25519.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "ed25519",
+          "description": "Key algorithm: ed25519 (EdDSA signing keys — SSH, OpenPGP, JWT EdDSA, TLS) or x25519 (Curve25519 ECDH keys for key exchange / secure channels — Noise, WireGuard, HPKE, age). Default ed25519.",
+          "enum": [
+            "x25519",
+            "ed25519"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/aiff-to-flac",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress AIFF audio to lossless FLAC, preserving tags",
+  "role": "skill",
+  "tool": {
+    "description": "Compress an AIFF audio file into lossless FLAC — a smaller file with bit-for-bit identical samples. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Textual metadata tags (title, artist, album, year, …) are preserved into the FLAC; embedded cover art is dropped. compression_level (0-12, default 5) trades encode speed for file size and never changes the audio. Any audio ffmpeg can decode is accepted, but AIFF → FLAC is the intended use.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "compression_level": {
+          "description": "FLAC compression level 0-12 (default 5). Higher = smaller file and slower encoding; the decoded audio samples are bit-for-bit identical at every level, so this only trades CPU time for size.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

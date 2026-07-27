@@ -1,0 +1,32 @@
+{
+  "name": "gizza-ai/html-entity-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode HTML character entities into literal characters.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode HTML character entities into their literal characters. Handles the full HTML5 named entity set (&amp; &copy; &mdash; &hellip; &nbsp; &trade; …), decimal numeric references (&#169;), and hexadecimal ones (&#xA9;), including the WHATWG rules: legacy entities that omit the trailing ';' (&copy → ©) and the Windows-1252 remap for code points 128–159 (so &#151; → an em dash and &#128; → €). Invalid code points become the replacement character U+FFFD. By default (unknown='keep') any reference it can't decode is left exactly as written; set unknown='error' to fail on the first unknown or malformed reference instead. To go the other way (turn characters INTO entities) use the string-escaper tool.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "description": "The text containing HTML character entities to decode, e.g. 'Fish &amp; Chips &mdash; &#169; 2026'.",
+          "type": "string"
+        },
+        "unknown": {
+          "default": "keep",
+          "description": "How to handle a reference that can't be decoded (an unrecognized named entity or a malformed numeric reference). 'keep' (default) leaves it exactly as written; 'error' fails and names the offender.",
+          "enum": [
+            "keep",
+            "error"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

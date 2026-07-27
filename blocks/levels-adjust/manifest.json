@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/levels-adjust",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remap numeric tone values with input black/white points, midtone gamma, and output levels",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a photographic Levels transfer curve to a list of numeric values. Provide `values` as spaces, commas, semicolons, or newlines. `input_black` and `input_white` define the input range (defaults 0 and 255; they must differ). `gamma` is the midtone control (>0; values above 1 brighten midtones, below 1 darken) and is applied as normalized^(1/gamma). `output_black` and `output_white` define the output range; swapping them inverts tones. `clamp=true` (default) saturates out-of-range values to the output endpoints; `clamp=false` extrapolates. This is pure numeric levels math, not a raster image editor or histogram tool.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "clamp": {
+          "default": true,
+          "description": "When true (default), saturate values outside the input black/white range to the output endpoints. When false, extrapolate past the endpoints.",
+          "type": "boolean"
+        },
+        "gamma": {
+          "default": 1.0,
+          "description": "Midtone gamma. The normalized value is raised to 1/gamma: gamma > 1 brightens midtones, gamma < 1 darkens them, endpoints stay fixed. Must be greater than 0. Default 1.",
+          "maximum": 5,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "input_black": {
+          "default": 0.0,
+          "description": "Input black point. Values at this level map to output_black; lower values clamp to output_black when clamp=true. Default 0.",
+          "maximum": 1024,
+          "minimum": -1024,
+          "type": "number"
+        },
+        "input_white": {
+          "default": 255.0,
+          "description": "Input white point. Values at this level map to output_white; higher values clamp to output_white when clamp=true. Must differ from input_black. Default 255.",
+          "maximum": 4096,
+          "minimum": -1024,
+          "type": "number"
+        },
+        "output_black": {
+          "default": 0.0,
+          "description": "Output black level. Use values above 0 to lift blacks; swap output_black/output_white to invert tones. Default 0.",
+          "maximum": 4096,
+          "minimum": -1024,
+          "type": "number"
+        },
+        "output_white": {
+          "default": 255.0,
+          "description": "Output white level. Use values below 255 to lower whites; swap output_black/output_white to invert tones. Default 255.",
+          "maximum": 4096,
+          "minimum": -1024,
+          "type": "number"
+        },
+        "values": {
+          "description": "Tone/sample values to remap, separated by spaces, commas, semicolons, or newlines. Defaults assume an 8-bit 0–255 domain, but any finite numeric domain works when you set the black/white points explicitly.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "values"
+      ],
+      "type": "object"
+    }
+  }
+}

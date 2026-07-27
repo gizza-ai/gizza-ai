@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/swagger2-to-openapi3",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Upgrade a Swagger 2.0 spec to OpenAPI 3.0.",
+  "role": "skill",
+  "tool": {
+    "description": "Upgrade a Swagger 2.0 (OpenAPI 2.0) API specification into an equivalent OpenAPI 3.0 document. Accepts JSON or YAML (input_format='auto' by default) and emits JSON (output_format='json') or YAML. Transforms swagger->openapi version, host/basePath/schemes into a servers array, definitions into components.schemas, in:body/in:formData parameters into a requestBody (with consumes/produces folded into content media types), non-body parameters into schema-wrapped 3.0 parameters, securityDefinitions into components.securitySchemes (basic->http, oauth2 flow renames), response schemas into content, and retargets every $ref. Choose target_version (default 3.0.3) and JSON indent; patch=true (default) fills the fields 3.0 requires that 2.0 may omit.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Number of spaces to indent JSON output, 0-10. Use 0 for minified single-line JSON. Ignored for YAML output. Default 2.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse the input. 'auto' (default) tries JSON then YAML; force 'json' or 'yaml' to control error messages.",
+          "enum": [
+            "auto",
+            "json",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "json",
+          "description": "Format of the converted OpenAPI 3.0 document: 'json' (default) or 'yaml'.",
+          "enum": [
+            "json",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "patch": {
+          "default": true,
+          "description": "When true (default), fill in the fields OpenAPI 3.0 requires but Swagger 2.0 may omit (a missing info.title/info.version, missing response descriptions) so the result validates. When false, only structural changes are made.",
+          "type": "boolean"
+        },
+        "spec": {
+          "description": "The Swagger 2.0 (OpenAPI 2.0) document to upgrade, as JSON or YAML text.",
+          "type": "string"
+        },
+        "target_version": {
+          "default": "3.0.3",
+          "description": "Which OpenAPI 3.0.x version string to stamp into the 'openapi' field. Default '3.0.3' (the latest 3.0 patch).",
+          "enum": [
+            "3.0.3",
+            "3.0.2",
+            "3.0.1",
+            "3.0.0"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec"
+      ],
+      "type": "object"
+    }
+  }
+}

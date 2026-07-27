@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "apply-alpha-mask"
+version = "0.1.0"
+abi = 1
+summary = "Use a second grayscale image as the alpha channel of the first to cut out a transparent PNG."

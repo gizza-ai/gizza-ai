@@ -1,0 +1,54 @@
+slug          = "ics-parse"
+title         = "ICS Parser — iCalendar (.ics) to Structured JSON Events"
+description   = "Parse .ics calendar files into JSON events with start/end, all-day status, location, attendees, organizer and RRULE recurrence. Runs in your browser."
+tags          = ["ics parser", "ical to json", "ics to json", "parse ics", "icalendar parser", "vevent to json", "rrule parser", "ics events json"]
+h1            = "ICS Parser"
+hero_subtitle = "Parse an iCalendar (.ics) file into a structured JSON list of events — one object per event with title, start/end times, all-day flag, location, description, status, categories, organizer, attendees and a parsed recurrence rule (RRULE). Paste the file contents; everything runs in your browser and nothing is uploaded."
+wasm          = "gizza_ai_ics_parse_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "ics"
+label       = ".ics file contents"
+placeholder = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Team Standup\nDTSTART:20240309T081530Z\nDTEND:20240309T083000Z\nLOCATION:Room 4\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+# date_format renders as a <select> and pretty / include_description as
+# checkboxes — the control type + option list come from the descriptor schema
+# (manifest.json), so labels here stay short and options are NOT duplicated.
+[[input]]
+name        = "date_format"
+label       = "Date format"
+source      = "field"
+
+[input.labels]
+"iso"  = "ISO-8601 (normalized)"
+"raw"  = "raw (original .ics text)"
+"unix" = "Unix epoch seconds"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON"
+source      = "field"
+
+[[input]]
+name        = "include_description"
+label       = "Include description field"
+source      = "field"
+
+[[example]]
+label  = "Meeting with recurrence"
+params = { ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:standup-1@example.com\nSUMMARY:Team Standup\nDTSTART:20240311T090000Z\nDTEND:20240311T091500Z\nLOCATION:Room 4\nDESCRIPTION:Daily sync\nORGANIZER;CN=Jane Doe:mailto:jane@example.com\nATTENDEE;CN=Bob:mailto:bob@example.com\nRRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;COUNT=12\nEND:VEVENT\nEND:VCALENDAR", date_format = "iso", pretty = "true", include_description = "true" }
+
+[[example]]
+label  = "All-day holiday"
+params = { ics = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Independence Day\nDTSTART;VALUE=DATE:20240704\nDTEND;VALUE=DATE:20240705\nCATEGORIES:Holiday,US\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR", date_format = "iso", pretty = "true", include_description = "true" }
+
+[[example]]
+label  = "Compact, epoch dates"
+params = { ics = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:Launch\nDTSTART:20240309T081530Z\nDTEND:20240309T093000Z\nEND:VEVENT\nEND:VCALENDAR", date_format = "unix", pretty = "false", include_description = "false" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-to-jira"
+version = "0.1.0"
+abi = 1
+summary = "Convert Markdown and Jira wiki markup both ways."

@@ -1,0 +1,117 @@
+slug          = "levels-adjust"
+title         = "Levels Adjust — remap black point, white point, gamma, output levels"
+description   = "Apply a Photoshop/GIMP-style Levels transfer curve to numeric samples: set input black/white points, midtone gamma, and output black/white levels."
+tags          = ["levels adjust", "levels correction", "gamma correction", "black point", "white point", "midtone gamma", "tone mapping", "numeric samples"]
+h1            = "Adjust Levels for Numeric Samples"
+hero_subtitle = "Remap a list of tone values with explicit input black/white points, midtone gamma, output levels, and optional endpoint clamping. Pure numeric math; no upload."
+wasm          = "gizza_ai_levels_adjust_web"
+export        = "run"
+live          = false
+output_label  = "Adjusted values"
+format        = "text"
+
+[[input]]
+name        = "values"
+label       = "Values"
+placeholder = "0, 64, 128, 192, 255"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_black"
+label       = "Input black point"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-1024"
+max         = "1024"
+step        = "1"
+
+[[input]]
+name        = "input_white"
+label       = "Input white point"
+placeholder = "255"
+source      = "field"
+kind        = "slider"
+min         = "-1024"
+max         = "4096"
+step        = "1"
+
+[[input]]
+name        = "gamma"
+label       = "Gamma / midtone"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0.1"
+max         = "5"
+step        = "0.1"
+
+[[input]]
+name        = "output_black"
+label       = "Output black level"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-1024"
+max         = "4096"
+step        = "1"
+
+[[input]]
+name        = "output_white"
+label       = "Output white level"
+placeholder = "255"
+source      = "field"
+kind        = "slider"
+min         = "-1024"
+max         = "4096"
+step        = "1"
+
+[[input]]
+name   = "clamp"
+label  = "Clamp out-of-range values to the output endpoints"
+source = "field"
+
+[[example]]
+label = "Identity — 0–255 samples"
+[example.params]
+values = "0, 64, 128, 192, 255"
+input_black = "0"
+input_white = "255"
+gamma = "1"
+output_black = "0"
+output_white = "255"
+clamp = "true"
+
+[[example]]
+label = "Increase contrast — 64→0, 192→255"
+[example.params]
+values = "32, 64, 128, 192, 224"
+input_black = "64"
+input_white = "192"
+gamma = "1"
+output_black = "0"
+output_white = "255"
+clamp = "true"
+
+[[example]]
+label = "Brighten midtones — gamma 2"
+[example.params]
+values = "0, 64, 128, 192, 255"
+input_black = "0"
+input_white = "255"
+gamma = "2"
+output_black = "0"
+output_white = "255"
+clamp = "true"
+
+[[example]]
+label = "Invert output levels"
+[example.params]
+values = "0, 128, 255"
+input_black = "0"
+input_white = "255"
+gamma = "1"
+output_black = "255"
+output_white = "0"
+clamp = "true"

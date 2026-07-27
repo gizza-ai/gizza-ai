@@ -1,0 +1,99 @@
+slug          = "missing-value-imputer"
+title         = "Missing Value Imputer — Fill Blank CSV Cells Online"
+description   = "Fill missing cells in a CSV with mean, median, most-frequent, a constant, or KNN imputation. Pick columns and missing markers. Runs in your browser, free."
+tags          = ["missing value imputer", "impute csv", "fill missing data", "knn imputation", "mean imputation"]
+h1            = "Missing Value Imputer"
+hero_subtitle = "Fill blank cells in a CSV with mean, median, most-frequent, a constant, or KNN imputation — choose the columns and what counts as missing. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_missing_value_imputer_web"
+export        = "run"
+live          = false
+output_label  = "Imputed CSV"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSV"
+placeholder = "name,age,city\nAlice,30,NYC\nBob,,LA\nCarol,40,"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "strategy"
+label       = "Imputation strategy"
+source      = "field"
+
+[input.labels]
+mean          = "Mean (numeric columns)"
+median        = "Median (numeric columns)"
+most_frequent = "Most frequent (any column)"
+constant      = "Constant (fill value below)"
+knn           = "KNN (nearest neighbours)"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (kept, used for column names)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name        = "columns"
+label       = "Columns to impute (blank = all)"
+placeholder = "age,city"
+source      = "field"
+
+[[input]]
+name        = "na_tokens"
+label       = "Extra missing markers (comma-separated)"
+placeholder = "NA,null,?"
+source      = "field"
+
+[[input]]
+name        = "fill_value"
+label       = "Fill value (used by the Constant strategy)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "n_neighbors"
+label       = "Neighbours (KNN)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "weights"
+label       = "KNN weighting"
+source      = "field"
+
+[input.labels]
+uniform  = "Uniform (plain average)"
+distance = "Distance (inverse-distance weighted)"
+
+[[example]]
+label = "Mean-fill a numeric column"
+[example.params]
+input    = "name,age,city\nAlice,30,NYC\nBob,,LA\nCarol,40,"
+strategy = "mean"
+
+[[example]]
+label = "Most-frequent for a category"
+[example.params]
+input    = "color,n\nred,1\nred,2\n,3\nblue,4"
+strategy = "most_frequent"
+
+[[example]]
+label = "KNN from nearest rows"
+[example.params]
+input       = "x,y\n1,10\n1,\n9,90\n10,100"
+strategy    = "knn"
+columns     = "y"
+n_neighbors = "1"

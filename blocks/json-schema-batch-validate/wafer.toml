@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-schema-batch-validate"
+version = "0.1.0"
+abi = 1
+summary = "Validate a JSON array or NDJSON batch of records against one JSON Schema and get a pass/fail summary plus a per-record error list."

@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-keypair-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# ed25519-dalek: pure-Rust Ed25519 signing keys (pkcs8+pem give PKCS#8/SPKI
+# encoding, used both to generate Ed25519 keys and to cross-check the hand-rolled
+# RFC 8410 DER in tests). x25519-dalek: pure-Rust X25519 (Curve25519 ECDH) static
+# secrets. Both use getrandom via OsRng, so the block runs on every backend.
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8", "pem", "rand_core"] }
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
+rand = "0.8"
+base64 = "0.22"
+hex = "0.4"
+serde = { version = "1", features = ["derive"] }

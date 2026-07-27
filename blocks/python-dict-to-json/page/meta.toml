@@ -1,0 +1,52 @@
+slug          = "python-dict-to-json"
+title         = "Python Dict to JSON Converter"
+description   = "Convert a Python dict or list literal to valid JSON in your browser — handles True/False/None, single quotes, tuples, trailing commas and comments."
+tags          = ["python dict to json", "dict to json", "python to json", "repr to json", "print to json", "single quotes to json", "true false none", "tuple to json", "convert python dictionary"]
+h1            = "Python Dict to JSON Converter"
+hero_subtitle = "Paste a Python dict or list literal — `print(obj)` / `repr(obj)` output — and get valid JSON. Converts True/False/None, single quotes, tuples and sets, trailing commas and comments. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_python_dict_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Python dict / list literal"
+placeholder = "{'name': 'Ann', 'active': True, 'scores': (9, 8, 10), 'tags': None}"
+source      = "field"
+multiline   = true
+
+# indent renders as a <select>, sort_keys / ensure_ascii as checkboxes — the
+# control type + options come from the descriptor's schema (manifest.json), so
+# labels here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "indent"
+label       = "Indentation"
+source      = "field"
+
+[[input]]
+name        = "sort_keys"
+label       = "Sort keys alphabetically"
+source      = "field"
+
+[[input]]
+name        = "ensure_ascii"
+label       = "Escape non-ASCII (\\uXXXX)"
+source      = "field"
+
+[[example]]
+label  = "Dict with True/None"
+[example.params]
+input = "{'name': 'Ann', 'active': True, 'age': 30, 'tags': None}"
+
+[[example]]
+label  = "Tuple + set → arrays"
+[example.params]
+input = "{'point': (1, 2), 'seen': {3, 1, 2}}"
+indent = "minify"
+
+[[example]]
+label  = "Trailing comma + comment"
+[example.params]
+input = "[\n  'a',  # first\n  'b',\n]"

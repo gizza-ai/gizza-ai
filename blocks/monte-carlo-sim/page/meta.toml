@@ -1,0 +1,92 @@
+slug          = "monte-carlo-sim"
+title         = "Monte Carlo Simulation — model risk & uncertainty online"
+description   = "Run Monte Carlo simulations in your browser: define input distributions, a formula, and trials, then get percentiles, target probability, and a histogram."
+tags          = ["monte carlo simulation", "risk analysis", "probability calculator", "uncertainty modeling", "percentile confidence", "project risk", "distribution sampling"]
+h1            = "Monte Carlo Simulation"
+hero_subtitle = "Model uncertain inputs as probability distributions, combine them in a formula, and simulate thousands of trials — percentiles, target probability, and a histogram. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_monte_carlo_sim_web"
+export        = "run"
+live          = false
+output_label  = "Simulation report"
+format        = "text"
+
+[[input]]
+name        = "variables"
+label       = "Input variables (one per line)"
+placeholder = "revenue = normal(1000, 200)\ncost = uniform(400, 700)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "model"
+label       = "Model formula"
+placeholder = "revenue - cost"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "trials"
+label       = "Trials"
+placeholder = "10000"
+source      = "field"
+
+[[input]]
+name        = "seed"
+label       = "Random seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name        = "threshold"
+label       = "Target threshold (optional)"
+placeholder = "e.g. 0 for probability of profit"
+source      = "field"
+
+# threshold_direction renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "threshold_direction"
+label  = "Success is outcome…"
+source = "field"
+
+[input.labels]
+at-or-above = "at or above the threshold (P ≥)"
+at-or-below = "at or below the threshold (P ≤)"
+
+[[input]]
+name        = "histogram_bins"
+label       = "Histogram rows (0 hides)"
+placeholder = "20"
+source      = "field"
+
+[[example]]
+label = "Profit = revenue − cost"
+[example.params]
+variables = "revenue = normal(1000, 200)\ncost = uniform(400, 700)"
+model = "revenue - cost"
+trials = "20000"
+seed = "42"
+threshold = "0"
+threshold_direction = "at-or-above"
+histogram_bins = "20"
+
+[[example]]
+label = "Three-point project cost"
+[example.params]
+variables = "design = triangular(5, 8, 15)\nbuild = triangular(20, 30, 55)\ntest = triangular(4, 7, 14)"
+model = "design + build + test"
+trials = "20000"
+seed = "7"
+threshold = "60"
+threshold_direction = "at-or-below"
+histogram_bins = "20"
+
+[[example]]
+label = "Portfolio return"
+[example.params]
+variables = "stocks = normal(0.08, 0.15)\nbonds = normal(0.03, 0.05)"
+model = "0.6 * stocks + 0.4 * bonds"
+trials = "50000"
+seed = "1"
+threshold = "0"
+threshold_direction = "at-or-below"
+histogram_bins = "20"

@@ -1,0 +1,80 @@
+slug          = "glob-filter"
+title         = "Glob Filter — test include and exclude patterns against path lists"
+description   = "Filter a pasted path list with glob or gitignore-style include and exclude patterns, then preview matched, unmatched, or annotated results."
+tags          = ["glob filter", "glob tester", "gitignore tester", "path matcher", "file pattern", "include exclude", "pattern preview", "wildcard match"]
+h1            = "Glob Filter"
+hero_subtitle = "Paste paths from git ls-files or find, add glob or gitignore-style include/exclude patterns, and preview exactly which paths are kept or dropped. Runs locally in your browser."
+wasm          = "gizza_ai_glob_filter_web"
+export        = "run"
+live          = false
+output_label  = "Filtered paths"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "paths"
+label       = "Paths (one per line)"
+placeholder = "src/main.rs\nsrc/lib.rs\ntests/app.test.ts\ntarget/debug/app\nREADME.md"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "include"
+label       = "Include patterns"
+placeholder = "*.rs\n*.md"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "exclude"
+label       = "Exclude patterns"
+placeholder = "target/\n!target/keep.txt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "syntax"
+label  = "Pattern syntax"
+source = "field"
+labels = { gitignore = "gitignore-style (any depth, / anchors)", glob = "whole-path glob" }
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive matching"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { matched = "Matched / kept paths", unmatched = "Unmatched / dropped paths", annotated = "Annotated ✓/✗ all paths" }
+
+[[example]]
+label = "Keep Rust sources"
+[example.params]
+paths = "src/main.rs\nsrc/lib.rs\ntests/app.test.ts\ntarget/debug/app\nREADME.md"
+include = "*.rs"
+exclude = "target/"
+syntax = "gitignore"
+case_sensitive = "true"
+output = "matched"
+
+[[example]]
+label = "Apply gitignore-style excludes"
+[example.params]
+paths = "src/main.rs\ntarget/debug/app\ntarget/keep.txt\nREADME.md"
+include = ""
+exclude = "target/\n!target/keep.txt"
+syntax = "gitignore"
+case_sensitive = "true"
+output = "annotated"
+
+[[example]]
+label = "Whole-path glob at any depth"
+[example.params]
+paths = "a.rs\nsrc/b.rs\nsrc/readme.md"
+include = "**/*.rs"
+exclude = ""
+syntax = "glob"
+case_sensitive = "true"
+output = "matched"

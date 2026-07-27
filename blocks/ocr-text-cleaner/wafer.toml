@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ocr-text-cleaner"
+version = "0.1.0"
+abi = 1
+summary = "Clean mechanical OCR errors from extracted text"

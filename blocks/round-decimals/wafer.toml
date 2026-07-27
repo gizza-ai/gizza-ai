@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "round-decimals"
+version = "0.1.0"
+abi = 1
+summary = "Round the numeric columns of a CSV to N decimal places with a selectable rounding mode"

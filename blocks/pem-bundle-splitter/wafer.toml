@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pem-bundle-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split PEM bundles into labeled blocks"

@@ -1,0 +1,66 @@
+slug          = "midi-to-json"
+title         = "MIDI to JSON — convert .mid files to structured JSON"
+description   = "Convert a Standard MIDI File (.mid/.midi) to JSON — paired notes with pitch names, a raw event stream, or a compact summary. Free, runs in your browser."
+tags          = ["midi to json", "mid to json converter", "parse midi file", "midi note extractor", "smf to json", "midi events json"]
+h1            = "MIDI to JSON"
+hero_subtitle = "Paste a MIDI file as base64 or hex and get structured JSON — paired notes with pitch names and timings, a loss-less event stream, or a compact summary. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_midi_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "MIDI file (base64 or hex)"
+placeholder = "TVRoZAAAAAYAAAABAGBNVHJr…  (or 4d546864000000…)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "encoding"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect (hex if all hex digits, else base64)"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+notes   = "Notes (musical view — paired notes)"
+events  = "Events (raw per-track stream)"
+summary = "Summary (compact overview)"
+
+[[example]]
+label = "Notes — paired notes with pitch names"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+format = "notes"
+
+[[example]]
+label = "Events — raw per-track stream"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+format = "events"
+
+[[example]]
+label = "Summary — compact overview"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+format = "summary"
+
+[[example]]
+label = "Base64 input — auto-detected"
+[example.params]
+input = "TVRoZAAAAAYAAAABAGBNVHJrAAAAJAD/AwVQaWFubwD/UQMHoSAA/1gEBAIYCACQPEBggDwAAP8vAA=="
+encoding = "auto"
+format = "summary"

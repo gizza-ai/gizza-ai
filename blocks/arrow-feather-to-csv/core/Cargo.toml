@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-arrow-feather-to-csv-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Apache Arrow IPC reader + CSV writer, modular crates. All pure Rust and no C
+# deps → compile + instantiate under wafer (wasm32-wasip1). The `lz4` feature on
+# arrow-ipc is pure Rust (`lz4_flex`), giving LZ4_FRAME buffer decompression at
+# no wasm cost; ZSTD is deliberately NOT enabled (its crate is C bindings that
+# don't build for wasm), so ZSTD-compressed files are rejected with a clear note.
+arrow-ipc = { version = "55", default-features = false, features = ["lz4"] }
+arrow-array = { version = "55", default-features = false }
+arrow-schema = { version = "55", default-features = false }
+arrow-csv = { version = "55", default-features = false }

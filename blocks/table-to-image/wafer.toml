@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "table-to-image"
+version = "0.1.0"
+abi = 1
+summary = "Render CSV or JSON tables as a styled standalone SVG"

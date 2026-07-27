@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/speech-audio-quality-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check WAV speech audio readiness for ASR transcription.",
+  "role": "skill",
+  "tool": {
+    "description": "Pre-flight a short speech recording for ASR/transcription readiness. Paste uncompressed WAV bytes as base64 or hex. The tool decodes PCM/IEEE-float WAV, reports sample rate, channel count, duration, peak and RMS dBFS, a percentile-based SNR estimate, clipped-sample percentage, longest clipped run, per-check PASS/WARN/FAIL statuses, and an overall verdict. Configure the target sample rate, minimum SNR, maximum clipping percentage, and clipping threshold. Compressed MP3/AAC/FLAC/Ogg inputs are rejected clearly rather than guessed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "clipping_threshold": {
+          "default": 0.99,
+          "description": "Absolute full-scale sample amplitude treated as clipped (0.8-1.0, default 0.99). Samples at or above this threshold count toward clipping percentage and run length.",
+          "maximum": 1,
+          "minimum": 0.8,
+          "type": "number"
+        },
+        "input": {
+          "description": "Short uncompressed WAV audio clip bytes encoded as base64 or hex. Use a representative speech sample; compressed MP3/AAC/FLAC/Ogg files are rejected with a clear message.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding used for the pasted audio bytes: 'base64' (default) or 'hex'. Hex may include whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "max_clipping_pct": {
+          "default": 1.0,
+          "description": "Maximum clipped-sample percentage allowed for a PASS (0-100, default 1.0). Higher values warn or fail depending on severity.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "min_snr_db": {
+          "default": 20.0,
+          "description": "Minimum estimated signal-to-noise ratio in dB for a PASS (0-60, default 20). 10 dB up to this value warns; below 10 dB fails.",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format. 'report' is a human-readable ASR readiness checklist; 'json' returns the measured metrics, checks, thresholds, and verdict.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "target_sample_rate": {
+          "default": 16000,
+          "description": "Desired ASR sample rate in Hz (8000-48000, default 16000). Recordings at or above this pass; 8 kHz telephone audio warns; below 8 kHz fails.",
+          "maximum": 48000,
+          "minimum": 8000,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

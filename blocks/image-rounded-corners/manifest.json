@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/image-rounded-corners",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Round the corners of an image at a chosen radius, returned as a PNG",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Round the corners of an image at a chosen radius and return a transparent PNG. The image keeps its original dimensions and aspect ratio (corners are masked, NOT cropped to a square). radius is in pixels by default, or a percent of the shorter side when unit=percent (percent 50 fully rounds the short side into a pill/circle); default is 12% of the shorter side. corners selects which corners to round: all (default), top, bottom, left, or right. background fills the masked corners with a solid color (hex like #3366ff or a common name) and returns a fully opaque PNG; the default 'transparent' keeps the corners see-through. Edges are anti-aliased. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "radius": { "type": "number", "minimum": 0, "description": "Corner radius. In px by default, or a percent of the shorter side when unit=percent (percent 50 fully rounds the short side into a pill/circle). Default: 12% of the shorter side." },
+        "unit": { "type": "string", "enum": ["px", "percent"], "default": "px", "description": "How radius is measured: px (absolute pixels, default) or percent (0-50, relative to the shorter side; 50 = fully rounded)." },
+        "corners": { "type": "string", "enum": ["all", "top", "bottom", "left", "right"], "default": "all", "description": "Which corners to round: all (default), top, bottom, left, or right." },
+        "background": { "type": "string", "default": "transparent", "description": "Fill for the masked corners: transparent (default) keeps them see-through, or a solid color (hex like #3366ff or a common name like white) fills them and returns a fully opaque PNG." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

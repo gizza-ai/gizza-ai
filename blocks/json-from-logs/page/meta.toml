@@ -1,0 +1,56 @@
+slug          = "json-from-logs"
+title         = "Extract JSON from Logs"
+description   = "Paste mixed log or console text and extract embedded JSON objects and arrays — validated, pretty-printed, and separated into blocks in your browser."
+tags          = ["extract json from logs", "find json in text", "json log extractor", "parse json from console output", "embedded json extractor", "pull json objects from text", "log json parser", "pretty print json from logs"]
+h1            = "Extract JSON from Logs"
+hero_subtitle = "Scan a wall of log lines or console output and recover every embedded JSON object or array. Each balanced {…}/[…] run is brace-matched (braces inside strings are ignored), validated with a strict JSON parser, and pretty-printed as its own block with the line it came from. Non-JSON braces and surrounding prose are skipped. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_json_from_logs_web"
+export        = "run"
+live          = false
+output_label  = "Extracted JSON"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Log or console text"
+placeholder = "2026-07-24 10:12:01 INFO  starting worker\n2026-07-24 10:12:02 DEBUG state={\"user\":\"gizza\",\"retries\":0,\"ok\":true}\n2026-07-24 10:12:03 INFO  batch ids [1, 2, 3] queued"
+source      = "field"
+multiline   = true
+
+# indent renders as a number box and output as a <select> — the control type is
+# derived from the descriptor schema (manifest.json), so labels here stay short.
+[[input]]
+name        = "indent"
+label       = "Indent (0-8, 0 = minified)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output shape"
+source      = "field"
+
+[[example]]
+label  = "Two embedded blocks"
+[example.params]
+text = '''
+2026-07-24 10:12:01 INFO  starting worker
+2026-07-24 10:12:02 DEBUG state={"user":"gizza","retries":0,"ok":true}
+2026-07-24 10:12:03 INFO  batch ids [1, 2, 3] queued
+'''
+
+[[example]]
+label  = "Wrap all into one array"
+[example.params]
+text = '''
+req {"method":"GET","path":"/pets"} -> resp {"status":200,"count":2}
+'''
+output = "array"
+
+[[example]]
+label  = "Minified (indent 0)"
+[example.params]
+text = '''
+payload={"id":42,"tags":["a","b"],"nested":{"ok":true}}
+'''
+indent = "0"

@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/list-dedupe-merge",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge two lists into one deduplicated list and count the overlap.",
+  "role": "skill",
+  "tool": {
+    "description": "Merge two lists into a single de-duplicated list (the set union) and report how many overlapping entries were collapsed. Items are split by `separator` (newline by default, or comma/tab/semicolon/pipe/space). `merge_order` controls how the lists are combined before de-duplicating: 'append' (all of A then all of B) or 'interleave' (A, B, A, B…); the first occurrence of a duplicate is kept. Normalization options: `trim` whitespace, `ignore_blank` empty items, `ignore_case` (Apple == apple), and `ignore_leading_zeros` (007 == 7). `sort` orders the merged list (input/asc/desc). The totals line reports each list's size, the merged size, how many duplicates were removed, and how many entries were shared by both lists. Great for combining email lists, IDs, SKUs, tags, or any two collections into one clean list.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_blank": {
+          "default": true,
+          "description": "Drop empty items (e.g. blank lines). Default true.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match items case-insensitively (Apple == apple). The kept item shows the first occurrence's original case. Default false.",
+          "type": "boolean"
+        },
+        "ignore_leading_zeros": {
+          "default": false,
+          "description": "Treat leading zeros as insignificant so 007 and 7 match — handy for numeric IDs. Default false.",
+          "type": "boolean"
+        },
+        "list_a": {
+          "description": "The first list (\"A\"). Items separated per the `separator` param — one per line by default.",
+          "type": "string"
+        },
+        "list_b": {
+          "description": "The second list (\"B\"), same format as list_a.",
+          "type": "string"
+        },
+        "merge_order": {
+          "default": "append",
+          "description": "How the two lists are combined before de-duplicating: 'append' (default) puts all of A then all of B; 'interleave' alternates A, B, A, B… The first occurrence of a duplicate is the one kept.",
+          "enum": [
+            "append",
+            "interleave"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "newline",
+          "description": "How items are split within each list: 'newline' (default, one per line), 'comma', 'tab', 'semicolon', 'pipe', or 'space'.",
+          "enum": [
+            "newline",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Ordering of the merged list: 'input' (default, first-seen order), 'asc' (A→Z), or 'desc' (Z→A).",
+          "enum": [
+            "input",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading/trailing whitespace from each item before comparing. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "list_a",
+        "list_b"
+      ],
+      "type": "object"
+    }
+  }
+}

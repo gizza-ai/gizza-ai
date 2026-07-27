@@ -1,0 +1,68 @@
+slug          = "weighted-random-sampler"
+title         = "Weighted Random Sampler — Draw Rows by Weight from CSV or JSON"
+description   = "Draw weighted random samples from CSV or JSON rows, with or without replacement. Seeded, reproducible, and browser-local."
+tags          = ["weighted random sample", "weighted sampling", "sample csv rows", "sample json", "random sample with replacement"]
+h1            = "Weighted Random Sampler"
+hero_subtitle = "Draw rows from a CSV or JSON dataset with probability proportional to a weight column — with or without replacement, reproducible by seed. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_weighted_random_sampler_web"
+export        = "run"
+live          = false
+output_label  = "Sampled rows"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Dataset (CSV or JSON array)"
+placeholder = "name,weight\nAlice,5\nBob,1\nCarol,3\nDan,1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Format"
+source      = "field"
+
+[[input]]
+name        = "weight_field"
+label       = "Weight field (column name/index or JSON key)"
+placeholder = "weight"
+source      = "field"
+
+[[input]]
+name        = "n"
+label       = "Sample size (rows to draw)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Sample with replacement (allow repeats)"
+source      = "field"
+
+[[input]]
+name        = "seed"
+label       = "Seed (change for a different draw)"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (CSV)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (CSV)"
+source      = "field"
+
+[[example]]
+label  = "Weighted 2 rows (no replacement)"
+params = { data = "name,weight\nAlice,5\nBob,1\nCarol,3\nDan,1", format = "csv", weight_field = "weight", n = "2", seed = "42" }
+
+[[example]]
+label  = "5 draws with replacement"
+params = { data = "name,weight\nAlice,5\nBob,1\nCarol,3\nDan,1", format = "csv", weight_field = "weight", n = "5", replacement = "true", seed = "7" }
+
+[[example]]
+label  = "JSON array by key"
+params = { data = "[{\"id\":\"a\",\"w\":5},{\"id\":\"b\",\"w\":1},{\"id\":\"c\",\"w\":3}]", format = "json", weight_field = "w", n = "2", seed = "1" }

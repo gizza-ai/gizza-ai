@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/image-format-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Verify an image's real format against its claimed type and check for corruption",
+  "role": "skill",
+  "tool": {
+    "description": "Validate an image without uploading it: detect the TRUE format from its magic bytes (PNG/JPEG/GIF/WebP/BMP/TIFF/ICO), fully decode it to catch corrupt or truncated files, and report dimensions, megapixels, aspect ratio, colour type, bit depth, channel count, alpha channel, and file size. Optionally pass a claimed_format (or rely on the filename extension) to flag spoofed/mislabelled files where the extension disagrees with the real bytes. Returns a structured verdict (valid, matches_claim, corruption) and never throws on bad input. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "claimed_format": {
+          "default": "auto",
+          "description": "Format the file claims to be, to check the bytes against (spoof/mismatch detection). Use 'auto' (default) to fall back to the filename extension.",
+          "enum": [
+            "auto",
+            "png",
+            "jpeg",
+            "gif",
+            "webp",
+            "bmp",
+            "tiff",
+            "ico"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

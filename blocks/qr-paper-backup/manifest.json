@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/qr-paper-backup",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a printable sheet of numbered QR codes for offline paper backups",
+  "role": "skill",
+  "tool": {
+    "description": "Encode text or pasted file bytes into a deterministic printable SVG sheet of numbered QR codes for offline paper archival. The tool decodes input as text, base64, or hex; splits the raw bytes into chunk_bytes-sized parts; embeds each QR payload as QRB1|index|total|id|base64-chunk where id is the first 8 hex chars of the full SHA-256; and prints restore instructions plus optional human-readable payload lines. Tune columns for layout and error_correction (L/M/Q/H) for scan robustness. Restore by scanning all parts, sorting by index, concatenating the base64 chunks, and Base64-decoding. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_bytes": {
+          "default": 300,
+          "description": "Maximum raw bytes per QR code before Base64 wrapping (50-1200). Smaller chunks scan more reliably; larger chunks use fewer codes. Default 300.",
+          "maximum": 1200,
+          "minimum": 50,
+          "type": "integer"
+        },
+        "columns": {
+          "default": 3,
+          "description": "Number of QR codes per row in the printable SVG sheet (1-5). Default 3.",
+          "maximum": 5,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "error_correction": {
+          "default": "M",
+          "description": "QR error-correction level. L is densest, M is default, Q/H add more redundancy but reduce capacity.",
+          "enum": [
+            "L",
+            "M",
+            "Q",
+            "H"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The secret or file bytes to archive. Use input_encoding=text for plain text, base64 for a file encoded with base64, or hex for hexadecimal bytes.",
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "text",
+          "description": "How to decode input before chunking. 'text' stores UTF-8 text directly; 'base64' accepts whitespace-tolerant Base64 file bytes; 'hex' accepts hexadecimal bytes.",
+          "enum": [
+            "text",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "show_text": {
+          "default": true,
+          "description": "Print the exact QR payload line under each code as a human-readable fallback. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

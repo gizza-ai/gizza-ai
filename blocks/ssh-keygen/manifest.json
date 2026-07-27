@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/ssh-keygen",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an OpenSSH key pair (Ed25519 or RSA)",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh OpenSSH key pair in the native ssh-keygen(1) formats: the private key as an -----BEGIN OPENSSH PRIVATE KEY----- blob, the public key as a single authorized_keys line (ssh-ed25519 AAAA... / ssh-rsa AAAA...), and the SHA256 fingerprint OpenSSH prints on load. Choose ed25519 (fast, modern, recommended; fixed 256-bit) or rsa with a 2048/3072/4096-bit modulus, and an optional comment (e.g. user@host). Keys are generated locally with a cryptographic RNG (getrandom); nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bits": {
+          "default": "2048",
+          "description": "RSA modulus size in bits (2048, 3072, or 4096). Only used when key_type is 'rsa'; ignored for ed25519. Larger is more secure but slower. Default 2048.",
+          "enum": [
+            "2048",
+            "3072",
+            "4096"
+          ],
+          "type": "string"
+        },
+        "comment": {
+          "description": "Optional comment appended to the public-key line, e.g. 'user@host'. Leave blank for none.",
+          "type": "string"
+        },
+        "key_type": {
+          "default": "ed25519",
+          "description": "Key algorithm: 'ed25519' (fast, modern, recommended) or 'rsa'. Default ed25519.",
+          "enum": [
+            "ed25519",
+            "rsa"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

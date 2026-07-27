@@ -1,0 +1,73 @@
+slug          = "markdown-table-to-csv"
+title         = "Markdown Table to CSV Converter"
+description   = "Convert Markdown or pipe-delimited tables into clean CSV. Strip alignment rows and padding; choose delimiter, quoting, line endings, header, and BOM."
+tags          = ["markdown table to csv", "md to csv", "markdown to csv", "pipe table to csv", "table converter", "tsv", "csv export", "markdown table parser"]
+h1            = "Markdown Table to CSV"
+hero_subtitle = "Paste a Markdown (or pipe-delimited) table and get clean CSV — alignment rows and cell padding stripped, with delimiter, quoting, line-ending, and BOM controls. Runs entirely in your browser, no sign-up."
+wasm          = "gizza_ai_markdown_table_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown or pipe table"
+placeholder = "| name | role |\n| --- | --- |\n| Ada | Engineer |\n| Bo | Designer |"
+source      = "field"
+multiline   = true
+
+# delimiter / quote / newline render from the descriptor schema (manifest.json):
+# quote + newline are <select> (enum), header + bom are checkboxes. Keep labels
+# short here; option lists are NOT duplicated.
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (single char, or comma/tab/semicolon/pipe/space)"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (keep it)"
+source      = "field"
+
+[[input]]
+name        = "quote"
+label       = "Quoting"
+source      = "field"
+
+[[input]]
+name        = "newline"
+label       = "Line ending"
+source      = "field"
+
+[[input]]
+name        = "bom"
+label       = "Add UTF-8 BOM (for Excel)"
+source      = "field"
+
+[[example]]
+label = "CSV (default)"
+[example.params]
+markdown  = "| name | role |\n| --- | --- |\n| Ada | Engineer |\n| Bo | Designer |"
+delimiter = ","
+quote     = "minimal"
+
+[[example]]
+label = "TSV (tab)"
+[example.params]
+markdown  = "| name | role |\n| --- | --- |\n| Ada | Engineer |\n| Bo | Designer |"
+delimiter = "tab"
+
+[[example]]
+label = "Semicolon"
+[example.params]
+markdown  = "| a | b | c |\n| :-- | :-: | --: |\n| 1 | 2 | 3 |"
+delimiter = "semicolon"
+
+[[example]]
+label = "Quote every field"
+[example.params]
+markdown  = "| city | note |\n| --- | --- |\n| Paris, FR | capital |"
+delimiter = ","
+quote     = "all"

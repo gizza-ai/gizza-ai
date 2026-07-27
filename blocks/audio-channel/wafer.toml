@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-channel"
+version = "0.1.0"
+abi = 1
+summary = "Swap, downmix, up-mix or isolate audio channels"

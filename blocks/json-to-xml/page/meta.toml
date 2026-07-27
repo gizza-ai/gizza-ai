@@ -1,0 +1,88 @@
+slug          = "json-to-xml"
+title         = "JSON to XML — Convert JSON Objects and Arrays to XML"
+description   = "Convert JSON to well-formed XML with configurable root and array item names, attributes, text nodes, pretty printing, and an optional XML declaration."
+tags          = ["json to xml", "convert json to xml", "xml converter", "json converter", "attributes", "pretty xml"]
+h1            = "JSON to XML Converter"
+hero_subtitle = "Paste JSON and render well-formed XML with custom root elements, array item names, attributes, text nodes, and pretty or compact output. Runs entirely in your browser."
+wasm          = "gizza_ai_json_to_xml_web"
+export        = "run"
+live          = false
+output_label  = "XML output"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "{\"book\":{\"@id\":\"dune\",\"title\":\"Dune\",\"authors\":[\"Frank Herbert\"]}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "root_element"
+label       = "Root element"
+placeholder = "root"
+default     = "root"
+source      = "field"
+
+[[input]]
+name        = "array_item_element"
+label       = "Array item element"
+placeholder = "item"
+default     = "item"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output style"
+source = "field"
+
+[input.labels]
+pretty  = "Pretty — indented lines"
+compact = "Compact — one line"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+default     = "2"
+source      = "field"
+
+[[input]]
+name   = "xml_declaration"
+label  = "Add XML declaration"
+source = "field"
+
+[[input]]
+name        = "attribute_prefix"
+label       = "Attribute prefix"
+placeholder = "@"
+default     = "@"
+source      = "field"
+
+[[input]]
+name        = "text_key"
+label       = "Text key"
+placeholder = "#text"
+default     = "#text"
+source      = "field"
+
+[[example]]
+label = "Book object with attribute"
+[example.params]
+json = "{\"book\":{\"@id\":\"dune\",\"title\":\"Dune\",\"authors\":[\"Frank Herbert\"]}}"
+root_element = "catalog"
+array_item_element = "author"
+
+[[example]]
+label = "Compact API response"
+[example.params]
+json = "{\"ok\":true,\"count\":2}"
+format = "compact"
+
+[[example]]
+label = "Declaration + custom text key"
+[example.params]
+json = "{\"message\":{\"id\":\"m1\",\"text\":\"hello\"}}"
+xml_declaration = "true"
+attribute_prefix = "id"
+text_key = "text"

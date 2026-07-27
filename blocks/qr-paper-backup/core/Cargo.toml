@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-qr-paper-backup-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+sha2 = "0.10"

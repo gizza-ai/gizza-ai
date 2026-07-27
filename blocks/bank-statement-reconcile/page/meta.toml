@@ -1,0 +1,136 @@
+slug          = "bank-statement-reconcile"
+title         = "Bank Statement Reconcile — Match Statement and Ledger CSVs"
+description   = "Match bank-statement CSV rows to ledger rows by date, signed amount, and fuzzy memo similarity, with unmatched and suggested matches."
+tags          = ["bank statement reconcile", "ledger reconciliation", "csv matching", "fuzzy memo match", "unmatched transactions", "bookkeeping", "transaction matching"]
+h1            = "Reconcile bank statement and ledger CSVs"
+hero_subtitle = "Paste a statement CSV and a ledger CSV, choose the date, amount, and memo columns, and get matched, suggested, and unmatched transactions with fuzzy memo scoring."
+wasm          = "gizza_ai_bank_statement_reconcile_web"
+export        = "run"
+live          = false
+output_label  = "Reconciliation report"
+format        = "text"
+
+[[input]]
+name        = "statement_csv"
+label       = "Bank statement CSV"
+placeholder = "date,amount,memo\n2024-01-02,-42.50,COFFEE SHOP\n2024-01-05,-1200.00,RENT PAYMENT"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "ledger_csv"
+label       = "Bookkeeping ledger CSV"
+placeholder = "date,amount,memo\n2024-01-02,-42.50,Coffee Shop downtown\n2024-01-05,-1200.00,January rent"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "stmt_date"
+label       = "Statement date column"
+placeholder = "date"
+source      = "field"
+
+[[input]]
+name        = "stmt_amount"
+label       = "Statement amount column"
+placeholder = "amount"
+source      = "field"
+
+[[input]]
+name        = "stmt_memo"
+label       = "Statement memo column"
+placeholder = "memo"
+source      = "field"
+
+[[input]]
+name        = "ledger_date"
+label       = "Ledger date column"
+placeholder = "date"
+source      = "field"
+
+[[input]]
+name        = "ledger_amount"
+label       = "Ledger amount column"
+placeholder = "amount"
+source      = "field"
+
+[[input]]
+name        = "ledger_memo"
+label       = "Ledger memo column"
+placeholder = "memo"
+source      = "field"
+
+[[input]]
+name        = "date_tolerance_days"
+label       = "Date tolerance (days)"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "30"
+step        = "1"
+
+[[input]]
+name        = "amount_tolerance"
+label       = "Amount tolerance"
+placeholder = "0.01"
+source      = "field"
+
+[[input]]
+name        = "memo_threshold"
+label       = "Memo match threshold"
+placeholder = "70"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown report"
+json     = "JSON object"
+csv      = "Flat CSV"
+
+[[example]]
+label = "Coffee and rent match"
+[example.params]
+statement_csv = "date,amount,memo\n2024-01-02,-42.50,COFFEE SHOP\n2024-01-05,-1200.00,RENT PAYMENT\n2024-01-06,-9.99,APP STORE"
+ledger_csv = "date,amount,memo\n2024-01-02,-42.50,Coffee Shop downtown\n2024-01-05,-1200.00,January rent\n2024-01-07,-15.00,Office snacks"
+stmt_date = "date"
+stmt_amount = "amount"
+stmt_memo = "memo"
+ledger_date = "date"
+ledger_amount = "amount"
+ledger_memo = "memo"
+date_tolerance_days = "3"
+amount_tolerance = "0.01"
+memo_threshold = "50"
+delimiter = "comma"
+output = "markdown"
+
+[[example]]
+label = "Strict JSON review"
+[example.params]
+statement_csv = "date,amount,memo\n2024-01-02,-42.50,COFFEE SHOP"
+ledger_csv = "date,amount,memo\n2024-01-02,-42.50,Coffee Shop downtown"
+date_tolerance_days = "0"
+amount_tolerance = "0"
+memo_threshold = "80"
+delimiter = "comma"
+output = "json"

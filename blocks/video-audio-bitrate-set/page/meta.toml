@@ -1,0 +1,47 @@
+slug          = "video-audio-bitrate-set"
+title         = "Set a Video's Audio Bitrate Online"
+description   = "Re-encode just a video's audio at your chosen bitrate to shrink an oversized soundtrack while the picture is stream-copied untouched. Runs in-browser; nothing uploaded."
+tags          = ["audio bitrate", "shrink video audio", "reduce audio bitrate", "compress video sound", "kbps", "aac", "opus", "ffmpeg"]
+h1            = "Set a Video's Audio Bitrate"
+hero_subtitle = "Pick a video and a target audio bitrate — its soundtrack is re-encoded in your browser while the picture is copied untouched. Nothing is uploaded."
+wasm          = "gizza_ai_video_audio_bitrate_set_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Re-encoded video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "bitrate"
+source = "field"
+label  = "Audio bitrate"
+
+[input.labels]
+64  = "64 kbps — voice / podcast"
+96  = "96 kbps — speech"
+128 = "128 kbps — default (stereo)"
+160 = "160 kbps"
+192 = "192 kbps — good music"
+256 = "256 kbps — high quality"
+320 = "320 kbps — max quality"
+
+[[example]]
+label  = "64 kbps voice"
+params = { bitrate = "64" }
+
+[[example]]
+label  = "128 kbps (default)"
+params = { bitrate = "128" }
+
+[[example]]
+label  = "96 kbps podcast"
+params = { bitrate = "96" }
+
+[[example]]
+label  = "192 kbps music"
+params = { bitrate = "192" }

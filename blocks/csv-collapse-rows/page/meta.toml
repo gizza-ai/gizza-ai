@@ -1,0 +1,111 @@
+slug          = "csv-collapse-rows"
+title         = "CSV Collapse Rows — Group and Join a Column"
+description   = "Group CSV rows by key columns and join another column into one delimited cell, with dedupe, sorting, and browser-local processing."
+tags          = ["csv group concat", "csv collapse rows", "csv group by", "combine rows csv", "csv string agg", "csv listagg", "merge duplicate rows csv", "csv aggregate column", "join column values csv"]
+h1            = "Collapse CSV rows into one cell per group"
+hero_subtitle = "Paste a CSV, pick the columns to group by and the column to collapse, and get one row per group with that column's values joined into a single cell — the spreadsheet equivalent of SQL GROUP_CONCAT. Dedupe, sort, and choose the separator."
+wasm          = "gizza_ai_csv_collapse_rows_web"
+export        = "run"
+live          = false
+output_label  = "Collapsed CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "region,product\nEast,Apple\nWest,Banana\nEast,Cherry\nEast,Apple"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key_columns"
+label       = "Group-by column(s)"
+placeholder = "region"
+source      = "field"
+
+[[input]]
+name        = "collapse_column"
+label       = "Column to collapse"
+placeholder = "product"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Value separator"
+placeholder = ", "
+source      = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Dedupe values within each group"
+source = "field"
+
+[[input]]
+name   = "skip_empty"
+label  = "Skip blank cells in the collapse column"
+source = "field"
+
+[[input]]
+name   = "sort_values"
+label  = "Sort collapsed values"
+source = "field"
+
+[input.labels]
+none = "First-seen order (no sorting)"
+asc  = "Ascending (A→Z)"
+desc = "Descending (Z→A)"
+
+[[input]]
+name   = "delimiter"
+label  = "Field delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[example]]
+label = "Group products by region (dedupe)"
+[example.params]
+data = "region,product\nEast,Apple\nWest,Banana\nEast,Cherry\nEast,Apple"
+key_columns = "region"
+collapse_column = "product"
+separator = ", "
+dedupe = "true"
+skip_empty = "true"
+sort_values = "none"
+delimiter = "comma"
+has_header = "true"
+
+[[example]]
+label = "Sort tags A→Z with pipe separator"
+[example.params]
+data = "user,tag\nada,rust\nada,wasm\nada,cli\ngrace,cobol"
+key_columns = "user"
+collapse_column = "tag"
+separator = " | "
+dedupe = "false"
+skip_empty = "true"
+sort_values = "asc"
+delimiter = "comma"
+has_header = "true"
+
+[[example]]
+label = "Composite key across two columns"
+[example.params]
+data = "year,team,player\n2021,A,Ada\n2021,A,Alan\n2021,B,Grace\n2022,A,Kay"
+key_columns = "year,team"
+collapse_column = "player"
+separator = ", "
+dedupe = "false"
+skip_empty = "true"
+sort_values = "none"
+delimiter = "comma"
+has_header = "true"

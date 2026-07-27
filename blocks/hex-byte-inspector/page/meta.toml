@@ -1,0 +1,72 @@
+slug          = "hex-byte-inspector"
+title         = "Hex Byte Inspector — byte, bit & hex-char length + crypto-size hints"
+description   = "Inspect hex, Base64 or text: byte, bit and hex-char length, conversions, grouping, and crypto-size hints. Free, runs in your browser."
+tags          = ["hex byte counter", "byte length", "hex to base64", "crypto key size", "hash digest length", "hex inspector"]
+h1            = "Hex Byte Inspector"
+hero_subtitle = "Paste a hex, Base64 or text value to see its byte / bit / hex-char length, the same bytes in hex, Base64 and text, and which common key, hash and signature sizes match. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_hex_byte_inspector_web"
+export        = "run"
+live          = false
+output_label  = "Report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Value to inspect"
+placeholder = "Paste hex, Base64 or text…"
+source      = "field"
+multiline   = true
+
+# input_format renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "input_format"
+label  = "Read input as"
+source = "field"
+
+[input.labels]
+hex    = "Hex (whitespace, : - 0x tolerated)"
+base64 = "Base64 (standard or URL-safe)"
+text   = "Text (its UTF-8 bytes)"
+
+[[input]]
+name        = "group_size"
+label       = "Hex group size (bytes, 0 = continuous)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name   = "uppercase"
+label  = "Uppercase hex"
+source = "field"
+
+[[input]]
+name   = "interpret"
+label  = "Show matching crypto sizes"
+source = "field"
+
+[[example]]
+label = "SHA-256 digest (32 bytes)"
+[example.params]
+input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+input_format = "hex"
+group_size = "4"
+uppercase = "false"
+interpret = "true"
+
+[[example]]
+label = "AES-GCM nonce (12 bytes)"
+[example.params]
+input = "0102030405060708090a0b0c"
+input_format = "hex"
+group_size = "4"
+uppercase = "false"
+interpret = "true"
+
+[[example]]
+label = "Text → UTF-8 bytes"
+[example.params]
+input = "héllo"
+input_format = "text"
+group_size = "0"
+uppercase = "false"
+interpret = "true"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "schema-inferrer"
+version = "0.1.0"
+abi = 1
+summary = "Infer a JSON Schema and a SQL CREATE TABLE from a sample dataset."

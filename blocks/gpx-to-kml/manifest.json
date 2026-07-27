@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/gpx-to-kml",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a GPX GPS track, route, and waypoints into KML for Google Earth",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a GPX GPS document into a KML 2.2 document that opens directly in Google Earth. Tracks (<trk>/<trkseg>/<trkpt>) become KML LineStrings — a multi-segment track becomes a MultiGeometry of LineStrings — and routes (<rte>/<rtept>) become LineStrings too; waypoints (<wpt>) become Points. Names and descriptions (<name>, <desc>, falling back to <cmt>) are carried onto each Placemark, elevation (<ele>) becomes the third lon,lat,ele coordinate, per-point timestamps become a track <TimeSpan> and a waypoint <TimeStamp>. Styling is emitted as two shared Style blocks the Placemarks reference: line_color (CSS hex, default #ef4444) + line_width (1–20, default 4) + line_opacity (0–100%, default 80) drive a LineStyle, and waypoint_color (CSS hex, default #3b82f6) drives an IconStyle. CSS #RRGGBB + opacity% are converted to KML's aabbggrr byte order (alpha, blue, green, red). altitude_mode (clamp_to_ground/absolute/relative_to_ground, default clamp_to_ground) sets how Google Earth reads each coordinate's altitude. document_name optionally names the KML <Document> (falls back to the GPX <metadata><name>). Errors on empty input or a document with no <trk>/<rte>/<wpt>. Pure and deterministic; runs locally, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "altitude_mode": {
+          "default": "clamp_to_ground",
+          "description": "How Google Earth interprets each coordinate's altitude. 'clamp_to_ground' (default) drapes geometry on the terrain and ignores elevation; 'absolute' reads elevation as metres above sea level; 'relative_to_ground' reads it as metres above the terrain.",
+          "enum": [
+            "clamp_to_ground",
+            "absolute",
+            "relative_to_ground"
+          ],
+          "type": "string"
+        },
+        "document_name": {
+          "description": "Optional name for the KML <Document>. Falls back to the GPX <metadata><name>, then a generic label when neither is set.",
+          "type": "string"
+        },
+        "gpx": {
+          "description": "The GPX document to convert, as XML text. Tracks (<trk>) and routes (<rte>) become KML LineStrings; waypoints (<wpt>) become Points. Names, descriptions, elevation, and timestamps are carried over where present.",
+          "type": "string"
+        },
+        "line_color": {
+          "default": "#ef4444",
+          "description": "Track/route line color as a CSS hex value (#RRGGBB or #RGB). Converted to KML's aabbggrr color for the shared LineStyle. Default #ef4444 (red).",
+          "type": "string"
+        },
+        "line_opacity": {
+          "default": 80,
+          "description": "Track/route line opacity as a percentage, 0 (fully transparent) to 100 (opaque). Becomes the alpha byte of the KML line color. Default 80.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "line_width": {
+          "default": 4,
+          "description": "Track/route line width in pixels (Google Earth pen width). 1–20, default 4.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "waypoint_color": {
+          "default": "#3b82f6",
+          "description": "Waypoint icon color as a CSS hex value (#RRGGBB or #RGB), applied fully opaque to the shared IconStyle. Default #3b82f6 (blue).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gpx"
+      ],
+      "type": "object"
+    }
+  }
+}

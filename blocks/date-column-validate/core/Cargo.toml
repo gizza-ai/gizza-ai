@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-date-column-validate-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+csv = "1"
+# chrono for parsing/validating date, datetime, time, and RFC 3339 values;
+# alloc-only, no clock needed (all parsing is done against explicit formats).
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }

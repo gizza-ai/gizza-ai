@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-aws-sigv4-signer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"

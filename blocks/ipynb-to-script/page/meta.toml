@@ -1,0 +1,65 @@
+slug          = "ipynb-to-script"
+title         = "ipynb to Script Converter — Jupyter Notebook to Python"
+description   = "Extract code cells from a Jupyter .ipynb into a clean Python script or Markdown, dropping outputs and execution counts. Runs locally in your browser."
+tags          = ["ipynb to py", "ipynb to python", "jupyter notebook to python", "notebook to script", "nbconvert", "ipynb to script", "extract code cells", "jupyter to py"]
+h1            = "ipynb to Script"
+hero_subtitle = "Paste a Jupyter .ipynb notebook (its JSON) and get a clean Python script — code cells extracted in order, outputs and execution counts dropped. Optional Markdown export, # %% cell markers, and comment-kept markdown. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_ipynb_to_script_web"
+export        = "run"
+live          = false
+output_label  = "Script"
+format        = "text"
+
+[[input]]
+name        = "notebook"
+label       = "Jupyter notebook (.ipynb JSON)"
+placeholder = "{\n  \"cells\": [\n    {\"cell_type\": \"markdown\", \"source\": [\"# Demo\"]},\n    {\"cell_type\": \"code\", \"execution_count\": 1, \"outputs\": [], \"source\": [\"print('hi')\"]}\n  ],\n  \"metadata\": {\"language_info\": {\"name\": \"python\"}},\n  \"nbformat\": 4, \"nbformat_minor\": 5\n}"
+source      = "field"
+multiline   = true
+
+# output renders as a <select> (enum); include_markdown / include_outputs /
+# cell_markers render as checkboxes from the descriptor schema (manifest.json).
+# Keep labels short here; option lists are NOT duplicated.
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "include_markdown"
+label       = "Keep markdown cells (as # comments)"
+source      = "field"
+
+[[input]]
+name        = "include_outputs"
+label       = "Include stored cell outputs"
+source      = "field"
+
+[[input]]
+name        = "cell_markers"
+label       = "Add # %% cell markers (VS Code / Jupytext)"
+source      = "field"
+
+[[example]]
+label = "Clean .py script"
+[example.params]
+notebook = "{\n  \"cells\": [\n    {\"cell_type\": \"markdown\", \"source\": [\"# Demo notebook\\n\", \"\\n\", \"Load and greet.\"]},\n    {\"cell_type\": \"code\", \"execution_count\": 1, \"outputs\": [{\"output_type\": \"stream\", \"name\": \"stdout\", \"text\": [\"hi\\n\"]}], \"source\": [\"import sys\\n\", \"print('hi')\"]}\n  ],\n  \"metadata\": {\"language_info\": {\"name\": \"python\"}},\n  \"nbformat\": 4, \"nbformat_minor\": 5\n}"
+output   = "script"
+
+[[example]]
+label = "VS Code # %% markers"
+[example.params]
+notebook     = "{\n  \"cells\": [\n    {\"cell_type\": \"markdown\", \"source\": [\"# Demo notebook\\n\", \"\\n\", \"Load and greet.\"]},\n    {\"cell_type\": \"code\", \"execution_count\": 1, \"outputs\": [{\"output_type\": \"stream\", \"name\": \"stdout\", \"text\": [\"hi\\n\"]}], \"source\": [\"import sys\\n\", \"print('hi')\"]}\n  ],\n  \"metadata\": {\"language_info\": {\"name\": \"python\"}},\n  \"nbformat\": 4, \"nbformat_minor\": 5\n}"
+cell_markers = "true"
+
+[[example]]
+label = "Code only (drop markdown)"
+[example.params]
+notebook         = "{\n  \"cells\": [\n    {\"cell_type\": \"markdown\", \"source\": [\"# Demo notebook\\n\", \"\\n\", \"Load and greet.\"]},\n    {\"cell_type\": \"code\", \"execution_count\": 1, \"outputs\": [{\"output_type\": \"stream\", \"name\": \"stdout\", \"text\": [\"hi\\n\"]}], \"source\": [\"import sys\\n\", \"print('hi')\"]}\n  ],\n  \"metadata\": {\"language_info\": {\"name\": \"python\"}},\n  \"nbformat\": 4, \"nbformat_minor\": 5\n}"
+include_markdown = "false"
+
+[[example]]
+label = "Markdown export"
+[example.params]
+notebook = "{\n  \"cells\": [\n    {\"cell_type\": \"markdown\", \"source\": [\"# Demo notebook\\n\", \"\\n\", \"Load and greet.\"]},\n    {\"cell_type\": \"code\", \"execution_count\": 1, \"outputs\": [{\"output_type\": \"stream\", \"name\": \"stdout\", \"text\": [\"hi\\n\"]}], \"source\": [\"import sys\\n\", \"print('hi')\"]}\n  ],\n  \"metadata\": {\"language_info\": {\"name\": \"python\"}},\n  \"nbformat\": 4, \"nbformat_minor\": 5\n}"
+output   = "markdown"

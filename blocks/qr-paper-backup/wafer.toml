@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "qr-paper-backup"
+version = "0.1.0"
+abi = 1
+summary = "Render a printable sheet of numbered QR codes for offline paper backups"

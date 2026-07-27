@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/ansi-log-renderer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render ANSI terminal output as colored HTML, or strip it to plain text",
+  "role": "skill",
+  "tool": {
+    "description": "Parse raw terminal output containing ANSI escape codes and render it to clean colored HTML, or strip the codes to plain text. Pass the captured terminal/log text as 'text'. output='html' (default) reproduces the SGR colors and styles — 16 basic + bright colors, the 256-color xterm palette, 24-bit RGB truecolor, and bold/dim/italic/underline/inverse/strikethrough — as styled <span>s inside a themed <pre>; non-SGR control (cursor moves, screen erase, OSC titles/hyperlinks) is dropped. output='text' strips every escape sequence and returns plain text. theme='dark'|'light' sets the default colors/background for HTML. styles='inline' (self-contained style attributes) or 'classes' (class names + a <style> block). Unicode and newlines are preserved.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "output": {
+          "default": "html",
+          "description": "Output format. 'html' (default) renders the colors/styles as a self-contained <pre> of styled <span>s. 'text' strips every escape sequence and returns plain readable text.",
+          "enum": [
+            "html",
+            "text"
+          ],
+          "type": "string"
+        },
+        "styles": {
+          "default": "inline",
+          "description": "How HTML colors are applied. 'inline' (default) emits self-contained style=\"...\" attributes. 'classes' emits class=\"ansi-...\" spans plus a <style> block (basic colors become classes; 256/RGB colors stay inline). Ignored when output='text'.",
+          "enum": [
+            "inline",
+            "classes"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The raw terminal/log output containing ANSI escape codes to render, e.g. \\x1b[31mERROR\\x1b[0m.",
+          "type": "string"
+        },
+        "theme": {
+          "default": "dark",
+          "description": "Background theme for HTML output — sets the default foreground/background colors and the <pre> background. 'dark' (default) = light text on #0c0c0c; 'light' = dark text on #ffffff. Ignored when output='text'.",
+          "enum": [
+            "dark",
+            "light"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

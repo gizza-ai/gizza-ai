@@ -1,0 +1,84 @@
+slug          = "csv-column-split"
+title         = "CSV Column Splitter & Concatenator — Split or Join CSV Fields"
+description   = "Split a CSV column into multiple columns by delimiter, or concatenate columns into one. Header-aware, trim options, exact CSV output, in-browser."
+tags          = ["csv column split", "split csv column", "text to columns", "csv concatenate columns", "csv column join", "csv transformer", "csv delimiter", "csv cleanup", "spreadsheet tool"]
+h1            = "CSV Column Splitter & Concatenator"
+hero_subtitle = "Split one CSV column into several fields by a literal separator, or join multiple columns into one. Select columns by header name or index, control names and trimming, and keep or replace the source columns."
+wasm          = "gizza_ai_csv_column_split_web"
+export        = "run"
+live          = false
+output_label  = "Transformed CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "id,name\n1,John Doe\n2,Ada Lovelace"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+[input.labels]
+split = "Split one column"
+concat = "Concatenate columns"
+
+[[input]]
+name        = "columns"
+label       = "Column(s)"
+placeholder = "name"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Cell separator"
+placeholder = "space, comma, |, or custom text"
+source      = "field"
+
+[[input]]
+name        = "names"
+label       = "Output name(s)"
+placeholder = "first,last"
+source      = "field"
+
+[[input]]
+name        = "max_columns"
+label       = "Max output columns (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "keep_source"
+label       = "Keep source column(s)"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim split values"
+source      = "field"
+
+[[input]]
+name        = "has_header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+[input.labels]
+"," = "Comma"
+tab = "Tab"
+";" = "Semicolon"
+"|" = "Pipe"
+
+[[example]]
+label  = "Split names"
+params = { data = "id,name\n1,John Doe\n2,Ada Lovelace", mode = "split", columns = "name", separator = " ", names = "first,last" }
+
+[[example]]
+label  = "Join first + last"
+params = { data = "first,last,age\nAda,Lovelace,36", mode = "concat", columns = "first,last", separator = " ", names = "name" }

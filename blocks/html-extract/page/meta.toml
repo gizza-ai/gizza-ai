@@ -1,0 +1,85 @@
+slug          = "html-extract"
+title         = "HTML Extractor — Pull Text & Attributes by CSS Selector"
+description   = "Paste HTML, type a CSS selector, and pull out the text, inner/outer HTML, or an attribute from every match. Runs in your browser, nothing uploaded, free."
+tags          = ["html extract", "css selector", "scrape html", "extract text", "get attribute", "inner html", "outer html", "jq for html"]
+h1            = "Extract Data from HTML with a CSS Selector"
+hero_subtitle = "Paste HTML, write a CSS selector, and pull out text, inner or outer HTML, or an attribute from every match. Runs entirely in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_html_extract_web"
+export        = "run"
+live          = false
+output_label  = "Matches (JSON)"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<ul>\n  <li><a href=\"/one\">First</a></li>\n  <li><a href=\"/two\">Second</a></li>\n</ul>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "selector"
+label       = "CSS selector"
+placeholder = "a"
+source      = "field"
+
+[[input]]
+name   = "extract"
+label  = "Extract"
+source = "field"
+
+[input.labels]
+text         = "Text — visible text content"
+"inner-html" = "Inner HTML — children only"
+"outer-html" = "Outer HTML — the element itself"
+attr         = "Attribute — a named attribute's value"
+
+[[input]]
+name        = "attr"
+label       = "Attribute name (for Attribute mode)"
+placeholder = "href"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max matches"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name   = "trim"
+label  = "Normalize whitespace"
+source = "field"
+
+[[example]]
+label = "Link text"
+[example.params]
+html = "<ul>\n  <li><a href=\"/one\">First</a></li>\n  <li><a href=\"/two\">Second</a></li>\n</ul>"
+selector = "a"
+extract = "text"
+trim = "true"
+
+[[example]]
+label = "Link URLs (href)"
+[example.params]
+html = "<ul>\n  <li><a href=\"/one\">First</a></li>\n  <li><a href=\"/two\">Second</a></li>\n</ul>"
+selector = "a"
+extract = "attr"
+attr = "href"
+trim = "true"
+
+[[example]]
+label = "Headings"
+[example.params]
+html = "<article><h2>Intro</h2><p>hi</p><h2>Details</h2></article>"
+selector = "h2"
+extract = "text"
+trim = "true"
+
+[[example]]
+label = "Outer HTML of images"
+[example.params]
+html = "<div><img src=\"a.png\" alt=\"A\"><img src=\"b.png\" alt=\"B\"></div>"
+selector = "img"
+extract = "outer-html"
+trim = "true"

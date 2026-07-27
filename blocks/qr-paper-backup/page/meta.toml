@@ -1,0 +1,78 @@
+slug          = "qr-paper-backup"
+title         = "QR Paper Backup — printable numbered QR sheets for offline archives"
+description   = "Encode text or pasted file bytes into a printable SVG sheet of numbered QR codes with restore instructions and checksummed chunk metadata."
+tags          = ["qr backup", "paper backup", "offline archive", "printable qr", "file backup", "secret backup", "base64", "cold storage"]
+h1            = "QR Paper Backup"
+hero_subtitle = "Turn a secret or Base64/hex file bytes into a deterministic printable SVG sheet of numbered QR codes for offline paper archival. Runs locally in your browser."
+wasm          = "gizza_ai_qr_paper_backup_web"
+export        = "run"
+live          = false
+output_label  = "Printable SVG sheet"
+format        = "svg"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Input text or encoded bytes"
+placeholder = "Recovery phrase, license key, or Base64 file bytes"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_encoding"
+label  = "Input encoding"
+source = "field"
+labels = { text = "Text / UTF-8", base64 = "Base64 bytes", hex = "Hex bytes" }
+
+[[input]]
+name        = "chunk_bytes"
+label       = "Bytes per QR code"
+placeholder = "300"
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Columns"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name   = "error_correction"
+label  = "QR error correction"
+source = "field"
+labels = { L = "L — dense", M = "M — balanced", Q = "Q — robust", H = "H — most robust" }
+
+[[input]]
+name   = "show_text"
+label  = "Print payload text under each QR"
+source = "field"
+
+[[example]]
+label = "Small text secret"
+[example.params]
+input = "paper backup demo"
+input_encoding = "text"
+chunk_bytes = "300"
+columns = "2"
+error_correction = "M"
+show_text = "true"
+
+[[example]]
+label = "Base64 file bytes"
+[example.params]
+input = "aGVsbG8gd29ybGQ="
+input_encoding = "base64"
+chunk_bytes = "50"
+columns = "1"
+error_correction = "Q"
+show_text = "true"
+
+[[example]]
+label = "Compact sheet"
+[example.params]
+input = "offline archive"
+input_encoding = "text"
+chunk_bytes = "600"
+columns = "4"
+error_correction = "L"
+show_text = "false"

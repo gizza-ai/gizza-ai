@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "person-name-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split a CSV column of full names into title/first/middle/last/suffix"

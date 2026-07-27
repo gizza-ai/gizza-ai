@@ -1,0 +1,85 @@
+slug          = "person-name-splitter"
+title         = "Person Name Splitter — Split Full Names into Title/First/Middle/Last/Suffix"
+description   = "Split a CSV full-name column into title, first, middle, last, and suffix fields. Handles titles, suffixes, particles, and Last, First names."
+tags          = ["name parsing", "split full name", "first and last name", "csv preprocessing", "data cleaning", "name components", "honorific title", "surname particle"]
+h1            = "Split full names into first, middle, last & more"
+hero_subtitle = "Paste a CSV, pick the name column, and split every full name into title, first, middle, last, and suffix — understanding honorifics, Jr/III/PhD suffixes, van/de/mac particles, and the Last, First form. Nothing is uploaded."
+wasm          = "gizza_ai_person_name_splitter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "name,email\nDr. John Michael Smith Jr.,john@example.com\nLudwig van Beethoven,lvb@example.com\n\"Smith, Jane Q\",jane@example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "name_column"
+label       = "Name column (header name or 1-based number; blank = first)"
+placeholder = "name"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+append  = "Append component columns"
+replace = "Replace name column"
+summary = "Summary report (JSON)"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "trim"
+label  = "Trim whitespace from cells"
+source = "field"
+
+[[example]]
+label = "Append components"
+[example.params]
+data = "name,email\nDr. John Michael Smith Jr.,john@example.com\nLudwig van Beethoven,lvb@example.com\n\"Smith, Jane Q\",jane@example.com"
+name_column = "name"
+output = "append"
+header = "true"
+delimiter = "comma"
+trim = "true"
+
+[[example]]
+label = "Replace name column"
+[example.params]
+data = "name,email\nDr. John Michael Smith Jr.,john@example.com\nLudwig van Beethoven,lvb@example.com\n\"Smith, Jane Q\",jane@example.com"
+name_column = "name"
+output = "replace"
+header = "true"
+delimiter = "comma"
+trim = "true"
+
+[[example]]
+label = "Summary report"
+[example.params]
+data = "name,email\nDr. John Michael Smith Jr.,john@example.com\nCher,cher@example.com\nLudwig van Beethoven,lvb@example.com"
+name_column = "name"
+output = "summary"
+header = "true"
+delimiter = "comma"
+trim = "true"

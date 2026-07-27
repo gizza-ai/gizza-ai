@@ -1,0 +1,65 @@
+slug          = "msgpack-to-json"
+title         = "MessagePack to JSON — Decode msgpack Hex or Base64 Online"
+description   = "Paste MessagePack hex or base64 and decode it into pretty-printed JSON. Preserves field order, uint64 values, timestamps, and binary payloads in your browser."
+tags          = ["msgpack", "messagepack", "msgpack to json", "msgpack decoder", "messagepack decoder", "decode msgpack", "msgpack viewer", "msgpack converter", "binary to json", "msgpack parser"]
+h1            = "MessagePack to JSON"
+hero_subtitle = "Paste a MessagePack blob as hex or base64 and decode it into readable, pretty-printed JSON. Field order and full uint64 precision are preserved, timestamps become ISO strings, and binary/ext payloads are shown safely. Runs entirely in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_msgpack_to_json_web"
+export        = "run"
+live          = false
+output_label  = "Decoded JSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "MessagePack bytes (hex or base64)"
+placeholder = "82a7636f6d70616374c3a6736368656d6100"
+source      = "field"
+multiline   = true
+
+# input_format/binary_format render as <select> — the option lists are derived
+# from the descriptor schema (manifest.json), so they are not duplicated here.
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces, 0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "binary_format"
+label       = "Binary / ext encoding in output"
+source      = "field"
+
+# Preset chips — one click prefills the fields with a runnable example.
+[[example]]
+label = "Compact map (hex)"
+[example.values]
+input        = "82a7636f6d70616374c3a6736368656d6100"
+input_format = "hex"
+indent       = "2"
+
+[[example]]
+label = "Compact map (minified)"
+[example.values]
+input        = "82a7636f6d70616374c3a6736368656d6100"
+input_format = "hex"
+indent       = "0"
+
+[[example]]
+label = "Mixed array (hex)"
+[example.values]
+input        = "9501a374776f c0 c3 cb400c000000000000"
+input_format = "hex"
+indent       = "2"
+
+[[example]]
+label = "Timestamp ext (hex)"
+[example.values]
+input        = "d6ff5a497a00"
+input_format = "hex"
+indent       = "0"

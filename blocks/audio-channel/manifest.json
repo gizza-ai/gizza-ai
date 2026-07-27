@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/audio-channel",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Swap, downmix, up-mix or isolate audio channels",
+  "role": "skill",
+  "tool": {
+    "description": "Route the channels of an audio file. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). operation=swap (default) exchanges the left/right channels; mono downmixes all channels to one; stereo up-mixes a mono file to two identical channels; left or right copies that source channel onto both output channels (so a one-sided recording plays in both ears). Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "swap",
+          "description": "swap exchanges the left/right channels (default); mono downmixes all channels to one; stereo up-mixes mono to two identical channels; left/right copy that side onto both channels so a one-sided recording plays in both ears.",
+          "enum": [
+            "swap",
+            "mono",
+            "stereo",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

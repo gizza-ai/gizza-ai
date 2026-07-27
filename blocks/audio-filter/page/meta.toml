@@ -1,0 +1,85 @@
+slug          = "audio-filter"
+title         = "Audio Filter Online — Low-Pass, High-Pass, Band-Pass & Notch"
+description   = "Apply a low-pass, high-pass, band-pass, or notch filter to audio in your browser. Set the frequency and band width, then download — nothing is uploaded."
+tags          = ["audio", "filter", "low-pass", "high-pass", "band-pass", "notch", "band-reject", "eq", "frequency", "cleanup"]
+h1            = "Audio Filter"
+hero_subtitle = "Pick an audio file, choose low-pass, high-pass, band-pass, or notch, set the frequency, and filter it in your browser — nothing is uploaded."
+wasm          = "gizza_ai_audio_filter_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Filtered audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name   = "type"
+source = "field"
+label  = "Filter type"
+
+[input.labels]
+lowpass  = "Low-pass — keep lows, cut highs"
+highpass = "High-pass — keep highs, cut lows"
+bandpass = "Band-pass — keep only a band"
+notch    = "Notch — remove a band"
+
+[[input]]
+name        = "frequency"
+source      = "field"
+label       = "Frequency (Hz)"
+placeholder = "1000"
+kind        = "slider"
+min         = "20"
+max         = "20000"
+step        = "1"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Band width (Hz) — band-pass / notch only"
+placeholder = "200"
+kind        = "slider"
+min         = "1"
+max         = "10000"
+step        = "1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Tame harsh highs (low-pass 3 kHz)"
+[example.params]
+type      = "lowpass"
+frequency = "3000"
+width     = "200"
+format    = "mp3"
+
+[[example]]
+label = "Cut low rumble (high-pass 100 Hz)"
+[example.params]
+type      = "highpass"
+frequency = "100"
+width     = "200"
+format    = "mp3"
+
+[[example]]
+label = "Telephone voice (band-pass 1 kHz)"
+[example.params]
+type      = "bandpass"
+frequency = "1000"
+width     = "2800"
+format    = "mp3"
+
+[[example]]
+label = "Kill 60 Hz hum (notch)"
+[example.params]
+type      = "notch"
+frequency = "60"
+width     = "20"
+format    = "wav"

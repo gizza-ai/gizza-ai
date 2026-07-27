@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hex-byte-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Inspect a hex/base64/text value: byte, bit & hex-char length, format conversions, and crypto-size hints"

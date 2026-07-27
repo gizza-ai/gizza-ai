@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/apply-alpha-mask",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Use a second grayscale image as the alpha channel of the first to cut out a transparent PNG.",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Apply one image as the alpha (transparency) mask of another, producing a transparent PNG cutout. Provide exactly two image sources as an ordered list: the PICTURE (its RGB is kept) first, the MASK second. A value read from the mask per pixel — `channel` selects luminance (default), a single R/G/B channel, the average, or the mask's own alpha — becomes each output pixel's opacity (white = opaque, black = transparent; set `invert` to swap). `fit` (stretch/cover/contain) resizes the mask to the picture; `threshold` (0 keeps smooth alpha, >0 binarizes) hard-cuts the edge; `existing_alpha` replaces the picture's alpha or multiplies into it. Output is always PNG. Each image is a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "default": "luminance",
+          "description": "Which value of each mask pixel becomes the alpha level: luminance (default, perceptual gray), average (mean of R/G/B), red/green/blue (a single channel), or alpha (the mask's own transparency).",
+          "enum": [
+            "luminance",
+            "average",
+            "red",
+            "green",
+            "blue",
+            "alpha"
+          ],
+          "type": "string"
+        },
+        "existing_alpha": {
+          "default": "replace",
+          "description": "How the mask combines with the picture's own transparency: replace (default, the mask value becomes the alpha outright) or multiply (keep pixels transparent in EITHER the picture or the mask).",
+          "enum": [
+            "replace",
+            "multiply"
+          ],
+          "type": "string"
+        },
+        "fit": {
+          "default": "stretch",
+          "description": "How the mask is resized to the picture when their sizes differ: stretch (default, ignore aspect), cover (fill, center-crop overflow), or contain (fit inside, the uncovered border stays fully transparent).",
+          "enum": [
+            "stretch",
+            "cover",
+            "contain"
+          ],
+          "type": "string"
+        },
+        "images": {
+          "description": "Exactly two image sources (PNG/JPEG/WebP/GIF/BMP): the PICTURE whose colors are kept first, the MASK image second. The mask's brightness becomes the picture's transparency — white = opaque, black = transparent. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "invert": {
+          "default": false,
+          "description": "Flip the mask so dark areas become opaque and light areas transparent. Default false (white = opaque).",
+          "type": "boolean"
+        },
+        "threshold": {
+          "default": 0,
+          "description": "Hard cutoff, 0-255. 0 (default) keeps the mask's smooth partial transparency; any value above 0 binarizes the alpha — mask values at or above it become fully opaque, below it fully transparent.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nmap-output-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse nmap XML or greppable output into host/port tables"

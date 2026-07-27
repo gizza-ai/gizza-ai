@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/bank-statement-reconcile",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reconcile bank statement and ledger CSV rows",
+  "role": "skill",
+  "tool": {
+    "description": "Reconcile a bank-statement CSV against a bookkeeping ledger CSV by signed amount and date, then use fuzzy memo token similarity to classify exact matches, suggested matches, unmatched statement items, and unmatched ledger items. Column references can be header names or 1-based indices; amounts accept signs, currency symbols, thousands separators, and accounting parentheses. Outputs markdown, JSON, or CSV.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_tolerance": {
+          "default": 0.01,
+          "description": "Maximum absolute signed-amount difference for a candidate match.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "date_tolerance_days": {
+          "default": 3,
+          "description": "Maximum absolute date difference, in days, for a candidate match.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field delimiter used by both inputs.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "ledger_amount": {
+          "default": "amount",
+          "description": "Ledger signed amount column name or 1-based index.",
+          "type": "string"
+        },
+        "ledger_csv": {
+          "description": "Bookkeeping ledger CSV text with a header row.",
+          "type": "string"
+        },
+        "ledger_date": {
+          "default": "date",
+          "description": "Ledger date column name or 1-based index.",
+          "type": "string"
+        },
+        "ledger_memo": {
+          "default": "memo",
+          "description": "Ledger memo/description column name or 1-based index.",
+          "type": "string"
+        },
+        "memo_threshold": {
+          "default": 70,
+          "description": "Minimum fuzzy memo token similarity (0–100) to classify a candidate as matched instead of suggested.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "markdown",
+          "description": "Report format: markdown summary, JSON object, or flat CSV table.",
+          "enum": [
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "statement_csv": {
+          "description": "Bank statement CSV text with a header row.",
+          "type": "string"
+        },
+        "stmt_amount": {
+          "default": "amount",
+          "description": "Statement signed amount column name or 1-based index.",
+          "type": "string"
+        },
+        "stmt_date": {
+          "default": "date",
+          "description": "Statement date column name or 1-based index.",
+          "type": "string"
+        },
+        "stmt_memo": {
+          "default": "memo",
+          "description": "Statement memo/description column name or 1-based index.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "statement_csv",
+        "ledger_csv"
+      ],
+      "type": "object"
+    }
+  }
+}

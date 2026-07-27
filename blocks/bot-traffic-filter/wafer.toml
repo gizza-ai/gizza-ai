@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bot-traffic-filter"
+version = "0.1.0"
+abi = 1
+summary = "Flag and strip bot/crawler hits from a log by user-agent and report the human-vs-bot split."

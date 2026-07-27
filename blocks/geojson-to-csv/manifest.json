@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/geojson-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten GeoJSON features into a CSV table",
+  "role": "skill",
+  "tool": {
+    "description": "Flatten GeoJSON features into a CSV table, one row per feature. Pass `geojson` as a FeatureCollection, a single Feature, a bare geometry (Point, LineString, Polygon and their Multi/Collection variants), or a top-level array of any of those; coordinates are [longitude, latitude]. Every `properties` key becomes a column (union across all features, in first-seen order; missing values are blank). Set `geometry` to 'wkt' (default, a `geometry` column of 2-D Well-Known Text), 'lonlat' (`longitude`+`latitude` from the first coordinate), 'both', or 'none'. Use `nested`='flatten' to expand nested objects/arrays into dot-notated columns (`address.city`, `tags.0`) instead of JSON text. `delimiter` picks comma/semicolon/tab/pipe and `header`=false drops the header row. Output is RFC-4180 escaped. Runs locally on the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "Output field separator: 'comma' (default), 'semicolon', 'tab' or 'pipe'. Fields are RFC-4180 escaped (quoted when they contain the delimiter, a quote or a newline).",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "geojson": {
+          "description": "GeoJSON to convert. Accepts a FeatureCollection, a single Feature, a bare geometry (Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, GeometryCollection), or a top-level array of any of those. Coordinates are [longitude, latitude]. Each row is one feature; every properties key becomes a column (union across all features, in first-seen order).",
+          "type": "string"
+        },
+        "geometry": {
+          "default": "wkt",
+          "description": "How each feature's geometry is written: 'wkt' (default) a single `geometry` column of 2-D Well-Known Text (POINT/LINESTRING/POLYGON…); 'lonlat' `longitude`+`latitude` columns from the first coordinate; 'both' the WKT and lon/lat columns; 'none' drops geometry (properties only).",
+          "enum": [
+            "wkt",
+            "lonlat",
+            "both",
+            "none"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit a header row of column names. Default true.",
+          "type": "boolean"
+        },
+        "nested": {
+          "default": "json",
+          "description": "How nested property objects/arrays are represented: 'json' (default) keeps them in one column as compact JSON text; 'flatten' expands them into dot-notated leaf columns (`address.city`, `tags.0`).",
+          "enum": [
+            "json",
+            "flatten"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "geojson"
+      ],
+      "type": "object"
+    }
+  }
+}

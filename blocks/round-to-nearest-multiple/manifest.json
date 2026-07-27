@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/round-to-nearest-multiple",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Round the numeric cells of a CSV to the nearest multiple of a step (0.25, 5, 1000, …)",
+  "role": "skill",
+  "tool": {
+    "description": "Round each numeric cell of a CSV to the nearest multiple of a chosen step (e.g. 0.25, 0.05, 5, 100, 1000) using a selectable rounding mode: half_up (nearest, ties away from zero — classical MROUND), half_down (nearest, ties toward zero), half_even (banker's), ceil (always up to the next multiple), floor (always down), or truncate (toward zero). Round every numeric column or a subset chosen by 1-based index and/or header name. A first-row header is kept unrounded. Non-numeric cells (text, currency symbols, thousands separators) pass through unchanged. Rounding of the value÷step quotient is done with exact integer arithmetic on the digits you typed, so halfway values are broken deterministically. Optionally pad results to the step's decimal places.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Comma-separated columns to round: 1-based indices and/or header names (e.g. 'price,3'). Empty rounds every numeric cell in every column. Default empty.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text whose numeric cells should be rounded to the nearest multiple.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header: keep it unrounded and allow selecting columns by name. Default true.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "half_up",
+          "description": "How to round to the multiple. 'half_up' = nearest, ties away from zero (classical / Excel MROUND, 2.5→3); 'half_down' = nearest, ties toward zero (2.5→2); 'half_even' = nearest, ties to the even multiple (banker's, 2.5→2, 3.5→4); 'ceil' = always up to the next multiple; 'floor' = always down to the previous multiple; 'truncate' = toward zero. Default 'half_up'.",
+          "enum": [
+            "half_up",
+            "half_down",
+            "half_even",
+            "ceil",
+            "floor",
+            "truncate"
+          ],
+          "type": "string"
+        },
+        "step": {
+          "default": 1.0,
+          "description": "The multiple to round each value to; must be greater than 0. Examples: 0.25 (quarters), 0.05 (nickels), 5, 100, 1000. Default 1 (round to whole numbers).",
+          "type": "number"
+        },
+        "trailing_zeros": {
+          "default": false,
+          "description": "Pad every rounded cell to the step's own decimal places (e.g. step 0.25 → 1.00, 1.25, 1.50). Default false (natural, no padding).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

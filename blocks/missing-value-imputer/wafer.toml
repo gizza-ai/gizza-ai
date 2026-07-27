@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "missing-value-imputer"
+version = "0.1.0"
+abi = 1
+summary = "Fill missing CSV cells by mean, median, most-frequent, constant, or KNN"

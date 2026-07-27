@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/json-to-xml",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a JSON object as well-formed XML",
+  "role": "skill",
+  "tool": {
+    "description": "Render a JSON document as well-formed XML. The whole value is wrapped in one `root_element` (default 'root'). Each object member becomes a child element <key>value</key> (keys are sanitized to valid XML names). A member whose key starts with `attribute_prefix` (default '@') and has a scalar value becomes an XML attribute on its parent element instead of a child (so \"@id\":\"1\" becomes id=\"1\"; set the prefix empty to disable). A member named `text_key` (default '#text') with a scalar value becomes the element's text content, enabling mixed attribute+text content. Each item of a JSON array is emitted as an `array_item_element` (default 'item') child. Strings, numbers, and booleans become element text; null and empty objects/arrays become empty self-closing elements. format='pretty' indents by `indent` spaces per level (0-8); 'compact' emits a single line. Set xml_declaration=true to prepend the XML declaration. Text and attribute values are XML-escaped. This is the inverse of xml-to-json and round-trips with it when the attribute prefix and text key match. Fully local and deterministic — no AI model.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_item_element": {
+          "default": "item",
+          "description": "Element name wrapping each item of a JSON array — an array under 'books' becomes <books><item>…</item></books>. Default 'item'.",
+          "type": "string"
+        },
+        "attribute_prefix": {
+          "default": "@",
+          "description": "Object keys starting with this prefix become XML attributes on their parent element instead of child elements (e.g. '@id' → id=\"…\"). Set empty to disable. Default '@'.",
+          "type": "string"
+        },
+        "format": {
+          "default": "pretty",
+          "description": "Output style: 'pretty' (indented, multi-line) or 'compact' (single line, no whitespace). Default 'pretty'.",
+          "enum": [
+            "pretty",
+            "compact"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Number of spaces per indent level when format is 'pretty' (0-8). Ignored when compact. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON text to convert to XML.",
+          "type": "string"
+        },
+        "root_element": {
+          "default": "root",
+          "description": "Name of the single root element that wraps the output (sanitized to a valid XML name). Default 'root'.",
+          "type": "string"
+        },
+        "text_key": {
+          "default": "#text",
+          "description": "Object key whose scalar value becomes the parent element's text content when the element also has attributes or children. Default '#text'.",
+          "type": "string"
+        },
+        "xml_declaration": {
+          "default": false,
+          "description": "Prepend an XML declaration <?xml version=\"1.0\" encoding=\"UTF-8\"?>. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

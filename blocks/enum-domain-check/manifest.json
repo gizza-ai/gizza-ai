@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/enum-domain-check",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag CSV column values outside an allowed set of categories",
+  "role": "skill",
+  "tool": {
+    "description": "Check one CSV column against an allowed set of category values (a domain / controlled-vocabulary / allowed-values check). Flags every cell whose value is not one of the allowed categories, and summarizes the distinct unexpected values with counts so typos are easy to spot. Supports header or index column selection, delimiter auto-detection, case-insensitive matching, whitespace trimming, blank-cell policy, capped issue lists, and text or JSON reports.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_blank": {
+          "default": true,
+          "description": "Treat blank cells as valid without checking membership. Turn off to flag blank cells.",
+          "type": "boolean"
+        },
+        "allowed": {
+          "description": "The allowed set of category values, comma-separated (e.g. active,inactive,pending). Surrounding spaces are trimmed and duplicates ignored.",
+          "type": "string"
+        },
+        "column": {
+          "description": "Target column header name, or a 0-based column index. Numeric values are always treated as indexes.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV text to validate.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV delimiter. Auto detects comma, tab, semicolon, or pipe from the first non-blank line.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first CSV row as headers. Turn off to use 0-based numeric column indexes.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare values case-insensitively when checking membership.",
+          "type": "boolean"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of offending rows (and distinct unexpected values) to list; total invalid count is still reported.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: readable text report or structured JSON.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Trim surrounding whitespace from each cell before comparing. Turn off to require an exact, unpadded match.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data",
+        "column",
+        "allowed"
+      ],
+      "type": "object"
+    }
+  }
+}

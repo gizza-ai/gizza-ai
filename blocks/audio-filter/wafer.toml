@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-filter"
+version = "0.1.0"
+abi = 1
+summary = "Apply a low-pass, high-pass, band-pass, or notch filter to audio"

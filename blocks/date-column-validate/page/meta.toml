@@ -1,0 +1,100 @@
+slug          = "date-column-validate"
+title         = "Date Column Validator"
+description   = "Check every value in one CSV date column against a chosen format — ISO, US, EU, RFC 3339, or a custom pattern — with a per-row report of invalid dates."
+tags          = ["date validator", "csv date checker", "date format validator", "iso date", "rfc 3339", "data quality", "csv validation"]
+h1            = "Date Column Validator"
+hero_subtitle = "Pick one CSV column and a date format, then find the exact rows whose dates do not match. Presets for ISO, US, EU, ISO date-time, and RFC 3339, plus custom strftime patterns, delimiter auto-detect, headers or indexes, and JSON output."
+wasm          = "gizza_ai_date_column_validate_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "name,joined\nAda,2021-06-01\nBo,2021/06/02\nCy,2021-13-40"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column (name or 0-based index)"
+placeholder = "joined"
+source      = "field"
+
+[[input]]
+name   = "preset"
+label  = "Date format"
+source = "field"
+[input.labels]
+"iso-date"     = "ISO date — YYYY-MM-DD"
+"us-date"      = "US date — MM/DD/YYYY"
+"eu-date"      = "EU date — DD/MM/YYYY"
+"iso-datetime" = "ISO date-time — YYYY-MM-DDThh:mm:ss"
+"rfc3339"      = "RFC 3339 date-time"
+"custom"       = "Custom pattern (below)"
+
+[[input]]
+name        = "format"
+label       = "Custom pattern (preset = Custom)"
+placeholder = "%d-%b-%Y"
+source      = "field"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "allow_blank"
+label  = "Allow blank cells"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[[input]]
+name        = "max_issues"
+label       = "Max issues to list"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[[example]]
+label = "Find bad ISO dates"
+[example.params]
+data = "name,joined\nAda,2021-06-01\nBo,2021/06/02\nCy,2021-13-40"
+column = "joined"
+preset = "iso-date"
+
+[[example]]
+label = "US MM/DD/YYYY"
+[example.params]
+data = "d\n06/15/2021\n15/06/2021"
+column = "d"
+preset = "us-date"
+
+[[example]]
+label = "Custom %d-%b-%Y"
+[example.params]
+data = "d\n01-Jun-2021\n2021-06-01"
+column = "d"
+preset = "custom"
+format = "%d-%b-%Y"
+
+[[example]]
+label = "JSON report"
+[example.params]
+data = "t\n2021-06-01T12:30:00Z\n2021-06-01 12:30"
+column = "t"
+preset = "rfc3339"
+output = "json"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "persian-text-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Normalize Persian/Farsi text: Arabic-to-Persian characters, digits, half-spaces (ZWNJ), punctuation spacing."

@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/ipynb-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Jupyter .ipynb notebook into clean Markdown with outputs",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Jupyter `.ipynb` notebook (paste its JSON) into a clean Markdown document. Markdown cells are emitted verbatim, code cells become fenced blocks tagged with the kernel language, and cell outputs are rendered as output sections — stream text, results, and error tracebacks (ANSI stripped). Cell order is preserved. Image outputs (PNG/JPEG/GIF/SVG) and markdown-cell attachments are embedded inline as base64 data URIs by default (image_mode='embed'; 'placeholder' or 'omit' instead). The richest representation of each output is chosen (Markdown, then image, then HTML tables, then LaTeX, then plain text). include_code=false drops code but keeps outputs (nbconvert --no-input); include_outputs=false drops outputs; include_markdown=false leaves code only; show_prompts=true adds `In [n]:`/`Out [n]:` labels. Returns the Markdown text. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "image_mode": {
+          "default": "embed",
+          "description": "How image outputs and markdown-cell image attachments are handled: 'embed' inlines them as base64 data URIs (single-file Markdown), 'placeholder' writes a short *[image output]* note, 'omit' drops them. Default 'embed'.",
+          "enum": [
+            "embed",
+            "placeholder",
+            "omit"
+          ],
+          "type": "string"
+        },
+        "include_code": {
+          "default": true,
+          "description": "Include code cells as fenced blocks. When false, code is dropped but outputs are still rendered (like nbconvert --no-input). Default true.",
+          "type": "boolean"
+        },
+        "include_markdown": {
+          "default": true,
+          "description": "Include markdown and raw cells (verbatim). When false, only code and outputs remain. Default true.",
+          "type": "boolean"
+        },
+        "include_outputs": {
+          "default": true,
+          "description": "Render each code cell's stored outputs (stream text, results, and error tracebacks) as output sections. When false, outputs are dropped. Default true.",
+          "type": "boolean"
+        },
+        "notebook": {
+          "description": "The full contents of a Jupyter `.ipynb` file (its JSON). Paste the file's text.",
+          "type": "string"
+        },
+        "show_prompts": {
+          "default": false,
+          "description": "Prefix code cells with `In [n]:` and their outputs with `Out [n]:` execution-count prompts. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "notebook"
+      ],
+      "type": "object"
+    }
+  }
+}

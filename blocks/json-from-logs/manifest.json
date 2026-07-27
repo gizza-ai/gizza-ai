@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/json-from-logs",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract each embedded JSON object/array from mixed log text, pretty-printed and validated.",
+  "role": "skill",
+  "tool": {
+    "description": "Scan mixed log or console text and pull out every embedded JSON object/array, validating each with a strict JSON parser and pretty-printing it separately. Brace-matches balanced {…}/[…] runs anywhere in the text (e.g. a state={…} fragment on a log line), so surrounding prose and non-JSON braces are ignored; only runs that actually parse are kept and nested JSON isn't double-extracted. indent is spaces per level (0-8, default 2; 0 minifies each block). output='blocks' (default) prints each block under a '// block N (line L)' header; output='array' wraps all blocks into one JSON array. Errors if no valid JSON block is found. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level for each extracted block (0-8). Use 0 to minify each block to one compact line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "blocks",
+          "description": "Output shape. 'blocks' (default) prints each extracted JSON block separately under a '// block N (line L)' header; 'array' wraps every extracted block into one pretty-printed JSON array.",
+          "enum": [
+            "blocks",
+            "array"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The raw log or console text to scan. Embedded JSON objects/arrays are found anywhere in the text (e.g. a `state={...}` fragment on a log line); surrounding prose is ignored.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

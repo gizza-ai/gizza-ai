@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/pptx-to-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract text and slide outline from a PowerPoint .pptx file.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract text and a per-slide outline from a modern PowerPoint .pptx file (Office Open XML PresentationML). Reads slides in presentation order, captures title/body text, optionally includes speaker notes, can omit hidden slides, and returns structured JSON with combined text, slide_count, word/paragraph counts, and slides[] entries (number, title, text, notes, hidden). This does not fetch live data and does not parse legacy binary .ppt files. Provide the .pptx as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "include_hidden": {
+          "default": true,
+          "description": "Whether to include hidden slides marked show=0 in the presentation XML. Default true; set false to omit hidden slides from the outline and combined text.",
+          "type": "boolean"
+        },
+        "notes": {
+          "default": "include",
+          "description": "Speaker notes handling: include (default) appends notes to each slide's text and includes them in slides[].notes; exclude ignores notes; only extracts speaker notes without slide body text.",
+          "enum": [
+            "include",
+            "exclude",
+            "only"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "whitespace": {
+          "default": "clean",
+          "description": "Whitespace handling: clean (default) trims and collapses runs of whitespace inside paragraphs; raw preserves line-ish text from PowerPoint runs more literally.",
+          "enum": [
+            "clean",
+            "raw"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

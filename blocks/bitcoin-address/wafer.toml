@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bitcoin-address"
+version = "0.1.0"
+abi = 1
+summary = "Derive Bitcoin addresses and WIF from a private key"

@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/ocr-text-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Clean mechanical OCR errors from extracted text",
+  "role": "skill",
+  "tool": {
+    "description": "Deterministically clean the mechanical errors OCR engines leave in extracted text: expand typographic ligatures, rejoin words hyphenated across line breaks, reflow or collapse line breaks, fix letter/number confusables by context, optionally undo the rn->m merge error, and normalize spacing. No dictionary or model — every fix is a fixed rule, so output is reproducible.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "fix_confusables": {
+          "default": true,
+          "description": "Fix letter and number confusion using word-versus-number context (HeIIo becomes Hello, l00 becomes 100, a stray | becomes I); alphanumeric codes like COVID19 are preserved.",
+          "type": "boolean"
+        },
+        "fix_ligatures": {
+          "default": true,
+          "description": "Expand typographic ligatures (ﬁ ﬂ ﬀ ﬃ ﬄ ﬅ ﬆ) into plain letters (fi fl ff ffi ffl ft st).",
+          "type": "boolean"
+        },
+        "fix_rn": {
+          "default": false,
+          "description": "Aggressively replace the rn/RN to m/M OCR merge error everywhere. Off by default: with no dictionary it also rewrites real words containing rn such as modern.",
+          "type": "boolean"
+        },
+        "fix_spacing": {
+          "default": true,
+          "description": "Normalize spacing: collapse repeated spaces, remove spaces around punctuation, insert a missing space after sentence and clause punctuation, and trim line ends.",
+          "type": "boolean"
+        },
+        "join_hyphenated": {
+          "default": true,
+          "description": "Rejoin a word split by a hyphen at a line break into one word; an uppercase continuation keeps the hyphen as a real compound.",
+          "type": "boolean"
+        },
+        "line_breaks": {
+          "default": "keep",
+          "description": "Line-break handling: keep them, join soft breaks within each paragraph (reflow), or collapse every break into one line.",
+          "enum": [
+            "keep",
+            "paragraphs",
+            "all"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "OCR-extracted text to clean.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

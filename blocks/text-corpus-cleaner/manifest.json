@@ -1,0 +1,103 @@
+{
+  "name": "gizza-ai/text-corpus-cleaner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Clean a line-oriented text corpus: normalize, dedupe, and filter lines",
+  "role": "skill",
+  "tool": {
+    "description": "Clean a raw, line-oriented text corpus (one record/sentence per line) in one deterministic pass: split on \\n / \\r\\n / \\r, apply Unicode normalization (none/nfc/nfkc), handle whitespace (keep/trim/collapse interior runs), optionally lowercase, filter out lines that are too short (min_chars / min_words) or mostly symbols (max_symbol_ratio) or not the target language (whatlang detection, no model files), deduplicate non-blank lines (exact or case/space-normalized, keeping the first), and collapse runs of blank lines. Returns the cleaned corpus. Ideal for prepping scraped text, word lists, or training data.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_blank": {
+          "default": true,
+          "description": "Collapse runs of blank lines to a single blank and trim leading/trailing blank lines (paragraph breaks are preserved). Default true.",
+          "type": "boolean"
+        },
+        "dedupe": {
+          "default": "exact",
+          "description": "Drop duplicate non-blank lines, keeping the first: 'none' keeps all; 'exact' drops byte-identical repeats; 'normalized' also folds case and interior spacing before comparing. Blank lines are never deduplicated. Default 'exact'.",
+          "enum": [
+            "none",
+            "exact",
+            "normalized"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The raw text corpus to clean, one record/sentence per line (e.g. scraped lines or a word list). Lines are split on \\n, \\r\\n, or \\r.",
+          "type": "string"
+        },
+        "language": {
+          "default": "any",
+          "description": "Keep only lines detected as this ISO 639-3 language (eng, spa, fra, deu, ita, por, nld, rus, ara, cmn=Chinese, jpn, kor, hin); 'any' disables the filter. Detection is trigram/script based, no model files; lines too short to detect are kept. Default 'any'.",
+          "enum": [
+            "eng",
+            "spa",
+            "fra",
+            "deu",
+            "ita",
+            "por",
+            "nld",
+            "rus",
+            "ara",
+            "cmn",
+            "jpn",
+            "kor",
+            "hin",
+            "any"
+          ],
+          "type": "string"
+        },
+        "lowercase": {
+          "default": false,
+          "description": "Lowercase every line after normalization. Default false.",
+          "type": "boolean"
+        },
+        "max_symbol_ratio": {
+          "default": 1.0,
+          "description": "Drop a line if the ratio of symbol characters (non-alphanumeric, non-space) to visible characters exceeds this (0.0–1.0). 1.0 keeps every line; e.g. 0.5 drops lines that are mostly punctuation. Default 1.0.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "min_chars": {
+          "default": 0,
+          "description": "Drop lines with fewer than this many characters (counted after transforms). 0 keeps all lengths. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_words": {
+          "default": 0,
+          "description": "Drop lines with fewer than this many whitespace-separated words. 0 keeps all. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unicode_form": {
+          "default": "nfc",
+          "description": "Unicode normalization applied to each line before other transforms: 'none' leaves code points untouched; 'nfc' is canonical composition (recommended default); 'nfkc' also folds ligatures (ﬁ→fi), full-width and styled letters, and fractions to plain forms. Default 'nfc'.",
+          "enum": [
+            "none",
+            "nfc",
+            "nfkc"
+          ],
+          "type": "string"
+        },
+        "whitespace": {
+          "default": "trim",
+          "description": "Per-line whitespace handling: 'keep' leaves it, 'trim' strips only the ends, 'collapse' also squeezes interior runs to one space. Default 'trim'.",
+          "enum": [
+            "keep",
+            "trim",
+            "collapse"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/histogram-equalizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Equalize an image's histogram to boost contrast, with global or adaptive CLAHE.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Equalize an image's histogram to improve contrast. method = adaptive (CLAHE, default) or global; channel_mode = luminance (default), per_channel or grayscale; clip_limit 1-40 (default 2) limits adaptive contrast; tile_grid 1-32 (default 8) sets the adaptive tile count. Alpha is preserved. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "method": {
+          "type": "string",
+          "enum": ["adaptive", "global"],
+          "default": "adaptive",
+          "description": "Equalization method: adaptive (default, CLAHE — tiled local equalization with contrast limiting, best for photos and uneven lighting) or global (one histogram CDF mapping applied to the whole image)."
+        },
+        "channel_mode": {
+          "type": "string",
+          "enum": ["luminance", "per_channel", "grayscale"],
+          "default": "luminance",
+          "description": "Which channels to equalize: luminance (default — equalize a luma channel and rescale RGB, preserving colour), per_channel (equalize R, G and B independently, can shift colour), or grayscale (output a grayscale image of the equalized luma). Alpha is always preserved."
+        },
+        "clip_limit": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 40,
+          "default": 2.0,
+          "description": "Contrast limit for adaptive/CLAHE, 1-40 (default 2). Caps each tile's histogram slope to curb noise amplification; higher allows more local contrast. Ignored by the global method."
+        },
+        "tile_grid": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32,
+          "default": 8,
+          "description": "Tiles per axis for adaptive/CLAHE, 1-32 (default 8). The image is split into tile_grid x tile_grid regions, each equalized then bilinearly blended; 1 is effectively whole-image adaptive. Ignored by the global method."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}

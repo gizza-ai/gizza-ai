@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/currency-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert amounts between currencies from a rate table you supply.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an amount from one currency to another using an exchange-rate table you supply (no live/online rates). Paste the rates as one 'FROM TO RATE' line per rate, meaning 1 FROM = RATE TO (e.g. 'USD EUR 0.92'); codes and the number may be separated by a space, '/', ':', '=', or ','. Rates chain automatically, so USD->EUR and EUR->JPY lines let you convert USD->JPY across multiple legs (the fewest-legs path is used). By default each rate also works in reverse (1/rate); set bidirectional=false to disable that. Returns the converted amount, the effective rate, and the conversion path.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "default": 1.0,
+          "description": "The amount to convert, in the 'from' currency. Default 1.",
+          "type": "number"
+        },
+        "bidirectional": {
+          "default": true,
+          "description": "When true (default), each rate is also usable in reverse (1/rate), so one 'USD EUR 0.92' line converts both directions. Set false to only follow rates in the direction given.",
+          "type": "boolean"
+        },
+        "from": {
+          "description": "Source currency code, e.g. USD (case-insensitive, 2-10 letters/digits).",
+          "type": "string"
+        },
+        "precision": {
+          "default": 2,
+          "description": "Decimal places for the converted amount, 0-10. Default 2 (typical money precision); use more for crypto or high-precision rates.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rates": {
+          "description": "Exchange-rate table, one rate per line as 'FROM TO RATE' meaning 1 FROM = RATE TO (e.g. 'USD EUR 0.92'). Codes and the number may be separated by space, '/', ':', '=', or ','; blank lines and '#' comments are ignored. Rates chain across lines for multi-leg conversions.",
+          "type": "string"
+        },
+        "to": {
+          "description": "Target currency code, e.g. EUR (case-insensitive, 2-10 letters/digits).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "rates"
+      ],
+      "type": "object"
+    }
+  }
+}

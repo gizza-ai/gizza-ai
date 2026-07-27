@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-yaml-to-csv-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+serde_yml = "0.0.12"
+# preserve_order: record keys keep their YAML source order (first-seen) instead
+# of being alphabetized, so the unioned column header is stable and predictable.
+serde_json = { version = "1", features = ["preserve_order"] }

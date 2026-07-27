@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-search"
+version = "0.1.0"
+abi = 1
+summary = "Search a PDF for a word or phrase and list matching pages with context"

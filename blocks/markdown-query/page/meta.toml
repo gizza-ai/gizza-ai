@@ -1,0 +1,85 @@
+slug          = "markdown-query"
+title         = "Markdown Query — Extract Headings, Links, Images, Code & Tables"
+description   = "Paste Markdown and pull out its headings, links, images, code blocks, or tables as plain text, JSON, or clean Markdown. Runs in your browser, nothing uploaded, free."
+tags          = ["markdown query", "extract markdown", "markdown links", "markdown headings", "markdown tables", "markdown code blocks", "jq for markdown", "parse markdown"]
+h1            = "Query a Markdown Document"
+hero_subtitle = "Paste Markdown and pull out every heading, link, image, code block, or table — as plain text, JSON, or reconstructed Markdown. Runs entirely in your browser: no upload, no sign-up."
+wasm          = "gizza_ai_markdown_query_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "# Title\n\nSee the [docs](https://example.com \"Docs\") and the ![logo](logo.png).\n\n```rust\nlet x = 1;\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "extract"
+label  = "Extract"
+source = "field"
+
+[input.labels]
+headings    = "Headings — every # heading + level"
+links       = "Links — text + destination URL"
+images      = "Images — alt text + source URL"
+code_blocks = "Code blocks — language + code"
+tables      = "Tables — headers + rows"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text     = "Text — human-readable"
+json     = "JSON — structured {count, items}"
+markdown = "Markdown — reconstructed"
+
+[[input]]
+name   = "include_line_numbers"
+label  = "Include source line numbers"
+source = "field"
+
+[[example]]
+label = "Headings (text)"
+[example.params]
+markdown = "# Getting Started\n\n## Install\n\nRun the setup.\n\n## Usage\n\nCall the API.\n\n### Options"
+extract = "headings"
+format = "text"
+include_line_numbers = "false"
+
+[[example]]
+label = "Links (JSON)"
+[example.params]
+markdown = "See the [home page](https://example.com \"Home\") and the [docs](/docs), plus <https://ref.test>."
+extract = "links"
+format = "json"
+include_line_numbers = "true"
+
+[[example]]
+label = "Images (Markdown)"
+[example.params]
+markdown = "Banner: ![The banner](img/banner.png)\n\nIcon: ![Icon](img/icon.svg \"App icon\")"
+extract = "images"
+format = "markdown"
+include_line_numbers = "false"
+
+[[example]]
+label = "Code blocks (JSON)"
+[example.params]
+markdown = "```python\nprint('hi')\n```\n\n```\nplain block\n```"
+extract = "code_blocks"
+format = "json"
+include_line_numbers = "false"
+
+[[example]]
+label = "Tables (Markdown)"
+[example.params]
+markdown = "| Name | Score |\n|:-----|------:|\n| Ada  | 99 |\n| Alan | 87 |"
+extract = "tables"
+format = "markdown"
+include_line_numbers = "false"

@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-monte-carlo-sim-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# meval: pure-Rust, nom-based math-expression evaluator (wasm-safe; also used by
+# calculator/function-grapher). Evaluates the `model` expression per trial with
+# each input variable bound to its sampled value.
+meval = "0.2"
+serde = { version = "1", features = ["derive"] }

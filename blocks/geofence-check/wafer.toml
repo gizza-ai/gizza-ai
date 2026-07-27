@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geofence-check"
+version = "0.1.0"
+abi = 1
+summary = "Test whether latitude/longitude points fall inside a polygon"

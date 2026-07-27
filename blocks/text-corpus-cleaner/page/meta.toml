@@ -1,0 +1,117 @@
+slug          = "text-corpus-cleaner"
+title         = "Text Corpus Cleaner — Normalize, Dedupe & Filter Lines Online"
+description   = "Clean a line-oriented text corpus: normalize Unicode, trim/collapse whitespace, drop duplicate, short, or junk lines, and filter by language. Runs in your browser, free."
+tags          = ["text corpus cleaner", "deduplicate lines", "normalize text", "clean training data", "remove duplicate lines"]
+h1            = "Text Corpus Cleaner"
+hero_subtitle = "Clean a raw, line-oriented text corpus in one pass — normalize Unicode, trim or collapse whitespace, lowercase, deduplicate, drop short or mostly-symbol lines, and keep only one language. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_text_corpus_cleaner_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned corpus"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text corpus (one record/sentence per line)"
+placeholder = "The Quick Brown Fox\nthe quick brown fox\n===== >>>>> =====\nहैलो वर्ल्ड"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "unicode_form"
+label       = "Unicode normalization"
+source      = "field"
+
+[input.labels]
+none = "None (leave code points untouched)"
+nfc  = "NFC — canonical composition (recommended)"
+nfkc = "NFKC — also fold ligatures, full-width & styled letters"
+
+[[input]]
+name        = "whitespace"
+label       = "Whitespace"
+source      = "field"
+
+[input.labels]
+keep     = "Keep (leave as-is)"
+trim     = "Trim edges only"
+collapse = "Collapse interior runs to one space + trim"
+
+[[input]]
+name        = "lowercase"
+label       = "Lowercase every line"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Deduplicate lines (keep first)"
+source      = "field"
+
+[input.labels]
+none       = "None (keep all lines)"
+exact      = "Exact (drop byte-identical repeats)"
+normalized = "Normalized (fold case + spacing before comparing)"
+
+[[input]]
+name        = "language"
+label       = "Keep only this language"
+source      = "field"
+
+[input.labels]
+eng = "English (eng)"
+spa = "Spanish (spa)"
+fra = "French (fra)"
+deu = "German (deu)"
+ita = "Italian (ita)"
+por = "Portuguese (por)"
+nld = "Dutch (nld)"
+rus = "Russian (rus)"
+ara = "Arabic (ara)"
+cmn = "Chinese (cmn)"
+jpn = "Japanese (jpn)"
+kor = "Korean (kor)"
+hin = "Hindi (hin)"
+any = "Any (no language filter)"
+
+[[input]]
+name        = "min_chars"
+label       = "Minimum characters per line (0 = keep all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "min_words"
+label       = "Minimum words per line (0 = keep all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_symbol_ratio"
+label       = "Max symbol ratio (0.0–1.0; 1.0 = keep all)"
+placeholder = "1.0"
+source      = "field"
+
+[[input]]
+name        = "collapse_blank"
+label       = "Collapse blank-line runs & trim edges"
+source      = "field"
+
+[[example]]
+label = "Dedupe & tidy whitespace"
+[example.params]
+input      = "The Quick  Brown Fox\nthe quick brown fox\nThe Quick  Brown Fox"
+whitespace = "collapse"
+dedupe     = "normalized"
+
+[[example]]
+label = "Drop short & mostly-symbol junk lines"
+[example.params]
+input            = "a real sentence here\nok\n===== >>>>> #####\nanother good one"
+min_words        = "3"
+max_symbol_ratio = "0.5"
+
+[[example]]
+label = "Keep only English lines"
+[example.params]
+input    = "The quick brown fox jumps over the lazy dog.\nLe renard brun rapide saute par-dessus le chien.\nEl rápido zorro marrón salta sobre el perro."
+language = "eng"

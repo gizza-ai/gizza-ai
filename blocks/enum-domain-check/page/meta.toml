@@ -1,0 +1,110 @@
+slug          = "enum-domain-check"
+title         = "Enum Domain Check — Flag CSV Values Outside an Allowed Set"
+description   = "Check one CSV column against allowed categories and flag out-of-set values with counts, row locations, blank handling, and text or JSON reports."
+tags          = ["csv validation", "allowed values", "domain check", "controlled vocabulary", "categorical validation", "data quality", "enum check"]
+h1            = "Check a CSV column against an allowed set of values"
+hero_subtitle = "Paste CSV, pick a column, list the allowed categories, and flag every cell whose value falls outside the set — with a count of each distinct unexpected value so typos jump out."
+wasm          = "gizza_ai_enum_domain_check_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "name,status\nAda,active\nBo,activ\nCy,pending\nDe,active"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column name or 0-based index"
+placeholder = "status"
+source      = "field"
+
+[[input]]
+name        = "allowed"
+label       = "Allowed values"
+placeholder = "active,inactive,pending"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "trim"
+label  = "Trim surrounding whitespace"
+source = "field"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "allow_blank"
+label  = "Allow blank cells"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name        = "max_issues"
+label       = "Max issues to list"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "1000"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON object"
+
+[[example]]
+label = "Status column"
+[example.params]
+data = "name,status\nAda,active\nBo,activ\nCy,pending\nDe,active"
+column = "status"
+allowed = "active,inactive,pending"
+ignore_case = "false"
+trim = "true"
+has_header = "true"
+allow_blank = "true"
+delimiter = "auto"
+max_issues = "50"
+output = "text"
+
+[[example]]
+label = "Case-insensitive, JSON"
+[example.params]
+data = "country\nUS\nusa\nUK\nUS"
+column = "country"
+allowed = "US,UK,CA"
+ignore_case = "false"
+trim = "true"
+has_header = "true"
+allow_blank = "true"
+delimiter = "auto"
+max_issues = "50"
+output = "json"

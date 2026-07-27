@@ -1,0 +1,89 @@
+slug          = "fastq-to-fasta"
+title         = "FASTQ to FASTA Converter"
+description   = "Convert FASTQ sequencing reads to clean FASTA in your browser — strip quality lines, filter by length and mean quality, wrap, rename, discard N reads. No upload."
+tags          = ["fastq to fasta", "fastq converter", "fasta", "bioinformatics", "ngs", "sequencing", "quality filter", "strip quality", "phred", "genomics"]
+h1            = "FASTQ to FASTA Converter"
+hero_subtitle = "Strip the per-base quality lines from FASTQ reads and get clean FASTA — with optional length, mean-quality, wrap, rename and N-read filters. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_fastq_to_fasta_web"
+export        = "run"
+live          = false
+output_label  = "FASTA output"
+format        = "text"
+
+[[input]]
+name        = "fastq"
+label       = "FASTQ input"
+placeholder = "@read1 sample\nACGTACGTNN\n+\nIIIIIIII##"
+source      = "field"
+multiline   = true
+
+# min_length / min_quality / wrap render as number fields; quality_offset is a
+# <select> and the three flags are checkboxes — control types come from the
+# descriptor's schema (manifest.json), so labels stay short here.
+[[input]]
+name        = "min_length"
+label       = "Min read length (bases, 0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "min_quality"
+label       = "Min mean quality (Phred, 0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "quality_offset"
+label       = "Quality offset"
+source      = "field"
+
+[input.labels]
+"33" = "Phred+33 — Sanger / Illumina 1.8+"
+"64" = "Phred+64 — old Illumina 1.3–1.5"
+
+[[input]]
+name        = "wrap"
+label       = "Wrap width (chars/line, 0 = one line)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "rename"
+label       = "Rename headers to numbers"
+source      = "field"
+
+[[input]]
+name        = "strip_n"
+label       = "Discard reads containing N"
+source      = "field"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase sequence"
+source      = "field"
+
+[[example]]
+label = "Basic convert"
+[example.params]
+fastq = "@read1 sample\nACGTACGTNN\n+\nIIIIIIII##\n@read2\nACGT\n+\n!!!!"
+
+[[example]]
+label = "Wrap at 4"
+[example.params]
+fastq = "@read1\nACGTACGTAC\n+\nIIIIIIIIII"
+wrap = "4"
+
+[[example]]
+label = "Quality + length filter"
+[example.params]
+fastq = "@read1 sample\nACGTACGTNN\n+\nIIIIIIII##\n@read2\nACGT\n+\n!!!!"
+min_length = "5"
+min_quality = "20"
+quality_offset = "33"
+
+[[example]]
+label = "Rename + uppercase"
+[example.params]
+fastq = "@read1 sample\nacgtacgtnn\n+\nIIIIIIII##\n@read2\nacgt\n+\nIIII"
+rename = "true"
+uppercase = "true"

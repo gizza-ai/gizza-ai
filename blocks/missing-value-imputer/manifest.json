@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/missing-value-imputer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fill missing CSV cells by mean, median, most-frequent, constant, or KNN",
+  "role": "skill",
+  "tool": {
+    "description": "Fill missing cells in a CSV. A cell is missing when it is blank or equals one of the caller's na_tokens (e.g. NA, null, ?). Strategies: 'mean'/'median' impute numeric columns only; 'most_frequent' works on any column; 'constant' writes fill_value; 'knn' averages the nan-euclidean nearest neighbours over the numeric columns. Restrict to specific columns by header name or 1-based index, or leave blank to impute every applicable column. Delimiters accept comma/tab/semicolon/pipe.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Comma-separated columns to impute — header names (needs a header) or 1-based indexes (e.g. 'age,income' or '2,3'). Blank imputes every applicable column.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator of the input (and output): 'comma', 'tab', 'semicolon', or 'pipe'. Default 'comma'.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "fill_value": {
+          "description": "The value written into missing cells when strategy='constant' (e.g. '0' or 'Unknown'). Ignored by other strategies.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header: keep it verbatim and use its names for the 'columns' selector. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The CSV text with missing cells to fill.",
+          "type": "string"
+        },
+        "n_neighbors": {
+          "default": 5,
+          "description": "Neighbours averaged by strategy='knn'. Default 5.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "na_tokens": {
+          "description": "Comma-separated extra strings that count as missing besides blank cells (e.g. 'NA,null,?'). Case-sensitive, matched after trimming.",
+          "type": "string"
+        },
+        "strategy": {
+          "default": "mean",
+          "description": "How to fill each missing cell: 'mean'/'median' (numeric columns only), 'most_frequent' (any column, ties → first seen), 'constant' (write fill_value), or 'knn' (nan-euclidean nearest-neighbour average of numeric columns). Default 'mean'.",
+          "enum": [
+            "mean",
+            "median",
+            "most_frequent",
+            "constant",
+            "knn"
+          ],
+          "type": "string"
+        },
+        "weights": {
+          "default": "uniform",
+          "description": "KNN neighbour weighting: 'uniform' (plain average) or 'distance' (inverse-distance weighted). Default 'uniform'.",
+          "enum": [
+            "uniform",
+            "distance"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

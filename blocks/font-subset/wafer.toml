@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "font-subset"
+version = "0.1.0"
+abi = 1
+summary = "Subset an OpenType font to the glyphs used by text"

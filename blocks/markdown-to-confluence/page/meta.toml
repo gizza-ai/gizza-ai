@@ -1,0 +1,62 @@
+slug          = "markdown-to-confluence"
+title         = "Markdown to Confluence Converter — Storage Format & Wiki Markup"
+description   = "Convert Markdown to Confluence markup in your browser — storage format (XHTML) or wiki markup, with code macros, panels, tables, and lists. Free, no upload, no sign-up."
+tags          = ["markdown to confluence", "confluence storage format", "confluence wiki markup", "md to confluence", "confluence converter", "confluence code macro", "confluence panel macro", "markdown to xhtml confluence"]
+h1            = "Markdown to Confluence"
+hero_subtitle = "Paste Markdown and get Confluence markup — storage format (XHTML) for the Cloud REST API or wiki markup for Data Center. Code macros, info/note/warning/tip panels, tables, and nested lists all converted. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_markdown_to_confluence_web"
+export        = "run"
+live          = false
+output_label  = "Confluence markup"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Markdown"
+placeholder = "# Release notes\n\nSome **bold** and `inline code`.\n\n> Note: back up before upgrading.\n\n```sql\nSELECT 1;\n```\n\n| Step | Owner |\n|------|-------|\n| Deploy | Alex |"
+source      = "field"
+multiline   = true
+
+# format renders as a <select>, panel_blockquotes as a checkbox, and
+# heading_offset as a number field — the control type is derived from the
+# descriptor's schema (manifest.json), so option lists are NOT duplicated here.
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+labels      = { storage = "Storage format (XHTML — Cloud REST API)", wiki = "Wiki markup (Data Center / Server)" }
+
+[[input]]
+name        = "panel_blockquotes"
+label       = "Convert Note/Warning/Info/Tip blockquotes to panels"
+source      = "field"
+
+[[input]]
+name        = "heading_offset"
+label       = "Heading offset (0–5 — demote headings)"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label = "Release notes → storage"
+[example.params]
+input = "# Release 2.4\n\nHighlights of this release.\n\n- Faster search\n- **New** dashboard\n\n> Warning: run the migration before upgrading.\n\n```bash\nnpm run migrate\n```"
+format = "storage"
+panel_blockquotes = "true"
+heading_offset = "0"
+
+[[example]]
+label = "Runbook → wiki markup"
+[example.params]
+input = "## Restart the service\n\n1. Drain traffic\n2. Restart the pod\n3. Verify health\n\n> Tip: watch the logs for 60s after restart."
+format = "wiki"
+panel_blockquotes = "true"
+heading_offset = "0"
+
+[[example]]
+label = "Spec table + demote headings"
+[example.params]
+input = "# Overview\n\n| Field | Type | Required |\n|-------|------|----------|\n| id | string | yes |\n| name | string | no |"
+format = "storage"
+panel_blockquotes = "true"
+heading_offset = "1"

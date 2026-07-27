@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/numeric-row-deduplicator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove duplicate numeric rows from a table, comparing cells by numeric value",
+  "role": "skill",
+  "tool": {
+    "description": "Remove exact duplicate numeric rows from a table (CSV/TSV), comparing each cell by NUMERIC VALUE so different textual forms of the same number — 1, 1.0, 1.00, +1, 1e0, 100e-2 — all count as duplicates, unlike a plain string deduper. Optionally key on a subset of columns (1-based indices or header names), round each numeric cell to N decimals before comparing to collapse float-noise near-duplicates, and keep the first (default) or last occurrence. Non-numeric cells fall back to a trimmed-string compare so mixed tables still work. The kept rows are emitted in their original order.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Optional comma-separated key columns: 1-based indices and/or header names (e.g. 'id' or '1,3'). Empty = match the whole row. Default empty.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The numeric table text to de-duplicate, one row per line (CSV/TSV). Cells are compared by numeric value, so 1, 1.0, 1.00, +1 and 1e0 all count as the same number.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "header": {
+          "default": false,
+          "description": "Treat the first row as a header (kept as-is, excluded from the scan, and matchable by name). Default false — numeric tables are usually headerless.",
+          "type": "boolean"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which occurrence of each duplicate to keep. 'first' preserves first-occurrence order (default); 'last' keeps the last occurrence, still emitted in original row order.",
+          "enum": [
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": -1,
+          "description": "Round every numeric cell to this many decimals before comparing, so near-duplicates from float noise collapse (0.30000000000000004 == 0.3 at 2). -1 = compare the exact numeric value. Default -1.",
+          "maximum": 12,
+          "minimum": -1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+slug          = "code-chunker"
+title         = "Code Chunker — Split Code by Function or Class"
+description   = "Split Python, Rust, JavaScript, TypeScript, Go, Java, C/C++, C#, PHP, or Swift into line-ranged chunks that keep functions and classes intact."
+tags          = ["code chunker", "code splitter", "split code for llm", "rag code chunks", "function chunks", "source code chunks"]
+h1            = "Code Chunker"
+hero_subtitle = "Turn source code into function- and class-aligned chunks with line ranges for embeddings, RAG, or LLM context windows. Runs locally in your browser."
+wasm          = "gizza_ai_code_chunker_web"
+export        = "run"
+live          = false
+output_label  = "Chunks"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Source code"
+placeholder = "function add(a, b) {\n  return a + b;\n}\n\nfunction sub(a, b) {\n  return a - b;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto       = "Auto-detect"
+python     = "Python"
+javascript = "JavaScript"
+typescript = "TypeScript"
+rust       = "Rust"
+go         = "Go"
+java       = "Java"
+c          = "C"
+cpp        = "C++"
+csharp     = "C#"
+php        = "PHP"
+swift      = "Swift"
+
+[[input]]
+name        = "max_lines"
+label       = "Target max lines per chunk"
+placeholder = "60"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json  = "Pretty JSON"
+jsonl = "JSON Lines"
+text  = "Text with headers"
+
+[[example]]
+label  = "Rust functions"
+params = { code = "fn add(a: i32, b: i32) -> i32 {\n    a + b\n}\n\nfn sub(a: i32, b: i32) -> i32 {\n    a - b\n}\n", language = "rust", max_lines = "3", format = "json" }
+
+[[example]]
+label  = "Python class"
+params = { code = "class Greeter:\n    def hello(self, name):\n        return f'Hi {name}'\n\nx = 3\n", language = "python", max_lines = "6", format = "text" }
+
+[[example]]
+label  = "JavaScript JSONL"
+params = { code = "// adds two numbers\nfunction add(a, b) {\n  return a + b;\n}\n\nconst n = 1;\n", language = "javascript", max_lines = "4", format = "jsonl" }

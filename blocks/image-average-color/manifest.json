@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/image-average-color",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the single mean color of an image (with a gamma-correct variant)",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Compute the single average (mean) color of an image. Returns two means: 'simple', the naive per-channel arithmetic mean of the sRGB values (what most average-color tools report), and 'gamma_correct', the perceptually correct mean taken in linear light (sRGB decoded to linear, averaged, then re-encoded) — the recommended value. Each mean is given as #rrggbb hex, #rrggbbaa hex, rgb()/rgba()/hsl() strings, the r/g/b/a channels (0-255) and h/s/l values. Also returns the image dimensions, how many pixels were counted, the perceived brightness (0-100) and an is_dark flag for the gamma-correct mean (use white text on a dark mean), and its complementary hex color. By default (near-)transparent pixels are ignored; set ignore_transparency=false to fold every pixel in. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "ignore_transparency": {
+          "type": "boolean",
+          "default": true,
+          "description": "Exclude (near-)transparent pixels from the average so a transparent PNG background doesn't drag the mean toward black. Optional — defaults to true; set false to fold every pixel in."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}

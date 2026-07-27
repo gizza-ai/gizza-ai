@@ -1,0 +1,54 @@
+slug          = "cookie-string-to-json"
+title         = "Cookie String to JSON"
+description   = "Parse a raw HTTP Cookie header string into JSON — name/value object or an array of {name, value} pairs, with optional URL-decoding. Free, in your browser."
+tags          = ["cookie string to json", "parse cookie header", "cookie parser", "cookie to json", "http cookie decode", "document.cookie parser", "name value pairs", "url decode cookie", "puppeteer cookies"]
+h1            = "Cookie String to JSON"
+hero_subtitle = "Paste a raw HTTP Cookie header and get clean JSON — a name/value object or an ordered array of {name, value} pairs, with values URL-decoded. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_cookie_string_to_json_web"
+export        = "run"
+live          = false
+output_label  = "Cookies as JSON"
+format        = "text"
+
+[[input]]
+name        = "cookie"
+label       = "Cookie header string"
+placeholder = "sessionid=abc123; theme=dark; path=%2Fhome"
+source      = "field"
+multiline   = true
+
+# decode renders as a checkbox; its default (checked) comes from the descriptor's
+# Param::boolean("decode").default(true).
+[[input]]
+name        = "decode"
+label       = "URL-decode names and values"
+source      = "field"
+
+# output renders as a <select> because manifest tool.parameters carries the enum;
+# labels map the canonical values to friendlier text.
+[[input]]
+name        = "output"
+label       = "Output shape"
+source      = "field"
+
+[input.labels]
+object = "Object { name: value }"
+pairs  = "Array [ { name, value } ]"
+
+[[example]]
+label = "Session cookie"
+[example.params]
+cookie = "sessionid=abc123; theme=dark; lang=en"
+output = "object"
+
+[[example]]
+label = "Encoded value"
+[example.params]
+cookie = "redirect=%2Faccount%2Fsettings; sid=%22a%20b%22"
+output = "object"
+
+[[example]]
+label = "Duplicate names → pairs"
+[example.params]
+cookie = "id=1; id=2; theme=dark"
+output = "pairs"

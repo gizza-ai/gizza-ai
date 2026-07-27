@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/csv-to-ndjson",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert CSV text to NDJSON (one JSON value per line) for streaming pipelines.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert CSV text to NDJSON (newline-delimited JSON): one JSON value per line, no enclosing array -- the shape streaming ingest pipelines (jq, BigQuery load, Elasticsearch bulk, log shippers) expect. With headers=true (default) each row becomes a JSON object keyed by the first (header) row; headers=false emits each row as a JSON array. Values stay JSON strings unless you opt into inference: parse_numbers coerces numeric cells to numbers (leading-zero / +-prefixed values stay strings), parse_bools coerces true/false/null (and empty cells) to JSON booleans/null. trim strips surrounding whitespace from each cell. delimiter is a single char or 'tab'/'comma'/'semicolon'/'pipe'. Quoted fields with embedded commas/newlines and \"\" escapes are handled per RFC 4180.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to convert. The first row is the header row unless headers=false. Handles quoted fields with embedded commas, newlines, and \"\" escapes (RFC 4180).",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV field delimiter -- a single character, or the word 'tab', 'comma', 'semicolon', or 'pipe'. Default ','.",
+          "type": "string"
+        },
+        "headers": {
+          "default": true,
+          "description": "Treat the first row as field names, so each row becomes a JSON object. false emits each row as a JSON array instead. Default true.",
+          "type": "boolean"
+        },
+        "parse_bools": {
+          "default": false,
+          "description": "Coerce the literals true/false/null (and empty cells) to JSON booleans/null. Default false.",
+          "type": "boolean"
+        },
+        "parse_numbers": {
+          "default": false,
+          "description": "Coerce numeric-looking cells to JSON numbers (e.g. 36 -> 36). Values with leading zeros or a leading + (007, +1) stay strings. Default false (all values stay strings).",
+          "type": "boolean"
+        },
+        "trim": {
+          "default": false,
+          "description": "Strip leading/trailing whitespace from every cell before conversion. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

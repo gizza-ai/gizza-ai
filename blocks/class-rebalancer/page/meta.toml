@@ -1,0 +1,106 @@
+slug          = "class-rebalancer"
+title         = "Class Rebalancer — Balance an Imbalanced CSV Label Column"
+description   = "Rebalance an imbalanced CSV label column by seeded random over- or under-sampling of whole rows toward a target class ratio. Reproducible, in-browser, no synthetic rows."
+tags          = ["class imbalance", "oversampling", "undersampling", "resampling", "balanced dataset", "csv preprocessing", "machine learning preprocessing", "random seed"]
+h1            = "Rebalance an imbalanced CSV label column"
+hero_subtitle = "Paste labeled CSV, pick the label column and a strategy, and over- or under-sample whole rows toward your target class ratio — reproducibly, with a fixed seed. Nothing is uploaded."
+wasm          = "gizza_ai_class_rebalancer_web"
+export        = "run"
+live          = false
+output_label  = "Rebalanced CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "text,label\nbuy now,spam\nhello,ham\nhi there,ham\nsee you,ham"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "label_column"
+label       = "Label column (name or 1-based number; blank = last)"
+placeholder = "label"
+source      = "field"
+
+[[input]]
+name   = "strategy"
+label  = "Strategy"
+source = "field"
+
+[input.labels]
+auto        = "Auto (oversample)"
+oversample  = "Oversample minority"
+undersample = "Undersample majority"
+combine     = "Combine (both)"
+
+[[input]]
+name        = "target_ratio"
+label       = "Target ratio (minority : majority)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0.01"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "shuffle"
+label  = "Shuffle output rows"
+source = "field"
+
+[[input]]
+name        = "seed"
+label       = "Random seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+csv     = "Rebalanced CSV"
+summary = "Before/after summary (JSON)"
+
+[[example]]
+label = "Oversample to balance"
+[example.params]
+data = "text,label\nbuy now,spam\nhello,ham\nhi there,ham\nsee you,ham"
+label_column = "label"
+strategy = "oversample"
+target_ratio = "1"
+header = "true"
+shuffle = "false"
+seed = "42"
+output = "csv"
+
+[[example]]
+label = "Undersample + summary"
+[example.params]
+data = "text,label\nbuy now,spam\nhello,ham\nhi there,ham\nsee you,ham"
+label_column = "label"
+strategy = "undersample"
+target_ratio = "1"
+header = "true"
+shuffle = "false"
+seed = "42"
+output = "summary"
+
+[[example]]
+label = "Combine + shuffle"
+[example.params]
+data = "text,label\nbuy now,spam\nhello,ham\nhi there,ham\nsee you,ham"
+label_column = "label"
+strategy = "combine"
+target_ratio = "1"
+header = "true"
+shuffle = "true"
+seed = "7"
+output = "csv"

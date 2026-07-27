@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/arrow-feather-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an Apache Arrow IPC / Feather file to CSV",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Convert an Apache Arrow IPC / Feather (V2) file to CSV. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Reads the standard Arrow IPC file and stream formats, including LZ4-compressed buffers; every value is rendered to text (timestamps/dates as RFC-3339). Optional: `delimiter` (default comma; use \"tab\" for TSV), `header` (default true), `null` text (default empty), `columns` (keep/reorder a subset by name or 0-based index), and `limit` (cap the number of rows for a preview). ZSTD-compressed and legacy Feather V1 files are not supported.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url":       { "type": "string", "description": "File URL (HTTP/HTTPS). Use either url or ref." },
+        "ref":       { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "delimiter": { "type": "string", "default": ",", "description": "CSV field separator: a single character, or the word \"tab\" for a tab. Defaults to a comma." },
+        "header":    { "type": "boolean", "default": true, "description": "Write a first row of column names. Set false to omit the header. Defaults to true." },
+        "null":      { "type": "string", "default": "", "description": "Text to write for null / missing values. Defaults to an empty field." },
+        "columns":   { "type": "string", "default": "", "description": "Comma-separated columns to keep, by name or 0-based index, in the order given (e.g. \"name,0,price\"). Leave empty to keep every column in its original order." },
+        "limit":     { "type": "integer", "default": 0, "description": "Maximum number of data rows to output; 0 (the default) writes every row. Use a small value to preview a large table." }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["url"] },
+        { "required": ["ref"] }
+      ]
+    }
+  }
+}

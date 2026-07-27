@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/markdown-to-jira",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Markdown and Jira wiki markup both ways.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert Markdown into Jira wiki markup, or Jira wiki markup back to Markdown. Handles headings, bold/italic/strike, inline code, fenced code blocks, links, images, ordered and unordered lists, tables, blockquotes, horizontal rules, and optional Note/Info/Warning/Tip panel macros. direction='md-to-jira' by default; set direction='jira-to-md' for reverse conversion. heading_offset (0-5) demotes Markdown headings when pasting under an existing title. Runs fully in the sandbox and does not produce Atlassian Document Format JSON.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "md-to-jira",
+          "description": "Conversion direction. 'md-to-jira' converts Markdown into Jira wiki markup; 'jira-to-md' converts Jira wiki markup back to Markdown.",
+          "enum": [
+            "md-to-jira",
+            "jira-to-md"
+          ],
+          "type": "string"
+        },
+        "heading_offset": {
+          "default": 0.0,
+          "description": "Markdown-to-Jira only: demote Markdown headings by this many levels before emitting h1. through h6. Use 1 when pasting under an existing page title. Range 0-5.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "Markdown or Jira wiki markup text to convert.",
+          "type": "string"
+        },
+        "panel_blockquotes": {
+          "default": true,
+          "description": "When true (default), Markdown blockquotes starting with Note:, Info:, Warning:, or Tip: become Jira panel macros, and those Jira macros become Markdown blockquotes on the reverse path.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

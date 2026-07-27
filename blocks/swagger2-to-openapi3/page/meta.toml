@@ -1,0 +1,108 @@
+slug          = "swagger2-to-openapi3"
+title         = "Swagger 2.0 to OpenAPI 3.0 Converter"
+description   = "Convert Swagger 2.0 specs to OpenAPI 3.0 in your browser — JSON or YAML in, JSON or YAML out, with servers, components, requestBody, and $refs rewritten."
+tags          = ["swagger 2.0 to openapi 3.0", "swagger to openapi converter", "openapi 2 to 3", "convert swagger to openapi", "swagger2openapi", "openapi upgrade", "api spec converter", "yaml to json openapi"]
+h1            = "Swagger 2.0 to OpenAPI 3.0 Converter"
+hero_subtitle = "Upgrade a Swagger 2.0 (OpenAPI 2.0) API spec to OpenAPI 3.0 — host/basePath/schemes become a servers array, definitions become components.schemas, body and formData params become a requestBody, and every $ref is retargeted. Paste JSON or YAML, get JSON or YAML back. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_swagger2_to_openapi3_web"
+export        = "run"
+live          = false
+output_label  = "OpenAPI 3.0"
+format        = "text"
+
+[[input]]
+name        = "spec"
+label       = "Swagger 2.0 spec (JSON or YAML)"
+placeholder = "swagger: \"2.0\"\ninfo:\n  title: Pet Store\n  version: 1.0.0\npaths: {}"
+source      = "field"
+multiline   = true
+
+# input_format/output_format/target_version render as <select>s and indent as a
+# number box — the control type is derived from the descriptor schema
+# (manifest.json), so labels here stay short.
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "target_version"
+label       = "Target OpenAPI version"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "JSON indent (0-10, 0 = minified)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "patch"
+label       = "Patch missing 3.0-required fields"
+source      = "field"
+
+[[example]]
+label  = "JSON spec"
+[example.params]
+spec = '''
+{
+  "swagger": "2.0",
+  "info": { "title": "Pet Store", "version": "1.0.0" },
+  "host": "api.example.com",
+  "basePath": "/v1",
+  "schemes": ["https"],
+  "paths": {
+    "/pets": {
+      "get": {
+        "parameters": [
+          { "name": "limit", "in": "query", "type": "integer", "format": "int32" }
+        ],
+        "responses": {
+          "200": { "description": "A list of pets.", "schema": { "$ref": "#/definitions/Pet" } }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pet": { "type": "object", "required": ["id"], "properties": { "id": { "type": "integer" } } }
+  }
+}
+'''
+
+[[example]]
+label  = "YAML in, YAML out"
+[example.params]
+spec = '''
+swagger: "2.0"
+info:
+  title: Pet Store
+  version: 1.0.0
+host: api.example.com
+basePath: /v1
+schemes:
+  - https
+paths:
+  /pets:
+    get:
+      responses:
+        "200":
+          description: A list of pets.
+'''
+output_format = "yaml"
+
+[[example]]
+label  = "Minified JSON (indent 0)"
+[example.params]
+spec = '''
+{
+  "swagger": "2.0",
+  "info": { "title": "Pet Store", "version": "1.0.0" },
+  "paths": {}
+}
+'''
+indent = "0"

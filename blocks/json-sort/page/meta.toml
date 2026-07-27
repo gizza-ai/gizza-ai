@@ -1,0 +1,56 @@
+slug          = "json-sort"
+title         = "JSON Sorter — Sort Object Keys Alphabetically"
+description   = "Recursively sort JSON object keys A→Z or Z→A for clean diffs. Supports case-insensitive sorting, optional array sorting, and indent or minify."
+tags          = ["json sorter", "sort json keys", "alphabetize json", "sort json keys online", "json key sorter", "diff-friendly json"]
+h1            = "JSON Key Sorter"
+hero_subtitle = "Recursively sort JSON object keys into a stable, diff-friendly order. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_sort_web"
+export        = "run"
+live          = false
+output_label  = "Sorted JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "{ \"b\": 1, \"a\": { \"z\": 2, \"y\": 3 } }"
+source      = "field"
+multiline   = true
+
+# order renders as a <select>; option list derives from the descriptor enum.
+[[input]]
+name   = "order"
+label  = "Sort direction"
+source = "field"
+
+[input.labels]
+asc  = "Ascending (A → Z)"
+desc = "Descending (Z → A)"
+
+[[input]]
+name   = "sort_arrays"
+label  = "Also sort array elements"
+source = "field"
+
+[[input]]
+name   = "case_insensitive"
+label  = "Case-insensitive"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces (0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "Sort nested object"
+params = { json = "{ \"b\": 1, \"a\": { \"z\": 2, \"y\": 3 } }", order = "asc", sort_arrays = "false", case_insensitive = "false", indent = "2" }
+
+[[example]]
+label  = "Minify + sort arrays"
+params = { json = "{ \"nums\": [3, 1, 2], \"strs\": [\"b\", \"a\"] }", order = "asc", sort_arrays = "true", case_insensitive = "false", indent = "0" }
+
+[[example]]
+label  = "Descending, case-insensitive"
+params = { json = "{ \"banana\": 1, \"Apple\": 2, \"cherry\": 3 }", order = "desc", sort_arrays = "false", case_insensitive = "true", indent = "2" }

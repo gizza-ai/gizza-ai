@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/csv-collapse-rows",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Group CSV rows and collapse a column into one delimited cell",
+  "role": "skill",
+  "tool": {
+    "description": "Group CSV rows by one or more key columns and collapse a chosen column's values from every row in the group into a single delimited cell — the CSV equivalent of SQL GROUP_CONCAT. `key_columns` is a comma-separated list of header names/indices; `collapse_column` is the column to collapse. Optionally dedupe (DISTINCT), sort the values, skip blanks, and pick the field delimiter. Output has one row per group (first-seen order): the key columns then the collapsed column. Requires a header row.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_column": {
+          "description": "The column whose values are collapsed into one delimited cell (header name or 1-based index).",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text (first row must be a header).",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": false,
+          "description": "Drop duplicate values within each group (like SQL DISTINCT).",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field delimiter for input and output.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "First row is a header. When on, columns may be referenced by name or 1-based index; when off, use 1-based indices and output columns are labelled col_1, col_2, …",
+          "type": "boolean"
+        },
+        "key_columns": {
+          "description": "Column(s) to group by — comma-separated header names or 1-based indices.",
+          "type": "string"
+        },
+        "separator": {
+          "default": ", ",
+          "description": "String inserted between collapsed values. Default ', '.",
+          "type": "string"
+        },
+        "skip_empty": {
+          "default": true,
+          "description": "Ignore blank cells in the collapse column.",
+          "type": "boolean"
+        },
+        "sort_values": {
+          "default": "none",
+          "description": "Order collapsed values within each cell: none (first-seen), asc, or desc.",
+          "enum": [
+            "none",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "key_columns",
+        "collapse_column"
+      ],
+      "type": "object"
+    }
+  }
+}

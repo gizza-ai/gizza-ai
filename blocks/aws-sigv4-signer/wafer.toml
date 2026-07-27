@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "aws-sigv4-signer"
+version = "0.1.0"
+abi = 1
+summary = "Compute an AWS Signature Version 4 (SigV4) request signature — canonical request, string to sign, and Authorization header"

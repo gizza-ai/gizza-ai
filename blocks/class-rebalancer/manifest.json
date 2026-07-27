@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/class-rebalancer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rebalance an imbalanced CSV label column by seeded over/under-sampling",
+  "role": "skill",
+  "tool": {
+    "description": "Balance an imbalanced label column of a CSV by random resampling of whole rows, with a fixed seed for reproducibility. `strategy` is oversample (duplicate minority-class rows up), undersample (drop majority-class rows down), combine (both, to a common size), or auto (= oversample). `target_ratio` (0–1] is the desired minority:majority ratio after resampling (1.0 = fully balanced). `label_column` is a header name or 1-based index (blank = last column). Returns the rebalanced CSV, or a JSON before/after count report when `output=summary`. Runs entirely locally; no synthetic rows are invented (this is random resampling, not SMOTE).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to rebalance. One column holds the class label; the others are kept verbatim on every row that is duplicated or dropped.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header (kept in the output and used to resolve label_column names). Default true.",
+          "type": "boolean"
+        },
+        "label_column": {
+          "default": "",
+          "description": "Which column holds the class label: a header name (when header=true) or a 1-based column number. Blank = the last column. Default blank (last column).",
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "What to return: csv (the rebalanced CSV) or summary (a JSON report of each class's before/after count and the totals). Default csv.",
+          "enum": [
+            "csv",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the reproducible PRNG used to pick which rows to duplicate/drop and to shuffle. Same seed → same result; change it for a different draw. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "shuffle": {
+          "default": false,
+          "description": "Shuffle the output rows with the seeded PRNG. When false, original rows keep their file order and duplicated rows are appended at the end. Default false.",
+          "type": "boolean"
+        },
+        "strategy": {
+          "default": "auto",
+          "description": "How to balance: oversample (randomly duplicate minority-class rows up), undersample (randomly drop majority-class rows down), combine (do both, moving every class to a common size), or auto (same as oversample). Default auto.",
+          "enum": [
+            "auto",
+            "oversample",
+            "undersample",
+            "combine"
+          ],
+          "type": "string"
+        },
+        "target_ratio": {
+          "default": 1.0,
+          "description": "Desired minority-to-majority class ratio after resampling, from just above 0 to 1.0. 1.0 = fully balanced (every class equal); 0.5 = the smaller class ends at half the larger. Default 1.0.",
+          "maximum": 1,
+          "minimum": 0.01,
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

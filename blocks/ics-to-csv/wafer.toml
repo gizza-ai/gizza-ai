@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ics-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Flatten the events in an .ics calendar file into a clean CSV table."

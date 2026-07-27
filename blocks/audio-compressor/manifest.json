@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/audio-compressor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compress audio dynamic range with threshold, ratio, attack and release",
+  "role": "skill",
+  "tool": {
+    "description": "Apply dynamic-range compression to an audio file so loud and quiet passages sit closer together. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Controls: threshold (dB, -60..0, where compression starts), ratio (1..20, how hard it squeezes above the threshold), attack (ms, 0.01..2000, how fast it clamps down), release (ms, 0.01..9000, how fast it lets go) and makeup (dB, 0..24, gain added afterward to restore loudness). A ratio of 1 with 0 dB make-up gain is a no-op and is rejected. This is loudness/dynamics compression, not file-size compression. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "attack": {
+          "default": 20.0,
+          "description": "Attack time in milliseconds — how fast the compressor clamps down once the signal passes the threshold. Fast (5) tames transients, slow (30+) lets punch through. Default 20.",
+          "maximum": 2000,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "makeup": {
+          "default": 0.0,
+          "description": "Make-up gain in dB added after compression to restore loudness the compressor pulled down. 0 leaves the level as compressed; try 3-6 to bring it back up. Default 0.",
+          "maximum": 24,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ratio": {
+          "default": 4.0,
+          "description": "Compression ratio (ratio:1): how hard signal above the threshold is squeezed. 2 is gentle, 4 is a firm even level, 10+ approaches limiting. 1 = no compression. Default 4.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "release": {
+          "default": 250.0,
+          "description": "Release time in milliseconds — how fast it lets go once the signal drops below the threshold. Short (60) for speech, long (250+) for smoother music. Default 250.",
+          "maximum": 9000,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "threshold": {
+          "default": -20.0,
+          "description": "Threshold in dB below full scale where compression starts. Lower (e.g. -30) compresses more of the signal; higher (e.g. -10) only catches the loudest peaks. Default -20.",
+          "maximum": 0,
+          "minimum": -60,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

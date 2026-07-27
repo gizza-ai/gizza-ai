@@ -1,0 +1,68 @@
+slug          = "csv-to-ndjson"
+title         = "CSV to NDJSON Converter"
+description   = "Convert CSV to NDJSON in your browser — one JSON object per row for streaming pipelines, with type inference and custom delimiters. No upload."
+tags          = ["csv to ndjson", "csv to jsonl", "newline delimited json", "ndjson converter", "jsonl converter", "streaming json", "csv parser", "data pipeline"]
+h1            = "CSV to NDJSON Converter"
+hero_subtitle = "Turn CSV into NDJSON — one JSON object per line, no enclosing array — ready for jq, BigQuery, Elasticsearch bulk, and log pipelines. Optional number/boolean inference and custom delimiters. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_csv_to_ndjson_web"
+export        = "run"
+live          = false
+output_label  = "NDJSON"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,age,active\nAda,36,true\nGrace,,false"
+source      = "field"
+multiline   = true
+
+# delimiter is a text field; headers/parse_numbers/parse_bools/trim render as
+# checkboxes — the control type is derived from the descriptor schema
+# (manifest.json), so labels here stay short.
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, ; | or 'tab')"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "headers"
+label       = "First row is headers"
+source      = "field"
+
+[[input]]
+name        = "parse_numbers"
+label       = "Parse numbers"
+source      = "field"
+
+[[input]]
+name        = "parse_bools"
+label       = "Parse true/false/null"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace"
+source      = "field"
+
+[[example]]
+label  = "Strings (default)"
+[example.params]
+data          = "name,age,active\nAda,36,true\nGrace,,false"
+parse_numbers = "false"
+parse_bools   = "false"
+
+[[example]]
+label  = "Typed (numbers + bools)"
+[example.params]
+data          = "name,age,active\nAda,36,true\nGrace,,false"
+parse_numbers = "true"
+parse_bools   = "true"
+
+[[example]]
+label  = "TSV, no headers"
+[example.params]
+data      = "1\tAda\n2\tGrace"
+delimiter = "tab"
+headers   = "false"

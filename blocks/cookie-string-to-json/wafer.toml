@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cookie-string-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Parse a raw Cookie header string into JSON name/value pairs"

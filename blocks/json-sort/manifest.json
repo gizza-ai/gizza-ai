@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/json-sort",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Recursively sort JSON object keys for stable, diff-friendly output",
+  "role": "skill",
+  "tool": {
+    "description": "Recursively sort the object keys of a JSON document into a stable, diff-friendly order, validating it in the process (returns a line/column error if invalid). order is 'asc' (A→Z, default) or 'desc'; set case_insensitive=true to group keys ignoring case; set sort_arrays=true to also reorder array elements (off by default so meaningful array order is kept); indent is spaces per level (1-8, default 2), or 0 to minify. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_insensitive": {
+          "default": false,
+          "description": "Compare keys case-insensitively so 'Name' sorts next to 'name'. Off by default, where uppercase letters sort before lowercase (codepoint order).",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level (1-8). Use 0 to minify to a single compact line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON text whose object keys should be sorted.",
+          "type": "string"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Key sort direction: 'asc' (A→Z, default) or 'desc' (Z→A).",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "sort_arrays": {
+          "default": false,
+          "description": "Also sort the elements inside every array (by their serialized value), not just object keys. Off by default so meaningful array order is preserved.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

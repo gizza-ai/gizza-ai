@@ -1,0 +1,62 @@
+slug          = "remove-empty-lines"
+title         = "Remove Empty Lines — delete blank & whitespace-only lines"
+description   = "Delete all blank and whitespace-only lines to compact your text, or collapse runs of blank lines to one. Free and private — runs in your browser, nothing is uploaded."
+tags          = ["remove empty lines", "delete blank lines", "empty line remover", "remove whitespace lines", "collapse blank lines", "compact text"]
+h1            = "Remove Empty Lines"
+hero_subtitle = "Delete every blank or whitespace-only line to compact your text — or collapse runs of blank lines down to one. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_remove_empty_lines_web"
+export        = "run"
+live          = false
+output_label  = "Compacted text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste text with blank lines to remove…"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "mode"
+label       = "What to do with blank lines"
+source      = "field"
+
+[input.labels]
+remove   = "Remove all empty lines"
+collapse = "Collapse consecutive blanks to one"
+
+[[input]]
+name        = "whitespace_only"
+label       = "Also remove whitespace-only lines (spaces/tabs)"
+source      = "field"
+
+[[input]]
+name        = "trim_lines"
+label       = "Trim leading/trailing whitespace on kept lines"
+source      = "field"
+
+[[example]]
+label = "Remove all blank lines"
+[example.params]
+text = "First line\n\nSecond line\n   \nThird line\n\n"
+mode = "remove"
+whitespace_only = "true"
+trim_lines = "false"
+
+[[example]]
+label = "Collapse runs to one blank"
+[example.params]
+text = "Paragraph one\n\n\n\nParagraph two\n\n\nParagraph three"
+mode = "collapse"
+whitespace_only = "true"
+trim_lines = "false"
+
+[[example]]
+label = "Remove blanks + tidy indentation"
+[example.params]
+text = "  alpha  \n\n\tbeta\t\n \ngamma"
+mode = "remove"
+whitespace_only = "true"
+trim_lines = "true"

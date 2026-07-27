@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Parse pasted INI, key=value, logfmt, CSV, or passwd-style text into JSON, with format auto-detection."

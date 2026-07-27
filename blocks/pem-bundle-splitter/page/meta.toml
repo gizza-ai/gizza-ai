@@ -1,0 +1,47 @@
+slug          = "pem-bundle-splitter"
+title         = "PEM Bundle Splitter — Separate Certificates, Keys, and CSRs"
+description   = "Split concatenated PEM bundles into ordered, labeled blocks with type summaries, DER byte counts, suggested filenames, and optional SHA-256 fingerprints."
+tags          = ["pem splitter", "certificate chain", "fullchain pem", "private key", "csr", "sha256 fingerprint", "tls certificate", "x509"]
+h1            = "Split PEM bundles into labeled blocks"
+hero_subtitle = "Paste a fullchain or mixed PEM file and separate every certificate, key, CSR, parameter, or unknown PEM block in order — with type labels and fingerprints."
+wasm          = "gizza_ai_pem_bundle_splitter_web"
+export        = "run"
+live          = false
+output_label  = "Split PEM blocks"
+format        = "text"
+
+[[input]]
+name        = "pem"
+label       = "PEM bundle"
+placeholder = "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n-----BEGIN PRIVATE KEY-----\nCAk=\n-----END PRIVATE KEY-----"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "JSON object"
+pem    = "Clean PEM blocks"
+
+[[input]]
+name   = "fingerprints"
+label  = "Include SHA-256 fingerprints"
+source = "field"
+
+[[example]]
+label = "Certificate plus key report"
+[example.params]
+pem = "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n-----BEGIN PRIVATE KEY-----\nCAk=\n-----END PRIVATE KEY-----"
+output = "report"
+fingerprints = "true"
+
+[[example]]
+label = "Clean PEM output"
+[example.params]
+pem = "-----BEGIN CERTIFICATE-----\nAQID\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE REQUEST-----\nBAUG\n-----END CERTIFICATE REQUEST-----"
+output = "pem"
+fingerprints = "false"

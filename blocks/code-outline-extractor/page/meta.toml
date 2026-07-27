@@ -1,0 +1,84 @@
+slug          = "code-outline-extractor"
+title         = "Code Outline Extractor — Function, Class & Method Tree"
+description   = "Paste source code and get a nested outline of its functions, classes, and methods as an indented tree, Markdown table of contents, or JSON. Runs fully in your browser."
+tags          = ["code outline", "symbol tree", "function list", "class methods", "code table of contents", "source structure", "code map"]
+h1            = "Outline a Source File's Functions, Classes & Methods"
+hero_subtitle = "Paste code in any of 11 languages and get a nested symbol tree — functions, classes, and methods — as text, a Markdown TOC, or JSON. Nothing leaves your browser."
+wasm          = "gizza_ai_code_outline_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Outline"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Source code"
+placeholder = "class Greeter:\n    def hi(self):\n        return 1\n\ndef main():\n    pass"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+python = "Python"
+javascript = "JavaScript"
+typescript = "TypeScript"
+rust = "Rust"
+go = "Go"
+java = "Java"
+c = "C"
+cpp = "C++"
+csharp = "C#"
+php = "PHP"
+swift = "Swift"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+tree = "Indented tree"
+markdown = "Markdown list"
+json = "JSON"
+
+[[input]]
+name   = "signatures"
+label  = "Show full signatures"
+source = "field"
+
+[[input]]
+name   = "line_numbers"
+label  = "Show line numbers"
+source = "field"
+
+[[example]]
+label = "Python class + methods (tree)"
+[example.params]
+code = "class Greeter:\n    def hi(self):\n        return 1\n\n    def bye(self):\n        return 2\n\ndef main():\n    pass"
+language = "auto"
+format = "tree"
+signatures = ""
+line_numbers = "true"
+
+[[example]]
+label = "Rust struct + impl (signatures)"
+[example.params]
+code = "struct Point { x: i32 }\n\nimpl Point {\n    fn new() -> Self {\n        Point { x: 0 }\n    }\n}"
+language = "rust"
+format = "tree"
+signatures = "true"
+line_numbers = "true"
+
+[[example]]
+label = "JavaScript as Markdown TOC"
+[example.params]
+code = "class Calc {\n  add(a, b) {\n    return a + b;\n  }\n  sub(a, b) {\n    return a - b;\n  }\n}"
+language = "javascript"
+format = "markdown"
+signatures = ""
+line_numbers = "true"

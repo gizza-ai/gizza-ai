@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-pdf-grayscale-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+lopdf = { version = "0.36", default-features = false }
+image = { version = "0.25", default-features = false, features = ["jpeg"] }

@@ -1,0 +1,100 @@
+slug          = "data-validator"
+title         = "Data Validator — check CSV & JSON rows against field rules"
+description   = "Validate pasted CSV or JSON rows against field rules — required, unique, type, range, length, regex, enum — and list every violation. Free, runs in your browser."
+tags          = ["data validator", "csv validator", "json validator", "validate csv against rules", "field validation rules", "data quality checker"]
+h1            = "Data Validator"
+hero_subtitle = "Paste CSV or JSON rows, write one rule per line (required, unique, type, min/max, length, regex, enum) and get every violation listed with its record, field, value and reason. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_data_validator_web"
+export        = "run"
+live          = false
+output_label  = "Report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV or JSON rows"
+placeholder = "email,age,plan\na@b.com,34,pro\nbad-email,200,gold"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rules"
+label       = "Rules (one per line, field:rule)"
+placeholder = "email:required\nemail:type=email\nage:type=int\nage:max=120\nplan:enum=free|pro|team"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Read data as"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect (JSON if it starts with [ or {, else CSV)"
+csv  = "CSV"
+json = "JSON / NDJSON"
+
+[[input]]
+name   = "header"
+label  = "CSV has a header row"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma ,"
+tab       = "Tab"
+semicolon = "Semicolon ;"
+pipe      = "Pipe |"
+
+[[input]]
+name        = "max_issues"
+label       = "Max violations to list"
+placeholder = "50"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text = "Human report"
+json = "JSON report"
+
+[[example]]
+label = "CSV — bad email & out-of-range age"
+[example.params]
+data = "email,age,plan\na@b.com,34,pro\nbad-email,200,gold"
+rules = "email:required\nemail:type=email\nage:type=int\nage:min=0\nage:max=120\nplan:enum=free|pro|team"
+input_format = "auto"
+header = "true"
+delimiter = "auto"
+max_issues = "50"
+format = "text"
+
+[[example]]
+label = "JSON — duplicate id"
+[example.params]
+data = '[{"id": 1, "email": "a@b.com"}, {"id": 1, "email": "b@c.com"}]'
+rules = "id:unique\nid:type=int\nemail:type=email"
+input_format = "auto"
+header = "true"
+delimiter = "auto"
+max_issues = "50"
+format = "text"
+
+[[example]]
+label = "Semicolon CSV — required & length"
+[example.params]
+data = "code;name\nAB12;Widget\n;Gadget\nAB12;Gizmo"
+rules = "code:required\ncode:unique\ncode:minlen=4\nname:required"
+input_format = "csv"
+header = "true"
+delimiter = "semicolon"
+max_issues = "50"
+format = "text"

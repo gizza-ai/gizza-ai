@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/regex-column-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate CSV column values with a regex",
+  "role": "skill",
+  "tool": {
+    "description": "Validate one CSV column against a regular expression. Flags non-matching values by default, or matching values for forbidden-pattern checks. Supports header or index column selection, delimiter auto-detection, full-cell versus match-anywhere mode, case-insensitive matching, blank-cell policy, capped issue lists, and text or JSON reports.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_blank": {
+          "default": true,
+          "description": "Treat blank cells as valid without testing the regex.",
+          "type": "boolean"
+        },
+        "column": {
+          "description": "Target column header name, or a 0-based column index. Numeric values are always treated as indexes.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV text to validate.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV delimiter. Auto detects comma, tab, semicolon, or pipe from the first non-blank line.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "full_match": {
+          "default": true,
+          "description": "Require the pattern to match the whole cell. Turn off to accept a match anywhere inside the cell.",
+          "type": "boolean"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first CSV row as headers. Turn off to use 0-based numeric column indexes.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match case-insensitively.",
+          "type": "boolean"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of offending rows to list; total invalid count is still reported.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: readable text report or structured JSON.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Rust regular expression to test against each cell. Use inline flags like (?i), (?m), or (?s) for advanced modes.",
+          "type": "string"
+        },
+        "report": {
+          "default": "non-matching",
+          "description": "Which rows to flag: values that do not match, or values that do match (for forbidden-pattern checks).",
+          "enum": [
+            "non-matching",
+            "matching"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "column",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

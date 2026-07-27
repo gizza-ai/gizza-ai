@@ -1,0 +1,62 @@
+slug          = "json-to-dynamodb-batch"
+title         = "JSON to DynamoDB BatchWriteItem — Convert JSON to a Batch Payload"
+description   = "Convert a JSON array of objects into a DynamoDB BatchWriteItem request payload with typed AttributeValues. Put or delete, pretty or compact, up to 25 items."
+tags          = ["json to dynamodb", "dynamodb batchwriteitem", "dynamodb batch write", "dynamodb attributevalue", "json to dynamodb json", "dynamodb put request", "dynamodb import json", "aws cli dynamodb"]
+h1            = "Convert JSON to a DynamoDB BatchWriteItem payload"
+hero_subtitle = "Paste a JSON array of objects and get a DynamoDB BatchWriteItem request with typed AttributeValues, ready for the AWS CLI, an SDK, or a Lambda. Everything runs locally in your browser."
+wasm          = "gizza_ai_json_to_dynamodb_batch_web"
+export        = "run"
+live          = false
+output_label  = "BatchWriteItem payload"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON array of objects"
+placeholder = "[\n  { \"id\": \"user#1\", \"name\": \"Ada\", \"age\": 36, \"active\": true },\n  { \"id\": \"user#2\", \"name\": \"Grace\", \"age\": 45, \"active\": false }\n]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "table_name"
+label       = "Table name"
+placeholder = "Users"
+source      = "field"
+
+[[input]]
+name   = "operation"
+label  = "Operation"
+source = "field"
+
+[input.labels]
+put    = "Put items"
+delete = "Delete by key"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print output"
+source = "field"
+
+[[example]]
+label = "Put two users"
+[example.params]
+json = "[\n  { \"id\": \"user#1\", \"name\": \"Ada\", \"age\": 36, \"active\": true },\n  { \"id\": \"user#2\", \"name\": \"Grace\", \"age\": 45, \"active\": false }\n]"
+table_name = "Users"
+operation = "put"
+pretty = "true"
+
+[[example]]
+label = "Nested item with list and null"
+[example.params]
+json = "[\n  {\n    \"pk\": \"order#100\",\n    \"total\": 129.99,\n    \"tags\": [\"paid\", \"priority\"],\n    \"coupon\": null,\n    \"shipping\": { \"city\": \"Berlin\", \"express\": true }\n  }\n]"
+table_name = "Orders"
+operation = "put"
+pretty = "true"
+
+[[example]]
+label = "Delete by key (compact)"
+[example.params]
+json = "[\n  { \"id\": \"user#1\" },\n  { \"id\": \"user#2\" }\n]"
+table_name = "Users"
+operation = "delete"
+pretty = "false"

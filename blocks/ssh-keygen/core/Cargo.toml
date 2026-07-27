@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-ssh-keygen-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# ssh-key: RustCrypto OpenSSH key format. `ed25519`/`rsa` add the two key
+# algorithms; `getrandom` enables in-crate CSPRNG key generation (OsRng, wasm32
+# via the wasi backend — same path generate-rsa-key-pair uses). Produces the
+# native OpenSSH private-key blob (-----BEGIN OPENSSH PRIVATE KEY-----) and the
+# single-line authorized_keys public key that PKCS#8 generators can't emit.
+ssh-key = { version = "0.6", default-features = false, features = ["alloc", "std", "ed25519", "rsa", "getrandom"] }
+serde = { version = "1", features = ["derive"] }

@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/glob-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Filter a path list by glob and gitignore-style include/exclude patterns",
+  "role": "skill",
+  "tool": {
+    "description": "Filter a list of file paths (one per line) by glob and gitignore-style include/exclude patterns, and preview exactly which paths match. Set syntax='gitignore' (default) for git's .gitignore rules (any-depth matching, '/' anchoring, directory contents, '#' comments) or syntax='glob' for whole-path glob (use '**/' for any depth). include keeps only matching paths; exclude drops matching paths (exclude wins); a pattern line starting with '!' re-includes, last match winning. case_sensitive defaults true. output='matched' (default) returns kept paths, 'unmatched' the dropped ones, 'annotated' every path prefixed ✓/✗. Also returns total/matched/dropped counts. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": true,
+          "description": "Match case-sensitively (default true). Set false to ignore case, e.g. on case-insensitive filesystems.",
+          "type": "boolean"
+        },
+        "exclude": {
+          "description": "Exclude patterns, one per line. A path matching an exclude pattern is dropped (exclude overrides include). A line starting with '!' re-includes; the last matching line wins.",
+          "type": "string"
+        },
+        "include": {
+          "description": "Include patterns, one per line. A path is kept only if it matches an include pattern (leave empty to include everything). A line starting with '!' re-includes; the last matching line wins.",
+          "type": "string"
+        },
+        "output": {
+          "default": "matched",
+          "description": "What to return. 'matched' (default): only the kept paths. 'unmatched': only the dropped paths. 'annotated': every path prefixed with ✓ (kept) or ✗ (dropped).",
+          "enum": [
+            "matched",
+            "unmatched",
+            "annotated"
+          ],
+          "type": "string"
+        },
+        "paths": {
+          "description": "The list of paths to test, one per line (e.g. the output of `git ls-files` or `find`).",
+          "type": "string"
+        },
+        "syntax": {
+          "default": "gitignore",
+          "description": "Pattern dialect. 'gitignore' (default): git's .gitignore rules — a pattern with no '/' matches at any depth, a leading/embedded '/' anchors to the root, a match also covers a directory's contents, and '#' lines are comments. 'glob': each pattern must match the whole path ('*'/'?' stay within a segment, '**' spans them — use '**/' for any depth).",
+          "enum": [
+            "gitignore",
+            "glob"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "paths"
+      ],
+      "type": "object"
+    }
+  }
+}

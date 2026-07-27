@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/ics-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten the events in an .ics calendar file into a clean CSV table.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an iCalendar (.ics) document into a CSV table with one row per VEVENT — columns summary, start, end, location, and description, plus status, categories, and uid columns whenever any event carries them. delimiter picks the separator (comma/semicolon/tab/pipe); header toggles the header row; date_format writes the start/end columns as iso (normalized ISO-8601), raw (original .ics text), or unix (epoch seconds); include_location and include_description drop those columns. Folded lines are unfolded, RFC 5545 TEXT escapes (\\n, \\,, \\;) are decoded, VALARM/VTIMEZONE sub-components are skipped, and every field is RFC-4180 escaped. Paste the .ics contents in the 'ics' field. Runs entirely in-browser; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "date_format": {
+          "default": "iso",
+          "description": "How the start/end date columns are written. iso (default) normalizes to ISO-8601 (20240309T081530Z → 2024-03-09T08:15:30Z, 20240309 → 2024-03-09); raw keeps the original .ics value; unix converts to epoch seconds (Z times exact, floating/TZID read as UTC).",
+          "enum": [
+            "iso",
+            "raw",
+            "unix"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Output CSV field separator. Default comma. Use semicolon for comma-decimal locales, tab for TSV, or pipe.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit the column-name header row. Default true; set false for a headerless CSV.",
+          "type": "boolean"
+        },
+        "ics": {
+          "description": "The iCalendar (.ics) document to convert. Paste the whole file contents — it starts with BEGIN:VCALENDAR and contains one or more BEGIN:VEVENT…END:VEVENT blocks. Folded lines are unfolded and RFC 5545 TEXT escapes are decoded.",
+          "type": "string"
+        },
+        "include_description": {
+          "default": true,
+          "description": "Include the DESCRIPTION column. Default true; set false to drop it (handy when descriptions are long).",
+          "type": "boolean"
+        },
+        "include_location": {
+          "default": true,
+          "description": "Include the LOCATION column. Default true; set false to drop it.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ics"
+      ],
+      "type": "object"
+    }
+  }
+}

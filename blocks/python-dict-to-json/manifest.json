@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/python-dict-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Python dict/list literal into valid JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Python dict or list literal (as printed by print(obj) or repr(obj)) into valid JSON. Handles the Python conveniences plain JSON rejects: single-quoted strings, True/False/None -> true/false/null, tuples and sets -> arrays, trailing commas, # comments, 0x/0o/0b integer literals and 1_000 digit separators, and non-string dict keys (stringified). Use indent='2' (default), '4', 'tab', or 'minify' for output formatting; sort_keys=true to alphabetize object keys; ensure_ascii=true to escape non-ASCII as \\uXXXX.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ensure_ascii": {
+          "default": false,
+          "description": "Escape every non-ASCII character as \\uXXXX (Python json.dumps default). Default false emits readable UTF-8 verbatim.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": "2",
+          "description": "Output formatting: '2' or '4' spaces of indentation per level, 'tab' for tab indentation, or 'minify' for a single compact line. Default 2.",
+          "enum": [
+            "2",
+            "4",
+            "tab",
+            "minify"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The Python dict or list literal to convert, e.g. as printed by print(obj) or repr(obj): {'name': 'Ann', 'active': True, 'tags': None}. Accepts single quotes, True/False/None, tuples and sets, trailing commas, # comments, 0x/0o/0b ints and 1_000 separators.",
+          "type": "string"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "Sort every object's keys alphabetically (like Python json.dumps(sort_keys=True)). Default false keeps the original key order.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

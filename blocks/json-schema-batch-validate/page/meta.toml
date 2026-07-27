@@ -1,0 +1,93 @@
+slug          = "json-schema-batch-validate"
+title         = "JSON Schema Batch Validator — Array & NDJSON"
+description   = "Validate a JSON array or NDJSON batch against one JSON Schema. Get a pass/fail summary plus per-record errors with JSON Pointer paths — locally in your browser."
+tags          = ["json schema validator", "batch json validator", "ndjson validator", "json schema draft", "validate json records", "json pointer errors", "jsonschema", "bulk json validation"]
+h1            = "JSON Schema Batch Validator"
+hero_subtitle = "Check a whole array or NDJSON stream of records against one JSON Schema. See a pass/fail summary and every failing record's errors with JSON Pointer paths — all locally, no upload."
+wasm          = "gizza_ai_json_schema_batch_validate_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "schema"
+label       = "JSON Schema"
+placeholder = "{\"type\":\"object\",\"required\":[\"id\",\"name\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"name\":{\"type\":\"string\"}}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "records"
+label       = "Records (JSON array or NDJSON)"
+placeholder = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":\"2\",\"name\":\"Grace\"},{\"name\":\"Kay\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Records format"
+source = "field"
+
+[input.labels]
+auto   = "Auto (array, single value, or NDJSON)"
+json   = "JSON (array or single value)"
+ndjson = "NDJSON (one record per line)"
+
+[[input]]
+name   = "draft"
+label  = "JSON Schema draft"
+source = "field"
+
+[input.labels]
+auto           = "Auto (detect from $schema)"
+draft4         = "Draft 4"
+draft6         = "Draft 6"
+draft7         = "Draft 7"
+"draft2019-09" = "Draft 2019-09"
+"draft2020-12" = "Draft 2020-12"
+
+[[input]]
+name        = "max_errors"
+label       = "Max errors to list"
+placeholder = "50"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Readable report"
+json = "JSON (machine-readable)"
+
+[[example]]
+label = "Array batch → 2 fail"
+[example.params]
+schema = "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"type\":\"object\",\"required\":[\"id\",\"name\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"name\":{\"type\":\"string\"}}}"
+records = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":\"2\",\"name\":\"Grace\"},{\"name\":\"Kay\"}]"
+input_format = "auto"
+draft = "auto"
+max_errors = "50"
+output = "text"
+
+[[example]]
+label = "NDJSON stream → 2 fail"
+[example.params]
+schema = "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"required\":[\"email\"],\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\"},\"age\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":120}}}"
+records = "{\"email\":\"a@b.com\",\"age\":30}\n{\"email\":\"nope\",\"age\":200}\n{\"age\":45}"
+input_format = "ndjson"
+draft = "auto"
+max_errors = "50"
+output = "text"
+
+[[example]]
+label = "All pass → JSON report"
+[example.params]
+schema = "{\"type\":\"integer\",\"minimum\":0}"
+records = "[1,2,3]"
+input_format = "json"
+draft = "auto"
+max_errors = "50"
+output = "json"

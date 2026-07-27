@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "aiff-to-flac"
+version = "0.1.0"
+abi = 1
+summary = "Compress AIFF audio to lossless FLAC, preserving tags"

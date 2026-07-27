@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/fastq-to-fasta",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert FASTQ reads to clean FASTA, dropping the per-base quality lines.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert FASTQ sequencing reads to FASTA by stripping the per-base quality lines and rewriting '@' headers as '>'. Each FASTQ read is 4 lines (header, sequence, '+', quality); the output keeps only the header and sequence. Optional filters: min_length drops reads shorter than N bases; min_quality drops reads whose mean Phred quality (decoded with quality_offset 33 or 64) is below a threshold; strip_n discards reads containing ambiguous N bases. rename replaces headers with sequential numbers, uppercase normalizes the bases, and wrap splits each sequence into fixed-width lines (e.g. 60 or 70). Runs entirely locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "fastq": {
+          "description": "The FASTQ text to convert — one or more reads, each 4 lines: '@id [description]', the sequence, a '+' line, and the per-base quality string.",
+          "type": "string"
+        },
+        "min_length": {
+          "default": 0,
+          "description": "Drop reads shorter than this many bases. Default 0 (no length filter).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_quality": {
+          "default": 0.0,
+          "description": "Drop reads whose MEAN Phred quality is below this, using quality_offset to decode. Default 0 (no quality filter).",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "number"
+        },
+        "quality_offset": {
+          "default": "33",
+          "description": "Phred ASCII offset for decoding quality: '33' (Sanger / Illumina 1.8+, the modern default) or '64' (old Illumina 1.3-1.5). Only affects the min_quality filter.",
+          "enum": [
+            "33",
+            "64"
+          ],
+          "type": "string"
+        },
+        "rename": {
+          "default": false,
+          "description": "When true, replace every header with a sequential number ('>1', '>2', ...). Default false (keep original headers).",
+          "type": "boolean"
+        },
+        "strip_n": {
+          "default": false,
+          "description": "When true, discard any read whose sequence contains an ambiguous 'N' base. Default false (keep N-containing reads).",
+          "type": "boolean"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When true, uppercase the sequence bases (acgt -> ACGT). Default false.",
+          "type": "boolean"
+        },
+        "wrap": {
+          "default": 0,
+          "description": "Wrap each output sequence at this many characters per line (1-1000; e.g. 60 or 70). Default 0 = one line per sequence.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fastq"
+      ],
+      "type": "object"
+    }
+  }
+}

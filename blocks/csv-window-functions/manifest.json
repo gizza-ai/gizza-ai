@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/csv-window-functions",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add SQL window-function columns (running total, moving average, lag/lead, rank) to CSV rows.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute SQL-style window functions over CSV rows without collapsing them, appending one result column to every row. Supports running_total (cumulative sum), moving_average (trailing mean), lag and lead, rank, dense_rank, and row_number. Evaluate within partitions (partition_by) and an optional in-partition sort (order_by), choose the value column by header name or 1-based index, set the moving-average window or lag/lead offset, name the output column, rank ascending or descending, and pick comma/tab/semicolon/pipe delimiters. Returns CSV text grouped by partition. Requires a header row.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "description": "Value column (header name or 1-based index) the function reads. Required for every function except row_number.",
+          "type": "string"
+        },
+        "data": {
+          "description": "Input CSV text. The first row must be a header row; every input row is preserved and one result column is appended.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV field delimiter for both input and output: comma (default), tab, semicolon, or pipe.",
+          "enum": [
+            ",",
+            "tab",
+            ";",
+            "|"
+          ],
+          "type": "string"
+        },
+        "descending": {
+          "default": false,
+          "description": "Reverse the order_by sort, and rank largest value first. Default false.",
+          "type": "boolean"
+        },
+        "function": {
+          "default": "running_total",
+          "description": "Window function to apply: running_total (cumulative sum), moving_average (trailing mean over `window` rows), lag/lead (value `offset` rows before/after), rank/dense_rank (position by value, ties share a rank), or row_number (1-based position). Default running_total.",
+          "enum": [
+            "running_total",
+            "moving_average",
+            "lag",
+            "lead",
+            "rank",
+            "dense_rank",
+            "row_number"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first CSV row as a header row. This tool requires a header row, so leave this on. Default true.",
+          "type": "boolean"
+        },
+        "offset": {
+          "default": 1,
+          "description": "lag/lead only: how many rows before (lag) or after (lead) the current row to read. Default 1.",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "order_by": {
+          "description": "Comma-separated columns to sort rows by within each partition before computing. Empty means input order.",
+          "type": "string"
+        },
+        "output_column": {
+          "description": "Name of the appended result column. Empty picks a sensible default such as running_total_<column> or rank.",
+          "type": "string"
+        },
+        "partition_by": {
+          "description": "Comma-separated columns to partition by. Each distinct combination is an independent window. Empty means one window over all rows.",
+          "type": "string"
+        },
+        "window": {
+          "default": 3,
+          "description": "moving_average only: number of trailing rows in the frame, including the current row. Default 3.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

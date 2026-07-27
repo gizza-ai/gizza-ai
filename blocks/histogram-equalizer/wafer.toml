@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "histogram-equalizer"
+version = "0.1.0"
+abi = 1
+summary = "Equalize an image's histogram to boost contrast, with global or adaptive CLAHE."

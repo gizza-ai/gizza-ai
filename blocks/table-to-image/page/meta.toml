@@ -1,0 +1,139 @@
+slug          = "table-to-image"
+title         = "Table to SVG Image — render CSV or JSON tables"
+description   = "Render CSV or JSON tables as a clean standalone SVG with headers, zebra rows, themes, accent colors, titles, and alignment controls."
+tags          = ["table to image", "csv to svg", "json table", "svg table", "data table", "shareable table"]
+h1            = "Table to SVG Image"
+hero_subtitle = "Paste CSV or JSON table data and generate a clean standalone SVG with header styling, zebra rows, themes, colors, title text, and alignment controls."
+wasm          = "gizza_ai_table_to_image_web"
+export        = "run"
+live          = false
+output_label  = "SVG output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Table data"
+placeholder = "name,score\nAda,9\nGrace,8"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+csv = "CSV"
+json = "JSON"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is header"
+source = "field"
+
+[[input]]
+name   = "zebra"
+label  = "Zebra rows"
+source = "field"
+
+[[input]]
+name   = "theme"
+label  = "Theme"
+source = "field"
+
+[input.labels]
+light = "Light"
+dark = "Dark"
+slate = "Slate"
+blue = "Blue"
+green = "Green"
+minimal = "Minimal / transparent"
+
+[[input]]
+name        = "accent"
+label       = "Accent color"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "font_size"
+label       = "Font size"
+placeholder = "14"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "cell_padding"
+label       = "Cell padding"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "title"
+label       = "Title (optional)"
+placeholder = "Leaderboard"
+source      = "field"
+
+[[input]]
+name   = "align"
+label  = "Text alignment"
+source = "field"
+
+[input.labels]
+left = "Left"
+center = "Center"
+right = "Right"
+
+[[example]]
+label = "Light score table"
+[example.params]
+input = "name,score\nAda,9\nGrace,8\nLinus,7"
+input_format = "csv"
+delimiter = ","
+header = "true"
+zebra = "true"
+theme = "light"
+accent = "#2563eb"
+font_size = "14"
+cell_padding = "10"
+title = "Leaderboard"
+align = "left"
+
+[[example]]
+label = "Dark JSON dashboard"
+[example.params]
+input = "[{\"metric\":\"Revenue\",\"value\":\"$42k\"},{\"metric\":\"Cost\",\"value\":\"$18k\"}]"
+input_format = "json"
+delimiter = ","
+header = "true"
+zebra = "true"
+theme = "dark"
+accent = "#7c3aed"
+font_size = "15"
+cell_padding = "12"
+title = "Q1 Metrics"
+align = "center"
+
+[[example]]
+label = "Minimal semicolon CSV"
+[example.params]
+input = "item;status\nBuild;Done\nDocs;Review"
+input_format = "csv"
+delimiter = ";"
+header = "true"
+zebra = "false"
+theme = "minimal"
+accent = "#16a34a"
+font_size = "14"
+cell_padding = "8"
+title = ""
+align = "left"

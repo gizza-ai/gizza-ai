@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "critical-path-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Find the critical path, project duration, and earliest/latest start times and slack for a task graph."

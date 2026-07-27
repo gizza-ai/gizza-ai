@@ -1,0 +1,68 @@
+slug          = "http-headers-diff"
+title         = "HTTP Headers Diff — compare two sets of response headers"
+description   = "Compare two sets of HTTP headers and see what changed: headers added, removed and changed, with case-insensitive names and noise-header ignore. Runs in your browser."
+tags          = ["http headers diff", "compare http headers", "header diff", "response header compare", "diff headers online", "security headers diff", "compare response headers", "http header compare"]
+h1            = "HTTP Headers Diff"
+hero_subtitle = "Paste two sets of HTTP headers and see exactly what changed — headers added, removed and changed, grouped with a count summary. Case-insensitive names, repeated-header folding, and an ignore list for noisy headers. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_http_headers_diff_web"
+export        = "run"
+live          = false
+output_label  = "Header diff"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "First headers (left / old)"
+placeholder = "HTTP/1.1 200 OK\nContent-Type: text/html\nServer: nginx\nCache-Control: max-age=60\nX-Frame-Options: DENY"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Second headers (right / new)"
+placeholder = "HTTP/2 200\nContent-Type: application/json\nServer: nginx\nCache-Control: no-cache\nContent-Security-Policy: default-src 'self'"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "ignore"
+label       = "Ignore headers (comma / space separated)"
+placeholder = "Date, Age, Report-To"
+source      = "field"
+
+[[input]]
+name   = "ignore_order"
+label  = "Ignore token order in list headers (Vary, Cache-Control, …)"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report — grouped summary with counts"
+json   = "JSON — structured added/removed/changed/unchanged"
+
+[[example]]
+label = "Security & cache headers changed"
+[example.params]
+left   = "HTTP/1.1 200 OK\nContent-Type: text/html\nServer: nginx\nCache-Control: max-age=60\nX-Frame-Options: DENY"
+right  = "HTTP/2 200\nContent-Type: application/json\nServer: nginx\nCache-Control: no-cache\nContent-Security-Policy: default-src 'self'"
+output = "report"
+
+[[example]]
+label = "Ignore noisy Date/Age headers"
+[example.params]
+left   = "Content-Type: text/html\nDate: Mon, 01 Jan 2024 00:00:00 GMT\nAge: 0"
+right  = "Content-Type: text/html\nDate: Tue, 02 Jan 2024 00:00:00 GMT\nAge: 42"
+ignore = "Date, Age"
+output = "report"
+
+[[example]]
+label = "List reorder as unchanged + JSON"
+[example.params]
+left         = "Vary: Accept, Accept-Encoding\nCache-Control: no-cache, no-store"
+right        = "Vary: Accept-Encoding, Accept\nCache-Control: no-store, no-cache"
+ignore_order = "true"
+output       = "json"

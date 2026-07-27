@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "enum-domain-check"
+version = "0.1.0"
+abi = 1
+summary = "Flag CSV column values outside an allowed set of categories"

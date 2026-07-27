@@ -1,0 +1,54 @@
+slug          = "bot-traffic-filter"
+title         = "Bot Traffic Filter — Strip Crawlers From Logs & Report the Human vs Bot Split"
+description   = "Paste an access log or user-agent list, flag and strip bot/crawler hits, and see the human-versus-bot split by category. Runs in your browser."
+tags          = ["bot traffic filter", "bot detection", "crawler detection", "user agent parser", "access log analyzer", "human vs bot", "strip bot traffic", "ai crawler detector", "gptbot", "googlebot", "log filter", "web analytics bots"]
+h1            = "Bot Traffic Filter"
+hero_subtitle = "Paste an access log or a list of user-agents and instantly see how much of your traffic is bots. Flags crawlers, AI scrapers, SEO tools, monitoring probes and HTTP libraries by user-agent, strips them out, and reports the human-versus-bot split by category. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_bot_traffic_filter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Access log or user-agent list (one hit per line)"
+placeholder = "66.249.66.1 - - [26/Jul/2026:10:00:00 +0000] \"GET / HTTP/1.1\" 200 12 \"-\" \"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Input format"
+source      = "field"
+labels      = { auto = "Auto-detect", combined = "Access log (Combined)", plain = "User-agent list" }
+
+[[input]]
+name        = "output"
+label       = "Output as"
+source      = "field"
+labels      = { report = "Report (human vs bot split)", table = "Table (per hit)", json = "JSON", csv = "CSV", humans = "Human lines only (strip bots)", bots = "Bot lines only" }
+
+[[input]]
+name        = "empty_is_bot"
+label       = "Treat a missing user-agent as a bot"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max rows (1–10000)"
+placeholder = "500"
+source      = "field"
+
+[[example]]
+label  = "Access log — human vs bot report"
+params = { input = "1.1.1.1 - - [26/Jul/2026:10:00:00 +0000] \"GET / HTTP/1.1\" 200 12 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36\"\n66.249.66.1 - - [26/Jul/2026:10:00:01 +0000] \"GET /robots.txt HTTP/1.1\" 200 55 \"-\" \"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)\"\n20.15.1.9 - - [26/Jul/2026:10:00:02 +0000] \"GET /blog HTTP/1.1\" 200 800 \"-\" \"Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.2; +https://openai.com/gptbot\"\n45.9.8.7 - - [26/Jul/2026:10:00:03 +0000] \"GET /api HTTP/1.1\" 200 3 \"-\" \"python-requests/2.31.0\"", format = "auto", output = "report" }
+
+[[example]]
+label  = "Strip bots — keep human lines"
+params = { input = "1.1.1.1 - - [26/Jul/2026:10:00:00 +0000] \"GET / HTTP/1.1\" 200 12 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0 Safari/537.36\"\n66.249.66.1 - - [26/Jul/2026:10:00:01 +0000] \"GET /robots.txt HTTP/1.1\" 200 55 \"-\" \"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)\"\n45.9.8.7 - - [26/Jul/2026:10:00:03 +0000] \"GET /api HTTP/1.1\" 200 3 \"-\" \"AhrefsBot/7.0\"", format = "combined", output = "humans" }
+
+[[example]]
+label  = "User-agent list — table"
+params = { input = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1\ncurl/8.4.0\nMozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)\nMozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)", format = "plain", output = "table" }

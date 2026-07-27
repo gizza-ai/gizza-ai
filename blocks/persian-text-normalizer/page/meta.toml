@@ -1,0 +1,107 @@
+slug          = "persian-text-normalizer"
+title         = "Persian Text Normalizer — fix ZWNJ half-spaces, Arabic characters, digits"
+description   = "Normalize Persian/Farsi text: replace Arabic letters, fix ZWNJ half-spaces, convert digits, and correct punctuation spacing in your browser."
+tags          = ["persian text normalizer", "farsi normalizer", "zwnj", "half-space", "نیم‌فاصله", "arabic to persian characters", "persian digits", "virastar"]
+h1            = "Normalize Persian Text"
+hero_subtitle = "Clean up Persian/Farsi text in one pass — fold Arabic letters to Persian, fix half-spaces (ZWNJ), convert digits, and correct punctuation spacing. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_persian_text_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Persian text"
+placeholder = "متن فارسی را اینجا وارد کنید…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "characters"
+label  = "Replace Arabic characters with Persian (ك→ک, ي→ی, ى→ی, ة→ه)"
+source = "field"
+
+# digits renders as a <select>; options derive from the descriptor schema enum.
+[[input]]
+name   = "digits"
+label  = "Digits"
+source = "field"
+
+[input.labels]
+persian = "Persian digits (۰۱۲۳ — default)"
+english = "English digits (0123)"
+keep    = "Keep — leave digits untouched"
+
+[[input]]
+name   = "half_space"
+label  = "Fix half-spaces / ZWNJ (نیم‌فاصله) — attach می، ها، تر …"
+source = "field"
+
+[[input]]
+name   = "punctuation_spacing"
+label  = "Correct punctuation spacing (no space before ، . ؟، one after)"
+source = "field"
+
+[[input]]
+name   = "persian_punctuation"
+label  = "Convert Latin punctuation to Persian ( , → ، ; → ؛ ? → ؟ )"
+source = "field"
+
+[[input]]
+name   = "remove_diacritics"
+label  = "Remove diacritics (harakat / تشکیل) and kashida (ـ)"
+source = "field"
+
+[[input]]
+name   = "whitespace"
+label  = "Clean whitespace (collapse spaces, trim)"
+source = "field"
+
+[[example]]
+label = "Messy paste — full cleanup"
+[example.params]
+text = "كتاب123 را مي خواهم ,خوب"
+characters = "true"
+digits = "persian"
+half_space = "true"
+punctuation_spacing = "true"
+persian_punctuation = "false"
+remove_diacritics = "false"
+whitespace = "true"
+
+[[example]]
+label = "Keep Latin digits"
+[example.params]
+text = "قيمت 1500 تومان است"
+characters = "true"
+digits = "keep"
+half_space = "true"
+punctuation_spacing = "true"
+persian_punctuation = "false"
+remove_diacritics = "false"
+whitespace = "true"
+
+[[example]]
+label = "Half-space (ZWNJ) only"
+[example.params]
+text = "می روم و کتاب ها را بزرگ ترین می دانم"
+characters = "false"
+digits = "keep"
+half_space = "true"
+punctuation_spacing = "false"
+persian_punctuation = "false"
+remove_diacritics = "false"
+whitespace = "true"
+
+[[example]]
+label = "Persian punctuation + strip diacritics"
+[example.params]
+text = "سلامٌ, حالت خوبه? مُحَمَّد"
+characters = "true"
+digits = "persian"
+half_space = "true"
+punctuation_spacing = "true"
+persian_punctuation = "true"
+remove_diacritics = "true"
+whitespace = "true"

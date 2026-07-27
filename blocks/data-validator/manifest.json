@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/data-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate pasted CSV or JSON rows against field rules and list every violation",
+  "role": "skill",
+  "tool": {
+    "description": "Validate pasted CSV or JSON rows against a set of field rules and list every violation with its record, physical line, field, offending value, the rule it broke, and a human message. `data` is CSV (with a header row) or JSON (an array of objects, a single object, or JSON Lines / NDJSON). `rules` is one rule per line as `field:rule` or `field:rule=arg`: required, unique, type=int|float|bool|date|email|url (bare `age:int` shorthand), min=/max= (numeric range), minlen=/maxlen= (character length), regex=… (unanchored — add ^…$ to anchor), enum=a|b|c (exact membership). Every rule except `required` is skipped for a blank/missing value, so combine with `required` when a value must be present. input_format is auto (default) / csv / json. For CSV, header=true (default) names fields by the header row — set header=false to refer to columns by 1-based index; delimiter is auto (default) / comma / tab / semicolon / pipe. max_issues caps the listed violations (default 50, total always counted). format is text (default) or json. Report-only — the input is never modified, nothing is fetched or persisted. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The rows to validate. CSV with a header row, or JSON as an array of objects, a single object, or JSON Lines (one object per line).",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV only: field delimiter. 'auto' (default) detects comma, tab, semicolon or pipe from the first row.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: 'text' (default) a human report, or 'json' the structured report (valid flag, counts, and the full violation list).",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "CSV only: treat the first row as a header of field names (default true). When false, refer to columns by 1-based index, e.g. `2:type=int`.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read `data`: 'auto' (default) treats it as JSON when it starts with [ or {, else CSV; 'csv'; or 'json' (also accepts NDJSON / JSON Lines).",
+          "enum": [
+            "auto",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of violations to list; the total count is always reported. Default 50. Clamped to 1-1000.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "rules": {
+          "description": "Field rules, one per line as `field:rule` or `field:rule=arg` (blank lines and `#` comments ignored). Rules: required, unique, type=int|float|bool|date|email|url (bare `age:int` is shorthand for type=int), min=/max= (numeric range), minlen=/maxlen= (character length), regex=… (unanchored — add ^…$ to anchor), enum=a|b|c (exact membership). Every rule except `required` is skipped for a blank/missing value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "rules"
+      ],
+      "type": "object"
+    }
+  }
+}

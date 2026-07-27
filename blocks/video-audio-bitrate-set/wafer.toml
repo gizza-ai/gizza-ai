@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-bitrate-set"
+version = "0.1.0"
+abi = 1
+summary = "Re-encode only a video's audio at a chosen bitrate to shrink an oversized soundtrack"

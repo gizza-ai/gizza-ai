@@ -1,0 +1,76 @@
+slug          = "value-counts"
+title         = "Value Counts — Count Distinct CSV Column Values"
+description   = "Count distinct values in a chosen CSV column with counts and percentages. Pick a header or column index, sort by count or value, and include blanks if needed."
+tags          = ["value counts", "csv value counts", "distinct values", "count categories", "pandas value_counts"]
+h1            = "Value Counts for a CSV Column"
+hero_subtitle = "Paste a CSV/table, choose one column, and get a value,count,percent table ranked like pandas value_counts. Runs entirely in your browser — no upload."
+wasm          = "gizza_ai_value_counts_web"
+export        = "run"
+live          = false
+output_label  = "Value counts CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV/table data (first row is a header)"
+placeholder = "fruit\napple\nbanana\napple\ncherry\napple\nbanana"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column (header name or 1-based index)"
+placeholder = "fruit"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort rows by"
+source = "field"
+
+[input.labels]
+count = "Count — most frequent first"
+value = "Value — alphabetical / ascending"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive grouping"
+source = "field"
+
+[[input]]
+name   = "include_empty"
+label  = "Include blank cells as (empty)"
+source = "field"
+
+[[example]]
+label = "Fruit counts"
+[example.params]
+data   = "fruit\napple\nbanana\napple\ncherry\napple\nbanana"
+column = "fruit"
+
+[[example]]
+label = "Case-insensitive status counts"
+[example.params]
+data           = "status\nOpen\nopen\nClosed\nOPEN"
+column         = "status"
+case_sensitive = "false"
+
+[[example]]
+label = "Tab data by column index"
+[example.params]
+data      = "id\tcolor\n1\tred\n2\tblue\n3\tred"
+column    = "2"
+delimiter = "tab"
+
+[[example]]
+label = "Include empty cells"
+[example.params]
+data          = "status\nopen\n\nclosed\n "
+column        = "status"
+include_empty = "true"

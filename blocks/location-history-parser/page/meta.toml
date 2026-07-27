@@ -1,0 +1,70 @@
+slug          = "location-history-parser"
+title         = "Location History Parser — Google Takeout & Dawarich JSON to Per-Day Places & Distance"
+description   = "Turn Google Takeout or Dawarich location-history JSON into per-day places visited and distance traveled. Text, CSV, or JSON; km or miles."
+tags          = ["location history parser", "google takeout location history", "google timeline parser", "records.json parser", "semantic location history", "dawarich", "places visited per day", "distance traveled", "gps stop detection"]
+h1            = "Location History Parser"
+hero_subtitle = "Paste a Google Takeout or Dawarich location-history JSON export and get a per-day summary of places visited and distance traveled — text, CSV, or JSON, in km or miles. Everything runs locally; nothing is uploaded."
+wasm          = "gizza_ai_location_history_parser_web"
+export        = "run"
+live          = false
+output_label  = "Summary"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Location-history JSON"
+placeholder = "{\"timelineObjects\":[{\"placeVisit\":{\"location\":{\"latitudeE7\":400000000,\"longitudeE7\":-740000000,\"name\":\"Home\"},\"duration\":{\"startTimestamp\":\"2024-01-01T08:00:00Z\"}}},{\"activitySegment\":{\"distance\":5000,\"duration\":{\"startTimestamp\":\"2024-01-01T09:00:00Z\"}}}]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+[input.labels]
+text = "Text summary"
+csv  = "CSV (date, places, distance)"
+json = "JSON (structured)"
+
+[[input]]
+name        = "unit"
+label       = "Distance unit"
+source      = "field"
+[input.labels]
+km = "Kilometers (km)"
+mi = "Miles (mi)"
+
+[[input]]
+name        = "utc_offset"
+label       = "UTC offset (hours)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "place_radius"
+label       = "Stop radius (meters)"
+placeholder = "150"
+source      = "field"
+
+[[input]]
+name        = "min_stay"
+label       = "Minimum stay (minutes)"
+placeholder = "10"
+source      = "field"
+
+[[example]]
+label  = "Semantic Location History"
+params = { input = "{\"timelineObjects\":[{\"placeVisit\":{\"location\":{\"latitudeE7\":400000000,\"longitudeE7\":-740000000,\"name\":\"Home\"},\"duration\":{\"startTimestamp\":\"2024-01-01T08:00:00Z\"}}},{\"activitySegment\":{\"distance\":5000,\"duration\":{\"startTimestamp\":\"2024-01-01T09:00:00Z\"}}},{\"placeVisit\":{\"location\":{\"latitudeE7\":401000000,\"longitudeE7\":-740000000,\"name\":\"Office\"},\"duration\":{\"startTimestamp\":\"2024-01-01T10:00:00Z\"}}}]}", output = "text", unit = "km" }
+
+[[example]]
+label  = "Same data in miles"
+params = { input = "{\"timelineObjects\":[{\"placeVisit\":{\"location\":{\"latitudeE7\":400000000,\"longitudeE7\":-740000000,\"name\":\"Home\"},\"duration\":{\"startTimestamp\":\"2024-01-01T08:00:00Z\"}}},{\"activitySegment\":{\"distance\":5000,\"duration\":{\"startTimestamp\":\"2024-01-01T09:00:00Z\"}}}]}", output = "text", unit = "mi" }
+
+[[example]]
+label  = "Dawarich points → CSV"
+params = { input = "[{\"latitude\":40.0,\"longitude\":-74.0,\"timestamp\":1704067200},{\"latitude\":40.5,\"longitude\":-74.0,\"timestamp\":1704070800}]", output = "csv", unit = "km" }
+
+[[example]]
+label  = "Records.json → JSON, US Eastern"
+params = { input = "{\"locations\":[{\"latitudeE7\":400000000,\"longitudeE7\":-740000000,\"timestampMs\":\"1704067200000\"},{\"latitudeE7\":410000000,\"longitudeE7\":-740000000,\"timestamp\":\"2024-01-01T01:00:00Z\"}]}", output = "json", unit = "km", utc_offset = "-5" }

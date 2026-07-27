@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "numeric-row-deduplicator"
+version = "0.1.0"
+abi = 1
+summary = "Remove duplicate numeric rows from a table, comparing cells by numeric value"

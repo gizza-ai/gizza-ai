@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/video-trim-black-frames",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect and trim leading and trailing fully-black frames from a video (two-pass blackdetect)",
+  "role": "skill",
+  "tool": {
+    "description": "Detect and trim the leading and/or trailing fully-black frames from a video (a black intro or outro), leaving the real picture. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Two-pass: ffmpeg blackdetect measures the black runs over the whole clip, then the clip is trimmed to the non-black span [start, end] with an H.264 CRF 18 re-encode and AAC audio (the container is kept for mp4/mov/m4v/mkv, else the output switches to mp4). pixel_threshold (0-1, default 0.10) sets how dark counts as black; black_ratio (0-1, default 0.98) sets what fraction of a frame must be black; min_duration (seconds, default 0.10) sets the shortest black run to trim; ends (both/start/end, default both) picks which edges to trim. Reports 'no black frames to trim' instead of re-encoding a clip that has none, and refuses to trim a clip that is black end to end. Only the two edges are trimmed — black in the middle of the clip is kept.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "black_ratio": {
+          "default": 0.98,
+          "description": "Fraction of a frame's pixels that must be black for the whole frame to count as black, 0-1 (blackdetect pic_th, default 0.98). Lower it (e.g. 0.90) if a logo or timestamp keeps a black frame from being detected.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ends": {
+          "default": "both",
+          "description": "Which ends to trim: both (default), start (leading black only), or end (trailing black only).",
+          "enum": [
+            "both",
+            "start",
+            "end"
+          ],
+          "type": "string"
+        },
+        "min_duration": {
+          "default": 0.1,
+          "description": "Shortest black run to trim, in seconds (blackdetect d, default 0.10). Raise it to ignore brief black flashes; lower it to catch a single black frame.",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "number"
+        },
+        "pixel_threshold": {
+          "default": 0.1,
+          "description": "How dark a pixel must be to count as black, 0-1 (blackdetect pix_th, default 0.10). 0 is pure black; raise it (e.g. 0.15) to treat dark-grey fades as black, lower it if dark scenes get trimmed.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
