@@ -1,0 +1,101 @@
+slug          = "sql-danger-checker"
+title         = "SQL Danger Checker — Catch DROP, TRUNCATE & WHERE-less DELETE"
+description   = "Paste SQL and flag destructive statements before you run them — DROP, TRUNCATE, and UPDATE/DELETE with no WHERE. Comment- and string-aware, in-browser."
+tags          = ["sql danger checker", "destructive sql", "drop table warning", "delete without where", "update without where", "truncate", "sql linter", "sql safety", "sql review"]
+h1            = "SQL Danger Checker"
+hero_subtitle = "Paste raw SQL and see the destructive statements before you execute them — DROP DATABASE/TABLE and TRUNCATE, destructive ALTER, and UPDATE/DELETE with no WHERE (or a trivially-true one). Comment- and string-aware, with severity, line, and rule for every finding. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_sql_danger_checker_web"
+export        = "run"
+live          = false
+output_label  = "Danger report"
+format        = "text"
+
+[[input]]
+name        = "sql"
+label       = "SQL to scan"
+placeholder = "DROP TABLE users;\nDELETE FROM sessions;\nUPDATE accounts SET balance = 0;\nSELECT * FROM orders WHERE id = 42;"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "dialect"
+label  = "SQL dialect"
+source = "field"
+
+[input.labels]
+generic    = "Generic / ANSI"
+mysql      = "MySQL / MariaDB"
+postgresql = "PostgreSQL"
+sqlite     = "SQLite"
+tsql       = "SQL Server (T-SQL)"
+
+[[input]]
+name   = "min_severity"
+label  = "Minimum severity to report"
+source = "field"
+
+[input.labels]
+all      = "All findings"
+medium   = "Medium and above"
+high     = "High and above"
+critical = "Critical only"
+
+[[input]]
+name   = "strict"
+label  = "Strict — also flag guarded DELETE/UPDATE"
+source = "field"
+
+[[input]]
+name        = "allow"
+label       = "Allow (suppress categories)"
+placeholder = "drop, truncate"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Readable report"
+json = "JSON findings"
+
+[[example]]
+label = "DROP + WHERE-less DELETE/UPDATE"
+[example.params]
+sql = "DROP TABLE users;\nDELETE FROM sessions;\nUPDATE accounts SET balance = 0;\nSELECT * FROM orders WHERE id = 42;"
+dialect = "generic"
+min_severity = "all"
+strict = "false"
+allow = ""
+format = "text"
+
+[[example]]
+label = "Critical only (DROP/TRUNCATE)"
+[example.params]
+sql = "TRUNCATE TABLE audit_log;\nDELETE FROM logs WHERE id = 1;\nDROP DATABASE prod;"
+dialect = "postgresql"
+min_severity = "critical"
+strict = "false"
+allow = ""
+format = "text"
+
+[[example]]
+label = "Strict — confirm every destructive statement"
+[example.params]
+sql = "DELETE FROM sessions WHERE id = 5;\nUPDATE users SET active = 0 WHERE id = 9;"
+dialect = "generic"
+min_severity = "all"
+strict = "true"
+allow = ""
+format = "text"
+
+[[example]]
+label = "JSON findings, migration DROP allowed"
+[example.params]
+sql = "DROP TABLE legacy_cache;\nUPDATE orders SET status = 'shipped';"
+dialect = "mysql"
+min_severity = "all"
+strict = "false"
+allow = "drop"
+format = "json"

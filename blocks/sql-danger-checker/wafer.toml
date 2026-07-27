@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sql-danger-checker"
+version = "0.1.0"
+abi = 1
+summary = "Scan raw SQL for destructive statements (DROP, TRUNCATE, WHERE-less UPDATE/DELETE) before you run them"
