@@ -1,0 +1,60 @@
+slug          = "text-to-reminders"
+title         = "Text to Reminders — Turn Notes Into an ICS Task List"
+description   = "Turn free-form notes into an importable .ics reminders file with due dates, priorities and optional alarms — private, deterministic and in-browser."
+tags          = ["text to reminders", "notes to tasks", "natural language reminders", "ics reminders", "calendar tasks", "task extractor", "reminder parser", "todo to ics"]
+h1            = "Text to Reminders"
+hero_subtitle = "Paste a brain-dump and get an iCalendar (.ics) reminder list: one task per line, deterministic due-date parsing, optional priority detection and alarms, all in your browser."
+wasm          = "gizza_ai_text_to_reminders_web"
+export        = "run"
+live          = false
+output_label  = "ICS reminders"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Notes (one task per line)"
+placeholder = "Call the dentist tomorrow at 3pm\nUrgent: submit expense report Friday\nBuy milk"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "reference_date"
+label       = "Reference date"
+placeholder = "2026-03-02"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[input]]
+name        = "detect_priority"
+label       = "Detect priority keywords"
+source      = "field"
+
+[[input]]
+name        = "include_undated"
+label       = "Keep undated lines"
+source      = "field"
+
+[[input]]
+name        = "alarm_minutes"
+label       = "Alarm minutes before due"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "240"
+step        = "5"
+default     = "0"
+
+[[example]]
+label  = "Dated brain-dump"
+params = { text = "Call the dentist tomorrow at 3pm\nUrgent: submit expense report Friday\nBuy milk", reference_date = "2026-03-02", alarm_minutes = "30" }
+
+[[example]]
+label  = "Only dated lines"
+params = { text = "Buy milk\nRenew passport in 3 days\nTeam lunch Friday at noon", reference_date = "2026-03-02", include_undated = "false" }
+
+[[example]]
+label  = "Absolute dates"
+params = { text = "File taxes April 15 2027\nRenew domain 2026-12-31\nDentist 5 Mar", reference_date = "2026-03-02" }
