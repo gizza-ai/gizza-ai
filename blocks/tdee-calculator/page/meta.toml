@@ -1,0 +1,127 @@
+slug          = "tdee-calculator"
+title         = "TDEE Calculator"
+description   = "Estimate your BMR and total daily energy expenditure from age, sex, weight, height and activity, with calorie goals, BMI and all activity levels."
+tags          = ["TDEE calculator", "BMR calculator", "maintenance calories", "Mifflin-St Jeor", "Harris-Benedict", "Katch-McArdle", "calorie calculator", "daily energy expenditure", "cutting calories", "bulking calories"]
+h1            = "TDEE Calculator"
+hero_subtitle = "Estimate your Basal Metabolic Rate and Total Daily Energy Expenditure from age, sex, weight, height and activity level. See maintenance calories, cutting and bulking targets, BMI and TDEE at every activity level. Runs locally in your browser."
+wasm          = "gizza_ai_tdee_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "age"
+label       = "Age (years)"
+placeholder = "30"
+default     = "30"
+source      = "field"
+
+[[input]]
+name        = "sex"
+label       = "Sex"
+source      = "field"
+default     = "male"
+[input.labels]
+male   = "Male"
+female = "Female"
+
+[[input]]
+name        = "weight"
+label       = "Weight (kg or lb)"
+placeholder = "70"
+default     = "70"
+source      = "field"
+
+[[input]]
+name        = "height"
+label       = "Height (cm or inches)"
+placeholder = "175"
+default     = "175"
+source      = "field"
+
+[[input]]
+name        = "units"
+label       = "Units"
+source      = "field"
+default     = "metric"
+[input.labels]
+metric   = "Metric (kg / cm)"
+imperial = "Imperial (lb / inches)"
+
+[[input]]
+name        = "activity"
+label       = "Activity level"
+source      = "field"
+default     = "moderate"
+[input.labels]
+sedentary    = "Sedentary — little or no exercise (×1.2)"
+light        = "Lightly active — 1–3 days/week (×1.375)"
+moderate     = "Moderately active — 3–5 days/week (×1.55)"
+very_active  = "Very active — 6–7 days/week (×1.725)"
+extra_active = "Extra active — hard daily training / physical job (×1.9)"
+
+[[input]]
+name        = "formula"
+label       = "BMR formula"
+source      = "field"
+default     = "mifflin_st_jeor"
+[input.labels]
+mifflin_st_jeor = "Mifflin-St Jeor (recommended)"
+harris_benedict = "Harris-Benedict (revised 1984)"
+katch_mcardle   = "Katch-McArdle (uses body fat %)"
+
+[[input]]
+name        = "body_fat"
+label       = "Body fat % (Katch-McArdle only)"
+placeholder = "20"
+default     = "20"
+source      = "field"
+
+[[input]]
+name        = "energy_unit"
+label       = "Energy unit"
+source      = "field"
+default     = "calories"
+[input.labels]
+calories   = "Calories (kcal)"
+kilojoules = "Kilojoules (kJ)"
+
+[[example]]
+label = "Metric maintenance"
+[example.params]
+age = "30"
+sex = "male"
+weight = "70"
+height = "175"
+units = "metric"
+activity = "moderate"
+formula = "mifflin_st_jeor"
+body_fat = "20"
+energy_unit = "calories"
+
+[[example]]
+label = "Imperial cut"
+[example.params]
+age = "28"
+sex = "female"
+weight = "150"
+height = "65"
+units = "imperial"
+activity = "light"
+formula = "mifflin_st_jeor"
+body_fat = "20"
+energy_unit = "calories"
+
+[[example]]
+label = "Athlete (Katch-McArdle)"
+[example.params]
+age = "25"
+sex = "male"
+weight = "80"
+height = "180"
+units = "metric"
+activity = "extra_active"
+formula = "katch_mcardle"
+body_fat = "12"
+energy_unit = "calories"
