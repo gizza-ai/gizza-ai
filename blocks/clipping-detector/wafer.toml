@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "clipping-detector"
+version = "0.1.0"
+abi = 1
+summary = "Scan an uncompressed WAV clip for clipped (full-scale) samples and report the worst distorted regions with timestamps."

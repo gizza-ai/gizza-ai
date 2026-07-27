@@ -1,0 +1,71 @@
+slug          = "clipping-detector"
+title         = "Audio Clipping Detector Online"
+description   = "Paste base64 or hex WAV bytes and detect clipped full-scale samples, consecutive clipping runs, timestamps, and worst distorted regions. Runs locally in your browser."
+tags          = ["audio clipping", "clipped samples", "wav clipping", "pcm", "dbfs", "audio quality", "peak detection"]
+h1            = "Detect Clipping in WAV Audio"
+hero_subtitle = "Scan uncompressed WAV samples for full-scale clipping, then get counts, timestamps, longest runs, and the worst distorted regions."
+wasm          = "gizza_ai_clipping_detector_web"
+export        = "run"
+live          = false
+output_label  = "Clipping report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "WAV bytes (base64 or hex)"
+placeholder = "UklGRjQAAABXQVZFZm10IBAAAAABAAEACAAAABAAAAACABAAZGF0YRAAAADNDJkZ/3//f/9/ZibNDAAA"
+source      = "field"
+
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+base64 = "Base64 (default)"
+hex    = "Hex bytes"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Human-readable report"
+json   = "JSON"
+
+[[input]]
+name        = "threshold"
+label       = "Clipping threshold (fraction of full scale)"
+placeholder = "0.99"
+source      = "field"
+
+[[input]]
+name        = "min_run"
+label       = "Minimum run length (frames)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "gap"
+label       = "Bridge gap (frames)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "top_regions"
+label       = "Worst regions to list"
+placeholder = "5"
+source      = "field"
+
+[[example]]
+label  = "Clipped WAV report"
+params = { input = "UklGRjQAAABXQVZFZm10IBAAAAABAAEACAAAABAAAAACABAAZGF0YRAAAADNDJkZ/3//f/9/ZibNDAAA", input_format = "base64", output = "report", threshold = "0.99", min_run = "1", gap = "0", top_regions = "5" }
+
+[[example]]
+label  = "JSON for Audacity-style 3-frame runs"
+params = { input = "524946463400000057415645666d742010000000010001000800000010000000020010006461746110000000cd0c9919ff7fff7fff7f6626cd0c0000", input_format = "hex", output = "json", threshold = "0.99", min_run = "3", gap = "0", top_regions = "3" }
+
+[[example]]
+label  = "Exact full-scale only"
+params = { input = "UklGRjQAAABXQVZFZm10IBAAAAABAAEACAAAABAAAAACABAAZGF0YRAAAADNDJkZ/3//f/9/ZibNDAAA", input_format = "base64", output = "report", threshold = "1.0", min_run = "1", gap = "0", top_regions = "5" }
