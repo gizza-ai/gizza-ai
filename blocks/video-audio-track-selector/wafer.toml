@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-track-selector"
+version = "0.1.0"
+abi = 1
+summary = "Keep one chosen audio track from a video and drop the rest"
