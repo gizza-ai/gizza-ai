@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "key-derive"
+version = "0.1.0"
+abi = 1
+summary = "Derive a key of any length via PBKDF2, scrypt, Argon2, or HKDF"
