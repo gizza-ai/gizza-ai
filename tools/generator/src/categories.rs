@@ -62,7 +62,10 @@ pub const CATEGORIES: &[Category] = &[
             "csv", "json", "jq", "jsonpath", "jsonata", "yaml", "xml", "xpath", "avro", "toml",
             "plist", "protobuf", "bencode", "opml", "serialize", "unserialize", "gpx", "tcx",
             "geojson", "camt053", "mt940", "qif", "ofx", "iban", "ini", "vcard", "takeout",
-            "telegram", "whatsapp",
+            "telegram", "whatsapp", "bank", "statement", "budget", "cluster", "reshape",
+            "validator", "validate", "schema", "survey", "tabulator", "sampler", "imputer",
+            "rebalancer", "numeric", "random", "monte", "regression", "currency", "spending",
+            "categorizer", "order", "amazon", "hl7", "fit",
         ],
     },
     Category {
@@ -93,7 +96,8 @@ pub const CATEGORIES: &[Category] = &[
             "pbkdf2", "scrypt", "argon2", "hkdf", "evp", "bcrypt", "keccak", "sha1", "sha256",
             "sha3", "xor", "fernet", "bip39", "ja3", "ja4", "ioc", "ssh", "pem", "asn1", "luhn",
             "token", "safelink", "aes", "des", "passphrase", "diceware", "privacy", "pii",
-            "anonymizer", "hd-key",
+            "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
+            "secret", "scanner", "keypair", "keygen", "qr",
         ],
     },
     Category {
@@ -116,7 +120,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "ip", "ipv4", "ipv6", "cidr", "dns", "tcp", "udp", "tls", "http", "websocket", "url",
             "urls", "uri", "mac", "ethernet", "grpc", "magnet", "email", "eml", "domains", "link",
-            "header", "query", "har", "curl",
+            "header", "query", "har", "curl", "contact", "phone", "calendar", "freebusy", "nmap",
         ],
     },
     Category {
@@ -127,7 +131,7 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["time", "date", "timezone", "unix timestamp", "datetime", "cron expression"],
         slug_words: &[
             "date", "dates", "datetime", "time", "clock", "timezone", "timestamp", "cron",
-            "seconds", "age", "hms",
+            "seconds", "age", "hms", "ics", "period",
         ],
     },
     Category {
@@ -141,7 +145,7 @@ pub const CATEGORIES: &[Category] = &[
         ],
         slug_words: &[
             "calculator", "stats", "average", "sum", "percentage", "geometry", "matrix", "graph",
-            "product", "chi", "distribution", "math", "unit", "outlier", "normalize",
+            "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
         ],
     },
     Category {
@@ -155,7 +159,8 @@ pub const CATEGORIES: &[Category] = &[
             "truncate", "wrap", "unwrap", "split", "join", "sort", "dedupe", "duplicate",
             "replace", "censor", "substring", "string", "list", "todo", "task", "emoji",
             "readability", "summarize", "keywords", "chars", "tweet", "cleaner", "diff",
-            "frequency", "count", "ansi", "spell",
+            "frequency", "count", "ansi", "spell", "action", "item", "extractor", "deduplicator",
+            "dedup", "fuzzy", "name", "empty",
         ],
     },
     Category {
@@ -171,7 +176,8 @@ pub const CATEGORIES: &[Category] = &[
             "regex", "sql", "css", "js", "javascript", "html", "uuid", "mock", "fake", "jinja2",
             "template", "typescript", "flask", "session", "php", "seo", "sitemap", "form",
             "syntax", "autoprefixer", "playground", "tree", "gzip", "dotenv", "env", "configmap",
-            "log", "postman",
+            "log", "postman", "code", "formatter", "tabs", "spaces", "swagger", "api", "search",
+            "index",
         ],
     },
     Category {
