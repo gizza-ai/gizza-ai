@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-resampler"
+version = "0.1.0"
+abi = 1
+summary = "Change an audio file's sample rate (Hz) with high-quality resampling"
