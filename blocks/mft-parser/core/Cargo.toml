@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-mft-parser-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# mft: pure-Rust NTFS Master File Table ($MFT) binary parser (same author as the
+# `evtx` crate evtx-parser uses). default-features=false drops the `mft_dump`
+# feature (clap/dialoguer/simplelog/sonic-rs) so only the library compiles and it
+# instantiates under wasm32-wasip1. Timestamps come back as jiff::Timestamp.
+mft = { version = "0.7", default-features = false }
+# jiff: the SAME crate `mft` stamps each record's FILETIME with — used here for
+# min/max time-span math over the parsed records (exact instant ordering).
+jiff = { version = "0.2" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
