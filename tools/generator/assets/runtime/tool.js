@@ -3,6 +3,7 @@
 // exported function, and renders the result. Shared by every tool page (/tools/<slug>/).
 
 import { queryPrefill } from "./query-prefill.js";
+import { svgDataUrl } from "./tool-svg.js";
 
 const cfg = window.GIZZA_TOOL;
 const out = document.getElementById(cfg.output.elementId);
@@ -18,13 +19,51 @@ const out = document.getElementById(cfg.output.elementId);
 let custom = {};
 let customCtx = null;
 
+// The last result as text, for "Copy result". Kept separately because the svg
+// path leaves #tool-output empty (the <img> is the visible result) while the
+// SVG source is still what belongs on the clipboard.
+let lastResultText = "";
+
 function showResult(value) {
   out.classList.remove("error");
   if (custom.renderResult && custom.renderResult(value, customCtx)) {
     return;
   }
+  lastResultText = String(value);
+  if (cfg.format === "svg") {
+    showSvgResult(lastResultText);
+    return;
+  }
   out.textContent = cfg.format === "number" ? formatNumber(value) : String(value);
   syncTextDownload();
+}
+
+// format="svg": render the markup as an <img> data URI and offer it as a .svg
+// download. Never innerHTML — an SVG loaded as an image cannot execute script.
+function showSvgResult(svg) {
+  const media = document.getElementById("tool-output-media");
+  const dl = document.getElementById("tool-output-download");
+  const url = svgDataUrl(svg);
+  if (!media || !url) {
+    // Empty result, or a page rendered without the media element: fall back to
+    // the text pane rather than leaving a blank widget.
+    out.textContent = svg;
+    return;
+  }
+  out.textContent = "";
+  // A malformed SVG never paints and fires no error text of its own — show the
+  // source so the user can see what came back instead of an empty box.
+  media.onerror = () => {
+    media.hidden = true;
+    out.textContent = svg;
+  };
+  media.src = url;
+  media.hidden = false;
+  if (dl) {
+    dl.href = url;
+    dl.download = `${cfg.slug}.svg`;
+    dl.hidden = false;
+  }
 }
 
 function showError(message) {
@@ -34,6 +73,7 @@ function showError(message) {
   if (custom.renderError && custom.renderError(message, customCtx)) {
     return;
   }
+  lastResultText = "";
   out.classList.add("error");
   out.textContent = message;
   syncTextDownload();
@@ -182,6 +222,7 @@ function wireWidgetChrome(rerun) {
       if (media) media.hidden = true;
       if (dl) dl.hidden = true;
       if (copyImg) copyImg.hidden = true;
+      lastResultText = "";
       // A previous run's error/result must not survive Reset (rerun()
       // early-returns without recomputing when e.g. no file is selected).
       out.classList.remove("error");
@@ -194,7 +235,9 @@ function wireWidgetChrome(rerun) {
   const copy = document.getElementById("tool-copy-output");
   if (copy) {
     copy.addEventListener("click", async () => {
-      const text = (out.textContent || "").trim();
+      // lastResultText first: for format="svg" the visible result is the <img>
+      // and #tool-output is empty, but the SVG source is what should be copied.
+      const text = (lastResultText || out.textContent || "").trim();
       if (!text) return;
       try {
         await navigator.clipboard.writeText(text);

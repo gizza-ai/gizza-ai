@@ -140,6 +140,10 @@ fn run() -> Result<(), String> {
         }
 
         copy_file(&runtime.join("tool.js"), &out.join("tool.js"))?;
+        // tool.js has a static top-level `import … from "./tool-svg.js"` used by
+        // every page (not just format="svg") — a missing file 404s the import
+        // and aborts the whole module, so this copy is unconditional too.
+        copy_file(&runtime.join("tool-svg.js"), &out.join("tool-svg.js"))?;
         copy_file(&root.join("js/query-prefill.js"), &out.join("query-prefill.js"))?;
         copy_file(&runtime.join("tool.css"), &out.join("tool.css"))?;
         copy_file(&runtime.join("header.css"), &out.join("header.css"))?;
