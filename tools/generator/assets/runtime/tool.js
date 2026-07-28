@@ -74,6 +74,15 @@ function showError(message) {
     return;
   }
   lastResultText = "";
+  // A stale image/download from a PREVIOUS successful result must not linger
+  // next to the error text — otherwise it reads as still-current, and its
+  // download link no longer matches what's on screen. Format-agnostic
+  // (image/video/audio/svg all render through #tool-output-media): every
+  // media format hides the same way on error, no format branch here.
+  const media = document.getElementById("tool-output-media");
+  const dl = document.getElementById("tool-output-download");
+  if (media) media.hidden = true;
+  if (dl) dl.hidden = true;
   out.classList.add("error");
   out.textContent = message;
   syncTextDownload();
@@ -777,6 +786,7 @@ async function main() {
       if (empty) {
         out.classList.remove("error");
         out.textContent = "";
+        lastResultText = "";
         syncTextDownload();
       } else {
         showError(msg);

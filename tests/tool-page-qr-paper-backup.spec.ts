@@ -60,3 +60,26 @@ test('qr-paper-backup splits at the minimum chunk boundary', async ({ page }) =>
   expect(svg).toContain('101 bytes split into 3 QR codes.');
   expect(svg).toContain('Part 3 / 3');
 });
+
+test('qr-paper-backup clears the stale image and download link on a later error', async ({ page }) => {
+  await page.goto('/tools/qr-paper-backup/');
+  await page.fill('#in-input', 'paper backup demo');
+  await page.selectOption('#in-input_encoding', 'text');
+  await page.fill('#in-chunk_bytes', '300');
+  await page.fill('#in-columns', '2');
+  await page.selectOption('#in-error_correction', 'M');
+
+  // Produce a real result first, so there is something stale to clear.
+  const img = page.locator('#tool-output-media');
+  await expect(img).toBeVisible({ timeout: 15000 });
+  await expect(page.locator('#tool-output-download')).toBeVisible();
+
+  // Clear ONLY the input field (other fields stay populated) — core/src/lib.rs
+  // throws "input is empty", which routes to showError(). The previous
+  // image and its now-mismatched download link must not survive that.
+  await page.fill('#in-input', '');
+
+  await expect(page.locator('#tool-output')).toContainText('input is empty');
+  await expect(img).toBeHidden();
+  await expect(page.locator('#tool-output-download')).toBeHidden();
+});
