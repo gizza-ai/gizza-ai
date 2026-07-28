@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/natural-language-task",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a plain-English sentence into a todo.txt task line",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a plain-English task sentence into a todo.txt line, extracting a priority, +projects, @contexts and a due: date. Priority cues (urgent, asap, important, p1-p4, an explicit (A)) become a leading '(A)'-'(D)'; natural-language dates (tomorrow, next Friday, in 3 days, ISO dates, 'March 5') become 'due:YYYY-MM-DD'; inline +project/@context tags are preserved and an optional default project/context can be appended. Put one task per line to convert a whole brain-dump into a todo.txt list at once, anchored on an optional reference_date. Pure and private: deterministic parsing, no LLM, no accounts, no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "add_creation_date": {
+          "default": true,
+          "description": "Prefix each line with the reference date as the todo.txt creation date (after any priority), e.g. '(A) 2026-08-01 call bob'. Turn off to omit the creation date.",
+          "type": "boolean"
+        },
+        "context": {
+          "description": "Default @context to append to any line that has no @context of its own (a leading '@' is optional; spaces become hyphens). Leave blank to add none.",
+          "type": "string"
+        },
+        "detect_due": {
+          "default": true,
+          "description": "Parse a natural-language date phrase into a 'due:YYYY-MM-DD' key and strip it from the title. Turn off to keep the date words in the text and add no due: date.",
+          "type": "boolean"
+        },
+        "detect_priority": {
+          "default": true,
+          "description": "Map priority cues onto a leading todo.txt priority: urgent/asap/critical/important/emergency/'high priority' -> (A); low priority/someday/whenever/minor -> (C); Todoist-style p1-p4 -> (A)-(D); an explicit '(A)'-'(D)' is kept. The cue is dropped from the title. Turn off to leave titles verbatim with no priority.",
+          "type": "boolean"
+        },
+        "project": {
+          "description": "Default +project to append to any line that has no +project of its own (a leading '+' is optional; spaces become hyphens). Leave blank to add none.",
+          "type": "string"
+        },
+        "reference_date": {
+          "description": "ISO date (YYYY-MM-DD) that relative phrases like tomorrow, next Friday, or 'in 3 days' are measured from, and the creation date stamped when add_creation_date is on. Leave blank to use the current date.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The plain-English task, e.g. \"Call the plumber urgent tomorrow +house @phone\". Put one task per line to convert a whole brain-dump at once. Inline todo.txt tags (+project, @context) are kept as written; leading bullets/checkboxes/numbering are stripped. Recognised date phrases become a due: date and are removed from the title: today, tonight, tomorrow, day after tomorrow, weekday names (with 'next'/'this'), next week/month, 'in 3 days', 'in 2 weeks', ISO dates (2026-08-01), M/D, and 'March 5, 2027'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

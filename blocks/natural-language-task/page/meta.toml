@@ -1,0 +1,66 @@
+slug          = "natural-language-task"
+title         = "Natural Language to Todo.txt — Task Line Parser"
+description   = "Turn plain-English tasks into todo.txt lines with priority, +project, @context and due dates from phrases like tomorrow or next Friday."
+tags          = ["todo.txt", "task parser", "natural language tasks", "due date parser", "gtd", "productivity"]
+h1            = "Natural Language → Todo.txt"
+hero_subtitle = "Type a task the way you'd say it and get a clean todo.txt line: priority, +projects, @contexts and a due date, parsed deterministically in your browser."
+wasm          = "gizza_ai_natural_language_task_web"
+export        = "run"
+live          = false
+output_label  = "todo.txt"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Task (one per line)"
+placeholder = "Call the plumber urgent tomorrow +house @phone"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "reference_date"
+label       = "Reference date"
+placeholder = "today"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[input]]
+name        = "add_creation_date"
+label       = "Add creation date"
+source      = "field"
+
+[[input]]
+name        = "detect_priority"
+label       = "Detect priority"
+source      = "field"
+
+[[input]]
+name        = "detect_due"
+label       = "Detect due date"
+source      = "field"
+
+[[input]]
+name        = "project"
+label       = "Default +project"
+placeholder = "house"
+source      = "field"
+
+[[input]]
+name        = "context"
+label       = "Default @context"
+placeholder = "phone"
+source      = "field"
+
+[[example]]
+label  = "Urgent call tomorrow"
+params = { text = "Call the plumber urgent tomorrow +house @phone", reference_date = "2026-07-28" }
+
+[[example]]
+label  = "Report by next Friday"
+params = { text = "Submit the quarterly report by next Friday +work", reference_date = "2026-07-28" }
+
+[[example]]
+label  = "Brain-dump (3 tasks)"
+params = { text = "urgent fix login bug tomorrow +app\np3 tidy the garage someday\nbuy milk and eggs", reference_date = "2026-07-28" }
