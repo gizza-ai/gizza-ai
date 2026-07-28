@@ -314,7 +314,7 @@ pub fn render_page(
                                 output id="tool-output" class="tool-output" { "" }
                             }
                             @let has_fields = meta.inputs.iter().any(|i| i.source == "field");
-                            @if has_fields || !is_media {
+                            @if has_fields || !is_binary_media {
                                 div class="tool-widget-actions" {
                                     @if has_fields {
                                         button id="tool-reset" class="tool-widget-btn" type="button"
@@ -1540,5 +1540,21 @@ accept = "audio/*"
         let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(html.contains(r#"id="tool-copy-image""#), "raster image output keeps Copy image");
         assert!(!html.contains(r#"id="tool-copy-output""#), "raster image output has no Copy result");
+    }
+
+    #[test]
+    fn svg_format_with_no_field_inputs_still_offers_copy_output() {
+        // svg is is_media == true but is_binary_media == false, so the outer
+        // widget-actions gate must not be keyed on is_media alone — an svg tool
+        // with zero field inputs (e.g. no `source = "field"` input at all) must
+        // still render #tool-copy-output per the interface contract.
+        let mut meta = sample();
+        meta.format = "svg".to_string();
+        meta.inputs.clear();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(
+            html.contains(r#"id="tool-copy-output""#),
+            "Copy result is offered for svg even with no field inputs"
+        );
     }
 }
