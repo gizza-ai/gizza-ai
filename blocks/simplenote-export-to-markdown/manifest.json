@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/simplenote-export-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Simplenote JSON export into clean Markdown files.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Simplenote (or Evernote-style) JSON export into a labeled bundle of clean Markdown files — one per note, each with a title heading, tags, and dates. Auto-detects the modern Simplenote export ({activeNotes, trashedNotes}), a legacy Simplenote export, or an Evernote-style JSON array. filename_style controls the filename (date-title default, title, or id); metadata='frontmatter' (default) writes YAML frontmatter with title/created/updated/tags/pinned, while metadata='inline' appends tags as #hashtags; include_trashed=true also exports trashed notes. Output is one bundle: each file is preceded by an '==== filename ====' header.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "filename_style": {
+          "default": "date-title",
+          "description": "How each note's filename is built. 'date-title' (default) prefixes the slugged title with the note's creation date (YYYY-MM-DD-title.md); 'title' uses just the slugged title (title.md); 'id' uses the note's id/key. Collisions get a numeric suffix.",
+          "enum": [
+            "date-title",
+            "title",
+            "id"
+          ],
+          "type": "string"
+        },
+        "include_trashed": {
+          "default": false,
+          "description": "Include trashed/deleted notes (Simplenote's trashedNotes, or notes flagged deleted). Default false — only active notes are exported.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The JSON from your Simplenote export (simplenote.json). Also accepts a legacy Simplenote export or an Evernote-style JSON array of note objects. Paste the raw JSON text.",
+          "type": "string"
+        },
+        "metadata": {
+          "default": "frontmatter",
+          "description": "How tags and dates are surfaced. 'frontmatter' (default) writes a YAML block with title, created/updated dates, tags, and pinned/markdown flags; 'inline' writes no frontmatter and appends tags as #hashtags at the bottom.",
+          "enum": [
+            "frontmatter",
+            "inline"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
