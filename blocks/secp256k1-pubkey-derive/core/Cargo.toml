@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-secp256k1-pubkey-derive-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# secp256k1 public-key derivation — pure-Rust RustCrypto k256, proven wasm-safe
+# (same crate as bitcoin-address / crypto-keypair-generator). `arithmetic` gives
+# the public-key point + SEC1 (compressed/uncompressed) encoding. No RNG needed:
+# deriving a public key from a given secret is deterministic.
+k256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
+bs58 = { version = "0.5", default-features = false, features = ["check", "alloc"] }
+hex = { version = "0.4", default-features = false, features = ["alloc"] }

@@ -1,0 +1,35 @@
+{
+  "name": "gizza-ai/secp256k1-pubkey-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive the secp256k1 public key from a private key",
+  "role": "skill",
+  "tool": {
+    "description": "Derive the secp256k1 public key from a private key. Give key= as 64-char hex (0x/spaces/underscores allowed) or a WIF; the tool computes pubkey = key·G and returns the compressed SEC1 point (33 bytes, 02/03 prefix), the uncompressed point (65 bytes, 04 prefix), the raw X coordinate (32 bytes, also the Taproot x-only key), the raw Y coordinate, and the Y parity. The point is chain-agnostic (Bitcoin/Ethereum/Tron/...). Set format= to compressed, uncompressed, x, or y to return just that bare hex value; default 'all' lists everything. This tool derives from a GIVEN key — it does not generate random keys or emit addresses.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "all",
+          "description": "Which representation to return. 'all' (default) lists every field; 'compressed' = 33-byte SEC1 point (02/03 prefix); 'uncompressed' = 65-byte SEC1 point (04 prefix); 'x' = the 32-byte X coordinate (also the Taproot x-only key); 'y' = the 32-byte Y coordinate. Single formats return the bare hex value.",
+          "enum": [
+            "all",
+            "compressed",
+            "uncompressed",
+            "x",
+            "y"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The secp256k1 private key: 64 hex characters (0x prefix, spaces, and underscores allowed) or a WIF (base58check, e.g. 5.../K.../L... mainnet, 9.../c... testnet). The WIF's network and compression flag don't affect the public-key point and are ignored.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    }
+  }
+}

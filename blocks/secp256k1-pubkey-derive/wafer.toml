@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "secp256k1-pubkey-derive"
+version = "0.1.0"
+abi = 1
+summary = "Derive the secp256k1 public key from a private key"
