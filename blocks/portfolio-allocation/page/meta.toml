@@ -1,0 +1,69 @@
+slug          = "portfolio-allocation"
+title         = "Portfolio Allocation Calculator — Holdings Breakdown by Asset, Sector, Account"
+description   = "Paste holdings and calculate percentage allocation by asset class, holding, sector, or account with chart-ready values and concentration score."
+tags          = ["portfolio allocation", "asset allocation", "holdings breakdown", "sector allocation", "account allocation", "investment calculator", "portfolio chart", "diversification"]
+h1            = "Portfolio Allocation Calculator"
+hero_subtitle = "Paste a holdings list and see allocation percentages by asset class, holding, sector, or account — with values, bars, counts, and diversification score."
+wasm          = "gizza_ai_portfolio_allocation_web"
+export        = "run"
+live          = false
+output_label  = "Allocation table"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Holdings"
+placeholder = "Name, Value, Asset, Sector, Account\nAAPL, 6000, Stocks, Technology, Brokerage\nBND, 3000, Bonds, Bonds, IRA\nCash, 1000, Cash, Cash, Savings"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "group_by"
+label  = "Group by"
+source = "field"
+
+[input.labels]
+asset   = "Asset class"
+holding = "Holding"
+sector  = "Sector"
+account = "Account"
+
+[[input]]
+name   = "sort"
+label  = "Sort"
+source = "field"
+
+[input.labels]
+value = "Largest first"
+label = "Alphabetical label"
+
+[[input]]
+name        = "top_n"
+label       = "Top N slices"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency prefix"
+placeholder = "$"
+source      = "field"
+
+[[example]]
+label = "Asset allocation"
+[example.params]
+input = "Name, Value, Asset, Sector, Account\nAAPL, 6000, Stocks, Technology, Brokerage\nBND, 3000, Bonds, Bonds, IRA\nCash, 1000, Cash, Cash, Savings"
+group_by = "asset"
+sort = "value"
+top_n = "0"
+currency = "$"
+
+[[example]]
+label = "Sector top 2"
+[example.params]
+input = "AAPL, 6000, Stocks, Technology, Brokerage\nJNJ, 2000, Stocks, Healthcare, Brokerage\nBND, 3000, Bonds, Bonds, IRA\nCash, 1000, Cash, Cash, Savings"
+group_by = "sector"
+sort = "value"
+top_n = "2"
+currency = "$"
