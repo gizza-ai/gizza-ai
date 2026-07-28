@@ -1,0 +1,67 @@
+slug          = "lua-formatter"
+title         = "Lua Formatter — beautify & re-indent Lua code"
+description   = "Format, beautify and re-indent Lua source in your browser. Configurable indent width or tabs, optional quote-style normalization, comments preserved. Nothing is uploaded."
+tags          = ["lua formatter", "lua beautifier", "format lua", "lua code formatter", "pretty print lua", "lua indenter", "beautify lua", "luau formatter"]
+h1            = "Lua Formatter"
+hero_subtitle = "Paste messy or minified Lua and get clean, consistently indented code — block structure re-indented, commas normalized, blank lines collapsed, and optional quote-style normalization. Works on any dialect (5.1-5.4, LuaJIT, Luau). Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_lua_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted Lua"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Lua source"
+placeholder = "if x then\nprint(1)\nend"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces per level)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "indent_char"
+label  = "Indent character"
+source = "field"
+
+[input.labels]
+space = "Spaces"
+tab   = "Tab"
+
+[[input]]
+name   = "quote_style"
+label  = "Quote style"
+source = "field"
+
+[input.labels]
+preserve = "Preserve (keep as written)"
+double   = "Double quotes"
+single   = "Single quotes"
+
+[[example]]
+label = "Re-indent an if block"
+[example.params]
+input = "if x then\nprint(1)\nend"
+indent = "2"
+indent_char = "space"
+quote_style = "preserve"
+
+[[example]]
+label = "Nested function, 4-space"
+[example.params]
+input = "local function f(t)\nfor i=1,#t do\nif t[i] then\nreturn i\nend\nend\nend"
+indent = "4"
+indent_char = "space"
+quote_style = "preserve"
+
+[[example]]
+label = "Tabs + double quotes"
+[example.params]
+input = "local s = 'hi'\ndo\nx()\nend"
+indent = "2"
+indent_char = "tab"
+quote_style = "double"
