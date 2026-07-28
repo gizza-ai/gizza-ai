@@ -29,7 +29,7 @@ function showResult(value) {
   if (custom.renderResult && custom.renderResult(value, customCtx)) {
     return;
   }
-  lastResultText = String(value);
+  lastResultText = cfg.format === "number" ? formatNumber(value) : String(value);
   if (cfg.format === "svg") {
     showSvgResult(lastResultText);
     return;

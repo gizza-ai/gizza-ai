@@ -266,8 +266,10 @@ with (the `@let is_media` line is deleted — it is now declared above and inclu
 
 ```rust
                             @let has_fields = meta.inputs.iter().any(|i| i.source == "field");
-                            @if has_fields || !is_media {
+                            @if has_fields || !is_binary_media {
 ```
+
+(Note: this gate reads `!is_binary_media`, not `!is_media` — `is_media` no longer exists after this edit, and the shipped code uses `is_binary_media` here too, per a human ruling that the Interfaces contract above governs. Using `!is_media`/omitting this gate would drop "Copy result" from an svg tool with no field inputs — the case the `svg_format_with_no_field_inputs_still_offers_copy_output` test guards.)
 
 and change the "Copy result" gate from `@if !is_media {` to:
 

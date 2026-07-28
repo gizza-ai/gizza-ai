@@ -283,6 +283,7 @@ def check_block(slug_dir: Path) -> list[str]:
             )
         if declared:
             for name, text in (
+                ("meta.toml description", str(meta.get("description", ""))),
                 ("meta.toml hero_subtitle", str(meta.get("hero_subtitle", ""))),
                 ("content.md", (slug_dir / "page" / "content.md").read_text(
                     encoding="utf-8", errors="replace"

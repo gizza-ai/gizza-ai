@@ -268,4 +268,22 @@ python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
   python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
   exit 1; }
 
+# Check 9 must also scan `description` — it's the field that propagates
+# furthest (<meta name="description">, JSON-LD, og/twitter tags, the index
+# card, index.md, tool.json), not just hero_subtitle/content.md. A local-only
+# phrase there must fail the gate too, even with hero_subtitle/content.md clean.
+sed_inplace 's/^description   = .*/description   = "Encode or decode data — works offline, always free, in your browser."/' "$dir/page/meta.toml"
+out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
+case "$out" in
+  *"works offline"*) ;;
+  *) echo "FAIL: expected a check-9 description violation, got: $out" >&2; exit 1 ;;
+esac
+
+# Fix: restore a description with no local-only claim — passes again.
+sed_inplace 's/^description   = .*/description   = "Encode or decode data instantly in your browser — free, private, and offline-capable."/' "$dir/page/meta.toml"
+python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
+  echo "FAIL: gate rejected a compliant network-disclosed block" >&2
+  python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
+  exit 1; }
+
 echo "check-tool-hygiene.test.sh OK"
