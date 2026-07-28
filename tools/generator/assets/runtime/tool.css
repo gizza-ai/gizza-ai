@@ -262,3 +262,17 @@ a.tool-widget-btn { text-decoration: none; display: inline-block; }
   color: #475569;
   margin-left: auto;
 }
+
+/* Network-disclosure badge (meta.toml `network = true`). Deliberately plain and
+   informational rather than alarming: the request is expected behaviour for
+   these tools, it just has to be stated because every other tool is local-only. */
+.tool-network-note {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--tool-note-border, #fbbf24);
+  border-radius: 8px;
+  background: var(--tool-note-bg, #fffbeb);
+  color: var(--tool-note-ink, #78350f);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}

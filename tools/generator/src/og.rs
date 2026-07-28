@@ -83,7 +83,7 @@ impl OgRenderer {
         self.render(&card_svg(
             "All tools",
             &format!(
-                "{tool_count} free, private, browser-local tools — no sign-up, works offline."
+                "{tool_count} free, private, browser-local tools — no sign-up, nothing uploaded."
             ),
             &cfg.og_label("tools"),
             &cfg.brand_name,

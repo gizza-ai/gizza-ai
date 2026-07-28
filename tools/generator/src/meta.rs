@@ -88,7 +88,9 @@ pub struct ToolMeta {
     #[serde(default)]
     pub interval_ms: Option<u64>,
     pub output_label: String,
-    /// "number" or "text" — how to render the result.
+    /// How to render the result: "number", "text", "svg" (rendered as an
+    /// <img> data URI, source still copyable), or the media formats
+    /// "image"/"video"/"audio". Any other value renders as plain text.
     pub format: String,
     /// "wasm" (pure compute, default) or "ffmpeg" (file in → media out via browser ffmpeg).
     #[serde(default = "default_runtime")]
@@ -102,6 +104,12 @@ pub struct ToolMeta {
     /// `tool-widget--wide` class instead of a per-tool JS width hack.
     #[serde(default)]
     pub wide: bool,
+    /// Set for tools that make a real outbound request from the browser (the
+    /// block calls `network::do_request`). Renders the disclosure badge and is
+    /// enforced against the page's privacy copy by
+    /// `scripts/check-tool-hygiene.py` check 9.
+    #[serde(default)]
+    pub network: bool,
     /// See [`WaveformSpec`]. Only audio-input ffmpeg tools consult this.
     #[serde(default)]
     pub waveform: Option<WaveformSpec>,
