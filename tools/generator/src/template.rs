@@ -678,7 +678,7 @@ pub fn render_tools_index(cfg: &SiteConfig, metas: &[ToolMeta], hubs: &[Hub]) ->
     let title = cfg.brand_title("All Tools");
     let description = format!(
         "Browse every {}tool — free, private, browser-local utilities. \
-         No sign-up, nothing leaves your device, works offline.",
+         No sign-up, nothing uploaded. The few tools that fetch a URL say so on their page.",
         if cfg.brand_name.is_empty() { String::new() } else { format!("{} ", cfg.brand_name) }
     );
     let og_image = cfg.abs("/tools/og.png");
@@ -720,7 +720,8 @@ pub fn render_tools_index(cfg: &SiteConfig, metas: &[ToolMeta], hubs: &[Hub]) ->
                         h1 { "All tools" }
                         p class="tools-index__sub" {
                             "Free, private, browser-local tools. Everything runs in your browser — \
-                             nothing leaves your device, no sign-up, works offline."
+                             no sign-up, nothing uploaded. The few tools that fetch a URL say so \
+                             on their page."
                         }
                         div class="tools-index__search" {
                             input #tools-filter type="search" placeholder="Search tools…"
@@ -1588,5 +1589,20 @@ accept = "audio/*"
     fn pages_without_the_network_flag_have_no_badge() {
         let html = render_page(&branded(), &sample(), "", &ParamSchema::empty(), false, false, &[], &[]);
         assert!(!html.contains("tool-network-note"), "no badge on a local-only tool");
+    }
+
+    #[test]
+    fn index_privacy_claim_is_qualified_for_network_tools() {
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_tools_index(&branded(), &metas, &hubs);
+        assert!(
+            !html.contains("nothing leaves your device, no sign-up, works offline"),
+            "the unqualified blanket claim is gone"
+        );
+        assert!(
+            html.contains("say so on their page"),
+            "the index points at the per-page disclosure instead of promising local-only for all"
+        );
     }
 }

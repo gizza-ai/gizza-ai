@@ -73,7 +73,7 @@ pub fn tools_catalog_md(cfg: &SiteConfig, metas: &[ToolMeta]) -> String {
     };
     let mut s = format!(
         "# {catalog_name}\n\n> Every {brand_prefix}tool — free, private, browser-local utilities. \
-         Nothing leaves your device, no sign-up, works offline.\n\n",
+         No sign-up, nothing uploaded. The few tools that fetch a URL say so on their page.\n\n",
     );
     for m in metas {
         s.push_str(&format!(
