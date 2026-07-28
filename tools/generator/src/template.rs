@@ -152,6 +152,16 @@ pub fn render_page(
                     section class="tool-hero" {
                         h1 { (meta.h1) }
                         p class="tool-hero-sub" { (meta.hero_subtitle) }
+                        // Every other tool on the site is local-only, so a tool that
+                        // actually reaches the network has to say so before it runs.
+                        @if meta.network {
+                            p class="tool-network-note" {
+                                "Heads up: this tool makes a real network request. "
+                                "The address you enter is fetched from your browser, so \
+                                 the request leaves your device and the target site must \
+                                 allow cross-origin access — many sites do not."
+                            }
+                        }
                         @let widget_class = if meta.wide { "tool-widget tool-widget--wide" } else { "tool-widget" };
                         div class=(widget_class) {
                             @for input in &meta.inputs {
@@ -1556,5 +1566,27 @@ accept = "audio/*"
             html.contains(r#"id="tool-copy-output""#),
             "Copy result is offered for svg even with no field inputs"
         );
+    }
+
+    #[test]
+    fn network_flag_renders_the_disclosure_badge() {
+        let mut meta = sample();
+        meta.network = true;
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains("tool-network-note"), "badge element is rendered");
+        assert!(
+            html.contains("makes a real network request"),
+            "badge states that the request is real"
+        );
+        assert!(
+            html.contains("must allow cross-origin access"),
+            "badge sets the CORS expectation before the user runs the tool"
+        );
+    }
+
+    #[test]
+    fn pages_without_the_network_flag_have_no_badge() {
+        let html = render_page(&branded(), &sample(), "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(!html.contains("tool-network-note"), "no badge on a local-only tool");
     }
 }

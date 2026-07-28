@@ -104,6 +104,12 @@ pub struct ToolMeta {
     /// `tool-widget--wide` class instead of a per-tool JS width hack.
     #[serde(default)]
     pub wide: bool,
+    /// Set for tools that make a real outbound request from the browser (the
+    /// block calls `network::do_request`). Renders the disclosure badge and is
+    /// enforced against the page's privacy copy by
+    /// `scripts/check-tool-hygiene.py` check 9.
+    #[serde(default)]
+    pub network: bool,
     /// See [`WaveformSpec`]. Only audio-input ffmpeg tools consult this.
     #[serde(default)]
     pub waveform: Option<WaveformSpec>,
