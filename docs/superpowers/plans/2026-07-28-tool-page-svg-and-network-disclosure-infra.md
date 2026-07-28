@@ -728,12 +728,14 @@ git commit -m "feat(hygiene): check 9 — network pages must disclose, and must 
 
 - [ ] **Step 1: Write the failing test**
 
-Add to `tools/generator/src/template.rs`'s test module. Use the same helper the existing index test uses to render the index page — locate it with `grep -n "fn render_index" tools/generator/src/template.rs` and match the call shape of the nearest existing index test:
+Add to `tools/generator/src/template.rs`'s test module, matching the setup used by the existing `tools_index_lists_all_tools_with_chrome` test (line ~950):
 
 ```rust
     #[test]
     fn index_privacy_claim_is_qualified_for_network_tools() {
-        let html = /* render the /tools/ index, matching the existing index test's call */;
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_tools_index(&branded(), &metas, &hubs);
         assert!(
             !html.contains("nothing leaves your device, no sign-up, works offline"),
             "the unqualified blanket claim is gone"
