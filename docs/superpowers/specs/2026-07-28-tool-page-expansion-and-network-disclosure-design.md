@@ -74,7 +74,14 @@ Shared plumbing lands first as one PR, then three tool batches, then a
 disappears without adding DOMPurify to the tool-page runtime and without relying
 on each block escaping user text correctly (`scatter-chart` has an `esc()`
 helper, but that is per-block convention, not an enforced guarantee). It also
-inherits the existing Download and "Copy image" affordances.
+inherits the existing Download affordance, with the file saved as `<slug>.svg`.
+
+"Copy image" is deliberately **not** offered for SVG. That button draws the
+`<img>` onto a canvas and writes a PNG `ClipboardItem`, which is unreliable for
+an SVG source (canvas tainting and intrinsic-size handling vary by browser).
+SVG pages get the text "Copy result" button instead, putting the SVG source on
+the clipboard — which is what an SVG user wants anyway. This means `format =
+"svg"` is media for *display* but text for *copy*.
 
 Changes:
 
