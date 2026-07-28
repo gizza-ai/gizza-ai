@@ -1,0 +1,124 @@
+slug          = "data-bin"
+title         = "Data Binning Tool — Bucket a CSV Column (Equal-Width, Quantile, Custom)"
+description   = "Bin a numeric CSV column into equal-width, quantile (equal-frequency), or custom-edge buckets and label each row. Runs entirely in your browser, free — nothing uploaded."
+tags          = ["data binning", "bucket numeric column", "equal width bins", "quantile binning", "discretize csv"]
+h1            = "Data Binning Tool"
+hero_subtitle = "Bin a numeric CSV column into equal-width, quantile (equal-frequency), or custom-edge buckets and label every row with the bucket it lands in — choose the method, bucket count, labels, and interval style. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_data_bin_web"
+export        = "run"
+live          = false
+output_label  = "Binned CSV"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSV"
+placeholder = "name,score\nAlice,12\nBob,55\nCarol,88\nDan,73"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "method"
+label       = "Binning method"
+source      = "field"
+
+[input.labels]
+equal_width = "Equal-width (same value span per bucket)"
+quantile    = "Quantile (equal-frequency: ~same count per bucket)"
+custom      = "Custom edges (your own boundaries)"
+
+[[input]]
+name        = "column"
+label       = "Column to bin (header name or 1-based index)"
+placeholder = "score"
+source      = "field"
+
+[[input]]
+name        = "bins"
+label       = "Number of buckets (equal-width / quantile)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "edges"
+label       = "Custom edges (ascending, comma-separated)"
+placeholder = "0,18,65,120"
+source      = "field"
+
+[[input]]
+name        = "labels"
+label       = "Custom bucket labels (one per bucket, comma-separated)"
+placeholder = "low,mid,high"
+source      = "field"
+
+[[input]]
+name        = "label_style"
+label       = "Auto-label style (when labels blank)"
+source      = "field"
+
+[input.labels]
+range = "Range interval (e.g. (0, 50])"
+index = "Bucket index (1-based number)"
+
+[[input]]
+name        = "right"
+label       = "Right-closed intervals ( (a, b] ; off = left-closed [a, b) )"
+source      = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places in range labels"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output mode"
+source      = "field"
+
+[input.labels]
+append  = "Append a new bin column"
+replace = "Replace the source column"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (kept, used for column names)"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[example]]
+label = "Equal-width quartiles"
+[example.params]
+input  = "name,score\nAlice,12\nBob,55\nCarol,88\nDan,73"
+method = "equal_width"
+column = "score"
+bins   = "4"
+
+[[example]]
+label = "Quantile terciles with custom labels"
+[example.params]
+input   = "name,score\nAlice,12\nBob,55\nCarol,88\nDan,73\nEve,40\nFrank,95"
+method  = "quantile"
+column  = "score"
+bins    = "3"
+labels  = "low,mid,high"
+
+[[example]]
+label = "Custom age bands"
+[example.params]
+input   = "name,age\nA,10\nB,40\nC,80"
+method  = "custom"
+column  = "age"
+edges   = "0,18,65,120"
+labels  = "child,adult,senior"
+output  = "replace"

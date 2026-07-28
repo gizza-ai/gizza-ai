@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "data-bin"
+version = "0.1.0"
+abi = 1
+summary = "Bin a numeric CSV column into equal-width, quantile, or custom buckets"
