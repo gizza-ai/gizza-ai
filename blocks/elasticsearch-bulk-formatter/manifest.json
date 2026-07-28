@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/elasticsearch-bulk-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build the Elasticsearch _bulk NDJSON body from a JSON array of documents",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a JSON array of documents into the newline-delimited JSON (NDJSON) request body for the Elasticsearch _bulk API. Each document becomes an action/metadata line ({ \"<action>\": { \"_index\": …, \"_id\": … } }) plus, for index/create/update, a compact source line (update wraps it as { \"doc\": … }, optionally with doc_as_upsert); delete emits no source line. Pick the action (index/create/update/delete), an optional target index, and the field that supplies each document's _id (stripped from the source; required for update/delete). Output is compact, one JSON value per line, ending with a trailing newline — paste it into curl --data-binary, Kibana Dev Tools, or a client. Errors on invalid JSON, a non-array root, a non-object or empty item, or a document missing the required _id.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "default": "index",
+          "description": "Bulk action per document. index = create-or-replace; create = fail if it exists; update = partial (wrapped as {\"doc\":…}); delete = remove (no source line). Default index.",
+          "enum": [
+            "index",
+            "create",
+            "update",
+            "delete"
+          ],
+          "type": "string"
+        },
+        "doc_as_upsert": {
+          "default": false,
+          "description": "For the update action, add \"doc_as_upsert\": true so a missing document is inserted from doc. Ignored for other actions.",
+          "type": "boolean"
+        },
+        "documents": {
+          "description": "JSON array of documents, e.g. [{\"id\":\"1\",\"title\":\"hello\"}]. Each object becomes one bulk operation.",
+          "type": "string"
+        },
+        "id_field": {
+          "description": "Name of the field whose value becomes each document's _id; that field is stripped from the emitted source. Required for update and delete; optional for index and create.",
+          "type": "string"
+        },
+        "index": {
+          "description": "Target index name written to _index in every metadata line. Leave empty to omit _index when you POST to /<index>/_bulk.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "type": "object"
+    }
+  }
+}
