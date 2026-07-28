@@ -26,6 +26,15 @@ to real regressions:
   4. Summary drift. The wafer_block macro summary, `manifest.json` `summary`, and
      `wafer.toml` `summary` must agree (a trailing period is ignored).
 
+  9. Network disclosure. A block that calls `network::do_request` and ships a page
+     MUST set `network = true` in `page/meta.toml` (which renders the disclosure
+     badge), and a page with that flag MUST NOT claim to be local-only ("nothing
+     leaves your device", "runs locally", "no upload", "works offline", "runs
+     entirely in your browser"). Every other tool on the site is local-only, so an
+     undisclosed fetch silently contradicts the site's promise. `requires` in
+     manifest.json is not usable for this: the blocks that call do_request do not
+     declare it, and 144 that never call it do.
+
   8. Site branding. Pages must be generic: the site injects branding at render
      time (`SiteConfig` `title_suffix`/header/footer — `tools/generator/src/site.rs`).
      A literal `gizza.ai`/`gizza-ai.pages.dev` string in `page/meta.toml`,
@@ -50,8 +59,8 @@ aggregated advisory so CI stays green until the corpus is backfilled:
      require 50-170 chars (truncation starts ~160; shorter than 50 wastes the slot).
 
 Usage:
-  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4+8 gate, 5-7 advisory
-  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-8 all gate
+  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4+8-9 gate, 5-7 advisory
+  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-9 all gate
 
 Exit code 0 = clean, 1 = violations found (prints each), 2 = usage error.
 """
@@ -76,6 +85,16 @@ FAQ_HEADING_RE = re.compile(r"^#{1,6}\s*(faq|frequently asked)", re.IGNORECASE |
 MACRO_SUMMARY_RE = re.compile(r'wafer_block\((?:.|\n)*?\bsummary\s*=\s*"((?:\\.|[^"\\])*)"')
 WAFER_SUMMARY_RE = re.compile(r'^\s*summary\s*=\s*"((?:\\.|[^"\\])*)"', re.MULTILINE)
 BRAND_RE = re.compile(r"gizza\.ai|gizza-ai\.pages\.dev", re.IGNORECASE)
+# A block that actually reaches the network calls the host service directly.
+# `requires` in manifest.json is NOT a reliable signal — the five blocks that
+# call do_request do not declare it, while 144 that never call it do.
+NETWORK_CALL_RE = re.compile(r"network::do_request")
+# Claims that are false (or misleading) on a page that fetches over the network.
+LOCAL_ONLY_RE = re.compile(
+    r"nothing leaves your device|runs locally|no upload|works offline"
+    r"|runs entirely in your browser",
+    re.IGNORECASE,
+)
 
 
 def norm_summary(s: str) -> str:
@@ -240,6 +259,41 @@ def check_block(slug_dir: Path) -> list[str]:
                     f"{slug}: site branding {m.group(0)!r} in page/{name} "
                     "— pages must be generic (branding is injected by the site config)"
                 )
+
+    # 9. Network disclosure. A page whose block really reaches the network must
+    #    say so (meta.toml `network = true`, which renders the badge), and a page
+    #    that says so must not also claim to be local-only. Both directions are
+    #    gated: a missing flag silently ships a page that contradicts the site's
+    #    local-only promise, and a stale local-only sentence does the same.
+    meta_path = slug_dir / "page" / "meta.toml"
+    if meta_path.is_file():
+        calls_network = any(
+            NETWORK_CALL_RE.search(p.read_text(encoding="utf-8", errors="replace"))
+            for p in slug_dir.rglob("*.rs")
+        )
+        try:
+            meta = tomllib.loads(meta_path.read_text(encoding="utf-8", errors="replace"))
+        except tomllib.TOMLDecodeError:
+            meta = {}  # check 5-7 reports the parse error; don't double-report here
+        declared = bool(meta.get("network", False))
+        if calls_network and not declared:
+            problems.append(
+                f"{slug}: block calls network::do_request but page/meta.toml does not set "
+                "network = true — the page must disclose the request (renders the badge)."
+            )
+        if declared:
+            for name, text in (
+                ("meta.toml hero_subtitle", str(meta.get("hero_subtitle", ""))),
+                ("content.md", (slug_dir / "page" / "content.md").read_text(
+                    encoding="utf-8", errors="replace"
+                ) if (slug_dir / "page" / "content.md").is_file() else ""),
+            ):
+                m = LOCAL_ONLY_RE.search(text)
+                if m:
+                    problems.append(
+                        f"{slug}: network = true but {name} claims {m.group(0)!r} "
+                        "— a tool that fetches over the network is not local-only."
+                    )
 
     return problems
 
