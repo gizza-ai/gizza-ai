@@ -276,8 +276,19 @@ pub fn render_page(
                                 }
                             }
                             div class="tool-output-label" { (meta.output_label) }
-                            @if meta.format == "image" || meta.format == "video" || meta.format == "audio" {
-                                @if meta.format == "image" {
+                            // Media display covers svg too: the SVG is rendered as
+                            // <img src="data:image/svg+xml;base64,…">, which cannot
+                            // execute script the way innerHTML would, so no sanitizer
+                            // dependency and no reliance on each block escaping user
+                            // text correctly.
+                            @let is_media = meta.format == "image" || meta.format == "video"
+                                || meta.format == "audio" || meta.format == "svg";
+                            // Binary media = the formats whose result is bytes, not text.
+                            // svg is media for DISPLAY but still text for copy/paste.
+                            @let is_binary_media = meta.format == "image" || meta.format == "video"
+                                || meta.format == "audio";
+                            @if is_media {
+                                @if meta.format == "image" || meta.format == "svg" {
                                     img id="tool-output-media" class="tool-output-media" alt="" hidden;
                                 } @else if meta.format == "video" {
                                     video id="tool-output-media" class="tool-output-media" controls hidden {}
@@ -285,9 +296,11 @@ pub fn render_page(
                                     audio id="tool-output-media" class="tool-output-media" controls hidden {}
                                 }
                                 // Media-output actions row. Download is offered for
-                                // every media format; "Copy image" only for images —
-                                // video/audio have no reliable ClipboardItem path, so
-                                // the button is NOT rendered for them. Both start
+                                // every media format; "Copy image" only for raster
+                                // images — video/audio have no reliable ClipboardItem
+                                // path, and for svg the clipboard is reliably PNG-only
+                                // while canvas-drawing an SVG varies by browser, so svg
+                                // uses the text "Copy result" button instead. All start
                                 // hidden; tool.js reveals them once a result renders.
                                 div class="tool-media-actions" {
                                     a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
@@ -301,14 +314,13 @@ pub fn render_page(
                                 output id="tool-output" class="tool-output" { "" }
                             }
                             @let has_fields = meta.inputs.iter().any(|i| i.source == "field");
-                            @let is_media = meta.format == "image" || meta.format == "video" || meta.format == "audio";
                             @if has_fields || !is_media {
                                 div class="tool-widget-actions" {
                                     @if has_fields {
                                         button id="tool-reset" class="tool-widget-btn" type="button"
                                                title="Restore the default inputs" { "Reset" }
                                     }
-                                    @if !is_media {
+                                    @if !is_binary_media {
                                         button id="tool-copy-output" class="tool-widget-btn" type="button"
                                                title="Copy the result to the clipboard" { "Copy result" }
                                     }
@@ -1492,5 +1504,41 @@ accept = "audio/*"
         assert!(html.contains(r#"id="tool-output-media""#), "media output element");
         assert!(html.contains(r#"id="tool-output-download""#), "download link");
         assert!(html.contains(r#"id="tool-output""#), "status output for errors");
+    }
+
+    #[test]
+    fn svg_format_renders_an_img_and_download() {
+        let mut meta = sample();
+        meta.format = "svg".to_string();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(
+            html.contains(r#"<img id="tool-output-media""#),
+            "svg output renders the <img> media element"
+        );
+        assert!(
+            html.contains(r#"id="tool-output-download""#),
+            "svg output offers a download link"
+        );
+    }
+
+    #[test]
+    fn svg_format_keeps_copy_result_and_omits_copy_image() {
+        // The SVG source is what an SVG user wants on the clipboard. "Copy image"
+        // is deliberately NOT offered: ClipboardItem is reliably PNG-only and
+        // canvas-drawing an SVG varies by browser.
+        let mut meta = sample();
+        meta.format = "svg".to_string();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"id="tool-copy-output""#), "Copy result is offered for svg");
+        assert!(!html.contains(r#"id="tool-copy-image""#), "Copy image is not offered for svg");
+    }
+
+    #[test]
+    fn image_format_still_offers_copy_image() {
+        let mut meta = sample();
+        meta.format = "image".to_string();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"id="tool-copy-image""#), "raster image output keeps Copy image");
+        assert!(!html.contains(r#"id="tool-copy-output""#), "raster image output has no Copy result");
     }
 }

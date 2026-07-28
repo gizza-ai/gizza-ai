@@ -88,7 +88,9 @@ pub struct ToolMeta {
     #[serde(default)]
     pub interval_ms: Option<u64>,
     pub output_label: String,
-    /// "number" or "text" — how to render the result.
+    /// How to render the result: "number", "text", "svg" (rendered as an
+    /// <img> data URI, source still copyable), or the media formats
+    /// "image"/"video"/"audio". Any other value renders as plain text.
     pub format: String,
     /// "wasm" (pure compute, default) or "ffmpeg" (file in → media out via browser ffmpeg).
     #[serde(default = "default_runtime")]
