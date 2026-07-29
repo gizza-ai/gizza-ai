@@ -1,0 +1,28 @@
+{
+  "name": "gizza-ai/pem-inspect",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode PEM certificates, CSRs, and keys offline",
+  "role": "skill",
+  "tool": {
+    "description": "Decode and inspect PEM-encoded X.509 certificates, PKCS#10 certificate requests (CSRs), and public/private keys entirely offline. Paste one or more '-----BEGIN …-----' blocks as 'input' (a full certificate chain works — each block is decoded independently). For a certificate it reports version, serial, subject, issuer, self-signed flag, validity window, expiry status and days-until-expiry, Subject Alternative Names, CA/basic-constraints, key usage and extended key usage, the public-key algorithm and size/curve, the signature algorithm, and SHA-256/SHA-1 fingerprints. CSRs report subject, requested SANs, public key and signature algorithm. Keys report format/algorithm/size only — private-key secret material is never emitted. Optionally set 'now' (Unix seconds) to evaluate certificate expiry at a specific instant; otherwise the current time is used. Returns one JSON object per PEM block.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "One or more PEM blocks to decode, pasted verbatim including the '-----BEGIN …-----' / '-----END …-----' lines. Supported block types: CERTIFICATE (X.509), CERTIFICATE REQUEST (PKCS#10 CSR), PUBLIC KEY (SPKI), RSA PUBLIC KEY (PKCS#1), PRIVATE KEY (PKCS#8), RSA PRIVATE KEY (PKCS#1), EC PRIVATE KEY (SEC1) and ENCRYPTED PRIVATE KEY. Multiple blocks (e.g. a full certificate chain) may be pasted at once — each is decoded independently. Everything runs locally; private-key material is reported by type/algorithm/size only and secret scalars are never emitted.",
+          "type": "string"
+        },
+        "now": {
+          "description": "Reference time as seconds since the Unix epoch, used to compute each certificate's expiry status and days-until-expiry. When omitted (0), the current clock time is used.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
