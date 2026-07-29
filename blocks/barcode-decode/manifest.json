@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/barcode-decode",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode 1D barcodes from an image",
+  "role": "skill",
+  "tool": {
+    "description": "Read 1D barcodes from an image (PNG/JPEG/GIF/WebP/BMP) and return every detected code as JSON with format and text. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call. Params: format=auto|ean-13|ean-8|upc-a|code-128|code-39 (default auto tries common 1D symbologies including UPC-E, Code 93, Codabar, ITF), try_harder=true|false (default true for tougher scans). This tool is 1D-only; use qr-decode for QR codes.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "auto",
+          "description": "Barcode symbology to decode. auto (default) tries common 1D formats (EAN-13, EAN-8, UPC-A/UPC-E, Code 128, Code 39, Code 93, Codabar, ITF); choose a specific format to reduce false positives. QR and other 2D codes are out of scope — use qr-decode for QR.",
+          "enum": [
+            "auto",
+            "ean-13",
+            "ean-8",
+            "upc-a",
+            "code-128",
+            "code-39"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "try_harder": {
+          "default": true,
+          "description": "Spend extra effort scanning rotations and harder binarizations. Default true; set false for faster decoding of clean, straight scans.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
