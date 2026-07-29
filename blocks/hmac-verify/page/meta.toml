@@ -1,0 +1,86 @@
+slug          = "hmac-verify"
+title         = "HMAC Verify — Constant-Time Signature Check"
+description   = "Verify an HMAC tag against a message and secret key using a timing-safe comparison. Supports SHA-256, SHA-512, SHA-1, MD5, hex, and base64."
+tags          = ["hmac verify", "hmac signature", "webhook signature", "sha256 hmac", "constant time compare", "api signature", "message authentication code", "hash-based message authentication"]
+h1            = "HMAC Verify"
+hero_subtitle = "Check whether an HMAC tag matches a message and secret key with a constant-time comparison. Supports text, hex, and base64 inputs for webhook and API signature debugging."
+wasm          = "gizza_ai_hmac_verify_web"
+export        = "run"
+live          = false
+output_label  = "Verification report"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Message / payload"
+placeholder = "what do ya want for nothing?"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Secret key"
+placeholder = "Jefe"
+source      = "field"
+
+[[input]]
+name        = "expected"
+label       = "Expected HMAC tag"
+placeholder = "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+source      = "field"
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+source      = "field"
+
+[[input]]
+name        = "message_encoding"
+label       = "Message encoding"
+source      = "field"
+
+[[input]]
+name        = "key_encoding"
+label       = "Key encoding"
+source      = "field"
+
+[[input]]
+name        = "expected_encoding"
+label       = "Expected tag encoding"
+source      = "field"
+
+[[example]]
+label = "RFC 4231 SHA-256 match"
+
+[example.params]
+message           = "what do ya want for nothing?"
+key               = "Jefe"
+expected          = "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+algorithm         = "sha256"
+message_encoding  = "text"
+key_encoding      = "text"
+expected_encoding = "hex"
+
+[[example]]
+label = "Base64 tag auto-detect"
+
+[example.params]
+message           = "what do ya want for nothing?"
+key               = "Jefe"
+expected          = "W9zBRr9gdU5qBCQmCJV1x1oAPwidJzmDnexYuWTsOEM="
+algorithm         = "sha256"
+message_encoding  = "text"
+key_encoding      = "text"
+expected_encoding = "auto"
+
+[[example]]
+label = "GitHub-style prefix"
+
+[example.params]
+message           = "what do ya want for nothing?"
+key               = "Jefe"
+expected          = "sha256=5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+algorithm         = "sha256"
+message_encoding  = "text"
+key_encoding      = "text"
+expected_encoding = "auto"

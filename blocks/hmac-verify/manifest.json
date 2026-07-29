@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/hmac-verify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Verify an HMAC tag in constant time",
+  "role": "skill",
+  "tool": {
+    "description": "Verify that an HMAC tag/signature matches a message and secret key using a constant-time comparison. Inputs: message, key, expected tag; algorithm=md5|sha1|sha224|sha256|sha384|sha512|sha3-256|sha3-512 (default sha256); message_encoding and key_encoding=text|hex|base64 (default text); expected_encoding=auto|hex|base64 (default auto). Returns MATCH/MISMATCH plus the normalized expected and computed tags.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "sha256",
+          "description": "Underlying digest algorithm for HMAC. Default sha256; choose the same algorithm the sender used.",
+          "enum": [
+            "md5",
+            "sha1",
+            "sha224",
+            "sha256",
+            "sha384",
+            "sha512",
+            "sha3-256",
+            "sha3-512"
+          ],
+          "type": "string"
+        },
+        "expected": {
+          "description": "Expected HMAC tag/signature to verify. Hex or base64; expected_encoding=auto accepts either and also tolerates prefixes like sha256= or 0x.",
+          "type": "string"
+        },
+        "expected_encoding": {
+          "default": "auto",
+          "description": "How to decode the expected tag. auto tries hex first then base64, and tolerates common webhook prefixes.",
+          "enum": [
+            "auto",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "Secret HMAC key. Interpreted according to key_encoding (text by default); use hex/base64 for binary keys.",
+          "type": "string"
+        },
+        "key_encoding": {
+          "default": "text",
+          "description": "How to decode the secret key before HMAC: text (UTF-8 bytes), hex, or base64.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "message": {
+          "description": "Message or payload bytes to authenticate. Interpreted according to message_encoding (text by default).",
+          "type": "string"
+        },
+        "message_encoding": {
+          "default": "text",
+          "description": "How to decode the message before HMAC: text (UTF-8 bytes), hex, or base64.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "key",
+        "expected"
+      ],
+      "type": "object"
+    }
+  }
+}

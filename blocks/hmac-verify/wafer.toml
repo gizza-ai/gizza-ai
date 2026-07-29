@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hmac-verify"
+version = "0.1.0"
+abi = 1
+summary = "Verify an HMAC tag in constant time"
