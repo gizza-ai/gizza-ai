@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-path-edit"
+version = "0.1.0"
+abi = 1
+summary = "Get, set, or delete a value at a dotted/bracketed path in JSON."
