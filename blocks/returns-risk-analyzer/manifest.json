@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/returns-risk-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Annualized return, volatility, Sharpe and Sortino from a returns series",
+  "role": "skill",
+  "tool": {
+    "description": "Compute performance and risk metrics from a series of periodic investment returns: count, per-period mean, cumulative and geometric annualized return, annualized volatility (sample standard deviation × √periods), downside deviation, max drawdown, Sharpe, Sortino and Calmar ratios, plus best/worst period and the share of positive periods. Returns are decimals (0.012) or percents (1.2%). Configure periods_per_year (252 daily, 52 weekly, 12 monthly, 4 quarterly, 1 annual), an annual risk_free_rate percent for Sharpe, and a target_return percent as the Sortino minimum acceptable return. Runs locally. Educational only, not financial advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "has_header": {
+          "default": false,
+          "description": "Skip the first line before parsing when your pasted series starts with a column label. Default false.",
+          "type": "boolean"
+        },
+        "periods_per_year": {
+          "default": "252",
+          "description": "How many return periods make up a year, used to annualize: 252 daily, 52 weekly, 26 biweekly, 12 monthly, 4 quarterly, 1 annual. Default 252 (daily).",
+          "enum": [
+            "252",
+            "52",
+            "26",
+            "12",
+            "4",
+            "1"
+          ],
+          "type": "string"
+        },
+        "returns": {
+          "description": "The periodic return series, one return per line or separated by commas/spaces. Each value is a decimal (0.012) or a percent with a % sign (1.2%). Needs at least 2 returns.",
+          "type": "string"
+        },
+        "risk_free_rate": {
+          "default": 0.0,
+          "description": "Annual risk-free rate as a percent (e.g. 2 means 2% per year), used for the Sharpe ratio numerator. Default 0.",
+          "type": "number"
+        },
+        "target_return": {
+          "default": 0.0,
+          "description": "Sortino minimum acceptable return (MAR) as an annual percent (e.g. 0 or 5). Returns below it count as downside. Default 0.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "returns"
+      ],
+      "type": "object"
+    }
+  }
+}
