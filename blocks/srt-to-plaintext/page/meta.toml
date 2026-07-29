@@ -1,0 +1,56 @@
+slug          = "srt-to-plaintext"
+title         = "SRT to Plain Text — subtitle transcript extractor"
+description   = "Strip cue numbers and timestamps from SRT or WebVTT subtitles and return clean transcript text, with options for tags, sound effects, speaker labels and layout."
+tags          = ["srt to text", "subtitle to transcript", "subrip to text", "webvtt to text", "remove timestamps", "caption cleaner", "transcript extractor"]
+h1            = "SRT to Plain Text"
+hero_subtitle = "Paste an .srt or WebVTT subtitle file and get just the spoken transcript. Cue numbers, timestamp ranges and blank separators are removed locally in your browser."
+wasm          = "gizza_ai_srt_to_plaintext_web"
+export        = "run"
+live          = false
+output_label  = "Transcript"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "SRT or WebVTT subtitles"
+placeholder = "1\n00:00:01,000 --> 00:00:04,000\nHello there.\n\n2\n00:00:05,500 --> 00:00:07,250\nSecond caption line."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layout"
+label       = "Output layout"
+source      = "field"
+
+[input.labels]
+"lines"     = "One line per cue"
+"blocks"    = "Preserve cue blocks"
+"paragraph" = "One paragraph"
+
+[[input]]
+name        = "strip_tags"
+label       = "Strip formatting tags"
+source      = "field"
+
+[[input]]
+name        = "remove_sound_effects"
+label       = "Remove [sound effects] and music markers"
+source      = "field"
+
+[[input]]
+name        = "remove_speaker_labels"
+label       = "Remove leading speaker labels"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Collapse consecutive duplicate captions"
+source      = "field"
+
+[[example]]
+label  = "Basic SRT"
+params = { input = "1\n00:00:01,000 --> 00:00:04,000\nHello there.\n\n2\n00:00:05,500 --> 00:00:07,250\nSecond caption line.", layout = "lines", strip_tags = "true" }
+
+[[example]]
+label  = "Clean auto-captions"
+params = { input = "1\n00:00:01,000 --> 00:00:02,000\nNARRATOR: <i>Hello</i> [music]\n\n2\n00:00:02,000 --> 00:00:03,000\nNARRATOR: <i>Hello</i> [music]\n", remove_sound_effects = "true", remove_speaker_labels = "true", dedupe = "true" }

@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/srt-to-plaintext",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip SRT/WebVTT cue numbers and timestamps into plain transcript text.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert SubRip (.srt) or WebVTT subtitle text into a plain transcript. It removes cue numbers, timestamp ranges and blank separators, then returns only caption text. Options choose one line per cue, preserved cue blocks or one paragraph; strip formatting tags; remove bracketed sound-effect/music cues; remove leading speaker labels; and collapse consecutive duplicate captions. The parser is deterministic and local: it never executes anything and accepts common SRT/WebVTT timing lines with comma or dot milliseconds.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": false,
+          "description": "Collapse consecutive duplicate captions, useful for rolling auto-caption exports. Comparison is case-insensitive. Default false.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "SubRip (.srt) or WebVTT subtitle text. Cue numbers, timing lines like 00:00:01,000 --> 00:00:04,000, and blank separators are removed; only caption text is returned.",
+          "type": "string"
+        },
+        "layout": {
+          "default": "lines",
+          "description": "Output layout: lines = one cleaned caption per line (default), blocks = preserve cue line breaks with blank lines between cues, paragraph = one flowing paragraph.",
+          "enum": [
+            "lines",
+            "blocks",
+            "paragraph"
+          ],
+          "type": "string"
+        },
+        "remove_sound_effects": {
+          "default": false,
+          "description": "Remove bracketed non-speech cues such as [applause] or (door slams), plus musical-note markers. Default false.",
+          "type": "boolean"
+        },
+        "remove_speaker_labels": {
+          "default": false,
+          "description": "Remove leading speaker labels such as NARRATOR: or - JOHN:. Heuristic and off by default to avoid clipping genuine dialogue.",
+          "type": "boolean"
+        },
+        "strip_tags": {
+          "default": true,
+          "description": "Remove inline formatting tags such as <i>, <b>, <font ...>, and ASS/SSA override blocks like {\\an8}. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

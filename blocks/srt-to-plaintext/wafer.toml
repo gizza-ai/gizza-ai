@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "srt-to-plaintext"
+version = "0.1.0"
+abi = 1
+summary = "Strip SRT/WebVTT cue numbers and timestamps into plain transcript text."
