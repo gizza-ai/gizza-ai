@@ -1,0 +1,54 @@
+slug          = "base64url-converter"
+title         = "Base64 to Base64url Converter"
+description   = "Convert standard Base64 to URL-safe Base64url and back in your browser — swaps +/ for -_, handles = padding, auto-detects direction. Free, private, no sign-up."
+tags          = ["base64url", "base64 url safe", "base64 to base64url", "url safe base64", "jwt base64url", "base64 converter", "padding", "urlsafe base64"]
+h1            = "Base64 ⇄ Base64url Converter"
+hero_subtitle = "Convert standard Base64 to URL-safe Base64url and back — swap +/ for -_, handle = padding, auto-detect the direction. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_base64url_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Base64 / Base64url input"
+placeholder = "c3ViamVjdHM/X2Q9MQ=="
+source      = "field"
+multiline   = true
+
+# direction/padding render as <select> and validate as a checkbox — the control
+# type + options come from the descriptor's schema (manifest.json), so labels
+# here stay short and option lists are NOT duplicated.
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[[input]]
+name        = "padding"
+label       = "Padding"
+source      = "field"
+
+[[input]]
+name        = "validate"
+label       = "Validate input is real Base64"
+source      = "field"
+
+[[example]]
+label  = "Base64 → URL-safe"
+[example.params]
+text      = "c3ViamVjdHM/X2Q9MQ=="
+direction = "to-url"
+
+[[example]]
+label  = "URL-safe → Base64"
+[example.params]
+text      = "c3ViamVjdHM_X2Q9MQ"
+direction = "to-standard"
+
+[[example]]
+label  = "Auto-detect"
+[example.params]
+text      = "+/+/"
+direction = "auto"

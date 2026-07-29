@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/base64url-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between standard Base64 and URL-safe Base64url.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a string between standard Base64 (which uses + and /) and URL-safe Base64url (which uses - and _, usually without = padding), in either direction. This is a pure alphabet + padding transform, not a decode-to-text: it swaps +/ for -_ (or back) and applies a padding policy. Use direction='to-url' to make Base64 URL/filename/JWT-safe, 'to-standard' to reverse it, or 'auto' (default) to convert to the opposite of the detected input. padding='auto' pads standard output and leaves Base64url output unpadded; 'keep' always pads, 'strip' never does. Whitespace is ignored. Set validate=true to reject input that is not valid Base64.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "auto",
+          "description": "Which alphabet to output. 'to-url' makes standard Base64 URL-safe (+ -> -, / -> _); 'to-standard' reverses it (- -> +, _ -> /). 'auto' (default) converts to the opposite of the input: if it already contains '-' or '_' it is treated as Base64url and converted to standard, otherwise it is treated as standard and converted to URL-safe.",
+          "enum": [
+            "auto",
+            "to-url",
+            "to-standard"
+          ],
+          "type": "string"
+        },
+        "padding": {
+          "default": "auto",
+          "description": "How the output handles '=' padding. 'auto' (default) pads standard output and leaves Base64url output unpadded (each alphabet's canonical form); 'keep' always pads to a multiple of 4; 'strip' removes all padding.",
+          "enum": [
+            "auto",
+            "keep",
+            "strip"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The Base64 or Base64url string to convert. Whitespace (incl. line wraps) is ignored, so line-wrapped MIME Base64 and pasted tokens work.",
+          "type": "string"
+        },
+        "validate": {
+          "default": false,
+          "description": "When true, verify the input actually decodes as Base64 (rejecting a bad length or stray characters) before converting. Default false — a plain alphabet swap does not require valid Base64.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
