@@ -1,0 +1,74 @@
+slug          = "query-string-codec"
+title         = "Query String Codec — Parse Query Strings ↔ JSON"
+description   = "Free online query string codec: parse URL query strings into JSON or build encoded query strings from JSON, with arrays and bracket notation."
+tags          = ["query string codec", "query string parser", "query string to json", "json to query string", "url parameters", "url query parser", "form urlencode"]
+h1            = "Query String Codec"
+hero_subtitle = "Parse URL query strings into structured JSON, or build encoded query strings from JSON with repeat, bracket, index, or comma array styles. Runs entirely in your browser."
+wasm          = "gizza_ai_query_string_codec_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[input.labels]
+parse = "Query string → JSON"
+build = "JSON → query string"
+
+[[input]]
+name        = "input"
+label       = "Input"
+placeholder = "name=John+Doe&color=red&color=blue&user[age]=30"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "array_style"
+label       = "Array style (build mode)"
+source      = "field"
+
+[input.labels]
+brackets = "brackets: tags[]=a&tags[]=b"
+indices  = "indices: tags[0]=a&tags[1]=b"
+repeat   = "repeat: tags=a&tags=b"
+comma    = "comma: tags=a,b"
+
+[[input]]
+name   = "space_as_plus"
+label  = "Use + for spaces"
+source = "field"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys when building"
+source = "field"
+
+[[input]]
+name   = "prefix_question_mark"
+label  = "Prefix built query with ?"
+source = "field"
+
+[[example]]
+label = "Parse repeated keys"
+[example.params]
+direction = "parse"
+input = "name=John+Doe&color=red&color=blue&user[age]=30"
+
+[[example]]
+label = "Build brackets"
+[example.params]
+direction = "build"
+input = "{\"name\":\"John Doe\",\"tags\":[\"a\",\"b\"],\"user\":{\"age\":30}}"
+array_style = "brackets"
+
+[[example]]
+label = "Build sorted with ?"
+[example.params]
+direction = "build"
+input = "{\"b\":2,\"a\":1}"
+sort_keys = "true"
+prefix_question_mark = "true"
