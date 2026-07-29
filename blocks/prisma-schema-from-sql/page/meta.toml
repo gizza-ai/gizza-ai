@@ -1,0 +1,61 @@
+slug          = "prisma-schema-from-sql"
+title         = "Prisma Schema from SQL — CREATE TABLE / DDL to schema.prisma"
+description   = "Convert SQL CREATE TABLE / ALTER TABLE DDL into a Prisma schema — models, fields, @relation from foreign keys, indexes and native types — locally in your browser."
+tags          = ["prisma schema from sql", "sql to prisma", "create table to prisma", "ddl to prisma", "prisma schema generator", "sql to schema.prisma", "prisma model generator", "foreign key to relation", "postgres to prisma"]
+h1            = "Prisma Schema from SQL"
+hero_subtitle = "Paste your SQL CREATE TABLE / ALTER TABLE DDL and get a ready-to-use schema.prisma — models, fields with types and defaults, @id/@unique/@@index attributes, and @relation fields inferred from foreign keys. PostgreSQL, MySQL, SQLite and SQL Server. Nothing is executed; it runs entirely in your browser."
+wasm          = "gizza_ai_prisma_schema_from_sql_web"
+export        = "run"
+live          = false
+output_label  = "schema.prisma"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "SQL CREATE TABLE / DDL"
+placeholder = "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  created_at TIMESTAMP DEFAULT now()\n);"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "provider"
+label       = "Datasource provider"
+source      = "field"
+
+[input.labels]
+"postgresql" = "PostgreSQL"
+"mysql"      = "MySQL / MariaDB"
+"sqlite"     = "SQLite"
+"sqlserver"  = "SQL Server"
+
+[[input]]
+name        = "header"
+label       = "Emit generator + datasource header"
+source      = "field"
+
+[[input]]
+name        = "relations"
+label       = "Infer @relation from foreign keys"
+source      = "field"
+
+[[input]]
+name        = "native_types"
+label       = "Emit native @db.* types"
+source      = "field"
+
+[[input]]
+name        = "map_names"
+label       = "Map names to Prisma conventions (@@map/@map)"
+source      = "field"
+
+[[example]]
+label  = "Users (Postgres)"
+params = { input = "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  created_at TIMESTAMP DEFAULT now()\n);", provider = "postgresql" }
+
+[[example]]
+label  = "Foreign key → relation"
+params = { input = "CREATE TABLE users (id SERIAL PRIMARY KEY);\nCREATE TABLE orders (\n  id SERIAL PRIMARY KEY,\n  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE\n);", provider = "postgresql" }
+
+[[example]]
+label  = "MySQL + map to conventions"
+params = { input = "CREATE TABLE blog_posts (\n  post_id INT PRIMARY KEY AUTO_INCREMENT,\n  full_title VARCHAR(200) NOT NULL,\n  is_active TINYINT(1) DEFAULT 1\n);", provider = "mysql", map_names = "true" }

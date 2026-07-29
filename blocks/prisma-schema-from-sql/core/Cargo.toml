@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-prisma-schema-from-sql-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }
+# Reuse the battle-tested lenient DDL parser (CREATE TABLE / ALTER TABLE /
+# CREATE INDEX → structured JSON model) instead of re-parsing SQL here; this
+# crate only maps that model onto a Prisma schema.
+gizza-ai-sql-schema-extractor-core = { path = "../../sql-schema-extractor/core" }
