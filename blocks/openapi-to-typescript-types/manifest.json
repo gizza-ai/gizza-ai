@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/openapi-to-typescript-types",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate TypeScript types from an OpenAPI schema.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the schema objects from an OpenAPI 3.x (components.schemas) or Swagger 2.0 (definitions) document and emit matching TypeScript type declarations. Accepts JSON or YAML (input_format='auto' by default). Handles $ref (as named type references), type (incl. 3.1 type arrays like [\"string\",\"null\"]), enum, const, nullable, required, properties, additionalProperties (index signatures), array items, tuple items/prefixItems, and allOf/oneOf/anyOf (intersection/union); descriptions become JSDoc comments. Choose declaration='interface' (default) or 'type' for object schemas, enum_style='union' (default) or 'enum', optional_style='spec'/'optional'/'required', plus export, readonly, sort, and indent. Returns the TypeScript source.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "declaration": {
+          "default": "interface",
+          "description": "How to declare object schemas: 'interface' (default, `export interface X { … }`) or 'type' (`export type X = { … }`). Non-object schemas are always type aliases.",
+          "enum": [
+            "interface",
+            "type"
+          ],
+          "type": "string"
+        },
+        "enum_style": {
+          "default": "union",
+          "description": "How to render a schema whose values are a string 'enum': 'union' (default, a `\"a\" | \"b\"` string-literal union) or 'enum' (a real TypeScript `enum`).",
+          "enum": [
+            "union",
+            "enum"
+          ],
+          "type": "string"
+        },
+        "export": {
+          "default": true,
+          "description": "Prefix every declaration with `export` (default true). Set false for plain, non-exported declarations.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Number of spaces per nesting level, 0-8. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse the input. 'auto' (default) tries JSON then YAML; force 'json' or 'yaml' to control the error message.",
+          "enum": [
+            "auto",
+            "json",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "optional_style": {
+          "default": "spec",
+          "description": "How property optionality is decided: 'spec' (default, mark a property optional `?` unless it is in the schema's `required` array), 'optional' (every property `?`), or 'required' (no property is optional).",
+          "enum": [
+            "spec",
+            "optional",
+            "required"
+          ],
+          "type": "string"
+        },
+        "readonly": {
+          "default": false,
+          "description": "Mark every object property and index signature `readonly` (default false).",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": false,
+          "description": "Alphabetize object properties (default false, which preserves the document's own key order).",
+          "type": "boolean"
+        },
+        "spec": {
+          "description": "The OpenAPI 3.x or Swagger 2.0 document to read, as JSON or YAML text. Types are generated from its components/schemas (3.x) or definitions (2.0) object.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec"
+      ],
+      "type": "object"
+    }
+  }
+}

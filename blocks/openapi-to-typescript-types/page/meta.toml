@@ -1,0 +1,125 @@
+slug          = "openapi-to-typescript-types"
+title         = "OpenAPI to TypeScript Types Generator"
+description   = "Turn an OpenAPI 3.x or Swagger 2.0 schema into TypeScript types in your browser — paste JSON or YAML, get interfaces or type aliases with refs and enums handled."
+tags          = ["openapi to typescript", "swagger to typescript types", "openapi typescript generator", "openapi schema to interface", "json schema to typescript", "components schemas to typescript", "openapi 3.1 typescript", "generate typescript from openapi"]
+h1            = "OpenAPI to TypeScript Types Generator"
+hero_subtitle = "Extract the schema objects from an OpenAPI 3.x (components.schemas) or Swagger 2.0 (definitions) document and get matching TypeScript types. $refs become named references, enums become string-literal unions or real enums, nullable and 3.1 [\"string\",\"null\"] become unions, and descriptions become JSDoc. Paste JSON or YAML — everything runs in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_openapi_to_typescript_types_web"
+export        = "run"
+live          = false
+output_label  = "TypeScript"
+format        = "text"
+
+[[input]]
+name        = "spec"
+label       = "OpenAPI / Swagger document (JSON or YAML)"
+placeholder = "openapi: \"3.0.3\"\ncomponents:\n  schemas:\n    User:\n      type: object\n      required: [id]\n      properties:\n        id: { type: integer }\n        name: { type: string }"
+source      = "field"
+multiline   = true
+
+# input_format/declaration/enum_style/optional_style render as <select>s and
+# indent as a number box — the control type is derived from the descriptor
+# schema (manifest.json), so labels here stay short.
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "declaration"
+label       = "Object schemas as"
+source      = "field"
+
+[[input]]
+name        = "enum_style"
+label       = "String enums as"
+source      = "field"
+
+[[input]]
+name        = "optional_style"
+label       = "Property optionality"
+source      = "field"
+
+[[input]]
+name        = "export"
+label       = "Prefix declarations with export"
+source      = "field"
+
+[[input]]
+name        = "readonly"
+label       = "Mark properties readonly"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort properties alphabetically"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces, 0-8)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "JSON schemas"
+[example.params]
+spec = '''
+{
+  "openapi": "3.0.3",
+  "components": {
+    "schemas": {
+      "Status": { "type": "string", "enum": ["active", "banned"] },
+      "User": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/Status" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
+'''
+
+[[example]]
+label  = "YAML + real enums"
+[example.params]
+spec = '''
+openapi: "3.1.0"
+components:
+  schemas:
+    Color:
+      type: string
+      enum: [red, green, blue]
+    Point:
+      type: object
+      required: [x, y]
+      properties:
+        x: { type: number }
+        y: { type: number }
+        label: { type: [string, "null"] }
+'''
+enum_style = "enum"
+
+[[example]]
+label  = "Swagger 2.0 definitions"
+[example.params]
+spec = '''
+{
+  "swagger": "2.0",
+  "definitions": {
+    "Pet": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "integer", "format": "int64" },
+        "name": { "type": "string" }
+      }
+    }
+  }
+}
+'''
