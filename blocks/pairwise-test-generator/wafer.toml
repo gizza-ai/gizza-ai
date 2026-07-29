@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pairwise-test-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a minimal all-pairs (pairwise) test set from a parameter model"

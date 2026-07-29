@@ -1,0 +1,62 @@
+slug          = "pairwise-test-generator"
+title         = "Pairwise Test Generator — All-Pairs Combinatorial Test Cases"
+description   = "Generate deterministic all-pairs test cases from a parameter model. Covers every value pair with far fewer rows than exhaustive combinations."
+tags          = ["pairwise testing", "all-pairs", "combinatorial testing", "test case generator", "test design", "orthogonal array", "qa test matrix", "test coverage"]
+h1            = "Generate Pairwise (All-Pairs) Test Cases"
+hero_subtitle = "List your parameters and their values and get a compact set of test cases that covers every pair of values — a fraction of the full combination count. Deterministic and private."
+wasm          = "gizza_ai_pairwise_test_generator_web"
+export        = "run"
+live          = false
+output_label  = "Pairwise test cases"
+format        = "text"
+
+[[input]]
+name        = "parameters"
+label       = "Parameters (one per line — Name: value1, value2, …)"
+placeholder = "Browser: Chrome, Firefox, Safari\nOS: Windows, macOS, Linux\nTheme: Light, Dark"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown table"
+csv      = "CSV for spreadsheets"
+json     = "JSON array of objects"
+ascii    = "ASCII grid"
+
+[[input]]
+name   = "include_index"
+label  = "Number each case (add a # column)"
+source = "field"
+
+[[example]]
+label = "Browser / OS / theme"
+[example.params]
+parameters = "Browser: Chrome, Firefox, Safari\nOS: Windows, macOS, Linux\nTheme: Light, Dark"
+output_format = "markdown"
+include_index = "true"
+
+[[example]]
+label = "CSV for a spreadsheet"
+[example.params]
+parameters = "Payment: Card, PayPal\nCurrency: USD, EUR, GBP\nShipping: Standard, Express"
+output_format = "csv"
+include_index = "true"
+
+[[example]]
+label = "JSON for automation"
+[example.params]
+parameters = "Role: Admin, Editor, Viewer\nDevice: Desktop, Mobile\nAuth: Password, SSO"
+output_format = "json"
+include_index = "true"
+
+[[example]]
+label = "ASCII grid, no numbering"
+[example.params]
+parameters = "Env: Dev, Staging, Prod\nRegion: US, EU\nDB: Postgres, MySQL"
+output_format = "ascii"
+include_index = "false"
