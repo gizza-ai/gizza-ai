@@ -1,0 +1,36 @@
+slug          = "subscription-tracker"
+title         = "Subscription Cost Tracker"
+description   = "Add up every recurring subscription, normalize each billing cycle to a monthly and annual figure, and see the biggest spend to cancel. Private, in-browser."
+tags          = ["subscription tracker", "subscription cost calculator", "recurring spend", "annual cost", "monthly cost", "5-year cost", "cancel subscriptions", "budget"]
+h1            = "Subscription Cost Tracker"
+hero_subtitle = "Paste your subscriptions and see the true monthly, annual, and 5-year cost — every billing cycle normalized, the biggest spend flagged to cancel. Runs entirely in your browser, no accounts, no bank linking."
+wasm          = "gizza_ai_subscription_tracker_web"
+export        = "run"
+live          = false
+output_label  = "Spend report"
+format        = "text"
+
+[[input]]
+name        = "subscriptions"
+label       = "Your subscriptions (one per line)"
+placeholder = "Netflix: 15.99 monthly\nSpotify: 10.99\nAmazon Prime: 139 yearly\nAdobe: 59.99 quarterly"
+source      = "field"
+multiline   = true
+
+# default_cycle and sort render as <select> (enum from the manifest); currency is a
+# plain text field. Option lists are NOT duplicated here — they come from the descriptor.
+[[input]]
+name        = "default_cycle"
+label       = "Default billing cycle (for lines without one)"
+source      = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort rows by"
+source      = "field"
