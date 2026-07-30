@@ -1,0 +1,110 @@
+slug          = "wireguard-config-builder"
+title         = "WireGuard Config Builder — Validate & assemble wg0.conf"
+description   = "Build a WireGuard wg0.conf from entered keys, addresses, endpoint and AllowedIPs, with every key, IP/CIDR and port range-checked."
+tags          = ["wireguard config", "wg0.conf", "wireguard generator", "allowedips", "vpn config", "wireguard peer"]
+h1            = "WireGuard Config Builder"
+hero_subtitle = "Assemble a ready-to-save WireGuard config from your own keys and settings — every key is checked as a 32-byte base64 key, every Address/AllowedIPs/DNS entry and every port is validated. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_wireguard_config_builder_web"
+export        = "run"
+live          = false
+output_label  = "WireGuard config"
+format        = "text"
+
+[[input]]
+name        = "private_key"
+label       = "Interface PrivateKey (base64, from wg genkey)"
+placeholder = "gI6EdUSYvn8ugXOt8QQD6Yc+JyiZxIhp3GInSWRfWGE="
+source      = "field"
+
+[[input]]
+name        = "address"
+label       = "Interface Address (CIDR list)"
+placeholder = "10.0.0.2/32, fd00::2/128"
+source      = "field"
+
+[[input]]
+name        = "listen_port"
+label       = "ListenPort (optional, 1–65535)"
+placeholder = "51820"
+source      = "field"
+
+[[input]]
+name        = "dns"
+label       = "DNS servers (optional, comma-separated IPs)"
+placeholder = "1.1.1.1, 8.8.8.8"
+source      = "field"
+
+[[input]]
+name        = "mtu"
+label       = "MTU (optional, 576–9000; default 1420)"
+placeholder = "1420"
+source      = "field"
+
+[[input]]
+name        = "peer_public_key"
+label       = "Peer PublicKey (base64, from wg pubkey)"
+placeholder = "HIgo9xNzJMWLKASShiTqIybxih0kSDAVY+kSyKHXWJU="
+source      = "field"
+
+[[input]]
+name        = "preshared_key"
+label       = "Peer PresharedKey (optional, from wg genpsk)"
+placeholder = "K5W7q… (optional)"
+source      = "field"
+
+[[input]]
+name        = "allowed_ips"
+label       = "Peer AllowedIPs (CIDR list)"
+placeholder = "0.0.0.0/0, ::/0"
+source      = "field"
+
+[[input]]
+name        = "endpoint"
+label       = "Peer Endpoint (optional, host:port)"
+placeholder = "vpn.example.com:51820"
+source      = "field"
+
+[[input]]
+name        = "persistent_keepalive"
+label       = "PersistentKeepalive (optional, seconds; 25 behind NAT)"
+placeholder = "25"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "conf"
+source      = "field"
+
+[[example]]
+label = "Full-tunnel client"
+[example.params]
+private_key          = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+address              = "10.0.0.2/32"
+dns                  = "1.1.1.1, 8.8.8.8"
+peer_public_key      = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+allowed_ips          = "0.0.0.0/0, ::/0"
+endpoint             = "vpn.example.com:51820"
+persistent_keepalive = "25"
+format               = "conf"
+
+[[example]]
+label = "Split-tunnel (LAN only)"
+[example.params]
+private_key     = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+address         = "10.0.0.2/32"
+peer_public_key = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+allowed_ips     = "10.0.0.0/24"
+endpoint        = "vpn.example.com:51820"
+format          = "conf"
+
+[[example]]
+label = "JSON for tooling"
+[example.params]
+private_key     = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+address         = "10.0.0.2/32, fd00::2/128"
+listen_port     = "51820"
+peer_public_key = "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+allowed_ips     = "0.0.0.0/0, ::/0"
+endpoint        = "vpn.example.com:51820"
+format          = "json"
