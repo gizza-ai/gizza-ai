@@ -510,3 +510,5 @@ aac-to-mp3  # duplicate of blocks/audio-convert (format=mp3). Verified 2026-07-3
 text-to-hex  # duplicate of blocks/hex-codec: existing hex-codec already encodes UTF-8 text/raw bytes to hexadecimal with selectable delimiter, uppercase/lowercase and prefix options, and decodes hex back to text/bytes.
 
 hex-to-text  # duplicate of blocks/hex-codec: existing hex-codec already decodes hexadecimal strings back to UTF-8 text or raw bytes, tolerating whitespace, delimiters, and 0x/\x prefixes; it also supports the reverse text-to-hex direction.
+
+bar-chart-svg  # duplicate of blocks/csv-chart-generator: existing csv-chart-generator already renders standalone SVG bar charts from supplied CSV category/value columns (chart_type=bar) and also covers line/scatter/histogram; a dedicated bar-chart-svg block would only narrow the chart_type surface.
