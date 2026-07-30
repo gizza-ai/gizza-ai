@@ -1,0 +1,113 @@
+{
+  "name": "gizza-ai/rent-vs-buy",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare the long-run financial outcome of renting versus buying a home, with a break-even year and net-worth verdict.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare the long-run financial outcome of renting versus buying a home using the standard invest-the-difference net-worth race, not a naive monthly rent-vs-mortgage comparison. Pass home_price, down_payment_percent, mortgage_rate_percent and loan_term_years for the purchase; monthly_rent for the alternative; and years for how long you'll stay (the biggest driver). Tune home_appreciation_percent, rent_growth_percent, investment_return_percent (higher returns favour renting), property_tax_percent, home_insurance_percent, maintenance_percent, hoa_monthly, buying_closing_percent and selling_cost_percent. The buyer's up-front cash is invested by the renter as opportunity cost; each month whoever pays less invests the difference; both funds compound. Every parameter is optional with a sensible default. Returns loan_amount, down_payment, total_upfront_cost, monthly_principal_interest, first_month_buy_cost, first_month_rent_cost, buy_net_worth, rent_net_worth, net_worth_difference, verdict (buy|rent|even), break_even_year, home_value_at_horizon, remaining_mortgage_at_horizon, total_rent_paid, a year-by-year net-worth race, and a plain-language summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "buying_closing_percent": {
+          "default": 3.0,
+          "description": "Buying closing costs as a percent of the price, paid up front. Default 3.",
+          "type": "number"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol prefixed to amounts in the summary. Default $.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 0.0,
+          "description": "Decimal places for money outputs. Default 0 (range 0–10).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "down_payment_percent": {
+          "default": 20.0,
+          "description": "Down payment as a percent of the price. Default 20.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "hoa_monthly": {
+          "default": 0.0,
+          "description": "Monthly HOA / condo dues, in your currency. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "home_appreciation_percent": {
+          "default": 3.0,
+          "description": "Annual home-value appreciation (percent). Default 3.",
+          "type": "number"
+        },
+        "home_insurance_percent": {
+          "default": 0.5,
+          "description": "Annual home insurance as a percent of home value. Default 0.5.",
+          "type": "number"
+        },
+        "home_price": {
+          "default": 400000.0,
+          "description": "Home purchase price, in your currency. Default 400000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "investment_return_percent": {
+          "default": 5.0,
+          "description": "Annual after-tax return the renter earns on the invested down payment and monthly savings (percent). Higher returns favour renting. Default 5.",
+          "type": "number"
+        },
+        "loan_term_years": {
+          "default": 30.0,
+          "description": "Mortgage term in years. Default 30.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "maintenance_percent": {
+          "default": 1.0,
+          "description": "Annual maintenance/repairs as a percent of home value. Default 1.",
+          "type": "number"
+        },
+        "monthly_rent": {
+          "default": 2000.0,
+          "description": "Current monthly rent for a comparable place. Default 2000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "mortgage_rate_percent": {
+          "default": 6.5,
+          "description": "Nominal annual mortgage interest rate (percent). Default 6.5.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "property_tax_percent": {
+          "default": 1.1,
+          "description": "Annual property tax as a percent of home value. Default 1.1.",
+          "type": "number"
+        },
+        "rent_growth_percent": {
+          "default": 3.0,
+          "description": "Annual rent increase (percent). Default 3.",
+          "type": "number"
+        },
+        "selling_cost_percent": {
+          "default": 6.0,
+          "description": "Selling costs (agent commission + closing) as a percent of the eventual sale price. Default 6.",
+          "type": "number"
+        },
+        "years": {
+          "default": 10.0,
+          "description": "How many years you plan to stay — the comparison horizon. This is the single biggest driver of the result. Default 10.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
