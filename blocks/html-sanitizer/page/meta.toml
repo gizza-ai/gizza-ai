@@ -1,0 +1,80 @@
+slug          = "html-sanitizer"
+title         = "HTML Sanitizer — Clean Unsafe Markup Locally"
+description   = "Sanitize pasted HTML into safe allowlisted markup or plain text by removing scripts, event handlers, unsafe URLs, and risky tags locally in your browser."
+tags          = ["html sanitizer", "sanitize html", "xss filter", "clean html", "strip scripts", "html to text", "safe html", "remove unsafe tags"]
+h1            = "HTML Sanitizer"
+hero_subtitle = "Paste HTML from a CMS, email, editor, or scrape and turn it into safe allowlisted markup or plain text. Scripts, event handlers, unsafe URLs, and risky embeds are removed locally."
+wasm          = "gizza_ai_html_sanitizer_web"
+export        = "run"
+live          = false
+output_label  = "Sanitized output"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML to sanitize"
+placeholder = "<p onclick=\"alert(1)\">Hello <a href=\"javascript:alert(1)\">world</a></p><script>steal()</script>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "mode"
+label   = "Output mode"
+source  = "field"
+default = "safe-html"
+
+[[input]]
+name    = "allow_links"
+label   = "Keep safe links and URL attributes"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "allow_images"
+label   = "Keep safe image tags"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "allow_styles"
+label   = "Keep safe inline style attributes"
+source  = "field"
+default = "false"
+
+[[input]]
+name    = "keep_classes"
+label   = "Keep class and id attributes"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "keep_comments"
+label   = "Keep HTML comments"
+source  = "field"
+default = "false"
+
+[[example]]
+label = "Remove XSS"
+[example.params]
+html = "<p onclick=\"alert(1)\">Hello <a href=\"javascript:alert(1)\">world</a></p><script>steal()</script>"
+mode = "safe-html"
+
+[[example]]
+label = "Plain text"
+[example.params]
+html = "<h1>Title</h1><p>Hello <strong>world</strong>.</p><style>p{color:red}</style>"
+mode = "plain-text"
+
+[[example]]
+label = "Lean CMS markup"
+[example.params]
+html = "<p class=\"MsoNormal\" id=\"x\" style=\"color:red\"><img src=\"https://example.test/a.png\" alt=\"\">Body</p>"
+keep_classes = "false"
+allow_images = "false"
+allow_styles = "false"
+
+[[example]]
+label = "Keep safe styles"
+[example.params]
+html = "<p style=\"color:#b91c1c\">Red note</p><p style=\"background:url(javascript:alert(1))\">bad</p>"
+allow_styles = "true"

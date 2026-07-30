@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-sanitizer"
+version = "0.1.0"
+abi = 1
+summary = "Sanitize pasted HTML into safe markup or plain text"

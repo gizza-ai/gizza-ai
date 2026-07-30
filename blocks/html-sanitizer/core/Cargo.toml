@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-html-sanitizer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# nanohtml2text: tiny pure-Rust HTML -> clean plain text, used for the
+# plain-text output mode after the dangerous elements are removed. wasm-safe
+# (no html5ever / C deps), the same crate html-to-text relies on.
+nanohtml2text = "0.2"

@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/html-sanitizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sanitize pasted HTML into safe markup or plain text",
+  "role": "skill",
+  "tool": {
+    "description": "Sanitize pasted HTML into safe allowlisted markup or plain text. Removes script/style blocks, event handlers, unsafe URL schemes, SVG/math/media/form/embed tags, and disallowed attributes. Choose mode='safe-html' (default) or 'plain-text', and optionally keep or drop links, images, inline styles, classes/IDs, and comments. Runs locally and returns the sanitized result as text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_images": {
+          "default": true,
+          "description": "Keep safe <img> tags and image URLs, including data:image URLs. Turn off to remove images entirely.",
+          "type": "boolean"
+        },
+        "allow_links": {
+          "default": true,
+          "description": "Keep href/src-style URL attributes when they use safe schemes such as http, https, mailto, tel, or relative URLs. Turn off to remove all URL attributes.",
+          "type": "boolean"
+        },
+        "allow_styles": {
+          "default": false,
+          "description": "Keep inline style attributes only when they do not contain obvious script vectors. <style> blocks are always removed.",
+          "type": "boolean"
+        },
+        "html": {
+          "description": "The HTML document or snippet to sanitize. Paste markup from an editor, CMS, email, or scraped page; script/style blocks and unsafe tags are stripped before output.",
+          "type": "string"
+        },
+        "keep_classes": {
+          "default": true,
+          "description": "Keep class and id attributes for styling hooks. Turn off for lean CMS-ready markup without pasted editor classes or IDs.",
+          "type": "boolean"
+        },
+        "keep_comments": {
+          "default": false,
+          "description": "Keep HTML comments in safe-html mode. Comments are always removed before plain-text output.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "safe-html",
+          "description": "Output format: 'safe-html' returns cleaned allowlisted markup (default); 'plain-text' returns visible text after dangerous content is removed.",
+          "enum": [
+            "safe-html",
+            "plain-text"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}
