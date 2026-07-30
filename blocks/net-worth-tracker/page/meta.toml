@@ -1,0 +1,48 @@
+slug          = "net-worth-tracker"
+title         = "Net Worth Calculator — Total Assets Minus Liabilities by Category"
+description   = "Paste your assets and liabilities and calculate net worth with a per-category breakdown, proportional bars, and a debt-to-asset ratio. Runs in your browser."
+tags          = ["net worth calculator", "net worth tracker", "assets and liabilities", "balance sheet", "debt to asset ratio", "personal finance", "net worth by category", "financial health"]
+h1            = "Net Worth Calculator"
+hero_subtitle = "Paste a list of assets and liabilities and see your net worth — total assets minus liabilities — broken down by category with bars and a debt-to-asset ratio."
+wasm          = "gizza_ai_net_worth_tracker_web"
+export        = "run"
+live          = false
+output_label  = "Net worth breakdown"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Assets & liabilities"
+placeholder = "Item, Amount, Type, Category\nChecking, 8000, asset, Cash\nBrokerage, 42000, asset, Investments\n401(k), 95000, asset, Retirement\nHome, 320000, asset, Real Estate\nCar, 18000, asset, Vehicles\nMortgage, 240000, liability, Real Estate\nAuto Loan, 9000, liability, Vehicles\nCredit Card, 3500, liability, Credit Card"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "sort"
+label  = "Sort categories"
+source = "field"
+
+[input.labels]
+value = "Largest first"
+label = "Alphabetical"
+
+[[input]]
+name        = "currency"
+label       = "Currency prefix"
+placeholder = "$"
+source      = "field"
+
+[[example]]
+label = "Full balance sheet"
+[example.params]
+input = "Item, Amount, Type, Category\nChecking, 8000, asset, Cash\nBrokerage, 42000, asset, Investments\n401(k), 95000, asset, Retirement\nHome, 320000, asset, Real Estate\nCar, 18000, asset, Vehicles\nMortgage, 240000, liability, Real Estate\nAuto Loan, 9000, liability, Vehicles\nCredit Card, 3500, liability, Credit Card"
+sort = "value"
+currency = "$"
+
+[[example]]
+label = "Signs instead of a type column"
+[example.params]
+input = "Savings, 12000, Cash\nInvestments, 30000, Investments\nStudent Loan, -22000, Education\nCredit Card, -4000, Credit Card"
+sort = "value"
+currency = "$"
