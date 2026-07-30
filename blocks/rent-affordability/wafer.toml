@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rent-affordability"
+version = "0.1.0"
+abi = 1
+summary = "How much rent you can afford from your income using the 30% (or custom) rule, adjusted for debts."

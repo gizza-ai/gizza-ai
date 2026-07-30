@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/rent-affordability",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "How much rent you can afford from your income using the 30% (or custom) rule, adjusted for debts.",
+  "role": "skill",
+  "tool": {
+    "description": "Work out the maximum affordable monthly rent from an income figure using the classic 30% rule or any custom rent-to-income ratio. Pass income plus income_period (annual|monthly) and income_type (gross|net) — a net income is grossed up with tax_rate_percent. Set rent_to_income_ratio for the rule (default 30), and add monthly_debts with max_dti_ratio (default 36% back-end DTI) to pull the recommendation down when existing debts apply. Every parameter is optional with a sensible default. Returns gross_annual_income, gross_monthly_income, max_affordable_rent, debt_adjusted_max_rent, recommended_max_rent (the smaller of the two), annual_rent_at_recommended, remaining_after_rent_and_debts, income_to_rent_multiple, a 25%/30%/35% guideline_range and a plain-language summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol prefixed to amounts in the summary. Default $.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2.0,
+          "description": "Decimal places for money outputs. Default 2 (range 0–10).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "income": {
+          "default": 60000.0,
+          "description": "Your income amount, in your currency. Default 60000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "income_period": {
+          "default": "annual",
+          "description": "Whether `income` is an annual (default) or monthly figure.",
+          "enum": [
+            "annual",
+            "monthly"
+          ],
+          "type": "string"
+        },
+        "income_type": {
+          "default": "gross",
+          "description": "Whether `income` is gross/pre-tax (default) or net/take-home. A net income is grossed up using tax_rate_percent before the ratio is applied.",
+          "enum": [
+            "gross",
+            "net"
+          ],
+          "type": "string"
+        },
+        "max_dti_ratio": {
+          "default": 36.0,
+          "description": "Back-end debt-to-income cap (percent): rent + debts must stay under this share of gross monthly income. Default 36.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "monthly_debts": {
+          "default": 0.0,
+          "description": "Existing recurring monthly debt payments (car, student loans, credit cards). Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "rent_to_income_ratio": {
+          "default": 30.0,
+          "description": "Rent-to-income ratio as a percent — the rule. 30 is the classic 30% rule; 10–50 is the common range. Default 30.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "tax_rate_percent": {
+          "default": 25.0,
+          "description": "Assumed tax + deductions rate (percent) used to gross up a net income. Only used when income_type=net. Default 25.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
