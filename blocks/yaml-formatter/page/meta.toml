@@ -1,0 +1,52 @@
+slug          = "yaml-formatter"
+title         = "YAML Formatter — Reindent, Sort & Beautify YAML"
+description   = "Reindent and normalize messy YAML with consistent spacing. Pick indent width, sort keys, or switch between expanded block and compact flow style."
+tags          = ["yaml formatter", "yaml beautifier", "yaml prettifier", "reindent yaml", "sort yaml keys", "yaml minifier", "format yaml online", "yaml validator"]
+h1            = "YAML Formatter"
+hero_subtitle = "Paste inconsistent or minified YAML and get it back cleanly reindented. Pick the indent width, alphabetize keys, or switch to compact flow style — all locally, nothing is uploaded."
+wasm          = "gizza_ai_yaml_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted YAML"
+format        = "text"
+
+[[input]]
+name        = "yaml"
+label       = "YAML to format"
+placeholder = "name:   gizza\ntags: [a, b]\nnested: {x: 1}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Spaces per level (1–8)"
+placeholder = "2"
+source      = "field"
+
+# style renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "style"
+label       = "Output style"
+source      = "field"
+
+# sort_keys renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "sort_keys"
+label       = "Key order"
+source      = "field"
+
+[[example]]
+label  = "Reindent messy YAML"
+params = { yaml = "name:   gizza\ntags: [a, b]\nnested: {x: 1}" }
+
+[[example]]
+label  = "4-space indent"
+params = { yaml = "server:\n  host: localhost\n  ports: [80, 443]", indent = "4" }
+
+[[example]]
+label  = "Sort keys A→Z"
+params = { yaml = "gamma: 3\nalpha: 1\nbeta: 2", sort_keys = "asc" }
+
+[[example]]
+label  = "Minify to flow style"
+params = { yaml = "name: gizza\ntags:\n  - a\n  - b", style = "flow" }
