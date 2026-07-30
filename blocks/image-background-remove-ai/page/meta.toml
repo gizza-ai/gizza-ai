@@ -1,0 +1,29 @@
+slug          = "image-background-remove-ai"
+title         = "AI Image Background Remover"
+description   = "Remove the background from people, products, animals, vehicles, and other foreground subjects locally in your browser."
+tags          = ["image", "background remover", "transparent png", "ai", "segmentation", "cutout", "product", "animal"]
+h1            = "Remove an Image Background with AI"
+hero_subtitle = "Choose an image — local AI isolates the main subject and creates a transparent PNG."
+wasm          = "gizza_ai_image_background_remove_ai_web"
+export        = "model_page"
+runtime       = "model"
+output_label  = "Transparent cutout"
+format        = "image"
+wide          = true
+
+[model]
+task = "u2net-background-removal"
+id = "BritishWerewolf/U-2-Netp"
+revision = "7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8"
+devices = ["webgpu", "wasm"]
+download_mb = 5.0
+
+[model.dtypes]
+webgpu = "fp32"
+wasm = "fp32"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/png,image/jpeg,image/webp"
+label  = "Image"

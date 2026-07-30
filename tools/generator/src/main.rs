@@ -68,6 +68,38 @@ fn run() -> Result<(), String> {
     let og_renderer = og::OgRenderer::new();
     let metas_only: Vec<ToolMeta> = metas.iter().map(|(_, m)| m.clone()).collect();
 
+    // Model pages share one self-hosted Transformers.js + ONNX Runtime bundle
+    // under /tools/_model-runtime/. Model weights themselves remain lazy and
+    // browser-cached, so ordinary tool pages never pay this cost and multiple
+    // AI tools do not duplicate a ~22 MB WASM runtime per page.
+    if metas.iter().any(|(_, m)| m.runtime == "model") {
+        let model_runtime = pkg_tools.join("_model-runtime");
+        fs::create_dir_all(&model_runtime)
+            .map_err(|e| format!("mkdir {}: {e}", model_runtime.display()))?;
+        let transformers_dist = root.join("node_modules/@huggingface/transformers/dist");
+        let dependency_hint =
+            "run `npm install --no-audit --no-fund` before generating model pages";
+        for name in [
+            "transformers.min.js",
+            "ort-wasm-simd-threaded.jsep.mjs",
+            "ort-wasm-simd-threaded.jsep.wasm",
+        ] {
+            let source = transformers_dist.join(name);
+            if !source.is_file() {
+                return Err(format!("missing {} ({dependency_hint})", source.display()));
+            }
+            copy_file(&source, &model_runtime.join(name))?;
+        }
+        copy_file(
+            &root.join("node_modules/@huggingface/transformers/LICENSE"),
+            &model_runtime.join("LICENSE.transformers.txt"),
+        )?;
+        copy_file(
+            &runtime.join("model-worker.js"),
+            &model_runtime.join("model-worker.js"),
+        )?;
+    }
+
     // "X to Y" conversion pair pages nested under the converter tools —
     // enumerated once, linked from each parent's "Popular conversions"
     // section and rendered below after the parent pages exist.
@@ -153,6 +185,8 @@ fn run() -> Result<(), String> {
             copy_file(&root.join("js/ffmpeg.js"), &out.join("ffmpeg.js"))?;
             copy_file(&runtime.join("tool-ffmpeg.js"), &out.join("tool-ffmpeg.js"))?;
             copy_file(&runtime.join("tool-audio.js"), &out.join("tool-audio.js"))?;
+        } else if m.runtime == "model" {
+            copy_file(&runtime.join("tool-model.js"), &out.join("tool-model.js"))?;
         }
         eprintln!("rendered tools/{}/", m.slug);
     }

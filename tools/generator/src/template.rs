@@ -152,6 +152,14 @@ pub fn render_page(
                     section class="tool-hero" {
                         h1 { (meta.h1) }
                         p class="tool-hero-sub" { (meta.hero_subtitle) }
+                        @if let Some(model) = &meta.model {
+                            p class="tool-model-note" {
+                                "Private AI: the first run downloads about "
+                                (format!("{:.0}", model.download_mb))
+                                " MB of model files. Your input stays in this browser \
+                                 and is never uploaded for inference."
+                            }
+                        }
                         // Every other tool on the site is local-only, so a tool that
                         // actually reaches the network has to say so before it runs.
                         @if meta.network {

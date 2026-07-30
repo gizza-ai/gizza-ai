@@ -65,7 +65,8 @@ if [ -d "$parent/impresspress" ]; then
 fi
 cargo install --path cli --locked
 
-log "Playwright + chromium"
+log "JavaScript runtimes + Playwright + chromium"
+npm install --no-audit --no-fund
 ( cd tests && npm install && npx playwright install --with-deps chromium )
 
 if [ -d "$parent/impresspress" ]; then

@@ -264,7 +264,7 @@ function wireWidgetChrome(rerun) {
   }
 
   // Copy the current output IMAGE to the clipboard as PNG. Only image-output
-  // ffmpeg tools render #tool-copy-image (the generator gates it on
+  // Binary image tools render #tool-copy-image (the generator gates it on
   // format="image"); video/audio have no reliable ClipboardItem path. We draw
   // the visible <img> onto an offscreen canvas and write a PNG blob — PNG
   // regardless of the output's real jpg/webp/png, because ClipboardItem image
@@ -275,7 +275,8 @@ function wireWidgetChrome(rerun) {
   if (copyImage) {
     copyImage.addEventListener("click", () => {
       const img = document.getElementById("tool-output-media");
-      if (!img || img.hidden || !img.src || !String(img.src).startsWith("data:image/")) return;
+      const src = String((img && img.src) || "");
+      if (!img || img.hidden || !(src.startsWith("data:image/") || src.startsWith("blob:"))) return;
       if (!(navigator.clipboard && window.ClipboardItem && navigator.clipboard.write)) return;
       try {
         const canvas = document.createElement("canvas");
@@ -502,6 +503,106 @@ function gatherArgs() {
 }
 
 async function main() {
+  if (cfg.runtime === "model") {
+    const { progressLabel, runModel, validateModelFile, validateModelResult } = await import("./tool-model.js");
+    const media = document.getElementById("tool-output-media");
+    const dl = document.getElementById("tool-output-download");
+    const copyImage = document.getElementById("tool-copy-image");
+    const fileMeta = cfg.inputs.find((i) => i.source === "file");
+    const fileInput = fileMeta ? document.getElementById(fileMeta.elementId) : null;
+    const fieldInputs = cfg.inputs.filter((i) => i.source === "field");
+    if (!cfg.model || !media || !dl || !fileInput || cfg.format !== "image") {
+      showError("tool misconfigured: model runtime needs a model, one file input, and image output");
+      return;
+    }
+
+    let runSeq = 0;
+    let outputUrl = null;
+    const clearOutputUrl = () => {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      outputUrl = null;
+    };
+
+    async function run() {
+      const seq = ++runSeq;
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      clearOutputUrl();
+      media.hidden = true;
+      dl.hidden = true;
+      if (copyImage) copyImage.hidden = true;
+      out.classList.remove("error");
+      out.textContent = "Checking image…";
+      try {
+        await validateModelFile(file);
+        if (seq !== runSeq) return;
+        const fields = Object.fromEntries(fieldInputs.map((input) => {
+          const el = document.getElementById(input.elementId);
+          return [input.name, el ? readField(el) : ""];
+        }));
+        const result = validateModelResult(await runModel(cfg.model, file, fields, (progress) => {
+          if (seq === runSeq) out.textContent = progressLabel(progress);
+        }));
+        if (seq !== runSeq) return;
+        outputUrl = URL.createObjectURL(result.blob);
+        out.textContent = `Finished locally with ${result.backend}.`;
+        media.src = outputUrl;
+        media.hidden = false;
+        dl.href = outputUrl;
+        dl.download = result.filename || `${cfg.slug}.png`;
+        dl.hidden = false;
+        if (copyImage) copyImage.hidden = false;
+      } catch (error) {
+        if (seq !== runSeq) return;
+        const message = typeof error === "string" ? error : error && error.message;
+        showError(message || "AI inference failed.");
+      }
+    }
+
+    applyMetaDefaults();
+    wireTagLists();
+    wireSliders();
+    wireColors();
+    wireWidgetChrome(run);
+    fileInput.addEventListener("change", run);
+    for (const input of fieldInputs) {
+      const el = document.getElementById(input.elementId);
+      if (el) {
+        el.addEventListener("input", run);
+        el.addEventListener("change", run);
+      }
+    }
+    document.addEventListener("paste", (event) => {
+      const files = Array.from((event.clipboardData && event.clipboardData.files) || []);
+      const image = files.find((file) => String(file.type || "").startsWith("image/"));
+      if (!image) return;
+      event.preventDefault();
+      const transfer = new DataTransfer();
+      transfer.items.add(image);
+      fileInput.files = transfer.files;
+      fileInput.dispatchEvent(new Event("change"));
+    });
+
+    const { fields: qpFields, url: qpUrl } = queryPrefill(cfg.inputs, location.search);
+    for (const field of qpFields) applyField(document.getElementById(field.elementId), field.value);
+    if (qpUrl) {
+      try {
+        out.textContent = "Fetching image…";
+        const response = await fetch(qpUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const name = (qpUrl.split("/").pop() || "input").split("?")[0] || "input";
+        const transfer = new DataTransfer();
+        transfer.items.add(new File([blob], name, { type: blob.type }));
+        fileInput.files = transfer.files;
+        fileInput.dispatchEvent(new Event("change"));
+      } catch (error) {
+        showError("Couldn't fetch that image. Download it and choose the file instead.");
+      }
+    }
+    return;
+  }
+
   let mod;
   try {
     mod = await import(cfg.module);
@@ -828,4 +929,3 @@ async function main() {
 }
 
 main();
-

@@ -59,11 +59,16 @@ impl ToolRuntime {
     ///
     /// Returns the raw response body bytes, or an error if dispatch failed.
     pub async fn run_tool(&self, name: &str, args: serde_json::Value) -> Result<Vec<u8>> {
-        // the one capability the CLI cannot provide
-        if name == "gizza-ai/imagine" {
+        // Browser-model capabilities the CLI cannot provide yet.
+        if matches!(name, "gizza-ai/imagine" | "gizza-ai/image-background-remove-ai") {
+            let message = if name == "gizza-ai/imagine" {
+                "text-to-image needs a browser GPU; use the browser app"
+            } else {
+                "AI image background removal currently runs on its standalone browser tool page"
+            };
             let body = serde_json::json!({
                 "error": "unsupported_in_cli",
-                "message": "text-to-image needs a browser GPU; use gizza.ai"
+                "message": message
             });
             return serde_json::to_vec(&body).context("serialize unsupported_in_cli body");
         }

@@ -276,3 +276,16 @@ a.tool-widget-btn { text-decoration: none; display: inline-block; }
   font-size: 0.92rem;
   line-height: 1.45;
 }
+
+/* Local AI pages download model weights but never upload the user's input.
+   Kept distinct from the network disclosure because no user data leaves. */
+.tool-model-note {
+  max-width: 52rem;
+  margin: 0.7rem auto 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 0.5rem;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.9rem;
+}
