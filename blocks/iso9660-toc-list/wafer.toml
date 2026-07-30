@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "iso9660-toc-list"
+version = "0.1.0"
+abi = 1
+summary = "List the directory tree, file sizes and volume label of an ISO 9660 disc image"

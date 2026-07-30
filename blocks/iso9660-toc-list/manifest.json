@@ -1,0 +1,33 @@
+{
+  "name": "gizza-ai/iso9660-toc-list",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List the directory tree, file sizes and volume label of an ISO 9660 disc image",
+  "role": "skill",
+  "tool": {
+    "description": "List the contents of an ISO 9660 (CD/DVD) disc image supplied as base64, without extracting any files. Returns the directory tree with per-file sizes and the volume label. Reads only the volume descriptors and directory records — never the file data — so it is fast and safe on large images. Prefers Joliet long filenames when the image carries them, otherwise uses the standard ISO 9660 names (with the ';1' version suffix stripped). Choose format=tree for an indented tree, list for flat paths, or summary for label/standard/block-size/counts. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The .iso disc image encoded as base64 (standard or URL-safe alphabet, whitespace tolerated). Only the volume descriptors and directory extents are read — file contents are never touched. The decoded bytes must carry the 'CD001' identifier at sector 16 (offset 0x8001). Example: run `base64 disc.iso` and paste the result.",
+          "type": "string"
+        },
+        "format": {
+          "default": "tree",
+          "description": "Output shape: tree (default) — an indented directory tree with per-file sizes and the volume label; list — one full path per line (directories end with '/', files show their size); summary — volume label, standard (ISO 9660 / Joliet), block size, image size and file/directory counts.",
+          "enum": [
+            "tree",
+            "list",
+            "summary"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

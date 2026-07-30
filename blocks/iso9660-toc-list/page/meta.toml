@@ -1,0 +1,37 @@
+slug          = "iso9660-toc-list"
+title         = "ISO 9660 TOC List — View Disc Image Contents"
+description   = "List an ISO 9660 disc image's volume label, directory tree and file sizes from base64 data without extracting files. Browser-local and read-only."
+tags          = ["iso9660", "iso", "disc image", "directory tree", "file listing", "volume label", "joliet", "cd image", "toc"]
+h1            = "ISO 9660 TOC List"
+hero_subtitle = "Paste a base64-encoded .iso image and list its volume label, folders and file sizes without extracting file contents. Supports standard ISO 9660 names and Joliet long filenames."
+wasm          = "gizza_ai_iso9660_toc_list_web"
+export        = "run"
+live          = false
+output_label  = "ISO contents"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Base64 ISO image"
+placeholder = "Paste base64 output from: base64 disc.iso"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "tree"
+source      = "field"
+
+[input.labels]
+tree    = "Tree"
+list    = "Flat path list"
+summary = "Summary only"
+
+[[example]]
+label  = "Tree output"
+params = { format = "tree" }
+
+[[example]]
+label  = "Summary only"
+params = { format = "summary" }
