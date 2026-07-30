@@ -512,3 +512,5 @@ text-to-hex  # duplicate of blocks/hex-codec: existing hex-codec already encodes
 hex-to-text  # duplicate of blocks/hex-codec: existing hex-codec already decodes hexadecimal strings back to UTF-8 text or raw bytes, tolerating whitespace, delimiters, and 0x/\x prefixes; it also supports the reverse text-to-hex direction.
 
 bar-chart-svg  # duplicate of blocks/csv-chart-generator: existing csv-chart-generator already renders standalone SVG bar charts from supplied CSV category/value columns (chart_type=bar) and also covers line/scatter/histogram; a dedicated bar-chart-svg block would only narrow the chart_type surface.
+
+quiz-generator  # not viable in current gizza model: generating meaningful multiple-choice or short-answer questions from arbitrary text requires NLP/LLM semantic understanding and plausible distractor generation. A deterministic pure-Rust parser could only make brittle cloze templates, which would not satisfy the picked row.
