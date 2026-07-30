@@ -1,0 +1,77 @@
+slug          = "salary-convert"
+title         = "Salary Converter — Hourly, Daily, Weekly, Monthly & Annual Pay"
+description   = "Convert pay between hourly, daily, weekly, biweekly, monthly and annual figures. Set your hours per week and weeks per year — all six rates at once, free and in-browser."
+tags          = ["salary converter", "hourly to salary", "salary to hourly", "hourly to annual", "wage calculator", "pay converter", "annual salary calculator", "hourly wage calculator", "monthly to annual salary"]
+h1            = "Salary Converter"
+hero_subtitle = "Turn any pay figure — hourly, daily, weekly, biweekly, monthly or annual — into all the others. Set your hours per week, days per week and weeks per year, and see every equivalent gross rate at once, right in your browser."
+wasm          = "gizza_ai_salary_convert_web"
+export        = "run"
+live          = false
+output_label  = "Pay breakdown (JSON)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "amount"
+label       = "Pay amount"
+placeholder = "52000"
+source      = "field"
+default     = "52000"
+
+[[input]]
+name        = "period"
+label       = "This amount is per"
+placeholder = ""
+source      = "field"
+
+[input.labels]
+hourly   = "Hour"
+daily    = "Day"
+weekly   = "Week"
+biweekly = "Two weeks (biweekly)"
+monthly  = "Month"
+annual   = "Year (annual)"
+
+[[input]]
+name        = "hours_per_week"
+label       = "Hours per week"
+placeholder = "40"
+source      = "field"
+
+[[input]]
+name        = "days_per_week"
+label       = "Days per week"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "weeks_per_year"
+label       = "Paid weeks per year"
+placeholder = "52"
+source      = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol (display only)"
+placeholder = "$"
+source      = "field"
+
+[[example]]
+label  = "$25/hour → salary"
+params = { amount = "25", period = "hourly", hours_per_week = "40", days_per_week = "5", weeks_per_year = "52", currency = "$" }
+
+[[example]]
+label  = "$52,000/year → hourly"
+params = { amount = "52000", period = "annual", hours_per_week = "40", days_per_week = "5", weeks_per_year = "52", currency = "$" }
+
+[[example]]
+label  = "$5,000/month → hourly"
+params = { amount = "5000", period = "monthly", hours_per_week = "40", days_per_week = "5", weeks_per_year = "52", currency = "$" }
+
+[[example]]
+label  = "Part-time 20 h/week"
+params = { amount = "30", period = "hourly", hours_per_week = "20", days_per_week = "4", weeks_per_year = "52", currency = "$" }
+
+[[example]]
+label  = "2 unpaid weeks (50 wk/yr)"
+params = { amount = "40", period = "hourly", hours_per_week = "40", days_per_week = "5", weeks_per_year = "50", currency = "$" }
