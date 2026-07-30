@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-timelapse"
+version = "0.1.0"
+abi = 1
+summary = "Turn long footage into a timelapse by dropping frames and speeding it up"

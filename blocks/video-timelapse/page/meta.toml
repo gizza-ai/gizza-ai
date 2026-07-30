@@ -1,0 +1,41 @@
+slug          = "video-timelapse"
+title         = "Video Timelapse Maker Online"
+description   = "Turn long footage into a fast timelapse in your browser. Pick a speed and output fps; frames are dropped with ffmpeg locally and audio is removed."
+tags          = ["video", "timelapse", "time lapse", "speed up", "fast forward", "hyperlapse", "ffmpeg", "drop frames"]
+h1            = "Make a Timelapse From Video"
+hero_subtitle = "Pick a video, a speed-up factor, and an output fps — frames are dropped and sped up in your browser. Audio is removed, nothing is uploaded."
+wasm          = "gizza_ai_video_timelapse_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Timelapse video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "speed"
+source      = "field"
+label       = "Speed-up factor (2-300×)"
+placeholder = "10"
+
+[[input]]
+name        = "fps"
+source      = "field"
+label       = "Output frame rate (fps, 1-60)"
+placeholder = "30"
+
+[[example]]
+label  = "10× timelapse"
+params = { speed = "10", fps = "30" }
+
+[[example]]
+label  = "20× fast"
+params = { speed = "20", fps = "30" }
+
+[[example]]
+label  = "Extreme 60× (cinematic 24 fps)"
+params = { speed = "60", fps = "24" }
