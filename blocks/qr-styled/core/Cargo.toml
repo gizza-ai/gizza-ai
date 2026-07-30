@@ -1,0 +1,8 @@
+[package]
+name = "gizza-ai-qr-styled-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+qrcode = { version = "0.14", default-features = false }
