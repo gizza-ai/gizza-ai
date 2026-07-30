@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mp4-to-mov"
+version = "0.1.0"
+abi = 1
+summary = "Remux an MP4 video into a QuickTime (.mov) container losslessly."
