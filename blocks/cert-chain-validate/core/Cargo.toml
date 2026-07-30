@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-cert-chain-validate-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+rsa = { version = "=0.9.8", default-features = false, features = ["sha2"] }
+sha2 = { version = "0.10", default-features = false, features = ["oid"] }
+x509-parser = "0.18.1"
