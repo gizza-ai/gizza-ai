@@ -1,0 +1,93 @@
+slug          = "json-to-html-table"
+title         = "JSON to HTML Table"
+description   = "Render a JSON array or object as a clean HTML table or Markdown table with nested-value controls."
+tags          = ["json", "html", "table"]
+h1            = "JSON to HTML Table"
+hero_subtitle = "Paste JSON rows or an object and turn them into copy-ready HTML or Markdown tables."
+wasm          = "gizza_ai_json_to_html_table_web"
+export        = "run"
+live          = false
+output_label  = "Table"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Linus\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+html     = "HTML table"
+markdown = "Markdown table"
+
+[[input]]
+name        = "nested"
+label       = "Nested values"
+source      = "field"
+
+[input.labels]
+json    = "Compact JSON in cells"
+table   = "Nested HTML tables"
+flatten = "Flatten object keys"
+
+[[input]]
+name        = "header"
+label       = "First array row is header"
+source      = "field"
+
+[[input]]
+name        = "null_text"
+label       = "Null / missing text"
+placeholder = "e.g. —"
+source      = "field"
+
+[[input]]
+name        = "caption"
+label       = "HTML caption"
+placeholder = "Quarterly users"
+source      = "field"
+
+[[input]]
+name        = "table_class"
+label       = "HTML table class"
+placeholder = "table table-striped"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print HTML"
+source      = "field"
+
+[[example]]
+label = "JSON rows → HTML"
+[example.params]
+json = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Linus\"}]"
+format = "html"
+
+[[example]]
+label = "Markdown table"
+[example.params]
+json = "[{\"region\":\"us-east\",\"users\":120},{\"region\":\"us-west\",\"users\":85}]"
+format = "markdown"
+
+[[example]]
+label = "Flatten nested objects"
+[example.params]
+json = "[{\"user\":{\"id\":1,\"name\":\"Ada\"}},{\"user\":{\"id\":2,\"name\":\"Bo\"}}]"
+format = "markdown"
+nested = "flatten"
+
+[[example]]
+label = "HTML with caption and class"
+[example.params]
+json = "[{\"name\":\"Ada\",\"score\":10}]"
+format = "html"
+caption = "Scores"
+table_class = "table table-striped"
+pretty = "false"
