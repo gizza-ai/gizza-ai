@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/chorus",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add a configurable chorus effect to an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Add a chorus effect to an audio file by mixing in short modulated delay voices with ffmpeg. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). voices controls how many delayed copies are mixed (2-4); delay_ms is the base delay; depth_ms and speed_hz control the modulation; decay is the delayed voice level. Output is re-encoded to mp3, wav, ogg, flac, or m4a and embedded album art is dropped. Runs locally through the ffmpeg runtime.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "decay": {
+          "default": 0.4,
+          "description": "Level of each delayed voice (0.1-0.9, default 0.4). Higher values make the chorus wetter and louder.",
+          "maximum": 0.9,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "delay_ms": {
+          "default": 50.0,
+          "description": "Base delay before the first chorus voice, in milliseconds (20-80, default 50). Later voices are staggered by 8 ms.",
+          "maximum": 80,
+          "minimum": 20,
+          "type": "number"
+        },
+        "depth_ms": {
+          "default": 2.0,
+          "description": "Modulation depth in milliseconds (1-8, default 2). Higher values make the pitch movement more obvious.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps); wav/flac are lossless re-encodes, ogg is Vorbis, m4a is AAC.",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "speed_hz": {
+          "default": 0.4,
+          "description": "Modulation rate in Hertz (0.1-5, default 0.4). Higher values shimmer or wobble faster.",
+          "maximum": 5,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "voices": {
+          "default": 2.0,
+          "description": "Number of delayed modulation voices to mix in (2-4, default 2). More voices sound wider and thicker.",
+          "maximum": 4,
+          "minimum": 2,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

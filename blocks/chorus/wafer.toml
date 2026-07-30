@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "chorus"
+version = "0.1.0"
+abi = 1
+summary = "Add a configurable chorus effect to an audio file"
