@@ -1,0 +1,84 @@
+slug          = "nmea-to-csv"
+title         = "NMEA to CSV — GPS Track Log Converter"
+description   = "Convert raw NMEA 0183 GPS/GNSS sentences into a timestamped CSV track with latitude, longitude, altitude, speed, course and fix quality."
+tags          = ["nmea", "gps", "gnss", "csv", "track log", "gpgga", "gprmc", "gpx", "location", "navigation"]
+h1            = "NMEA to CSV"
+hero_subtitle = "Paste raw NMEA 0183 GPS sentences and export a clean CSV track table with merged GGA/RMC/GLL/VTG/ZDA/GSA data."
+wasm          = "gizza_ai_nmea_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV track"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "nmea"
+label       = "NMEA log"
+placeholder = "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\n$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "coordinates"
+label       = "Coordinate format"
+placeholder = "decimal"
+source      = "field"
+
+[input.labels]
+decimal = "Decimal degrees"
+dms     = "Degrees/min/sec"
+
+[[input]]
+name        = "altitude_unit"
+label       = "Altitude unit"
+placeholder = "m"
+source      = "field"
+
+[input.labels]
+m  = "Meters"
+ft = "Feet"
+
+[[input]]
+name        = "speed_unit"
+label       = "Speed unit"
+placeholder = "knots"
+source      = "field"
+
+[input.labels]
+knots = "Knots"
+kmh   = "km/h"
+mph   = "mph"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = "comma"
+source      = "field"
+
+[input.labels]
+comma     = "Comma"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[[input]]
+name   = "validate_checksum"
+label  = "Validate checksum"
+source = "field"
+
+[[example]]
+label  = "Decimal CSV"
+params = { coordinates = "decimal", altitude_unit = "m", speed_unit = "knots", delimiter = "comma", header = "true", validate_checksum = "false" }
+
+[[example]]
+label  = "Spreadsheet semicolon"
+params = { coordinates = "decimal", altitude_unit = "ft", speed_unit = "kmh", delimiter = "semicolon", header = "true", validate_checksum = "true" }
+
+[[example]]
+label  = "DMS TSV without header"
+params = { coordinates = "dms", altitude_unit = "m", speed_unit = "mph", delimiter = "tab", header = "false", validate_checksum = "false" }

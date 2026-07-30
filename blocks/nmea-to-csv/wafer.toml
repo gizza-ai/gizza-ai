@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nmea-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Convert a raw NMEA 0183 GPS log into a clean CSV track table."
