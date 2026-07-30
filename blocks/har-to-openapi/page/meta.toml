@@ -1,0 +1,83 @@
+slug          = "har-to-openapi"
+title         = "HAR to OpenAPI — Generate a Draft OpenAPI 3.x Spec from a HAR Capture"
+description   = "Convert a HAR capture into a draft OpenAPI 3.0/3.1 spec in your browser. Infers paths, methods, params, and request/response JSON schemas."
+tags          = ["har to openapi", "har to swagger", "generate openapi from har", "har to openapi converter", "openapi from network capture", "reverse engineer api spec", "har json schema", "devtools har openapi", "openapi generator", "http archive to openapi"]
+h1            = "HAR to OpenAPI"
+hero_subtitle = "Paste a HAR capture and get a draft OpenAPI 3.x spec — endpoints, methods, path/query params, and inferred request/response JSON schemas. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_har_to_openapi_web"
+export        = "run"
+live          = false
+output_label  = "OpenAPI document"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "har"
+label       = "HAR capture (JSON)"
+placeholder = '{ "log": { "entries": [ … ] } }'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+yaml = "YAML"
+json = "JSON"
+
+[[input]]
+name        = "openapi_version"
+label       = "OpenAPI version"
+source      = "field"
+[input.labels]
+"3.0.3" = "3.0.3"
+"3.1.0" = "3.1.0"
+
+[[input]]
+name        = "parameterize_paths"
+label       = "Parameterize id-like path segments ({param})"
+source      = "field"
+
+[[input]]
+name        = "infer_types"
+label       = "Infer scalar parameter types"
+source      = "field"
+
+[[input]]
+name        = "include_examples"
+label       = "Include captured examples"
+source      = "field"
+
+[[input]]
+name        = "domain"
+label       = "Host filter (substring, blank = all)"
+placeholder = "api.example.com"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "API title (blank = inferred from host)"
+placeholder = "My API"
+source      = "field"
+
+[[input]]
+name        = "drop_unsuccessful"
+label       = "Drop operations without a 2xx response"
+source      = "field"
+
+[[example]]
+label  = "Users API (YAML, defaults)"
+params = { har = '{"log":{"entries":[{"request":{"method":"GET","url":"https://api.example.com/users/42?active=true"},"response":{"status":200,"content":{"mimeType":"application/json","text":"{\"id\":42,\"name\":\"Ada\"}"}}},{"request":{"method":"POST","url":"https://api.example.com/users","postData":{"mimeType":"application/json","text":"{\"name\":\"Grace\"}"}},"response":{"status":201,"content":{"mimeType":"application/json","text":"{\"id\":43}"}}}]}}' }
+
+[[example]]
+label  = "Same capture as JSON, OpenAPI 3.1.0"
+params = { har = '{"log":{"entries":[{"request":{"method":"GET","url":"https://api.example.com/users/42?active=true"},"response":{"status":200,"content":{"mimeType":"application/json","text":"{\"id\":42,\"name\":\"Ada\"}"}}}]}}', format = "json", openapi_version = "3.1.0" }
+
+[[example]]
+label  = "Literal paths, no examples"
+params = { har = '{"log":{"entries":[{"request":{"method":"GET","url":"https://api.example.com/orders/1001"},"response":{"status":200,"content":{"mimeType":"application/json","text":"{\"id\":1001}"}}}]}}', parameterize_paths = "false", include_examples = "false" }
+
+[[example]]
+label  = "Filter one host, drop error-only calls"
+params = { har = '{"log":{"entries":[{"request":{"method":"GET","url":"https://api.example.com/health"},"response":{"status":200,"content":{"mimeType":"application/json","text":"{\"ok\":true}"}}},{"request":{"method":"GET","url":"https://cdn.other.com/asset.js"},"response":{"status":200,"content":{"mimeType":"text/javascript","text":""}}}]}}', domain = "api.example.com", drop_unsuccessful = "true" }
