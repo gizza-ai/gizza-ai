@@ -1,0 +1,83 @@
+slug          = "text-colorizer"
+title         = "Text Colorizer — Highlight Logs with Regex Rules"
+description   = "Highlight log or command output with user-defined regex color rules, then export ANSI terminal escapes or self-contained HTML."
+tags          = ["text", "logs", "ansi", "html", "regex", "highlight", "color", "terminal", "developer"]
+h1            = "Colorize Text with Regex Rules"
+hero_subtitle = "Paste logs or command output, write color: regex rules, and export highlighted ANSI text or themed HTML."
+wasm          = "gizza_ai_text_colorizer_web"
+export        = "run"
+live          = false
+output_label  = "Colorized output"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "INFO service started\nWARN retrying request\nERROR database timeout"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rules"
+label       = "Rules (color: regex)"
+placeholder = "bold red: \\bERROR\\b\nyellow: \\bWARN(ING)?\\b\ngreen: \\bOK\\b"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+ansi = "ANSI terminal escapes"
+html = "HTML <pre>"
+
+[[input]]
+name   = "theme"
+source = "field"
+label  = "HTML theme"
+
+[input.labels]
+dark = "Dark"
+light = "Light"
+
+[[input]]
+name   = "ignore_case"
+source = "field"
+label  = "Ignore case"
+
+[[input]]
+name   = "whole_line"
+source = "field"
+label  = "Color whole matching lines"
+
+[[example]]
+label = "Log levels → ANSI"
+[example.values]
+text = "INFO service started\nWARN retrying request\nERROR database timeout"
+rules = "bold red: \\bERROR\\b\nyellow: \\bWARN(ING)?\\b\ngreen: \\bINFO\\b"
+output = "ansi"
+theme = "dark"
+ignore_case = "false"
+whole_line = "false"
+
+[[example]]
+label = "Whole-line CI report"
+[example.values]
+text = "PASS parser tests\nFAIL wasm build\nSKIP browser smoke"
+rules = "bold green: ^PASS\nbold red: ^FAIL\ncyan: ^SKIP"
+output = "ansi"
+theme = "dark"
+ignore_case = "false"
+whole_line = "true"
+
+[[example]]
+label = "HTML links and errors"
+[example.values]
+text = "GET https://example.test 200\nERROR <timeout>"
+rules = "blue underline: https?://\\S+\nbold red: ERROR|timeout"
+output = "html"
+theme = "dark"
+ignore_case = "true"
+whole_line = "false"

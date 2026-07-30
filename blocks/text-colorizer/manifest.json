@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/text-colorizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Highlight text with user-defined regex color rules, as ANSI or HTML",
+  "role": "skill",
+  "tool": {
+    "description": "Apply user-defined regex color rules to log or command output and export the result as ANSI terminal escapes or self-contained HTML. Provide the text plus rules, one per line as 'color-spec: regex' (e.g. 'bold red: \\bERROR\\b'). The color spec supports named colors (red, green, brightyellow, …), #rgb/#rrggbb hex, attributes (bold, italic, underline, …) and an 'on <color>' background. Toggle ignore_case for case-insensitive matching and whole_line to color the entire matched line. Earlier rules win on overlap. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_case": {
+          "default": false,
+          "description": "Match every rule case-insensitively.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "ansi",
+          "description": "Output format: 'ansi' terminal escape codes (default) or a self-contained styled HTML <pre>.",
+          "enum": [
+            "ansi",
+            "html"
+          ],
+          "type": "string"
+        },
+        "rules": {
+          "description": "Highlight rules, one per line as 'color-spec: regex'. The color spec (before the first colon) is space-separated tokens: optional attributes (bold, dim, italic, underline, blink, reverse, strike), a foreground color (name or #rgb/#rrggbb), and an optional 'on <color>' background. Colors: black, red, green, yellow, blue, magenta, cyan, white, their bright* variants, and gray. The rest of the line is a Rust regex. Example: 'bold red: \\bERROR\\b'.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The log or command output to colorize.",
+          "type": "string"
+        },
+        "theme": {
+          "default": "dark",
+          "description": "HTML background/foreground theme (ignored for ANSI output).",
+          "enum": [
+            "dark",
+            "light"
+          ],
+          "type": "string"
+        },
+        "whole_line": {
+          "default": false,
+          "description": "Color the entire line matched by the first matching rule, instead of only the matched substrings.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "rules"
+      ],
+      "type": "object"
+    }
+  }
+}
