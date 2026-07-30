@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/gdrive-link-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Google Drive link to a direct-download, embed, preview, or thumbnail URL",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Google Drive share/view link into the link you actually need: a direct-download link, a large-file download link that skips the virus-scan warning, an inline image-embed link, a preview iframe URL, a resizable thumbnail URL, the share/view link (the reverse conversion), or the bare file ID for scripts. Accepts every common Drive URL shape (file/d/ID/view, open?id=, uc?export=download&id=, drive.usercontent.google.com/download?id=, docs.google.com/…/d/ID, /folders/ID) plus a bare ID. Set output to direct|direct_confirm|view|share|preview|thumbnail|id (default direct); size sets the thumbnail sz token; per_line=true converts a batch of links (one per line). Pure string work — it never contacts Google.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "A Google Drive link in any shape (drive.google.com/file/d/FILE_ID/view, open?id=FILE_ID, uc?export=download&id=FILE_ID, drive.usercontent.google.com/download?id=FILE_ID, docs.google.com/document/d/FILE_ID, a /folders/FILE_ID folder link) or a bare file ID. With per_line=true, one link per line.",
+          "type": "string"
+        },
+        "output": {
+          "default": "direct",
+          "description": "Which link to produce. 'direct' = classic download link (uc?export=download, small files); 'direct_confirm' = large-file download that skips the virus-scan warning (drive.usercontent.google.com …&confirm=t); 'view' = inline image embed (uc?export=view); 'share' = the human share/view link (the 'back' conversion); 'preview' = iframe-embeddable preview URL; 'thumbnail' = resizable thumbnail image; 'id' = the bare file ID for scripts. Default 'direct'.",
+          "enum": [
+            "direct",
+            "direct_confirm",
+            "view",
+            "share",
+            "preview",
+            "thumbnail",
+            "id"
+          ],
+          "type": "string"
+        },
+        "per_line": {
+          "default": false,
+          "description": "When true, convert each line of the input independently (rejoined with newlines, blank lines preserved) — for a batch of Drive links. Default false.",
+          "type": "boolean"
+        },
+        "size": {
+          "default": "w1000",
+          "description": "Thumbnail size token when output='thumbnail' — Google Drive 'sz' syntax: w<pixels> (e.g. w500), w<W>-h<H> (e.g. w320-h240), or s<pixels>. Ignored for other outputs. Default 'w1000'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

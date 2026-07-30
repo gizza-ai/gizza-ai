@@ -1,0 +1,59 @@
+slug          = "gdrive-link-converter"
+title         = "Google Drive Direct Download Link Generator — Convert Share Links"
+description   = "Turn a Google Drive share link into a direct-download, embed, preview, or thumbnail URL — or extract the file ID. Handles large-file scan warnings."
+tags          = ["google drive direct link", "gdrive download link", "drive share to download", "google drive file id", "embed google drive image", "drive thumbnail url", "google drive preview link", "direct download generator"]
+h1            = "Google Drive Link Converter"
+hero_subtitle = "Paste any Google Drive share link and get the link you actually need — direct download, large-file download, inline image embed, preview iframe, thumbnail, or the raw file ID. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_gdrive_link_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted link"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Google Drive link (or one per line)"
+placeholder = "https://drive.google.com/file/d/1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW/view?usp=sharing"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Convert to"
+source = "field"
+
+[input.labels]
+direct         = "Direct download link"
+direct_confirm = "Direct download — large files (skip scan warning)"
+view           = "Inline image embed (uc?export=view)"
+share          = "Share / view link (reverse)"
+preview        = "Preview iframe URL"
+thumbnail      = "Thumbnail image"
+id             = "File ID only"
+
+[[input]]
+name        = "size"
+label       = "Thumbnail size (only for Thumbnail)"
+placeholder = "w1000"
+source      = "field"
+
+[[input]]
+name   = "per_line"
+label  = "Convert each line separately (batch)"
+source = "field"
+
+[[example]]
+label  = "Share link → direct download"
+params = { input = "https://drive.google.com/file/d/1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW/view?usp=sharing", output = "direct" }
+
+[[example]]
+label  = "Extract the file ID"
+params = { input = "https://drive.google.com/open?id=1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW", output = "id" }
+
+[[example]]
+label  = "Large file (skip scan warning)"
+params = { input = "1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW", output = "direct_confirm" }
+
+[[example]]
+label  = "Thumbnail w500"
+params = { input = "https://drive.google.com/file/d/1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW/view", output = "thumbnail", size = "w500" }
