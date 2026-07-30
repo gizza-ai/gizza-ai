@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-validate"
+version = "0.1.0"
+abi = 1
+summary = "Validate HTML and report syntax errors, unclosed tags, and nesting issues"

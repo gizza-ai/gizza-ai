@@ -1,0 +1,32 @@
+{
+  "name": "gizza-ai/html-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate HTML and report syntax errors, unclosed tags, and nesting issues",
+  "role": "skill",
+  "tool": {
+    "description": "Validate an HTML document or snippet and report every syntax error, unclosed tag, and nesting issue, each with a 1-based line and column. Detects unterminated tags and comments, tags with no name, elements opened but never closed, overlapping/misnested tags (e.g. <b><i></b>), and stray closing tags with no matching open. Understands void elements (br, img, hr, …), self-closing tags, quoted attributes, and the raw contents of <script>/<style>/<textarea>/<pre>. Set format='report' (default, human-readable) or 'json' (a machine-readable {valid, errors, warnings, elements, issues} summary). Runs entirely locally — nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "report",
+          "description": "Output: 'report' (human-readable list of issues with line:column, default) or 'json' (a machine-readable {valid, errors, warnings, elements, issues[]} object).",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "html": {
+          "description": "The HTML document or snippet to validate. Paste the full markup; a `<`/`>` inside <script>, <style> or a quoted attribute is handled correctly.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}
