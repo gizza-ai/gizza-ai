@@ -1,0 +1,140 @@
+slug          = "mortgage-calculator"
+title         = "Mortgage Calculator"
+description   = "Estimate your monthly mortgage payment — principal, interest, property tax, insurance and HOA — plus total interest, total cost and how extra payments shorten the term."
+tags          = ["mortgage calculator", "monthly payment", "home loan", "principal and interest", "PITI", "property tax", "homeowners insurance", "HOA", "total interest", "extra payment payoff"]
+h1            = "Mortgage Calculator"
+hero_subtitle = "Enter a home price, down payment, term and interest rate to see your monthly mortgage payment broken into principal, interest, taxes, insurance and HOA — with total interest, total cost, and how an extra monthly payment pays the loan off sooner. Runs locally in your browser."
+wasm          = "gizza_ai_mortgage_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Payment breakdown"
+format        = "text"
+
+[[input]]
+name        = "home_price"
+label       = "Home price"
+placeholder = "400000"
+default     = "400000"
+source      = "field"
+
+[[input]]
+name        = "down_payment"
+label       = "Down payment (amount)"
+placeholder = "80000"
+default     = "80000"
+source      = "field"
+
+[[input]]
+name        = "loan_years"
+label       = "Loan term (years)"
+placeholder = "30"
+default     = "30"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "40"
+step        = "1"
+[input.labels]
+low  = "1 yr"
+high = "40 yr"
+
+[[input]]
+name        = "annual_interest_rate_percent"
+label       = "Interest rate (%)"
+placeholder = "6.5"
+default     = "6.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "15"
+step        = "0.1"
+[input.labels]
+low  = "0%"
+high = "15%"
+
+[[input]]
+name        = "annual_property_tax"
+label       = "Annual property tax"
+placeholder = "4800"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "annual_insurance"
+label       = "Annual home insurance"
+placeholder = "1800"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "monthly_hoa"
+label       = "Monthly HOA dues"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "extra_monthly_payment"
+label       = "Extra monthly payment"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+default     = "2"
+source      = "field"
+
+[[example]]
+label = "$400k home, 20% down, 30-yr @ 6.5%"
+[example.params]
+home_price = "400000"
+down_payment = "80000"
+loan_years = "30"
+annual_interest_rate_percent = "6.5"
+annual_property_tax = "0"
+annual_insurance = "0"
+monthly_hoa = "0"
+extra_monthly_payment = "0"
+decimals = "2"
+
+[[example]]
+label = "Full PITI + HOA"
+[example.params]
+home_price = "400000"
+down_payment = "80000"
+loan_years = "30"
+annual_interest_rate_percent = "6.5"
+annual_property_tax = "4800"
+annual_insurance = "1800"
+monthly_hoa = "250"
+extra_monthly_payment = "0"
+decimals = "2"
+
+[[example]]
+label = "$300 extra → payoff sooner"
+[example.params]
+home_price = "400000"
+down_payment = "80000"
+loan_years = "30"
+annual_interest_rate_percent = "6.5"
+annual_property_tax = "0"
+annual_insurance = "0"
+monthly_hoa = "0"
+extra_monthly_payment = "300"
+decimals = "2"
+
+[[example]]
+label = "15-year at 5.75%"
+[example.params]
+home_price = "400000"
+down_payment = "80000"
+loan_years = "15"
+annual_interest_rate_percent = "5.75"
+annual_property_tax = "0"
+annual_insurance = "0"
+monthly_hoa = "0"
+extra_monthly_payment = "0"
+decimals = "2"

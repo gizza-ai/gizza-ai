@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mortgage-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Monthly mortgage payment (principal, interest, taxes, insurance, HOA) and total cost."

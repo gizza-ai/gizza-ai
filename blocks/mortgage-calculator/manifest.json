@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/mortgage-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Monthly mortgage payment (principal, interest, taxes, insurance, HOA) and total cost.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the fixed-rate monthly mortgage payment and total cost of a home loan. Pass home_price and down_payment (a cash amount) — the financed loan_amount is their difference — plus loan_years (term) and annual_interest_rate_percent (nominal percent). Optionally add annual_property_tax, annual_insurance and monthly_hoa to roll taxes/insurance/HOA into the monthly payment, and extra_monthly_payment to pay down principal faster. Every parameter is optional with a sensible default. Returns loan_amount, monthly_principal_interest, monthly_taxes, monthly_insurance, monthly_hoa, monthly_payment, payoff_months, total_principal, total_interest, total_tax, total_insurance, total_hoa, total_cost and a plain-language summary. An extra monthly payment correctly shortens payoff_months and reduces total_interest.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "annual_insurance": {
+          "default": 0.0,
+          "description": "Annual homeowner's insurance premium, spread evenly across the year. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "annual_interest_rate_percent": {
+          "default": 6.5,
+          "description": "Nominal annual interest rate as a percent, e.g. 6.5 for 6.5%. Default 6.5.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "annual_property_tax": {
+          "default": 0.0,
+          "description": "Annual property tax amount, spread evenly across the year. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "decimals": {
+          "default": 2.0,
+          "description": "Decimal places for money outputs. Default 2 (range 0–10).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "down_payment": {
+          "default": 80000.0,
+          "description": "Down-payment amount (a cash amount, not a percent). Must be at most home_price. Default 80000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "extra_monthly_payment": {
+          "default": 0.0,
+          "description": "Extra amount paid toward principal every month. Shortens the term and cuts total interest. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "home_price": {
+          "default": 400000.0,
+          "description": "Purchase price of the home in your currency. Default 400000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "loan_years": {
+          "default": 30.0,
+          "description": "Loan term in years, e.g. 30 or 15. Default 30 (max 100).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "monthly_hoa": {
+          "default": 0.0,
+          "description": "Monthly HOA / condo association dues. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
