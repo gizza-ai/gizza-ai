@@ -1,0 +1,53 @@
+slug          = "sql-dialect-converter"
+title         = "SQL Dialect Converter — PostgreSQL ⇄ MySQL ⇄ SQLite"
+description   = "Convert SQL between PostgreSQL, MySQL and SQLite in your browser — rewrites identifier quoting, auto-increment columns and CREATE TABLE data types. Free, no upload."
+tags          = ["sql dialect converter", "postgres to mysql", "mysql to postgres", "sql to sqlite", "convert create table", "serial to auto_increment", "sql migration"]
+h1            = "SQL Dialect Converter"
+hero_subtitle = "Convert SQL between PostgreSQL, MySQL and SQLite — identifier quoting, auto-increment columns and CREATE TABLE data types are rewritten for the target dialect. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_sql_dialect_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted SQL"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "sql"
+label       = "SQL"
+placeholder = "CREATE TABLE \"users\" (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255),\n  active BOOLEAN\n);"
+source      = "field"
+multiline   = true
+
+# from/to render as <select>; the option lists derive from the descriptor schema
+# (manifest.json). Labels here only prettify the option text.
+[[input]]
+name   = "from"
+label  = "From dialect"
+source = "field"
+
+[input.labels]
+postgres = "PostgreSQL"
+mysql    = "MySQL"
+sqlite   = "SQLite"
+
+[[input]]
+name   = "to"
+label  = "To dialect"
+source = "field"
+
+[input.labels]
+postgres = "PostgreSQL"
+mysql    = "MySQL"
+sqlite   = "SQLite"
+
+[[example]]
+label  = "Postgres → MySQL"
+params = { sql = "CREATE TABLE \"users\" (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255),\n  active BOOLEAN\n);", from = "postgres", to = "mysql" }
+
+[[example]]
+label  = "MySQL → Postgres"
+params = { sql = "CREATE TABLE `orders` (\n  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,\n  `payload` JSON,\n  `created` DATETIME\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", from = "mysql", to = "postgres" }
+
+[[example]]
+label  = "Postgres → SQLite"
+params = { sql = "CREATE TABLE events (\n  id SERIAL PRIMARY KEY,\n  ts TIMESTAMP,\n  amount DOUBLE PRECISION\n);", from = "postgres", to = "sqlite" }
