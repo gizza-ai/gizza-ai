@@ -514,3 +514,5 @@ hex-to-text  # duplicate of blocks/hex-codec: existing hex-codec already decodes
 bar-chart-svg  # duplicate of blocks/csv-chart-generator: existing csv-chart-generator already renders standalone SVG bar charts from supplied CSV category/value columns (chart_type=bar) and also covers line/scatter/histogram; a dedicated bar-chart-svg block would only narrow the chart_type surface.
 
 quiz-generator  # not viable in current gizza model: generating meaningful multiple-choice or short-answer questions from arbitrary text requires NLP/LLM semantic understanding and plausible distractor generation. A deterministic pure-Rust parser could only make brittle cloze templates, which would not satisfy the picked row.
+
+timezone-converter  # duplicate of blocks/timezone-convert: existing timezone-convert already converts datetimes between IANA time zones with chrono-tz DST handling, multiple target zones, offset details, Unix timestamp output, and a meeting-planner/multi-city comparison view.
