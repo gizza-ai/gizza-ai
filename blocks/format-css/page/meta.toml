@@ -1,0 +1,71 @@
+slug          = "format-css"
+title         = "CSS Formatter — beautify & sort CSS, SCSS, LESS"
+description   = "Pretty-print CSS, SCSS, or LESS locally. Choose indentation, sort declarations, split selectors, and normalize hex colors in your browser."
+tags          = ["css formatter", "css beautifier", "scss formatter", "less formatter", "pretty print css", "sort css properties", "format css online"]
+h1            = "CSS Formatter"
+hero_subtitle = "Paste minified or messy CSS, SCSS, or LESS and get it cleanly re-indented. Optionally sort declarations (A–Z or grouped), split comma selectors, and uppercase hex colors — all locally, nothing is uploaded."
+wasm          = "gizza_ai_format_css_web"
+export        = "run"
+live          = false
+output_label  = "Formatted CSS"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSS / SCSS / LESS"
+placeholder = ".btn{color:#abcdef;margin:0;&:hover{color:red}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent width (spaces per level)"
+placeholder = "2"
+source      = "field"
+
+# indent_char renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "indent_char"
+label       = "Indent character"
+source      = "field"
+
+[input.labels]
+space = "Spaces"
+tab   = "Tab"
+
+# sort renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "sort"
+label       = "Sort declarations"
+source      = "field"
+
+[input.labels]
+none         = "Keep source order"
+alphabetical = "Alphabetical (A–Z)"
+grouped      = "Grouped (concentric)"
+
+[[input]]
+name   = "selectors_per_line"
+label  = "One selector per line"
+source = "field"
+
+[[input]]
+name   = "uppercase_hex"
+label  = "Uppercase hex colors"
+source = "field"
+
+[[example]]
+label  = "Beautify minified CSS"
+params = { input = "a{color:red;margin:0}h1,h2{font-weight:bold}" }
+
+[[example]]
+label  = "SCSS with nesting"
+params = { input = ".btn{color:red;&:hover{color:blue}}" }
+
+[[example]]
+label  = "Sort alphabetically"
+params = { input = "a{margin:0;color:red;background:blue}", sort = "alphabetical" }
+
+[[example]]
+label  = "Grouped + uppercase hex"
+params = { input = "a{color:#abcdef;position:absolute;width:1px}", sort = "grouped", uppercase_hex = "true" }
