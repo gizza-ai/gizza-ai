@@ -1,0 +1,110 @@
+{
+  "name": "gizza-ai/pie-donut-chart-svg",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn labeled values into a pie or donut chart as a standalone SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a pie or donut chart as a self-contained SVG from labeled values. Enter one `label, value` pair per line (the separator can be `,`, `:` or `=`, and entries may also be `;`-separated), or paste a JSON array. Percentages are computed automatically from the sum. Options: chart_type (pie or donut), donut hole size, start angle, a custom color list, on-slice labels and percentages, raw values in the legend, legend placement (none/right/bottom), slice sort (input/descending/ascending), a title, canvas width and height, and a background color. Negative or non-numeric values are rejected with a clear error. The output is a plain SVG string — no plotting library, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "default": "#ffffff",
+          "description": "Background fill — any CSS color, or `none`/`transparent` for no backdrop. Default #ffffff.",
+          "type": "string"
+        },
+        "chart_type": {
+          "default": "pie",
+          "description": "Chart to draw: 'pie' (full wedges) or 'donut' (a pie with a round hole in the middle). Default pie.",
+          "enum": [
+            "pie",
+            "donut"
+          ],
+          "type": "string"
+        },
+        "colors": {
+          "default": "",
+          "description": "Optional comma-separated CSS colors cycled across slices (e.g. `#4e79a7, tomato, #59a14f`). Empty uses a built-in 10-color palette.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The labeled values to chart, one `label, value` pair per line (also split on `;`). The separator can be `,`, `:` or `=` — e.g. `Chrome, 63` or `Mobile: 55`. A JSON array is also accepted (`[[\"A\",5],[\"B\",3]]` or `[{\"label\":\"A\",\"value\":5}]`). Values must be zero or positive numbers; negatives are rejected.",
+          "type": "string"
+        },
+        "donut_hole": {
+          "default": 0.55,
+          "description": "Donut hole size as a fraction of the outer radius (0.0–0.9). Only affects a donut chart; 0.55 is a typical ring. Default 0.55.",
+          "maximum": 0.9,
+          "minimum": 0,
+          "type": "number"
+        },
+        "height": {
+          "default": 400,
+          "description": "SVG height in pixels (120–4000). Default 400.",
+          "maximum": 4000,
+          "minimum": 120,
+          "type": "integer"
+        },
+        "legend": {
+          "default": "right",
+          "description": "Where to place the legend listing each label with a color swatch: 'none', 'right' of the chart, or 'bottom'. Default right.",
+          "enum": [
+            "none",
+            "right",
+            "bottom"
+          ],
+          "type": "string"
+        },
+        "show_labels": {
+          "default": false,
+          "description": "Draw each slice's label text on the slice itself (in addition to the legend). Default false.",
+          "type": "boolean"
+        },
+        "show_percentages": {
+          "default": true,
+          "description": "Draw each slice's percentage of the total on the slice, and include it in legend rows. Default true.",
+          "type": "boolean"
+        },
+        "show_values": {
+          "default": false,
+          "description": "Include each slice's raw value in its legend row. Default false.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Slice order: 'input' keeps the given order, 'descending'/'ascending' sort by value. Default input.",
+          "enum": [
+            "input",
+            "descending",
+            "ascending"
+          ],
+          "type": "string"
+        },
+        "start_angle": {
+          "default": 0.0,
+          "description": "Angle in degrees for the first slice's leading edge, measured clockwise from 12 o'clock. 0 starts at the top. Default 0.",
+          "maximum": 360,
+          "minimum": -360,
+          "type": "number"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn centered above the chart.",
+          "type": "string"
+        },
+        "width": {
+          "default": 640,
+          "description": "SVG width in pixels (120–4000). Default 640.",
+          "maximum": 4000,
+          "minimum": 120,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
