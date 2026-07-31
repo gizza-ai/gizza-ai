@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/sql-linter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint SQL for syntax issues and query anti-patterns like SELECT *, comma joins, and missing aliases.",
+  "role": "skill",
+  "tool": {
+    "description": "Lint pasted SQL without executing it. Reports structural syntax problems (unbalanced parentheses, unterminated strings/comments, leading/trailing commas) plus common anti-patterns: SELECT *, implicit/comma joins, derived subqueries without aliases, and bare JOINs. Parameters: sql text, dialect hint (generic/mysql/postgresql/sqlite/tsql), min_severity filter, ignore list of rule codes, and text/json output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dialect": {
+          "default": "generic",
+          "description": "SQL dialect hint. The linter is intentionally heuristic, but the dialect controls details such as MySQL # line-comment masking and is reported in the output.",
+          "enum": [
+            "generic",
+            "mysql",
+            "postgresql",
+            "sqlite",
+            "tsql"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format. 'text' is a human-readable report with line numbers and snippets; 'json' returns summary counts plus a findings array.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "ignore": {
+          "default": "",
+          "description": "Optional comma- or space-separated rule codes to suppress, e.g. SELECT-STAR, BARE-JOIN, IMPLICIT-JOIN, SUBQUERY-NO-ALIAS, SYNTAX.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Minimum severity to show. 'all' includes info/warning/error findings; 'warning' hides info-only style hints; 'error' shows only structural syntax errors.",
+          "enum": [
+            "all",
+            "warning",
+            "error"
+          ],
+          "type": "string"
+        },
+        "sql": {
+          "description": "SQL text to lint. Multiple statements are allowed; comments and string literals are masked before anti-pattern checks so examples inside comments do not trigger findings.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sql"
+      ],
+      "type": "object"
+    }
+  }
+}

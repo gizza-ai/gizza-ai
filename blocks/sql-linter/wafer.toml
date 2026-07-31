@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sql-linter"
+version = "0.1.0"
+abi = 1
+summary = "Lint SQL for syntax issues and query anti-patterns like SELECT *, comma joins, and missing aliases."
