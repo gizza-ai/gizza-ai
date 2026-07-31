@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/html-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Diff the visible text of two HTML snippets, ignoring tag and attribute noise",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two HTML snippets by their visible text only — every tag and attribute is stripped first, so markup differences (classes, ids, inline styles, wrapper elements) are ignored. Diff line-by-line for a classic unified patch or word-by-word for an inline wdiff-style view, and render as text or a structured JSON report with added/removed/changed/unchanged counts. Supports optional case-insensitive and whitespace-normalized matching while preserving original text in the output.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "left": {
+          "type": "string",
+          "description": "The original/left HTML to compare."
+        },
+        "right": {
+          "type": "string",
+          "description": "The updated/right HTML to compare."
+        },
+        "granularity": {
+          "type": "string",
+          "enum": [
+            "line",
+            "word"
+          ],
+          "default": "line",
+          "description": "Diff granularity: 'line' for patch-style line diffs or 'word' for inline word-level diffs."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "unified",
+            "json"
+          ],
+          "default": "unified",
+          "description": "Output format: unified diff/inline text or a structured JSON report."
+        },
+        "ignore_case": {
+          "type": "boolean",
+          "default": false,
+          "description": "Compare tokens case-insensitively while preserving original text in the output."
+        },
+        "ignore_whitespace": {
+          "type": "boolean",
+          "default": false,
+          "description": "Normalize runs of whitespace for matching while preserving original text in the output."
+        },
+        "context": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 3,
+          "description": "Unchanged context lines around each hunk in unified line output. Default 3."
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
