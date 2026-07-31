@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/chat-transcript-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reformat a messy chat log into a clean, consistent transcript",
+  "role": "skill",
+  "tool": {
+    "description": "Take a raw, inconsistently-formatted chat log or conversation transcript and re-emit it as one uniformly-formatted transcript that preserves speaker, time, and message. It deterministically parses the common line shapes — WhatsApp bracket ('[2023-01-05, 10:04] Alice: hi') and dash ('05/01/2023, 10:04 AM - Alice: hi') exports, bracketed/parenthesized times ('[10:04] Alice:' / '(10:04 AM) <Bob>'), bare leading times ('10:04 Alice:'), IRC/Discord angle form ('<Alice> hi'), and plain 'Name: message' — and folds any unrecognized wrapped line into the previous message. Choose the speaker style with output_format (plain / markdown-bold / IRC angle / screenplay), normalize or drop timestamps with time_format (keep / 24h / 12h / none), keep dates with include_dates, merge consecutive same-speaker turns with merge_consecutive, and add blank lines between turns with blank_line_between. Fully deterministic — no LLM, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blank_line_between": {
+          "default": false,
+          "description": "Put a blank line between turns for a more readable, paragraph-style layout.",
+          "type": "boolean"
+        },
+        "include_dates": {
+          "default": false,
+          "description": "Keep the date part (from WhatsApp-style exports) alongside the time. Off by default so the output stays compact.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The raw chat log or conversation transcript to reformat. Handles WhatsApp exports, IRC/Discord copy-paste, '[HH:MM] Name:' timestamped logs, and plain 'Name: message' lines; unrecognized lines fold into the previous message.",
+          "type": "string"
+        },
+        "merge_consecutive": {
+          "default": false,
+          "description": "Merge consecutive turns from the same speaker into one block.",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "plain",
+          "description": "Speaker-label style: 'plain' (Name: message), 'markdown' (**Name:** message), 'bracketed' (<Name> message), or 'screenplay' (NAME: message, uppercased).",
+          "enum": [
+            "plain",
+            "markdown",
+            "bracketed",
+            "screenplay"
+          ],
+          "type": "string"
+        },
+        "time_format": {
+          "default": "keep",
+          "description": "Timestamp handling: 'keep' verbatim, '24h' normalized to HH:MM, '12h' normalized to h:MM AM/PM, or 'none' to drop timestamps.",
+          "enum": [
+            "keep",
+            "24h",
+            "12h",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

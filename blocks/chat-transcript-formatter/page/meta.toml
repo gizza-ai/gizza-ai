@@ -1,0 +1,78 @@
+slug          = "chat-transcript-formatter"
+title         = "Chat Transcript Formatter"
+description   = "Clean a messy chat log into one consistently-formatted transcript with normalized speakers, timestamps, and WhatsApp/IRC/plain line parsing."
+tags          = ["chat", "transcript", "whatsapp", "formatting", "text"]
+h1            = "Chat Transcript Formatter"
+hero_subtitle = "Paste a raw chat log — WhatsApp export, IRC/Discord copy-paste, or plain 'Name: message' lines — and get back one uniformly-formatted transcript with consistent speaker labels and timestamps."
+wasm          = "gizza_ai_chat_transcript_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted transcript"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Chat log"
+placeholder = "[2023-01-05, 10:04] Alice: hey, running late\n10:05 Bob: no worries\n<Carol> see you soon"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output_format"
+label       = "Speaker style"
+source      = "field"
+
+[input.labels]
+plain = "Plain (Name: message)"
+markdown = "Markdown (**Name:** message)"
+bracketed = "IRC angle (<Name> message)"
+screenplay = "Screenplay (NAME: message)"
+
+[[input]]
+name        = "time_format"
+label       = "Timestamps"
+source      = "field"
+
+[input.labels]
+keep = "Keep as-is"
+"24h" = "24-hour (HH:MM)"
+"12h" = "12-hour (h:MM AM/PM)"
+none = "Drop timestamps"
+
+[[input]]
+name        = "include_dates"
+label       = "Keep dates"
+source      = "field"
+
+[[input]]
+name        = "merge_consecutive"
+label       = "Merge consecutive turns"
+source      = "field"
+
+[[input]]
+name        = "blank_line_between"
+label       = "Blank line between turns"
+source      = "field"
+
+[[example]]
+label = "WhatsApp export → Markdown, 24h"
+[example.params]
+input = "[2023-01-05, 10:04:11] Alice: hey, running late\n[2023-01-05, 10:04:40] Alice: maybe 10 mins\n[2023-01-05, 10:05:02] Bob: no worries, see you soon"
+output_format = "markdown"
+time_format = "24h"
+merge_consecutive = "true"
+
+[[example]]
+label = "Mixed IRC/plain → clean, no times"
+[example.params]
+input = "10:04 Alice: hi everyone\n<Bob> hey Alice\nCarol: joining now\ngot pulled into a meeting"
+output_format = "plain"
+time_format = "none"
+blank_line_between = "true"
+
+[[example]]
+label = "Timestamped log → screenplay"
+[example.params]
+input = "(10:04 AM) Alice: quiet on set\n(10:05 AM) Bob: rolling"
+output_format = "screenplay"
+time_format = "12h"
