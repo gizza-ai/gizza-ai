@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "column-value-diff"
+version = "0.1.0"
+abi = 1
+summary = "Join two tables on a key column and report where a chosen value column disagrees, with old/new pairs"

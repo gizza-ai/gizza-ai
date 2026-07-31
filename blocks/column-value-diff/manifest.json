@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/column-value-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Join two tables on a key column and report where a chosen value column disagrees, with old/new pairs",
+  "role": "skill",
+  "tool": {
+    "description": "Join two CSV tables on one or more key columns and compare a single chosen value column, reporting every key whose value disagrees as a clean old → new pair. Unlike a full cell-by-cell diff, every other column is ignored, so two files with different surrounding schemas still reconcile cleanly on the one metric you care about (price, quantity, status, …). Rows are matched by the composite key (referenced by header name or 1-based index); duplicate keys pair in order. Optionally report keys present on only one side (left-only / right-only). Optional case- and whitespace-insensitive matching. Output as a readable table, structured JSON, or a flat CSV change-log.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter used by both CSVs.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output shape: table (readable key → old/new report), json (structured), or csv (flat key,status,old,new change-log).",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row of each CSV as a header, so key/value can be named columns. Turn off to reference columns by 1-based index (col1, col2, …).",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare key and value text case-insensitively while preserving original text in the output.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": false,
+          "description": "Normalize runs of whitespace when comparing (so \"in  stock\" == \"in stock\") while preserving original text.",
+          "type": "boolean"
+        },
+        "include_unmatched": {
+          "default": false,
+          "description": "Also report keys present on only one side (left-only / right-only). Off by default so the report shows only value changes for keys in both tables.",
+          "type": "boolean"
+        },
+        "key": {
+          "description": "Column(s) to join the two tables on — the identity of each row. Comma-separated for a composite key. Reference by header name (or 1-based index when header=false). Example: id or first,last.",
+          "type": "string"
+        },
+        "left": {
+          "description": "The original/left CSV text (the \"old\" table).",
+          "type": "string"
+        },
+        "right": {
+          "description": "The updated/right CSV text (the \"new\" table).",
+          "type": "string"
+        },
+        "value": {
+          "description": "The single column whose values to compare between the matched rows — the metric you care about. Header name, or 1-based index when header=false. Example: price.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "left",
+        "right",
+        "key",
+        "value"
+      ],
+      "type": "object"
+    }
+  }
+}
