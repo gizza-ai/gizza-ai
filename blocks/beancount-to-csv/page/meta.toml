@@ -1,0 +1,79 @@
+slug          = "beancount-to-csv"
+title         = "Beancount to CSV Converter"
+description   = "Flatten Beancount or Ledger journal postings into spreadsheet-ready CSV, then rebuild a simple journal from that flat CSV schema."
+tags          = ["beancount", "ledger", "csv", "accounting", "plain-text-accounting", "journal", "spreadsheet", "converter"]
+h1            = "Beancount to CSV Converter"
+hero_subtitle = "Paste a Beancount or Ledger journal, flatten it into one CSV row per posting, or rebuild a simple journal from the same spreadsheet-friendly rows."
+wasm          = "gizza_ai_beancount_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "Converted text"
+format        = "text"
+
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[input.labels]
+"to-csv" = "Journal → CSV"
+"from-csv" = "CSV → journal"
+
+[[input]]
+name        = "input"
+label       = "Journal or CSV input"
+placeholder = '''2024-01-15 * "Starbucks" "Morning coffee"
+  Expenses:Food:Coffee    4.50 USD
+  Assets:Bank:Checking   -4.50 USD'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "journal_format"
+label       = "Output journal format"
+source      = "field"
+
+[input.labels]
+beancount = "Beancount"
+ledger = "Ledger / hledger"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[input.labels]
+comma = "Comma"
+semicolon = "Semicolon"
+tab = "Tab"
+pipe = "Pipe"
+
+[[example]]
+label = "Beancount journal → CSV"
+[example.params]
+direction = "to-csv"
+input = '''2024-01-15 * "Starbucks" "Morning coffee"
+  Expenses:Food:Coffee    4.50 USD
+  Assets:Bank:Checking   -4.50 USD'''
+journal_format = "beancount"
+delimiter = "comma"
+
+[[example]]
+label = "CSV → Beancount journal"
+[example.params]
+direction = "from-csv"
+input = '''date,flag,payee,narration,account,amount,currency,cost,price,comment
+2024-01-15,*,Starbucks,Morning coffee,Expenses:Food:Coffee,4.50,USD,,,
+2024-01-15,*,Starbucks,Morning coffee,Assets:Bank:Checking,-4.50,USD,,,'''
+journal_format = "beancount"
+delimiter = "comma"
+
+[[example]]
+label = "CSV → Ledger journal"
+[example.params]
+direction = "from-csv"
+input = '''date,flag,payee,narration,account,amount,currency
+2024-01-16,*,,Grocery Store,Expenses:Groceries,25.00,$
+2024-01-16,*,,Grocery Store,Assets:Bank:Checking,-25.00,$'''
+journal_format = "ledger"
+delimiter = "comma"
