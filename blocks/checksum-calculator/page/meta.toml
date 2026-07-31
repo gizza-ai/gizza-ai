@@ -1,0 +1,94 @@
+slug          = "checksum-calculator"
+title         = "Checksum Calculator — CRC-32, CRC-32C, CRC-16, CRC-8"
+description   = "Compute and verify CRC-32, CRC-32C, CRC-16, or CRC-8 checksums for text, hex, or base64 bytes, with hex or decimal output."
+tags          = ["checksum", "crc", "crc32", "crc32c", "crc16", "crc8", "integrity", "verify", "hex", "decimal"]
+h1            = "Checksum Calculator"
+hero_subtitle = "Compute CRC-family checksums for text or encoded bytes, then compare them with an expected value for a quick MATCH/MISMATCH integrity check."
+wasm          = "gizza_ai_checksum_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Checksum"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Input"
+placeholder = "123456789"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "algorithm"
+label       = "CRC algorithm"
+source      = "field"
+
+[input.labels]
+crc32 = "CRC-32 / ISO-HDLC"
+crc32c = "CRC-32C / Castagnoli"
+crc16 = "CRC-16 / ARC"
+crc8 = "CRC-8 / SMBUS"
+
+[[input]]
+name        = "input_encoding"
+label       = "Interpret input as"
+source      = "field"
+
+[input.labels]
+text = "Text (UTF-8 bytes)"
+hex = "Hex bytes"
+base64 = "Base64 bytes"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+hex = "Hex"
+decimal = "Decimal"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex"
+source      = "field"
+
+[[input]]
+name        = "expected"
+label       = "Expected checksum (optional)"
+placeholder = "cbf43926"
+source      = "field"
+
+[[example]]
+label = "CRC-32 check vector"
+[example.params]
+text = "123456789"
+algorithm = "crc32"
+input_encoding = "text"
+output_format = "hex"
+expected = "cbf43926"
+
+[[example]]
+label = "CRC-32C uppercase"
+[example.params]
+text = "123456789"
+algorithm = "crc32c"
+input_encoding = "text"
+output_format = "hex"
+uppercase = "true"
+expected = "E3069283"
+
+[[example]]
+label = "CRC-16 from hex bytes"
+[example.params]
+text = "313233343536373839"
+algorithm = "crc16"
+input_encoding = "hex"
+output_format = "hex"
+
+[[example]]
+label = "CRC-8 decimal from base64"
+[example.params]
+text = "MTIzNDU2Nzg5"
+algorithm = "crc8"
+input_encoding = "base64"
+output_format = "decimal"

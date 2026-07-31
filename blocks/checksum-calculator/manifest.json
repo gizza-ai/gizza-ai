@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/checksum-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute a CRC checksum (CRC-32, CRC-32C, CRC-16 or CRC-8) of text or encoded bytes, and optionally verify it",
+  "role": "skill",
+  "tool": {
+    "description": "Compute a CRC-family checksum of an input and optionally verify it against an expected value. Choose algorithm='crc32' (default, CRC-32/ISO-HDLC used by zip/gzip/PNG/Ethernet), 'crc32c' (CRC-32C/Castagnoli used by iSCSI/ext4/SSE4.2), 'crc16' (CRC-16/ARC), or 'crc8' (CRC-8/SMBUS). By default `text` is checksummed as UTF-8 and the value is lowercase hex; set input_encoding='hex' or 'base64' to decode the input to raw bytes first, output_format='decimal' for an integer, or uppercase=true for uppercase hex. Provide `expected` to check a known checksum and get a MATCH/MISMATCH verdict. Use this for error-detection checksums like file/packet integrity; for cryptographic digests use hash-text or hash-all, and to verify a cryptographic checksum use verify-checksum.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "crc32",
+          "description": "Which CRC to compute. 'crc32' (default) is CRC-32/ISO-HDLC used by zip/gzip/PNG/Ethernet; 'crc32c' is CRC-32C/Castagnoli used by iSCSI/ext4/SSE4.2; 'crc16' is CRC-16/ARC (the classic 'CRC-16'); 'crc8' is CRC-8/SMBUS (the plain 'CRC-8').",
+          "enum": [
+            "crc32",
+            "crc32c",
+            "crc16",
+            "crc8"
+          ],
+          "type": "string"
+        },
+        "expected": {
+          "default": "",
+          "description": "Optional expected checksum to verify against. When non-empty, the result reports MATCH or MISMATCH. Accepts hex (with or without a leading 0x, any case, leading zeros ignored) or a plain decimal integer.",
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "text",
+          "description": "How to interpret `text` before checksumming. 'text' (default) uses the UTF-8 bytes as-is; 'hex' decodes it from hexadecimal first; 'base64' decodes it from standard base64 first (so raw file bytes can be checksummed).",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "hex",
+          "description": "How the checksum value is rendered. 'hex' (default) is zero-padded hexadecimal; 'decimal' is an unsigned integer.",
+          "enum": [
+            "hex",
+            "decimal"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text (or hex/base64-encoded bytes) to compute the checksum of.",
+          "type": "string"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When output_format is hex, emit uppercase hex. No effect on decimal. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
