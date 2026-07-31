@@ -1,0 +1,82 @@
+slug          = "memory-strings"
+title         = "Memory Strings Extractor — Pull IOCs from a Dump Locally"
+description   = "Extract ASCII and UTF-16LE strings from a memory or process dump, then group URLs, IPs, emails, domains, file paths and registry keys locally."
+tags          = ["memory strings", "strings extractor", "process dump analysis", "memory forensics", "extract ioc", "registry keys", "utf-16le strings", "hex dump", "dfir", "malware analysis", "wide strings"]
+h1            = "Memory Strings Extractor"
+hero_subtitle = "Paste a memory or process dump — raw text or a hex-encoded dump — and recover the printable ASCII and UTF-16LE (wide) strings, then group them into the artifacts an analyst triages first: URLs, IPv4/IPv6 addresses, emails, domains, file paths (Windows, UNC and Unix) and Windows registry keys. De-duplicated, sorted and counted. Runs entirely in your browser, no server, no upload."
+wasm          = "gizza_ai_memory_strings_web"
+export        = "run"
+live          = false
+output_label  = "Extracted strings"
+format        = "text"
+
+[[input]]
+name        = "dump"
+label       = "Memory / process dump"
+placeholder = "Paste a dump (raw text or a hex-encoded dump) — e.g. GET http://evil.example.com/a  203.0.113.5  C:\\Windows\\System32\\cmd.exe  HKLM\\Software\\Run  bad@phish.net"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "input_format"
+label   = "Input format"
+source  = "field"
+default = "text"
+
+[input.labels]
+text = "Raw text (read the pasted bytes directly)"
+hex  = "Hex-encoded dump (decode 48 65 6c… / 0x48 / 48:65)"
+
+[[input]]
+name    = "encoding"
+label   = "String encoding to recover"
+source  = "field"
+default = "both"
+
+[input.labels]
+both    = "Both ASCII and UTF-16LE"
+ascii   = "ASCII (7-bit runs)"
+utf16le = "UTF-16LE (wide, Windows memory)"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum run length (like strings -n)"
+placeholder = "4"
+source      = "field"
+default     = "4"
+
+[[input]]
+name        = "categories"
+label       = "Categories to report (comma-separated, or 'all')"
+placeholder = "all"
+source      = "field"
+
+# `defang` renders as a checkbox (Param::boolean, default false → unchecked).
+[[input]]
+name    = "defang"
+label   = "Defang the URLs, IPs, domains and emails in the output"
+source  = "field"
+
+[[example]]
+label = "Full triage"
+[example.params]
+dump = "GET http://evil.example.com/a from 203.0.113.5 open C:\\Windows\\System32\\cmd.exe key HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run mail bad@phish.net host cdn.badsite.io"
+categories = "all"
+
+[[example]]
+label = "Registry keys only"
+[example.params]
+dump = "persistence HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\update and HKCU\\Software\\Classes\\ms-settings\\shell\\open\\command"
+categories = "registry"
+
+[[example]]
+label = "Defanged report"
+[example.params]
+dump = "beacon https://c2.evil.example/gate.php at 198.51.100.23 contact ops@evil.example"
+defang = "true"
+
+[[example]]
+label = "Hex dump"
+[example.params]
+dump = "56 69 73 69 74 20 68 74 74 70 3a 2f 2f 78 2e 69 6f 20 6e 6f 77"
+input_format = "hex"

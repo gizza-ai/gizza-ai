@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/memory-strings",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract and categorize strings from a memory dump",
+  "role": "skill",
+  "tool": {
+    "description": "Run a `strings`-style extraction over a pasted memory / process dump and categorize the results. First recovers the printable ASCII and/or UTF-16LE (wide) runs of at least min_length characters (like `strings -n`), treating non-printable bytes as delimiters; the dump can be raw text or a hex-encoded dump (input_format=hex). Then groups the recovered strings — de-duplicated, sorted and counted — into URLs, IPv4 and IPv6 addresses, emails, bare domains, file paths (Windows, UNC and Unix) and Windows registry keys. Use categories to report a subset and defang=true to make indicators safe for reports. Hash extraction is left to the ioc-extract tool. Runs entirely locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "default": "all",
+          "description": "Comma-separated subset of categories to report: any of 'url', 'ipv4', 'ipv6', 'ip' (both IP types), 'email', 'domain', 'path' (Windows/UNC/Unix file paths), 'registry' (Windows registry keys). 'all' (default) reports every category.",
+          "type": "string"
+        },
+        "defang": {
+          "default": false,
+          "description": "When true, defang the URLs, IPs, domains and emails in the output (hxxp[://]…, 1[.]2[.]3[.]4, bad[at]evil[.]com) so the result is safe to paste into a report or ticket. Default false emits the real, clickable indicators.",
+          "type": "boolean"
+        },
+        "dump": {
+          "description": "The memory / process dump to scan. Paste it as raw text (its bytes are read directly) or as a hex-encoded dump when input_format=hex. Non-printable bytes act as string delimiters, exactly like the `strings` utility.",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "both",
+          "description": "Which printable-string encodings to recover before categorizing. 'ascii' = 7-bit runs; 'utf16le' = wide runs (each character followed by a 0x00 byte, common in Windows memory); 'both' (default) recovers each.",
+          "enum": [
+            "both",
+            "ascii",
+            "utf16le"
+          ],
+          "type": "string"
+        },
+        "input_format": {
+          "default": "text",
+          "description": "How the dump is represented. 'text' (default) reads the pasted text's bytes directly. 'hex' first decodes a hex-encoded dump — contiguous hex, or bytes separated by spaces/colons/commas, with optional 0x prefixes (e.g. '48 65 6c', '48:65', '0x48 0x65').",
+          "enum": [
+            "text",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "min_length": {
+          "default": 4,
+          "description": "Minimum printable run length to keep, like `strings -n`. Shorter runs are treated as noise and dropped. Default 4.",
+          "maximum": 1024,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dump"
+      ],
+      "type": "object"
+    }
+  }
+}
