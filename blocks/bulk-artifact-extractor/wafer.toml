@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bulk-artifact-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract emails, URLs, IPs, domains, phones, Bitcoin addresses, and Luhn-valid cards with offsets"

@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/bulk-artifact-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract emails, URLs, IPs, domains, phones, Bitcoin addresses, and Luhn-valid cards with offsets",
+  "role": "skill",
+  "tool": {
+    "description": "Scan a blob of text for common indicators-of-interest and report each hit with its kind, exact value, byte offset, and a short context snippet. Detects email addresses, URLs, IPv4 addresses, bare domains, phone numbers, Bitcoin-like addresses (base58 + bech32), and Luhn-valid credit-card numbers. Overlapping hits are resolved by specificity — a domain inside an email/URL, or an IP inside a URL, is reported once as the more specific kind. kinds filters to a subset (default all); output='table' (default) is a Markdown table or 'json' an array; context sets the snippet width (default 24); limit caps the findings (default 1000). Deterministic, offset-ordered output; runs entirely in the sandbox.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "default": 24,
+          "description": "How many characters of surrounding context to show on each side of a finding (0-200). Newlines are flattened and long ends elided with '…'. Default 24.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kinds": {
+          "default": "all",
+          "description": "Which artifact kinds to report: 'all' (default) or a comma-separated subset of email, url, ipv4, domain, phone, bitcoin, credit_card. Overlaps are always resolved before filtering, so a domain inside an email/URL or an IP inside a URL is never double-reported.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 1000,
+          "description": "Maximum number of findings to return (1-20000). Applied after the kind filter, in ascending byte-offset order. Default 1000.",
+          "maximum": 20000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "table",
+          "description": "Output shape. 'table' (default) is a Markdown table with one row per finding (kind, value, offset, context); 'json' is an array of {kind, value, offset, context} objects for piping into a script.",
+          "enum": [
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text/blob to scan. Any UTF-8 text — a log slice, an email dump, a document paste. Artifacts are found anywhere in the text, not just line-by-line.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
