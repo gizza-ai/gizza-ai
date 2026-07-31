@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/markdown-strip",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip Markdown formatting to clean plain text.",
+  "role": "skill",
+  "tool": {
+    "description": "Remove all Markdown formatting from text, leaving clean plain text. Strips heading '#' markers, bold/italic/strikethrough emphasis, blockquote '>' markers, horizontal rules, and code fences (the code content is kept). Links render per links='text' (default, keep the visible label), 'url' (keep the URL), or 'both' ('label (url)'). Images render per images='alt' (default, keep the alt text) or 'drop'. Set keep_list_markers=true to preserve '- '/'1. ' list markers (default removes them, one item per line). Tables become bare cell text, cells joined by spaces, one row per line. collapse_blank_lines=true (default) separates blocks with a single newline; false keeps a blank line between blocks.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_blank_lines": {
+          "default": true,
+          "description": "When true (default), separate blocks with a single newline (compact); when false, keep a blank line between blocks.",
+          "type": "boolean"
+        },
+        "images": {
+          "default": "alt",
+          "description": "How to render a ![alt](url) image: 'alt' (default) keeps the alt text; 'drop' removes images entirely.",
+          "enum": [
+            "alt",
+            "drop"
+          ],
+          "type": "string"
+        },
+        "keep_list_markers": {
+          "default": false,
+          "description": "When true, keep list bullets ('- ') and ordered numbering ('1. '); when false (default), remove the markers and leave one item per line.",
+          "type": "boolean"
+        },
+        "links": {
+          "default": "text",
+          "description": "How to render a [label](url) link: 'text' (default) keeps the visible label and drops the URL; 'url' keeps the URL; 'both' keeps 'label (url)'.",
+          "enum": [
+            "text",
+            "url",
+            "both"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The Markdown text to strip to plain text.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

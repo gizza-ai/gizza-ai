@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-strip"
+version = "0.1.0"
+abi = 1
+summary = "Strip Markdown formatting to clean plain text."
