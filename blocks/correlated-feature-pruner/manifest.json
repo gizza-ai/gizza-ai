@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/correlated-feature-pruner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Drop collinear numeric columns above a correlation threshold",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce multicollinearity in a numeric dataset by dropping redundant columns. Computes the pairwise correlation matrix of the columns (features) in `data` — rows of numbers, one observation per line — and greedily removes one column from every pair whose ABSOLUTE correlation exceeds `threshold` (default 0.9), keeping the first-seen column of each correlated group. Choose method='pearson' (linear, default), 'spearman' (monotonic), or 'kendall' (tie-corrected tau-b). Set header=true to read column names from the first row, or pass names via `labels`. Returns a summary of which columns were kept vs. dropped (with the correlation value and the keeper each dropped column was redundant with) and the pruned dataset as CSV.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "Rows of numbers (CSV-like), one observation per line; each column is a numeric feature. Values may be comma-, space-, or tab-separated. Needs at least 2 columns and 2 rows, e.g. '1,2,5\\n2,4,3\\n3,6,9'.",
+          "type": "string"
+        },
+        "header": {
+          "default": false,
+          "description": "When true, treat the first row as column names instead of data. Default false.",
+          "type": "boolean"
+        },
+        "labels": {
+          "default": "",
+          "description": "Optional comma-separated column names (defaults to v1..vN). Overrides the header row if both are given.",
+          "type": "string"
+        },
+        "method": {
+          "default": "pearson",
+          "description": "Correlation method: 'pearson' (linear, default), 'spearman' (rank/monotonic), or 'kendall' (rank concordance, tie-corrected tau-b).",
+          "enum": [
+            "pearson",
+            "spearman",
+            "kendall"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0.9,
+          "description": "Absolute-correlation cutoff in 0..1 (default 0.9). One column of every pair whose |correlation| is strictly greater than this is dropped. Lower it (e.g. 0.8) to prune more aggressively; raise it (0.95) to keep more. 0 falls back to the 0.9 default.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
