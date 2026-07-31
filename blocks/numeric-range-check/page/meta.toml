@@ -1,0 +1,132 @@
+slug          = "numeric-range-check"
+title         = "Numeric Range Check"
+description   = "Flag CSV numeric values outside an expected min/max range, with column selection, delimiter detection, and text or JSON reports."
+tags          = ["csv", "data", "validation", "numbers"]
+h1            = "Numeric Range Check"
+hero_subtitle = "Paste CSV data, choose one or more numeric columns, and find rows whose values fall below, above, or outside the expected range."
+wasm          = "gizza_ai_numeric_range_check_web"
+export        = "run"
+live          = false
+output_label  = "Range report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "name,age,score\nAda,34,98\nBo,150,71\nCy,-3,88"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns to check"
+placeholder = "age"
+source      = "field"
+
+[[input]]
+name        = "min"
+label       = "Minimum"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max"
+label       = "Maximum"
+placeholder = "120"
+source      = "field"
+
+[[input]]
+name        = "inclusive"
+label       = "Inclusive bounds"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+comma = "Comma"
+tab = "Tab"
+semicolon = "Semicolon"
+pipe = "Pipe"
+
+[[input]]
+name        = "non_numeric"
+label       = "Non-numeric cells"
+source      = "field"
+
+[input.labels]
+flag = "Flag as issues"
+ignore = "Ignore"
+
+[[input]]
+name        = "empty_ok"
+label       = "Allow blank cells"
+source      = "field"
+
+[[input]]
+name        = "max_issues"
+label       = "Max issues to list"
+placeholder = "50"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Text report"
+json = "Structured JSON"
+
+[[example]]
+label = "Flag ages outside 0–120"
+[example.params]
+data = "name,age\nAda,34\nBo,150\nCy,-3"
+columns = "age"
+min = "0"
+max = "120"
+inclusive = "true"
+header = "true"
+delimiter = "auto"
+non_numeric = "flag"
+empty_ok = "true"
+max_issues = "50"
+format = "text"
+
+[[example]]
+label = "All columns, JSON report"
+[example.params]
+data = "low,high\n5,200\n1,2"
+columns = "all"
+min = "0"
+max = "10"
+inclusive = "true"
+header = "true"
+delimiter = "comma"
+non_numeric = "flag"
+empty_ok = "true"
+max_issues = "10"
+format = "json"
+
+[[example]]
+label = "Headerless semicolon data"
+[example.params]
+data = "Ada;150\nBo;40"
+columns = "2"
+min = "0"
+max = "120"
+inclusive = "true"
+header = "false"
+delimiter = "semicolon"
+non_numeric = "flag"
+empty_ok = "true"
+max_issues = "50"
+format = "text"
