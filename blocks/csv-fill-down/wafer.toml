@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-fill-down"
+version = "0.1.0"
+abi = 1
+summary = "Forward-fill empty CSV cells with the last non-empty value above"

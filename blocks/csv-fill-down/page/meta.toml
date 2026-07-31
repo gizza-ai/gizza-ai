@@ -1,0 +1,53 @@
+slug          = "csv-fill-down"
+title         = "CSV Fill Down — Forward-Fill Empty Cells Online"
+description   = "Forward-fill empty CSV cells with the last non-empty value above them, like a spreadsheet fill-down. Fill up too, pick columns. Runs in your browser, free."
+tags          = ["csv fill down", "forward fill csv", "fill empty cells", "spreadsheet fill down", "fill blanks csv"]
+h1            = "CSV Fill Down"
+hero_subtitle = "Fill empty CSV cells with the last non-empty value above them (spreadsheet fill-down), or fill up from below. Choose which columns. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_fill_down_web"
+export        = "run"
+live          = false
+output_label  = "Filled CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "region,rep\nWest,Ann\n,\n,Bob\nEast,"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns to fill (names or 1-based indices; blank = all columns)"
+placeholder = "region"
+source      = "field"
+
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[example]]
+label = "Fill down all columns"
+[example.params]
+data = "region,rep\nWest,Ann\n,\n,Bob\nEast,"
+direction = "down"
+
+[[example]]
+label = "Fill up one column"
+[example.params]
+data = "region,x\nWest,1\n,2\nEast,3"
+columns = "region"
+direction = "up"
