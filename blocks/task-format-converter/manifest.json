@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/task-format-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a task list between todo.txt, Markdown checklist, JSON, and CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a task list between four formats in any direction: the todo.txt plain-text spec, a GitHub-flavored Markdown checklist ('- [ ] task'), a JSON array of task objects, and CSV with a fixed header. Every format parses into a common task model — description, completion state, priority, +projects, @contexts, creation/due/completion dates, and leftover key:value tags — so those attributes survive the round trip. Set 'from' to auto to sniff the source format from the input, and 'pretty' to indent JSON output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "default": "auto",
+          "description": "Source format. 'auto' sniffs it from the input (JSON braces, Markdown '- [ ]' items, a CSV header row, else todo.txt).",
+          "enum": [
+            "auto",
+            "todotxt",
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The task list to convert, in todo.txt, Markdown checklist, JSON, or CSV form.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Indent JSON output (ignored for non-JSON targets).",
+          "type": "boolean"
+        },
+        "to": {
+          "default": "markdown",
+          "description": "Target format to convert the tasks into.",
+          "enum": [
+            "todotxt",
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

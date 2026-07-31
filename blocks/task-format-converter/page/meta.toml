@@ -1,0 +1,70 @@
+slug          = "task-format-converter"
+title         = "Task Format Converter"
+description   = "Convert task lists between todo.txt, Markdown checklists, JSON, and CSV while preserving priorities, tags, and dates."
+tags          = ["tasks", "todo", "markdown", "csv", "json"]
+h1            = "Task Format Converter"
+hero_subtitle = "Move task lists between todo.txt, Markdown checklists, JSON, and CSV without dropping priorities, projects, contexts, due dates, or metadata tags."
+wasm          = "gizza_ai_task_format_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted tasks"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Task list"
+placeholder = "(A) 2026-08-01 Draft release notes +work @desk due:2026-08-05\nx 2026-08-02 2026-08-01 Send invoice +finance"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "from"
+label       = "Input format"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+todotxt = "todo.txt"
+markdown = "Markdown checklist"
+json = "JSON"
+csv = "CSV"
+
+[[input]]
+name        = "to"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+todotxt = "todo.txt"
+markdown = "Markdown checklist"
+json = "JSON"
+csv = "CSV"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON"
+source      = "field"
+
+[[example]]
+label = "todo.txt to Markdown"
+[example.params]
+input = "(A) 2026-08-01 Draft release notes +work @desk due:2026-08-05\nx 2026-08-02 2026-08-01 Send invoice +finance"
+from = "todotxt"
+to = "markdown"
+pretty = "true"
+
+[[example]]
+label = "Markdown to JSON"
+[example.params]
+input = "- [ ] (B) Buy milk +errands @store due:2026-08-03\n- [x] File receipt +finance created:2026-08-01 completed:2026-08-02"
+from = "markdown"
+to = "json"
+pretty = "true"
+
+[[example]]
+label = "CSV to todo.txt"
+[example.params]
+input = "text,done,priority,projects,contexts,created,due,completed,tags\nCall supplier,false,A,work,phone,2026-08-01,2026-08-04,,est:15m"
+from = "csv"
+to = "todotxt"
+pretty = "false"

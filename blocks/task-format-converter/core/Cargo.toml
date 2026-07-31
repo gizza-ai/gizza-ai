@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-task-format-converter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+# preserve_order: object keys keep their emission order (our fixed field order)
+# instead of being alphabetized, so JSON output is stable and testable.
+serde_json = { version = "1", features = ["preserve_order"] }
