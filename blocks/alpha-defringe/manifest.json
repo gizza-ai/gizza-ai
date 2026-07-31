@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/alpha-defringe",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove the halo/fringe from a cutout's edge",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Remove the dark, light, or colored halo (fringe) left on the anti-aliased edge of a cutout against transparency, producing a clean transparent PNG. mode='bleed' (default) repaints each translucent edge pixel (alpha below threshold) with the color of nearby clean pixels within radius, erasing a halo of any color without naming the old background. mode='unmatte' algebraically removes a known flat matte_color (F = (C - (1-alpha)*M)/alpha) to recover the true foreground when the cutout was anti-aliased over a solid background. The alpha channel is always preserved and the result is a PNG. radius is the bleed search width in pixels (1-16, default 2). threshold is the alpha (1-255, default 250) at/above which a pixel is a clean source. matte_color accepts #rgb, #rrggbb, or black/white/gray/red/green/blue. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "mode": { "type": "string", "enum": ["bleed", "unmatte"], "default": "bleed", "description": "'bleed' (default) repaints translucent edge pixels (alpha below threshold) with the color of nearby clean pixels within radius, removing a dark/light/color halo without naming it; 'unmatte' algebraically removes a flat matte_color from translucent pixels to recover the true foreground color." },
+        "radius": { "type": "integer", "minimum": 1, "maximum": 16, "default": 2, "description": "Bleed search radius in pixels (mode=bleed): how far to look for clean source pixels to repaint the fringe from. 1–16, default 2." },
+        "threshold": { "type": "integer", "minimum": 1, "maximum": 255, "default": 250, "description": "Alpha (1–255) at or above which a pixel counts as a clean color source; pixels below it are the translucent edge pixels to repair. Default 250." },
+        "matte_color": { "type": "string", "default": "#000000", "description": "Flat background color to remove in mode=unmatte. Accepts #rgb, #rrggbb, or a name (black/white/gray/grey/red/green/blue). Default #000000 (black)." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
