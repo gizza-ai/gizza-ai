@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/diff-viewer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a pasted unified diff as a clean inline, side-by-side, or stats view.",
+  "role": "skill",
+  "tool": {
+    "description": "Render a pasted unified diff as a readable view. Input is an already-computed unified diff — the output of `git diff`, `diff -u`, or a `.patch` file (this is a viewer, not a text comparator; use text-diff to compare two texts). Pass the patch in 'diff'. view='inline' (default) returns a clean unified diff with a `N files changed, A insertions(+), D deletions(-)` summary; view='side-by-side' lays old and new text in two columns; view='stats' returns a `git diff --stat`-style per-file bar graph plus totals; view='json' returns a structured report (files → hunks → lines, each with old/new line numbers). Handles multi-file patches, new/deleted/renamed/binary files, and hunk section headings; ignore_whitespace=true folds whitespace-only changes into context. Errors when the input contains no recognizable diff.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "diff": {
+          "description": "The unified diff to render — paste the output of `git diff`, `diff -u`, or a `.patch` file. Handles multi-file patches, new/deleted/renamed/binary files, and hunk section headings. This is a viewer for an already-computed diff, not a comparator of two texts.",
+          "type": "string"
+        },
+        "ignore_whitespace": {
+          "default": false,
+          "description": "Fold whitespace-only changes into unchanged context so they stop counting toward the add/remove totals. A deleted line paired with an added line that is identical after whitespace normalization becomes a single context line. Default false.",
+          "type": "boolean"
+        },
+        "view": {
+          "default": "inline",
+          "description": "Output layout. 'inline' (default) is a clean unified diff with a change summary; 'side-by-side' lays the old and new text in two columns; 'stats' is a `git diff --stat`-style per-file bar graph with totals; 'json' is a structured report (files, hunks, per-line numbers) for programmatic use.",
+          "enum": [
+            "inline",
+            "side-by-side",
+            "stats",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "diff"
+      ],
+      "type": "object"
+    }
+  }
+}

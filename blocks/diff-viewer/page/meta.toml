@@ -1,0 +1,76 @@
+slug          = "diff-viewer"
+title         = "Diff Viewer"
+description   = "Render a pasted unified diff as inline text, side-by-side columns, a stat summary, or structured JSON — private and browser-only."
+tags          = ["diff viewer", "unified diff viewer", "patch viewer", "git diff viewer", "side by side diff", "diff stats", "patch to json"]
+h1            = "Diff Viewer"
+hero_subtitle = "Paste a git diff, unified diff, or .patch file and turn it into a clean inline view, side-by-side columns, a git-style stat summary, or structured JSON. Runs locally in your browser."
+wasm          = "gizza_ai_diff_viewer_web"
+export        = "run"
+live          = false
+output_label  = "Rendered diff"
+format        = "text"
+
+[[input]]
+name        = "diff"
+label       = "Unified diff"
+placeholder = '''diff --git a/src/main.rs b/src/main.rs
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,3 +1,4 @@
+ fn main() {
+-    println!("hi");
++    println!("hello");
++    println!("world");
+ }'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "view"
+label       = "View"
+source      = "field"
+
+[[input]]
+name        = "ignore_whitespace"
+label       = "Ignore whitespace-only changes"
+source      = "field"
+
+[[example]]
+label = "Inline code review view"
+[example.params]
+diff = '''diff --git a/src/main.rs b/src/main.rs
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -1,3 +1,4 @@
+ fn main() {
+-    println!("hi");
++    println!("hello");
++    println!("world");
+ }'''
+view = "inline"
+ignore_whitespace = "false"
+
+[[example]]
+label = "Side-by-side review"
+[example.params]
+diff = '''--- a/README.md
++++ b/README.md
+@@ -1,2 +1,2 @@
+-Old title
++New title
+ keep this line'''
+view = "side-by-side"
+ignore_whitespace = "false"
+
+[[example]]
+label = "Stats ignoring whitespace"
+[example.params]
+diff = '''--- a/app.py
++++ b/app.py
+@@ -1,3 +1,3 @@
+ def main():
+-  return 1
++    return 1
+ done'''
+view = "stats"
+ignore_whitespace = "true"
