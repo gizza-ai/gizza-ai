@@ -1,0 +1,38 @@
+{
+  "name": "gizza-ai/dynamodb-json-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between DynamoDB JSON and plain JSON, both directions",
+  "role": "skill",
+  "tool": {
+    "description": "Convert between DynamoDB typed attribute JSON (the AttributeValue wire format like {\"id\":{\"S\":\"1\"},\"age\":{\"N\":\"30\"}}) and plain JSON ({\"id\":\"1\",\"age\":30}) in both directions. direction=auto detects which way to convert; to-dynamodb marshals plain JSON into typed AttributeValues (S, N as a string, BOOL, NULL, L, M); from-dynamodb unmarshals typed JSON back to plain JSON and also handles B (binary as base64) and the set types SS, NS, BS. pretty toggles indented vs compact output. Numbers keep their exact spelling. Errors on invalid JSON or a malformed AttributeValue. Runs locally; no AWS SDK or network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "auto",
+          "description": "auto detects the direction from the input shape; to-dynamodb marshals plain JSON into typed AttributeValues; from-dynamodb unmarshals typed JSON back to plain JSON.",
+          "enum": [
+            "auto",
+            "to-dynamodb",
+            "from-dynamodb"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The JSON to convert. Either plain JSON (e.g. {\"id\":\"1\",\"age\":30}) or DynamoDB typed JSON (e.g. {\"id\":{\"S\":\"1\"},\"age\":{\"N\":\"30\"}}).",
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print (indent) the JSON output. Set false for compact single-line output.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

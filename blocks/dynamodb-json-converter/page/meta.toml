@@ -1,0 +1,54 @@
+slug          = "dynamodb-json-converter"
+title         = "DynamoDB JSON Converter"
+description   = "Convert between DynamoDB typed AttributeValue JSON and plain JSON in both directions, with auto-detect and pretty or compact output."
+tags          = ["dynamodb", "json", "aws", "attributevalue", "marshal", "unmarshal", "converter", "developer"]
+h1            = "DynamoDB JSON Converter"
+hero_subtitle = "Paste DynamoDB typed AttributeValue JSON or plain JSON, then marshal, unmarshal, or auto-detect the direction locally in your browser."
+wasm          = "gizza_ai_dynamodb_json_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted JSON"
+format        = "json"
+
+[[input]]
+name        = "input"
+label       = "JSON input"
+placeholder = '{"id":"user#1","age":30,"active":true}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+"to-dynamodb" = "Plain JSON → DynamoDB JSON"
+"from-dynamodb" = "DynamoDB JSON → Plain JSON"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print output"
+source      = "field"
+
+[[example]]
+label = "Plain item → DynamoDB JSON"
+[example.params]
+input = '{"id":"user#1","age":30,"active":true,"tags":["admin","user"]}'
+direction = "to-dynamodb"
+pretty = "true"
+
+[[example]]
+label = "DynamoDB JSON → plain item"
+[example.params]
+input = '{"id":{"S":"user#1"},"age":{"N":"30"},"active":{"BOOL":true},"tags":{"SS":["admin","user"]}}'
+direction = "from-dynamodb"
+pretty = "true"
+
+[[example]]
+label = "Auto-detect typed JSON"
+[example.params]
+input = '{"profile":{"M":{"name":{"S":"Ada"},"level":{"N":"3"}}},"deleted":{"NULL":true}}'
+direction = "auto"
+pretty = "false"
