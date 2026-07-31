@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/csv-column-mapping-suggest",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Suggest source-to-target CSV column mappings from headers and sample values",
+  "role": "skill",
+  "tool": {
+    "description": "Suggest a one-to-one mapping between two CSV files with differently named columns. The tool parses source and target CSV text, compares normalized header tokens and sampled value overlap, then ranks source→target suggestions with confidence scores and reasons. delimiter is comma/tab/semicolon/pipe; header toggles whether the first row is a header; sample_rows controls value-overlap rows (0 = header-only); header_weight balances header similarity vs value overlap; threshold filters weak suggestions; format is table, json, or csv. Runs locally and does not upload the CSV data.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV delimiter used by both inputs: comma (default), tab, semicolon, or pipe.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output format: table (Markdown-style report), json (machine-readable suggestions), or csv (flat mapping rows). Default table.",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Whether the first row contains column names. When false, columns are named column_1, column_2, and so on.",
+          "type": "boolean"
+        },
+        "header_weight": {
+          "default": 0.6,
+          "description": "Weight given to header-name similarity from 0.0 to 1.0; the remaining weight goes to value overlap. Default 0.6.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "sample_rows": {
+          "default": 50,
+          "description": "How many data rows to sample for value-overlap scoring. Use 0 for header-only matching. Default 50, max 500.",
+          "maximum": 500,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "description": "Source CSV text whose columns need to be mapped. Include the header row unless header=false.",
+          "type": "string"
+        },
+        "target": {
+          "description": "Target CSV text or schema CSV to map into. Include the desired target header row unless header=false.",
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0.3,
+          "description": "Minimum combined score required to suggest a mapping. Raise it for stricter suggestions or lower it to surface weak matches. Default 0.3.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "source",
+        "target"
+      ],
+      "type": "object"
+    }
+  }
+}

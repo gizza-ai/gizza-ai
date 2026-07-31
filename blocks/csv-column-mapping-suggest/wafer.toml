@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-column-mapping-suggest"
+version = "0.1.0"
+abi = 1
+summary = "Suggest source-to-target CSV column mappings from headers and sample values"
