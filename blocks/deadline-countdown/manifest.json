@@ -1,0 +1,50 @@
+{
+  "name": "gizza-ai/deadline-countdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort dated tasks by overdue and upcoming deadlines",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the time remaining for each task's due date, label overdue/today/soon/later status, and sort the list by urgency. Paste one task per line with a date (YYYY-MM-DD, YYYY-MM-DD HH:MM, ISO datetime, or due:/deadline:), provide a deterministic 'now' value, choose table/Markdown/JSON/CSV output, and optionally include completed tasks or tune the due-soon window.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "table",
+          "description": "Output format: aligned text table, Markdown table, JSON rows, or CSV rows.",
+          "enum": [
+            "table",
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_completed": {
+          "default": false,
+          "description": "Include tasks already marked complete instead of skipping them.",
+          "type": "boolean"
+        },
+        "now": {
+          "description": "Reference date/time for deterministic countdowns, for example 2026-07-31 12:00 or 2026-07-31T12:00:00Z.",
+          "type": "string"
+        },
+        "soon_days": {
+          "default": 7,
+          "description": "Number of days ahead that should be labeled DUE SOON. Due-today and overdue statuses are always shown.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tasks": {
+          "description": "One task per line. Include a due date as YYYY-MM-DD, YYYY-MM-DD HH:MM, ISO datetime, or after due:/deadline:. Completed lines beginning with x, [x], done:, or ✓ are skipped unless include_completed is true.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tasks",
+        "now"
+      ],
+      "type": "object"
+    }
+  }
+}

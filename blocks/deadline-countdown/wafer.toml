@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "deadline-countdown"
+version = "0.1.0"
+abi = 1
+summary = "Sort dated tasks by overdue and upcoming deadlines"
