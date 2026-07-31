@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/ndjson-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Filter and reshape NDJSON / JSON Lines with a predicate and field selection.",
+  "role": "skill",
+  "tool": {
+    "description": "Filter and reshape newline-delimited JSON (NDJSON / JSON Lines): one JSON object per line in, filtered/reshaped records out. 'predicate' is a per-record expression of 'path op value' clauses (ops == != > >= < <= contains startswith endswith ~/matches) joined by and / or / not with ( ) grouping; a bare path means exists-and-truthy; dotted paths and array indexes work. 'fields' selects/renames columns (comma-separated 'newname=path'). 'format' is ndjson (default), array, or csv. 'invert' keeps non-matching rows, 'limit' caps the count (0 = all), and 'skip_invalid' drops malformed lines instead of erroring. Returns a line-numbered error on invalid JSON when skip_invalid is off.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The NDJSON / JSON Lines input: one JSON value (usually an object) per line. Blank lines are skipped. Example: {\"name\":\"Alice\",\"age\":30}\\n{\"name\":\"Bob\",\"age\":25}",
+          "type": "string"
+        },
+        "fields": {
+          "default": "",
+          "description": "Comma-separated field selection / reshape; empty keeps whole records. Each entry is 'path' or 'newname=path', e.g. name,age or id=user.id,email. Dotted paths index nested objects/arrays; a missing path yields null.",
+          "type": "string"
+        },
+        "format": {
+          "default": "ndjson",
+          "description": "Output format. 'ndjson' (default): one compact JSON object per line. 'array': a pretty-printed JSON array. 'csv': RFC-4180 CSV whose columns are the first-seen union of the kept records' keys.",
+          "enum": [
+            "ndjson",
+            "array",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "invert": {
+          "default": false,
+          "description": "When true, keep the records that do NOT match the predicate (the complement). Default false.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of records to output; 0 (default) = unlimited. Filtering stops once this many matching rows are kept.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "predicate": {
+          "default": "",
+          "description": "Filter expression evaluated per record; empty keeps every row. A clause is 'path op value' (e.g. age > 28, city == NYC, email contains @x, name ~ ^A). Ops: == != > >= < <= contains startswith endswith ~/matches. Join clauses with and / or / not and group with ( ). A bare path (e.g. active) is true when that field exists and is truthy. Dotted paths (user.name) and array indexes (items.0.id) are supported.",
+          "type": "string"
+        },
+        "skip_invalid": {
+          "default": false,
+          "description": "When true, silently drop lines that are not valid JSON. Default false, which errors on the first malformed line with its line number.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
