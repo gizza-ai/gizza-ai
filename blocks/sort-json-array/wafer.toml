@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sort-json-array"
+version = "0.1.0"
+abi = 1
+summary = "Sort a JSON array of objects by one or more fields, ascending or descending"
