@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/network-config-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a hierarchical network device config (Cisco, Juniper, Arista) into a searchable tree.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a hierarchical network device configuration into a foldable, searchable tree of sections. Handles indentation style (Cisco IOS / IOS-XE / NX-OS, Arista EOS — whitespace nesting, '!' separators) and brace style (Juniper Junos — '{ … }' blocks, ';' statements); syntax='auto' (default) detects which. output='tree' (default) is a nested JSON array of { line, children }, 'paths' is a flat list of full command paths, 'report' gives a section list plus stats. Set filter to a case-insensitive substring to keep only matching sections/lines with their context, and comments to strip (default) or keep comment lines.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": "strip",
+          "description": "How to treat comment/separator lines ('!' or '#' in indent style; '#' and '/* … */' in brace style). 'strip' (default) drops them; 'keep' includes them as nodes. Bare '!' separators are always dropped.",
+          "enum": [
+            "strip",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "config": {
+          "description": "The device configuration text to parse. Indentation style (Cisco IOS / IOS-XE / NX-OS, Arista EOS) uses leading whitespace for nesting and '!' as a section separator; brace style (Juniper Junos) uses '{ … }' blocks with statements ending in ';'.",
+          "type": "string"
+        },
+        "filter": {
+          "default": "",
+          "description": "Optional case-insensitive substring. When set, only sections/lines containing it are kept: matching a section header keeps its whole block; matching a deep value keeps its ancestor chain for context. Empty (default) returns the full tree.",
+          "type": "string"
+        },
+        "output": {
+          "default": "tree",
+          "description": "Output shape. 'tree' (default) is a nested JSON array of { line, children } nodes; 'paths' is a flat list of full command paths (one per leaf, joined by ' / '); 'report' summarises the config with a top-level section list and stats (sections, lines, depth, comments).",
+          "enum": [
+            "tree",
+            "paths",
+            "report"
+          ],
+          "type": "string"
+        },
+        "syntax": {
+          "default": "auto",
+          "description": "Config syntax. 'auto' (default) detects the style from the text; 'indent' forces Cisco/NX-OS/Arista indentation parsing; 'brace' forces Juniper Junos curly-brace parsing.",
+          "enum": [
+            "auto",
+            "indent",
+            "brace"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "config"
+      ],
+      "type": "object"
+    }
+  }
+}

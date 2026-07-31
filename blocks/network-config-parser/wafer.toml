@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "network-config-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse a hierarchical network device config (Cisco, Juniper, Arista) into a searchable tree."
