@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/video-audio-rms-timeline",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract windowed RMS and peak audio levels from a video into a CSV time series.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract a windowed audio-level time series from a video (or plain audio) file. Paste the file bytes as base64 or hex; the first decodable audio track is downmixed to mono and sliced into fixed-length windows, and each window's RMS (average energy) and peak (loudest sample) level is reported as a CSV (window,start_s,end_s,rms,peak) or JSON time series. Configure the window length (window_ms, default 100), the hop between windows (hop_ms, default 0 = non-overlapping; set it below the window for overlapping frames), the level unit (dbfs, 0 dB = full scale with silence floored to -120 dB; or linear 0..1 amplitude), and the output format (csv or json). Supported containers: MP4/MOV/M4A, MKV/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, AAC-ADTS; codecs AAC-LC, ALAC, MP3, Vorbis, FLAC, PCM, ADPCM (Opus/AC-3/DTS are not supported). Levels are measured on the mono downmix; a silent/video-only file is rejected. Long audio is capped at about five minutes of analysis.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "hop_ms": {
+          "default": 0.0,
+          "description": "Step between successive window starts in milliseconds (0–60000, default 0). 0 means non-overlapping (hop equals the window). A hop smaller than the window overlaps windows for a smoother curve; larger than the window skips audio between measurements.",
+          "maximum": 60000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "input": {
+          "description": "The video (or audio) file bytes encoded as base64 or hex. Its first decodable audio track is analyzed; a silent/video-only file is rejected. Containers: MP4/MOV/M4A, MKV/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, AAC-ADTS; codecs: AAC-LC, ALAC, MP3, Vorbis, FLAC, PCM, ADPCM (Opus/AC-3/DTS are not supported).",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding of the pasted file bytes: 'base64' (default) or 'hex'. Hex may include whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Output format: 'csv' (default) with a header row window,start_s,end_s,rms,peak; or 'json' with per-window objects plus sample_rate, channels, duration and window metadata.",
+          "enum": [
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "unit": {
+          "default": "dbfs",
+          "description": "Level unit for the rms/peak columns: 'dbfs' (default, 0 dB = full scale; digital silence is floored to -120 dB) or 'linear' (0..1 amplitude fraction of full scale).",
+          "enum": [
+            "dbfs",
+            "linear"
+          ],
+          "type": "string"
+        },
+        "window_ms": {
+          "default": 100.0,
+          "description": "Analysis window length in milliseconds (1–60000, default 100). Each output row measures one window; shorter windows track fast transients, longer windows smooth the level.",
+          "maximum": 60000,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
