@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ast-diff"
+version = "0.1.0"
+abi = 1
+summary = "Structural AST diff of two Rust sources — ignores reformatting."

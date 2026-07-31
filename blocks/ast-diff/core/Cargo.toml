@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-ast-diff-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+syn = { version = "2", default-features = false, features = ["full", "parsing", "printing", "clone-impls"] }
+prettyplease = "0.2"
+proc-macro2 = { version = "1", default-features = false, features = ["span-locations"] }

@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/ast-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Structural AST diff of two Rust sources — ignores reformatting.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute a structural (AST-level) diff between two Rust source files. Both inputs are parsed into an abstract syntax tree and re-emitted in one canonical form, so changes to formatting, indentation, whitespace, or line comments never appear as differences — only changes the compiler would see (renamed items, changed expressions, added/removed code) survive. Pass 'a' (the original source) and 'b' (the modified source). mode='unified' (default) returns a git-style unified diff; mode='summary' returns a one-line verdict (identical / formatting-only / N added, M removed); mode='canonical-a'/'canonical-b' return one source re-formatted without diffing. Inputs must be valid Rust; the error names the line/column on a parse failure.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "description": "First Rust source (the 'before' / original). A whole file or a paste-able snippet — must be syntactically valid Rust.",
+          "type": "string"
+        },
+        "b": {
+          "description": "Second Rust source (the 'after' / modified). Same rules as 'a'.",
+          "type": "string"
+        },
+        "context": {
+          "default": 3,
+          "description": "Unified-diff mode only: number of unchanged context lines kept around each change, 0-100. Default 3.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "unified",
+          "description": "Output style. 'unified' (default) is a git-style unified diff of the two canonical forms; 'summary' is a one-line verdict (identical / formatting-only / N added, M removed); 'canonical-a' and 'canonical-b' return one source re-formatted into canonical form without diffing.",
+          "enum": [
+            "unified",
+            "summary",
+            "canonical-a",
+            "canonical-b"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ],
+      "type": "object"
+    }
+  }
+}
