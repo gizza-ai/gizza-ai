@@ -1,0 +1,106 @@
+slug          = "string-literal-extractor"
+title         = "String Literal Extractor"
+description   = "Extract every string literal from pasted source code, skipping comments, with quote, length, and dedupe filters and list/JSON/CSV output."
+tags          = ["strings", "code", "extract", "i18n", "parser"]
+h1            = "String Literal Extractor"
+hero_subtitle = "Pull every quoted string out of source code in a dozen languages — comments skipped, char literals ignored — then filter by quote style or length, decode escapes, dedupe, and export as a list, JSON, or CSV."
+wasm          = "gizza_ai_string_literal_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted literals"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Source code"
+placeholder = "const greeting = \"Hello, world\";\n// \"this comment is skipped\"\nconst name = 'gizza';\nconst tpl = `id-${x}`;"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "language"
+label       = "Language"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+python = "Python"
+javascript = "JavaScript"
+typescript = "TypeScript"
+java = "Java"
+csharp = "C#"
+c = "C"
+cpp = "C++"
+go = "Go"
+rust = "Rust"
+php = "PHP"
+ruby = "Ruby"
+shell = "Shell / Bash"
+
+[[input]]
+name        = "quotes"
+label       = "Quote style"
+source      = "field"
+
+[input.labels]
+all = "All quotes"
+double = "Double \" only"
+single = "Single ' only"
+backtick = "Backtick ` only"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+list = "Plain list"
+json = "JSON (with positions)"
+csv = "CSV (with positions)"
+
+[[input]]
+name        = "decode_escapes"
+label       = "Decode escape sequences"
+source      = "field"
+
+[[input]]
+name        = "unique"
+label       = "Unique values only"
+source      = "field"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum length"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "line_numbers"
+label       = "Show line numbers (list output)"
+source      = "field"
+
+[[example]]
+label = "Extract from JavaScript"
+[example.params]
+code = "const greeting = \"Hello, world\";\n// \"this comment is skipped\"\nconst name = 'gizza';\nconst tpl = `id-${x}`;"
+language = "javascript"
+quotes = "all"
+format = "list"
+line_numbers = "true"
+
+[[example]]
+label = "Python strings as JSON"
+[example.params]
+code = "def greet():\n    title = \"Report\"\n    note = 'draft'\n    return title  # \"not this\""
+language = "python"
+quotes = "all"
+format = "json"
+
+[[example]]
+label = "Unique double-quoted URLs"
+[example.params]
+code = "fetch(\"https://a.example\")\nfetch(\"https://a.example\")\nfetch(\"https://b.example\")"
+language = "javascript"
+quotes = "double"
+format = "list"
+unique = "true"
