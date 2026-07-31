@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "syslog-triage"
+version = "0.1.0"
+abi = 1
+summary = "Parse and filter Linux syslog/auth.log, highlighting sudo, SSH auth, and cron events for intrusion review."

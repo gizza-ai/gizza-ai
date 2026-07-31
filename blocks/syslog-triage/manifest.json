@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/syslog-triage",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse and filter Linux syslog/auth.log, highlighting sudo, SSH auth, and cron events for intrusion review.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse and triage Linux syslog / auth.log text for a quick intrusion review. Classifies each line into a security category — sudo, ssh, cron, session, account, or other — derives a success/failure status, and extracts the user, source IP, and command. category filters to one category (default all); only filters by status (all/failed/success — 'failed' surfaces brute-force attempts); output='summary' (default) is an intrusion-review report that ranks failed logins by source IP and lists sudo and cron activity, or 'table'/'json'. limit caps the event count (default 500).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "default": "all",
+          "description": "Keep only events in this category. 'all' (default) keeps every line; 'sudo' = privilege escalation, 'ssh' = sshd auth (accepted/failed/invalid user), 'cron' = cron jobs, 'session' = su/login/logind sessions, 'account' = user/group management, 'other' = unclassified. Category is derived from the service tag.",
+          "enum": [
+            "all",
+            "sudo",
+            "ssh",
+            "cron",
+            "session",
+            "account",
+            "other"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 500,
+          "description": "Maximum number of events to keep (1-5000). Applied after the category and status filters. Default 500.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "logs": {
+          "description": "The raw syslog / auth.log text — one entry per line. Handles BSD syslog (RFC 3164, 'Mmm dd HH:MM:SS host tag[pid]: msg') and rsyslog ISO/RFC 3339 timestamps, with an optional <PRI> prefix.",
+          "type": "string"
+        },
+        "only": {
+          "default": "all",
+          "description": "Status filter. 'all' (default) keeps every event; 'failed' keeps only failures (failed passwords, invalid users, sudo/auth denials); 'success' keeps only successful logins, sudo commands, and opened sessions.",
+          "enum": [
+            "all",
+            "failed",
+            "success"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output shape. 'summary' (default) is an intrusion-review report: an events/failed header, category counts, failed logins ranked by source IP, plus sudo and cron sections. 'table' is a Markdown table (one row per event); 'json' is an array of event objects.",
+          "enum": [
+            "summary",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "logs"
+      ],
+      "type": "object"
+    }
+  }
+}

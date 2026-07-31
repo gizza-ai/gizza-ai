@@ -1,0 +1,83 @@
+slug          = "syslog-triage"
+title         = "Syslog Triage — parse auth.log for sudo, SSH & cron events"
+description   = "Paste syslog or auth.log text to classify sudo, SSH auth, and cron events, filter failures, and rank failed logins by source IP."
+tags          = ["syslog triage", "auth.log parser", "failed ssh logins", "sudo log", "cron log", "intrusion review", "brute force detection", "linux security log"]
+h1            = "Syslog Triage"
+hero_subtitle = "Turn a wall of syslog / auth.log lines into a security review: sudo, SSH auth, and cron events classified, failures filtered, and failed logins ranked by source IP. Runs locally — nothing is uploaded."
+wasm          = "gizza_ai_syslog_triage_web"
+export        = "run"
+live          = false
+output_label  = "Triage report"
+format        = "text"
+
+[[input]]
+name        = "logs"
+label       = "Syslog / auth.log text"
+placeholder = "May  3 18:20:45 web1 sshd[2001]: Failed password for root from 203.0.113.5 port 44001 ssh2\nMay  3 18:21:10 web1 sshd[2010]: Accepted publickey for bob from 192.168.1.10 port 51000 ssh2\nMay  3 18:22:00 web1 sudo:    alice : TTY=pts/0 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/apt-get update\nMay  3 18:25:01 web1 CRON[3001]: (root) CMD (/usr/local/bin/backup.sh)"
+source      = "field"
+multiline   = true
+
+# category renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "category"
+label       = "Category"
+source      = "field"
+
+[input.labels]
+all     = "All categories"
+sudo    = "sudo — privilege escalation"
+ssh     = "ssh — sshd auth"
+cron    = "cron — scheduled jobs"
+session = "session — su / login / logind"
+account = "account — user & group changes"
+other   = "other — unclassified"
+
+[[input]]
+name        = "only"
+label       = "Status"
+source      = "field"
+
+[input.labels]
+all     = "All events"
+failed  = "Failures only"
+success = "Successes only"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+summary = "Intrusion-review summary"
+table   = "Markdown table"
+json    = "JSON array"
+
+[[input]]
+name        = "limit"
+label       = "Max events"
+placeholder = "500"
+source      = "field"
+
+[[example]]
+label = "SSH brute force"
+[example.params]
+logs     = "May  3 18:20:45 web1 sshd[2001]: Failed password for root from 203.0.113.5 port 44001 ssh2\nMay  3 18:20:47 web1 sshd[2002]: Failed password for invalid user admin from 203.0.113.5 port 44002 ssh2\nMay  3 18:20:49 web1 sshd[2003]: Invalid user oracle from 203.0.113.5\nMay  3 18:21:10 web1 sshd[2010]: Accepted publickey for bob from 192.168.1.10 port 51000 ssh2"
+category = "ssh"
+only     = "failed"
+output   = "summary"
+
+[[example]]
+label = "Sudo activity"
+[example.params]
+logs     = "May  3 18:22:00 web1 sudo:    alice : TTY=pts/0 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/apt-get update\nMay  3 18:23:00 web1 sudo: pam_unix(sudo:auth): authentication failure; logname=eve uid=1001 euid=0 tty=/dev/pts/1 ruser=eve rhost= user=eve"
+category = "sudo"
+only     = "all"
+output   = "summary"
+
+[[example]]
+label = "Cron jobs as a table"
+[example.params]
+logs     = "May  3 18:25:01 web1 CRON[3001]: (root) CMD (/usr/local/bin/backup.sh)\nMay  3 18:30:01 web1 CRON[3050]: (www-data) CMD (/usr/bin/php /var/www/cron.php)"
+category = "cron"
+only     = "all"
+output   = "table"
