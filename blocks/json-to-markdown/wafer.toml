@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-markdown"
+version = "0.1.0"
+abi = 1
+summary = "Render an arbitrary JSON document as readable, nested Markdown."

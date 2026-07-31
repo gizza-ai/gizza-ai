@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/json-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render an arbitrary JSON document as readable, nested Markdown.",
+  "role": "skill",
+  "tool": {
+    "description": "Render an arbitrary JSON document (e.g. a notes-app export or API response) as readable, nested Markdown. A top-level object's scalar keys become '- **key**: value' bullets and its nested objects/arrays become headings starting at heading_level (default 2). A uniform array of flat objects becomes a Markdown table; other arrays become nested bullet lists (set array_mode='table' or 'list' to force one). Set sort_keys=true to order keys alphabetically. Subtrees deeper than max_depth (default 6) collapse to a fenced JSON code block. Returns an error on invalid JSON.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_mode": {
+          "default": "auto",
+          "description": "How arrays of objects render. 'auto' (default): a uniform array of flat objects becomes a Markdown table, anything else becomes a nested bullet list. 'table': force a table (non-scalar cells become inline JSON). 'list': force a nested bullet list.",
+          "enum": [
+            "auto",
+            "table",
+            "list"
+          ],
+          "type": "string"
+        },
+        "heading_level": {
+          "default": 2,
+          "description": "Heading level (1-6) for the top-level object/array sections; each nested level goes one deeper (capped at 6). Default 2 (uses '##', leaving '#' for a page title).",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON document to render as Markdown — an object, an array, or a scalar. Example: {\"title\":\"My Note\",\"tags\":[\"work\",\"idea\"]}.",
+          "type": "string"
+        },
+        "max_depth": {
+          "default": 6,
+          "description": "Maximum nesting depth (1-20) to expand as Markdown; a subtree deeper than this is emitted verbatim as a fenced JSON code block instead. Default 6.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "When true, sort object keys and table columns alphabetically. Default false (keep the document's original key order).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
