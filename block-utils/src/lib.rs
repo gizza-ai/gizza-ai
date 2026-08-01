@@ -284,7 +284,8 @@ pub fn filename_with_suffix(input: &str, suffix: &str, new_ext: &str) -> String 
 ///
 /// Supported:
 /// - `AssetKind::Image`: `"jpeg"` → `("image/jpeg", "jpg")`, `"png"`, `"webp"`
-/// - `AssetKind::Video`: `"mp4"` → `("video/mp4", "mp4")`, `"webm"`
+/// - `AssetKind::Video`: `"mp4"` → `("video/mp4", "mp4")`, `"webm"`, `"mkv"`,
+///   `"mov"` (`video/quicktime`)
 /// - `AssetKind::Audio`: `"mp3"` → `("audio/mpeg", "mp3")`, `"wav"`, `"ogg"`,
 ///   `"flac"`, `"m4a"` (`audio/mp4`)
 pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static str, &'static str)> {
@@ -295,6 +296,7 @@ pub fn format_to_mime_and_ext(kind: AssetKind, fmt: &str) -> Option<(&'static st
         (AssetKind::Video, "mp4") => Some(("video/mp4", "mp4")),
         (AssetKind::Video, "webm") => Some(("video/webm", "webm")),
         (AssetKind::Video, "mkv") => Some(("video/x-matroska", "mkv")),
+        (AssetKind::Video, "mov") => Some(("video/quicktime", "mov")),
         (AssetKind::Audio, "mp3") => Some(("audio/mpeg", "mp3")),
         (AssetKind::Audio, "wav") => Some(("audio/wav", "wav")),
         (AssetKind::Audio, "ogg") => Some(("audio/ogg", "ogg")),
@@ -1092,6 +1094,10 @@ mod tests {
         assert_eq!(
             format_to_mime_and_ext(AssetKind::Video, "mkv"),
             Some(("video/x-matroska", "mkv"))
+        );
+        assert_eq!(
+            format_to_mime_and_ext(AssetKind::Video, "mov"),
+            Some(("video/quicktime", "mov"))
         );
     }
 

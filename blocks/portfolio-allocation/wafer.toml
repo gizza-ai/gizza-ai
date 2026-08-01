@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "portfolio-allocation"
+version = "0.1.0"
+abi = 1
+summary = "Break holdings into chart-ready allocation percentages."

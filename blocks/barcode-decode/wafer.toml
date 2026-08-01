@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "barcode-decode"
+version = "0.1.0"
+abi = 1
+summary = "Decode 1D barcodes from an image"

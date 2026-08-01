@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-duration-fix-remux"
+version = "0.1.0"
+abi = 1
+summary = "Repair missing or wrong video duration metadata by remuxing without re-encoding"

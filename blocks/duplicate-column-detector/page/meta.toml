@@ -1,0 +1,92 @@
+slug          = "duplicate-column-detector"
+title         = "Duplicate Column Detector — Find Repeated CSV Columns"
+description   = "Find duplicate columns in CSV/table data and report or remove redundant copies. In-browser, no upload."
+tags          = ["duplicate columns", "csv duplicate columns", "remove duplicate columns", "data cleanup", "table dedupe", "csv cleaner"]
+h1            = "Find duplicate columns in a table"
+hero_subtitle = "Paste CSV/table data and detect columns with identical values. Keep the first column, report redundant copies, or output a cleaned CSV — all in your browser."
+wasm          = "gizza_ai_duplicate_column_detector_web"
+export        = "run"
+live          = false
+output_label  = "Duplicate column report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV/table data"
+placeholder = "id,name,email,id_copy,contact\n1,Alice,a@x.com,1,a@x.com\n2,Bob,b@y.com,2,b@y.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma = "Comma (,)"
+tab = "Tab"
+semicolon = "Semicolon (;)"
+pipe = "Pipe (|)"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace"
+source = "field"
+
+[[input]]
+name   = "ignore_header_name"
+label  = "Ignore header names"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report"
+csv = "Cleaned CSV"
+json = "JSON groups"
+
+[[example]]
+label = "Report duplicate columns"
+[example.params]
+data = "id,name,email,id_copy,contact\n1,Alice,a@x.com,1,a@x.com\n2,Bob,b@y.com,2,b@y.com"
+header = "true"
+delimiter = "comma"
+ignore_case = "true"
+ignore_whitespace = "true"
+ignore_header_name = "true"
+output = "report"
+
+[[example]]
+label = "Remove redundant columns"
+[example.params]
+data = "id,name,email,id_copy,contact\n1,Alice,a@x.com,1,a@x.com\n2,Bob,b@y.com,2,b@y.com"
+header = "true"
+delimiter = "comma"
+ignore_case = "true"
+ignore_whitespace = "true"
+ignore_header_name = "true"
+output = "csv"
+
+[[example]]
+label = "Require matching header names"
+[example.params]
+data = "email,contact\na@x.com,a@x.com\nb@y.com,b@y.com"
+header = "true"
+delimiter = "comma"
+ignore_case = "true"
+ignore_whitespace = "true"
+ignore_header_name = "false"
+output = "report"

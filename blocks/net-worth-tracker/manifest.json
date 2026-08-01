@@ -1,0 +1,37 @@
+{
+  "name": "gizza-ai/net-worth-tracker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute net worth from assets and liabilities, broken down by category.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute net worth from a pasted list of assets and liabilities. Accepts CSV or tab-separated rows: label, amount, optional type (asset/liability), optional category. A row with no type is an asset unless its amount is negative. Returns a text balance sheet: total assets, total liabilities, net worth, a per-category breakdown of each side with value, percent, proportional bars and item counts, and the debt-to-asset ratio.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol or prefix to display before amounts, such as $, €, £, or blank for no prefix.",
+          "type": "string"
+        },
+        "input": {
+          "description": "Assets and liabilities pasted as CSV or tab-separated rows: label, amount, optional type (asset/liability), optional category. A header row is allowed. A row with no type is an asset unless its amount is negative (or wrapped in parentheses), which marks a liability. Amounts may be currency values, thousands-separated numbers, or shares @ price.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "value",
+          "description": "Order categories within each side by descending value (default) or alphabetically by category label.",
+          "enum": [
+            "value",
+            "label"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

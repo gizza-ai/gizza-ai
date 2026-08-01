@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/wrap-lines-in-quotes",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Wrap each line of text in quotes or brackets",
+  "role": "skill",
+  "tool": {
+    "description": "Wrap each line of text in chosen quotes or brackets, with an optional trailing separator — great for turning a column of values into a SQL `IN (…)` list, JSON array, or CSV row. wrap picks the delimiter style: double \"…\" (default), single '…', backtick, paren (…), square […], curly {…}, angle <…>, guillemet «…», or custom (then open/close set your own delimiters; an empty close mirrors open). separator is appended after each wrapped line (e.g. `,`); by default the last wrapped line omits it (set last_line_separator=true to keep it). skip_empty (default true) leaves blank lines unchanged. trim strips surrounding whitespace per line; escape backslash-escapes the delimiter inside each line so the result stays valid. Returns the wrapped text plus total/wrapped line counts. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "close": {
+          "description": "Closing delimiter when wrap=custom. Empty mirrors the opening delimiter. Ignored for presets.",
+          "type": "string"
+        },
+        "escape": {
+          "default": false,
+          "description": "When true, backslash-escape the delimiter chars (and `\\`) inside each line so the output is a valid quoted string. Default false.",
+          "type": "boolean"
+        },
+        "last_line_separator": {
+          "default": false,
+          "description": "When true, the last wrapped line also gets the trailing separator. Default false (so a comma separator yields a valid IN(…)/array body).",
+          "type": "boolean"
+        },
+        "open": {
+          "description": "Opening delimiter when wrap=custom (e.g. `<!--`). Ignored for presets.",
+          "type": "string"
+        },
+        "separator": {
+          "description": "String appended after each wrapped line, e.g. `,` for a SQL IN-list or JSON array. Default none.",
+          "type": "string"
+        },
+        "skip_empty": {
+          "default": true,
+          "description": "When true (default), blank/whitespace-only lines pass through unchanged — not wrapped, no separator.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text whose lines should each be wrapped (split on newlines).",
+          "type": "string"
+        },
+        "trim": {
+          "default": false,
+          "description": "When true, strip surrounding whitespace from each line before wrapping. Default false.",
+          "type": "boolean"
+        },
+        "wrap": {
+          "default": "double",
+          "description": "Delimiter style around each line: double \"…\", single '…', backtick `…`, paren (…), square […], curly {…}, angle <…>, guillemet «…», or custom (uses open/close). Default double.",
+          "enum": [
+            "double",
+            "single",
+            "backtick",
+            "paren",
+            "square",
+            "curly",
+            "angle",
+            "guillemet",
+            "custom"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

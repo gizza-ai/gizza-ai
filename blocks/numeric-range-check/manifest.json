@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/numeric-range-check",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag CSV numeric values outside an expected min/max range.",
+  "role": "skill",
+  "tool": {
+    "description": "Range-check CSV numeric columns against an expected min and/or max. Pick columns by header name, 1-based index, or `all`, set a min, a max, or both, and choose inclusive or exclusive bounds. The tool flags every data cell whose value falls outside the range and reports row, physical line, column, offending value, and reason, plus totals for cells checked, numeric cells, non-numeric cells, and the full flagged count with truncation status. Supports delimiter auto-detection, header/headerless CSV, one-sided ranges, flagging or ignoring non-numeric cells, optional required (non-blank) cells, text output, and JSON output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Which columns to range-check, comma- or newline-separated. Use header names (for example `age, price`) or 1-based indexes when header=false (for example `2, 4`). Use `all` to check every column. Non-numeric cells are handled per the non_numeric option.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV data to check. Paste rows as text; quoted fields and quoted newlines are supported. The first row is treated as a header by default.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "CSV delimiter. `auto` (default) detects comma, tab, semicolon, or pipe from the first non-blank line. Thousands separators like `1,000` are accepted only when the delimiter is not a comma.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "empty_ok": {
+          "default": true,
+          "description": "Allow blank cells in checked columns. Default true; set false to require every checked cell to be present (blank cells are then reported as `empty cell (required)`).",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: `text` for a readable report (default) or `json` for a structured range-check report.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header row and resolve `columns` by name. Default true. Set false to reference columns by 1-based index.",
+          "type": "boolean"
+        },
+        "inclusive": {
+          "default": true,
+          "description": "Treat the bounds as inclusive so a value equal to min or max is in range. Default true. Set false for a strict/exclusive range where equal-to-a-bound values are flagged.",
+          "type": "boolean"
+        },
+        "max": {
+          "description": "Highest allowed value (inclusive by default). Optional if min is set — a one-sided check. Example: 120. Values above this are flagged. Set at least one of min/max.",
+          "type": "number"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "Maximum number of flagged cells to list (1-1000, default 50). The summary still reports the full flagged count.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min": {
+          "description": "Lowest allowed value (inclusive by default). Optional if max is set — a one-sided check. Example: 0. Values below this are flagged.",
+          "type": "number"
+        },
+        "non_numeric": {
+          "default": "flag",
+          "description": "How to treat non-empty cells that are not numbers: `flag` (default) reports them as violations; `ignore` skips them and range-checks only the numeric cells.",
+          "enum": [
+            "flag",
+            "ignore"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "columns"
+      ],
+      "type": "object"
+    }
+  }
+}

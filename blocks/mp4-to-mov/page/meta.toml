@@ -1,0 +1,17 @@
+slug          = "mp4-to-mov"
+title         = "Convert MP4 to MOV Online"
+description   = "Free MP4 to MOV converter in your browser. Lossless stream-copy remux into a QuickTime container for Final Cut Pro and iMovie — nothing re-encoded or uploaded."
+tags          = ["mp4", "mov", "quicktime", "convert", "video", "remux", "stream-copy", "final-cut", "lossless", "no-reencode"]
+h1            = "Convert MP4 to MOV"
+hero_subtitle = "Pick an .mp4 and get a QuickTime .mov — a lossless container remux that stream-copies every track with no re-encode. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_mp4_to_mov_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "MOV video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/mp4,video/x-m4v,video/*"
+label  = "MP4 video"

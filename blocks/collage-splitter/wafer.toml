@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "collage-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Detect the cells of a photo-grid collage and export each photo as its own image (ZIP)"

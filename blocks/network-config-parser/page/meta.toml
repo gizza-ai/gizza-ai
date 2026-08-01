@@ -1,0 +1,98 @@
+slug          = "network-config-parser"
+title         = "Network Config Parser"
+description   = "Parse Cisco IOS, Arista EOS, or Juniper Junos configs into nested JSON, flat command paths, or a compact stats report in your browser."
+tags          = ["network config parser", "cisco config parser", "juniper config parser", "ios config to json", "junos config to json", "config to tree", "arista eos config", "show run to json"]
+h1            = "Network Config Parser"
+hero_subtitle = "Paste a Cisco IOS / IOS-XE / NX-OS, Arista EOS, or Juniper Junos configuration and turn it into a foldable, searchable tree. Export a nested JSON tree, a flat list of command paths, or a stats report. Runs entirely in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_network_config_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed config"
+format        = "text"
+
+[[input]]
+name        = "config"
+label       = "Device configuration"
+placeholder = '''interface GigabitEthernet0/1
+ description uplink to core
+ ip address 10.0.0.1 255.255.255.0
+ no shutdown
+!
+router ospf 1
+ network 10.0.0.0 0.0.0.255 area 0'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "syntax"
+label       = "Syntax"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[[input]]
+name        = "filter"
+label       = "Filter (case-insensitive substring)"
+placeholder = "ospf"
+source      = "field"
+
+[[input]]
+name        = "comments"
+label       = "Comments"
+source      = "field"
+
+[[example]]
+label = "Cisco IOS → nested tree"
+[example.params]
+config = '''interface GigabitEthernet0/1
+ description uplink to core
+ ip address 10.0.0.1 255.255.255.0
+ no shutdown
+!
+router ospf 1
+ network 10.0.0.0 0.0.0.255 area 0'''
+syntax = "auto"
+output = "tree"
+filter = ""
+comments = "strip"
+
+[[example]]
+label = "Juniper Junos → flat command paths"
+[example.params]
+config = '''system {
+    host-name router1;
+    services {
+        ssh;
+    }
+}
+interfaces {
+    ge-0/0/0 {
+        unit 0 {
+            family inet {
+                address 10.0.0.1/24;
+            }
+        }
+    }
+}'''
+syntax = "auto"
+output = "paths"
+filter = ""
+comments = "strip"
+
+[[example]]
+label = "Filter to OSPF and summarise"
+[example.params]
+config = '''interface GigabitEthernet0/1
+ ip address 10.0.0.1 255.255.255.0
+!
+router ospf 1
+ network 10.0.0.0 0.0.0.255 area 0
+router bgp 65000
+ neighbor 10.0.0.2 remote-as 65001'''
+syntax = "indent"
+output = "report"
+filter = "ospf"
+comments = "strip"

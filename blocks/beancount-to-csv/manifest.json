@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/beancount-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten a Beancount/Ledger journal into a CSV of dated postings, and back",
+  "role": "skill",
+  "tool": {
+    "description": "Convert between a Beancount/Ledger (plain-text-accounting) journal and a flat CSV of dated postings, for spreadsheet use. Pass the text as 'input'. direction=to-csv (default) parses the journal and emits one CSV row per posting with columns date,flag,payee,narration,account,amount,currency,cost,price,comment — the transaction header fields repeat across its postings. direction=from-csv reads that same CSV shape (only 'date' and 'account' columns are required; a blank date continues the previous transaction) and rebuilds a journal. journal_format selects the dialect written by from-csv (beancount = 2-space indent + quoted payee/narration; ledger = 4-space indent + single description, symbol currencies prefixed). delimiter is the CSV separator (comma/semicolon/tab/pipe). Amounts are split into a numeric column and a currency column; cost {…} and price @… expressions are carried through verbatim. This is not a full Beancount engine: non-transaction directives (open/close/balance/price/…) are ignored, elided amounts are left blank, and balances are not asserted. Up to 20,000 postings per call. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field separator — the output separator for to-csv, the input separator for from-csv. Default comma.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "direction": {
+          "default": "to-csv",
+          "description": "to-csv flattens a Beancount/Ledger journal into a CSV (one row per posting); from-csv rebuilds a journal from that same CSV shape. Default to-csv.",
+          "enum": [
+            "to-csv",
+            "from-csv"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The text to convert: a Beancount/Ledger journal (for to-csv) or a flat CSV with a header row (for from-csv). The CSV columns are date,flag,payee,narration,account,amount,currency,cost,price,comment; only 'date' and 'account' are required, others may be omitted.",
+          "type": "string"
+        },
+        "journal_format": {
+          "default": "beancount",
+          "description": "Plain-text-accounting dialect written by from-csv: beancount uses 2-space indent and quoted \"payee\" \"narration\"; ledger uses 4-space indent and a single description with symbol currencies prefixed ($-4.50). Ignored for to-csv (parsing accepts both dialects). Default beancount.",
+          "enum": [
+            "beancount",
+            "ledger"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

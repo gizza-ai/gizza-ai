@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "diff-viewer"
+version = "0.1.0"
+abi = 1
+summary = "Render a pasted unified diff as a clean inline, side-by-side, or stats view."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dotenv-to-shell"
+version = "0.1.0"
+abi = 1
+summary = "Convert a .env file into export-prefixed shell statements, and back."

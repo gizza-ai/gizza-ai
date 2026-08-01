@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/har-to-openapi",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Infer a draft OpenAPI 3.x spec (YAML or JSON) from a HAR capture — endpoints, methods, params, and request/response schemas.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a HAR (HTTP Archive) capture into a draft OpenAPI 3.x specification, browser-local. Groups the captured requests into paths + methods, derives the servers base URL from request origins, templates id-like path segments (numeric ids, UUIDs, tokens) into {param}, collects query and path parameters, and infers JSON-Schema shapes for request bodies and per-status response bodies from the captured JSON. Options: output format (yaml|json), OpenAPI version (3.0.3|3.1.0), parameterize_paths, infer scalar param types, include captured examples, a host substring filter (domain), a custom info.title, and drop operations without a 2xx response. It does NOT redact secrets — pre-redact the HAR with the har-redact tool — or guess auth/security schemes. Returns the OpenAPI document as text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "default": "",
+          "description": "Case-insensitive host substring filter: keep only requests whose host contains this text (e.g. 'api.example.com'). Blank (default) keeps every host in the capture.",
+          "type": "string"
+        },
+        "drop_unsuccessful": {
+          "default": false,
+          "description": "Drop any operation that never returned a 2xx response in the capture (removes error-only and never-completed calls). Default false.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "yaml",
+          "description": "Output serialization: 'yaml' (default) or 'json'. Both encode the same OpenAPI document.",
+          "enum": [
+            "yaml",
+            "json"
+          ],
+          "type": "string"
+        },
+        "har": {
+          "description": "The HAR (HTTP Archive) capture as JSON — the file DevTools produces via Network → right-click → \"Save all as HAR\" (shape: { \"log\": { \"entries\": [ … ] } }). Contains sensitive headers/cookies, so redact first (see the har-redact tool).",
+          "type": "string"
+        },
+        "include_examples": {
+          "default": true,
+          "description": "Include a captured example value alongside each parameter and request/response body schema. Default true; turn off for a schema-only spec.",
+          "type": "boolean"
+        },
+        "infer_types": {
+          "default": true,
+          "description": "Infer scalar JSON-Schema types (integer/number/boolean) for query and path parameters from their observed values. Default true; when false every parameter is typed as string.",
+          "type": "boolean"
+        },
+        "openapi_version": {
+          "default": "3.0.3",
+          "description": "OpenAPI version to stamp in the document: '3.0.3' (default) or '3.1.0'.",
+          "enum": [
+            "3.0.3",
+            "3.1.0"
+          ],
+          "type": "string"
+        },
+        "parameterize_paths": {
+          "default": true,
+          "description": "Collapse id-like path segments (numeric ids, UUIDs, long opaque tokens) into {param} templates, so /users/1 and /users/2 become one /users/{user} path. Default true; turn off to keep every literal URL as its own path.",
+          "type": "boolean"
+        },
+        "title": {
+          "default": "",
+          "description": "Value for info.title in the generated spec. Blank (default) infers a title from the first captured host.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "har"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wireguard-config-builder"
+version = "0.1.0"
+abi = 1
+summary = "Build and validate a complete WireGuard interface/peer config from entered keys, endpoints and AllowedIPs."

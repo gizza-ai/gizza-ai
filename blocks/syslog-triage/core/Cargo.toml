@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-syslog-triage-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+regex = "1"
+serde_json = "1"

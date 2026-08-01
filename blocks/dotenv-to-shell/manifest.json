@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/dotenv-to-shell",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a .env file into export-prefixed shell statements, and back.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a .env file into export-prefixed shell statements (and back), handling quoting and special characters. Pass the source text in `input`. With `direction=to-shell` (default) each KEY=VALUE line becomes a shell statement for the chosen `shell` dialect — 'posix'/'bash' emit `export KEY=value`, 'fish' emits `set -gx KEY value` — with values safely quoted so spaces, `$`, backticks, `#`, quotes and newlines stay literal when the output is sourced. `quote=auto` (default) leaves safe values unquoted and single-quotes the rest; `quote=single` always quotes. Full-line comments and blank lines are preserved, an inline `# comment` and an 'export ' prefix on input are stripped, and keys that aren't valid shell identifiers are skipped with a note. With `direction=to-env` it parses `export`/`set -gx`/`setenv` statements back into a plain .env file. Everything runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "to-shell",
+          "description": "Conversion direction: 'to-shell' (default) turns a .env file into shell statements; 'to-env' parses shell export statements back into a plain .env file.",
+          "enum": [
+            "to-shell",
+            "to-env"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The source text. For to-shell: a .env file (KEY=VALUE lines; # comments, blank lines, single/double quotes, inline comments and an 'export ' prefix are handled). For to-env: shell statements (export KEY=…, set -gx KEY …, setenv KEY …).",
+          "type": "string"
+        },
+        "quote": {
+          "default": "auto",
+          "description": "Value quoting for to-shell. 'auto' (default) leaves safe values unquoted and single-quotes only values containing spaces or special characters; 'single' always single-quotes. Special characters ($, backtick, quotes, #, newlines) are always kept literal. Ignored for to-env.",
+          "enum": [
+            "auto",
+            "single"
+          ],
+          "type": "string"
+        },
+        "shell": {
+          "default": "posix",
+          "description": "Target shell dialect for to-shell. 'posix' and 'bash' emit identical `export KEY=value` statements (also works in zsh/sh); 'fish' emits `set -gx KEY value`. Ignored for to-env (which auto-detects the input dialect).",
+          "enum": [
+            "posix",
+            "bash",
+            "fish"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

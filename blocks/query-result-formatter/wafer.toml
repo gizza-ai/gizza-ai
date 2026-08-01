@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "query-result-formatter"
+version = "0.1.0"
+abi = 1
+summary = "Render raw query result rows (JSON/CSV/TSV) into a Markdown or ASCII table"

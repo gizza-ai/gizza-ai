@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "typescript-transpiler"
+version = "0.1.0"
+abi = 1
+summary = "Strip TypeScript syntax into best-effort JavaScript."

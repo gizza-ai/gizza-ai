@@ -1,0 +1,117 @@
+{
+  "name": "gizza-ai/qr-styled",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a styled QR code SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a styled QR code as a scalable SVG image from any text or URL (data). Style it with fg_color and bg_color (#rgb/#rrggbb hex; bg_color also accepts 'transparent'); add a body gradient (gradient none/linear/radial with gradient_color and gradient_angle); pick a module_shape (square, rounded, or dots) and an eye_shape (square, rounded, or circle) with an optional separate eye_color; and embed a centre logo (logo as a data:image/... URI, sized by logo_size 0.1-0.35 — error correction is forced to H so it still scans). error_correction is L/M/Q/H (default M), margin sets the quiet zone in modules, and size sets the SVG pixel edge. Returns an image. Runs locally — the data never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bg_color": {
+          "default": "#ffffff",
+          "description": "Background colour as #rgb or #rrggbb hex, or 'transparent' for no background.",
+          "type": "string"
+        },
+        "data": {
+          "description": "Text, URL, or any payload to encode into the QR code.",
+          "type": "string"
+        },
+        "error_correction": {
+          "default": "M",
+          "description": "Error-correction level: L (~7%), M (~15%, default), Q (~25%), or H (~30%). Higher survives more damage but makes a denser code. Forced to H when a logo is embedded.",
+          "enum": [
+            "L",
+            "M",
+            "Q",
+            "H"
+          ],
+          "type": "string"
+        },
+        "eye_color": {
+          "default": "",
+          "description": "Eye (finder) colour as #rgb or #rrggbb hex. Leave empty to match fg_color.",
+          "type": "string"
+        },
+        "eye_shape": {
+          "default": "square",
+          "description": "Shape of the three finder 'eyes': square (default), rounded (rounded corners), or circle.",
+          "enum": [
+            "square",
+            "rounded",
+            "circle"
+          ],
+          "type": "string"
+        },
+        "fg_color": {
+          "default": "#000000",
+          "description": "Foreground (module) colour as #rgb or #rrggbb hex.",
+          "type": "string"
+        },
+        "gradient": {
+          "default": "none",
+          "description": "Body gradient: none (solid fg_color, default), linear (fg_color to gradient_color along gradient_angle), or radial (fg_color at centre to gradient_color at the edge).",
+          "enum": [
+            "none",
+            "linear",
+            "radial"
+          ],
+          "type": "string"
+        },
+        "gradient_angle": {
+          "default": 45.0,
+          "description": "Linear gradient direction in degrees (0-360; used when gradient=linear).",
+          "maximum": 360,
+          "minimum": 0,
+          "type": "number"
+        },
+        "gradient_color": {
+          "default": "#000000",
+          "description": "Second gradient stop colour as #rgb or #rrggbb hex (used when gradient is linear or radial).",
+          "type": "string"
+        },
+        "logo": {
+          "default": "",
+          "description": "Optional centre logo as a data:image/... URI (e.g. data:image/png;base64,...). Embedded verbatim with a knockout behind it; error correction is forced to H. No network fetch.",
+          "type": "string"
+        },
+        "logo_size": {
+          "default": 0.2,
+          "description": "Logo edge as a fraction of the code width (0.1-0.35; used only when a logo is supplied).",
+          "maximum": 0.35,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "margin": {
+          "default": 4,
+          "description": "Quiet-zone width in modules around the code (0-32). 4 is the QR-spec minimum for reliable scanning.",
+          "maximum": 32,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "module_shape": {
+          "default": "square",
+          "description": "Shape of each data module: square (default), rounded (rounded-corner squares), or dots (circles).",
+          "enum": [
+            "square",
+            "rounded",
+            "dots"
+          ],
+          "type": "string"
+        },
+        "size": {
+          "default": 512,
+          "description": "Output SVG width/height in pixels (64-4096). The code is vector, so it stays crisp at any size.",
+          "maximum": 4096,
+          "minimum": 64,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

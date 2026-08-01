@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tdee-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Estimate BMR and total daily energy expenditure from age, sex, weight, height and activity."

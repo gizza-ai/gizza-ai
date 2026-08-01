@@ -1,0 +1,76 @@
+slug          = "bulk-artifact-extractor"
+title         = "Bulk Artifact Extractor — emails, URLs, IPs, cards, and offsets"
+description   = "Scan pasted text for emails, URLs, IPs, domains, phones, Bitcoin addresses, and Luhn-valid card numbers with offsets and context."
+tags          = ["artifact extractor", "ioc extractor", "email extractor", "url extractor", "ip extractor", "domain extractor", "phone extractor", "luhn", "bitcoin address", "forensics"]
+h1            = "Bulk Artifact Extractor"
+hero_subtitle = "Extract common artifacts from a log slice, email dump, disk-image strings output, or any UTF-8 text. Reports exact value, kind, byte offset, and context — locally in your browser."
+wasm          = "gizza_ai_bulk_artifact_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted artifacts"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text/blob to scan"
+placeholder = "Contact alice@example.com, see https://data.example.org/path, server 203.0.113.7, call +1 415-555-0132, card 4111 1111 1111 1111."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "kinds"
+label       = "Kinds (all or comma-list)"
+placeholder = "all"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "context"
+label       = "Context characters each side"
+placeholder = "24"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "200"
+step        = "1"
+
+[[input]]
+name        = "limit"
+label       = "Maximum findings"
+placeholder = "1000"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20000"
+step        = "1"
+
+[[example]]
+label = "All artifacts as a table"
+[example.params]
+text = "Contact alice@example.com, see https://data.example.org/path, server 203.0.113.7, call +1 415-555-0132, card 4111 1111 1111 1111."
+kinds = "all"
+output = "table"
+context = "24"
+limit = "1000"
+
+[[example]]
+label = "Emails and IPs as JSON"
+[example.params]
+text = "alice@example.com logged in from 203.0.113.7; bob@example.net from 10.0.0.5."
+kinds = "email,ipv4"
+output = "json"
+context = "12"
+limit = "100"
+
+[[example]]
+label = "Short context, capped results"
+[example.params]
+text = "one@example.com two@example.net three@example.org https://example.com"
+kinds = "email,url"
+output = "table"
+context = "5"
+limit = "2"

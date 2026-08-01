@@ -1,0 +1,18 @@
+slug          = "cert-chain-validate"
+title         = "Certificate Chain Validator"
+description   = "Check a pasted PEM certificate chain offline for leaf-to-root ordering, signature linkage and expiry windows."
+tags          = ["certificate", "tls", "security"]
+h1            = "Validate a PEM certificate chain offline"
+hero_subtitle = "Paste a leaf-to-root certificate chain and check issuer/subject ordering, signatures, CA flags and current validity without sending it anywhere."
+wasm          = "gizza_ai_cert_chain_validate_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "chain_pem"
+label       = "PEM certificate chain"
+placeholder = "-----BEGIN CERTIFICATE-----\nMIID... leaf certificate ...\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIID... intermediate certificate ...\n-----END CERTIFICATE-----"
+source      = "field"
+multiline   = true

@@ -1,0 +1,58 @@
+slug          = "url-stripper"
+title         = "URL Stripper — Remove Links (and Emails) from Text"
+description   = "Free online URL stripper: remove http/https/ftp URLs and www. links from text, optionally strip emails, and tidy leftover spacing in your browser."
+tags          = ["url stripper", "remove urls from text", "strip links", "delete links", "remove hyperlinks", "clean text", "remove email addresses", "text cleaner"]
+h1            = "URL Stripper"
+hero_subtitle = "Paste text and strip out every http/https/ftp URL and www. link — optionally emails too — replacing each with nothing or a placeholder, then tidying the leftover spacing so it reads as clean prose. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_url_stripper_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned text"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text"
+placeholder = "Read the docs at https://example.com/guide and email us at hi@example.com — more at www.example.com."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "remove_emails"
+label  = "Also remove email addresses"
+source = "field"
+
+[[input]]
+name   = "remove_www"
+label  = "Also remove www. links"
+source = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Replace each link with (blank = delete)"
+placeholder = "[link]"
+source      = "field"
+
+[[input]]
+name   = "collapse_whitespace"
+label  = "Tidy the spacing left behind"
+source = "field"
+
+# Preset chips — one-click prefill of common scenarios.
+[[example]]
+label = "Strip links from a paragraph"
+[example.params]
+input = "Read the docs at https://example.com/guide and see the FAQ at https://example.com/faq. More info at www.example.com."
+
+[[example]]
+label = "Links + emails, keep a placeholder"
+[example.params]
+input         = "Ping me at bob@example.com or grab the file from ftp://files.example.org/pub/report.zip (mirror: www.example.net)."
+remove_emails = "true"
+replacement   = "[removed]"
+
+[[example]]
+label = "Keep www. links, delete only URLs"
+[example.params]
+input      = "Our site is www.example.com but the tracker link https://track.example.com/abc?utm=1 should go."
+remove_www = "false"

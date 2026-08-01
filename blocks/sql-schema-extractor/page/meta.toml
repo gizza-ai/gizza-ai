@@ -1,0 +1,62 @@
+slug          = "sql-schema-extractor"
+title         = "SQL Schema Extractor — CREATE TABLE / ALTER to JSON or Markdown"
+description   = "Parse CREATE TABLE and ALTER TABLE statements from a SQL dump into a clean table, column, and constraint model as JSON or Markdown — locally in your browser."
+tags          = ["sql schema extractor", "ddl parser", "create table parser", "sql to json", "sql schema to markdown", "parse create table", "alter table parser", "sql ddl to json", "extract database schema"]
+h1            = "SQL Schema Extractor"
+hero_subtitle = "Paste a SQL dump and pull the schema out of its CREATE TABLE / ALTER TABLE statements — columns, types, primary keys, foreign keys, unique, checks, and indexes — as a JSON model or a Markdown doc. Comments and INSERT rows are ignored, and nothing is executed."
+wasm          = "gizza_ai_sql_schema_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted schema"
+format        = "text"
+
+[[input]]
+name        = "sql"
+label       = "SQL dump / DDL"
+placeholder = "CREATE TABLE users (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  age INT DEFAULT 0 CHECK (age >= 0)\n);"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+"json"     = "JSON model"
+"markdown" = "Markdown doc"
+
+[[input]]
+name        = "dialect"
+label       = "SQL dialect"
+source      = "field"
+
+[input.labels]
+"auto"     = "Auto"
+"mysql"    = "MySQL / MariaDB"
+"postgres" = "PostgreSQL"
+"sqlite"   = "SQLite"
+"mssql"    = "SQL Server"
+"generic"  = "Generic / ANSI"
+
+[[input]]
+name        = "apply_alter"
+label       = "Apply ALTER TABLE statements"
+source      = "field"
+
+[[input]]
+name        = "include_indexes"
+label       = "Include indexes"
+source      = "field"
+
+[[example]]
+label  = "Single table (JSON)"
+params = { sql = "CREATE TABLE users (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  age INT DEFAULT 0 CHECK (age >= 0)\n);", output = "json", dialect = "mysql" }
+
+[[example]]
+label  = "CREATE + ALTER FK"
+params = { sql = "CREATE TABLE orders (\n  id INT PRIMARY KEY,\n  user_id INT NOT NULL,\n  total DECIMAL(10,2) NOT NULL\n);\nALTER TABLE orders ADD CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;", output = "json", dialect = "postgres" }
+
+[[example]]
+label  = "Markdown schema doc"
+params = { sql = "CREATE TABLE line_items (\n  order_id INT,\n  sku VARCHAR(32),\n  price DECIMAL(10,2) NOT NULL,\n  PRIMARY KEY (order_id, sku)\n);", output = "markdown", dialect = "generic" }

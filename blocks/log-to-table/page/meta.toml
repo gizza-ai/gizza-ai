@@ -1,0 +1,84 @@
+slug          = "log-to-table"
+title         = "Log to Table — Parse Logs with Regex Presets"
+description   = "Turn semi-structured log lines into a Markdown table, CSV, TSV, or JSON using named regex groups and presets for Apache, syslog, and log4j-style logs."
+tags          = ["log parser", "log to csv", "log to table", "regex log parser", "apache log parser", "syslog parser", "log4j parser", "parse logs"]
+h1            = "Log to Table"
+hero_subtitle = "Paste logs and extract columns with named regex groups or ready-made presets for Apache access logs, syslog, and log4j-style application logs. Export Markdown, CSV, TSV, or JSON locally."
+wasm          = "gizza_ai_log_to_table_web"
+export        = "run"
+live          = false
+output_label  = "Parsed table"
+format        = "text"
+
+[[input]]
+name        = "logs"
+label       = "Log lines"
+placeholder = "ERROR 42 failed to connect\nINFO 7 retry scheduled"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "preset"
+label   = "Parser preset"
+source  = "field"
+default = "custom"
+
+[[input]]
+name        = "pattern"
+label       = "Custom regex with named groups"
+placeholder = "^(?P<level>\\w+) (?P<code>\\d+) (?P<message>.*)$"
+source      = "field"
+
+[[input]]
+name    = "output"
+label   = "Output format"
+source  = "field"
+default = "table"
+
+[[input]]
+name    = "header"
+label   = "Include header row"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "on_nomatch"
+label   = "When a line does not match"
+source  = "field"
+default = "skip"
+
+[[input]]
+name        = "limit"
+label       = "Maximum output rows"
+placeholder = "500"
+source      = "field"
+default     = "500"
+
+[[example]]
+label = "Custom app logs"
+[example.params]
+logs = "ERROR 42 failed to connect\nINFO 7 retry scheduled"
+pattern = "^(?P<level>\\w+) (?P<code>\\d+) (?P<message>.*)$"
+output = "table"
+
+[[example]]
+label = "CSV output"
+[example.params]
+logs = "ERROR 42 failed to connect\nINFO 7 retry scheduled"
+pattern = "^(?P<level>\\w+) (?P<code>\\d+) (?P<message>.*)$"
+output = "csv"
+
+[[example]]
+label = "Apache combined"
+[example.params]
+logs = "127.0.0.1 - - [10/Oct/2000:13:55:36 -0700] \"GET /index.html HTTP/1.0\" 200 2326 \"-\" \"Mozilla/5.0\""
+preset = "combined"
+output = "csv"
+
+[[example]]
+label = "Keep unmatched"
+[example.params]
+logs = "ok 1\ngarbage line\nok 2"
+pattern = "^(?P<word>\\w+) (?P<count>\\d+)$"
+on_nomatch = "keep"
+output = "csv"

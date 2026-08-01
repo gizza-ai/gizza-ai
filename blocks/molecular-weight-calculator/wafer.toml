@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "molecular-weight-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compute molar mass, monoisotopic mass and elemental composition from a chemical formula."

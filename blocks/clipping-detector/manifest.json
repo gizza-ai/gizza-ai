@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/clipping-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan an uncompressed WAV clip for clipped (full-scale) samples and report the worst distorted regions with timestamps.",
+  "role": "skill",
+  "tool": {
+    "description": "Detect digital clipping in a short uncompressed WAV clip. Paste the WAV bytes as base64 (default) or hex; it decodes RIFF/WAVE PCM 8/16/24/32-bit integer or 32/64-bit IEEE float (compressed MP3/AAC/FLAC/Ogg/A-law/mu-law is rejected with a clear message) and scans for samples at or above a full-scale threshold. It reports how many samples and sample-frames clipped, the overall peak in dBFS, the longest run of consecutive clipped frames, and the worst regions with their start-end timestamps so you can see WHERE the distortion is. threshold (0.5-1.0, default 0.99) sets what counts as full scale; min_run (default 1) is the minimum consecutive clipped frames for a region (Audacity's rule is 3); gap (default 0) bridges runs split by a few clean frames; top_regions (default 5) caps how many regions are listed. output is 'report' (human-readable, default) or 'json'. Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "gap": {
+          "default": 0,
+          "description": "Bridge runs separated by at most this many unclipped frames into one region so a single distorted burst isn't fragmented (0-1000, default 0 = no bridging).",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "Uncompressed WAV audio bytes encoded as base64 (default) or hex. Only RIFF/WAVE PCM 8/16/24/32-bit integer or 32/64-bit IEEE float is decoded; compressed MP3/AAC/FLAC/Ogg/A-law/mu-law is rejected with a clear message.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding of the pasted WAV bytes: 'base64' (default) or 'hex'. Hex may include whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "min_run": {
+          "default": 1,
+          "description": "Minimum number of consecutive clipped sample-frames for a run to count as a clipped region (1-1000, default 1). Audacity's classic rule is 3 consecutive full-scale samples.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format. 'report' (default) is a human-readable summary (format, duration, peak, clipped counts, and the worst regions with start-end timestamps). 'json' emits a structured object {format, sample_rate, channels, peak, clipped_samples, clipped_frames, longest_run_frames, region_count, regions:[{start_frame, end_frame, start_time, end_time, peak_dbfs}]}.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0.99,
+          "description": "A sample counts as clipped when its magnitude reaches this fraction of full scale (0.5-1.0). Default 0.99 catches true 0 dBFS peaks with a small guard band; 1.0 flags only exact full-scale samples.",
+          "maximum": 1,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "top_regions": {
+          "default": 5,
+          "description": "How many of the worst regions to list, ranked by length then peak (1-100, default 5).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

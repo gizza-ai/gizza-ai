@@ -1,0 +1,76 @@
+slug          = "correlated-feature-pruner"
+title         = "Correlated Feature Pruner — Drop Collinear Columns"
+description   = "Drop multicollinear numeric columns by thresholded Pearson, Spearman, or Kendall correlation. In-browser, no upload."
+tags          = ["multicollinearity", "correlated features", "feature selection", "drop collinear columns", "pearson correlation", "spearman correlation", "kendall tau", "remove redundant features"]
+h1            = "Prune highly correlated features"
+hero_subtitle = "Paste rows of numbers, pick a correlation method and threshold, and drop one column from every pair that is too correlated — reducing multicollinearity before you model. Nothing is uploaded."
+wasm          = "gizza_ai_correlated_feature_pruner_web"
+export        = "run"
+live          = false
+output_label  = "Pruning report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (rows of numbers)"
+placeholder = "20,100,5\n30,200,9\n40,300,2\n50,400,7"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "threshold"
+label       = "Correlation threshold (|r|)"
+placeholder = "0.9"
+source      = "field"
+kind        = "slider"
+min         = "0.05"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name   = "method"
+label  = "Correlation method"
+source = "field"
+
+[input.labels]
+pearson  = "Pearson (linear)"
+spearman = "Spearman (monotonic)"
+kendall  = "Kendall (tau-b)"
+
+[[input]]
+name        = "labels"
+label       = "Column names (optional, comma-separated)"
+placeholder = "age,income,savings"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[example]]
+label = "Drop a redundant column"
+[example.params]
+data = "20,100,5\n30,200,9\n40,300,2\n50,400,7"
+threshold = "0.9"
+method = "pearson"
+labels = "age,income,savings"
+header = "false"
+
+[[example]]
+label = "Aggressive prune (0.8)"
+[example.params]
+data = "1,2,5,10\n2,4,3,8\n3,6,9,6\n4,8,1,4"
+threshold = "0.8"
+method = "pearson"
+labels = "a,a2,b,c"
+header = "false"
+
+[[example]]
+label = "Spearman (monotonic)"
+[example.params]
+data = "1,1\n2,8\n3,27\n4,64"
+threshold = "0.95"
+method = "spearman"
+labels = "x,x_cubed"
+header = "false"

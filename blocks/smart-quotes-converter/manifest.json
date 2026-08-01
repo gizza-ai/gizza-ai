@@ -1,0 +1,47 @@
+{
+  "name": "gizza-ai/smart-quotes-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert quotes between straight ASCII and curly typographic form.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert quotation marks between straight ASCII (\" ') and curly typographic (“ ” ‘ ’) forms. direction='to_curly' (default) educates straight quotes into curly ones, choosing opening vs closing marks from the surrounding characters (start/space/bracket -> opening; after a letter/digit -> closing or apostrophe, e.g. It's, dogs', '89); direction='to_straight' reverses, turning curly quotes and prime marks back into plain ASCII (useful before pasting into code, CSV, or JSON). convert_double / convert_single (both default true) toggle each quote kind independently. feet_inches=true (to_curly only) turns digit-adjacent straight quotes into prime marks (6'4\" -> 6′4″). Everything else — accents, CJK, emoji, dashes, ellipses — passes through untouched.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "convert_double": {
+          "default": true,
+          "description": "Convert double quotes (\" ⇄ “ ”). Set false to leave double quotes untouched. Default true.",
+          "type": "boolean"
+        },
+        "convert_single": {
+          "default": true,
+          "description": "Convert single quotes and apostrophes (' ⇄ ‘ ’). Set false to leave them untouched. Default true.",
+          "type": "boolean"
+        },
+        "direction": {
+          "default": "to_curly",
+          "description": "Conversion direction. 'to_curly' (default) turns straight ASCII quotes (\" ') into curly typographic quotes (“ ” ‘ ’), choosing opening vs closing marks from the surrounding characters. 'to_straight' turns curly quotes (and prime marks) back into plain ASCII.",
+          "enum": [
+            "to_curly",
+            "to_straight"
+          ],
+          "type": "string"
+        },
+        "feet_inches": {
+          "default": false,
+          "description": "Feet/inches mode (to_curly only): a straight quote directly after a digit becomes a prime mark instead of a curly quote, so 6'4\" becomes 6′4″. to_straight always folds prime marks back to ASCII regardless of this flag. Default false.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The text whose quotation marks you want to convert.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

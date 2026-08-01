@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/data-bin",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bin a numeric CSV column into equal-width, quantile, or custom buckets",
+  "role": "skill",
+  "tool": {
+    "description": "Bin (bucket) one numeric column of a CSV and label every row with the bucket it falls in. Methods: 'equal_width' splits the value range into equal-width buckets; 'quantile' makes equal-frequency buckets so each holds roughly the same number of rows (good for skewed data); 'custom' uses your own strictly-ascending 'edges'. Choose the number of buckets with 'bins' (default 4 = quartiles). Labels are custom ('labels', one per bucket) or auto-generated as interval ranges (e.g. '(0, 50]') or 1-based indexes via 'label_style'. 'right' selects right- vs left-closed intervals and 'precision' the decimals in range labels; duplicate quantile edges are merged automatically. 'output' appends a new '<column>_bin' column or replaces the source column. The target column must be numeric (every present value parses as a finite number); blank cells stay blank. Delimiters accept comma/tab/semicolon/pipe.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "default": 4,
+          "description": "Number of buckets for method 'equal_width' or 'quantile' (ignored for 'custom'). Default 4 (quartiles).",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "column": {
+          "description": "The single numeric column to bin: a header name (needs a header) or a 1-based index (e.g. 'score' or '2'). Every present value in it must parse as a finite number.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator of the input (and output): 'comma', 'tab', 'semicolon', or 'pipe'. Default 'comma'.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "edges": {
+          "description": "For method='custom': comma-separated strictly ascending bucket edges (e.g. '0,18,65,120'). Values below the first or above the last edge get a blank label.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header: keep it verbatim and use its names for the 'column' selector. Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The CSV text whose numeric column should be binned.",
+          "type": "string"
+        },
+        "label_style": {
+          "default": "range",
+          "description": "Auto-label style when 'labels' is blank: 'range' shows the interval (e.g. '(0, 50]'); 'index' shows the 1-based bucket number. Default 'range'.",
+          "enum": [
+            "range",
+            "index"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "description": "Comma-separated custom labels, one per bucket (e.g. 'low,mid,high'). Must match the bucket count; blank auto-generates labels using 'label_style'.",
+          "type": "string"
+        },
+        "method": {
+          "default": "equal_width",
+          "description": "Binning method: 'equal_width' splits the value range into equal-width buckets; 'quantile' makes equal-frequency buckets (each holds ~the same number of rows); 'custom' uses your own 'edges'. Default 'equal_width'.",
+          "enum": [
+            "equal_width",
+            "quantile",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "append",
+          "description": "'append' adds a new '<column>_bin' column holding the label; 'replace' overwrites the source column with the label. Default 'append'.",
+          "enum": [
+            "append",
+            "replace"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": 3,
+          "description": "Decimal places for the numbers shown in 'range' labels. Default 3.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "right": {
+          "default": true,
+          "description": "Right-closed intervals '(a, b]' (true) or left-closed '[a, b)' (false); the outermost edge is always included. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input",
+        "column"
+      ],
+      "type": "object"
+    }
+  }
+}

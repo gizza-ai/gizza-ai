@@ -1,0 +1,67 @@
+slug          = "sort-json-array"
+title         = "Sort JSON Array — Order Objects by Field"
+description   = "Sort a JSON array of objects by one or more fields, ascending or descending. Supports nested dot-paths, per-key direction, missing-value placement, and minify."
+tags          = ["sort json array", "sort json by key", "order json objects", "json array sorter", "sort json by field", "json order by"]
+h1            = "JSON Array Sorter"
+hero_subtitle = "Sort a JSON array of objects by any field — nested paths, multiple keys, ascending or descending. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_sort_json_array_web"
+export        = "run"
+live          = false
+output_label  = "Sorted JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON array"
+placeholder = "[ { \"name\": \"Ada\", \"age\": 36 }, { \"name\": \"Bo\", \"age\": 24 } ]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "keys"
+label       = "Sort keys (comma-separated; '-' = descending)"
+placeholder = "dept,-salary,name"
+source      = "field"
+
+# order renders as a <select>; option list derives from the descriptor enum.
+[[input]]
+name   = "order"
+label  = "Default direction"
+source = "field"
+
+[input.labels]
+asc  = "Ascending (smallest first)"
+desc = "Descending (largest first)"
+
+# missing renders as a <select>; option list derives from the descriptor enum.
+[[input]]
+name   = "missing"
+label  = "Missing / null values"
+source = "field"
+
+[input.labels]
+last  = "Sort to the end"
+first = "Sort to the start"
+
+[[input]]
+name   = "case_insensitive"
+label  = "Case-insensitive strings"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces (0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "Sort by age (ascending)"
+params = { json = "[ { \"name\": \"Ada\", \"age\": 36 }, { \"name\": \"Bo\", \"age\": 24 }, { \"name\": \"Cy\", \"age\": 41 } ]", keys = "age", order = "asc", missing = "last", case_insensitive = "false", indent = "2" }
+
+[[example]]
+label  = "Group by dept, salary high→low"
+params = { json = "[ { \"dept\": \"Eng\", \"salary\": 120 }, { \"dept\": \"Ops\", \"salary\": 90 }, { \"dept\": \"Eng\", \"salary\": 150 } ]", keys = "dept,-salary", order = "asc", missing = "last", case_insensitive = "false", indent = "2" }
+
+[[example]]
+label  = "Nested path, case-insensitive"
+params = { json = "[ { \"user\": { \"name\": \"bo\" } }, { \"user\": { \"name\": \"Ada\" } }, { \"user\": { \"name\": \"cy\" } } ]", keys = "user.name", order = "asc", missing = "last", case_insensitive = "true", indent = "0" }

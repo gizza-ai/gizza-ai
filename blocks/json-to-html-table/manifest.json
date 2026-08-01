@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/json-to-html-table",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a JSON array or object as a clean HTML or Markdown table",
+  "role": "skill",
+  "tool": {
+    "description": "Render a JSON array or object as a clean HTML (default) or Markdown table. An array of objects becomes rows with the union of keys as columns; an array of arrays becomes rows (header=true uses the first row as the header, else Column N); an array of scalars becomes a single column; a single object becomes a two-column key/value table. nested controls nested objects/arrays: json (compact JSON string, default), table (nested <table>, HTML only), or flatten (dotted-key columns like user.id). null_text sets the text for JSON null / missing cells; caption adds an HTML <caption>; table_class adds CSS class(es) to the <table>; pretty=false emits minified single-line HTML. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "caption": {
+          "default": "",
+          "description": "Optional <caption> text placed above the HTML table (HTML output only; ignored for Markdown). Default empty.",
+          "type": "string"
+        },
+        "format": {
+          "default": "html",
+          "description": "Output table format: html (default) for a <table>, or markdown for a GitHub-style pipe table.",
+          "enum": [
+            "html",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "For an array of arrays / scalars, treat the first row as the header (default true); otherwise 'Column N' headers are generated. Arrays of objects always use the object keys; a single object always uses key/value.",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "The JSON to tabulate: an array of objects, an array of arrays, an array of scalars, or a single object (rendered as a key/value table).",
+          "type": "string"
+        },
+        "nested": {
+          "default": "json",
+          "description": "How to render nested objects/arrays: 'json' (compact JSON string in the cell, default), 'table' (a nested <table>; HTML only, Markdown falls back to JSON), or 'flatten' (hoist nested objects into dotted-key columns like user.id).",
+          "enum": [
+            "json",
+            "table",
+            "flatten"
+          ],
+          "type": "string"
+        },
+        "null_text": {
+          "default": "",
+          "description": "Text rendered for a JSON null or a missing column value (default empty). Set e.g. to 'null' or '—' to mark gaps.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print the HTML with indentation and line breaks (default true); set false for single-line, minified HTML (HTML output only).",
+          "type": "boolean"
+        },
+        "table_class": {
+          "default": "",
+          "description": "CSS class(es) added to the top-level <table> tag, e.g. 'table table-striped' (HTML output only). Default empty.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

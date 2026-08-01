@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-rms-timeline"
+version = "0.1.0"
+abi = 1
+summary = "Extract windowed RMS and peak audio levels from a video into a CSV time series."

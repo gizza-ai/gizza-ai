@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "har-to-openapi"
+version = "0.1.0"
+abi = 1
+summary = "Infer a draft OpenAPI 3.x spec (YAML or JSON) from a HAR capture — endpoints, methods, params, and request/response schemas."

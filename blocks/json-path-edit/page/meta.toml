@@ -1,0 +1,67 @@
+slug          = "json-path-edit"
+title         = "JSON Path Editor — Get, Set & Delete Values by Path"
+description   = "Get, set, or delete a value at a dotted or bracketed path in a JSON document. Supports array indices, quoted keys, and auto-created intermediates."
+tags          = ["json path", "json editor", "json set value", "json delete key", "dot notation", "bracket notation", "lodash get set", "dot-object", "edit json by path", "json unset"]
+h1            = "JSON Path Editor"
+hero_subtitle = "Get, set, or delete a value at a dotted or bracketed path in a JSON document — array indices, quoted keys, and auto-created intermediate objects. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_json_path_edit_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = "{\"store\":{\"book\":[{\"title\":\"A\",\"price\":5}]}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "path"
+label       = "Path"
+placeholder = "store.book[0].title"
+source      = "field"
+
+# operation renders as a <select> and pretty as a checkbox — the control type +
+# options come from the descriptor's schema (manifest.json), so no duplication here.
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[[input]]
+name        = "value"
+label       = "Value to set (for the 'set' operation)"
+placeholder = "9"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print the output"
+source      = "field"
+
+[[example]]
+label = "Get a nested value"
+
+[example.params]
+json      = "{\"store\":{\"book\":[{\"title\":\"A\",\"price\":5},{\"title\":\"B\",\"price\":12}]}}"
+path      = "store.book[1].title"
+operation = "get"
+
+[[example]]
+label = "Set (creates intermediates)"
+
+[example.params]
+json      = "{\"user\":{\"name\":\"Ada\"}}"
+path      = "user.address.city"
+operation = "set"
+value     = "\"Paris\""
+
+[[example]]
+label = "Delete a key"
+
+[example.params]
+json      = "{\"a\":1,\"b\":2,\"c\":3}"
+path      = "b"
+operation = "delete"

@@ -1,0 +1,158 @@
+slug          = "pie-donut-chart-svg"
+title         = "Pie & Donut Chart Maker — Labeled Values to SVG"
+description   = "Turn labeled values into a clean pie or donut chart as a scalable SVG — in your browser, nothing uploaded. Auto percentages, custom colors, legend, and title."
+tags          = ["pie chart maker", "donut chart generator", "pie chart svg", "donut chart svg", "percentage pie chart", "chart from values", "pie chart from data", "svg chart"]
+h1            = "Make a Pie or Donut Chart"
+hero_subtitle = "Enter one `label, value` pair per line and get a clean, scalable pie or donut chart as a standalone SVG. Percentages are computed for you; pick the colors, legend, title, and size. Pure-Rust rendering runs in your browser — nothing is uploaded."
+wasm          = "gizza_ai_pie_donut_chart_svg_web"
+export        = "run"
+live          = false
+output_label  = "Chart SVG"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data (one `label, value` per line)"
+placeholder = "Chrome, 63\nSafari, 20\nEdge, 5\nFirefox, 3\nOther, 9"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "chart_type"
+label  = "Chart type"
+source = "field"
+
+[input.labels]
+pie   = "Pie"
+donut = "Donut"
+
+[[input]]
+name        = "width"
+label       = "Width (px)"
+placeholder = "640"
+source      = "field"
+
+[[input]]
+name        = "height"
+label       = "Height (px)"
+placeholder = "400"
+source      = "field"
+
+[[input]]
+name        = "donut_hole"
+label       = "Donut hole size (0.0–0.9)"
+placeholder = "0.55"
+source      = "field"
+
+[[input]]
+name        = "start_angle"
+label       = "Start angle (degrees, clockwise from top)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "colors"
+label       = "Colors (comma-separated CSS colors)"
+placeholder = "#4e79a7, #f28e2b, #e15759"
+source      = "field"
+
+[[input]]
+name   = "show_labels"
+label  = "Show labels on slices"
+source = "field"
+
+[[input]]
+name   = "show_percentages"
+label  = "Show percentages"
+source = "field"
+
+[[input]]
+name   = "show_values"
+label  = "Show raw values in legend"
+source = "field"
+
+[[input]]
+name   = "legend"
+label  = "Legend"
+source = "field"
+
+[input.labels]
+none   = "None"
+right  = "Right"
+bottom = "Bottom"
+
+[[input]]
+name   = "sort"
+label  = "Slice order"
+source = "field"
+
+[input.labels]
+input      = "As entered"
+descending = "Largest first"
+ascending  = "Smallest first"
+
+[[input]]
+name        = "title"
+label       = "Chart title (optional)"
+placeholder = "Browser market share"
+source      = "field"
+
+[[input]]
+name        = "background"
+label       = "Background color"
+placeholder = "#ffffff"
+source      = "field"
+
+[[example]]
+label = "Browser share (pie)"
+[example.params]
+data = "Chrome, 63\nSafari, 20\nEdge, 5\nFirefox, 3\nOther, 9"
+chart_type = "pie"
+width = "640"
+height = "400"
+donut_hole = "0.55"
+start_angle = "0"
+colors = ""
+show_labels = "false"
+show_percentages = "true"
+show_values = "false"
+legend = "right"
+sort = "descending"
+title = "Browser market share"
+background = "#ffffff"
+
+[[example]]
+label = "Budget split (donut)"
+[example.params]
+data = "Rent, 1400\nFood, 600\nTransport, 250\nSavings, 500\nFun, 300"
+chart_type = "donut"
+width = "640"
+height = "400"
+donut_hole = "0.6"
+start_angle = "0"
+colors = "#4e79a7, #59a14f, #f28e2b, #76b7b2, #e15759"
+show_labels = "false"
+show_percentages = "true"
+show_values = "true"
+legend = "right"
+sort = "descending"
+title = "Monthly budget"
+background = "#ffffff"
+
+[[example]]
+label = "Poll results (bottom legend)"
+[example.params]
+data = "Yes: 58\nNo: 31\nUndecided: 11"
+chart_type = "pie"
+width = "560"
+height = "460"
+donut_hole = "0.55"
+start_angle = "0"
+colors = ""
+show_labels = "true"
+show_percentages = "true"
+show_values = "false"
+legend = "bottom"
+sort = "input"
+title = "Survey results"
+background = "#ffffff"

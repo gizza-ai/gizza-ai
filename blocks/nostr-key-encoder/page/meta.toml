@@ -1,0 +1,89 @@
+slug          = "nostr-key-encoder"
+title         = "Nostr Key Encoder — NIP-19 npub/nsec/note ↔ Hex Converter"
+description   = "Convert Nostr keys and event ids between raw hex and NIP-19 bech32: npub, nsec, note, nprofile and nevent. Runs locally in your browser."
+tags          = ["nostr", "nip-19", "npub", "nsec", "bech32", "nostr key converter", "nprofile", "nevent"]
+h1            = "Convert Nostr keys and ids"
+hero_subtitle = "Encode a 64-char hex key or event id into npub / nsec / note / nprofile / nevent, or decode any NIP-19 bech32 string back to hex. Runs entirely in your browser — your keys are never uploaded."
+wasm          = "gizza_ai_nostr_key_encoder_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Hex key/id or NIP-19 string"
+placeholder = "7e7e9c42a91bfef19fa929e5fda1b72e0ebc1a4c1141673e2794234d86addf4e"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+encode = "Encode (hex → bech32)"
+decode = "Decode (bech32 → hex)"
+
+[[input]]
+name   = "type"
+label  = "Encode as (NIP-19 type)"
+source = "field"
+
+[input.labels]
+npub = "npub — public key"
+nsec = "nsec — private key"
+note = "note — event id"
+nprofile = "nprofile — pubkey + relays"
+nevent = "nevent — event id + relays/author/kind"
+
+[[input]]
+name        = "relays"
+label       = "Relays (nprofile/nevent, optional)"
+placeholder = "wss://relay.example.com, wss://relay.damus.io"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "author"
+label       = "Author pubkey hex (nevent, optional)"
+placeholder = "3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"
+source      = "field"
+
+[[input]]
+name        = "kind"
+label       = "Event kind (nevent, -1 to omit)"
+placeholder = "1"
+source      = "field"
+
+[[example]]
+label = "Decode an npub → hex"
+[example.params]
+input = "npub10elfcs4fr0l0r8af98jlmgdh9c8tcxjvz9qkw038js35mp4dma8qzvjptg"
+mode = "auto"
+type = "npub"
+relays = ""
+author = ""
+kind = "-1"
+
+[[example]]
+label = "Encode hex → npub"
+[example.params]
+input = "7e7e9c42a91bfef19fa929e5fda1b72e0ebc1a4c1141673e2794234d86addf4e"
+mode = "encode"
+type = "npub"
+relays = ""
+author = ""
+kind = "-1"
+
+[[example]]
+label = "Build an nprofile (pubkey + relays)"
+[example.params]
+input = "3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"
+mode = "encode"
+type = "nprofile"
+relays = "wss://r.x.com, wss://djbas.sadkb.com"
+author = ""
+kind = "-1"

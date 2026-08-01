@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gdrive-link-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert a Google Drive link to a direct-download, embed, preview, or thumbnail URL"

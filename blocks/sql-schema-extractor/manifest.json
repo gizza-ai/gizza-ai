@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/sql-schema-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse CREATE TABLE / ALTER TABLE from a SQL dump into a clean table/column/constraint model.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse the DDL out of a SQL dump — CREATE TABLE, ALTER TABLE, and CREATE INDEX statements — into a clean, structured schema model. For each table it extracts columns (name, data type with params like VARCHAR(255)/DECIMAL(10,2), nullability, default value, auto-increment/serial/identity), the primary key (inline or table-level, including composite), foreign keys (columns, referenced table/columns, ON DELETE/UPDATE actions), unique constraints, CHECK constraints, and indexes. ALTER TABLE ... ADD statements are folded onto their target table so the model reflects the final schema. It is a lenient parser, not a SQL engine: comments and non-DDL statements (INSERT, SELECT, DROP, …) are skipped, and nothing is executed. Output as a JSON model or a Markdown schema doc. Supports MySQL, PostgreSQL, SQLite, MSSQL and generic dialects (identifier quoting normalized). It never emits INSERT rows.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "apply_alter": {
+          "default": true,
+          "description": "Fold ALTER TABLE ... ADD [COLUMN|CONSTRAINT|PRIMARY KEY|FOREIGN KEY|UNIQUE|CHECK|INDEX] statements onto their target table so the model reflects the final schema. When false, ALTER statements are ignored and only CREATE TABLE is used. Default true.",
+          "type": "boolean"
+        },
+        "dialect": {
+          "default": "auto",
+          "description": "SQL dialect hint. Identifiers are normalized for every dialect (backticks, \"double quotes\" and [brackets] are stripped); this mainly controls whether '#' starts a line comment (mysql/auto) and is echoed back in the output. Default auto.",
+          "enum": [
+            "auto",
+            "mysql",
+            "postgres",
+            "sqlite",
+            "mssql",
+            "generic"
+          ],
+          "type": "string"
+        },
+        "include_indexes": {
+          "default": true,
+          "description": "Include index definitions (table-level KEY/INDEX, plus CREATE INDEX / CREATE UNIQUE INDEX) in the model. When false, indexes are omitted (the 'indexes' array is dropped from JSON and the index bullets from Markdown). Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format. 'json' (default) emits a structured model {dialect, table_count, column_count, tables:[{name, columns, primary_key, foreign_keys, unique_constraints, checks, indexes}]}. 'markdown' emits one section per table with a column table plus bullet lists of the constraints. Default json.",
+          "enum": [
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "sql": {
+          "description": "The SQL dump / DDL text to parse. Include one or more CREATE TABLE (and optionally ALTER TABLE / CREATE INDEX) statements — e.g. \"CREATE TABLE users (id INT PRIMARY KEY, email VARCHAR(255) NOT NULL UNIQUE);\". Comments (-- , #, /* */), INSERT/SELECT and other non-DDL statements are ignored. Nothing is executed.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sql"
+      ],
+      "type": "object"
+    }
+  }
+}

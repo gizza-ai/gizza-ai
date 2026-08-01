@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "returns-risk-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Annualized return, volatility, Sharpe and Sortino from a returns series"

@@ -1,0 +1,81 @@
+slug          = "ndjson-filter"
+title         = "NDJSON / JSON Lines Filter"
+description   = "Filter and reshape NDJSON (JSON Lines) in your browser. Keep rows with a predicate, pick or rename fields, and export as JSONL, a JSON array, or CSV."
+tags          = ["ndjson filter", "jsonl filter", "json lines", "filter ndjson", "jsonl to csv", "ndjson to csv", "jsonl to json array", "json lines query"]
+h1            = "NDJSON / JSON Lines Filter"
+hero_subtitle = "Paste NDJSON (one JSON object per line) and keep just the rows and fields you want. Filter with a simple predicate, select or rename columns, and export as JSONL, a JSON array, or CSV. Runs entirely in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_ndjson_filter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "NDJSON input (one JSON object per line)"
+placeholder = '''{"name":"Alice","age":30,"city":"NYC","active":true}
+{"name":"Bob","age":25,"city":"LA","active":false}
+{"name":"Carol","age":40,"city":"NYC","active":true}'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "predicate"
+label       = "Filter predicate (blank keeps every row)"
+placeholder = "age > 28 and city == NYC"
+source      = "field"
+
+[[input]]
+name        = "fields"
+label       = "Fields to keep / rename (blank keeps whole records)"
+placeholder = "name, city, years=age"
+source      = "field"
+
+# format renders as a <select>, invert / skip_invalid as checkboxes — the control
+# types + option lists come from the descriptor's schema (manifest.json).
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "invert"
+label       = "Invert (keep non-matching rows)"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max rows (0 = unlimited)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "skip_invalid"
+label       = "Skip invalid JSON lines"
+source      = "field"
+
+[[example]]
+label  = "Filter + pick fields"
+[example.params]
+data      = '''{"name":"Alice","age":30,"city":"NYC","active":true}
+{"name":"Bob","age":25,"city":"LA","active":false}
+{"name":"Carol","age":40,"city":"NYC","active":true}'''
+predicate = "city == NYC and age > 28"
+fields    = "name, age"
+
+[[example]]
+label  = "Reshape + rename"
+[example.params]
+data   = '''{"user":{"name":"Al","id":7},"city":"NYC"}
+{"user":{"name":"Bo","id":9},"city":"LA"}'''
+fields = "name=user.name, uid=user.id, city"
+
+[[example]]
+label  = "Export active rows as CSV"
+[example.params]
+data      = '''{"name":"Alice","age":30,"city":"NYC","active":true}
+{"name":"Bob","age":25,"city":"LA","active":false}
+{"name":"Carol","age":40,"city":"NYC","active":true}'''
+predicate = "active"
+fields    = "name, city, age"
+format    = "csv"

@@ -1,0 +1,23 @@
+{
+  "name": "gizza-ai/cert-chain-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate a PEM certificate chain offline.",
+  "role": "skill",
+  "tool": {
+    "description": "Checks a pasted PEM certificate chain offline for leaf-to-root ordering, issuer/subject linkage, certificate signatures, CA flags and current validity windows. It does not consult browser or OS trust stores.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "chain_pem": {
+          "description": "Leaf-to-root PEM certificate chain. Paste one or more -----BEGIN CERTIFICATE----- blocks in order: leaf, intermediates, then optional self-signed root.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chain_pem"
+      ],
+      "type": "object"
+    }
+  }
+}

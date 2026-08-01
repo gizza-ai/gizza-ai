@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dynamodb-json-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert between DynamoDB JSON and plain JSON, both directions"

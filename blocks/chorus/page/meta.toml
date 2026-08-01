@@ -1,0 +1,97 @@
+slug          = "chorus"
+title         = "Audio Chorus Effect — Thicken Sound Online"
+description   = "Add a configurable chorus effect to an audio file in your browser with ffmpeg: voices, delay, depth, rate, decay, and output format controls."
+tags          = ["audio", "chorus", "effect", "modulated delay", "thicken audio", "guitar chorus", "vocal chorus", "ffmpeg", "sound design"]
+h1            = "Add Chorus to Audio"
+hero_subtitle = "Upload audio and thicken it with short modulated delay voices. Tune voices, delay, depth, rate and decay, then export mp3, wav, ogg, flac or m4a."
+wasm          = "gizza_ai_chorus_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Chorus audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "voices"
+source      = "field"
+label       = "Voices"
+placeholder = "2"
+kind        = "slider"
+
+[[input]]
+name        = "delay_ms"
+source      = "field"
+label       = "Delay (ms)"
+placeholder = "50"
+kind        = "slider"
+
+[[input]]
+name        = "depth_ms"
+source      = "field"
+label       = "Depth (ms)"
+placeholder = "2"
+kind        = "slider"
+
+[[input]]
+name        = "speed_hz"
+source      = "field"
+label       = "Rate (Hz)"
+placeholder = "0.4"
+kind        = "slider"
+
+[[input]]
+name        = "decay"
+source      = "field"
+label       = "Voice level"
+placeholder = "0.4"
+kind        = "slider"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Subtle Double"
+[example.values]
+voices   = "2"
+delay_ms = "40"
+depth_ms = "1.5"
+speed_hz = "0.25"
+decay    = "0.3"
+format   = "mp3"
+
+[[example]]
+label = "Classic Chorus"
+[example.values]
+voices   = "2"
+delay_ms = "50"
+depth_ms = "2"
+speed_hz = "0.4"
+decay    = "0.4"
+format   = "mp3"
+
+[[example]]
+label = "Lush Ensemble"
+[example.values]
+voices   = "4"
+delay_ms = "55"
+depth_ms = "5"
+speed_hz = "0.7"
+decay    = "0.55"
+format   = "wav"
+
+[[example]]
+label = "Fast Shimmer"
+[example.values]
+voices   = "3"
+delay_ms = "30"
+depth_ms = "3"
+speed_hz = "2.4"
+decay    = "0.35"
+format   = "m4a"

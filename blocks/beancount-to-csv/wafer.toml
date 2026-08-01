@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "beancount-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Flatten a Beancount/Ledger journal into a CSV of dated postings, and back"

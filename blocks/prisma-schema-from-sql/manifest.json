@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/prisma-schema-from-sql",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert SQL CREATE TABLE / ALTER TABLE DDL into a Prisma schema (models, fields, attributes, relations).",
+  "role": "skill",
+  "tool": {
+    "description": "Convert SQL CREATE TABLE / ALTER TABLE DDL into a Prisma schema.prisma. For each table it emits a `model` block with fields mapped to Prisma scalar types (Int, BigInt, Boolean, Decimal, Float, DateTime, Json, Bytes, String), carrying `@id`, `@unique`, `@default(...)` (autoincrement(), now(), uuid(), literals, and dbgenerated() for anything else), and — when enabled — native-type attributes (@db.VarChar(n)/@db.Char(n)/@db.Decimal(p,s)). Primary keys (including composite @@id), unique constraints (@@unique), and indexes (@@index) become block-level attributes. Foreign keys are inferred into `@relation` fields with fields/references and onDelete/onUpdate actions. Optionally rewrites names to Prisma conventions (PascalCase models, camelCase fields) while preserving the DB names with @@map/@map. Supports PostgreSQL, MySQL, SQLite and SQL Server. It is a lenient parser, not a SQL engine: comments and non-DDL statements are skipped and nothing is executed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "header": {
+          "default": true,
+          "description": "Emit the `generator client` and `datasource db` header blocks at the top of the schema. When false, only the `model` blocks are emitted (handy for pasting into an existing schema.prisma). Default true.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The SQL DDL to convert. Include one or more CREATE TABLE (and optionally ALTER TABLE / CREATE INDEX) statements — e.g. \"CREATE TABLE users (id SERIAL PRIMARY KEY, email VARCHAR(255) NOT NULL UNIQUE);\". Comments (-- , #, /* */), INSERT/SELECT and other non-DDL statements are ignored. Nothing is executed.",
+          "type": "string"
+        },
+        "map_names": {
+          "default": false,
+          "description": "Rewrite snake_case SQL names to Prisma conventions — PascalCase (singularized) model names and camelCase field names — keeping the original database names via `@@map`/`@map`. When false, table and column names are used verbatim (only sanitized to valid identifiers). Default false.",
+          "type": "boolean"
+        },
+        "native_types": {
+          "default": true,
+          "description": "Emit native database-type attributes where they carry information — `@db.VarChar(n)`, `@db.Char(n)`, `@db.Decimal(p,s)`. Ignored for SQLite (which has no native types in Prisma). When false, only the base Prisma scalar type is emitted. Default true.",
+          "type": "boolean"
+        },
+        "provider": {
+          "default": "postgresql",
+          "description": "Target Prisma datasource provider. Controls the emitted datasource `provider`, how the SQL is parsed, and which native-type attributes are valid — e.g. MySQL maps TINYINT(1) to Boolean, and SQLite emits no @db.* native types. Default postgresql.",
+          "enum": [
+            "postgresql",
+            "mysql",
+            "sqlite",
+            "sqlserver"
+          ],
+          "type": "string"
+        },
+        "relations": {
+          "default": true,
+          "description": "Infer Prisma `@relation` fields from foreign keys — including `fields`/`references`, `onDelete`/`onUpdate` referential actions, and disambiguating relation names when two FKs point at the same model. When false, foreign-key columns stay as plain scalar fields. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

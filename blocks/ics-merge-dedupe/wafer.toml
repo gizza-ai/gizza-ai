@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ics-merge-dedupe"
+version = "0.1.0"
+abi = 1
+summary = "Merge several .ics calendars into one and drop duplicate events."

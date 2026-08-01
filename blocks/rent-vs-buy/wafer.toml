@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rent-vs-buy"
+version = "0.1.0"
+abi = 1
+summary = "Compare the long-run financial outcome of renting versus buying a home, with a break-even year and net-worth verdict."

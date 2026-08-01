@@ -1,0 +1,53 @@
+slug          = "video-duration-fix-remux"
+title         = "Fix Video Duration Online — Remux Without Re-encoding"
+description   = "Repair a video whose duration shows as Infinity, 0:00, or the wrong length by remuxing it locally with ffmpeg stream copy — no upload, no re-encode, no quality loss."
+tags          = ["fix video duration", "webm infinity duration", "remux", "moov atom", "faststart", "mediarecorder", "screen recording", "ffmpeg"]
+h1            = "Fix Video Duration"
+hero_subtitle = "Upload a clip whose duration is missing, Infinity, or wrong and rebuild its container locally with stream copy. The audio and video are copied unchanged — only the duration metadata is repaired."
+wasm          = "gizza_ai_video_duration_fix_remux_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Duration-fixed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# container, faststart, regen_timestamps.
+[[input]]
+name   = "container"
+source = "field"
+label  = "Output container"
+
+[input.labels]
+"keep" = "keep — same container as input (safest lossless fix)"
+"mp4"  = "mp4 — H.264/H.265/AAC compatible"
+"mkv"  = "mkv — most codec-tolerant"
+"mov"  = "mov — QuickTime / Apple"
+"webm" = "webm — VP8/VP9/Opus"
+
+[[input]]
+name        = "faststart"
+source      = "field"
+label       = "Web fast-start (MP4/MOV: move index to front)"
+
+[[input]]
+name        = "regen_timestamps"
+source      = "field"
+label       = "Regenerate timestamps (fix Infinity / 0:00 / N/A)"
+
+[[example]]
+label  = "WebM shows Infinity → rebuild WebM"
+params = { container = "keep", regen_timestamps = "true", faststart = "false" }
+
+[[example]]
+label  = "Rebuild as streaming MP4 (fast-start)"
+params = { container = "mp4", faststart = "true", regen_timestamps = "false" }
+
+[[example]]
+label  = "Repair to tolerant MKV"
+params = { container = "mkv", regen_timestamps = "true", faststart = "false" }

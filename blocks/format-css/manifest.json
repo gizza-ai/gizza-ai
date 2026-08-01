@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/format-css",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pretty-print CSS, SCSS or LESS with optional sorting",
+  "role": "skill",
+  "tool": {
+    "description": "Pretty-print (beautify) CSS, SCSS or LESS: one declaration per line, `prop: value` spacing normalized, nested rules (SCSS/LESS `&`, `@media`/`@mixin`) indented, comments preserved. indent sets spaces per level (0-8, default 2) or set indent_char to 'tab'. sort orders declarations within each rule ('none'/'alphabetical'/'grouped', default none). selectors_per_line (default true) splits comma selectors onto their own lines. uppercase_hex (default false) uppercases hex colors. Values are never rewritten (lossless); minification is a separate tool. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level (0-8). Ignored when indent_char is 'tab'. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indent_char": {
+          "default": "space",
+          "description": "Indent with spaces or a tab character per level. Default space.",
+          "enum": [
+            "space",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The CSS, SCSS or LESS source to pretty-print (minified or messy input is fine).",
+          "type": "string"
+        },
+        "selectors_per_line": {
+          "default": true,
+          "description": "Put each comma-separated selector on its own line (h1, h2 → h1,\\nh2). Default true.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "none",
+          "description": "Order declarations within each rule: 'none' keeps source order, 'alphabetical' sorts A-Z by property, 'grouped' uses a concentric (positioning → box model → color → typography) order. Default none.",
+          "enum": [
+            "none",
+            "alphabetical",
+            "grouped"
+          ],
+          "type": "string"
+        },
+        "uppercase_hex": {
+          "default": false,
+          "description": "Uppercase the hex digits of #rgb/#rrggbb color values (#abcdef → #ABCDEF). Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

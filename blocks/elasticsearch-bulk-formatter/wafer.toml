@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "elasticsearch-bulk-formatter"
+version = "0.1.0"
+abi = 1
+summary = "Build the Elasticsearch _bulk NDJSON body from a JSON array of documents"

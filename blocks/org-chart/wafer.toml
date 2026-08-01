@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "org-chart"
+version = "0.1.0"
+abi = 1
+summary = "Render an organizational chart as an SVG image"

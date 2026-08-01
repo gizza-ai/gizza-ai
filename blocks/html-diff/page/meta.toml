@@ -1,0 +1,92 @@
+slug          = "html-diff"
+title         = "HTML Diff"
+description   = "Compare two HTML snippets by their visible text, ignoring tag and attribute noise."
+tags          = ["html", "diff", "developer"]
+h1            = "HTML Diff"
+hero_subtitle = "Paste two HTML snippets to diff their visible text — markup, classes, ids, and inline styles are stripped first."
+wasm          = "gizza_ai_html_diff_web"
+export        = "run"
+live          = false
+output_label  = "Diff"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "Original HTML"
+placeholder = "<p class=\"a\">the quick brown fox</p>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Updated HTML"
+placeholder = "<div><span>the slow brown fox</span></div>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "granularity"
+label       = "Granularity"
+source      = "field"
+
+[input.labels]
+line = "Line (patch-style)"
+word = "Word (inline)"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+unified = "Unified / inline text"
+json = "Structured JSON"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "ignore_whitespace"
+label       = "Ignore whitespace"
+source      = "field"
+
+[[input]]
+name        = "context"
+label       = "Context lines"
+placeholder = "3"
+source      = "field"
+
+[[example]]
+label = "Word diff of rewritten copy"
+[example.params]
+left = "<p class=\"lead\">The quick brown fox jumps over the lazy dog.</p>"
+right = "<div><span style=\"color:red\">The quick red fox leaps over the lazy dog.</span></div>"
+granularity = "word"
+format = "unified"
+ignore_case = "false"
+ignore_whitespace = "false"
+context = "3"
+
+[[example]]
+label = "Line diff with added paragraph"
+[example.params]
+left = "<article><p>Intro line.</p><p>Second line.</p></article>"
+right = "<article><p>Intro line.</p><p>Second line.</p><p>Third line.</p></article>"
+granularity = "line"
+format = "unified"
+ignore_case = "false"
+ignore_whitespace = "false"
+context = "3"
+
+[[example]]
+label = "JSON report, ignore case"
+[example.params]
+left = "<h1>Pricing</h1><p>Starter plan</p>"
+right = "<h1>PRICING</h1><p>Pro plan</p>"
+granularity = "word"
+format = "json"
+ignore_case = "true"
+ignore_whitespace = "false"
+context = "3"

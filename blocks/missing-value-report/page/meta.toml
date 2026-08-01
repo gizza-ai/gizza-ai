@@ -1,0 +1,63 @@
+slug          = "missing-value-report"
+title         = "Missing Value Report for CSV Data"
+description   = "Paste a CSV or TSV table and get per-column missing-value counts, percentages, and a missingness-pattern grid. Handles custom NA tokens. Runs locally in your browser."
+tags          = ["missing values", "missing data", "csv profiling", "data quality", "null counts", "na values", "missingness pattern"]
+h1            = "Missing Value Report for CSV / TSV"
+hero_subtitle = "Profile blank and NA cells column by column, then see which fields go missing together — all in your browser, nothing uploaded."
+wasm          = "gizza_ai_missing_value_report_web"
+export        = "run"
+live          = false
+output_label  = "Missing value report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSV / TSV table (with header row)"
+placeholder = "name,age,city\nAlice,30,NYC\nBob,,LA\n,25,\nCarol,40,NYC"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = "comma"
+source      = "field"
+
+[[input]]
+name        = "na_values"
+label       = "Extra missing tokens (comma-separated, blank = only empty cells)"
+placeholder = "NA,N/A,null,NaN,None,#N/A"
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort columns by"
+source = "field"
+
+[input.labels]
+missing = "Most missing first (default)"
+column  = "Original column order"
+name    = "Column name (A-Z)"
+
+[[input]]
+name   = "include_patterns"
+label  = "Show missingness-pattern grid"
+source = "field"
+
+[[input]]
+name        = "max_patterns"
+label       = "Max pattern rows"
+placeholder = "10"
+source      = "field"
+
+[[example]]
+label  = "Sample table with pattern grid"
+params = { input = "name,age,city\nAlice,30,NYC\nBob,,LA\n,25,\nCarol,40,NYC", delimiter = "comma", na_values = "NA,N/A,null,NaN,None,#N/A", sort = "missing", include_patterns = "true", max_patterns = "10" }
+
+[[example]]
+label  = "Treat NA/null tokens as missing"
+params = { input = "id,score,notes\n1,42,ok\n2,NA,\n3,null,fixed\n4,,", delimiter = "comma", na_values = "NA,N/A,null,NaN,None,#N/A", sort = "missing", include_patterns = "true", max_patterns = "10" }
+
+[[example]]
+label  = "TSV, columns in original order, no grid"
+params = { input = "id\tval\n1\t9\n2\t", delimiter = "tab", na_values = "", sort = "column", include_patterns = "false", max_patterns = "10" }

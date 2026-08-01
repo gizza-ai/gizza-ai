@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/html-entity-encoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode text into HTML character entities.",
+  "role": "skill",
+  "tool": {
+    "description": "Encode literal characters into HTML character references (entities). Two orthogonal options control the result. 'scope' selects WHICH characters are encoded: 'minimal' (default) encodes only the five HTML/XML-sensitive characters & < > \" '; 'non-ascii' also encodes every character above U+007F (accents, symbols, emoji) for pure-ASCII output; 'named' also encodes every character that has an HTML5 named entity. 'format' selects HOW each character is written: 'named' (default) uses the HTML5 named entity where available (&amp;, &copy;, &mdash;) and falls back to a decimal numeric reference otherwise; 'decimal' always uses &#NNN;; 'hex' always uses &#xHH;. The apostrophe becomes &apos; in named format and &#39; / &#x27; in the numeric formats. To go the other way (turn entities back into characters) use the html-entity-decoder tool.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "named",
+          "description": "How each encoded character is written. 'named' (default) uses the HTML5 named entity where one exists (&amp;, &copy;, &mdash;) and falls back to a decimal numeric reference otherwise. 'decimal' always uses &#NNN;. 'hex' always uses &#xHH;.",
+          "enum": [
+            "named",
+            "decimal",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "scope": {
+          "default": "minimal",
+          "description": "Which characters to encode. 'minimal' (default) encodes only the five HTML/XML-sensitive characters & < > \" '. 'non-ascii' also encodes every character above U+007F (accents, symbols, emoji). 'named' also encodes every character that has an HTML5 named entity. The five sensitive characters are always encoded.",
+          "enum": [
+            "minimal",
+            "non-ascii",
+            "named"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to encode into HTML character references, e.g. '<b>Tom & Jerry\\'s café</b>'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

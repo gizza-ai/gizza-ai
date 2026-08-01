@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-diff"
+version = "0.1.0"
+abi = 1
+summary = "Diff the visible text of two HTML snippets, ignoring tag and attribute noise"

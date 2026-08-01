@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/audio-resampler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Change an audio file's sample rate (Hz) with high-quality resampling",
+  "role": "skill",
+  "tool": {
+    "description": "Change an audio file's sample rate (Hz) using ffmpeg's high-quality windowed-sinc resampler. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call) plus rate (target Hz, e.g. 44100 or 48000; any integer 3000-384000). format selects the output container: wav (default) and flac are lossless, best for a clean resample; mp3/ogg/m4a are lossy and encode at 192 kbps. Upsampling never adds detail the source lacks — it just changes the rate. Any input ffmpeg can decode works; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "wav",
+          "description": "Output format (default wav). wav/flac are lossless (best for a clean resample); mp3/ogg/m4a are lossy and encode at 192 kbps.",
+          "enum": [
+            "wav",
+            "flac",
+            "mp3",
+            "ogg",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "rate": {
+          "description": "Target sample rate in Hz. Common values: 8000/16000 (speech), 22050, 32000, 44100 (CD), 48000 (video/DAW), 88200, 96000, 192000 (studio). Any integer 3000-384000 is accepted.",
+          "maximum": 384000,
+          "minimum": 3000,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rate"
+      ],
+      "type": "object"
+    }
+  }
+}

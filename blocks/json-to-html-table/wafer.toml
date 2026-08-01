@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-html-table"
+version = "0.1.0"
+abi = 1
+summary = "Render a JSON array or object as a clean HTML or Markdown table"

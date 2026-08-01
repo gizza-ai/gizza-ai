@@ -1,0 +1,76 @@
+slug          = "genomic-vcf-to-tsv"
+title         = "VCF to TSV Converter Online"
+description   = "Flatten Variant Call Format (VCF) records into tidy TSV, exploding INFO fields and optional sample genotype columns. Runs locally in your browser."
+tags          = ["vcf", "variant call format", "genomics", "tsv", "bioinformatics", "genotype", "info fields"]
+h1            = "Convert VCF Variants to TSV"
+hero_subtitle = "Paste VCF text and get a spreadsheet-friendly TSV with fixed variant columns, exploded INFO keys, and optional per-sample genotype fields."
+wasm          = "gizza_ai_genomic_vcf_to_tsv_web"
+export        = "run"
+live          = false
+output_label  = "TSV output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "VCF text"
+placeholder = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA001\nchr1\t100\trs1\tA\tG\t50\tPASS\tDP=30;AF=0.5\tGT:DP\t0/1:20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "layout"
+label  = "Sample layout"
+source = "field"
+
+[input.labels]
+long = "Long: one row per variant × sample"
+wide = "Wide: one row per variant"
+
+[[input]]
+name   = "include_info"
+label  = "Explode INFO fields"
+source = "field"
+
+[[input]]
+name   = "include_samples"
+label  = "Include sample FORMAT fields"
+source = "field"
+
+[[input]]
+name        = "info_fields"
+label       = "INFO keys to keep"
+placeholder = "DP,AF"
+source      = "field"
+
+[[input]]
+name   = "pass_only"
+label  = "Keep only PASS / unfiltered records"
+source = "field"
+
+[[input]]
+name   = "prefix_info"
+label  = "Prefix INFO columns with INFO_"
+source = "field"
+
+[[input]]
+name        = "missing"
+label       = "Missing-value placeholder"
+placeholder = "."
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "Emit header row"
+source = "field"
+
+[[example]]
+label  = "Long layout with samples"
+params = { input = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA001\tNA002\nchr1\t100\trs1\tA\tG\t50\tPASS\tDP=30;AF=0.5\tGT:DP\t0/1:20\t1/1:10", layout = "long", include_info = "true", include_samples = "true", info_fields = "", pass_only = "false", prefix_info = "false", missing = ".", header = "true" }
+
+[[example]]
+label  = "Wide layout, selected INFO keys"
+params = { input = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tNA001\tNA002\nchr1\t100\trs1\tA\tG\t50\tPASS\tDP=30;AF=0.5\tGT:DP\t0/1:20\t1/1:10", layout = "wide", include_info = "true", include_samples = "true", info_fields = "DP,AF", pass_only = "false", prefix_info = "true", missing = ".", header = "true" }
+
+[[example]]
+label  = "PASS-only site table"
+params = { input = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\nchr1\t100\trs1\tA\tG\t50\tPASS\tDP=30\nchr2\t200\t.\tC\tT\t99\tq10\tDP=12", layout = "long", include_info = "true", include_samples = "false", info_fields = "DP", pass_only = "true", prefix_info = "false", missing = ".", header = "true" }

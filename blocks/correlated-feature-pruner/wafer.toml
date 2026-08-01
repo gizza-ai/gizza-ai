@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "correlated-feature-pruner"
+version = "0.1.0"
+abi = 1
+summary = "Drop collinear numeric columns above a correlation threshold"

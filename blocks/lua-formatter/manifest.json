@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/lua-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-indent and beautify Lua source code",
+  "role": "skill",
+  "tool": {
+    "description": "Re-indent and beautify Lua source code. A forgiving tokenizer rebuilds the source line by line: leading indentation is recomputed from block structure (function/then/do/repeat and (/[/{ open a level; end/until and closers close one), commas get one space after and none before, runs of blank lines collapse, and — optionally — short-string quotes are normalized to a single style. It never wraps long lines, never renames or reorders anything, and never touches the interior of a long string or long comment, so it is safe on any Lua dialect (5.1-5.4, LuaJIT, Luau). indent = spaces per level (1-8, default 2); indent_char = space (default) or tab; quote_style = preserve (default), double, or single. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level (1-8). Ignored when indent_char is 'tab'. Default 2.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "indent_char": {
+          "default": "space",
+          "description": "Indent with spaces or one tab character per level. Default space.",
+          "enum": [
+            "space",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The Lua source code to re-indent and beautify (any dialect: 5.1-5.4, LuaJIT, Luau). Minified or messy input is fine.",
+          "type": "string"
+        },
+        "quote_style": {
+          "default": "preserve",
+          "description": "Normalize short-string quotes: preserve (default, keep each string's own quote), double (\"...\"), or single ('...'). Re-escapes as needed; long strings [[...]] are never touched.",
+          "enum": [
+            "preserve",
+            "double",
+            "single"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

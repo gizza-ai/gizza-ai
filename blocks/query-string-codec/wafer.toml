@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "query-string-codec"
+version = "0.1.0"
+abi = 1
+summary = "Convert between a URL query string and JSON, both directions"

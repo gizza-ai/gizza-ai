@@ -1,0 +1,84 @@
+slug          = "query-result-formatter"
+title         = "Query Result Formatter"
+description   = "Turn raw query result rows — a JSON array, CSV, or TSV — into a clean, aligned Markdown or ASCII table for docs and chat."
+tags          = ["json", "csv", "sql", "table"]
+h1            = "Query Result Formatter"
+hero_subtitle = "Paste rows from a database query or API — JSON, CSV, or TSV — and get a tidy Markdown or ASCII table."
+wasm          = "gizza_ai_query_result_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Table"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Query result rows"
+placeholder = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Linus\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+json = "JSON"
+csv  = "CSV"
+tsv  = "TSV"
+sql  = "SQL CLI table"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+markdown = "Markdown"
+ascii    = "ASCII"
+
+[[input]]
+name        = "header"
+label       = "First row is header"
+source      = "field"
+
+[[input]]
+name        = "align"
+label       = "Alignment"
+source      = "field"
+
+[[input]]
+name        = "null_text"
+label       = "Null / missing text"
+placeholder = "e.g. NULL"
+source      = "field"
+
+[[example]]
+label = "JSON rows"
+[example.params]
+data = "[{\"id\":1,\"name\":\"Ada\",\"active\":true},{\"id\":2,\"name\":\"Linus\",\"active\":false}]"
+input_format = "json"
+format = "markdown"
+
+[[example]]
+label = "TSV → ASCII"
+[example.params]
+data = "region\tusers\nus-east\t120\nus-west\t85"
+input_format = "auto"
+format = "ascii"
+
+[[example]]
+label = "CSV, right-aligned"
+[example.params]
+data = "product,price\nWidget,9.99\nGadget,14.50"
+input_format = "csv"
+format = "markdown"
+align = "right"
+
+[[example]]
+label = "psql output"
+[example.params]
+data = " id |  name\n----+-------\n  1 | Ada\n  2 | Linus\n(2 rows)"
+input_format = "sql"
+format = "markdown"

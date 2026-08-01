@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/video-audio-track-selector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Keep one chosen audio track from a video and drop the rest",
+  "role": "skill",
+  "tool": {
+    "description": "Keep exactly one chosen audio track from a video that has multiple audio tracks (e.g. a multi-language file) and drop the other audio tracks. Pick the track by its 0-based index (track=0 keeps the first audio track). Lossless — the video and the kept audio are stream-copied (no re-encode). Optionally keep subtitle tracks too. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "keep_subtitles": {
+          "default": false,
+          "description": "Also keep any embedded subtitle tracks (stream-copied). Off by default, so only the video plus the one chosen audio track remain.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "set_default": {
+          "default": true,
+          "description": "Flag the kept audio track as the default audio disposition so players auto-select it. On by default; turn off to leave disposition flags untouched.",
+          "type": "boolean"
+        },
+        "track": {
+          "default": 0,
+          "description": "0-based index of the audio track to KEEP: 0 = first audio track, 1 = second, 2 = third, and so on. Every other audio track is removed. Fails if the video has no audio track at that index (e.g. track=1 on a single-audio file).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

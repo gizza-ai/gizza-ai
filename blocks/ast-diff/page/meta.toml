@@ -1,0 +1,71 @@
+slug          = "ast-diff"
+title         = "Rust AST Diff"
+description   = "Compare two Rust source snippets structurally. The tool parses both files, canonicalizes their ASTs, and ignores formatting, whitespace, and comments."
+tags          = ["ast diff", "rust diff", "structural diff", "semantic diff", "ignore formatting", "code diff", "rust ast"]
+h1            = "Rust AST Diff"
+hero_subtitle = "Paste two Rust sources and compare the program structure, not the whitespace. Reformatting and comments disappear; compiler-visible changes remain. Runs locally in your browser."
+wasm          = "gizza_ai_ast_diff_web"
+export        = "run"
+live          = false
+output_label  = "Structural diff"
+format        = "text"
+
+[[input]]
+name        = "a"
+label       = "Source A (before)"
+placeholder = '''fn add(a: i32, b: i32) -> i32 {
+    a + b
+}'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "b"
+label       = "Source B (after)"
+placeholder = '''fn add(left: i32, right: i32) -> i32 {
+    left + right
+}'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Output mode"
+source      = "field"
+
+[[input]]
+name        = "context"
+label       = "Context lines (0-100)"
+placeholder = "3"
+source      = "field"
+
+[[example]]
+label  = "Ignore formatting-only changes"
+[example.params]
+a = '''fn add(a:i32,b:i32)->i32{a+b}'''
+b = '''fn add(a: i32, b: i32) -> i32 {
+    // same program, different layout
+    a + b
+}'''
+mode = "summary"
+context = "3"
+
+[[example]]
+label  = "Show renamed function argument"
+[example.params]
+a = '''fn add(a: i32, b: i32) -> i32 {
+    a + b
+}'''
+b = '''fn add(left: i32, right: i32) -> i32 {
+    left + right
+}'''
+mode = "unified"
+context = "1"
+
+[[example]]
+label  = "Canonicalize source B"
+[example.params]
+a = '''fn unused() {}'''
+b = '''fn add(a:i32,b:i32)->i32{a+b}'''
+mode = "canonical-b"
+context = "3"

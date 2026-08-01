@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "string-literal-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract every string literal from pasted source code, skipping comments"

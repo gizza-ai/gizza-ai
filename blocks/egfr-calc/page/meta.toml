@@ -1,0 +1,79 @@
+slug          = "egfr-calc"
+title         = "eGFR Calculator — CKD-EPI 2021 Race-Free Kidney Function Estimate"
+description   = "Estimate your eGFR (kidney filtration rate) from serum creatinine, age and sex with the race-free CKD-EPI 2021 equation. mg/dL or µmol/L, KDIGO stage. In your browser."
+tags          = ["eGFR calculator", "CKD-EPI 2021", "kidney function", "glomerular filtration rate", "creatinine calculator", "CKD stage", "race-free eGFR", "GFR category", "µmol/L to mg/dL", "KDIGO stage"]
+h1            = "eGFR Calculator"
+hero_subtitle = "Estimate your glomerular filtration rate (eGFR) from serum creatinine, age and sex using the race-free CKD-EPI 2021 equation — with mg/dL or µmol/L input and the matching KDIGO GFR category (G1–G5). Runs locally in your browser. Informational only, not a diagnosis."
+wasm          = "gizza_ai_egfr_calc_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "creatinine"
+label       = "Serum creatinine"
+placeholder = "1.0"
+default     = "1.0"
+source      = "field"
+
+[[input]]
+name        = "creatinine_unit"
+label       = "Creatinine unit"
+source      = "field"
+default     = "mg/dL"
+[input.labels]
+"mg/dL"  = "mg/dL (US)"
+"µmol/L" = "µmol/L (SI)"
+
+[[input]]
+name        = "age"
+label       = "Age (years)"
+placeholder = "50"
+default     = "50"
+source      = "field"
+
+[[input]]
+name        = "sex"
+label       = "Sex"
+source      = "field"
+default     = "male"
+[input.labels]
+male   = "Male"
+female = "Female"
+
+[[input]]
+name        = "equation"
+label       = "Equation"
+source      = "field"
+default     = "ckd_epi_2021"
+[input.labels]
+ckd_epi_2021 = "CKD-EPI 2021 (race-free, recommended)"
+ckd_epi_2009 = "CKD-EPI 2009 (race-free form, for comparison)"
+
+[[example]]
+label = "Default — 50 y male, 1.0 mg/dL"
+[example.params]
+creatinine = "1.0"
+creatinine_unit = "mg/dL"
+age = "50"
+sex = "male"
+equation = "ckd_epi_2021"
+
+[[example]]
+label = "60 y female, 1.2 mg/dL (G3a)"
+[example.params]
+creatinine = "1.2"
+creatinine_unit = "mg/dL"
+age = "60"
+sex = "female"
+equation = "ckd_epi_2021"
+
+[[example]]
+label = "SI units — 106 µmol/L, 60 y female"
+[example.params]
+creatinine = "106.1"
+creatinine_unit = "µmol/L"
+age = "60"
+sex = "female"
+equation = "ckd_epi_2021"

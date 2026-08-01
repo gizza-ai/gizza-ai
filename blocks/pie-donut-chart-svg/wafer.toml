@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pie-donut-chart-svg"
+version = "0.1.0"
+abi = 1
+summary = "Turn labeled values into a pie or donut chart as a standalone SVG"

@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/mft-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an NTFS $MFT into records with $STANDARD_INFORMATION and $FILE_NAME timestamps",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an NTFS Master File Table ($MFT) file into structured JSON for filesystem-timeline / DFIR work. Decodes the 1024-byte MFT records into a flat list — each with its MFT entry (record) number, sequence number, in-use vs deleted (unallocated) state, file-vs-directory flag, reconstructed full path, parent entry number, logical size, a timestomp_suspect flag, and BOTH timestamp sets NTFS keeps per record: $STANDARD_INFORMATION and $FILE_NAME, each with created, modified, mft_modified, and accessed instants (the MACB times). Filter by path/name substring, files-only or dirs-only (include), active-only or deleted-only (status), or only timestomp suspects (SI created before FN created); cap results with max_records; or set summary=true for aggregate counts (files, directories, active, deleted, timestomp suspects) plus the file-system time span instead of the records. Provide the $MFT as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally, pure Rust.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "include": {
+          "default": "all",
+          "description": "Which record kinds to return: \"all\" (default), \"files\" only, or \"dirs\" (directories) only.",
+          "enum": [
+            "all",
+            "files",
+            "dirs"
+          ],
+          "type": "string"
+        },
+        "max_records": {
+          "default": 200,
+          "description": "Maximum number of records to return, in MFT entry order (0 = all). Default 200 keeps output bounded; the response's `matched_records`/`truncated` tell you if more matched.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "only_timestomp": {
+          "default": false,
+          "description": "Return only timestomp suspects: records whose $STANDARD_INFORMATION creation time is earlier than the $FILE_NAME creation time (a classic anti-forensic backdating tell). Default false.",
+          "type": "boolean"
+        },
+        "path_contains": {
+          "description": "Only return records whose file name or reconstructed full path contains this substring, case-insensitive, e.g. \"temp\" or \".exe\". Empty (default) returns every record.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "status": {
+          "default": "all",
+          "description": "Filter by allocation state: \"all\" (default), \"active\" (in-use records only), or \"deleted\" (unallocated records only — recoverable deleted-file entries).",
+          "enum": [
+            "all",
+            "active",
+            "deleted"
+          ],
+          "type": "string"
+        },
+        "summary": {
+          "default": false,
+          "description": "Return aggregate counts instead of the records: files, directories, active, deleted, timestomp suspects, plus the earliest/latest timestamp over the matched records. Great for triaging a large $MFT before drilling in.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

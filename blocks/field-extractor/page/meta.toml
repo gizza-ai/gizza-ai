@@ -1,0 +1,76 @@
+slug          = "field-extractor"
+title         = "Field Extractor — Cut Columns & Character Ranges from Text"
+description   = "Extract columns or character ranges from every line of text. 1-based selectors with negative indices, ranges, reordering, custom delimiters. A browser cut/awk, no upload."
+tags          = ["field extractor", "extract column from text", "cut columns", "awk online", "text column extractor", "delimited column extractor", "character range extract", "negative column index", "reorder columns", "split text columns"]
+h1            = "Field Extractor"
+hero_subtitle = "Pull specific columns or character ranges out of every line — a friendly browser cut/awk. Use 1-based selectors with negative indices (-1 = last), ranges (2-4), open-ended ranges (3-), and reordering (3,1,2)."
+wasm          = "gizza_ai_field_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted text"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Input text"
+placeholder = "alice 30 engineer\nbob 25 designer\ncarol 41 writer"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+[input.labels]
+fields = "Fields (columns)"
+chars = "Characters"
+
+[[input]]
+name        = "selectors"
+label       = "Selectors"
+placeholder = "1,3  or  2-4  or  -1"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (blank = whitespace)"
+placeholder = "blank, comma, |, ::, \\t"
+source      = "field"
+
+[[input]]
+name        = "output_delimiter"
+label       = "Output delimiter (blank = same)"
+placeholder = "blank, comma, \\t, newline"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim each field"
+source      = "field"
+
+[[input]]
+name        = "skip_empty_lines"
+label       = "Skip empty lines"
+source      = "field"
+
+[[input]]
+name        = "skip_header"
+label       = "Skip header row"
+source      = "field"
+
+[[example]]
+label  = "Name + role (whitespace)"
+params = { text = "alice 30 engineer\nbob 25 designer\ncarol 41 writer", mode = "fields", selectors = "1,3" }
+
+[[example]]
+label  = "Last column of a CSV"
+params = { text = "id,name,email\n1,Ada,ada@x.io\n2,Alan,alan@x.io", mode = "fields", selectors = "-1", delimiter = ",", skip_header = "true" }
+
+[[example]]
+label  = "Reorder + tab output"
+params = { text = "Ada,Lovelace,36\nAlan,Turing,41", mode = "fields", selectors = "2,1", delimiter = ",", output_delimiter = "\\t" }
+
+[[example]]
+label  = "First 3 characters"
+params = { text = "PROD-001\nPROD-002\nTEST-999", mode = "chars", selectors = "1-4" }

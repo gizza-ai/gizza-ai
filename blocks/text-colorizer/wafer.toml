@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-colorizer"
+version = "0.1.0"
+abi = 1
+summary = "Highlight text with user-defined regex color rules, as ANSI or HTML"

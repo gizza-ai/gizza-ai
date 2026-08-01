@@ -1,0 +1,256 @@
+slug          = "rent-vs-buy"
+title         = "Rent vs Buy Calculator"
+description   = "Should you rent or buy a home? Run the invest-the-difference net-worth race over your time horizon and get a break-even year and a buy/rent verdict."
+tags          = ["rent vs buy calculator", "should i rent or buy", "rent vs buy", "break even year", "buy vs rent", "home buying calculator", "net worth comparison", "invest the difference", "cost of buying a home", "time horizon"]
+h1            = "Rent vs Buy Calculator"
+hero_subtitle = "Compare renting against buying the way credible calculators do — an invest-the-difference net-worth race over the years you'll stay. Enter a home price, rent, and your assumptions to get the break-even year, a buy-or-rent verdict, and a year-by-year wealth comparison. Runs locally in your browser."
+wasm          = "gizza_ai_rent_vs_buy_web"
+export        = "run"
+live          = false
+output_label  = "Rent vs buy breakdown"
+format        = "text"
+
+[[input]]
+name        = "home_price"
+label       = "Home price"
+placeholder = "400000"
+default     = "400000"
+source      = "field"
+
+[[input]]
+name        = "down_payment_percent"
+label       = "Down payment (%)"
+placeholder = "20"
+default     = "20"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+[input.labels]
+low  = "0%"
+high = "100%"
+
+[[input]]
+name        = "mortgage_rate_percent"
+label       = "Mortgage rate (%)"
+placeholder = "6.5"
+default     = "6.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "15"
+step        = "0.1"
+[input.labels]
+low  = "0%"
+high = "15%"
+
+[[input]]
+name        = "loan_term_years"
+label       = "Loan term (years)"
+placeholder = "30"
+default     = "30"
+source      = "field"
+
+[[input]]
+name        = "monthly_rent"
+label       = "Monthly rent"
+placeholder = "2000"
+default     = "2000"
+source      = "field"
+
+[[input]]
+name        = "years"
+label       = "Years you'll stay"
+placeholder = "10"
+default     = "10"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "40"
+step        = "1"
+[input.labels]
+low  = "1 yr"
+high = "40 yrs"
+
+[[input]]
+name        = "home_appreciation_percent"
+label       = "Home appreciation (%/yr)"
+placeholder = "3"
+default     = "3"
+source      = "field"
+kind        = "slider"
+min         = "-5"
+max         = "15"
+step        = "0.1"
+[input.labels]
+low  = "-5%"
+high = "15%"
+
+[[input]]
+name        = "rent_growth_percent"
+label       = "Rent growth (%/yr)"
+placeholder = "3"
+default     = "3"
+source      = "field"
+kind        = "slider"
+min         = "-5"
+max         = "15"
+step        = "0.1"
+[input.labels]
+low  = "-5%"
+high = "15%"
+
+[[input]]
+name        = "investment_return_percent"
+label       = "Investment return (%/yr)"
+placeholder = "5"
+default     = "5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "15"
+step        = "0.1"
+[input.labels]
+low  = "0%"
+high = "15%"
+
+[[input]]
+name        = "property_tax_percent"
+label       = "Property tax (%/yr of value)"
+placeholder = "1.1"
+default     = "1.1"
+source      = "field"
+
+[[input]]
+name        = "home_insurance_percent"
+label       = "Home insurance (%/yr of value)"
+placeholder = "0.5"
+default     = "0.5"
+source      = "field"
+
+[[input]]
+name        = "maintenance_percent"
+label       = "Maintenance (%/yr of value)"
+placeholder = "1"
+default     = "1"
+source      = "field"
+
+[[input]]
+name        = "hoa_monthly"
+label       = "HOA / condo dues (monthly)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "buying_closing_percent"
+label       = "Buying closing costs (%)"
+placeholder = "3"
+default     = "3"
+source      = "field"
+
+[[input]]
+name        = "selling_cost_percent"
+label       = "Selling costs (%)"
+placeholder = "6"
+default     = "6"
+source      = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+default     = "$"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[example]]
+label = "10-year default"
+[example.params]
+home_price = "400000"
+down_payment_percent = "20"
+mortgage_rate_percent = "6.5"
+loan_term_years = "30"
+monthly_rent = "2000"
+years = "10"
+home_appreciation_percent = "3"
+rent_growth_percent = "3"
+investment_return_percent = "5"
+property_tax_percent = "1.1"
+home_insurance_percent = "0.5"
+maintenance_percent = "1"
+hoa_monthly = "0"
+buying_closing_percent = "3"
+selling_cost_percent = "6"
+currency = "$"
+decimals = "0"
+
+[[example]]
+label = "Short 3-year stay (renting wins)"
+[example.params]
+home_price = "400000"
+down_payment_percent = "20"
+mortgage_rate_percent = "6.5"
+loan_term_years = "30"
+monthly_rent = "2000"
+years = "3"
+home_appreciation_percent = "3"
+rent_growth_percent = "3"
+investment_return_percent = "5"
+property_tax_percent = "1.1"
+home_insurance_percent = "0.5"
+maintenance_percent = "1"
+hoa_monthly = "0"
+buying_closing_percent = "3"
+selling_cost_percent = "6"
+currency = "$"
+decimals = "0"
+
+[[example]]
+label = "Long 20-year stay (buying wins)"
+[example.params]
+home_price = "400000"
+down_payment_percent = "20"
+mortgage_rate_percent = "6.5"
+loan_term_years = "30"
+monthly_rent = "2000"
+years = "20"
+home_appreciation_percent = "3"
+rent_growth_percent = "3"
+investment_return_percent = "5"
+property_tax_percent = "1.1"
+home_insurance_percent = "0.5"
+maintenance_percent = "1"
+hoa_monthly = "0"
+buying_closing_percent = "3"
+selling_cost_percent = "6"
+currency = "$"
+decimals = "0"
+
+[[example]]
+label = "High 12% returns favour renting"
+[example.params]
+home_price = "400000"
+down_payment_percent = "20"
+mortgage_rate_percent = "6.5"
+loan_term_years = "30"
+monthly_rent = "2000"
+years = "15"
+home_appreciation_percent = "3"
+rent_growth_percent = "3"
+investment_return_percent = "12"
+property_tax_percent = "1.1"
+home_insurance_percent = "0.5"
+maintenance_percent = "1"
+hoa_monthly = "0"
+buying_closing_percent = "3"
+selling_cost_percent = "6"
+currency = "$"
+decimals = "0"

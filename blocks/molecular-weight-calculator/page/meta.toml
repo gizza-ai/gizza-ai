@@ -1,0 +1,47 @@
+slug          = "molecular-weight-calculator"
+title         = "Molecular Weight Calculator"
+description   = "Compute molar mass, monoisotopic mass, atom counts, and elemental percent composition from a chemical formula. Supports groups and hydrate dot notation."
+tags          = ["chemistry", "molecular weight", "molar mass", "formula", "composition"]
+h1            = "Molecular Weight Calculator"
+hero_subtitle = "Enter a chemical formula and get molar mass, exact mass, Hill notation, atom counts, and per-element composition."
+wasm          = "gizza_ai_molecular_weight_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Molecular analysis"
+format        = "text"
+
+[[input]]
+name        = "formula"
+label       = "Formula"
+placeholder = "C8H10N4O2"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[example]]
+label  = "Water"
+params = { formula = "H2O", decimals = "4" }
+
+[[example]]
+label  = "Glucose"
+params = { formula = "C6H12O6", decimals = "4" }
+
+[[example]]
+label  = "Caffeine"
+params = { formula = "C8H10N4O2", decimals = "4" }
+
+[[example]]
+label  = "Calcium hydroxide"
+params = { formula = "Ca(OH)2", decimals = "4" }
+
+[[example]]
+label  = "Copper sulfate hydrate"
+params = { formula = "CuSO4·5H2O", decimals = "4" }

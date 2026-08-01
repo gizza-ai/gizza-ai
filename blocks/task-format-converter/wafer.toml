@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "task-format-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert a task list between todo.txt, Markdown checklist, JSON, and CSV"

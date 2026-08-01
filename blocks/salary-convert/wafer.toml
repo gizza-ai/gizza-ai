@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "salary-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert pay between hourly, daily, weekly, biweekly, monthly and annual"

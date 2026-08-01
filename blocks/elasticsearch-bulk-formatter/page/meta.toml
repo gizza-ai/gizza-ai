@@ -1,0 +1,73 @@
+slug          = "elasticsearch-bulk-formatter"
+title         = "Elasticsearch Bulk Formatter — JSON array to _bulk NDJSON"
+description   = "Build a compact Elasticsearch _bulk API body from a JSON array. Choose index/create/update/delete, _index, _id field, and doc_as_upsert locally."
+tags          = ["elasticsearch", "opensearch", "bulk api", "ndjson", "json", "developer", "search"]
+h1            = "Elasticsearch Bulk Formatter"
+hero_subtitle = "Turn a JSON array of documents into the newline-delimited body Elasticsearch and OpenSearch expect for the _bulk API — action metadata lines, optional source lines, trailing newline included."
+wasm          = "gizza_ai_elasticsearch_bulk_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Bulk NDJSON"
+format        = "text"
+
+[[input]]
+name        = "documents"
+label       = "Documents JSON array"
+placeholder = "[{\"id\":\"1\",\"title\":\"hello\"},{\"id\":\"2\",\"title\":\"world\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "action"
+label  = "Bulk action"
+source = "field"
+
+[input.labels]
+index  = "index — create or replace"
+create = "create — fail if exists"
+update = "update — partial doc"
+delete = "delete — metadata only"
+
+[[input]]
+name        = "index"
+label       = "Target _index"
+placeholder = "my-index"
+source      = "field"
+
+[[input]]
+name        = "id_field"
+label       = "Document ID field"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name   = "doc_as_upsert"
+label  = "For update: add doc_as_upsert"
+source = "field"
+
+[[example]]
+label = "Index two documents"
+[example.params]
+documents = "[{\"id\":\"1\",\"title\":\"hello\"},{\"id\":\"2\",\"title\":\"world\"}]"
+action = "index"
+index = "my-index"
+id_field = "id"
+doc_as_upsert = "false"
+
+[[example]]
+label = "Update with upsert"
+[example.params]
+documents = "[{\"id\":\"7\",\"status\":\"done\"}]"
+action = "update"
+index = "tasks"
+id_field = "id"
+doc_as_upsert = "true"
+
+[[example]]
+label = "Delete by id"
+[example.params]
+documents = "[{\"id\":\"3\"},{\"id\":\"4\"}]"
+action = "delete"
+index = "docs"
+id_field = "id"
+doc_as_upsert = "false"

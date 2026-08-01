@@ -1,0 +1,91 @@
+{
+  "name": "gizza-ai/tdee-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Estimate BMR and total daily energy expenditure from age, sex, weight, height and activity.",
+  "role": "skill",
+  "tool": {
+    "description": "Estimate Basal Metabolic Rate (BMR) and Total Daily Energy Expenditure (TDEE). Pass age, sex (male/female), weight and height (units=metric for kg/cm or imperial for lb/inches), activity (sedentary/light/moderate/very_active/extra_active), and optionally formula (mifflin_st_jeor default, harris_benedict, or katch_mcardle with body_fat) and energy_unit (calories or kilojoules). Every parameter is optional with a sensible default. Returns bmr, tdee, the activity multiplier, bmi + bmi_category, calorie goals for cutting/maintaining/bulking (goals), tdee at all five activity levels (tdee_by_activity), and a plain-language summary. Estimates for planning, not medical advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "activity": {
+          "default": "moderate",
+          "description": "Activity level for the TDEE multiplier: sedentary (×1.2, little/no exercise), light (×1.375, 1–3 days/wk), moderate (×1.55, 3–5 days/wk), very_active (×1.725, 6–7 days/wk), extra_active (×1.9, hard daily training or physical job). Default moderate.",
+          "enum": [
+            "sedentary",
+            "light",
+            "moderate",
+            "very_active",
+            "extra_active"
+          ],
+          "type": "string"
+        },
+        "age": {
+          "default": 30.0,
+          "description": "Age in whole years, e.g. 30. Default 30 (range 1–120).",
+          "maximum": 120,
+          "minimum": 1,
+          "type": "number"
+        },
+        "body_fat": {
+          "default": 20.0,
+          "description": "Body-fat percentage (0–100), only used by the katch_mcardle formula. Default 20.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "energy_unit": {
+          "default": "calories",
+          "description": "Unit for all returned energy figures: calories (kcal) or kilojoules (1 kcal = 4.184 kJ). Default calories.",
+          "enum": [
+            "calories",
+            "kilojoules"
+          ],
+          "type": "string"
+        },
+        "formula": {
+          "default": "mifflin_st_jeor",
+          "description": "BMR equation: mifflin_st_jeor (default, most accurate for modern populations), harris_benedict (revised 1984), or katch_mcardle (uses lean body mass from body_fat, ignores age/sex/height).",
+          "enum": [
+            "mifflin_st_jeor",
+            "harris_benedict",
+            "katch_mcardle"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "default": 175.0,
+          "description": "Height, in cm when units=metric or total inches when units=imperial (e.g. 5'10\" = 70). Default 175.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "sex": {
+          "default": "male",
+          "description": "Biological sex used by the Mifflin-St Jeor and Harris-Benedict formulas: male or female. Default male. Ignored by katch_mcardle.",
+          "enum": [
+            "male",
+            "female"
+          ],
+          "type": "string"
+        },
+        "units": {
+          "default": "metric",
+          "description": "Unit system for weight and height: metric (kg/cm) or imperial (lb/inches). Default metric.",
+          "enum": [
+            "metric",
+            "imperial"
+          ],
+          "type": "string"
+        },
+        "weight": {
+          "default": 70.0,
+          "description": "Body weight, in kg when units=metric or lb when units=imperial. Default 70.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

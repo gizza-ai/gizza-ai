@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-entity-encoder"
+version = "0.1.0"
+abi = 1
+summary = "Encode text into HTML character entities."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wrap-lines-in-quotes"
+version = "0.1.0"
+abi = 1
+summary = "Wrap each line of text in quotes or brackets"

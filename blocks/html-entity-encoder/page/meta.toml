@@ -1,0 +1,59 @@
+slug          = "html-entity-encoder"
+title         = "HTML Entity Encoder"
+description   = "Encode text into HTML character entities — pick a scope (minimal, all non-ASCII, or every named character) and a format (named, decimal, or hex). Runs in your browser."
+tags          = ["html entity encoder", "html encode", "html escape", "encode special characters", "named entities", "numeric entities", "html character reference", "escape html", "ampersand encode", "xss escape"]
+h1            = "HTML Entity Encoder"
+hero_subtitle = "Turn <, >, &, quotes, accents, and symbols into HTML character entities. Choose which characters to encode and whether to output named, decimal, or hex references — all in your browser, no server, no sign-up."
+wasm          = "gizza_ai_html_entity_encoder_web"
+export        = "run"
+live          = false
+output_label  = "Encoded HTML"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to encode"
+placeholder = "<b>Tom & Jerry's café</b> — €5"
+source      = "field"
+multiline   = true
+
+# `scope` and `format` render as <select>s — the control type + option list are
+# derived from the descriptor's schema (manifest.json), so they are NOT
+# duplicated here.
+[[input]]
+name        = "scope"
+label       = "Encode which characters"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Entity format"
+source      = "field"
+
+[[example]]
+label = "Escape HTML markup (minimal)"
+[example.params]
+text   = "<a href=\"x\">Tom & Jerry's</a>"
+scope  = "minimal"
+format = "named"
+
+[[example]]
+label = "All non-ASCII → named"
+[example.params]
+text   = "Café © — €5 → naïve"
+scope  = "non-ascii"
+format = "named"
+
+[[example]]
+label = "Non-ASCII → decimal"
+[example.params]
+text   = "Café © — €5"
+scope  = "non-ascii"
+format = "decimal"
+
+[[example]]
+label = "Non-ASCII → hex"
+[example.params]
+text   = "Café © €5"
+scope  = "non-ascii"
+format = "hex"

@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/portfolio-allocation",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Break holdings into chart-ready allocation percentages.",
+  "role": "skill",
+  "tool": {
+    "description": "Break a pasted portfolio holdings list into allocation percentages by asset class, holding, sector, or account. Accepts CSV or tab-separated rows: label, value, optional asset class, optional sector, optional account. Values may be currency amounts, thousands-separated numbers, or shares @ price. Returns a text table with value, percent, proportional bars, holding counts, and a concentration score.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol or prefix to display before values, such as $, €, £, USD, or blank for no prefix.",
+          "type": "string"
+        },
+        "group_by": {
+          "default": "asset",
+          "description": "Which dimension to allocate by: asset class (default), individual holding, sector, or account.",
+          "enum": [
+            "asset",
+            "holding",
+            "sector",
+            "account"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Holdings pasted as CSV or tab-separated rows: label, value, optional asset class, optional sector, optional account. A header row is allowed. Values may be currency amounts, thousands-separated numbers, or shares @ price.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "value",
+          "description": "Sort slices by descending value (default) or alphabetically by label. When top_n is used, the largest slices are kept before any label sort.",
+          "enum": [
+            "value",
+            "label"
+          ],
+          "type": "string"
+        },
+        "top_n": {
+          "default": 0,
+          "description": "Keep only the largest N slices and fold the rest into Other. Use 0 (default) to show every slice.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

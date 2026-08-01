@@ -1,0 +1,59 @@
+slug          = "simplenote-export-to-markdown"
+title         = "Simplenote Export to Markdown — Convert simplenote.json to .md Files"
+description   = "Convert a Simplenote JSON export into clean Markdown files with titles, YAML frontmatter or #hashtags, and dates. Free, private, in your browser — no upload."
+tags          = ["simplenote", "simplenote export", "json to markdown", "notes to markdown", "obsidian import", "yaml frontmatter", "note converter", "markdown export", "evernote json"]
+h1            = "Simplenote Export to Markdown"
+hero_subtitle = "Paste your Simplenote JSON export and get one clean Markdown file per note — with titles, tags as YAML frontmatter or #hashtags, and dates. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_simplenote_export_to_markdown_web"
+export        = "run"
+live          = false
+output_label  = "Markdown bundle"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Simplenote export JSON"
+placeholder = "{ \"activeNotes\": [ { \"id\": \"abc-123\", \"content\": \"Grocery List\\nMilk\\nEggs\", \"tags\": [\"home\"], \"creationDate\": \"2026-01-15T09:30:00.000Z\" } ] }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "filename_style"
+label  = "Filename style"
+source = "field"
+
+[input.labels]
+"date-title" = "Date + title — 2026-01-15-grocery-list.md"
+title        = "Title only — grocery-list.md"
+id           = "Note id — abc-123.md"
+
+[[input]]
+name   = "metadata"
+label  = "Metadata"
+source = "field"
+
+[input.labels]
+frontmatter = "YAML frontmatter (title, dates, tags)"
+inline      = "Inline #hashtags at the bottom"
+
+[[input]]
+name   = "include_trashed"
+label  = "Include trashed notes"
+source = "field"
+
+[[example]]
+label = "Simplenote export"
+[example.params]
+input = "{ \"activeNotes\": [ { \"id\": \"abc-123\", \"content\": \"Grocery List\\nMilk\\nEggs\", \"tags\": [\"home\", \"shopping list\"], \"creationDate\": \"2026-01-15T09:30:00.000Z\", \"lastModified\": \"2026-01-16T10:00:00.000Z\", \"pinned\": true } ] }"
+filename_style = "date-title"
+metadata = "frontmatter"
+include_trashed = "false"
+
+[[example]]
+label = "Tags as #hashtags"
+[example.params]
+input = "{ \"activeNotes\": [ { \"id\": \"n2\", \"content\": \"Trip planning\\nBook flights\", \"tags\": [\"travel\", \"to do\"], \"creationDate\": \"2026-02-02T08:00:00.000Z\" } ] }"
+filename_style = "title"
+metadata = "inline"
+include_trashed = "false"

@@ -1,0 +1,53 @@
+slug          = "address-parse"
+title         = "Parse Postal Addresses Online — Street, City, Region, Postcode"
+description   = "Parse a freeform postal address into street, unit, city, region, postcode, and country fields. Local, rule-based, and browser-only."
+tags          = ["address parser", "postal address parser", "parse address", "split address", "street city postcode", "zip code parser", "structured address", "freeform address", "address normalization", "geocoding prep"]
+h1            = "Parse a Postal Address"
+hero_subtitle = "Paste a freeform address and split it into structured fields — house number, street, unit, city, region, postcode, and country. Runs locally in your browser."
+wasm          = "gizza_ai_address_parse_web"
+export        = "run"
+live          = false
+output_label  = "Parsed address"
+format        = "text"
+
+[[input]]
+name        = "address"
+label       = "Address"
+placeholder = "123 Main St Apt 4B, Springfield, IL 62704, USA"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "country"
+label       = "Country hint"
+source      = "field"
+[input.labels]
+auto = "Auto-detect"
+US = "United States"
+GB = "United Kingdom"
+CA = "Canada"
+AU = "Australia"
+DE = "Germany"
+FR = "France"
+IN = "India"
+NL = "Netherlands"
+ES = "Spain"
+IT = "Italy"
+BR = "Brazil"
+JP = "Japan"
+
+[[example]]
+label  = "US address"
+params = { address = "123 Main St Apt 4B, Springfield, IL 62704, USA" }
+
+[[example]]
+label  = "UK address"
+params = { address = "221B Baker Street, London, NW1 6XE, United Kingdom" }
+
+[[example]]
+label  = "Canadian address"
+params = { address = "100 Queen St W, Toronto, ON M5H 2N2, Canada" }
+
+[[example]]
+label  = "Country hint"
+params = { address = "350 Fifth Avenue, New York, NY 10118", country = "US" }

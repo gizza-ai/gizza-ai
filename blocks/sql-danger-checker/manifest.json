@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/sql-danger-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan raw SQL for destructive statements (DROP, TRUNCATE, WHERE-less UPDATE/DELETE) before you run them",
+  "role": "skill",
+  "tool": {
+    "description": "Statically scan raw SQL for destructive statements before you execute them. Flags DROP DATABASE/SCHEMA/TABLE and TRUNCATE (critical); DROP of other objects and ALTER … DROP (high); other ALTER schema changes (medium); and UPDATE/DELETE with no WHERE clause — or a trivially-true one like WHERE 1=1 — which touch every row (high). It splits multiple statements on ; and is comment- and string-aware: a DROP inside a -- / /* */ comment or a 'string literal' is ignored, and a ; inside a string does not split a statement. Each finding reports the statement number, line, severity, a rule id, and the offending statement. Params: sql (the statements), dialect (generic|mysql|postgresql|sqlite|tsql), min_severity (all|medium|high|critical), strict (true also flags guarded DELETE/UPDATE for confirmation), allow (comma list of drop|truncate|alter|delete|update to suppress), format (text|json). It never connects to a database or runs anything — a heuristic pre-flight check, not a guarantee. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow": {
+          "default": "",
+          "description": "Comma-separated categories to suppress when you know they are intentional: drop, truncate, alter, delete, update. Empty (default) reports all.",
+          "type": "string"
+        },
+        "dialect": {
+          "default": "generic",
+          "description": "SQL dialect. generic (default) uses standard lexing; mysql also treats # as a line comment. All dialects share the same destructive-statement rules.",
+          "enum": [
+            "generic",
+            "mysql",
+            "postgresql",
+            "sqlite",
+            "tsql"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: text (default) a readable report, or json (structured findings).",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Lowest severity to report: all (default) shows everything, or medium/high/critical to raise the floor. critical = DROP TABLE/DATABASE, TRUNCATE.",
+          "enum": [
+            "all",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "sql": {
+          "description": "The raw SQL to scan (one or more statements separated by ;). Not executed.",
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "When true, also flag guarded DELETE/UPDATE (they DO have a WHERE) as a low 'confirm before running' finding, so every destructive statement is surfaced.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sql"
+      ],
+      "type": "object"
+    }
+  }
+}

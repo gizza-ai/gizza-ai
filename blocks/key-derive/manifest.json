@@ -1,0 +1,151 @@
+{
+  "name": "gizza-ai/key-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive a key of any length via PBKDF2, scrypt, Argon2, or HKDF",
+  "role": "skill",
+  "tool": {
+    "description": "One unified key-derivation-function selector: derive a raw key of a chosen byte length from a passphrase or seed via PBKDF2, scrypt, Argon2id/i/d, or HKDF (RFC 5869). Pick `algorithm` (default pbkdf2) and its own parameters — pbkdf2: hash + iterations; scrypt: n/r/p; argon2: memory_kib/time_cost/parallelism + argon2_variant (returns RAW chosen-length key material, not a PHC hash); hkdf: hash + info (for high-entropy seeds/keys, not passwords). `secret` and `salt` accept utf8/hex/base64 encodings; output is hex (default) or base64. Deterministic and runs locally — the secret never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "pbkdf2",
+          "description": "Key-derivation function: pbkdf2 (default), scrypt, argon2 (raw Argon2id/i/d key material), or hkdf (RFC 5869, for high-entropy seeds/keys — not passwords).",
+          "enum": [
+            "pbkdf2",
+            "scrypt",
+            "argon2",
+            "hkdf"
+          ],
+          "type": "string"
+        },
+        "argon2_variant": {
+          "default": "argon2id",
+          "description": "Argon2 variant (argon2 only; default argon2id).",
+          "enum": [
+            "argon2id",
+            "argon2i",
+            "argon2d"
+          ],
+          "type": "string"
+        },
+        "encoding": {
+          "default": "hex",
+          "description": "Output encoding of the derived key (default hex).",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "hash": {
+          "default": "sha256",
+          "description": "Underlying hash for pbkdf2 (sha1/256/384/512) and hkdf (default sha256).",
+          "enum": [
+            "sha1",
+            "sha256",
+            "sha384",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "info": {
+          "description": "HKDF context/application info string (hkdf only; optional).",
+          "type": "string"
+        },
+        "info_encoding": {
+          "default": "utf8",
+          "description": "How `info` is encoded (hkdf only; default utf8).",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "utf8",
+          "description": "How `secret` is encoded (default utf8).",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "iterations": {
+          "default": 100000,
+          "description": "PBKDF2 iteration count (pbkdf2 only; default 100000).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "length": {
+          "default": 32,
+          "description": "Output key length in bytes (default 32).",
+          "maximum": 1024,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "memory_kib": {
+          "default": 19456,
+          "description": "Argon2 memory cost in KiB (argon2 only; default 19456 = 19 MiB).",
+          "minimum": 8,
+          "type": "integer"
+        },
+        "n": {
+          "default": 16384,
+          "description": "scrypt CPU/memory cost N, a power of two > 1 (scrypt only; default 16384).",
+          "minimum": 2,
+          "type": "integer"
+        },
+        "p": {
+          "default": 1,
+          "description": "scrypt parallelization p (scrypt only; default 1).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "parallelism": {
+          "default": 1,
+          "description": "Argon2 parallelism / lanes (argon2 only; default 1).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "r": {
+          "default": 8,
+          "description": "scrypt block size r (scrypt only; default 8).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "salt": {
+          "description": "Salt (recommended; required for argon2, min 8 bytes). HKDF treats an empty salt as all-zeros per RFC 5869.",
+          "type": "string"
+        },
+        "salt_encoding": {
+          "default": "utf8",
+          "description": "How `salt` is encoded (default utf8).",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "secret": {
+          "description": "The passphrase or input key material to derive from.",
+          "type": "string"
+        },
+        "time_cost": {
+          "default": 2,
+          "description": "Argon2 time (iteration) cost (argon2 only; default 2).",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "secret"
+      ],
+      "type": "object"
+    }
+  }
+}

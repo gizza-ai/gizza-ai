@@ -1,0 +1,70 @@
+slug          = "deadline-countdown"
+title         = "Deadline Countdown"
+description   = "Compute time remaining or overdue for dated tasks, label urgency, and sort the list by deadline in table, Markdown, JSON, or CSV format."
+tags          = ["tasks", "dates", "planning", "productivity", "deadline"]
+h1            = "Deadline Countdown"
+hero_subtitle = "Paste tasks with due dates, choose a reference time, and get an urgency-sorted countdown: overdue first, then due today, due soon, and later tasks."
+wasm          = "gizza_ai_deadline_countdown_web"
+export        = "run"
+live          = false
+output_label  = "Sorted countdown"
+format        = "text"
+
+[[input]]
+name        = "tasks"
+label       = "Tasks with due dates"
+placeholder = "Submit taxes due: 2026-07-30\nShip launch due: 2026-07-31 16:00\nRenew cert due: 2026-08-05\nx Done item due: 2026-07-01"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "now"
+label       = "Reference date/time"
+placeholder = "2026-07-31 12:00"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+table = "Text table"
+markdown = "Markdown table"
+json = "JSON"
+csv = "CSV"
+
+[[input]]
+name        = "include_completed"
+label       = "Include completed tasks"
+source      = "field"
+
+[[input]]
+name        = "soon_days"
+label       = "Due-soon window (days)"
+placeholder = "7"
+source      = "field"
+
+[[example]]
+label = "Sprint deadlines"
+[example.params]
+tasks = "Submit taxes due: 2026-07-30\nShip launch due: 2026-07-31 16:00\nRenew cert due: 2026-08-05\nx Done item due: 2026-07-01"
+now = "2026-07-31 12:00"
+format = "table"
+soon_days = "7"
+
+[[example]]
+label = "Markdown status table"
+[example.params]
+tasks = "Write launch notes deadline: 2026-08-01\nBook QA review due: 2026-07-31 17:30\nArchive old project due: 2026-09-15"
+now = "2026-07-31 12:00"
+format = "markdown"
+soon_days = "3"
+
+[[example]]
+label = "CSV export"
+[example.params]
+tasks = "Call vendor 2026-08-01\nRenew cert 2026-08-05"
+now = "2026-07-31"
+format = "csv"
+soon_days = "2"

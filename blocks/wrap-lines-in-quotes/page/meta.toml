@@ -1,0 +1,93 @@
+slug          = "wrap-lines-in-quotes"
+title         = "Wrap Lines in Quotes — quote or bracket every line"
+description   = "Wrap each line of text in quotes or brackets with an optional trailing comma — build SQL IN lists, JSON arrays, and CSV rows fast. Free, private, runs in your browser."
+tags          = ["wrap lines in quotes", "add quotes to lines", "quote each line", "sql in list", "json array from lines", "bracket each line"]
+h1            = "Wrap Lines in Quotes"
+hero_subtitle = "Quote or bracket every line and add a trailing separator — turn a column of values into a SQL IN list, JSON array, or CSV row. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_wrap_lines_in_quotes_web"
+export        = "run"
+live          = false
+output_label  = "Wrapped text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text (one value per line)"
+placeholder = "Paste values, one per line…"
+source      = "field"
+multiline   = true
+
+# wrap renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "wrap"
+label       = "Wrap style"
+source      = "field"
+
+[input.labels]
+double    = "Double quotes  \"…\""
+single    = "Single quotes  '…'"
+backtick  = "Backticks  `…`"
+paren     = "Parentheses  (…)"
+square    = "Square brackets  […]"
+curly     = "Curly braces  {…}"
+angle     = "Angle brackets  <…>"
+guillemet = "Guillemets  «…»"
+custom    = "Custom (open/close below)"
+
+[[input]]
+name        = "open"
+label       = "Custom opening delimiter"
+placeholder = "only used when Wrap style = Custom"
+source      = "field"
+
+[[input]]
+name        = "close"
+label       = "Custom closing delimiter"
+placeholder = "empty = mirror the opening delimiter"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Trailing separator"
+placeholder = ", for a SQL IN list / JSON array"
+source      = "field"
+
+[[input]]
+name        = "last_line_separator"
+label       = "Separator after the last line too"
+source      = "field"
+
+[[input]]
+name        = "skip_empty"
+label       = "Skip blank lines"
+source      = "field"
+
+[[input]]
+name        = "trim"
+label       = "Trim whitespace on each line"
+source      = "field"
+
+[[input]]
+name        = "escape"
+label       = "Escape the delimiter inside lines"
+source      = "field"
+
+[[example]]
+label = "SQL IN list"
+[example.params]
+text      = "apple\nbanana\ncherry"
+wrap      = "single"
+separator = ","
+
+[[example]]
+label = "JSON array body"
+[example.params]
+text      = "alpha\nbeta\ngamma"
+wrap      = "double"
+separator = ","
+
+[[example]]
+label = "Bracket each line"
+[example.params]
+text = "one\ntwo\nthree"
+wrap = "square"

@@ -1,0 +1,67 @@
+slug          = "returns-risk-analyzer"
+title         = "Returns Risk Analyzer — Annualized return, volatility, Sharpe & Sortino"
+description   = "Paste a returns series and compute annualized return, volatility, Sharpe, Sortino, Calmar and max drawdown, in your browser. Free, private, no upload."
+tags          = ["sharpe ratio calculator", "sortino ratio", "annualized return", "volatility calculator", "risk metrics", "max drawdown", "cagr calculator", "returns analysis"]
+h1            = "Returns risk analyzer"
+hero_subtitle = "Paste a series of periodic returns and get annualized return, volatility, Sharpe, Sortino, Calmar and max drawdown. Runs in your browser, no upload."
+wasm          = "gizza_ai_returns_risk_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Risk & return metrics"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "returns"
+label       = "Returns series"
+placeholder = "0.012\n-0.004\n0.021\n0.008\n-0.015"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "periods_per_year"
+label  = "Frequency (periods / year)"
+source = "field"
+
+[input.labels]
+252 = "Daily (252)"
+52  = "Weekly (52)"
+26  = "Biweekly (26)"
+12  = "Monthly (12)"
+4   = "Quarterly (4)"
+1   = "Annual (1)"
+
+[[input]]
+name        = "risk_free_rate"
+label       = "Risk-free rate (% / yr, for Sharpe)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "target_return"
+label       = "Sortino target (% / yr, MAR)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "has_header"
+label  = "First line is a header"
+source = "field"
+
+[[example]]
+label = "Monthly, 2% risk-free"
+[example.params]
+returns = "0.021\n-0.008\n0.015\n0.033\n-0.012\n0.004\n0.019\n-0.006\n0.011\n0.027\n-0.021\n0.014"
+periods_per_year = "12"
+risk_free_rate = "2"
+target_return = "0"
+has_header = "false"
+
+[[example]]
+label = "Daily percents"
+[example.params]
+returns = "1.2%, -0.4%, 2.1%, 0.8%, -1.5%, 0.6%, 1.1%"
+periods_per_year = "252"
+risk_free_rate = "0"
+target_return = "0"
+has_header = "false"

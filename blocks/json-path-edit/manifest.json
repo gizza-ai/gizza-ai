@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/json-path-edit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Get, set, or delete a value at a dotted/bracketed path in JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Get, set, or delete a value at a dotted or bracketed path in a JSON document. The path uses lodash / dot-object notation (NOT RFC 9535 JSONPath): dot segments ('store.book.title'), array indices as brackets or dotted digits ('book[0]' == 'book.0'), and quoted keys for keys that contain a dot/bracket/space ('[\"a.b\"].c'). operation='get' (default) returns the value at the path; 'set' writes `value` (parsed as JSON, else a string) and creates any missing intermediate objects/arrays; 'delete' removes the key or array element. set/delete return the whole modified document; pretty=true (default) indents the output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "json": {
+          "description": "The JSON document to read from or modify.",
+          "type": "string"
+        },
+        "operation": {
+          "default": "get",
+          "description": "What to do at the path: 'get' (default) returns the value there; 'set' writes `value`, creating missing intermediate objects/arrays; 'delete' removes the key or array element. set/delete return the whole modified document.",
+          "enum": [
+            "get",
+            "set",
+            "delete"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Dotted / bracketed path to the target value (lodash / dot-object style, NOT JSONPath). Examples: 'store.book[0].title', 'store.book.1.price' (dotted index), '[\"key with spaces\"].id', quote a key that itself contains a dot as '[\"a.b\"].c'. An optional leading '$' is ignored; an empty path selects the whole document.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print (indent) the output. Default true. 'get' returns the value at the path; 'set'/'delete' return the whole modified document.",
+          "type": "boolean"
+        },
+        "value": {
+          "default": "",
+          "description": "For operation='set', the value to write. Parsed as JSON (42 -> number, true -> boolean, null -> null, {\"k\":1} -> object); if it isn't valid JSON it's stored as a plain string, so wrap text in quotes to force a string. Ignored for get/delete.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json",
+        "path"
+      ],
+      "type": "object"
+    }
+  }
+}

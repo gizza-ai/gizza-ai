@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "field-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract fields (columns) or character ranges from each line of text — a cut/awk replacement with negative indices."

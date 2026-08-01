@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-to-table"
+version = "0.1.0"
+abi = 1
+summary = "Parse log lines into a table/CSV with a regex template and presets for common formats."

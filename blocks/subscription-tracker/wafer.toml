@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "subscription-tracker"
+version = "0.1.0"
+abi = 1
+summary = "Total your subscriptions, annualize every billing cycle, and flag the biggest spend to cancel."

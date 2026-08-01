@@ -1,0 +1,79 @@
+slug          = "sql-linter"
+title         = "SQL Linter — find syntax issues and query anti-patterns"
+description   = "Paste SQL to flag syntax issues plus SELECT *, comma joins, bare JOINs, and missing subquery aliases. Local, read-only linting."
+tags          = ["sql linter", "sql anti pattern", "select star", "implicit join", "sql syntax checker", "query review", "database code review"]
+h1            = "SQL Linter"
+hero_subtitle = "Review pasted SQL without running it: catch structural syntax mistakes and risky query patterns such as SELECT *, comma joins, bare JOINs, and missing derived-table aliases."
+wasm          = "gizza_ai_sql_linter_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "sql"
+label       = "SQL"
+placeholder = "SELECT *\nFROM users u, orders o\nJOIN payments p ON p.order_id = o.id\nWHERE u.id = o.user_id;"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "dialect"
+label       = "Dialect"
+source      = "field"
+
+[input.labels]
+generic    = "Generic SQL"
+mysql      = "MySQL / MariaDB"
+postgresql = "PostgreSQL"
+sqlite     = "SQLite"
+tsql       = "T-SQL / SQL Server"
+
+[[input]]
+name        = "min_severity"
+label       = "Minimum severity"
+source      = "field"
+
+[input.labels]
+all     = "All findings"
+warning = "Warnings and errors"
+error   = "Errors only"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule codes"
+placeholder = "SELECT-STAR, BARE-JOIN"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON"
+
+[[example]]
+label = "SELECT * and comma join"
+[example.params]
+sql          = "SELECT *\nFROM users u, orders o\nJOIN payments p ON p.order_id = o.id\nWHERE u.id = o.user_id;"
+dialect      = "generic"
+min_severity = "all"
+format       = "text"
+
+[[example]]
+label = "Syntax errors only"
+[example.params]
+sql          = "SELECT id, FROM users WHERE name = 'Ada"
+dialect      = "postgresql"
+min_severity = "error"
+format       = "text"
+
+[[example]]
+label = "JSON for CI"
+[example.params]
+sql          = "SELECT id FROM (SELECT id FROM users) WHERE id > 1"
+dialect      = "generic"
+min_severity = "warning"
+format       = "json"

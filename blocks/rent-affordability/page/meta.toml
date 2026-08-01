@@ -1,0 +1,177 @@
+slug          = "rent-affordability"
+title         = "Rent Affordability Calculator"
+description   = "Work out affordable rent from income using the 30% rule or a custom ratio, with debts, gross-vs-net handling, guideline ranges, and money left over."
+tags          = ["rent affordability calculator", "how much rent can i afford", "30 percent rule", "rent to income ratio", "rent calculator", "debt to income", "gross vs net income", "monthly budget", "income to rent multiple", "guideline range"]
+h1            = "Rent Affordability Calculator"
+hero_subtitle = "Enter your income and see the maximum rent you can afford under the classic 30% rule — or your own ratio. Factor in existing debts, convert take-home pay to gross, and get a 25/30/35% guideline range plus what's left over each month. Runs locally in your browser."
+wasm          = "gizza_ai_rent_affordability_web"
+export        = "run"
+live          = false
+output_label  = "Affordability breakdown"
+format        = "text"
+
+[[input]]
+name        = "income"
+label       = "Income"
+placeholder = "60000"
+default     = "60000"
+source      = "field"
+
+[[input]]
+name        = "income_period"
+label       = "Income period (annual | monthly)"
+placeholder = "annual"
+source      = "field"
+[input.labels]
+annual  = "Annual"
+monthly = "Monthly"
+
+[[input]]
+name        = "income_type"
+label       = "Income type (gross | net)"
+placeholder = "gross"
+source      = "field"
+[input.labels]
+gross = "Gross (pre-tax)"
+net   = "Net (take-home)"
+
+[[input]]
+name        = "tax_rate_percent"
+label       = "Assumed tax rate (% — for net income)"
+placeholder = "25"
+default     = "25"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "60"
+step        = "1"
+[input.labels]
+low  = "0%"
+high = "60%"
+
+[[input]]
+name        = "rent_to_income_ratio"
+label       = "Rent-to-income ratio (%)"
+placeholder = "30"
+default     = "30"
+source      = "field"
+kind        = "slider"
+min         = "10"
+max         = "50"
+step        = "1"
+[input.labels]
+low  = "10%"
+high = "50%"
+
+[[input]]
+name        = "monthly_debts"
+label       = "Existing monthly debts"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "max_dti_ratio"
+label       = "Max debt-to-income (%)"
+placeholder = "36"
+default     = "36"
+source      = "field"
+kind        = "slider"
+min         = "10"
+max         = "60"
+step        = "1"
+[input.labels]
+low  = "10%"
+high = "60%"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+default     = "$"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+default     = "2"
+source      = "field"
+
+[[example]]
+label = "$60k salary, 30% rule"
+[example.params]
+income = "60000"
+income_period = "annual"
+income_type = "gross"
+tax_rate_percent = "25"
+rent_to_income_ratio = "30"
+monthly_debts = "0"
+max_dti_ratio = "36"
+currency = "$"
+decimals = "2"
+
+[[example]]
+label = "25% conservative"
+[example.params]
+income = "60000"
+income_period = "annual"
+income_type = "gross"
+tax_rate_percent = "25"
+rent_to_income_ratio = "25"
+monthly_debts = "0"
+max_dti_ratio = "36"
+currency = "$"
+decimals = "2"
+
+[[example]]
+label = "40% ceiling"
+[example.params]
+income = "60000"
+income_period = "annual"
+income_type = "gross"
+tax_rate_percent = "25"
+rent_to_income_ratio = "40"
+monthly_debts = "0"
+max_dti_ratio = "36"
+currency = "$"
+decimals = "2"
+
+[[example]]
+label = "33% landlord multiple"
+[example.params]
+income = "60000"
+income_period = "annual"
+income_type = "gross"
+tax_rate_percent = "25"
+rent_to_income_ratio = "33"
+monthly_debts = "0"
+max_dti_ratio = "36"
+currency = "$"
+decimals = "2"
+
+[[example]]
+label = "$800/mo debts pull it down"
+[example.params]
+income = "6000"
+income_period = "monthly"
+income_type = "gross"
+tax_rate_percent = "25"
+rent_to_income_ratio = "30"
+monthly_debts = "800"
+max_dti_ratio = "36"
+currency = "$"
+decimals = "2"
+
+[[example]]
+label = "Net $4k/mo, grossed up"
+[example.params]
+income = "4000"
+income_period = "monthly"
+income_type = "net"
+tax_rate_percent = "25"
+rent_to_income_ratio = "30"
+monthly_debts = "0"
+max_dti_ratio = "36"
+currency = "$"
+decimals = "2"

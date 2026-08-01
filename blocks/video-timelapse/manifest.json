@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/video-timelapse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn long footage into a timelapse by dropping frames and speeding it up",
+  "role": "skill",
+  "tool": {
+    "description": "Turn long footage into a timelapse by speeding it up and dropping frames (audio is dropped). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus speed (how many times faster, e.g. 10 = 10×, default 10) and fps (output frame rate, default 30). The clip is sped up with setpts and re-sampled to the target fps, dropping the surplus frames — a 60s clip at 10× becomes 6s. The video is re-encoded to H.264 (crf 20, yuv420p, faststart); audio is removed. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. speed is clamped to 2-300, fps to 1-60.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "fps": {
+          "description": "Output frame rate in frames per second (e.g. 30, 24, 60). The sped-up video is re-sampled to this rate, dropping surplus frames. Default 30. Clamped to 1-60.",
+          "maximum": 60,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "speed": {
+          "description": "How many times faster the timelapse plays, e.g. 10 = 10× faster (a 60s clip becomes 6s). Higher = more footage compressed. Default 10. Clamped to 2-300.",
+          "maximum": 300,
+          "minimum": 2,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

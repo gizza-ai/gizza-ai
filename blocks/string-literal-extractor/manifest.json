@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/string-literal-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract every string literal from pasted source code, skipping comments",
+  "role": "skill",
+  "tool": {
+    "description": "Pull every string literal out of a block of source code with a language-aware tokenizer that skips strings inside line and block comments, treats single quotes as character literals where the language does (C, Java, Rust, Go, C#), and understands Python triple-quoted strings, Go raw backticks, and Rust raw strings. Filter by quote style, drop duplicates, filter by minimum length, optionally decode escape sequences, and return the results as a plain list, JSON, or CSV — each literal carrying its source line and column. Set 'language' to auto to guess Python vs a generic C/JS profile.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The source code to scan for string literals. Paste a snippet or a whole file; only strings outside comments are extracted.",
+          "type": "string"
+        },
+        "decode_escapes": {
+          "default": false,
+          "description": "Decode escape sequences (\\n, \\t, \\xNN, \\uXXXX, …) into their actual characters instead of leaving them literal. Ignored for raw strings.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "list",
+          "description": "Output shape: a plain list of the values, JSON objects with line/column/quote/value, or CSV rows with those columns.",
+          "enum": [
+            "list",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Language whose string/comment/escape rules to apply. 'auto' guesses Python vs a generic C/JS profile from the code.",
+          "enum": [
+            "auto",
+            "python",
+            "javascript",
+            "typescript",
+            "java",
+            "csharp",
+            "c",
+            "cpp",
+            "go",
+            "rust",
+            "php",
+            "ruby",
+            "shell"
+          ],
+          "type": "string"
+        },
+        "line_numbers": {
+          "default": false,
+          "description": "Append the source line as [Ln] to each value in list output.",
+          "type": "boolean"
+        },
+        "min_length": {
+          "default": 0,
+          "description": "Skip literals shorter than this many characters. 0 keeps every string.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "quotes": {
+          "default": "all",
+          "description": "Which quote style to keep: all, or only double-quoted, single-quoted, or backtick/template literals.",
+          "enum": [
+            "all",
+            "double",
+            "single",
+            "backtick"
+          ],
+          "type": "string"
+        },
+        "unique": {
+          "default": false,
+          "description": "Drop duplicate values, keeping the first occurrence of each.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}

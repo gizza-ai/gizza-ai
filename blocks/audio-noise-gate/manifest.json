@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/audio-noise-gate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Gate audio below a threshold to silence background noise in quiet passages",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a downward noise gate to an audio file: sound below a threshold (background hiss, room tone, hum, breaths in the gaps) is pushed down or silenced while the wanted signal above the threshold passes untouched. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Controls: threshold (dB, -80..0, level a signal must exceed to open the gate), reduction (dB, 0..80, how much the closed gate attenuates — 0 is a no-op and is rejected), ratio (1..20, how steeply it clamps below the threshold), attack (ms, 0.01..2000, how fast it opens), release (ms, 0.01..9000, how fast it closes) and detection (rms|peak). This is a level-based dynamics gate, NOT spectral denoising (see audio-noise-reduce) and it does NOT shorten the file — the gaps stay in place, just quieter. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "attack": {
+          "default": 10.0,
+          "description": "Attack time in milliseconds — how fast the gate opens once the level rises past the threshold. Fast (5) preserves word onsets; slow (50+) can clip the start of sounds. Default 10.",
+          "maximum": 2000,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "detection": {
+          "default": "rms",
+          "description": "How the gate measures level: rms tracks average loudness (smoother, ignores brief peaks), peak reacts to instantaneous sample peaks (catches sharp transients). Default rms.",
+          "enum": [
+            "rms",
+            "peak"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ratio": {
+          "default": 2.0,
+          "description": "How steeply gain is pulled down below the threshold. 2 is a gentle gate, 10+ clamps hard toward the floor. 1 = barely gates. Default 2.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "number"
+        },
+        "reduction": {
+          "default": 30.0,
+          "description": "How much quieter, in dB, the below-threshold signal gets while the gate is closed (the floor). 0 does nothing (rejected); 30 pushes background well down; 80 is near-silence. Default 30.",
+          "maximum": 80,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "release": {
+          "default": 250.0,
+          "description": "Release time in milliseconds — how fast the gate closes once the level drops back below the threshold. Short (50) cuts tightly; long (500+) fades out smoothly and helps stand in for a hold time. Default 250.",
+          "maximum": 9000,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "threshold": {
+          "default": -35.0,
+          "description": "Threshold in dB below full scale a signal must EXCEED to open the gate. Sound quieter than this is attenuated. Lower (e.g. -50) only gates the very quietest hiss; higher (e.g. -25) also clamps low speech/tails. Default -35.",
+          "maximum": 0,
+          "minimum": -80,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "smart-quotes-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert quotes between straight ASCII and curly typographic form."

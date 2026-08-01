@@ -1,0 +1,22 @@
+{
+  "name": "gizza-ai/url-stripper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove URLs and optionally emails from text, leaving clean prose.",
+  "role": "skill",
+  "tool": {
+    "description": "Strip web links out of a block of text. Removes http/https/ftp URLs and, by default (remove_www=true), scheme-less www. links; set remove_emails=true to also remove bare email addresses. Each match is replaced with `replacement` (empty by default = delete it, or use e.g. [link] to keep a placeholder). By default (collapse_whitespace=true) the leftover spacing is tidied — double spaces collapsed, spaces before punctuation dropped, now-empty brackets removed, each line trimmed — while newlines and blank lines are preserved, so the output reads as clean prose. Trailing sentence punctuation stuck to a URL (the period in `See https://x.com/y.`) is kept. Returns the cleaned text plus counts of URLs and emails removed. Runs entirely in the sandbox; nothing is fetched.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "input": { "type": "string", "description": "The text to strip URLs (and optionally email addresses) from." },
+        "remove_emails": { "type": "boolean", "default": false, "description": "Also remove bare email addresses (name@example.com). Default false." },
+        "remove_www": { "type": "boolean", "default": true, "description": "Also remove scheme-less links that begin with www. (e.g. www.example.com), not just http/https/ftp URLs. Default true." },
+        "replacement": { "type": "string", "default": "", "description": "Text to put in place of each removed URL/email. Leave empty to delete the link entirely; use e.g. [link] to keep a placeholder. Default empty." },
+        "collapse_whitespace": { "type": "boolean", "default": true, "description": "Tidy the whitespace left behind after deleting links — collapse double spaces, drop spaces before punctuation, remove now-empty brackets, and trim each line — so the result reads as clean prose. Newlines and blank lines are kept. Default true." }
+      },
+      "required": ["input"],
+      "additionalProperties": false
+    }
+  }
+}

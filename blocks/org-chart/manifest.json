@@ -1,0 +1,21 @@
+{
+  "name": "gizza-ai/org-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render an organizational chart as an SVG image",
+  "role": "skill",
+  "tool": {
+    "description": "Render an organizational chart from an indented outline or JSON of people and managers into an SVG image. Input `data` is either an indented outline (one person per line; leading spaces/tabs set reporting depth; optional `Name | Title | Department`) or JSON (nested `{name,title,department,children}`, or a flat list linked by `manager`). Options: `title` heading, `direction` (vertical top-down or horizontal left-to-right), and `color` accent. Returns an SVG image of the hierarchy. Max 400 people.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "data": { "type": "string", "description": "The people to chart, in either format. (1) Indented outline: one person per line, leading spaces or tabs set who reports to whom; add a title/department after `|`, e.g. `CEO | Chief Exec`, then `  VP Eng | VP Engineering | Product`. (2) JSON: nested `{\"name\":..,\"title\":..,\"department\":..,\"children\":[..]}` (object or array of roots), or a flat list `[{\"name\":\"Ada\",\"title\":\"CEO\"},{\"name\":\"Grace\",\"manager\":\"Ada\"}]` linked by manager name. Max 400 people." },
+        "title": { "type": "string", "default": "", "description": "Optional heading shown above the chart (e.g. \"Engineering Org\"). Empty for none." },
+        "direction": { "type": "string", "enum": ["vertical", "horizontal"], "default": "vertical", "description": "Layout direction: \"vertical\" (top-down, the boss on top) or \"horizontal\" (left-to-right). Default \"vertical\"." },
+        "color": { "type": "string", "default": "#4e79a7", "description": "Accent colour for each box's top bar and border — any CSS colour (hex like #336699, rgb(), or a named colour). Default #4e79a7." }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

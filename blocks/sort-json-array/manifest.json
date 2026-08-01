@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/sort-json-array",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort a JSON array of objects by one or more fields, ascending or descending",
+  "role": "skill",
+  "tool": {
+    "description": "Sort a JSON array of objects by the value of one or more fields (the ORDER BY / _.orderBy operation), validating the input first. keys is a comma-separated list of fields; use dot-notation for nested paths ('address.city') or an array index ('tags.0'), and prefix a key with '-' (descending) or '+' (ascending) to override the per-key direction, e.g. 'dept,-salary,name'. order is the default direction 'asc' (default) or 'desc'; missing places rows whose field is absent or null 'last' (default) or 'first'; set case_insensitive=true to compare strings ignoring case (numbers always compare numerically); indent is spaces per level (1-8, default 2), or 0 to minify. This sorts array ELEMENTS by a field — to alphabetize object KEYS use json-sort instead. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_insensitive": {
+          "default": false,
+          "description": "Compare string values ignoring case so 'Banana' sorts next to 'apple'. Off by default, where uppercase letters sort before lowercase (codepoint order). Numbers always compare numerically.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level (1-8) in the output. Use 0 to minify to a single compact line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON text — a top-level array of objects — to sort by field value.",
+          "type": "string"
+        },
+        "keys": {
+          "description": "Comma-separated field(s) to sort by. Use dot-notation for nested paths ('address.city') or an array index ('tags.0'). Prefix a key with '-' for descending or '+' for ascending to override 'order' per key, e.g. 'dept,-salary,name'.",
+          "type": "string"
+        },
+        "missing": {
+          "default": "last",
+          "description": "Where rows whose sort field is absent or JSON null go: 'last' (default) or 'first'. Placement is absolute — it does not flip with descending order.",
+          "enum": [
+            "last",
+            "first"
+          ],
+          "type": "string"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Default direction for keys with no +/- prefix: 'asc' (smallest first, default) or 'desc' (largest first).",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "json",
+        "keys"
+      ],
+      "type": "object"
+    }
+  }
+}

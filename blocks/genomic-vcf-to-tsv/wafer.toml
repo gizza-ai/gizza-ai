@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "genomic-vcf-to-tsv"
+version = "0.1.0"
+abi = 1
+summary = "Flatten VCF variant records into tidy TSV with exploded INFO and optional sample genotype fields."

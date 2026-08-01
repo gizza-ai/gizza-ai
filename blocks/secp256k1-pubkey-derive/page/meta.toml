@@ -1,0 +1,48 @@
+slug          = "secp256k1-pubkey-derive"
+title         = "secp256k1 Public Key from Private Key"
+description   = "Derive the secp256k1 public key from a private key: compressed (02/03) and uncompressed (04) SEC1 points, plus X and Y coordinates. Hex or WIF input, all in your browser."
+tags          = ["secp256k1", "public-key", "private-key", "bitcoin", "ethereum", "elliptic-curve"]
+h1            = "secp256k1 Public Key Derivation"
+hero_subtitle = "Turn a secp256k1 private key into its public key — compressed, uncompressed, and raw X/Y coordinates. Runs entirely in your browser; keys never leave the page."
+wasm          = "gizza_ai_secp256k1_pubkey_derive_web"
+export        = "run"
+live          = false
+output_label  = "Public key"
+format        = "text"
+
+[[input]]
+name        = "key"
+label       = "Private key (hex or WIF)"
+placeholder = "0000000000000000000000000000000000000000000000000000000000000001"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+all          = "All representations"
+compressed   = "Compressed (33 bytes, 02/03)"
+uncompressed = "Uncompressed (65 bytes, 04)"
+x            = "X coordinate (32 bytes)"
+y            = "Y coordinate (32 bytes)"
+
+[[example]]
+label = "Generator point (key = 1)"
+[example.params]
+key    = "0000000000000000000000000000000000000000000000000000000000000001"
+format = "all"
+
+[[example]]
+label = "Compressed only"
+[example.params]
+key    = "0000000000000000000000000000000000000000000000000000000000000001"
+format = "compressed"
+
+[[example]]
+label = "From a WIF key"
+[example.params]
+key    = "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
+format = "all"

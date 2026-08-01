@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/nmea-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a raw NMEA 0183 GPS log into a clean CSV track table.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a raw NMEA 0183 GPS/GNSS serial log into a CSV track table, one row per positional fix. Sentences of the same cycle (shared UTC time) are merged: GGA supplies altitude / fix quality / satellite count / HDOP, RMC supplies date / speed / course, GLL is a position fallback, VTG fills speed + course, ZDA supplies the date, GSA backfills HDOP. Columns: timestamp (added when a date is known), time, latitude, longitude, altitude_<unit>, fix, satellites, hdop, speed_<unit>, course. coordinates picks decimal-degrees or DMS; altitude_unit is m/ft; speed_unit is knots/kmh/mph; delimiter picks the separator; header toggles the header row; validate_checksum drops lines that fail their *XX checksum. Paste the log in the 'nmea' field. Runs entirely in-browser; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "altitude_unit": {
+          "default": "m",
+          "description": "Unit for the altitude column. m (default) keeps GGA metres; ft converts to feet. The column header is altitude_m or altitude_ft accordingly.",
+          "enum": [
+            "m",
+            "ft"
+          ],
+          "type": "string"
+        },
+        "coordinates": {
+          "default": "decimal",
+          "description": "Coordinate output format. decimal (default) writes signed decimal degrees (e.g. 48.1173, -11.5167); dms writes degrees-minutes-seconds with a hemisphere letter (e.g. 48°07'02.28\"N).",
+          "enum": [
+            "decimal",
+            "dms"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Output CSV field separator. Default comma. Use semicolon for comma-decimal locales, tab for TSV, or pipe.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit the column-name header row. Default true; set false for a headerless CSV.",
+          "type": "boolean"
+        },
+        "nmea": {
+          "description": "The NMEA 0183 log to convert. Paste the raw serial text — one sentence per line such as $GPGGA,... , $GNRMC,... , $GPGLL,... , $GPVTG,... , $GPZDA,... , $GPGSA,... (any talker prefix: GP/GN/GL/GA/GB).",
+          "type": "string"
+        },
+        "speed_unit": {
+          "default": "knots",
+          "description": "Unit for the speed column. knots (default) matches NMEA's native speed-over-ground; kmh is km/h; mph is miles/h. The column header is speed_knots, speed_kmh, or speed_mph.",
+          "enum": [
+            "knots",
+            "kmh",
+            "mph"
+          ],
+          "type": "string"
+        },
+        "validate_checksum": {
+          "default": false,
+          "description": "Verify each line's NMEA *XX checksum and drop any sentence that fails it. Default false (parse every line). Lines that carry no checksum are always parsed.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "nmea"
+      ],
+      "type": "object"
+    }
+  }
+}

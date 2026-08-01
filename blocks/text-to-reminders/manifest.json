@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/text-to-reminders",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn free-form notes into an iCalendar reminders file",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a free-form brain-dump into a ready-to-import iCalendar (.ics) file of reminders, one task per line. Natural-language due dates and times are parsed deterministically and stripped from each title — today, tonight, tomorrow, weekday names, next week/month, 'in 3 days', ISO dates, M/D, 'March 5, 2027', and clock times like 'at 3pm', '09:30', noon. Dates are anchored on an optional reference_date. Priority keywords map to the iCalendar PRIORITY field, undated lines can be kept as tasks with no due, and an optional alarm attaches a display reminder before each due. Pure and private: no LLM, no accounts, no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alarm_minutes": {
+          "default": 0,
+          "description": "If greater than 0, attach a display reminder that triggers this many minutes before each dated task's due time. 0 adds no reminder.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "detect_priority": {
+          "default": true,
+          "description": "Map priority keywords (urgent, asap, important, critical → high; someday, whenever → low) onto the iCalendar PRIORITY field, and drop the keyword from the title. Turn off to keep titles verbatim with no priority.",
+          "type": "boolean"
+        },
+        "include_undated": {
+          "default": true,
+          "description": "Keep lines that have no recognised date as tasks with no due date. Turn off to emit only lines that resolved to a date.",
+          "type": "boolean"
+        },
+        "reference_date": {
+          "description": "ISO date (YYYY-MM-DD) that relative phrases like today, tomorrow, or Monday are measured from. Leave blank to use the current date.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Your free-form notes or brain-dump, one task per line. Each line becomes a reminder. Natural-language due phrases are parsed and stripped from the title: today, tonight, tomorrow, day after tomorrow, weekday names, next week/month, 'in 3 days', 'in 2 weeks', ISO dates (2026-03-05), 3/5, 'March 5, 2027', '5 Mar', plus times like 'at 3pm', '5:30pm', '09:30', noon and midnight.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

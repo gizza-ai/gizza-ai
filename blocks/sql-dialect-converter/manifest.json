@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/sql-dialect-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert SQL between PostgreSQL, MySQL and SQLite",
+  "role": "skill",
+  "tool": {
+    "description": "Convert SQL between PostgreSQL, MySQL and SQLite. Rewrites delimited-identifier quoting (\"x\"/`x`/[x]), auto-increment columns (SERIAL / AUTO_INCREMENT / INTEGER PRIMARY KEY AUTOINCREMENT), CREATE TABLE column data types (bool, varchar, timestamp, blob, double, json, uuid, …), and strips MySQL table options (ENGINE=…, DEFAULT CHARSET=…) when the target isn't MySQL. String literals and comments are preserved. Set from and to (postgres/mysql/sqlite). Uses a forgiving tokenizer, not a full grammar — expression/function rewriting, procedures and views are out of scope. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "description": "Source SQL dialect: postgres, mysql, or sqlite.",
+          "enum": [
+            "postgres",
+            "mysql",
+            "sqlite"
+          ],
+          "type": "string"
+        },
+        "sql": {
+          "description": "The SQL to convert (DDL and/or queries). e.g. CREATE TABLE \"users\" (id SERIAL PRIMARY KEY).",
+          "type": "string"
+        },
+        "to": {
+          "description": "Target SQL dialect to convert to: postgres, mysql, or sqlite. Types are mapped to this dialect; from==to returns the input unchanged.",
+          "enum": [
+            "postgres",
+            "mysql",
+            "sqlite"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "sql",
+        "from",
+        "to"
+      ],
+      "type": "object"
+    }
+  }
+}

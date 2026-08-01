@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "format-css"
+version = "0.1.0"
+abi = 1
+summary = "Pretty-print CSS, SCSS or LESS with optional sorting"

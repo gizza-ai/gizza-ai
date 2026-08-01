@@ -1,0 +1,40 @@
+slug          = "video-audio-track-selector"
+title         = "Keep One Audio Track in a Video Online"
+description   = "Pick which audio track to keep in a multi-language video and drop the rest — lossless, no re-encode. Runs in your browser, nothing is uploaded, free."
+tags          = ["select audio track", "keep one audio track", "remove extra audio", "multi-language video", "audio stream", "ffmpeg"]
+h1            = "Keep One Audio Track in a Video"
+hero_subtitle = "Pick a video with multiple audio tracks, choose the one to keep by index, and the extra tracks are stripped losslessly in your browser — nothing is uploaded."
+wasm          = "gizza_ai_video_audio_track_selector_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Video with one audio track"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "track"
+source      = "field"
+label       = "Audio track to keep (0-based)"
+placeholder = "0"
+
+[[input]]
+name   = "keep_subtitles"
+source = "field"
+label  = "Also keep subtitle tracks"
+
+[[example]]
+label  = "Keep the first track"
+params = { track = "0" }
+
+[[example]]
+label  = "Keep the second track"
+params = { track = "1" }
+
+[[example]]
+label  = "Keep 2nd track + subtitles"
+params = { track = "1", keep_subtitles = "true" }

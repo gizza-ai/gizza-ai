@@ -1,0 +1,19 @@
+slug          = "pem-inspect"
+title         = "PEM Inspector — Decode X.509 Certificates, CSRs & Keys Offline"
+description   = "Decode PEM certificates, CSRs, and public/private keys in your browser. See subject, issuer, validity, SANs, key size, and fingerprints. No upload."
+tags          = ["pem decoder", "x509 certificate decoder", "csr decoder", "certificate parser", "ssl certificate decoder", "pem inspector", "certificate fingerprint", "decode pem", "public key decoder"]
+h1            = "PEM Inspector"
+hero_subtitle = "Paste one or more PEM blocks — X.509 certificates, CSRs, or public/private keys — and see subject, issuer, validity, SANs, key size, usage, and SHA-256/SHA-1 fingerprints. Runs entirely in your browser: nothing is uploaded and private-key secrets are never read."
+wasm          = "gizza_ai_pem_inspect_web"
+export        = "run"
+live          = false
+output_label  = "Decoded PEM"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "PEM block(s)"
+placeholder = "\n-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArnlv3X6UkO2HDKwMHnW+\n3csIuYqUY+/U+vxjtsgz/OkEw78bYBhnVpf7VO+Yv/lzWJaLC6pFJ1/Ky734A2Vq\nCIOfD3yXB6iLHnv+F4hf5ltDFNfFkGNvwVwR7xrdjnMayJ/X1xUSsW8sOEniiw2D\nBU1xm+foTSYAjI34xlVFl1ek2jlTp6DkGILAG79rCmQksRoYpq8ddd4km2Qb3bST\nswLeccWWNSzXW3rbYOV5xIr6heULzBI0EWs6GgEFvfOZVdmLqPHSB1yoe0CjyKNe\nXTqmSX/tdodxD+ZaD2HuZoOqTKpaDPeTAocAOKqsyoJWXPPz/AR0tuLov5/TxfEM\nUwIDAQAB\n-----END PUBLIC KEY-----"
+source      = "field"
+multiline   = true

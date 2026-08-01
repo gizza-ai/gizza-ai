@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-markdown-strip-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# pulldown-cmark: pure-Rust CommonMark parser (+ GitHub extensions: tables,
+# task lists, strikethrough, footnotes), wasm32-safe. We walk the event stream
+# to emit plain text — more robust than line-regex stripping for nested
+# emphasis, reference links, and tables. Same crate as `markdown-render`.
+pulldown-cmark = { version = "0.12", default-features = false }

@@ -1,0 +1,79 @@
+slug          = "csv-column-mapping-suggest"
+title         = "CSV Column Mapping Suggest — Match Differently Named Headers"
+description   = "Suggest source-to-target CSV column mappings using fuzzy header similarity and sampled value overlap. Outputs confidence scores, reasons, and unmapped columns."
+tags          = ["csv column mapping", "csv header match", "csv schema mapping", "csv align columns", "csv join prep", "csv fuzzy match"]
+h1            = "CSV Column Mapping Suggest"
+hero_subtitle = "Map differently named CSV columns before a join, diff, or import. Scores combine normalized header matching with sample-value overlap — all in your browser."
+wasm          = "gizza_ai_csv_column_mapping_suggest_web"
+export        = "run"
+live          = false
+output_label  = "Mapping suggestions"
+format        = "text"
+
+[[input]]
+name        = "source"
+label       = "Source CSV"
+placeholder = "First Name,Email Address,Zip Code\nAda,a@example.com,02139\nBo,b@example.com,94107"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "target"
+label       = "Target CSV / schema"
+placeholder = "email,postal_code,first_name\na@example.com,02139,Ada\nb@example.com,94107,Bo"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+[input.labels]
+comma     = "Comma (,)"
+tab       = "Tab"
+semicolon = "Semicolon (;)"
+pipe      = "Pipe (|)"
+
+[[input]]
+name   = "header"
+label  = "First row is header"
+source = "field"
+
+[[input]]
+name        = "sample_rows"
+label       = "Sample rows for values"
+placeholder = "50"
+source      = "field"
+
+[[input]]
+name        = "header_weight"
+label       = "Header weight (0–1)"
+placeholder = "0.6"
+source      = "field"
+
+[[input]]
+name        = "threshold"
+label       = "Suggestion threshold (0–1)"
+placeholder = "0.3"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+[input.labels]
+table = "Table report"
+json  = "JSON"
+csv   = "CSV mapping"
+
+[[example]]
+label  = "Names, email, postal code"
+params = { source = "First Name,Email Address,Zip Code\nAda,a@example.com,02139\nBo,b@example.com,94107", target = "email,postal_code,first_name\na@example.com,02139,Ada\nb@example.com,94107,Bo", delimiter = "comma", header = "true", sample_rows = "50", header_weight = "0.6", threshold = "0.3", format = "table" }
+
+[[example]]
+label  = "Value-overlap heavy JSON"
+params = { source = "customer_id\nA1\nB2\nC3", target = "account\nA1\nB2\nC3", delimiter = "comma", header = "true", sample_rows = "50", header_weight = "0.2", threshold = "0.5", format = "json" }
+
+[[example]]
+label  = "Header-only strict CSV"
+params = { source = "First Name,Email Address\nAda,a@example.com", target = "first_name,email\nAda,a@example.com", delimiter = "comma", header = "true", sample_rows = "0", header_weight = "1", threshold = "0.7", format = "csv" }

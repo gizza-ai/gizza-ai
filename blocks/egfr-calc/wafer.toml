@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "egfr-calc"
+version = "0.1.0"
+abi = 1
+summary = "Estimate kidney filtration rate (eGFR) from creatinine, age and sex using race-free CKD-EPI."

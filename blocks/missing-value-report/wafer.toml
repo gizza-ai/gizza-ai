@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "missing-value-report"
+version = "0.1.0"
+abi = 1
+summary = "Profile a CSV/table for missing values: per-column missing counts and percentages plus a missingness-pattern grid."

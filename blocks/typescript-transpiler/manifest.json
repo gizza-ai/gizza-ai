@@ -1,0 +1,37 @@
+{
+  "name": "gizza-ai/typescript-transpiler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip TypeScript syntax into best-effort JavaScript.",
+  "role": "skill",
+  "tool": {
+    "description": "Transpile small TypeScript snippets to JavaScript locally by stripping type annotations, interfaces, type aliases, assertions, optional markers, modifiers, implements clauses, type-only imports/exports, and simple enum declarations. This is a deterministic syntax stripper, not a full TypeScript compiler or type checker.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "enum_style": {
+          "default": "compile",
+          "description": "How to handle TypeScript enum declarations: compile them to simple JavaScript objects, or strip them as type-only declarations.",
+          "enum": [
+            "compile",
+            "strip"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "TypeScript source to convert into best-effort JavaScript by removing type-only syntax. Maximum 1 MB.",
+          "type": "string"
+        },
+        "remove_comments": {
+          "default": false,
+          "description": "Remove line and block comments from the output in addition to stripping TypeScript syntax.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

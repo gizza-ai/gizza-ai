@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/salary-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert pay between hourly, daily, weekly, biweekly, monthly and annual",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a pay figure between hourly, daily, weekly, biweekly, monthly and annual rates. Give the amount and which period it's in (e.g. 25 hourly, or 52000 annual), plus an optional work schedule (hours per week, days per week, weeks per year — defaults 40/5/52), and get ALL six equivalent figures back at once. Use it to turn an hourly wage into a yearly salary, a monthly salary into an hourly rate, compare job offers quoted in different periods, or price contract/freelance day rates.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "description": "The pay figure to convert, as a plain number (no currency symbol or thousands separators) — e.g. 25 for $25/hour or 52000 for a $52,000 salary. This is the amount for the `period` you choose below.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol shown in the summary text only (e.g. $, £, €). Does not change the numeric figures. Default '$'.",
+          "type": "string"
+        },
+        "days_per_week": {
+          "default": 5.0,
+          "description": "Days worked per week, used for the daily figure. Default 5 (Mon–Fri).",
+          "maximum": 7,
+          "minimum": 0,
+          "type": "number"
+        },
+        "hours_per_week": {
+          "default": 40.0,
+          "description": "Hours worked per week, used for the hourly figure. Default 40. Use 20 for half-time, 37.5 for a 7.5-hour day, etc.",
+          "maximum": 168,
+          "minimum": 0,
+          "type": "number"
+        },
+        "period": {
+          "default": "annual",
+          "description": "Which pay period `amount` is given in. 'annual' (default) treats it as a yearly salary; 'hourly' as an hourly wage; 'biweekly' is every two weeks; the result always shows ALL six figures. Aliases like hr/day/week/month/year are accepted.",
+          "enum": [
+            "hourly",
+            "daily",
+            "weekly",
+            "biweekly",
+            "monthly",
+            "annual"
+          ],
+          "type": "string"
+        },
+        "weeks_per_year": {
+          "default": 52.0,
+          "description": "Paid weeks worked per year. Default 52. Lower it for unpaid time off — e.g. 50 for two unpaid weeks.",
+          "maximum": 53,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "type": "object"
+    }
+  }
+}

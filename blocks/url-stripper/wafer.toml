@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "url-stripper"
+version = "0.1.0"
+abi = 1
+summary = "Remove URLs and optionally emails from text, leaving clean prose."

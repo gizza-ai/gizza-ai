@@ -1,0 +1,67 @@
+slug          = "geojson-merge"
+title         = "GeoJSON Merge — combine files into one FeatureCollection"
+description   = "Merge multiple GeoJSON files, features, or geometries into a single FeatureCollection. Round coordinates, renumber ids, tag by source — in your browser, nothing uploaded."
+tags          = ["geojson merge", "combine geojson", "merge geojson files", "featurecollection", "geojson combine online", "merge map data"]
+h1            = "GeoJSON Merge"
+hero_subtitle = "Combine multiple GeoJSON files, features, or geometries into one FeatureCollection. Optionally round coordinates, renumber ids, and tag each feature by source. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_geojson_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged FeatureCollection"
+format        = "text"
+
+[[input]]
+name        = "geojson"
+label       = "GeoJSON inputs (two or more, one per block or line)"
+placeholder = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"A\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[0,0]}}]}\n{\"type\":\"Point\",\"coordinates\":[1,1]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name        = "precision"
+label       = "Coordinate precision (decimal places; -1 = full)"
+placeholder = "-1"
+source      = "field"
+
+[[input]]
+name        = "renumber"
+label       = "Renumber feature ids (sequential 0, 1, 2, …)"
+source      = "field"
+
+[[input]]
+name        = "source_property"
+label       = "Tag features with source property (name; blank = off)"
+placeholder = "source"
+source      = "field"
+
+[[example]]
+label = "Merge two inputs"
+[example.params]
+geojson = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"A\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[0,0]}}]}\n{\"type\":\"Point\",\"coordinates\":[1,1]}"
+indent = "2"
+precision = "-1"
+
+[[example]]
+label = "Shrink: round to 4 decimals + minify"
+[example.params]
+geojson = "{\"type\":\"Point\",\"coordinates\":[12.3456789,-9.8765432]}\n{\"type\":\"Point\",\"coordinates\":[1.111111,2.222222]}"
+indent = "0"
+precision = "4"
+
+[[example]]
+label = "Renumber ids + tag by source"
+[example.params]
+geojson = "{\"type\":\"Feature\",\"id\":\"x\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[0,0]}}\n{\"type\":\"Feature\",\"id\":\"x\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[1,1]}}"
+indent = "2"
+renumber = "true"
+source_property = "source"

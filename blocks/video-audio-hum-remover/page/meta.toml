@@ -1,0 +1,58 @@
+slug          = "video-audio-hum-remover"
+title         = "Remove Mains Hum from a Video Online"
+description   = "Kill 50/60 Hz electrical hum and harmonics in a video's audio with tuned notch filters. The picture is untouched and nothing is uploaded."
+tags          = ["remove hum from video", "50 60 Hz hum remover", "electrical hum removal", "mains buzz remover", "notch filter video audio", "de-hum", "ffmpeg"]
+h1            = "Remove Mains Hum from a Video"
+hero_subtitle = "Pick a video, choose 50 or 60 Hz, and a chain of narrow notch filters removes the electrical hum and its harmonics from the audio — in your browser, with the picture left untouched. Nothing is uploaded."
+wasm          = "gizza_ai_video_audio_hum_remover_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "De-hummed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "frequency"
+source = "field"
+label  = "Mains frequency"
+
+[input.labels]
+"50" = "50 Hz — Europe / Asia / Africa / Australia"
+"60" = "60 Hz — North & South America"
+
+[[input]]
+name        = "harmonics"
+source      = "field"
+kind        = "slider"
+label       = "Harmonics to notch"
+placeholder = "4"
+step        = "1"
+
+[[input]]
+name        = "q"
+source      = "field"
+kind        = "slider"
+label       = "Notch narrowness (Q)"
+placeholder = "10"
+step        = "1"
+
+[[example]]
+label  = "Europe (50 Hz)"
+params = { frequency = "50", harmonics = "4", q = "10" }
+
+[[example]]
+label  = "North America (60 Hz)"
+params = { frequency = "60", harmonics = "4", q = "10" }
+
+[[example]]
+label  = "Aggressive (many harmonics)"
+params = { frequency = "50", harmonics = "10", q = "8" }
+
+[[example]]
+label  = "Narrow / music-safe"
+params = { frequency = "50", harmonics = "4", q = "40" }

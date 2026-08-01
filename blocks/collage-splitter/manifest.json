@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/collage-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect the cells of a photo-grid collage and export each photo as its own image (ZIP)",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the cells of a photo-grid collage (an Instagram/grid-maker/MidJourney layout) and export each photo back out individually, bundled in a ZIP. rows and columns set the grid size: 0 (default) auto-detects that axis from the gutters between photos; set 1-20 to force an even split (e.g. rows=2 columns=2 for a MidJourney 2x2 grid, or rows=3 columns=3 for a 3x3). gutter is the border colour used for auto-detection (auto samples the outer border, or force white/black). trim shaves that many pixels inward on every side of each cell to remove leftover border bleed. format sets the per-cell encoding (png/jpeg/webp/bmp) and prefix names the files (cell -> cell_1.png, cell_2.png, … in row-major reading order). Assumes a grid layout separated by roughly-uniform gutters; photos with large flat gutter-coloured areas can confuse auto-detection — pass rows/columns explicitly then. For arbitrarily-placed, possibly-rotated photos on a flatbed scan, use multi-photo-scan-splitter instead. Provide the collage as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20,
+          "default": 0,
+          "description": "Number of grid rows. 0 (default) auto-detects rows from the gutters; set 1-20 to force an even split."
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20,
+          "default": 0,
+          "description": "Number of grid columns. 0 (default) auto-detects columns from the gutters; set 1-20 to force an even split."
+        },
+        "gutter": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "white",
+            "black"
+          ],
+          "default": "auto",
+          "description": "Gutter/border colour used to auto-detect the grid. auto samples the outer border; set white or black to force it."
+        },
+        "trim": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Trim this many pixels inward on every side of each cell to shave leftover border bleed."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "png",
+            "jpeg",
+            "webp",
+            "bmp"
+          ],
+          "default": "png",
+          "description": "Per-cell image format. png/webp/bmp are lossless; jpeg is smaller/opaque."
+        },
+        "prefix": {
+          "type": "string",
+          "default": "cell",
+          "description": "Filename base for each cell, e.g. cell -> cell_1.png, cell_2.png."
+        }
+      },
+      "type": "object"
+    }
+  }
+}

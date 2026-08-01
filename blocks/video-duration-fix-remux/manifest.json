@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/video-duration-fix-remux",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Repair missing or wrong video duration metadata by remuxing without re-encoding",
+  "role": "skill",
+  "tool": {
+    "description": "Repair missing or wrong container-level duration metadata by remuxing a video with ffmpeg stream copy (-c copy). Remuxing parses the packets and writes a fresh container header, so the duration/index becomes correct without re-encoding — quality is preserved bit-for-bit. Fixes MediaRecorder/screen-capture WebM whose duration reads as Infinity, MP4/MOV with a broken moov atom, and clips whose header duration disagrees with the real length. Provide a video as url or ref. Params: container=keep|mp4|mkv|mov|webm (default keep), faststart=true|false (MP4/MOV moov-to-front, default true), regen_timestamps=true|false (add -fflags +genpts for broken PTS, default false). Only stream copy, so the codecs must be compatible with the chosen container.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "container": {
+          "default": "keep",
+          "description": "Output container. keep (default) rebuilds the same container as the input, which is the safest lossless fix; mp4/mkv/mov/webm remux into that container instead. Only stream copy is used, so the codecs must be compatible with the chosen container (e.g. H.264 fits mp4/mkv/mov but not webm; VP9/Opus fit webm/mkv/mp4).",
+          "enum": [
+            "keep",
+            "mp4",
+            "mkv",
+            "mov",
+            "webm"
+          ],
+          "type": "string"
+        },
+        "faststart": {
+          "default": true,
+          "description": "MP4/MOV output only: move the moov atom (index) to the front of the file so players read the correct duration immediately and the file streams progressively (-movflags +faststart). Ignored for mkv/webm. Default true.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "regen_timestamps": {
+          "default": false,
+          "description": "Regenerate missing or broken presentation timestamps before remuxing (-fflags +genpts). Enable when the duration reads as 0, N/A, or Infinity (typical of MediaRecorder/screen-capture WebM). Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

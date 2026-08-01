@@ -1,0 +1,119 @@
+slug          = "key-derive"
+title         = "Key Derivation Function — PBKDF2, scrypt, Argon2, HKDF"
+description   = "Derive a key of any length from a passphrase or seed with PBKDF2, scrypt, Argon2id, or HKDF — hex or base64, in your browser. Nothing is uploaded."
+tags          = ["kdf", "pbkdf2", "scrypt", "argon2", "hkdf", "key derivation", "derive key"]
+h1            = "Key derivation function"
+hero_subtitle = "Derive a key of a chosen length from a passphrase or seed with PBKDF2, scrypt, Argon2id/i/d, or HKDF. Runs in your browser — the secret never leaves your device."
+wasm          = "gizza_ai_key_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived key"
+format         = "text"
+
+[[input]]
+name        = "algorithm"
+label       = "Algorithm"
+placeholder = "pbkdf2"
+source      = "field"
+
+[[input]]
+name        = "secret"
+label       = "Passphrase / seed"
+placeholder = "The passphrase or key material to derive from"
+source      = "field"
+
+[[input]]
+name        = "input_encoding"
+label       = "Secret encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt"
+placeholder = "Salt (required for Argon2, min 8 bytes)"
+source      = "field"
+
+[[input]]
+name        = "salt_encoding"
+label       = "Salt encoding"
+placeholder = "utf8"
+source      = "field"
+
+[[input]]
+name        = "length"
+label       = "Output length (bytes)"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name        = "encoding"
+label       = "Output encoding"
+placeholder = "hex"
+source      = "field"
+
+[[input]]
+name        = "hash"
+label       = "Hash (PBKDF2 / HKDF)"
+placeholder = "sha256"
+source      = "field"
+
+[[input]]
+name        = "iterations"
+label       = "Iterations (PBKDF2)"
+placeholder = "100000"
+source      = "field"
+
+[[input]]
+name        = "n"
+label       = "N — cost (scrypt)"
+placeholder = "16384"
+source      = "field"
+
+[[input]]
+name        = "r"
+label       = "r — block size (scrypt)"
+placeholder = "8"
+source      = "field"
+
+[[input]]
+name        = "p"
+label       = "p — parallelization (scrypt)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "memory_kib"
+label       = "Memory KiB (Argon2)"
+placeholder = "19456"
+source      = "field"
+
+[[input]]
+name        = "time_cost"
+label       = "Time cost (Argon2)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "parallelism"
+label       = "Parallelism (Argon2)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "argon2_variant"
+label       = "Argon2 variant"
+placeholder = "argon2id"
+source      = "field"
+
+[[input]]
+name        = "info"
+label       = "Info / context (HKDF)"
+placeholder = "application context string"
+source      = "field"
+
+[[input]]
+name        = "info_encoding"
+label       = "Info encoding (HKDF)"
+placeholder = "utf8"
+source      = "field"

@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/ics-merge-dedupe",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge several .ics calendars into one and drop duplicate events.",
+  "role": "skill",
+  "tool": {
+    "description": "Merge one or more iCalendar (.ics) documents into a single VCALENDAR and remove duplicate VEVENTs. Paste the contents of one file or concatenate several files in the 'ics' field to merge them. dedupe_by chooses how duplicates are matched: smart (UID when present, else start+title), uid_start (UID + start time), or start_title (start + title, ignoring UID — for the same event exported by different apps). keep decides which of a duplicate group survives: first (document order) or last_modified (newest LAST-MODIFIED/DTSTAMP wins). sort orders the merged events chronologically by start. calendar_name optionally sets X-WR-CALNAME. Every event is preserved verbatim (line endings normalized to CRLF); identical VTIMEZONE blocks are emitted once by TZID and non-event calendar components such as tasks, journals, and free/busy blocks pass through unchanged. Recurrence rules (RRULE) are not expanded. Runs entirely in-browser; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar_name": {
+          "description": "Optional name for the merged calendar, written as an X-WR-CALNAME property (shown as the calendar title in Google/Apple/Outlook). Leave blank to omit it.",
+          "type": "string"
+        },
+        "dedupe_by": {
+          "default": "smart",
+          "description": "How duplicate events are matched. smart (default) uses the UID when present, else falls back to normalized start+title; uid_start matches UID + start time (keeps recurrence overrides that share a UID but differ in start); start_title ignores UID and matches normalized start + title (collapses the same public event exported by different apps under different UIDs).",
+          "enum": [
+            "smart",
+            "uid_start",
+            "start_title"
+          ],
+          "type": "string"
+        },
+        "ics": {
+          "description": "The iCalendar (.ics) data to merge. Paste the whole contents of one file, or concatenate several files (each starts with BEGIN:VCALENDAR and contains one or more BEGIN:VEVENT…END:VEVENT blocks) to merge them into one calendar. Folded lines and RFC 5545 escapes are handled; every event is preserved verbatim.",
+          "type": "string"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which member of a duplicate group survives. first (default) keeps the earliest occurrence in document order; last_modified keeps the one with the newest LAST-MODIFIED (falling back to DTSTAMP), so a later edit wins over the original.",
+          "enum": [
+            "first",
+            "last_modified"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": true,
+          "description": "Sort the merged events chronologically by start time. Default true; set false to keep them in the order they appeared across the input files. Events with an unreadable start are placed last.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ics"
+      ],
+      "type": "object"
+    }
+  }
+}

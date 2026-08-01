@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-loudness-compare"
+version = "0.1.0"
+abi = 1
+summary = "Compare the loudness (LUFS, true peak) of two videos or audio files"

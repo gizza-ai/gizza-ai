@@ -1,0 +1,85 @@
+slug          = "audio-noise-gate"
+title         = "Audio Noise Gate Online (Silence Quiet Passages)"
+description   = "Gate hiss, hum and room tone out of quiet gaps in audio. Set threshold, reduction, ratio, attack and release — all in your browser."
+tags          = ["audio", "noise gate", "agate", "gate", "threshold", "background noise", "hiss", "room tone", "attack", "release", "detection"]
+h1            = "Gate Background Noise Out of Audio"
+hero_subtitle = "Pick an audio file, set the threshold and how hard the gate clamps — quiet passages are pushed down in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_noise_gate_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Gated audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "threshold"
+source      = "field"
+label       = "Threshold (dB)"
+placeholder = "-35"
+
+[[input]]
+name        = "reduction"
+source      = "field"
+label       = "Reduction (dB)"
+placeholder = "30"
+
+[[input]]
+name        = "ratio"
+source      = "field"
+label       = "Ratio (:1)"
+placeholder = "2"
+
+[[input]]
+name        = "attack"
+source      = "field"
+label       = "Attack (ms)"
+placeholder = "10"
+
+[[input]]
+name        = "release"
+source      = "field"
+label       = "Release (ms)"
+placeholder = "250"
+
+[[input]]
+name   = "detection"
+source = "field"
+label  = "Detection"
+placeholder = "rms"
+
+[input.labels]
+rms  = "RMS — average loudness (smoother)"
+peak = "Peak — instantaneous peaks (sharper)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+placeholder = "mp3"
+
+[[example]]
+label = "Gate voice-over hiss (default)"
+[example.params]
+threshold = "-35"
+reduction = "30"
+ratio     = "2"
+attack    = "10"
+release   = "250"
+detection = "rms"
+format    = "mp3"
+
+[[example]]
+label = "Hard gate to near-silence"
+[example.params]
+threshold = "-30"
+reduction = "80"
+ratio     = "10"
+attack    = "5"
+release   = "150"
+detection = "peak"
+format    = "wav"

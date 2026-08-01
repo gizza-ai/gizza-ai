@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/wireguard-config-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build and validate a complete WireGuard interface/peer config from entered keys, endpoints and AllowedIPs.",
+  "role": "skill",
+  "tool": {
+    "description": "Build and validate a complete WireGuard configuration file from values you enter — it does NOT generate keys (paste keys from 'wg genkey'/'wg pubkey'). Set 'private_key' (interface PrivateKey) and 'address' (interface Address CIDRs), plus the peer's 'peer_public_key' and 'allowed_ips'. Optionally add 'listen_port', 'dns', 'mtu' for the [Interface], and 'preshared_key', 'endpoint', 'persistent_keepalive' for the [Peer]. Every key is validated as base64 of exactly 32 bytes, every Address/AllowedIPs/DNS entry is parsed as a valid IP/CIDR, and the Endpoint host:port and all port/MTU/keepalive ranges are checked, so an invalid value is reported instead of producing a broken file. Set 'format' to 'conf' (default, the ready-to-save wg0.conf text) or 'json' (parsed interface + peer object).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "description": "Interface Address: the IP(s) assigned to this WireGuard interface, as a comma-separated list of CIDRs, e.g. '10.0.0.2/32' or '10.0.0.2/32, fd00::2/128'. Each entry is validated as an IPv4/IPv6 address with a prefix (0-32 for IPv4, 0-128 for IPv6).",
+          "type": "string"
+        },
+        "allowed_ips": {
+          "description": "Peer AllowedIPs: comma-separated CIDRs this peer is allowed to send/receive, e.g. '0.0.0.0/0, ::/0' for a full tunnel (route everything) or '10.0.0.0/24' for a split tunnel (only that subnet). Each entry is validated as a CIDR.",
+          "type": "string"
+        },
+        "dns": {
+          "default": "",
+          "description": "Interface DNS: comma-separated DNS server IP addresses pushed to this interface, e.g. '1.1.1.1' or '1.1.1.1, 8.8.8.8'. Plain IPs only (no prefix). Optional; default empty (line omitted).",
+          "type": "string"
+        },
+        "endpoint": {
+          "default": "",
+          "description": "Peer Endpoint: the peer's reachable 'host:port', e.g. 'vpn.example.com:51820' or '203.0.113.5:51820'; an IPv6 literal must be bracketed, '[2001:db8::1]:51820'. Optional (a server listening for roaming clients may omit it); default empty.",
+          "type": "string"
+        },
+        "format": {
+          "default": "conf",
+          "description": "Output format. 'conf' (default) is the ready-to-save WireGuard config file text. 'json' is a machine-readable object with the parsed interface and peer fields.",
+          "enum": [
+            "conf",
+            "json"
+          ],
+          "type": "string"
+        },
+        "listen_port": {
+          "description": "Interface ListenPort: the UDP port WireGuard listens on, 1-65535 (servers commonly use 51820). Optional — omit for a roaming client that uses a random port.",
+          "type": "integer"
+        },
+        "mtu": {
+          "description": "Interface MTU in bytes, 576-9000. WireGuard's default is 1420; lower it (e.g. 1280) only if you see fragmentation. Optional (line omitted when unset).",
+          "type": "integer"
+        },
+        "peer_public_key": {
+          "description": "Peer PublicKey: the base64 WireGuard public key of the OTHER end (server or peer), a 44-character string ending in '='. Validated as base64 of exactly 32 bytes.",
+          "type": "string"
+        },
+        "persistent_keepalive": {
+          "description": "Peer PersistentKeepalive in seconds, 0-65535. Set to 25 when this side is behind NAT to keep the tunnel open; 0/omit disables it. Optional (line omitted when unset).",
+          "type": "integer"
+        },
+        "preshared_key": {
+          "default": "",
+          "description": "Peer PresharedKey: an optional base64 32-byte pre-shared key added for post-quantum defence-in-depth (from 'wg genpsk'). Validated as base64 of 32 bytes when given. Optional; default empty (line omitted).",
+          "type": "string"
+        },
+        "private_key": {
+          "description": "Interface PrivateKey: the base64 WireGuard (Curve25519) private key for THIS machine, a 44-character string ending in '=' (e.g. from 'wg genkey'). Validated as base64 of exactly 32 bytes. This tool never generates keys — paste one you created.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "private_key",
+        "address",
+        "peer_public_key",
+        "allowed_ips"
+      ],
+      "type": "object"
+    }
+  }
+}

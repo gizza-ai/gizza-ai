@@ -1,0 +1,85 @@
+slug          = "markdown-strip"
+title         = "Markdown Stripper — Convert Markdown to Plain Text"
+description   = "Strip Markdown formatting to clean plain text: headings, bold, links, code fences, tables, lists, and blockquotes. Free, private, in-browser, no sign-up."
+tags          = ["strip markdown", "markdown to text", "remove markdown", "plain text", "markdown to plain text", "clean chatgpt output", "remove formatting", "markdown converter"]
+h1            = "Markdown to Plain Text"
+hero_subtitle = "Paste Markdown and get clean plain text — headings, emphasis, links, code fences, tables, lists, and blockquotes removed. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_markdown_strip_web"
+export        = "run"
+live          = false
+output_label  = "Plain text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Markdown"
+placeholder = "# Weekly update\n\nShipped **login** and fixed the [signup bug](https://example.com/issues/42).\n\n- Deploy on Friday\n- `cargo test` is green"
+source      = "field"
+multiline   = true
+
+# links/images render as <select> and the two checkboxes derive their control
+# from the descriptor's schema (manifest.json), so option lists aren't duplicated.
+[[input]]
+name   = "links"
+label  = "Links"
+source = "field"
+
+[input.labels]
+text = "Keep the link text"
+url  = "Keep the URL"
+both = "Keep text (url)"
+
+[[input]]
+name   = "images"
+label  = "Images"
+source = "field"
+
+[input.labels]
+alt  = "Keep alt text"
+drop = "Remove images"
+
+[[input]]
+name   = "keep_list_markers"
+label  = "Keep list markers (- and 1.)"
+source = "field"
+
+[[input]]
+name   = "collapse_blank_lines"
+label  = "Collapse blank lines"
+source = "field"
+
+[[example]]
+label = "Clean a formatted note"
+[example.params]
+text = "# Weekly update\n\nShipped **login** and fixed the [signup bug](https://example.com/issues/42).\n\n- Deploy on Friday\n- `cargo test` is green"
+links = "text"
+images = "alt"
+keep_list_markers = "false"
+collapse_blank_lines = "true"
+
+[[example]]
+label = "Keep list markers"
+[example.params]
+text = "Groceries:\n\n1. Apples\n2. Bread\n3. Coffee"
+links = "text"
+images = "alt"
+keep_list_markers = "true"
+collapse_blank_lines = "true"
+
+[[example]]
+label = "Links as text (url)"
+[example.params]
+text = "See the [docs](https://example.com/docs) and the [API](https://example.com/api)."
+links = "both"
+images = "alt"
+keep_list_markers = "false"
+collapse_blank_lines = "true"
+
+[[example]]
+label = "Flatten a table"
+[example.params]
+text = "| Name | Qty |\n| --- | --- |\n| Apple | 3 |\n| Pear | 7 |"
+links = "text"
+images = "alt"
+keep_list_markers = "false"
+collapse_blank_lines = "true"

@@ -1,0 +1,34 @@
+[package]
+name = "gizza-ai-video-audio-loudness-compare-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust container demuxers + audio decoders. Same wasm-proven
+# crate + feature set as blocks/video-audio-sync-offset-finder (video containers
+# carry the audio track we measure); full DECODE proven by
+# blocks/loudness-matched-ab-prep. Video tracks in MP4/MKV appear as
+# CODEC_TYPE_NULL and are skipped -- only the audio track is decoded. No std
+# clock / no I/O at runtime.
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }
+# ebur128: pure-Rust port of libebur128 -- ITU-R BS.1770 / EBU R128 integrated
+# loudness, loudness range (LRA), momentary/short-term windows and 4x-oversampled
+# true peak.
+ebur128 = "0.1"
+# hound: pure-Rust WAV writer used only by the unit tests to synthesize fixtures.
+hound = "3"

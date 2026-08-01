@@ -1,0 +1,47 @@
+slug          = "typescript-transpiler"
+title         = "TypeScript Transpiler — Strip Types to JavaScript"
+description   = "Paste TypeScript and convert it to best-effort JavaScript locally by stripping annotations, interfaces, assertions, and simple enums."
+tags          = ["typescript transpiler", "typescript to javascript", "strip types", "ts to js", "javascript converter", "webassembly"]
+h1            = "TypeScript Transpiler"
+hero_subtitle = "Convert TypeScript snippets to best-effort JavaScript in your browser. The tool strips type-only syntax locally in WebAssembly without running a full compiler."
+wasm          = "gizza_ai_typescript_transpiler_web"
+export        = "run"
+live          = false
+output_label  = "JavaScript output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "TypeScript source"
+placeholder = "type User = { name: string }\nexport function greet(name: string): string {\n  return `Hello ${name}` as string;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "enum_style"
+label  = "Enum handling"
+source = "field"
+
+[input.labels]
+compile = "Compile enums to objects"
+strip   = "Strip enums"
+
+[[input]]
+name   = "remove_comments"
+label  = "Remove comments"
+source = "field"
+
+[[example]]
+label = "Function snippet"
+[example.params]
+input = "type User = { name: string }\nexport function greet(name: string): string {\n  const label: string = name as string;\n  return `Hello ${label}`;\n}"
+enum_style = "compile"
+remove_comments = "false"
+
+[[example]]
+label = "Compile enum"
+[example.params]
+input = "enum Color { Red, Green = 4, Blue }\nconst current: Color = Color.Blue;"
+enum_style = "compile"
+remove_comments = "false"

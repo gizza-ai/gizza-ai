@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/query-string-codec",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between a URL query string and JSON, both directions",
+  "role": "skill",
+  "tool": {
+    "description": "A bidirectional URL query-string codec. Set `direction` to `parse` (query string → JSON) or `build` (JSON object → query string). Parse splits on `&`/`;`, percent- and `+`-decodes every key and value, collapses repeated keys into arrays, and expands PHP/Rails bracket notation — `a[]=1&a[]=2` → an array, `a[0]=x&a[2]=z` → an indexed (null-padded) array, `user[name]=Ann&user[age]=30` → a nested object, including arrays of objects (`items[][id]=1`) — returning pretty structured JSON. Build walks a JSON object and serializes it back to an encoded query string: choose the array style (`brackets` `tags[]=a`, `indices` `tags[0]=a`, `repeat` `tags=a&tags=a`, or `comma` `tags=a,b`), whether a space is `+` or `%20` (`space_as_plus`), whether to sort keys, and whether to prepend `?`. brackets/indices/repeat round-trip back through parse. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_style": {
+          "default": "brackets",
+          "description": "`build` only — how JSON arrays serialize. `brackets`: `tags[]=a&tags[]=b`. `indices`: `tags[0]=a&tags[1]=b`. `repeat`: `tags=a&tags=b`. `comma`: `tags=a,b` (one compact pair; scalar values only, and not auto-split when parsing back). brackets/indices/repeat round-trip through `parse`.",
+          "enum": [
+            "brackets",
+            "indices",
+            "repeat",
+            "comma"
+          ],
+          "type": "string"
+        },
+        "direction": {
+          "default": "parse",
+          "description": "Which way to convert. `parse` (default): a query string → structured JSON (repeated keys become arrays; `a[]`/`a[0]`/`a[key]` bracket notation becomes nested arrays/objects). `build`: a JSON object → an encoded query string.",
+          "enum": [
+            "parse",
+            "build"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The data to convert. For `parse`: a query string, e.g. `name=John+Doe&color=red&color=blue&user[age]=30` (a leading `?` or a whole URL's `?...` part is accepted). For `build`: a JSON object, e.g. `{\"name\":\"John Doe\",\"tags\":[\"a\",\"b\"],\"user\":{\"age\":30}}` (the top level must be an object).",
+          "type": "string"
+        },
+        "prefix_question_mark": {
+          "default": false,
+          "description": "`build` only — prepend a leading `?` to the result so it can be appended straight onto a URL. Default false (bare query string).",
+          "type": "boolean"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "`build` only — sort object keys alphabetically (recursively) instead of keeping the input JSON's key order. Default false (preserve order).",
+          "type": "boolean"
+        },
+        "space_as_plus": {
+          "default": true,
+          "description": "Encode/decode spaces as `+` (application/x-www-form-urlencoded). When true (default): `build` writes a space as `+` and `parse` decodes `+` back to a space. When false: `build` writes `%20` and `parse` keeps `+` literal (strict RFC 3986). A literal `+` in a value is always escaped to `%2B` on build.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/address-parse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a freeform postal address into structured fields",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a freeform postal address into structured fields and return JSON. Extracts the house number, street, unit/secondary designator (Apt/Suite/#), city, region (US state, Canadian province or Australian state — with its code where known), postal code (US ZIP incl. ZIP+4, UK, Canadian, and numeric formats, normalized), and country (canonical name + ISO 3166-1 alpha-2 code). Accepts comma-separated or multi-line input. An optional 'country' hint (ISO alpha-2, or 'auto') biases postcode/region detection and fills the country when the text omits it. Rule-based heuristic tuned for common formats — not a statistical model; unusual orderings may parse imperfectly. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "description": "The freeform postal address to parse, e.g. '123 Main St, Springfield, IL 62704, USA'. Comma-separated or multi-line input both work; surrounding whitespace is trimmed.",
+          "type": "string"
+        },
+        "country": {
+          "default": "auto",
+          "description": "Country hint as an ISO 3166-1 alpha-2 code. Biases postcode and region detection and fills the country field when the address text omits it. 'auto' (default) detects the country from the text.",
+          "enum": [
+            "auto",
+            "US",
+            "GB",
+            "CA",
+            "AU",
+            "DE",
+            "FR",
+            "IN",
+            "NL",
+            "ES",
+            "IT",
+            "BR",
+            "JP"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "address"
+      ],
+      "type": "object"
+    }
+  }
+}

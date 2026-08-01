@@ -1,0 +1,90 @@
+slug          = "column-value-diff"
+title         = "Column Value Diff — Compare One Column Across Two Tables by Key"
+description   = "Join two CSVs on a key column and report every row where a single chosen value column disagrees, as clean old → new pairs. Browser-local, no upload."
+tags          = ["column value diff", "compare csv column", "reconcile csv by key", "csv value changed", "old new value diff", "csv key join compare", "price change diff", "csv column reconcile"]
+h1            = "Compare one column across two tables, matched by key"
+hero_subtitle = "Paste two CSVs, pick a key column and one value column, and get a clean list of every key whose value changed — old → new — ignoring all the other columns. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_column_value_diff_web"
+export        = "run"
+live          = false
+output_label  = "Value changes"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "Original CSV (old table)"
+placeholder = "id,name,price\n1,Apple,10\n2,Banana,20\n3,Cherry,30"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Updated CSV (new table)"
+placeholder = "id,name,price\n1,Apple,12\n2,Banana,20\n3,Cherry,35"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Key column(s) to join on"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "value"
+label       = "Value column to compare"
+placeholder = "price"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace"
+source = "field"
+
+[[input]]
+name   = "include_unmatched"
+label  = "Include keys on only one side"
+source = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+table = "Table report"
+json  = "JSON report"
+csv   = "CSV change-log"
+
+[[example]]
+label  = "Price changes (keyed by id)"
+params = { left = "id,name,price\n1,Apple,10\n2,Banana,20\n3,Cherry,30", right = "id,name,price\n1,Apple,12\n2,Banana,20\n3,Cherry,35", key = "id", value = "price", format = "table" }
+
+[[example]]
+label  = "Status change, different schemas"
+params = { left = "sku,notes,status\nA1,restocked,in stock\nB2,,backorder", right = "sku,status,shelf\nA1,in stock,7\nB2,in stock,3", key = "sku", value = "status", format = "table" }
+
+[[example]]
+label  = "Include one-sided keys (JSON)"
+params = { left = "id,qty\n1,5\n2,7", right = "id,qty\n1,6\n3,9", key = "id", value = "qty", include_unmatched = "true", format = "json" }

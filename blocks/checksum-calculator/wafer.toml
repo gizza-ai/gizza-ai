@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "checksum-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compute a CRC checksum (CRC-32, CRC-32C, CRC-16 or CRC-8) of text or encoded bytes, and optionally verify it"

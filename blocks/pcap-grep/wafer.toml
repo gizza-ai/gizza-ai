@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pcap-grep"
+version = "0.1.0"
+abi = 1
+summary = "Search .pcap/.pcapng packet payloads with a regex, ngrep-style"

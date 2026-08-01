@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/egfr-calc",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Estimate kidney filtration rate (eGFR) from creatinine, age and sex using race-free CKD-EPI.",
+  "role": "skill",
+  "tool": {
+    "description": "Estimate glomerular filtration rate (eGFR) from serum creatinine, age and sex using the race-free CKD-EPI creatinine equations. Pass creatinine (with creatinine_unit=mg/dL or µmol/L), age (adults 18–120), sex (male/female), and optionally equation (ckd_epi_2021 default, the current US standard, or ckd_epi_2009 for comparison — its race coefficient is deliberately omitted). Every parameter is optional with a sensible default. Returns egfr in mL/min/1.73 m² (whole number), the KDIGO GFR category (gfr_stage G1–G5) with a plain-language stage_description, the creatinine used in mg/dL, and a summary. Informational estimate, not a diagnosis or medical advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "default": 50.0,
+          "description": "Age in whole years. CKD-EPI is validated for adults, so ages under 18 are rejected. Default 50 (range 18–120).",
+          "maximum": 120,
+          "minimum": 18,
+          "type": "number"
+        },
+        "creatinine": {
+          "default": 1.0,
+          "description": "Serum creatinine value, in the unit given by creatinine_unit (mg/dL by default). Must be an IDMS-standardized lab value. Default 1.0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "creatinine_unit": {
+          "default": "mg/dL",
+          "description": "Unit of the creatinine value: mg/dL (US) or µmol/L (SI, converted by ÷88.42). Default mg/dL.",
+          "enum": [
+            "mg/dL",
+            "µmol/L"
+          ],
+          "type": "string"
+        },
+        "equation": {
+          "default": "ckd_epi_2021",
+          "description": "Which race-free CKD-EPI creatinine equation to use: ckd_epi_2021 (default, the current NKF/ASN-recommended US standard) or ckd_epi_2009 (older, for historical comparison; the 2009 race coefficient is deliberately omitted).",
+          "enum": [
+            "ckd_epi_2021",
+            "ckd_epi_2009"
+          ],
+          "type": "string"
+        },
+        "sex": {
+          "default": "male",
+          "description": "Biological sex used by the equation: male or female. Default male.",
+          "enum": [
+            "male",
+            "female"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

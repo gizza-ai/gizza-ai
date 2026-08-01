@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/pairwise-test-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a minimal all-pairs (pairwise) test set from a parameter model",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a minimal all-pairs (pairwise) combinatorial test set that covers every value pair across parameters. Input `parameters` is a plain-text model, one parameter per line as 'Name: value1, value2, …' (blank lines and '#' comments ignored); needs at least 2 parameters, up to 20 with up to 30 values each. A deterministic greedy algorithm produces far fewer test cases than the full Cartesian product while still exercising every pair of values from any two parameters. output_format=markdown (default) | csv | json | ascii; include_index prepends a numbered '#' column. Pairwise only (no higher-strength t-way or constraints). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_index": {
+          "default": true,
+          "description": "Prepend a '#' column numbering each generated test case (default true).",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "markdown",
+          "description": "Output format: markdown (default, GitHub pipe table), csv (spreadsheet import), json (array of objects), or ascii (plain box-drawn grid).",
+          "enum": [
+            "markdown",
+            "csv",
+            "json",
+            "ascii"
+          ],
+          "type": "string"
+        },
+        "parameters": {
+          "description": "The parameter model: one parameter per line as 'Name: value1, value2, …'. Example: 'Browser: Chrome, Firefox, Safari' then 'OS: Windows, macOS, Linux'. Blank lines and lines starting with '#' are ignored. Needs at least 2 parameters; up to 20 parameters with up to 30 values each.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "parameters"
+      ],
+      "type": "object"
+    }
+  }
+}

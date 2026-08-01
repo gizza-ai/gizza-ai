@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/yaml-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reindent and normalize YAML with key ordering and block/flow style",
+  "role": "skill",
+  "tool": {
+    "description": "Reindent and normalize a YAML document with consistent spacing. indent is spaces per nesting level for block style (1-8, default 2; YAML forbids tabs). style is 'block' (expanded multi-line, default) or 'flow' (compact single-line). sort_keys is 'preserve' (default), 'asc' or 'desc' to alphabetize every mapping's keys recursively. Data is normalized round-trip; comments, blank lines and anchors are not preserved (aliases are expanded). Multi-document `---` streams are supported. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level for block style (1-8). Ignored for flow style. YAML forbids tab indentation. Default 2.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sort_keys": {
+          "default": "preserve",
+          "description": "Mapping key order: 'preserve' keeps the original order; 'asc'/'desc' sort every mapping's keys alphabetically (recursively). Default preserve.",
+          "enum": [
+            "preserve",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "style": {
+          "default": "block",
+          "description": "Output layout: 'block' is expanded multi-line YAML (beautify); 'flow' is compact single-line JSON-like YAML (minify). Default block.",
+          "enum": [
+            "block",
+            "flow"
+          ],
+          "type": "string"
+        },
+        "yaml": {
+          "description": "The YAML document (or `---` separated multi-document stream) to reindent and normalize. Messy or inconsistently-indented input is fine.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "yaml"
+      ],
+      "type": "object"
+    }
+  }
+}

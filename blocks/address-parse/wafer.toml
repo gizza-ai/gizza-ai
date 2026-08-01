@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "address-parse"
+version = "0.1.0"
+abi = 1
+summary = "Parse a freeform postal address into structured fields"
