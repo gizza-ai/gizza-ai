@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/duplicate-column-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and remove duplicate columns in CSV tables.",
+  "role": "skill",
+  "tool": {
+    "description": "Find duplicate columns in CSV/table text: columns are duplicates when their values match down every row. By default the header name is ignored, so differently named columns with identical values are grouped; set ignore_header_name=false to require matching names too. Comparisons are case-insensitive and whitespace-normalized by default. The first (leftmost) column in each duplicate group is kept, later copies are reported or removed. Choose output='report' for a human summary, 'csv' for the table with redundant columns removed, or 'json' for structured groups.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "CSV/table text to scan for duplicate columns. Rows may use comma, tab, semicolon, pipe, or a one-character delimiter.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Input delimiter: comma (default), tab, semicolon, or pipe.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "When true (default), treat the first row as column names and preserve it in CSV output.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": true,
+          "description": "When true (default), compare cells case-insensitively so 'Alice' and 'alice' match.",
+          "type": "boolean"
+        },
+        "ignore_header_name": {
+          "default": true,
+          "description": "When true (default), columns with different names still count as duplicates if their values match. Set false to require matching header names too.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": true,
+          "description": "When true (default), trim/collapse whitespace before comparing cells.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output mode: report (human summary, default), csv (table with redundant columns removed), or json (structured duplicate groups).",
+          "enum": [
+            "report",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
