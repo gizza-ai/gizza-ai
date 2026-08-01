@@ -1,0 +1,102 @@
+slug          = "funnel-conversion-analyzer"
+title         = "Funnel Conversion Analyzer — Step Conversion & Drop-off Rates"
+description   = "Paste an event CSV and compute funnel conversion and drop-off rates per step. Unique users, conversion from top and previous step — in your browser, no upload."
+tags          = ["funnel analysis", "conversion rate", "drop-off rate", "funnel analytics", "event csv", "user funnel", "conversion funnel"]
+h1            = "Analyze a conversion funnel"
+hero_subtitle = "Paste an event log (user, event, optional timestamp) and get unique users, conversion, and drop-off for every funnel step. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_funnel_conversion_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Funnel report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Event CSV"
+placeholder = "user,event\nu1,view\nu1,signup\nu1,purchase\nu2,view\nu2,signup\nu3,view"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "steps"
+label       = "Funnel steps (comma-separated, optional)"
+placeholder = "view,signup,purchase"
+source      = "field"
+
+[[input]]
+name        = "user"
+label       = "User column (name or 1-based index)"
+placeholder = "user"
+source      = "field"
+
+[[input]]
+name        = "event"
+label       = "Event column (name or 1-based index)"
+placeholder = "event"
+source      = "field"
+
+[[input]]
+name        = "time"
+label       = "Timestamp column (optional)"
+placeholder = "ts"
+source      = "field"
+
+[[input]]
+name   = "ordered"
+label  = "Strict order (each step needs the previous)"
+source = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma = "Comma (,)"
+tab = "Tab"
+semicolon = "Semicolon (;)"
+pipe = "Pipe (|)"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+table = "Table"
+json = "JSON"
+
+[[example]]
+label = "Signup funnel (view → signup → purchase)"
+[example.params]
+data = "user,event\nu1,view\nu1,signup\nu1,purchase\nu2,view\nu2,signup\nu3,view"
+steps = "view,signup,purchase"
+ordered = "true"
+header = "true"
+delimiter = "comma"
+format = "table"
+
+[[example]]
+label = "Auto-derive steps from events"
+[example.params]
+data = "user,event\nu1,view\nu1,signup\nu1,purchase\nu2,view\nu2,signup\nu3,view"
+steps = ""
+ordered = "true"
+header = "true"
+delimiter = "comma"
+format = "table"
+
+[[example]]
+label = "Independent steps (JSON)"
+[example.params]
+data = "user,event\nu1,view\nu1,signup\nu1,purchase\nu2,view\nu2,signup\nu3,view\nu4,view\nu4,purchase"
+steps = "view,signup,purchase"
+ordered = "false"
+header = "true"
+delimiter = "comma"
+format = "json"
