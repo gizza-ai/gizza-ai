@@ -1,0 +1,41 @@
+{
+  "name": "gizza-ai/video-gps-metadata-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract embedded GPS location from MP4/MOV video metadata.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the GPS location tag embedded in an MP4/MOV/QuickTime video's metadata, entirely in-browser with no ffmpeg. Reads the classic QuickTime '©xyz' user-data atom (moov/udta) that iPhones and many Android phones write, and Apple's newer 'com.apple.quicktime.location.ISO6709' key in the meta/ilst table, parses the ISO 6709 coordinate string into signed decimal latitude/longitude (and altitude when present), and returns an OpenStreetMap link. Pass the file bytes in 'input' as base64 (default) or hex via 'input_format'; only the metadata head that reaches the 'moov' box is required. 'output' is 'report' (default, human-readable) or 'json' (structured). A valid video with no location tag is reported as 'none found', not an error. This is the static location tag, not per-frame GoPro GPMF telemetry.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "The MP4/MOV/QuickTime video file bytes, encoded as a base64 or hex string. Only the metadata region is needed, so a truncated head that reaches the 'moov' box is enough — the full file is not required.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "How 'input' is encoded: 'base64' (default; standard or URL-safe, padding optional) or 'hex' (whitespace, ':' and '-' separators are ignored).",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: 'report' (default, a human-readable summary of each GPS tag) or 'json' (a structured object with count and per-location latitude/longitude/altitude/source/map_url).",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

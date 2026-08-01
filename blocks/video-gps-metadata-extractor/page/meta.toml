@@ -1,0 +1,59 @@
+slug          = "video-gps-metadata-extractor"
+title         = "Video GPS Metadata Extractor — Read MP4/MOV Location Tags"
+description   = "Extract GPS location from MP4/MOV metadata: latitude, longitude, altitude, and a map link. Private in-browser parsing — no upload."
+tags          = ["video gps", "mp4 gps metadata", "mov location", "extract gps from video", "quicktime location", "iso 6709", "video metadata", "geotag video"]
+h1            = "Extract GPS Location from Video Metadata"
+hero_subtitle = "Paste an MP4/MOV video's bytes (base64 or hex) and read the embedded GPS location — latitude, longitude, altitude, and a map link. Reads the QuickTime ©xyz atom and Apple's ISO 6709 location key. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_video_gps_metadata_extractor_web"
+export        = "run"
+live          = false
+output_label  = "GPS report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Video bytes (base64 or hex)"
+placeholder = "AAAAFGZ0eXBxdCAgAAACAHF0ICAAAAAubW9vdgAAACZ1ZHRhAAAAHql4eXoAEhXHKzM3Ljc3NDktMTIyLjQxOTQv"
+source      = "field"
+multiline   = true
+
+# input_format/output render as <select>; the option lists derive from the
+# descriptor's schema (manifest.json), so they aren't duplicated here.
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "JSON"
+
+[[example]]
+label = "iPhone clip (San Francisco)"
+[example.params]
+input = "AAAAFGZ0eXBxdCAgAAACAHF0ICAAAAAubW9vdgAAACZ1ZHRhAAAAHql4eXoAEhXHKzM3Ljc3NDktMTIyLjQxOTQv"
+input_format = "base64"
+output = "report"
+
+[[example]]
+label = "Clip with altitude (London), as JSON"
+[example.params]
+input = "AAAAFGZ0eXBxdCAgAAACAHF0ICAAAAA1bW9vdgAAAC11ZHRhAAAAJal4eXoAGRXHKzUxLjUwNzQtMDAwLjEyNzgrMzUuMDAwLw=="
+input_format = "base64"
+output = "json"
+
+[[example]]
+label = "Same clip pasted as hex"
+[example.params]
+input = "00000014667479707174202000000200717420200000002e6d6f6f7600000026756474610000001ea978797a001215c72b33372e373734392d3132322e343139342f"
+input_format = "hex"
+output = "report"
