@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nostr-key-encoder"
+version = "0.1.0"
+abi = 1
+summary = "Convert Nostr identifiers between hex and NIP-19 bech32"
