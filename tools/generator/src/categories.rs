@@ -50,7 +50,7 @@ pub const CATEGORIES: &[Category] = &[
         blurb: "Convert, resize, compress and recolor images and SVGs — plus \
                 color palettes, gradients and contrast checks.",
         tags: &["image", "photo", "svg", "png", "webp"],
-        slug_words: &["image", "photo", "svg", "color", "gradient", "mindmap", "vignette"],
+        slug_words: &["image", "photo", "svg", "color", "gradient", "mindmap", "vignette", "slider", "levels", "mesh"],
     },
     Category {
         slug: "data",
@@ -64,8 +64,11 @@ pub const CATEGORIES: &[Category] = &[
             "geojson", "camt053", "mt940", "qif", "ofx", "iban", "ini", "vcard", "takeout",
             "telegram", "whatsapp", "bank", "statement", "budget", "cluster", "reshape",
             "validator", "validate", "schema", "survey", "tabulator", "sampler", "imputer",
-            "rebalancer", "numeric", "random", "monte", "regression", "currency", "spending",
-            "categorizer", "order", "amazon", "hl7", "fit",
+            "missing", "value", "report", "rebalancer", "numeric", "random", "monte",
+            "regression", "currency", "spending", "categorizer", "order", "amazon", "hl7",
+            "fit", "bson", "bin", "clusterer", "format", "converter", "feature", "pruner",
+            "fastq", "fasta", "vcf", "tsv", "genomic", "geofence", "location", "portfolio",
+            "allocation", "funnel", "conversion", "beancount", "net", "worth", "subscription",
         ],
     },
     Category {
@@ -76,7 +79,7 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["markdown", "latex", "bibliography", "citation", "pdf", "epub"],
         slug_words: &[
             "markdown", "latex", "bibtex", "citation", "resume", "slides", "document", "toc",
-            "pdf", "epub",
+            "pdf", "epub", "mail", "merge", "file", "files", "prompt",
         ],
     },
     Category {
@@ -97,7 +100,7 @@ pub const CATEGORIES: &[Category] = &[
             "sha3", "xor", "fernet", "bip39", "ja3", "ja4", "ioc", "ssh", "pem", "asn1", "luhn",
             "token", "safelink", "aes", "des", "passphrase", "diceware", "privacy", "pii",
             "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
-            "secret", "scanner", "keypair", "keygen", "qr",
+            "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum",
         ],
     },
     Category {
@@ -121,6 +124,7 @@ pub const CATEGORIES: &[Category] = &[
             "ip", "ipv4", "ipv6", "cidr", "dns", "tcp", "udp", "tls", "http", "websocket", "url",
             "urls", "uri", "mac", "ethernet", "grpc", "magnet", "email", "eml", "domains", "link",
             "header", "query", "har", "curl", "contact", "phone", "calendar", "freebusy", "nmap",
+            "address", "domain", "wireguard", "network-config",
         ],
     },
     Category {
@@ -131,7 +135,7 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["time", "date", "timezone", "unix timestamp", "datetime", "cron expression"],
         slug_words: &[
             "date", "dates", "datetime", "time", "clock", "timezone", "timestamp", "cron",
-            "seconds", "age", "hms", "ics", "period",
+            "seconds", "age", "hms", "ics", "period", "deadline", "countdown",
         ],
     },
     Category {
@@ -146,6 +150,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "calculator", "stats", "average", "sum", "percentage", "geometry", "matrix", "graph",
             "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
+            "egfr", "calc", "round", "nearest",
         ],
     },
     Category {
@@ -177,7 +182,7 @@ pub const CATEGORIES: &[Category] = &[
             "template", "typescript", "flask", "session", "php", "seo", "sitemap", "form",
             "syntax", "autoprefixer", "playground", "tree", "gzip", "dotenv", "env", "configmap",
             "log", "postman", "code", "formatter", "tabs", "spaces", "swagger", "api", "search",
-            "index",
+            "index", "enum", "glob", "filter", "pairwise", "test", "syslog",
         ],
     },
     Category {
