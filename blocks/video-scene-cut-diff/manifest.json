@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/video-scene-cut-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect scene cuts in two edits of the same footage and list added, removed, or moved cuts",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the scene-cut (shot-boundary) timestamps in TWO edits of the same footage and report which cuts were ADDED, REMOVED, or MOVED between them — an editorial diff of a rough vs fine cut, a before/after re-edit, or two renders. Provide videos as a list of exactly two items (edit 1, the reference timeline, first), each a url (HTTP/HTTPS) or a `ref` from a prior tool call; any container ffmpeg reads (MP4/MOV, MKV/WebM, AVI, …) with a video track, up to 32 MiB per file. ffmpeg's scene detector runs over each video independently: threshold (0.0–1.0, default 0.3) is the visual-difference sensitivity (lower = more cuts), and min_scene (seconds, default 0.4) merges cuts closer than that so each transition counts once. The two cut lists are then matched within tolerance seconds (default 0.5): a cut present in both within the window is unchanged, or MOVED if its time shifted by more than ~0.04 s; a cut with no partner is ADDED (edit 2 only) or REMOVED (edit 1 only). This tool DETECTS and DIFFS only — it never re-cuts or rewrites the videos. Returns flat JSON: cuts_edit1[]/cuts_edit2[] (all detected timestamps), added[]/removed[]/moved[]/unchanged[], a counts object, and a one-line summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "min_scene": {
+          "default": 0.4,
+          "description": "Minimum seconds between detected cuts (default 0.4). A single hard cut can trip the detector on two adjacent frames; cuts closer than this to the previous one are merged so each transition counts once. 0 disables de-bouncing.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "threshold": {
+          "default": 0.3,
+          "description": "Scene-detection sensitivity, 0.0–1.0 (default 0.3). ffmpeg flags a frame as a scene cut when its visual difference from the previous frame exceeds this. Lower = more cuts (catches soft/graded transitions but also risks false positives on fast motion); higher = only hard cuts. 0.3–0.4 suits most footage.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "tolerance": {
+          "default": 0.5,
+          "description": "Match window in seconds (default 0.5). A cut in edit 1 and a cut in edit 2 within this distance are treated as the SAME cut; if their times differ by more than ~0.04 s it is reported as MOVED, otherwise unchanged. Cuts with no partner within the window are ADDED (edit 2 only) or REMOVED (edit 1 only). Raise it if a global timeline shift is being reported as add+remove instead of moves.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "videos": {
+          "description": "Exactly two edits of the same footage to compare — a rough cut and a fine cut, a before/after re-edit, or two renders. Edit 1 (the first item) is the reference timeline; every added/removed/moved verdict is relative to it. Each item has exactly one of `url` or `ref`. Any container ffmpeg reads (MP4/MOV, MKV/WebM, AVI, …) with a video track; up to 32 MiB per file — compress or trim longer footage first.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        }
+      },
+      "required": [
+        "videos"
+      ],
+      "type": "object"
+    }
+  }
+}

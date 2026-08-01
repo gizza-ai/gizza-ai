@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-scene-cut-diff"
+version = "0.1.0"
+abi = 1
+summary = "Detect scene cuts in two edits of the same footage and list added, removed, or moved cuts"
