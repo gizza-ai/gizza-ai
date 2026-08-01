@@ -218,4 +218,72 @@ python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
   python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
   exit 1; }
 
+# Network disclosure (check #9): a block whose Rust source calls
+# network::do_request must set `network = true` in page/meta.toml (the flag that
+# renders the disclosure badge) — a missing flag must fail mentioning it.
+cat >> "$dir/src/lib.rs" <<'EOF'
+
+fn fetch_it() {
+    let _ = network::do_request();
+}
+EOF
+out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
+case "$out" in
+  *"network = true"*) ;;
+  *) echo "FAIL: expected a check-9 violation, got: $out" >&2; exit 1 ;;
+esac
+
+# Disclosing the call (network = true) but leaving a local-only claim in
+# hero_subtitle must also fail — mentioning the local-only claim. `network` and
+# `hero_subtitle` must be written BEFORE the first `[[input]]` — TOML keys after
+# an array-of-tables header attach to that table, not the top level.
+cat > "$dir/page/meta.toml" <<'EOF'
+slug          = "zzhygiene-scratch"
+description   = "Encode or decode data instantly in your browser — free, private, and offline-capable."
+network       = true
+hero_subtitle = "Fast, works offline"
+
+[[input]]
+name        = "text"
+label       = "Text"
+source      = "field"
+placeholder = "hello world"
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+placeholder = ""
+EOF
+out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
+case "$out" in
+  *"works offline"*) ;;
+  *) echo "FAIL: expected a check-9 local-only violation, got: $out" >&2; exit 1 ;;
+esac
+
+# Fix: drop the false local-only claim, keep network = true — passes again.
+sed_inplace '/^hero_subtitle = "Fast, works offline"$/d' "$dir/page/meta.toml"
+python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
+  echo "FAIL: gate rejected a compliant network-disclosed block" >&2
+  python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
+  exit 1; }
+
+# Check 9 must also scan `description` — it's the field that propagates
+# furthest (<meta name="description">, JSON-LD, og/twitter tags, the index
+# card, index.md, tool.json), not just hero_subtitle/content.md. A local-only
+# phrase there must fail the gate too, even with hero_subtitle/content.md clean.
+sed_inplace 's/^description   = .*/description   = "Encode or decode data — works offline, always free, in your browser."/' "$dir/page/meta.toml"
+out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
+case "$out" in
+  *"works offline"*) ;;
+  *) echo "FAIL: expected a check-9 description violation, got: $out" >&2; exit 1 ;;
+esac
+
+# Fix: restore a description with no local-only claim — passes again.
+sed_inplace 's/^description   = .*/description   = "Encode or decode data instantly in your browser — free, private, and offline-capable."/' "$dir/page/meta.toml"
+python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
+  echo "FAIL: gate rejected a compliant network-disclosed block" >&2
+  python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
+  exit 1; }
+
 echo "check-tool-hygiene.test.sh OK"

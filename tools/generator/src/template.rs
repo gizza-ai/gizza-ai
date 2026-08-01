@@ -152,6 +152,16 @@ pub fn render_page(
                     section class="tool-hero" {
                         h1 { (meta.h1) }
                         p class="tool-hero-sub" { (meta.hero_subtitle) }
+                        // Every other tool on the site is local-only, so a tool that
+                        // actually reaches the network has to say so before it runs.
+                        @if meta.network {
+                            p class="tool-network-note" {
+                                "Heads up: this tool makes a real network request. "
+                                "The address you enter is fetched from your browser, so \
+                                 the request leaves your device and the target site must \
+                                 allow cross-origin access — many sites do not."
+                            }
+                        }
                         @let widget_class = if meta.wide { "tool-widget tool-widget--wide" } else { "tool-widget" };
                         div class=(widget_class) {
                             @for input in &meta.inputs {
@@ -276,8 +286,19 @@ pub fn render_page(
                                 }
                             }
                             div class="tool-output-label" { (meta.output_label) }
-                            @if meta.format == "image" || meta.format == "video" || meta.format == "audio" {
-                                @if meta.format == "image" {
+                            // Media display covers svg too: the SVG is rendered as
+                            // <img src="data:image/svg+xml;base64,…">, which cannot
+                            // execute script the way innerHTML would, so no sanitizer
+                            // dependency and no reliance on each block escaping user
+                            // text correctly.
+                            @let is_media = meta.format == "image" || meta.format == "video"
+                                || meta.format == "audio" || meta.format == "svg";
+                            // Binary media = the formats whose result is bytes, not text.
+                            // svg is media for DISPLAY but still text for copy/paste.
+                            @let is_binary_media = meta.format == "image" || meta.format == "video"
+                                || meta.format == "audio";
+                            @if is_media {
+                                @if meta.format == "image" || meta.format == "svg" {
                                     img id="tool-output-media" class="tool-output-media" alt="" hidden;
                                 } @else if meta.format == "video" {
                                     video id="tool-output-media" class="tool-output-media" controls hidden {}
@@ -285,9 +306,11 @@ pub fn render_page(
                                     audio id="tool-output-media" class="tool-output-media" controls hidden {}
                                 }
                                 // Media-output actions row. Download is offered for
-                                // every media format; "Copy image" only for images —
-                                // video/audio have no reliable ClipboardItem path, so
-                                // the button is NOT rendered for them. Both start
+                                // every media format; "Copy image" only for raster
+                                // images — video/audio have no reliable ClipboardItem
+                                // path, and for svg the clipboard is reliably PNG-only
+                                // while canvas-drawing an SVG varies by browser, so svg
+                                // uses the text "Copy result" button instead. All start
                                 // hidden; tool.js reveals them once a result renders.
                                 div class="tool-media-actions" {
                                     a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
@@ -301,14 +324,13 @@ pub fn render_page(
                                 output id="tool-output" class="tool-output" { "" }
                             }
                             @let has_fields = meta.inputs.iter().any(|i| i.source == "field");
-                            @let is_media = meta.format == "image" || meta.format == "video" || meta.format == "audio";
-                            @if has_fields || !is_media {
+                            @if has_fields || !is_binary_media {
                                 div class="tool-widget-actions" {
                                     @if has_fields {
                                         button id="tool-reset" class="tool-widget-btn" type="button"
                                                title="Restore the default inputs" { "Reset" }
                                     }
-                                    @if !is_media {
+                                    @if !is_binary_media {
                                         button id="tool-copy-output" class="tool-widget-btn" type="button"
                                                title="Copy the result to the clipboard" { "Copy result" }
                                     }
@@ -656,7 +678,7 @@ pub fn render_tools_index(cfg: &SiteConfig, metas: &[ToolMeta], hubs: &[Hub]) ->
     let title = cfg.brand_title("All Tools");
     let description = format!(
         "Browse every {}tool — free, private, browser-local utilities. \
-         No sign-up, nothing leaves your device, works offline.",
+         No sign-up, nothing uploaded. The few tools that fetch a URL say so on their page.",
         if cfg.brand_name.is_empty() { String::new() } else { format!("{} ", cfg.brand_name) }
     );
     let og_image = cfg.abs("/tools/og.png");
@@ -698,7 +720,8 @@ pub fn render_tools_index(cfg: &SiteConfig, metas: &[ToolMeta], hubs: &[Hub]) ->
                         h1 { "All tools" }
                         p class="tools-index__sub" {
                             "Free, private, browser-local tools. Everything runs in your browser — \
-                             nothing leaves your device, no sign-up, works offline."
+                             no sign-up, nothing uploaded. The few tools that fetch a URL say so \
+                             on their page."
                         }
                         div class="tools-index__search" {
                             input #tools-filter type="search" placeholder="Search tools…"
@@ -1492,5 +1515,94 @@ accept = "audio/*"
         assert!(html.contains(r#"id="tool-output-media""#), "media output element");
         assert!(html.contains(r#"id="tool-output-download""#), "download link");
         assert!(html.contains(r#"id="tool-output""#), "status output for errors");
+    }
+
+    #[test]
+    fn svg_format_renders_an_img_and_download() {
+        let mut meta = sample();
+        meta.format = "svg".to_string();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(
+            html.contains(r#"<img id="tool-output-media""#),
+            "svg output renders the <img> media element"
+        );
+        assert!(
+            html.contains(r#"id="tool-output-download""#),
+            "svg output offers a download link"
+        );
+    }
+
+    #[test]
+    fn svg_format_keeps_copy_result_and_omits_copy_image() {
+        // The SVG source is what an SVG user wants on the clipboard. "Copy image"
+        // is deliberately NOT offered: ClipboardItem is reliably PNG-only and
+        // canvas-drawing an SVG varies by browser.
+        let mut meta = sample();
+        meta.format = "svg".to_string();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"id="tool-copy-output""#), "Copy result is offered for svg");
+        assert!(!html.contains(r#"id="tool-copy-image""#), "Copy image is not offered for svg");
+    }
+
+    #[test]
+    fn image_format_still_offers_copy_image() {
+        let mut meta = sample();
+        meta.format = "image".to_string();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"id="tool-copy-image""#), "raster image output keeps Copy image");
+        assert!(!html.contains(r#"id="tool-copy-output""#), "raster image output has no Copy result");
+    }
+
+    #[test]
+    fn svg_format_with_no_field_inputs_still_offers_copy_output() {
+        // svg is is_media == true but is_binary_media == false, so the outer
+        // widget-actions gate must not be keyed on is_media alone — an svg tool
+        // with zero field inputs (e.g. no `source = "field"` input at all) must
+        // still render #tool-copy-output per the interface contract.
+        let mut meta = sample();
+        meta.format = "svg".to_string();
+        meta.inputs.clear();
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(
+            html.contains(r#"id="tool-copy-output""#),
+            "Copy result is offered for svg even with no field inputs"
+        );
+    }
+
+    #[test]
+    fn network_flag_renders_the_disclosure_badge() {
+        let mut meta = sample();
+        meta.network = true;
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains("tool-network-note"), "badge element is rendered");
+        assert!(
+            html.contains("makes a real network request"),
+            "badge states that the request is real"
+        );
+        assert!(
+            html.contains("must allow cross-origin access"),
+            "badge sets the CORS expectation before the user runs the tool"
+        );
+    }
+
+    #[test]
+    fn pages_without_the_network_flag_have_no_badge() {
+        let html = render_page(&branded(), &sample(), "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(!html.contains("tool-network-note"), "no badge on a local-only tool");
+    }
+
+    #[test]
+    fn index_privacy_claim_is_qualified_for_network_tools() {
+        let metas = [sample()];
+        let hubs = crate::categories::build_hubs(&metas);
+        let html = render_tools_index(&branded(), &metas, &hubs);
+        assert!(
+            !html.contains("nothing leaves your device, no sign-up, works offline"),
+            "the unqualified blanket claim is gone"
+        );
+        assert!(
+            html.contains("say so on their page"),
+            "the index points at the per-page disclosure instead of promising local-only for all"
+        );
     }
 }
