@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/video-audio-loudness-compare",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare the loudness (LUFS, true peak) of two videos or audio files",
+  "role": "skill",
+  "tool": {
+    "description": "Measure the ITU-R BS.1770 / EBU R128 loudness of two recordings — video or audio in any mix (two exports, a video plus a reference track, before/after a master) — and report the loudness GAP between them. Provide files as a list of exactly two items (the reference first), each a url or a `ref` from a prior tool call; MP4/MOV/M4A, MKV/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3 and AAC-ADTS containers are read with the pure-Rust decoder (audio codecs AAC-LC, ALAC, MP3, Vorbis, FLAC, PCM, ADPCM — not Opus/AC-3/DTS), mono or stereo, at least 1 s, up to 32 MiB per file. For EACH file it returns integrated loudness (LUFS), 4×-oversampled true peak (dBTP), sample peak (dBFS), loudness range (LRA), the max momentary and short-term loudness, the peak-to-loudness ratio (PLR), and the offset versus common delivery targets (streaming -14, Apple Music -16, EBU R128 -23, ATSC A/85 -24). The comparison reports which file is louder and by how many LU, the true-peak and LRA differences, and the exact linear/dB gain that would level the files: match_target picks the reference — first (default, level file 2 to file 1), second, louder (bring the quieter file up — may boost), quieter (bring the louder file down — never clips), or target (level both to target_lufs). true_peak_ceiling (default -1 dBTP) triggers a headroom warning when a gain-to-match would push a file's true peak above it. This tool MEASURES only — it never rewrites the audio (use audio-normalize, normalize-peak or loudness-matched-ab-prep to actually hit a target). Returns flat JSON: a files[] array of per-file measurements, a comparison object (louder, loudness_gap_lu, true_peak_gap_db, reference_lufs, adjustments[], optional warning) and a one-line summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "description": "Exactly two recordings to compare — video or audio in any mix (two exports, a video plus a reference track, before/after a master). File 1 is the reference timeline. Each item has exactly one of `url` or `ref`. Containers: MP4/MOV/M4A, MKV/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, AAC-ADTS; audio codecs: AAC-LC, ALAC, MP3, Vorbis, FLAC, PCM, ADPCM (Opus, AC-3 and DTS are not supported); mono or stereo, at least 1 s. Up to 32 MiB per file — compress or trim longer footage first.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "match_target": {
+          "default": "first",
+          "description": "Which loudness the gain-to-match suggestion levels both files to. first (default): match file 2 to file 1 (file 1 unchanged). second: match file 1 to file 2. louder: bring the quieter file UP to the louder one (may boost past the true-peak ceiling — a warning is added). quieter: bring the louder file DOWN to the quieter one (only attenuates — never clips). target: level BOTH files to target_lufs.",
+          "enum": [
+            "first",
+            "second",
+            "louder",
+            "quieter",
+            "target"
+          ],
+          "type": "string"
+        },
+        "target_lufs": {
+          "default": -14.0,
+          "description": "Loudness target in LUFS for match_target=target (ignored otherwise). Common values: -14 streaming (Spotify/YouTube/Tidal), -16 Apple Music, -23 EBU R128 broadcast, -24 ATSC A/85. Range -40 to 0.",
+          "maximum": 0,
+          "minimum": -40,
+          "type": "number"
+        },
+        "true_peak_ceiling": {
+          "default": -1.0,
+          "description": "True-peak ceiling in dBTP used only to warn when the gain-to-match would push a file's true peak above it (inter-sample clipping risk). -1 (default) matches EBU R128 / most streaming specs; -2 for ATSC A/85 / Amazon. Range -20 to 0.",
+          "maximum": 0,
+          "minimum": -20,
+          "type": "number"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  }
+}
