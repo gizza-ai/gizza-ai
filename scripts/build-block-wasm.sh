@@ -59,6 +59,7 @@ command -v rsync >/dev/null || {
 # pinned Rust sysroot, remap those roots, and strip non-runtime symbol metadata.
 actual_rust_sysroot="$(rustc --print sysroot)"
 canonical_rustflags=(
+  "-Ccodegen-units=1"
   "-Cstrip=symbols"
   "--sysroot=$canonical_rust_sysroot"
   "--remap-path-prefix=$canonical_cargo_home=/cargo-home"
