@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import * as fs from 'fs';
 import * as path from 'path';
 
 test('AI background-removal page wires a local worker result', async ({ page }) => {
@@ -31,12 +32,56 @@ test('AI background-removal page wires a local worker result', async ({ page }) 
   });
 
   await expect(page.locator('.tool-model-note')).toContainText('never uploaded for inference');
-  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/red-2x2.png'));
+  const dropzone = page.locator('.tool-file-dropzone');
+  await expect(dropzone).toBeVisible();
+  await expect(page.locator('.tool-output-label')).toBeHidden();
+  await expect(page.locator('#tool-output')).toBeHidden();
+
+  const fileBase64 = fs.readFileSync(path.resolve(__dirname, 'fixtures/red-2x2.png')).toString('base64');
+  await page.evaluate((base64) => {
+    const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+    const transfer = new DataTransfer();
+    transfer.items.add(new File([bytes], 'dropped.png', { type: 'image/png' }));
+    document.querySelector('.tool-file-dropzone')!.dispatchEvent(new DragEvent('drop', {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: transfer,
+    }));
+  }, fileBase64);
+  await expect(dropzone).toHaveClass(/has-file/);
+  await expect(page.locator('.tool-file-dropzone-title')).toHaveText('dropped.png');
+  await expect(page.locator('.tool-output-label')).toBeVisible();
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible();
   expect(await media.getAttribute('src')).toMatch(/^blob:/);
+  await expect(media).toHaveAttribute('alt', 'Transparent cutout');
+  const centers = await page.evaluate(() => {
+    const mediaBox = document.querySelector('#tool-output-media')!.getBoundingClientRect();
+    const widgetBox = document.querySelector('.tool-widget')!.getBoundingClientRect();
+    return {
+      media: mediaBox.left + mediaBox.width / 2,
+      widget: widgetBox.left + widgetBox.width / 2,
+    };
+  });
+  expect(Math.abs(centers.media - centers.widget)).toBeLessThan(2);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'background-removed.png');
   await expect(page.locator('#tool-output')).toContainText('Finished locally with wasm');
+
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { write: async () => { throw new Error('denied'); } },
+    });
+    Object.defineProperty(window, 'ClipboardItem', {
+      configurable: true,
+      value: class ClipboardItem {},
+    });
+  });
+  const copy = page.locator('#tool-copy-image');
+  await copy.click();
+  await expect(copy).toHaveClass(/copy-failed/);
+  await expect(copy).toHaveText("Couldn't copy");
+  await expect(copy).toHaveAttribute('title', 'Copy failed. Use Download instead.');
 });
 
 test('AI background-removal page runs the pinned model', async ({ page }, testInfo) => {

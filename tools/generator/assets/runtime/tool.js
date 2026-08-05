@@ -208,6 +208,7 @@ function wireWidgetChrome(rerun) {
         if (!el) continue;
         if (inp.source === "file") {
           el.value = "";
+          el.dispatchEvent(new Event("tool-file-reset"));
           continue;
         }
         if (inp.source !== "field") continue;
@@ -268,42 +269,48 @@ function wireWidgetChrome(rerun) {
   // format="image"); video/audio have no reliable ClipboardItem path. We draw
   // the visible <img> onto an offscreen canvas and write a PNG blob — PNG
   // regardless of the output's real jpg/webp/png, because ClipboardItem image
-  // support is reliably PNG-only. Best-effort like the text copy above: if the
-  // clipboard API is missing (non-secure context, older Firefox) or any step
-  // throws/rejects, catch and no-op. Never acts on a non-image output.
+  // support is reliably PNG-only. Clipboard failures get visible feedback so
+  // users know to use Download instead of wondering whether the click worked.
   const copyImage = document.getElementById("tool-copy-image");
   if (copyImage) {
-    copyImage.addEventListener("click", () => {
+    const defaultLabel = copyImage.textContent;
+    const defaultTitle = copyImage.title;
+    let feedbackTimer = null;
+    const showCopyFeedback = (label, className, title) => {
+      if (feedbackTimer) clearTimeout(feedbackTimer);
+      copyImage.classList.remove("copied", "copy-failed");
+      copyImage.classList.add(className);
+      copyImage.textContent = label;
+      copyImage.title = title;
+      feedbackTimer = setTimeout(() => {
+        copyImage.classList.remove("copied", "copy-failed");
+        copyImage.textContent = defaultLabel;
+        copyImage.title = defaultTitle;
+        feedbackTimer = null;
+      }, 1800);
+    };
+
+    copyImage.addEventListener("click", async () => {
       const img = document.getElementById("tool-output-media");
       const src = String((img && img.src) || "");
       if (!img || img.hidden || !(src.startsWith("data:image/") || src.startsWith("blob:"))) return;
-      if (!(navigator.clipboard && window.ClipboardItem && navigator.clipboard.write)) return;
       try {
+        if (!(navigator.clipboard && window.ClipboardItem && navigator.clipboard.write)) {
+          throw new Error("Image clipboard unavailable");
+        }
+        if (!img.complete || !img.naturalWidth) await img.decode();
         const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth || img.width;
-        canvas.height = img.naturalHeight || img.height;
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
         const ctx = canvas.getContext("2d");
-        if (!ctx || !canvas.width || !canvas.height) return;
+        if (!ctx || !canvas.width || !canvas.height) throw new Error("Image unavailable");
         ctx.drawImage(img, 0, 0);
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-          navigator.clipboard
-            .write([new ClipboardItem({ "image/png": blob })])
-            .then(() => {
-              copyImage.classList.add("copied");
-              const prev = copyImage.textContent;
-              copyImage.textContent = "Copied!";
-              setTimeout(() => {
-                copyImage.classList.remove("copied");
-                copyImage.textContent = prev;
-              }, 1500);
-            })
-            .catch(() => {
-              // Write rejected (permissions / focus) — best-effort, no-op.
-            });
-        }, "image/png");
-      } catch (e) {
-        // Clipboard/canvas unavailable — best-effort, no-op.
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("PNG conversion failed");
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        showCopyFeedback("Copied!", "copied", "Image copied to the clipboard");
+      } catch (error) {
+        showCopyFeedback("Couldn't copy", "copy-failed", "Copy failed. Use Download instead.");
       }
     });
   }
@@ -494,6 +501,55 @@ function wireTagLists() {
   }
 }
 
+// Model image pages replace the cramped native file control with a large,
+// keyboard-accessible drop target. The real <input type="file"> remains over
+// the whole surface, so native browse behavior and assistive technology keep
+// working; this helper adds drag/drop state and selected-file feedback.
+function wireFileDropzones() {
+  for (const zone of document.querySelectorAll(".tool-file-dropzone")) {
+    const input = document.getElementById(zone.dataset.fileFor || "");
+    const title = zone.querySelector(".tool-file-dropzone-title");
+    const meta = zone.querySelector(".tool-file-dropzone-meta");
+    if (!input || !title || !meta) continue;
+    const emptyTitle = title.textContent;
+    const emptyMeta = meta.textContent;
+    const formatBytes = (bytes) => {
+      if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
+      return (bytes / 1024 / 1024).toFixed(1) + " MB";
+    };
+    const refresh = () => {
+      const file = input.files && input.files[0];
+      zone.classList.toggle("has-file", Boolean(file));
+      title.textContent = file ? file.name : emptyTitle;
+      const fileType = file && file.type
+        ? file.type.split("/").pop().replace("jpeg", "jpg").toUpperCase()
+        : "IMAGE";
+      meta.textContent = file
+        ? fileType + " · " + formatBytes(file.size) + " · choose another image"
+        : emptyMeta;
+    };
+    input.addEventListener("change", refresh);
+    input.addEventListener("tool-file-reset", refresh);
+    zone.addEventListener("dragenter", () => zone.classList.add("is-dragover"));
+    zone.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      zone.classList.add("is-dragover");
+    });
+    zone.addEventListener("dragleave", () => zone.classList.remove("is-dragover"));
+    zone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      zone.classList.remove("is-dragover");
+      const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+      if (!file) return;
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    refresh();
+  }
+}
+
 // Collect call args in declared order. "field" → input value; "clock" → now (s).
 function gatherArgs() {
   return cfg.inputs.map((inp) => {
@@ -503,6 +559,7 @@ function gatherArgs() {
 }
 
 async function main() {
+  wireFileDropzones();
   if (cfg.runtime === "model") {
     const { progressLabel, runModel, validateModelFile, validateModelResult } = await import("./tool-model.js");
     const media = document.getElementById("tool-output-media");

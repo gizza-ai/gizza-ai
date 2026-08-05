@@ -280,9 +280,35 @@ pub fn render_page(
                                         }
                                     }
                                 } @else if input.source == "file" {
-                                    label class="tool-field-label" for=(format!("in-{}", input.name)) { (input.label) }
-                                    input id=(format!("in-{}", input.name)) class="tool-file"
-                                          type="file" accept=(input.accept);
+                                    @let file_id = format!("in-{}", input.name);
+                                    label class="tool-field-label" for=(file_id.clone()) { (input.label) }
+                                    @if meta.runtime == "model" && meta.format == "image" {
+                                        @let help_id = format!("{}-help", file_id);
+                                        div class="tool-file-dropzone" data-file-for=(file_id.clone()) {
+                                            input id=(file_id.clone()) class="tool-file tool-file-dropzone-input"
+                                                  type="file" accept=(input.accept)
+                                                  aria-describedby=(help_id.clone());
+                                            svg class="tool-file-dropzone-icon" xmlns="http://www.w3.org/2000/svg"
+                                                width="34" height="34" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                                                stroke-linejoin="round" aria-hidden="true" {
+                                                rect x="3" y="3" width="18" height="18" rx="2" {}
+                                                circle cx="8.5" cy="8.5" r="1.5" {}
+                                                polyline points="21 15 16 10 5 21" {}
+                                            }
+                                            div class="tool-file-dropzone-copy" {
+                                                span class="tool-file-dropzone-title" {
+                                                    "Drop an image here, or choose a file"
+                                                }
+                                                span id=(help_id) class="tool-file-dropzone-meta" {
+                                                    "PNG, JPEG, or WebP · up to 20 MB"
+                                                }
+                                            }
+                                        }
+                                    } @else {
+                                        input id=(file_id) class="tool-file"
+                                              type="file" accept=(input.accept);
+                                    }
                                 }
                             }
                             @if !meta.examples.is_empty() {
@@ -307,7 +333,7 @@ pub fn render_page(
                                 || meta.format == "audio";
                             @if is_media {
                                 @if meta.format == "image" || meta.format == "svg" {
-                                    img id="tool-output-media" class="tool-output-media" alt="" hidden;
+                                    img id="tool-output-media" class="tool-output-media" alt=(meta.output_label) hidden;
                                 } @else if meta.format == "video" {
                                     video id="tool-output-media" class="tool-output-media" controls hidden {}
                                 } @else {
@@ -324,12 +350,12 @@ pub fn render_page(
                                     a id="tool-output-download" class="tool-output-download" download hidden { "Download" }
                                     @if meta.format == "image" {
                                         button id="tool-copy-image" class="tool-widget-btn" type="button" hidden
-                                               title="Copy the image to the clipboard" { "Copy image" }
+                                               title="Copy the image to the clipboard" aria-live="polite" { "Copy image" }
                                     }
                                 }
-                                output id="tool-output" class="tool-output" { "" }
+                                output id="tool-output" class="tool-output" aria-live="polite" aria-atomic="true" { "" }
                             } @else {
-                                output id="tool-output" class="tool-output" { "" }
+                                output id="tool-output" class="tool-output" aria-live="polite" aria-atomic="true" { "" }
                             }
                             @let has_fields = meta.inputs.iter().any(|i| i.source == "field");
                             @if has_fields || !is_binary_media {
@@ -1521,8 +1547,21 @@ accept = "audio/*"
         assert!(html.contains(r#"accept="image/*""#), "accept attr");
         assert!(html.contains(r#"id="in-width""#), "field input still present");
         assert!(html.contains(r#"id="tool-output-media""#), "media output element");
+        assert!(html.contains(r#"alt="Resized image""#), "image output has descriptive alt text");
         assert!(html.contains(r#"id="tool-output-download""#), "download link");
         assert!(html.contains(r#"id="tool-output""#), "status output for errors");
+    }
+
+    #[test]
+    fn model_image_page_renders_an_accessible_dropzone() {
+        let mut meta = ffmpeg_sample();
+        meta.runtime = "model".to_string();
+        let html = render_page(&branded(), &meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"class="tool-file-dropzone""#), "model image upload is a dropzone");
+        assert!(html.contains(r#"class="tool-file tool-file-dropzone-input""#), "native file input remains accessible");
+        assert!(html.contains(r#"aria-describedby="in-image-help""#), "file requirements describe the input");
+        assert!(html.contains("Drop an image here, or choose a file"), "dropzone has a clear action");
+        assert!(html.contains("PNG, JPEG, or WebP · up to 20 MB"), "dropzone states accepted formats and limit");
     }
 
     #[test]
