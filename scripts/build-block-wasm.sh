@@ -181,6 +181,11 @@ if [[ "$mode" == "--check" ]]; then
   }
   if ! cmp -s "$wasm" "$artifact"; then
     echo "::error::blocks/$slug/target/block.wasm does not match the canonical locked build." >&2
+    echo "committed: $(sha256sum "$artifact" | cut -d' ' -f1) ($(stat -c '%s' "$artifact") bytes)" >&2
+    echo "rebuilt:   $(sha256sum "$wasm" | cut -d' ' -f1) ($(stat -c '%s' "$wasm") bytes)" >&2
+    echo "rustc: $(rustc --version --verbose | tr '\n' ' ')" >&2
+    echo "first byte differences (position, committed, rebuilt; octal):" >&2
+    cmp -l "$artifact" "$wasm" | head -n 20 >&2 || true
     echo "Run scripts/build-block-wasm.sh $slug and commit the refreshed artifact." >&2
     exit 1
   fi
