@@ -36,6 +36,32 @@ command -v jq >/dev/null || {
   echo "jq is required to locate Cargo's WASM artifact" >&2
   exit 2
 }
+command -v rustc >/dev/null || {
+  echo "rustc is required" >&2
+  exit 2
+}
+command -v getent >/dev/null || {
+  echo "getent is required to locate the build user's home directory" >&2
+  exit 2
+}
+
+# Rust records source paths in the WASM binary (for example, panic locations).
+# Remap machine-specific prefixes so a local canonical build is byte-identical
+# to one produced by CI. rustc uses the last matching prefix, so keep the most
+# specific mappings last.
+build_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
+rust_sysroot="$(rustc --print sysroot)"
+[[ -n "$build_home" && "$build_home" != "/" ]] || {
+  echo "unable to locate a safe build home for deterministic path remapping" >&2
+  exit 2
+}
+canonical_rustflags=(
+  "--remap-path-prefix=$build_home=/build-home"
+  "--remap-path-prefix=$rust_sysroot=/rust-toolchain"
+  "--remap-path-prefix=$root=/workspace"
+)
+canonical_encoded_rustflags="$(printf '%s\x1f' "${canonical_rustflags[@]}")"
+canonical_encoded_rustflags="${canonical_encoded_rustflags%$'\x1f'}"
 
 if [[ "$mode" == "--check" ]]; then
   git -C "$root" ls-files --error-unmatch "blocks/$slug/Cargo.lock" >/dev/null 2>&1 || {
@@ -83,7 +109,8 @@ build_json="$(mktemp)"
 trap 'rm -f "$build_json"' EXIT
 (
   cd "$block_dir"
-  cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
+  CARGO_ENCODED_RUSTFLAGS="$canonical_encoded_rustflags" \
+    cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
 )
 wasm="$(
   jq -r 'select(.reason == "compiler-artifact") | .filenames[]? | select(endswith(".wasm"))' \
