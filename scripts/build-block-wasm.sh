@@ -46,9 +46,10 @@ command -v getent >/dev/null || {
 }
 
 # Rust records source paths in the WASM binary (for example, panic locations).
-# Remap machine-specific prefixes so a local canonical build is byte-identical
-# to one produced by CI. rustc uses the last matching prefix, so keep the most
-# specific mappings last.
+# Remap machine-specific prefixes, then strip symbol-name metadata because
+# rustc includes the literal remap flags in those names. Runtime sections stay
+# byte-identical across machines. rustc uses the last matching prefix, so keep
+# the most specific mappings last.
 build_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
 rust_sysroot="$(rustc --print sysroot)"
 [[ -n "$build_home" && "$build_home" != "/" ]] || {
@@ -56,6 +57,7 @@ rust_sysroot="$(rustc --print sysroot)"
   exit 2
 }
 canonical_rustflags=(
+  "-Cstrip=symbols"
   "--remap-path-prefix=$build_home=/build-home"
   "--remap-path-prefix=$rust_sysroot=/rust-toolchain"
   "--remap-path-prefix=$root=/workspace"
