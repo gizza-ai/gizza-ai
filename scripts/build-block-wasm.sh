@@ -19,6 +19,8 @@ mode="${2:-write}"
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 block_dir="$root/blocks/$slug"
+canonical_root="/tmp/gizza-ai-canonical-wasm-workspace"
+canonical_block_dir="$canonical_root/blocks/$slug"
 artifact="$block_dir/target/block.wasm"
 lockfile="$block_dir/Cargo.lock"
 pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
@@ -44,12 +46,20 @@ command -v getent >/dev/null || {
   echo "getent is required to locate the build user's home directory" >&2
   exit 2
 }
+command -v realpath >/dev/null || {
+  echo "realpath is required to validate the canonical build directories" >&2
+  exit 2
+}
+command -v rsync >/dev/null || {
+  echo "rsync is required to stage canonical WASM sources" >&2
+  exit 2
+}
 
-# Rust records source paths in the WASM binary (for example, panic locations).
-# Remap machine-specific prefixes, then strip symbol-name metadata because
-# rustc includes the literal remap flags in those names. Runtime sections stay
-# byte-identical across machines. rustc uses the last matching prefix, so keep
-# the most specific mappings last.
+# Cargo hashes absolute path-dependency identities before invoking rustc. Stage
+# the block and shared utility crate at a fixed path so those identities match
+# across local and CI builds. Rust source paths are then remapped, and symbol
+# metadata is stripped because it includes the literal machine-specific remap
+# flags. Runtime sections remain byte-identical across machines.
 build_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
 rust_sysroot="$(rustc --print sysroot)"
 [[ -n "$build_home" && "$build_home" != "/" ]] || {
@@ -60,7 +70,7 @@ canonical_rustflags=(
   "-Cstrip=symbols"
   "--remap-path-prefix=$build_home=/build-home"
   "--remap-path-prefix=$rust_sysroot=/rust-toolchain"
-  "--remap-path-prefix=$root=/workspace"
+  "--remap-path-prefix=$canonical_root=/workspace"
 )
 canonical_encoded_rustflags="$(printf '%s\x1f' "${canonical_rustflags[@]}")"
 canonical_encoded_rustflags="${canonical_encoded_rustflags%$'\x1f'}"
@@ -107,11 +117,37 @@ if [[ -n "$stray" ]]; then
   exit 1
 fi
 
+if [[ -L "$canonical_root" || ( -e "$canonical_root" && ! -d "$canonical_root" ) ]]; then
+  echo "::error::$canonical_root must be a real directory, not a file or symlink." >&2
+  exit 1
+fi
+mkdir -p "$canonical_root"
+[[ "$(realpath "$canonical_root")" == "$canonical_root" ]] || {
+  echo "::error::$canonical_root resolves outside the canonical build location." >&2
+  exit 1
+}
+rsync -a "$root/rust-toolchain.toml" "$canonical_root/rust-toolchain.toml"
+for relative in block-utils "blocks/$slug"; do
+  source_dir="$root/$relative"
+  canonical_dir="$canonical_root/$relative"
+  if [[ -L "$canonical_dir" || ( -e "$canonical_dir" && ! -d "$canonical_dir" ) ]]; then
+    echo "::error::$canonical_dir must be a real directory, not a file or symlink." >&2
+    exit 1
+  fi
+  mkdir -p "$canonical_dir"
+  [[ "$(realpath "$canonical_dir")" == "$canonical_dir" ]] || {
+    echo "::error::$canonical_dir resolves outside the canonical build location." >&2
+    exit 1
+  }
+  rsync -a --delete --exclude target "$source_dir/" "$canonical_dir/"
+done
+
+canonical_target="$(mktemp -d /tmp/gizza-ai-canonical-wasm-target.XXXXXX)"
 build_json="$(mktemp)"
-trap 'rm -f "$build_json"' EXIT
+trap 'rm -f "$build_json"; rm -rf "$canonical_target"' EXIT
 (
-  cd "$block_dir"
-  CARGO_ENCODED_RUSTFLAGS="$canonical_encoded_rustflags" \
+  cd "$canonical_block_dir"
+  CARGO_TARGET_DIR="$canonical_target" CARGO_ENCODED_RUSTFLAGS="$canonical_encoded_rustflags" \
     cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
 )
 wasm="$(
