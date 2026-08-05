@@ -22,6 +22,7 @@ block_dir="$root/blocks/$slug"
 canonical_root="/tmp/gizza-ai-canonical-wasm-workspace"
 canonical_block_dir="$canonical_root/blocks/$slug"
 canonical_cargo_home="/tmp/gizza-ai-canonical-cargo-home"
+canonical_rust_sysroot="/tmp/gizza-ai-canonical-rust-toolchain"
 artifact="$block_dir/target/block.wasm"
 lockfile="$block_dir/Cargo.lock"
 pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
@@ -54,13 +55,14 @@ command -v rsync >/dev/null || {
 
 # Cargo hashes absolute path-dependency identities before invoking rustc. Stage
 # the block and shared utility crate at a fixed path so those identities match
-# across local and CI builds. Use a fixed Cargo home for registry/git sources,
-# remap the remaining source paths, and strip non-runtime symbol metadata.
-rust_sysroot="$(rustc --print sysroot)"
+# across local and CI builds. Use fixed paths for registry/git sources and the
+# pinned Rust sysroot, remap those roots, and strip non-runtime symbol metadata.
+actual_rust_sysroot="$(rustc --print sysroot)"
 canonical_rustflags=(
   "-Cstrip=symbols"
+  "--sysroot=$canonical_rust_sysroot"
   "--remap-path-prefix=$canonical_cargo_home=/cargo-home"
-  "--remap-path-prefix=$rust_sysroot=/rust-toolchain"
+  "--remap-path-prefix=$canonical_rust_sysroot=/rust-toolchain"
   "--remap-path-prefix=$canonical_root=/workspace"
 )
 canonical_encoded_rustflags="$(printf '%s\x1f' "${canonical_rustflags[@]}")"
@@ -119,6 +121,18 @@ for canonical_dir in "$canonical_root" "$canonical_cargo_home"; do
     exit 1
   }
 done
+if [[ -L "$canonical_rust_sysroot" ]]; then
+  resolved_rust_sysroot="$(realpath "$canonical_rust_sysroot" 2>/dev/null || true)"
+  [[ "$resolved_rust_sysroot" == "$actual_rust_sysroot" ]] || {
+    echo "::error::$canonical_rust_sysroot points at an unexpected Rust toolchain." >&2
+    exit 1
+  }
+elif [[ -e "$canonical_rust_sysroot" ]]; then
+  echo "::error::$canonical_rust_sysroot must be a symlink to the pinned Rust toolchain." >&2
+  exit 1
+else
+  ln -s "$actual_rust_sysroot" "$canonical_rust_sysroot"
+fi
 rsync -a "$root/rust-toolchain.toml" "$canonical_root/rust-toolchain.toml"
 for relative in block-utils "blocks/$slug"; do
   source_dir="$root/$relative"
