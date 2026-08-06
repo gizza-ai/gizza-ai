@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/json-remove-nulls",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Recursively remove null and optionally empty values from JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Recursively remove every object key whose value is null from a JSON document, validating it in the process (returns a line/column error if invalid). Opt in to also drop empty strings (remove_empty_strings), empty arrays (remove_empty_arrays) and empty objects (remove_empty_objects) — removal cascades bottom-up, so a container emptied by the prune is dropped too. trim_strings trims whitespace from string values first. arrays is 'compact' (default, [1, null, 2] becomes [1, 2]) or 'keep' (array positions stay stable). indent is spaces per level (1-8, default 2), or 0 to minify. false and 0 are never treated as empty; key order is preserved. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "arrays": {
+          "default": "compact",
+          "description": "What to do with removable values sitting directly inside an array: 'compact' (default) drops them and closes the gap, so [1, null, 2] becomes [1, 2]; 'keep' leaves array elements untouched so indices stay stable, while still pruning objects nested inside the array.",
+          "enum": [
+            "compact",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level (1-8). Use 0 to minify to a single compact line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON text to clean, e.g. {\"a\": 1, \"b\": null, \"c\": {\"d\": null}}.",
+          "type": "string"
+        },
+        "remove_empty_arrays": {
+          "default": false,
+          "description": "Also remove values that are the empty array []. Off by default. Applies after pruning, so an array emptied by the prune is removed too.",
+          "type": "boolean"
+        },
+        "remove_empty_objects": {
+          "default": false,
+          "description": "Also remove values that are the empty object {}. Off by default. Removal cascades bottom-up: an object left empty by the prune disappears, which can empty its parent in turn.",
+          "type": "boolean"
+        },
+        "remove_empty_strings": {
+          "default": false,
+          "description": "Also remove values that are the empty string \"\". Off by default, so \"\" is kept as a real value.",
+          "type": "boolean"
+        },
+        "trim_strings": {
+          "default": false,
+          "description": "Trim leading/trailing whitespace from every string value first, so a whitespace-only string becomes \"\" (and is removable when remove_empty_strings is on). Off by default.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-remove-nulls"
+version = "0.1.0"
+abi = 1
+summary = "Recursively remove null and optionally empty values from JSON"
