@@ -73,7 +73,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-audit --no-fund
           mapfile -t slugs < <(find blocks -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
           echo "Total blocks: ${#slugs[@]} — this shard: ${SHARD_INDEX}/${SHARD_TOTAL}"
           i=0

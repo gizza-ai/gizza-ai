@@ -583,8 +583,8 @@ async function main() {
     async function run() {
       const seq = ++runSeq;
       const file = fileInput.files && fileInput.files[0];
-      if (!file) return;
       clearOutputUrl();
+      if (!file) return;
       media.hidden = true;
       dl.hidden = true;
       if (copyImage) copyImage.hidden = true;

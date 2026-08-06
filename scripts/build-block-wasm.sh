@@ -58,6 +58,11 @@ command -v rsync >/dev/null || {
 # across local and CI builds. Use fixed paths for registry/git sources and the
 # pinned Rust sysroot, remap those roots, and strip non-runtime symbol metadata.
 actual_rust_sysroot="$(rustc --print sysroot)"
+[[ -d "$actual_rust_sysroot/lib/rustlib/src/rust/library" ]] || {
+  echo "::error::the pinned rust-src component is required for canonical source paths." >&2
+  echo "Run: rustup component add rust-src --toolchain 1.94.0" >&2
+  exit 1
+}
 canonical_rustflags=(
   "-Ccodegen-units=1"
   "-Cstrip=symbols"
