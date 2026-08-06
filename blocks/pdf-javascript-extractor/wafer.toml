@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-javascript-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract and de-obfuscate every JavaScript a PDF can run, with its trigger and location"

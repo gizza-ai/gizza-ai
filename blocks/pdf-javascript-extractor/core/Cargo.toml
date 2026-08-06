@@ -1,0 +1,20 @@
+[package]
+name = "gizza-ai-pdf-javascript-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# PDF parsing — pure-Rust, no native libs. default-features=false drops rayon
+# (threads) + the date crates, keeping the tree thread-free so it links to
+# wasm32-wasip1 (the `cargo build --target wasm32-wasip1 --release` target).
+# We only need the object graph plus stream inflation (FlateDecode) to reach the
+# script bodies.
+lopdf = { version = "=0.36.0", default-features = false }
+# Decode `atob("…")` blobs while unwinding obfuscation layers.
+base64 = "0.22"
+# Re-indent the recovered source. Reuses the shipped js-beautify tool's
+# dependency-free pretty-printer instead of a second copy of that logic.
+gizza-ai-js-beautify-core = { path = "../../js-beautify/core" }
+# Serialize the report directly (the block returns it as the flat response).
+serde = { version = "1", features = ["derive"] }
