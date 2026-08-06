@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stl-repair"
+version = "0.1.0"
+abi = 1
+summary = "Check and repair an STL mesh: weld vertices, drop bad triangles, fix normals, report watertightness"

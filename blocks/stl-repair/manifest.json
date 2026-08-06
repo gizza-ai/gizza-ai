@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/stl-repair",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check and repair an STL mesh: weld vertices, drop bad triangles, fix normals, report watertightness",
+  "role": "skill",
+  "tool": {
+    "description": "Check and repair a 3D triangle mesh pasted as ASCII STL or Wavefront OBJ text. It welds coincident vertices (weld_tolerance, default 0.000001), removes zero-area degenerate triangles and duplicate faces, harmonises triangle winding and turns each closed shell so its normals point outward, and can optionally fan-fill open boundary loops (fill_holes) and drop stray fragments (keep_largest_shell). Set output=report (default) for a readable diagnosis of what was wrong and what was fixed — degenerate/duplicate/coincident counts, non-manifold and open edges, flipped faces, shell count, watertight yes/no before and after, plus surface area, volume (only when the result is closed) and bounding box; output=json for the same numbers as an object; output=stl for the repaired mesh, as ASCII text or, with stl_encoding=binary, a data:model/stl;base64 URL you can save. Facet normals are always recomputed from the geometry, so the normals stored in the input file are ignored. Self-intersection repair, remeshing and curvature-aware hole patching are out of scope, and binary STL cannot be pasted as text — re-export it as ASCII STL first. Limit 100000 triangles. Runs fully locally, no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "fill_holes": {
+          "default": false,
+          "description": "Close open boundary loops by fanning triangles from each loop's centroid. Default false. This closes simple, roughly flat holes; it is not a curvature-aware patch, so a large or twisted hole gets a visibly flat cap. Boundary chains that do not close are left alone rather than patched wrongly.",
+          "type": "boolean"
+        },
+        "fix_winding": {
+          "default": true,
+          "description": "Make every face in a shell agree on winding, then turn each closed shell so its recomputed normals point outward. Default true. This is what fixes flipped/inverted normals; facet normals are always recomputed from the geometry on export, so the normals in the input file are ignored.",
+          "type": "boolean"
+        },
+        "keep_largest_shell": {
+          "default": false,
+          "description": "Keep only the connected shell with the most triangles and drop the rest. Default false. Use it to strip stray fragments and scanner debris — but note it also discards legitimately multi-part models.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "report",
+          "description": "What to return. 'report' (default) is a readable diagnosis: problems found, repairs applied, and the resulting triangle/vertex counts, watertightness, area, volume and bounding box. 'stl' returns the repaired mesh itself (see stl_encoding). 'json' returns the same numbers as the report in a machine-readable object.",
+          "enum": [
+            "report",
+            "stl",
+            "json"
+          ],
+          "type": "string"
+        },
+        "remove_degenerate": {
+          "default": true,
+          "description": "Drop zero-area triangles — ones whose corners weld to the same vertex or lie exactly on a straight line. Default true. These carry no surface and make slicers and boolean operations misbehave.",
+          "type": "boolean"
+        },
+        "remove_duplicates": {
+          "default": true,
+          "description": "Drop repeated triangles — faces built from the same three vertices in any rotation or winding, keeping the first. Default true. Duplicates show up as non-manifold edges and doubled walls.",
+          "type": "boolean"
+        },
+        "stl": {
+          "description": "The mesh to check and repair, as pasted text: ASCII STL (solid / facet / vertex lines) or Wavefront OBJ (v / f lines). The format is auto-detected. Binary STL cannot be pasted as text — re-export it as ASCII STL first. Up to 100000 triangles.",
+          "type": "string"
+        },
+        "stl_encoding": {
+          "default": "ascii",
+          "description": "Byte encoding when output=stl (ignored otherwise). 'ascii' (default) returns readable STL text; 'binary' returns a compact binary STL as a data:model/stl;base64 URL you can save as a .stl file.",
+          "enum": [
+            "ascii",
+            "binary"
+          ],
+          "type": "string"
+        },
+        "weld_tolerance": {
+          "default": 1e-06,
+          "description": "Distance below which two corners are treated as the same vertex, in the mesh's own units (default 0.000001). STL stores every triangle's corners separately, so welding is what turns loose facets into a connected surface. Raise it (e.g. 0.001) to close hairline cracks from a sloppy export; set 0 to merge only bit-identical positions.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "stl"
+      ],
+      "type": "object"
+    }
+  }
+}
