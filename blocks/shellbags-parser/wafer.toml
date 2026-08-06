@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "shellbags-parser"
+version = "0.1.0"
+abi = 1
+summary = "Reconstruct browsed folder paths from Windows shellbags in a registry hive."

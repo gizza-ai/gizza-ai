@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/shellbags-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reconstruct browsed folder paths from Windows shellbags in a registry hive.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract shellbag entries from an offline Windows registry hive (UsrClass.dat, or NTUSER.DAT on Windows XP) supplied as hex or Base64, and reconstruct the folders a user browsed in Explorer — including folders that were later deleted and paths on removable or network media. Walks the BagMRU tree, decodes each shell item (root/GUID folders, volumes, file entries, network locations, control-panel and delegate items) and reports the reconstructed absolute path, MRU position, NodeSlot bag number, the shell item's DOS/FAT created/modified/accessed timestamps, the NTFS MFT reference from a 0xBEEF0004 extension block, and the registry key's last-write time. Output as a tree, a flat path list, CSV, a Sleuth Kit bodyfile, or a raw per-item diagnostic dump. Runs locally; no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bag_root": {
+          "default": "auto",
+          "description": "Which BagMRU root to walk. 'auto' (default) tries every known location and reports the ones present. 'usrclass' is Local Settings\\Software\\Microsoft\\Windows\\Shell\\BagMRU in UsrClass.dat; 'ntuser' is Software\\Microsoft\\Windows\\Shell\\BagMRU in NTUSER.DAT; 'shellnoroam' is the Windows XP ShellNoRoam tree. Ignored when custom_path is set.",
+          "enum": [
+            "auto",
+            "usrclass",
+            "ntuser",
+            "shellnoroam"
+          ],
+          "type": "string"
+        },
+        "custom_path": {
+          "default": "",
+          "description": "Optional BagMRU key path relative to the hive root, which overrides bag_root when non-empty. Use it to start from a subtree, for example Local Settings\\Software\\Microsoft\\Windows\\Shell\\BagMRU\\0. Do not include an HKCU or HKLM prefix.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The raw Windows registry hive bytes encoded as hex (default) or Base64. Paste UsrClass.dat for Windows Vista and later, or NTUSER.DAT for Windows XP; the hive is parsed locally and never uploaded.",
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "hex",
+          "description": "How the hive bytes in data are encoded. 'hex' accepts contiguous or whitespace/colon/dash-separated bytes with an optional leading 0x. 'base64' accepts standard Base64 with optional whitespace and padding.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "max_depth": {
+          "default": 32,
+          "description": "Maximum folder depth to descend in the BagMRU tree. Real shellbag trees rarely exceed 20 levels; values above 64 are clamped. Hitting the cap is reported in the output. Default 32.",
+          "maximum": 64,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_entries": {
+          "default": 200,
+          "description": "Maximum shellbag entries emitted per root before the walk stops. Use a small number such as 50 for chat-friendly output; values above 5000 are clamped. Truncation is always reported, never silent. Default 200.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "tree",
+          "description": "Output format. 'tree' indents the reconstructed folder hierarchy in MRU order; 'list' prints one absolute path per line with slot, MRU position and timestamps; 'csv' emits a spreadsheet-ready table with a header row; 'bodyfile' emits Sleuth Kit bodyfile lines for mactime; 'raw' dumps each shell item's class byte, decoded fields and a hex preview for diagnostics.",
+          "enum": [
+            "tree",
+            "list",
+            "csv",
+            "bodyfile",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "resolve_guids": {
+          "default": true,
+          "description": "When true (default), well-known shell-namespace GUIDs are shown as friendly names such as 'This PC', 'Desktop' or 'Recycle Bin'. Set false to print every root folder as a raw {guid} instead, which is what you want when cross-checking against another parser.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
