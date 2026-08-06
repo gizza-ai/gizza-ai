@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/gpx-simplify",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Simplify GPX track points with Douglas-Peucker while preserving route shape.",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce the point count of a GPX track using the Douglas-Peucker algorithm at a chosen tolerance in meters. Paste GPX XML; the tool reads <trkpt lat/lon> points, keeps endpoints and shape-critical bends, optionally keeps every Nth point, preserves kept points' elevation and time children, and returns a clean GPX 1.1 document or a summary. Use tolerance_meters to trade detail for size, decimals to control coordinate precision, and output='summary' to preview point reduction before exporting GPX.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places for output coordinates, 0–8. Six decimals is roughly 11 cm at the equator and is usually enough for GPX tracks.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The GPX document to simplify. The tool reads <trkpt lat=\"…\" lon=\"…\"> track points, preserves endpoint points plus any points needed to stay within the tolerance, and carries each kept point's <ele> and <time> children into a clean GPX 1.1 output.",
+          "type": "string"
+        },
+        "keep_every": {
+          "default": 0,
+          "description": "Optional safety sampling interval: keep every Nth source point in addition to the Douglas-Peucker result. Use 0 (default) to rely only on the tolerance.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "gpx",
+          "description": "Return the simplified GPX document (default) or a short summary with original point count, kept point count, removal percentage, tolerance and approximate path lengths.",
+          "enum": [
+            "gpx",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "tolerance_meters": {
+          "default": 10,
+          "description": "Douglas-Peucker tolerance in meters. Higher values remove more intermediate points while allowing more shape deviation. 0 keeps every bend; 10 m is a practical default for hiking/running tracks.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
