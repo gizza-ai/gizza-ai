@@ -150,6 +150,7 @@ jobs:
         with:
           toolchain: '1.94.0'
           targets: wasm32-unknown-unknown,wasm32-wasip1
+          components: rust-src
 
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.4.0
@@ -200,6 +201,15 @@ jobs:
             [ -n "$block" ] || continue
             scripts/build-block-wasm.sh "$block" --check
           done <<< "${{ steps.changed.outputs.blocks }}"
+
+      - name: Upload mismatched skill WASM artifacts
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mismatched-skill-wasm-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/gizza-ai-mismatched-wasm/*.wasm
+          if-no-files-found: ignore
+          retention-days: 1
 
       - name: Changed block Cargo tests
         if: github.event_name == 'pull_request'

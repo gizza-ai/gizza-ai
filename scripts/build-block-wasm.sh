@@ -19,6 +19,10 @@ mode="${2:-write}"
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 block_dir="$root/blocks/$slug"
+canonical_root="/tmp/gizza-ai-canonical-wasm-workspace"
+canonical_block_dir="$canonical_root/blocks/$slug"
+canonical_cargo_home="/tmp/gizza-ai-canonical-cargo-home"
+canonical_rust_sysroot="/tmp/gizza-ai-canonical-rust-toolchain"
 artifact="$block_dir/target/block.wasm"
 lockfile="$block_dir/Cargo.lock"
 pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
@@ -36,6 +40,39 @@ command -v jq >/dev/null || {
   echo "jq is required to locate Cargo's WASM artifact" >&2
   exit 2
 }
+command -v rustc >/dev/null || {
+  echo "rustc is required" >&2
+  exit 2
+}
+command -v realpath >/dev/null || {
+  echo "realpath is required to validate the canonical build directories" >&2
+  exit 2
+}
+command -v rsync >/dev/null || {
+  echo "rsync is required to stage canonical WASM sources" >&2
+  exit 2
+}
+
+# Cargo hashes absolute path-dependency identities before invoking rustc. Stage
+# the block and shared utility crate at a fixed path so those identities match
+# across local and CI builds. Use fixed paths for registry/git sources and the
+# pinned Rust sysroot, remap those roots, and strip non-runtime symbol metadata.
+actual_rust_sysroot="$(rustc --print sysroot)"
+[[ -d "$actual_rust_sysroot/lib/rustlib/src/rust/library" ]] || {
+  echo "::error::the pinned rust-src component is required for canonical source paths." >&2
+  echo "Run: rustup component add rust-src --toolchain 1.94.0" >&2
+  exit 1
+}
+canonical_rustflags=(
+  "-Ccodegen-units=1"
+  "-Cstrip=symbols"
+  "--sysroot=$canonical_rust_sysroot"
+  "--remap-path-prefix=$canonical_cargo_home=/cargo-home"
+  "--remap-path-prefix=$canonical_rust_sysroot=/rust-toolchain"
+  "--remap-path-prefix=$canonical_root=/workspace"
+)
+canonical_encoded_rustflags="$(printf '%s\x1f' "${canonical_rustflags[@]}")"
+canonical_encoded_rustflags="${canonical_encoded_rustflags%$'\x1f'}"
 
 if [[ "$mode" == "--check" ]]; then
   git -C "$root" ls-files --error-unmatch "blocks/$slug/Cargo.lock" >/dev/null 2>&1 || {
@@ -79,11 +116,53 @@ if [[ -n "$stray" ]]; then
   exit 1
 fi
 
+for canonical_dir in "$canonical_root" "$canonical_cargo_home"; do
+  if [[ -L "$canonical_dir" || ( -e "$canonical_dir" && ! -d "$canonical_dir" ) ]]; then
+    echo "::error::$canonical_dir must be a real directory, not a file or symlink." >&2
+    exit 1
+  fi
+  mkdir -p "$canonical_dir"
+  [[ "$(realpath "$canonical_dir")" == "$canonical_dir" ]] || {
+    echo "::error::$canonical_dir resolves outside the canonical build location." >&2
+    exit 1
+  }
+done
+if [[ -L "$canonical_rust_sysroot" ]]; then
+  resolved_rust_sysroot="$(realpath "$canonical_rust_sysroot" 2>/dev/null || true)"
+  [[ "$resolved_rust_sysroot" == "$actual_rust_sysroot" ]] || {
+    echo "::error::$canonical_rust_sysroot points at an unexpected Rust toolchain." >&2
+    exit 1
+  }
+elif [[ -e "$canonical_rust_sysroot" ]]; then
+  echo "::error::$canonical_rust_sysroot must be a symlink to the pinned Rust toolchain." >&2
+  exit 1
+else
+  ln -s "$actual_rust_sysroot" "$canonical_rust_sysroot"
+fi
+rsync -a "$root/rust-toolchain.toml" "$canonical_root/rust-toolchain.toml"
+for relative in block-utils "blocks/$slug"; do
+  source_dir="$root/$relative"
+  canonical_dir="$canonical_root/$relative"
+  if [[ -L "$canonical_dir" || ( -e "$canonical_dir" && ! -d "$canonical_dir" ) ]]; then
+    echo "::error::$canonical_dir must be a real directory, not a file or symlink." >&2
+    exit 1
+  fi
+  mkdir -p "$canonical_dir"
+  [[ "$(realpath "$canonical_dir")" == "$canonical_dir" ]] || {
+    echo "::error::$canonical_dir resolves outside the canonical build location." >&2
+    exit 1
+  }
+  rsync -a --delete --exclude target "$source_dir/" "$canonical_dir/"
+done
+
+canonical_target="$(mktemp -d /tmp/gizza-ai-canonical-wasm-target.XXXXXX)"
 build_json="$(mktemp)"
-trap 'rm -f "$build_json"' EXIT
+trap 'rm -f "$build_json"; rm -rf "$canonical_target"' EXIT
 (
-  cd "$block_dir"
-  cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
+  cd "$canonical_block_dir"
+  CARGO_HOME="$canonical_cargo_home" CARGO_TARGET_DIR="$canonical_target" \
+    CARGO_ENCODED_RUSTFLAGS="$canonical_encoded_rustflags" \
+    cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
 )
 wasm="$(
   jq -r 'select(.reason == "compiler-artifact") | .filenames[]? | select(endswith(".wasm"))' \
@@ -107,6 +186,16 @@ if [[ "$mode" == "--check" ]]; then
   }
   if ! cmp -s "$wasm" "$artifact"; then
     echo "::error::blocks/$slug/target/block.wasm does not match the canonical locked build." >&2
+    echo "committed: $(sha256sum "$artifact" | cut -d' ' -f1) ($(stat -c '%s' "$artifact") bytes)" >&2
+    echo "rebuilt:   $(sha256sum "$wasm" | cut -d' ' -f1) ($(stat -c '%s' "$wasm") bytes)" >&2
+    echo "rustc: $(rustc --version --verbose | tr '\n' ' ')" >&2
+    echo "first byte differences (position, committed, rebuilt; octal):" >&2
+    cmp -l "$artifact" "$wasm" | head -n 20 >&2 || true
+    if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+      mismatch_dir="/tmp/gizza-ai-mismatched-wasm"
+      mkdir -p "$mismatch_dir"
+      cp "$wasm" "$mismatch_dir/$slug.wasm"
+    fi
     echo "Run scripts/build-block-wasm.sh $slug and commit the refreshed artifact." >&2
     exit 1
   fi

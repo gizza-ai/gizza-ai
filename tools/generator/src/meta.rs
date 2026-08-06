@@ -1,13 +1,13 @@
 //! Per-tool page metadata, parsed from `blocks/<tool>/page/meta.toml`.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// One input field for a tool page.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct Input {
     pub name: String,
     /// "field" = a visible text input; "clock" = current unix seconds, supplied by JS;
-    /// "file" = a file picker, for ffmpeg tools.
+    /// "file" = a file picker, for ffmpeg/model tools.
     pub source: String,
     #[serde(default)]
     pub label: String,
@@ -68,6 +68,28 @@ pub enum WaveformSpec {
     Binding { start: String, end: String },
 }
 
+/// Browser-model configuration for `runtime = "model"` pages. The runtime
+/// library is shipped with the generated catalog; model weights are fetched
+/// lazily at the pinned revision and cached by the browser.
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct ModelSpec {
+    /// Transformers.js pipeline task, e.g. "background-removal".
+    pub task: String,
+    /// Hugging Face model id, e.g. "BritishWerewolf/U-2-Netp".
+    pub id: String,
+    /// Immutable model revision/commit.
+    pub revision: String,
+    /// Execution backends in preference order. Supported today: webgpu, wasm.
+    #[serde(default)]
+    pub devices: Vec<String>,
+    /// Per-device dtype/model variant (for example webgpu=fp32, wasm=q8).
+    #[serde(default)]
+    pub dtypes: std::collections::BTreeMap<String, String>,
+    /// Approximate first-use download size, displayed before the user runs it.
+    #[serde(default)]
+    pub download_mb: f64,
+}
+
 /// Full metadata for a single tool page.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct ToolMeta {
@@ -92,7 +114,8 @@ pub struct ToolMeta {
     /// <img> data URI, source still copyable), or the media formats
     /// "image"/"video"/"audio". Any other value renders as plain text.
     pub format: String,
-    /// "wasm" (pure compute, default) or "ffmpeg" (file in → media out via browser ffmpeg).
+    /// "wasm" (pure compute, default), "ffmpeg" (file in → media out via
+    /// browser ffmpeg), or "model" (Transformers.js/ONNX inference in a worker).
     #[serde(default = "default_runtime")]
     pub runtime: String,
     #[serde(default, rename = "input")]
@@ -110,6 +133,10 @@ pub struct ToolMeta {
     /// `scripts/check-tool-hygiene.py` check 9.
     #[serde(default)]
     pub network: bool,
+    /// Required by `runtime = "model"` pages. Describes the lazy-loaded model
+    /// and is passed verbatim (as JSON) to the shared browser model runtime.
+    #[serde(default)]
+    pub model: Option<ModelSpec>,
     /// See [`WaveformSpec`]. Only audio-input ffmpeg tools consult this.
     #[serde(default)]
     pub waveform: Option<WaveformSpec>,
@@ -173,6 +200,7 @@ impl ToolMeta {
             "output": { "label": self.output_label, "elementId": "tool-output" },
             "format": self.format,
             "runtime": self.runtime,
+            "model": self.model,
             "waveform": waveform,
         })
     }
@@ -375,6 +403,53 @@ format = "number"
 "#;
         let m = ToolMeta::from_toml(text).unwrap();
         assert_eq!(m.runtime, "wasm");
+    }
+
+    #[test]
+    fn parses_model_runtime_and_builds_client_config() {
+        let text = r#"
+slug = "image-background-remove-ai"
+title = "t"
+description = "d"
+h1 = "h"
+hero_subtitle = "s"
+wasm = "w"
+export = "model_page"
+runtime = "model"
+output_label = "Cutout"
+format = "image"
+
+[model]
+task = "u2net-background-removal"
+id = "BritishWerewolf/U-2-Netp"
+revision = "7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8"
+devices = ["webgpu", "wasm"]
+download_mb = 5.0
+
+[model.dtypes]
+webgpu = "fp32"
+wasm = "fp32"
+
+[[input]]
+name = "image"
+source = "file"
+accept = "image/png,image/jpeg,image/webp"
+"#;
+        let m = ToolMeta::from_toml(text).unwrap();
+        assert_eq!(m.runtime, "model");
+        let model = m.model.as_ref().expect("model config");
+        assert_eq!(model.task, "u2net-background-removal");
+        assert_eq!(model.devices, ["webgpu", "wasm"]);
+        assert_eq!(model.dtypes["wasm"], "fp32");
+
+        let cfg = m.client_config(&crate::control::ParamSchema::empty());
+        assert_eq!(cfg["model"]["id"], "BritishWerewolf/U-2-Netp");
+        assert_eq!(
+            cfg["model"]["revision"],
+            "7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8"
+        );
+        assert_eq!(cfg["model"]["devices"][0], "webgpu");
+        assert_eq!(cfg["model"]["dtypes"]["wasm"], "fp32");
     }
 
     #[test]

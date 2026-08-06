@@ -48,6 +48,7 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-output { display: block; background: #eef2ff; border-radius: 8px; padding: 12px;
   font-weight: 700; font-size: 20px; min-height: 1.4em; word-break: break-word;
   margin-top: 10px; white-space: pre-wrap; }
+.tool-output:empty { display: none; }
 .tool-output.error { background: #fef2f2; color: #b91c1c; font-size: 14px; font-weight: 600; }
 
 .tool-content { max-width: 720px; margin: 28px auto 0; line-height: 1.6; color: #374151; }
@@ -78,6 +79,25 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-footer a { color: #a5b4fc; font-weight: 600; text-decoration: none; }
 
 .tool-file { display: block; width: 100%; margin-bottom: 10px; font-size: 14px; }
+.tool-file-dropzone { position: relative; display: flex; align-items: center; justify-content: center;
+  gap: 14px; min-height: 132px; margin: 6px 0 18px; padding: 22px;
+  border: 2px dashed #c7d2fe; border-radius: 12px; background: #f8faff;
+  color: #475569; text-align: center; transition: border-color .15s, background-color .15s, box-shadow .15s; }
+.tool-file-dropzone:hover, .tool-file-dropzone:focus-within, .tool-file-dropzone.is-dragover {
+  border-color: var(--tool-accent, #4f46e5); background: #eef2ff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, .10); }
+.tool-file-dropzone.has-file { min-height: 96px; padding: 16px 22px;
+  border-style: solid; border-color: #a5b4fc; background: #f5f7ff; }
+.tool-file-dropzone-input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%;
+  margin: 0; opacity: 0; cursor: pointer; }
+.tool-file-dropzone-icon { flex: 0 0 auto; color: var(--tool-accent, #4f46e5); pointer-events: none; }
+.tool-file-dropzone-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; pointer-events: none; }
+.tool-file-dropzone-title { color: var(--tool-ink, #0f172a); font-weight: 650; overflow-wrap: anywhere; }
+.tool-file-dropzone-meta { color: var(--tool-muted, #6b7280); font-size: .82rem; }
+@media (max-width: 480px) {
+  .tool-file-dropzone { flex-direction: column; gap: 10px; min-height: 148px; }
+  .tool-file-dropzone.has-file { min-height: 116px; padding: 16px; }
+}
 .tool-output-media { display: block; max-width: 100%; border-radius: 8px; margin-top: 4px; }
 .tool-output-media[hidden] { display: none; }
 /* Media-output actions row (Download link + optional "Copy image" button).
@@ -192,6 +212,7 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, san
 .tool-widget-btn:hover, .tool-widget-btn:focus-visible { border-color: var(--tool-accent, #4f46e5);
   color: var(--tool-ink, #0f172a); }
 .tool-widget-btn.copied { border-color: #16a34a; color: #16a34a; }
+.tool-widget-btn.copy-failed { border-color: #dc2626; color: #b91c1c; }
 /* The Download link shares the button chrome; anchors need the underline
    stripped and an explicit [hidden] rule (display would otherwise win). */
 a.tool-widget-btn { text-decoration: none; display: inline-block; }
@@ -275,4 +296,17 @@ a.tool-widget-btn { text-decoration: none; display: inline-block; }
   color: var(--tool-note-ink, #78350f);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+/* Local AI pages download model weights but never upload the user's input.
+   Kept distinct from the network disclosure because no user data leaves. */
+.tool-model-note {
+  max-width: 52rem;
+  margin: 0.7rem auto 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 0.5rem;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.9rem;
 }
