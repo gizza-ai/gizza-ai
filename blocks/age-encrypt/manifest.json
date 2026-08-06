@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/age-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt text to armored age ciphertext",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt plaintext into an ASCII-armored age file. mode=passphrase (default) uses a passphrase with an explicit scrypt work factor capped for the wasm sandbox; mode=recipients encrypts to one or more native age X25519 public recipients that start with age1. The output begins with -----BEGIN AGE ENCRYPTED FILE----- and can be decrypted by compatible age clients with the same passphrase or matching identity. This tool encrypts small text locally; use the age CLI for large files, SSH recipients, identity generation, or decryption.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "passphrase",
+          "description": "passphrase encrypts with an scrypt-wrapped passphrase; recipients encrypts to one or more native age X25519 public keys.",
+          "enum": [
+            "passphrase",
+            "recipients"
+          ],
+          "type": "string"
+        },
+        "passphrase": {
+          "description": "Passphrase for mode=passphrase. Leave blank when encrypting to recipients.",
+          "type": "string"
+        },
+        "recipients": {
+          "description": "One or more age X25519 public recipients starting with age1, separated by spaces, commas, semicolons, or new lines. Used only when mode=recipients.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Plaintext to encrypt into an ASCII-armored age file.",
+          "type": "string"
+        },
+        "work_factor": {
+          "default": 14,
+          "description": "Scrypt log2 work factor for passphrase mode. Default 14; valid range 10-15 to stay within the wasm memory sandbox.",
+          "maximum": 15,
+          "minimum": 10,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "text",
+        "passphrase"
+      ],
+      "type": "object"
+    }
+  }
+}

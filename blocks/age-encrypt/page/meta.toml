@@ -1,0 +1,66 @@
+slug          = "age-encrypt"
+title         = "Age encrypt"
+description   = "Encrypt small text into an ASCII-armored age ciphertext with a passphrase or native X25519 recipients."
+tags          = ["crypto", "age", "encryption", "text"]
+h1            = "Age encrypt"
+hero_subtitle = "Create copy-pasteable age ciphertext locally from plaintext, a passphrase, or age1 recipient keys."
+wasm          = "gizza_ai_age_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Armored age ciphertext"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Plaintext"
+placeholder = "Paste the message to encrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Encryption mode"
+source      = "field"
+
+[input.labels]
+passphrase = "Passphrase"
+recipients = "Age recipients"
+
+[[input]]
+name        = "passphrase"
+label       = "Passphrase"
+placeholder = "Use a strong passphrase"
+source      = "field"
+
+[[input]]
+name        = "recipients"
+label       = "Recipients"
+placeholder = "age1... (one per line, comma, or space separated)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "work_factor"
+label       = "Scrypt work factor"
+placeholder = "14"
+source      = "field"
+kind        = "slider"
+min         = 10
+max         = 15
+step        = "1"
+
+[[example]]
+label = "Passphrase note"
+text = "Deploy key rotates at 17:00 UTC."
+mode = "passphrase"
+passphrase = "correct horse battery staple"
+recipients = ""
+work_factor = "14"
+
+[[example]]
+label = "Low-memory passphrase"
+text = "Short test message"
+mode = "passphrase"
+passphrase = "demo passphrase"
+recipients = ""
+work_factor = "10"
