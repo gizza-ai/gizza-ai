@@ -1,0 +1,37 @@
+{
+  "name": "gizza-ai/job-posting-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract title, company, salary, location, skills, and work mode from a pasted job ad.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a pasted job posting into deterministic structured fields: title, company, location, salary or compensation range, employment type, remote/hybrid/onsite work mode, experience level, skills, warnings, and optional evidence snippets. This is a pure Rust heuristic parser for triage and spreadsheet cleanup: it does not call an LLM, scrape websites, infer hidden facts, or normalize against a private taxonomy. Provide the full job posting text in posting; choose json or markdown output; keep include_evidence enabled when you want to audit why a field was selected.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_evidence": {
+          "default": true,
+          "description": "Include short evidence lines showing which source text produced key fields (default true).",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format. JSON is best for downstream scripts; Markdown is easier to paste into notes.",
+          "enum": [
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "posting": {
+          "description": "Raw job posting text to parse. Paste the title/header, company line, location, compensation, requirements, and skills sections when available.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "posting"
+      ],
+      "type": "object"
+    }
+  }
+}
