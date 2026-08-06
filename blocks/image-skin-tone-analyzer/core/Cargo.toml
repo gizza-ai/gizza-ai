@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-image-skin-tone-analyzer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust decode only; common web formats. No ffmpeg, no model.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }

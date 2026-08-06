@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/image-skin-tone-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Measure a photo's skin-tone hue and suggest a warm/cool white-balance correction",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the skin-tone pixels in a photo and report their average hue, undertone and depth, plus the warm/cool white-balance correction that would neutralise any colour cast. Params: sensitivity=strict|normal|loose skin-mask width (default normal), reference_hue = the CIELAB a*b* hue angle balanced skin should sit at (0-90, default 52), tolerance in degrees still counted as balanced (0-30, default 4), min_skin_percent coverage gate (0-100, default 0.5, 0 disables). Returns JSON with hue_degrees (HSV hue of the mean skin colour) and hex, the CIELAB values plus lab_hue_degrees, undertone (cool under 45 deg, neutral 45-58, warm 58-68, olive 68+), depth from the Individual Typology Angle (very light/light/intermediate/tan/brown/dark), cast (warm|cool|neutral), hue_offset_degrees, is_balanced, and suggested_kelvin / suggested_kelvin_shift against an assumed 5500 K capture (negative = cool the image down). Also returns skin_percent coverage, clipped_percent, a confidence score and warnings. Analysis only: it never edits the image, and there is no face detection, so every skin-coloured pixel in the frame counts. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "min_skin_percent": {
+          "default": 0.5,
+          "description": "Minimum share of opaque pixels that must read as skin before a result is returned; below it the tool errors instead of reporting from a tiny sample. Set 0 to always report (default 0.5).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "reference_hue": {
+          "default": 52.0,
+          "description": "CIELAB a*b* hue angle, in degrees, that correctly white-balanced skin is expected to sit at; the cast and the suggested temperature are measured against it (default 52, typical facial skin is 45-60).",
+          "maximum": 90,
+          "minimum": 0,
+          "type": "number"
+        },
+        "sensitivity": {
+          "default": "normal",
+          "description": "How permissive the skin-pixel test is: strict adds an RGB rule and a high luma floor (fewest false positives), normal uses the classic YCbCr chroma band, loose widens the band for photos with a heavy colour cast or deep skin tones in shadow (default normal).",
+          "enum": [
+            "strict",
+            "normal",
+            "loose"
+          ],
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 4.0,
+          "description": "Hue offset in degrees still counted as balanced; |hue_offset_degrees| at or below this reports cast=neutral and is_balanced=true (default 4, range 0-30).",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
