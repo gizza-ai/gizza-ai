@@ -1,0 +1,126 @@
+slug          = "payment-qr"
+title         = "Payment QR Generator — BIP21, Ethereum, Lightning and Text QR Codes"
+description   = "Build validated payment URIs and render scannable SVG QR codes for Bitcoin BIP21, Litecoin, Dogecoin, Ethereum, Lightning invoices or plain text."
+tags          = ["payment qr", "bip21 qr", "bitcoin qr", "crypto payment qr", "ethereum qr", "lightning invoice qr", "qr code svg", "wallet qr", "payment uri"]
+h1            = "Payment QR Generator"
+hero_subtitle = "Create a scannable SVG QR code for a validated payment URI. Supports Bitcoin BIP21, Litecoin, Dogecoin, Ethereum EIP-681, Lightning invoices and generic text payloads."
+wasm          = "gizza_ai_payment_qr_web"
+export        = "run"
+live          = false
+output_label  = "Payment QR SVG"
+format        = "svg"
+wide          = true
+
+[[input]]
+name        = "address"
+label       = "Address, invoice, or text payload"
+placeholder = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+source      = "field"
+
+[[input]]
+name   = "scheme"
+label  = "Payment scheme"
+source = "field"
+
+[input.labels]
+bitcoin   = "Bitcoin BIP21"
+litecoin  = "Litecoin BIP21"
+dogecoin  = "Dogecoin BIP21"
+ethereum  = "Ethereum EIP-681"
+lightning = "Lightning invoice"
+text      = "Plain text payload"
+
+[[input]]
+name        = "amount"
+label       = "Amount (optional)"
+placeholder = "0.025"
+source      = "field"
+
+[[input]]
+name        = "label"
+label       = "Label (BIP21 only)"
+placeholder = "Coffee Bar"
+source      = "field"
+
+[[input]]
+name        = "message"
+label       = "Message (BIP21 only)"
+placeholder = "Invoice 2026-114"
+source      = "field"
+
+[[input]]
+name   = "error_correction"
+label  = "Error correction"
+source = "field"
+
+[input.labels]
+L = "L — smallest QR"
+M = "M — balanced default"
+Q = "Q — print friendly"
+H = "H — maximum recovery"
+
+[[input]]
+name        = "size"
+label       = "SVG display size (px)"
+placeholder = "512"
+source      = "field"
+kind        = "slider"
+min         = "128"
+max         = "2048"
+step        = "32"
+
+[[input]]
+name        = "foreground"
+label       = "Foreground color"
+placeholder = "#000000"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "background"
+label       = "Background color"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name   = "show_uri"
+label  = "Print URI under the code"
+source = "field"
+
+[[example]]
+label = "Bitcoin invoice"
+[example.params]
+address = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+scheme = "bitcoin"
+amount = "0.025"
+label = "Coffee Bar"
+message = "Invoice 2026-114"
+error_correction = "M"
+size = "512"
+foreground = "#000000"
+background = "#ffffff"
+show_uri = "true"
+
+[[example]]
+label = "Ethereum payment"
+[example.params]
+address = "0x000000000000000000000000000000000000dEaD"
+scheme = "ethereum"
+amount = "0.5"
+error_correction = "Q"
+size = "512"
+foreground = "#111827"
+background = "#ffffff"
+show_uri = "true"
+
+[[example]]
+label = "Plain text QR"
+[example.params]
+address = "pay me at the front desk"
+scheme = "text"
+error_correction = "H"
+size = "384"
+foreground = "#111111"
+background = "#ffffff"
+show_uri = "false"

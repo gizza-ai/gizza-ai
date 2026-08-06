@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "payment-qr"
+version = "0.1.0"
+abi = 1
+summary = "Build a BIP-21 payment URI and render it as a QR code"
