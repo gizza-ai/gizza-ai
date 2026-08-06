@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/chunk-list",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split list items into fixed-size chunks for batching.",
+  "role": "skill",
+  "tool": {
+    "description": "Split a pasted list of lines or comma/semicolon/tab/pipe/custom-separated items into fixed-size chunks for batching API calls, imports, SQL IN lists, prompts, or review queues. Items are trimmed, blank entries are dropped, chunk_size controls how many items go in each batch, and the output can be plain text, JSON, CSV, or Markdown with optional chunk labels.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_size": {
+          "default": 10,
+          "description": "Number of items per chunk. Must be at least 1; the final chunk contains any remainder.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "custom_separator": {
+          "default": "",
+          "description": "Literal separator used when input_separator is 'custom'. Supports typed escapes for newline, tab, carriage return, and backslash.",
+          "type": "string"
+        },
+        "input_separator": {
+          "default": "auto",
+          "description": "How to split the input. 'auto' (default) splits on newlines, commas, semicolons, tabs, and pipes; explicit choices split on exactly that separator; 'custom' uses custom_separator.",
+          "enum": [
+            "auto",
+            "comma",
+            "newline",
+            "semicolon",
+            "tab",
+            "pipe",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "items": {
+          "description": "List text to split into batches. Paste one item per line, comma/semicolon/tab/pipe-separated items, or use custom_separator for another delimiter. Items are trimmed and blank entries are dropped.",
+          "type": "string"
+        },
+        "label_chunks": {
+          "default": true,
+          "description": "Include chunk numbers and item counts in plain/JSON/CSV/Markdown output (default true). Turn off for bare batches.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "plain",
+          "description": "Output format: plain labelled batches, JSON arrays/records, one CSV row per chunk, or Markdown bullet lists.",
+          "enum": [
+            "plain",
+            "json",
+            "csv",
+            "markdown"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    }
+  }
+}
