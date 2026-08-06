@@ -25,6 +25,16 @@ use std::path::{Path, PathBuf};
 
 use meta::ToolMeta;
 
+const TRANSFORMERS_RUNTIME_FILES: &[&str] = &["transformers.min.js"];
+const ONNX_RUNTIME_FILES: &[&str] = &[
+    "ort-wasm-simd-threaded.jsep.mjs",
+    "ort-wasm-simd-threaded.jsep.wasm",
+    "ort-wasm-simd-threaded.asyncify.mjs",
+    "ort-wasm-simd-threaded.asyncify.wasm",
+    "ort-wasm-simd-threaded.mjs",
+    "ort-wasm-simd-threaded.wasm",
+];
+
 fn main() {
     if let Err(e) = run() {
         eprintln!("gizza-tool-pages: {e}");
@@ -77,14 +87,22 @@ fn run() -> Result<(), String> {
         fs::create_dir_all(&model_runtime)
             .map_err(|e| format!("mkdir {}: {e}", model_runtime.display()))?;
         let transformers_dist = root.join("node_modules/@huggingface/transformers/dist");
+        let onnx_dist = root.join("node_modules/onnxruntime-web/dist");
         let dependency_hint =
             "run `npm install --no-audit --no-fund` before generating model pages";
-        for name in [
-            "transformers.min.js",
-            "ort-wasm-simd-threaded.jsep.mjs",
-            "ort-wasm-simd-threaded.jsep.wasm",
-        ] {
+        for name in TRANSFORMERS_RUNTIME_FILES {
             let source = transformers_dist.join(name);
+            if !source.is_file() {
+                return Err(format!("missing {} ({dependency_hint})", source.display()));
+            }
+            copy_file(&source, &model_runtime.join(name))?;
+        }
+        // ONNX Runtime selects the JSEP build for WebGPU, the asyncify build
+        // for most WASM browsers, and the regular threaded build for Safari.
+        // Keep all three local so inference never falls back to a third-party
+        // CDN and every advertised backend has the matching factory + binary.
+        for name in ONNX_RUNTIME_FILES {
+            let source = onnx_dist.join(name);
             if !source.is_file() {
                 return Err(format!("missing {} ({dependency_hint})", source.display()));
             }
@@ -93,6 +111,10 @@ fn run() -> Result<(), String> {
         copy_file(
             &root.join("node_modules/@huggingface/transformers/LICENSE"),
             &model_runtime.join("LICENSE.transformers.txt"),
+        )?;
+        copy_file(
+            &runtime.join("LICENSE.onnxruntime.txt"),
+            &model_runtime.join("LICENSE.onnxruntime.txt"),
         )?;
         copy_file(
             &runtime.join("model-worker.js"),
@@ -363,4 +385,23 @@ fn copy_file(from: &Path, to: &Path) -> Result<(), String> {
     fs::copy(from, to)
         .map(|_| ())
         .map_err(|e| format!("copy {} -> {}: {e}", from.display(), to.display()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn model_runtime_self_hosts_every_backend_variant() {
+        for suffix in ["jsep", "asyncify"] {
+            assert!(ONNX_RUNTIME_FILES
+                .iter()
+                .any(|name| name.ends_with(&format!("{suffix}.mjs"))));
+            assert!(ONNX_RUNTIME_FILES
+                .iter()
+                .any(|name| name.ends_with(&format!("{suffix}.wasm"))));
+        }
+        assert!(ONNX_RUNTIME_FILES.contains(&"ort-wasm-simd-threaded.mjs"));
+        assert!(ONNX_RUNTIME_FILES.contains(&"ort-wasm-simd-threaded.wasm"));
+    }
 }
