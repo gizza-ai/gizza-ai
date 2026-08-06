@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/fixed-width-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split fixed-width column text into CSV, with auto-detected or explicit column positions",
+  "role": "skill",
+  "tool": {
+    "description": "Convert fixed-width / column-positional text records into CSV. With no spec it auto-detects the column boundaries: any character position where EVERY line has a space (or has already ended) is a boundary, and the runs between them become columns. Give `spec` to pin the layout instead — comma-separated widths ('10,4,*'), 1-based inclusive ranges ('1-10,11-14'), named columns ('name:10,age:4,city:*'), or the pipe form '1,10,name|11,4,age|15,*,city'. Positions count characters, not bytes. header=first-row (default) uses the first line as titles; 'names' takes them from the spec; 'generate' emits col1,col2,…; 'none' writes data only. trim=true (default) strips field padding. delimiter sets the output separator (single char or comma/tab/semicolon/pipe/space/colon; 'tab' gives TSV). quote=minimal (default)/all/never; newline=lf (default)/crlf; bom=true prepends a UTF-8 BOM for Excel. skip_lines drops leading banner lines, `comment` ignores lines starting with a prefix, skip_blank=true (default) drops blank lines. Short lines yield empty fields; up to 50000 lines and 512 columns per run. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bom": {
+          "default": false,
+          "description": "Prepend a UTF-8 byte-order mark (BOM) so Excel opens the CSV as UTF-8. Default false.",
+          "type": "boolean"
+        },
+        "comment": {
+          "default": "",
+          "description": "Ignore lines whose first non-space characters are this prefix, e.g. '#' or '//'. Empty (default) keeps every line.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Output field separator: a single character, or one of 'comma' (default), 'tab' (gives TSV), 'semicolon', 'pipe', 'space', 'colon'.",
+          "type": "string"
+        },
+        "header": {
+          "default": "first-row",
+          "description": "Where the CSV header row comes from: 'first-row' (default) treats the first line of input as the column titles; 'names' uses the names given in the column spec; 'generate' emits col1,col2,…; 'none' writes data rows only.",
+          "enum": [
+            "first-row",
+            "names",
+            "generate",
+            "none"
+          ],
+          "type": "string"
+        },
+        "newline": {
+          "default": "lf",
+          "description": "Output line ending between rows: 'lf' (default, `\\n`, Unix/macOS) or 'crlf' (`\\r\\n`, Windows/Excel).",
+          "enum": [
+            "lf",
+            "crlf"
+          ],
+          "type": "string"
+        },
+        "quote": {
+          "default": "minimal",
+          "description": "CSV quoting: 'minimal' (default) quotes a field only when it contains the delimiter, a double quote, or a newline (RFC 4180); 'all' wraps every field in double quotes; 'never' never quotes — smaller output, but a field containing the delimiter will re-import as two fields.",
+          "enum": [
+            "minimal",
+            "all",
+            "never"
+          ],
+          "type": "string"
+        },
+        "skip_blank": {
+          "default": true,
+          "description": "Ignore blank and whitespace-only lines (default true). Turn it off to emit an all-empty CSV row wherever the input has a blank line.",
+          "type": "boolean"
+        },
+        "skip_lines": {
+          "default": 0,
+          "description": "Drop this many lines from the top of the input before converting — use it to skip a report banner or page title. Default 0.",
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "spec": {
+          "default": "",
+          "description": "Column layout. Leave EMPTY (default) to auto-detect the boundaries from the whitespace that lines up on every line. Otherwise give comma-separated columns: a width ('10'), a 1-based inclusive range ('1-10'), '*' for the rest of the line, or any of those with a name ('name:10', 'dob:11-18', 'notes:*'). Bare widths run consecutively from position 1, so '10,4,*' means characters 1-10, 11-14, 15-end. A spec that contains '|' uses the position,length[,name] form instead: '1,10,name|11,4,age|15,*,city' (length '*' or 0 = rest of the line). Positions count characters, not bytes.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The fixed-width text to convert: one record per line, columns aligned by character position (e.g. a mainframe extract, a COBOL copybook dump, or `ls -l`-style report output). Paste it as-is; trailing carriage returns are ignored.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading and trailing whitespace from every extracted field (default true). Turn it off to keep each field's original padding byte-for-byte.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

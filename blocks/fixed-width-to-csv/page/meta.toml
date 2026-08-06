@@ -1,0 +1,100 @@
+slug          = "fixed-width-to-csv"
+title         = "Fixed Width to CSV Converter — Column Position Text Parser"
+description   = "Convert fixed-width records to CSV. Auto-detect aligned whitespace or enter exact widths/ranges, headers, delimiters, quoting, and line endings."
+tags          = ["fixed width to csv", "fixed-width parser", "column position text", "mainframe report to csv", "cobol text extract", "text table to csv"]
+h1            = "Fixed Width to CSV Converter"
+hero_subtitle = "Split aligned fixed-width records into clean CSV. Auto-detect column breaks from whitespace, or provide exact widths, ranges, and names for repeatable imports."
+wasm          = "gizza_ai_fixed_width_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV output"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Fixed-width text"
+placeholder = "name      age city\nAda        36 London\nBo          7 Oslo"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "spec"
+label       = "Column spec (optional)"
+placeholder = "name:10,age:4,city:*"
+source      = "field"
+
+# header renders as a <select>; option list derives from the descriptor enum.
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+first-row = "Use first input line as headers"
+names     = "Use names from the column spec"
+generate  = "Generate col1, col2, …"
+none      = "No header row"
+
+[[input]]
+name   = "trim"
+label  = "Trim whitespace from fields"
+source = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Output delimiter"
+placeholder = "comma"
+source      = "field"
+
+[[input]]
+name   = "quote"
+label  = "CSV quoting"
+source = "field"
+
+[input.labels]
+minimal = "Minimal — quote only when needed"
+all     = "Quote every field"
+never   = "Never quote fields"
+
+[[input]]
+name   = "newline"
+label  = "Line endings"
+source = "field"
+
+[input.labels]
+lf   = "LF (Unix/macOS)"
+crlf = "CRLF (Windows/Excel)"
+
+[[input]]
+name        = "skip_lines"
+label       = "Skip leading lines"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "comment"
+label       = "Comment prefix to ignore"
+placeholder = "#"
+source      = "field"
+
+[[input]]
+name   = "skip_blank"
+label  = "Skip blank lines"
+source = "field"
+
+[[input]]
+name   = "bom"
+label  = "Add UTF-8 BOM for Excel"
+source = "field"
+
+[[example]]
+label  = "Auto-detect columns"
+params = { text = "name      age city\nAda        36 London\nBo          7 Oslo", spec = "", header = "first-row", trim = "true", delimiter = "comma", quote = "minimal", newline = "lf", skip_lines = "0", comment = "", skip_blank = "true", bom = "false" }
+
+[[example]]
+label  = "Named spec, semicolons"
+params = { text = "Ada        36 London\nBo          7 Oslo", spec = "name:10,age:4,city:*", header = "names", trim = "true", delimiter = "semicolon", quote = "minimal", newline = "lf", skip_lines = "0", comment = "", skip_blank = "true", bom = "false" }
+
+[[example]]
+label  = "Skip report banner"
+params = { text = "REPORT 2026\n# generated\nAda  36\nBo    7", spec = "", header = "none", trim = "true", delimiter = "tab", quote = "minimal", newline = "crlf", skip_lines = "1", comment = "#", skip_blank = "true", bom = "false" }
