@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-spreadsheet-formula-audit-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust spreadsheet reader (.xlsx/.xlsm/.xls/.ods). We read the cell VALUES
+# (`worksheet_range`, for cached error results), the FORMULA strings
+# (`worksheet_formula`, for the dependency graph and #REF! text), and the
+# workbook metadata (sheet visibility + defined names). default-features keeps
+# `dates` off; we stringify every cell ourselves. Compiles to wasm32 (no C deps).
+calamine = { version = "0.26", default-features = false }
+serde_json = "1"
+
+[dev-dependencies]
+# Generates tiny in-memory .xlsx fixtures (broken refs, cycles, cached errors)
+# for the unit tests.
+rust_xlsxwriter = "0.79"
