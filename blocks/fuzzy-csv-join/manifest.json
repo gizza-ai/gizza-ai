@@ -1,0 +1,105 @@
+{
+  "name": "gizza-ai/fuzzy-csv-join",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Join two CSVs with fuzzy key matching",
+  "role": "skill",
+  "tool": {
+    "description": "Join two CSV tables on approximately matching key values. Choose a similarity algorithm and threshold, emit SQL-style inner/left/right/outer joins, cap multiple candidate matches per left row, include match scores, and inspect unmatched rows or a JSON coverage report. Inputs are CSV text with header rows and all processing runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "jaro_winkler",
+          "description": "Similarity algorithm. jaro_winkler (default) handles abbreviations well; levenshtein is edit-distance ratio; token_sort ignores word order; soundex is phonetic.",
+          "enum": [
+            "jaro_winkler",
+            "levenshtein",
+            "token_sort",
+            "soundex"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV delimiter: a single character or comma/tab/semicolon/pipe. Default comma.",
+          "type": "string"
+        },
+        "ignore_punctuation": {
+          "default": false,
+          "description": "Remove punctuation and symbols before scoring, so 'ACME, Inc.' and 'Acme Inc' compare closer. Default false.",
+          "type": "boolean"
+        },
+        "join_type": {
+          "default": "inner",
+          "description": "Rows to keep in the joined CSV: inner matches only; left keeps all left rows; right keeps all right rows; outer keeps both sides.",
+          "enum": [
+            "inner",
+            "left",
+            "right",
+            "outer"
+          ],
+          "type": "string"
+        },
+        "left": {
+          "description": "Left CSV text. The first row is the header and data rows are matched against the right CSV.",
+          "type": "string"
+        },
+        "left_key": {
+          "description": "Key column in the left CSV, as a header name or 1-based column index.",
+          "type": "string"
+        },
+        "max_matches": {
+          "default": 1,
+          "description": "Maximum right-side candidates emitted for each left row, best scores first. Default 1.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "normalize_case": {
+          "default": true,
+          "description": "Compare keys case-insensitively by lowercasing before scoring. Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Return the joined CSV, only unmatched left rows, only unmatched right rows, or a JSON report with matches and coverage stats.",
+          "enum": [
+            "csv",
+            "unmatched_left",
+            "unmatched_right",
+            "json"
+          ],
+          "type": "string"
+        },
+        "right": {
+          "description": "Right CSV text. The first row is the header; matched rows are appended after the left columns.",
+          "type": "string"
+        },
+        "right_key": {
+          "default": "",
+          "description": "Key column in the right CSV, as a header name or 1-based index. Blank reuses left_key's reference.",
+          "type": "string"
+        },
+        "show_score": {
+          "default": true,
+          "description": "Append a match_score column to joined CSV output. Default true.",
+          "type": "boolean"
+        },
+        "threshold": {
+          "default": 85.0,
+          "description": "Minimum similarity score from 0 to 100, inclusive. Default 85.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "left",
+        "right",
+        "left_key"
+      ],
+      "type": "object"
+    }
+  }
+}

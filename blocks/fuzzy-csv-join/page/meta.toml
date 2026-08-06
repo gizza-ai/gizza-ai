@@ -1,0 +1,173 @@
+slug          = "fuzzy-csv-join"
+title         = "Fuzzy CSV Join"
+description   = "Join two CSV tables on approximately matching key values, with similarity scores, join modes, unmatched-row reports and multiple matching algorithms."
+tags          = ["csv join", "fuzzy matching", "approximate join", "record linkage", "entity resolution", "csv merge", "jaro winkler", "levenshtein"]
+h1            = "Fuzzy CSV Join"
+hero_subtitle = "Paste two CSV tables and merge rows whose key values are close rather than identical. Choose an algorithm and threshold, keep inner/left/right/outer rows, include scores, and inspect unmatched records — all in your browser."
+wasm          = "gizza_ai_fuzzy_csv_join_web"
+export        = "run"
+live          = false
+output_label  = "Joined output"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "Left CSV"
+placeholder = '''id,company
+1,Acme Ltd
+2,Globex Corporation
+3,Initech'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Right CSV"
+placeholder = '''name,city
+Acme Ltd.,Berlin
+Globex Corp,Cairo
+Umbrella,Delhi'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "left_key"
+label       = "Left key column"
+placeholder = "company"
+source      = "field"
+
+[[input]]
+name        = "right_key"
+label       = "Right key column (blank reuses left key)"
+placeholder = "name"
+source      = "field"
+
+[[input]]
+name        = "algorithm"
+label       = "Similarity algorithm"
+source      = "field"
+
+[input.labels]
+jaro_winkler = "Jaro-Winkler (abbreviations)"
+levenshtein  = "Levenshtein ratio"
+token_sort   = "Token sort (word order-insensitive)"
+soundex      = "Soundex phonetic"
+
+[[input]]
+name        = "threshold"
+label       = "Minimum score (0–100)"
+placeholder = "85"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "join_type"
+label       = "Join type"
+source      = "field"
+
+[input.labels]
+inner = "Inner (matched rows only)"
+left  = "Left (keep all left rows)"
+right = "Right (keep all right rows)"
+outer = "Outer (keep both sides)"
+
+[[input]]
+name        = "max_matches"
+label       = "Matches per left row"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "show_score"
+label       = "Append match_score"
+source      = "field"
+
+[[input]]
+name        = "normalize_case"
+label       = "Ignore case"
+source      = "field"
+
+[[input]]
+name        = "ignore_punctuation"
+label       = "Ignore punctuation"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+csv             = "Joined CSV"
+unmatched_left  = "Unmatched left rows"
+unmatched_right = "Unmatched right rows"
+json            = "JSON match report"
+
+[[example]]
+label = "Join company names"
+[example.params]
+left = '''id,company
+1,Acme Ltd
+2,Globex Corporation
+3,Initech'''
+right = '''name,city
+Acme Ltd.,Berlin
+Globex Corp,Cairo
+Umbrella,Delhi'''
+left_key = "company"
+right_key = "name"
+algorithm = "jaro_winkler"
+threshold = "85"
+show_score = "true"
+
+[[example]]
+label = "Keep all left rows"
+[example.params]
+left = '''id,company
+1,Acme Ltd
+2,Globex Corporation
+3,Initech'''
+right = '''name,city
+Acme Ltd.,Berlin
+Globex Corp,Cairo
+Umbrella,Delhi'''
+left_key = "company"
+right_key = "name"
+join_type = "left"
+threshold = "85"
+
+[[example]]
+label = "Token sort match"
+[example.params]
+left = '''id,company
+1,Acme Limited
+2,North Wind Traders'''
+right = '''name,city
+Limited Acme,Berlin
+Traders North Wind,Cairo'''
+left_key = "company"
+right_key = "name"
+algorithm = "token_sort"
+threshold = "80"
+
+[[example]]
+label = "Unmatched report"
+[example.params]
+left = '''id,company
+1,Acme Ltd
+2,Globex Corporation
+3,Initech'''
+right = '''name,city
+Acme Ltd.,Berlin
+Globex Corp,Cairo
+Umbrella,Delhi'''
+left_key = "company"
+right_key = "name"
+output = "json"
+threshold = "85"
