@@ -1,0 +1,87 @@
+slug          = "env-schema-validate"
+title         = "Env Schema Validator — Check a .env Against Required Keys, Types & Allowed Values"
+description   = "Paste a .env file and a schema to catch missing, mistyped and out-of-range variables before your app boots. Rules or JSON Schema. Runs in your browser."
+tags          = ["env schema validator", "validate .env file", "dotenv schema", "required env variables", "env type check", "env allowed values", "env var linter", "env validation CI"]
+h1            = "Env Schema Validator"
+hero_subtitle = "Paste a .env file plus a schema of required keys, value types and allowed values — get every missing, mistyped or out-of-range variable with its line number and severity. Rules lines, a .env.example template or a JSON Schema all work. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_env_schema_validate_web"
+export        = "run"
+live          = false
+output_label  = "Schema check result"
+format        = "text"
+
+[[input]]
+name        = "env"
+label       = ".env file contents"
+placeholder = "# staging\nexport NODE_ENV=staging\nPORT=99999\nDATABASE_URL=localhost\nAPI_KEY=short\nLEGACY_FLAG=1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "schema"
+label       = "Schema (KEY=rule|rule:arg lines, or a JSON Schema object)"
+placeholder = "NODE_ENV=required|enum:development,staging,production\nPORT=required|port\nDATABASE_URL=required|url\nAPI_KEY=required|min:32\nTIMEOUT=number|min:1|max:60|default:30"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "schema_format"
+label  = "Schema format"
+source = "field"
+
+[input.labels]
+auto          = "Auto — detect JSON Schema vs rules"
+rules         = "Rules — KEY=required|type|enum:a,b lines"
+"json-schema" = "JSON Schema — type/required/properties"
+example       = "Template — a .env.example (all keys required)"
+
+[[input]]
+name   = "unknown_keys"
+label  = "Keys not declared in the schema"
+source = "field"
+
+[input.labels]
+warn   = "Warn — list them, still pass"
+ignore = "Ignore — say nothing"
+error  = "Error — strict, an undeclared key fails"
+
+[[input]]
+name   = "empty_is_missing"
+label  = "Treat an empty value (KEY=) as not set"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report — line numbers, severities, rules"
+json   = "JSON — {ok, counts, issues[]} for CI"
+
+[[example]]
+label = "Types, ports and enums"
+[example.params]
+env    = "# staging\nexport NODE_ENV=staging\nPORT=99999\nDATABASE_URL=localhost\nAPI_KEY=short\nLEGACY_FLAG=1"
+schema = "NODE_ENV=required|enum:development,staging,production\nPORT=required|port\nDATABASE_URL=required|url\nAPI_KEY=required|min:32\nTIMEOUT=number|min:1|max:60|default:30"
+
+[[example]]
+label = "Check against a .env.example"
+[example.params]
+env           = "PORT=8080\nDATABASE_URL=postgres://localhost/app"
+schema        = "PORT=3000\nDATABASE_URL=postgres://user:pass@host/db\nSTRIPE_SECRET_KEY=sk_test_xxx"
+schema_format = "example"
+
+[[example]]
+label = "JSON Schema + strict mode"
+[example.params]
+env          = "PORT=8080\nNODE_ENV=dev\nOLD_SETTING=1"
+schema       = "{\"type\":\"object\",\"required\":[\"PORT\",\"NODE_ENV\"],\"properties\":{\"PORT\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":65535},\"NODE_ENV\":{\"type\":\"string\",\"enum\":[\"dev\",\"prod\"]}}}"
+unknown_keys = "error"
+
+[[example]]
+label = "Secrets policy, JSON for CI"
+[example.params]
+env    = "DB_PASSWORD=hunter2\nADMIN_EMAIL=ops@example.com"
+schema = "DB_PASSWORD=required|secure|min:12\nADMIN_EMAIL=required|email"
+output = "json"
