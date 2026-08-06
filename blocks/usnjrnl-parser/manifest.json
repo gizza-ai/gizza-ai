@@ -1,0 +1,102 @@
+{
+  "name": "gizza-ai/usnjrnl-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an NTFS $UsnJrnl:$J change journal into a file-activity timeline.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an NTFS $Extend\\$UsnJrnl:$J change journal supplied as hex or Base64 and report the file creation, rename, write, metadata-change, close and deletion events NTFS recorded over time. Decodes USN_RECORD V2 and V3 (128-bit file references) layouts, counts V4 range-tracking records, and skips the sparse (zeroed) regions and unparseable runs a $J commonly contains, resynchronising on the 8-byte record alignment so carved fragments still parse. Each row carries the UTC timestamp, update sequence number, file name, decoded USN_REASON flags, decoded FILE_ATTRIBUTE flags, the MFT entry and sequence numbers of both the file and its parent directory, the USN_SOURCE flags and the security id. RENAME_OLD_NAME and RENAME_NEW_NAME records are merged into one rename row by default. Filter by change class, files vs directories or a name substring; sort by journal order, time or name; and choose a summary, detailed report, dense list, CSV, Sleuth Kit bodyfile, TLN timeline or full JSON output. Note that $J stores parent reference numbers but no parent names, so full paths need a $MFT listing (see the mft-parser tool) — the parent MFT entry is emitted on every row for that join. Runs locally; no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The raw NTFS $Extend\\$UsnJrnl:$J change-journal bytes, encoded as hex (default) or Base64, e.g. the output of `xxd -p -c 256 J`. The stream need not start on a record boundary — the scanner resynchronises — so a carved fragment or a `dd` chunk works. Parsed locally; never uploaded.",
+          "type": "string"
+        },
+        "event": {
+          "default": "all",
+          "description": "Keep only one class of change. 'create' = USN_REASON_FILE_CREATE, 'delete' = FILE_DELETE, 'rename' = either rename half, 'write' = the data and named-stream overwrite/extend/truncate reasons, 'metadata' = security, EA, attribute, reparse, object-id and similar changes, 'close' = records carrying the CLOSE bit (the final record of a change burst). Default 'all'.",
+          "enum": [
+            "all",
+            "create",
+            "delete",
+            "rename",
+            "write",
+            "metadata",
+            "close"
+          ],
+          "type": "string"
+        },
+        "filter": {
+          "default": "",
+          "description": "Optional case-insensitive substring matched against the file name, and against the new name of a paired rename, e.g. \".exe\", \"invoice\" or \"AppData\". Applied before the max_entries cap.",
+          "type": "string"
+        },
+        "host": {
+          "default": "",
+          "description": "Host or system name written into the host column of the TLN timeline (mode=tln), e.g. \"WKSTN-04\". Empty renders \"-\". Ignored by every other mode.",
+          "type": "string"
+        },
+        "include": {
+          "default": "all",
+          "description": "Filter by FILE_ATTRIBUTE_DIRECTORY: 'all' (default), 'files' for non-directory records only, or 'dirs' for directory records only.",
+          "enum": [
+            "all",
+            "files",
+            "dirs"
+          ],
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "hex",
+          "description": "How the journal bytes in data are encoded. 'hex' accepts contiguous or separated bytes with an optional leading 0x; 'base64' accepts standard Base64 with optional whitespace.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "max_entries": {
+          "default": 200,
+          "description": "Maximum records emitted after filtering and sorting. Values above 5000 are clamped, and the output states when the list was capped. Summary mode always counts every matched record regardless. Default 200.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "report",
+          "description": "Output format. 'summary' gives triage counts, the USN and UTC time span and the most-active names over everything that matched; 'report' is a detailed block per record; 'list' is one dense line per record; 'csv' is a spreadsheet table; 'bodyfile' emits Sleuth Kit/mactime rows; 'tln' emits epoch|source|host|user|description timeline rows; 'json' returns every decoded field plus the scan accounting.",
+          "enum": [
+            "summary",
+            "report",
+            "list",
+            "csv",
+            "bodyfile",
+            "tln",
+            "json"
+          ],
+          "type": "string"
+        },
+        "pair_renames": {
+          "default": true,
+          "description": "Merge each USN_REASON_RENAME_OLD_NAME record with its following RENAME_NEW_NAME record for the same file so a rename reads as one row (\"old.txt -> new.txt\") instead of two halves. Set false to see the raw journal records exactly as NTFS wrote them. Default true.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "usn",
+          "description": "Ordering applied before the entry cap. 'usn' is journal order (ascending update sequence number, chronological by construction) and is the default; 'time' is newest first; 'name' is file name A-Z.",
+          "enum": [
+            "usn",
+            "time",
+            "name"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

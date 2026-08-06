@@ -1,0 +1,134 @@
+slug          = "usnjrnl-parser"
+title         = "USN Journal Parser — Read NTFS $UsnJrnl:$J File Activity"
+description   = "Parse an NTFS $UsnJrnl:$J change journal from hex or Base64 and list file create, rename, write and delete events with UTC timestamps, locally."
+tags          = ["USN journal parser", "$UsnJrnl", "$J stream", "NTFS change journal", "USN_RECORD", "Windows forensics", "DFIR", "file activity timeline", "deleted file evidence", "rename tracking", "mactime bodyfile", "TLN timeline"]
+h1            = "USN Journal Parser"
+hero_subtitle = "Paste an NTFS $UsnJrnl:$J change journal as hex or Base64 and read back the file create, rename, write, metadata and delete events it recorded — with UTC timestamps, decoded reason flags and MFT entry numbers. Runs locally in your browser."
+wasm          = "gizza_ai_usnjrnl_parser_web"
+export        = "run"
+live          = false
+output_label  = "Journal events"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Journal bytes"
+placeholder = "Paste $J bytes as hex, e.g. 50000000 02000000 2a000000 00000100 … — or switch the encoding below to Base64"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "input_encoding"
+label   = "Input encoding"
+source  = "field"
+default = "hex"
+
+[input.labels]
+hex    = "Hex bytes (50 00 00 00 02 00 …)"
+base64 = "Base64"
+
+[[input]]
+name    = "event"
+label   = "Change class"
+source  = "field"
+default = "all"
+
+[input.labels]
+all      = "All changes"
+create   = "File create"
+delete   = "File delete"
+rename   = "Rename / move"
+write    = "Data write"
+metadata = "Metadata change"
+close    = "Close (end of a change burst)"
+
+[[input]]
+name    = "include"
+label   = "Files or directories"
+source  = "field"
+default = "all"
+
+[input.labels]
+all   = "Files and directories"
+files = "Files only"
+dirs  = "Directories only"
+
+[[input]]
+name        = "filter"
+label       = "Name filter (optional)"
+placeholder = ".exe, invoice, AppData…"
+source      = "field"
+
+[[input]]
+name   = "pair_renames"
+label  = "Merge rename pairs into one row"
+source = "field"
+
+[[input]]
+name    = "mode"
+label   = "Output format"
+source  = "field"
+default = "report"
+
+[input.labels]
+summary  = "Summary: triage counts and time span"
+report   = "Report: full detail per record"
+list     = "List: one line per record"
+csv      = "CSV table"
+bodyfile = "Bodyfile for mactime"
+tln      = "TLN timeline rows"
+json     = "JSON: every decoded field"
+
+[[input]]
+name        = "host"
+label       = "TLN host name"
+placeholder = "WKSTN-04"
+source      = "field"
+
+[[input]]
+name    = "sort"
+label   = "Sort order"
+source  = "field"
+default = "usn"
+
+[input.labels]
+usn  = "Journal order (USN ascending)"
+time = "Newest first"
+name = "File name A-Z"
+
+[[input]]
+name        = "max_entries"
+label       = "Maximum records"
+placeholder = "200"
+source      = "field"
+default     = "200"
+
+[[example]]
+label = "Create, rename and delete timeline"
+[example.params]
+data = "50000000020000002a00000000000100050000000000010000100000000000000060ba17bf9bda010001000000000000000100002000000012003c006e006f007400650073002e00740078007400000050000000020000004d000000000002000500000000000100581000000000000000e74d1bbf9bda010010000000000000000100002000000012003c00640072006100660074002e00740078007400000050000000020000004d000000000002000500000000000100b01000000000000000e74d1bbf9bda010020008000000000000100002000000012003c00660069006e0061006c002e0074007800740000005000000002000000630000000000030005000000000001000811000000000000006ee11ebf9bda010002008000000000000100002000000014003c007300650063007200650074002e0074006d007000"
+mode = "list"
+max_entries = "200"
+
+[[example]]
+label = "Deleted files only"
+[example.params]
+data = "50000000020000002a00000000000100050000000000010000100000000000000060ba17bf9bda010001000000000000000100002000000012003c006e006f007400650073002e00740078007400000050000000020000004d000000000002000500000000000100581000000000000000e74d1bbf9bda010010000000000000000100002000000012003c00640072006100660074002e00740078007400000050000000020000004d000000000002000500000000000100b01000000000000000e74d1bbf9bda010020008000000000000100002000000012003c00660069006e0061006c002e0074007800740000005000000002000000630000000000030005000000000001000811000000000000006ee11ebf9bda010002008000000000000100002000000014003c007300650063007200650074002e0074006d007000"
+event = "delete"
+mode = "report"
+max_entries = "200"
+
+[[example]]
+label = "CSV export"
+[example.params]
+data = "50000000020000002a00000000000100050000000000010000100000000000000060ba17bf9bda010001000000000000000100002000000012003c006e006f007400650073002e00740078007400000050000000020000004d000000000002000500000000000100581000000000000000e74d1bbf9bda010010000000000000000100002000000012003c00640072006100660074002e00740078007400000050000000020000004d000000000002000500000000000100b01000000000000000e74d1bbf9bda010020008000000000000100002000000012003c00660069006e0061006c002e0074007800740000005000000002000000630000000000030005000000000001000811000000000000006ee11ebf9bda010002008000000000000100002000000014003c007300650063007200650074002e0074006d007000"
+mode = "csv"
+max_entries = "200"
+
+[[example]]
+label = "Triage summary"
+[example.params]
+data = "50000000020000002a00000000000100050000000000010000100000000000000060ba17bf9bda010001000000000000000100002000000012003c006e006f007400650073002e00740078007400000050000000020000004d000000000002000500000000000100581000000000000000e74d1bbf9bda010010000000000000000100002000000012003c00640072006100660074002e00740078007400000050000000020000004d000000000002000500000000000100b01000000000000000e74d1bbf9bda010020008000000000000100002000000012003c00660069006e0061006c002e0074007800740000005000000002000000630000000000030005000000000001000811000000000000006ee11ebf9bda010002008000000000000100002000000014003c007300650063007200650074002e0074006d007000"
+mode = "summary"
+max_entries = "200"
