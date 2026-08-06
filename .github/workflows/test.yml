@@ -201,6 +201,15 @@ jobs:
             scripts/build-block-wasm.sh "$block" --check
           done <<< "${{ steps.changed.outputs.blocks }}"
 
+      - name: Upload mismatched skill WASM artifacts
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mismatched-skill-wasm-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/gizza-ai-mismatched-wasm/*.wasm
+          if-no-files-found: ignore
+          retention-days: 1
+
       - name: Changed block Cargo tests
         if: github.event_name == 'pull_request'
         shell: bash

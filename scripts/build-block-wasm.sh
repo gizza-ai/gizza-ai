@@ -186,6 +186,11 @@ if [[ "$mode" == "--check" ]]; then
     echo "rustc: $(rustc --version --verbose | tr '\n' ' ')" >&2
     echo "first byte differences (position, committed, rebuilt; octal):" >&2
     cmp -l "$artifact" "$wasm" | head -n 20 >&2 || true
+    if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+      mismatch_dir="/tmp/gizza-ai-mismatched-wasm"
+      mkdir -p "$mismatch_dir"
+      cp "$wasm" "$mismatch_dir/$slug.wasm"
+    fi
     echo "Run scripts/build-block-wasm.sh $slug and commit the refreshed artifact." >&2
     exit 1
   fi
