@@ -1,0 +1,164 @@
+slug          = "faceted-filter"
+title         = "Faceted Search & Filter for JSON"
+description   = "Run a faceted search over a JSON dataset in your browser: filter and sort records, count every facet value, and page through the matches."
+tags          = ["faceted search", "json filter", "facet counts", "facet value counts", "filter json array", "json search tool", "group by count json", "json pagination"]
+h1            = "Faceted Search & Filter for JSON"
+hero_subtitle = "Paste a JSON array of records and get a faceted result: the records that match your search and filters, sorted and paginated, plus a value → count breakdown for every facet field. Runs entirely in your browser — no upload, no sign-up."
+wasm          = "gizza_ai_faceted_filter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# Field ORDER must match the web run() parameter order.
+[[input]]
+name        = "data"
+label       = "JSON dataset (array of records)"
+placeholder = '''[
+  {"name":"Aero Jacket","brand":"Northwind","price":180,"tags":["outdoor","sale"],"in_stock":true},
+  {"name":"Basalt Boots","brand":"Northwind","price":120,"tags":["outdoor"],"in_stock":false},
+  {"name":"Cirrus Cap","brand":"Trailhead","price":25,"tags":["sale"],"in_stock":true}
+]'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "query"
+label       = "Search text (blank matches everything)"
+placeholder = "outdoor jacket"
+source      = "field"
+
+[[input]]
+name        = "search_fields"
+label       = "Fields to search (blank searches every value)"
+placeholder = "name, tags"
+source      = "field"
+
+[[input]]
+name        = "filters"
+label       = "Filter expression (blank keeps every record)"
+placeholder = "price < 150 and tags contains outdoor"
+source      = "field"
+
+[[input]]
+name        = "facets"
+label       = "Facet fields (blank auto-detects)"
+placeholder = "brand, tags, in_stock"
+source      = "field"
+
+[[input]]
+name        = "facet_limit"
+label       = "Values per facet (0 = unlimited)"
+placeholder = "10"
+source      = "field"
+
+# facet_sort / facet_mode / output render as <select> and facet_stats as a
+# checkbox — the control types + option lists come from the descriptor's schema
+# (manifest.json).
+[[input]]
+name        = "facet_sort"
+label       = "Facet value order"
+source      = "field"
+
+[input.labels]
+count_desc = "Most common first"
+count_asc  = "Rarest first"
+value_asc  = "Value A→Z / low→high"
+value_desc = "Value Z→A / high→low"
+
+[[input]]
+name        = "facet_mode"
+label       = "Facet counting"
+source      = "field"
+
+[input.labels]
+conjunctive = "Match the results (conjunctive)"
+disjunctive = "Multi-select friendly (disjunctive)"
+
+[[input]]
+name        = "facet_stats"
+label       = "Add min / max / avg / sum for numeric facets"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort records (blank keeps input order)"
+placeholder = "price:desc, name"
+source      = "field"
+
+[[input]]
+name        = "page"
+label       = "Page (1-based)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "per_page"
+label       = "Records per page (max 1000)"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+json    = "Full result (items + facets)"
+items   = "Matching records only"
+facets  = "Facet counts only"
+summary = "Plain-text summary"
+
+[[example]]
+label  = "Facet a catalog"
+[example.params]
+data = '''[
+  {"name":"Aero Jacket","brand":"Northwind","price":180,"tags":["outdoor","sale"],"in_stock":true},
+  {"name":"Basalt Boots","brand":"Northwind","price":120,"tags":["outdoor"],"in_stock":false},
+  {"name":"Cirrus Cap","brand":"Trailhead","price":25,"tags":["sale"],"in_stock":true},
+  {"name":"Delta Pack","brand":"Summit","price":95,"tags":["outdoor","travel"],"in_stock":true}
+]'''
+facets = "brand, tags"
+output = "summary"
+
+[[example]]
+label  = "Filter, sort and page"
+[example.params]
+data = '''[
+  {"name":"Aero Jacket","brand":"Northwind","price":180,"tags":["outdoor","sale"],"in_stock":true},
+  {"name":"Basalt Boots","brand":"Northwind","price":120,"tags":["outdoor"],"in_stock":false},
+  {"name":"Cirrus Cap","brand":"Trailhead","price":25,"tags":["sale"],"in_stock":true},
+  {"name":"Delta Pack","brand":"Summit","price":95,"tags":["outdoor","travel"],"in_stock":true}
+]'''
+filters  = "tags contains outdoor and in_stock"
+facets   = "brand"
+sort     = "price:desc"
+per_page = "2"
+
+[[example]]
+label  = "Multi-select facet counts"
+[example.params]
+data = '''[
+  {"name":"Aero Jacket","brand":"Northwind","price":180,"tags":["outdoor","sale"],"in_stock":true},
+  {"name":"Basalt Boots","brand":"Northwind","price":120,"tags":["outdoor"],"in_stock":false},
+  {"name":"Cirrus Cap","brand":"Trailhead","price":25,"tags":["sale"],"in_stock":true},
+  {"name":"Delta Pack","brand":"Summit","price":95,"tags":["outdoor","travel"],"in_stock":true}
+]'''
+filters    = "brand in [Northwind]"
+facets     = "brand"
+facet_mode = "disjunctive"
+output     = "facets"
+
+[[example]]
+label  = "Price stats by brand"
+[example.params]
+data = '''[
+  {"name":"Aero Jacket","brand":"Northwind","price":180,"tags":["outdoor","sale"],"in_stock":true},
+  {"name":"Basalt Boots","brand":"Northwind","price":120,"tags":["outdoor"],"in_stock":false},
+  {"name":"Cirrus Cap","brand":"Trailhead","price":25,"tags":["sale"],"in_stock":true},
+  {"name":"Delta Pack","brand":"Summit","price":95,"tags":["outdoor","travel"],"in_stock":true}
+]'''
+facets      = "price"
+facet_stats = "true"
+facet_sort  = "value_asc"
+output      = "summary"

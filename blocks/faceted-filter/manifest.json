@@ -1,0 +1,104 @@
+{
+  "name": "gizza-ai/faceted-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Faceted search over a JSON dataset: filtered records plus facet value counts, sorting and pagination.",
+  "role": "skill",
+  "tool": {
+    "description": "Run a faceted search over a JSON dataset (an array of records). 'query' is a free-text search across the records' values and 'filters' is a per-record expression of 'path op value' clauses (ops == != > >= < <= contains startswith endswith ~/matches in) joined by and / or / not with ( ) grouping; a bare path means exists-and-truthy, dotted paths and array fields work. Matching records are sorted by 'sort' ('price:desc, name') and paginated with 'page'/'per_page'. Every field in 'facets' (blank auto-detects up to 20) is broken down into value → count buckets computed from the current result set, capped by 'facet_limit' and ordered by 'facet_sort'; 'facet_mode=disjunctive' ignores a facet's own filter clauses when counting it (multi-select facet behavior) and 'facet_stats' adds min/max/avg/sum for numeric facets. 'output' selects the full JSON envelope { total, page, per_page, total_pages, items, facets }, just the items, just the facets, or a plain-text summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The dataset: a JSON array of records, e.g. [{\"brand\":\"Apple\",\"price\":999,\"tags\":[\"phone\"]}]. A single JSON object is treated as a one-record dataset, and NDJSON / JSON Lines (one JSON value per line) is accepted too. Maximum 50000 records.",
+          "type": "string"
+        },
+        "facet_limit": {
+          "default": 10,
+          "description": "Maximum values reported per facet (default 10); 0 = unlimited. Each facet also reports 'distinct', the full number of values found, so truncation is visible.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "facet_mode": {
+          "default": "conjunctive",
+          "description": "How facet counts relate to 'filters'. 'conjunctive' (default) counts only the records shown, so counts match the result list. 'disjunctive' ignores a facet's OWN filter clauses when counting that facet, so the other values of a facet the user already filtered on keep non-zero counts — the behavior multi-select facet sidebars expect. Both modes return the same filtered records.",
+          "enum": [
+            "conjunctive",
+            "disjunctive"
+          ],
+          "type": "string"
+        },
+        "facet_sort": {
+          "default": "count_desc",
+          "description": "Order of the values inside each facet. 'count_desc' (default) is most-common first, ties broken by value; 'count_asc' is rarest first; 'value_asc'/'value_desc' order by the value itself (numerically when the values are numbers).",
+          "enum": [
+            "count_desc",
+            "count_asc",
+            "value_asc",
+            "value_desc"
+          ],
+          "type": "string"
+        },
+        "facet_stats": {
+          "default": false,
+          "description": "When true, each facet whose values include numbers also reports stats: count, min, max, avg and sum over the records in scope. Default false.",
+          "type": "boolean"
+        },
+        "facets": {
+          "default": "",
+          "description": "Comma-separated dotted paths to count values for, e.g. brand, tags, meta.color. Blank auto-detects the first 20 top-level fields holding scalars or arrays of scalars. Array elements are counted individually, so a facet's counts can exceed the match total.",
+          "type": "string"
+        },
+        "filters": {
+          "default": "",
+          "description": "Filter expression evaluated per record; blank keeps every record. A clause is 'path op value' (e.g. price < 500, brand == Apple, tags contains sale, name ~ ^A, brand in [Apple, Sony]). Ops: == != > >= < <= contains startswith endswith ~/matches in. Join clauses with and / or / not and group with ( ). A bare path (e.g. in_stock) is true when that field exists and is truthy. Dotted paths (meta.color), array indexes (items.0.id) and array fields (a clause holds if ANY element matches) are supported.",
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "What to return. 'json' (default): the full envelope { total, page, per_page, total_pages, items, facets }. 'items': just this page's records. 'facets': just the facet breakdown. 'summary': a plain-text report of the totals and each facet's values.",
+          "enum": [
+            "json",
+            "items",
+            "facets",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "description": "1-based page number of records to return (default 1). A page past the end returns an empty 'items' list with the real total, not an error.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "per_page": {
+          "default": 10,
+          "description": "Records returned per page (default 10, maximum 1000). Facet counts always cover the whole match set, not just this page.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "default": "",
+          "description": "Free-text search; blank matches every record. Terms are split on whitespace and ALL of them must appear (case-insensitive substring) somewhere in the record's string, number or boolean values. Example: wireless black.",
+          "type": "string"
+        },
+        "search_fields": {
+          "default": "",
+          "description": "Comma-separated dotted paths the free-text query searches; blank searches every value in the record. Example: name, meta.summary.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "",
+          "description": "Sort order for the returned records; blank keeps the input order. Comma-separated 'path' or 'path:desc' entries (a leading '-' also means descending), e.g. price:desc, name. Missing and null values sort last; ties keep input order.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
