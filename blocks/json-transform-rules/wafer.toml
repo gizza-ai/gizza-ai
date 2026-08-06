@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-transform-rules"
+version = "0.1.0"
+abi = 1
+summary = "Reshape JSON into a new structure with declarative target = selector mapping rules."

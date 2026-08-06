@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-json-transform-rules-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = "1"
+serde_json = { version = "1", features = ["preserve_order"] }

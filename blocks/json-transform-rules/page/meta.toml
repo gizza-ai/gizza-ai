@@ -1,0 +1,141 @@
+slug          = "json-transform-rules"
+title         = "JSON Transform Rules"
+description   = "Reshape JSON with declarative target = selector rules, JSONPath-style selectors, defaults, transforms, merge mode, and a rule report."
+tags          = ["json transform", "json mapper", "jsonpath", "json rules", "reshape json", "json etl", "json mapping", "json redaction"]
+h1            = "JSON Transform Rules"
+hero_subtitle = "Paste JSON plus mapping rules, then reshape it into a new object or patch/redact the original. Supports shorthand rules, JSON rule objects, JSONPath-style selectors, defaults, transforms, per-item mapping, and rule reports."
+wasm          = "gizza_ai_json_transform_rules_web"
+export        = "run"
+live          = false
+output_label  = "Transformed JSON"
+format        = "text"
+
+# Field ORDER must match the web run() parameter order.
+[[input]]
+name        = "json"
+label       = "Source JSON"
+placeholder = '''{
+  "user": {"id": 7, "name": " Ada Lovelace ", "email": "ada@example.com"},
+  "orders": [{"total": 19.5}, {"total": 30.5}],
+  "ssn": "000-00-0000"
+}'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rules"
+label       = "Transform rules"
+placeholder = '''id = $.user.id
+name = $.user.name
+email = $.user.email
+total = $..total
+source = "import"'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "each"
+label       = "Each selector (blank = whole document)"
+placeholder = "$.orders[*]"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Output mode"
+source      = "field"
+
+[input.labels]
+build = "Build a new object"
+merge = "Merge into / redact the input"
+
+[[input]]
+name        = "on_missing"
+label       = "Missing selector behavior"
+source      = "field"
+
+[input.labels]
+skip  = "Skip missing targets"
+null  = "Write null"
+error = "Fail on missing selectors"
+
+[[input]]
+name        = "array_mode"
+label       = "Multi-match output"
+source      = "field"
+
+[input.labels]
+auto   = "Auto: one value or array"
+always = "Always arrays"
+first  = "First match only"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+json   = "Transformed JSON"
+report = "Rule match report"
+
+[[example]]
+label = "Map an API response"
+[example.params]
+json = '''{
+  "user": {"id": 7, "name": " Ada Lovelace ", "email": "ada@example.com"},
+  "orders": [{"total": 19.5}, {"total": 30.5}]
+}'''
+rules = '''id = $.user.id
+name = $.user.name
+email = $.user.email
+total = $..total
+source = "import"'''
+
+[[example]]
+label = "Fan out records"
+[example.params]
+json = '''{
+  "automobiles": [
+    {"maker": "Honda", "model": "Jazz", "year": 2010},
+    {"maker": "Ford", "model": "Ka", "year": 2015}
+  ]
+}'''
+rules = '''title = $.model
+year = $.year
+make = $.maker'''
+each = "$.automobiles[*]"
+
+[[example]]
+label = "Redact in merge mode"
+[example.params]
+json = '''{
+  "name": "Ada",
+  "email": "ada@example.com",
+  "ssn": "000-00-0000",
+  "plan": "pro"
+}'''
+rules = '''-ssn
+contact.email = $.email'''
+mode = "merge"
+
+[[example]]
+label = "Debug a mapping"
+[example.params]
+json = '''{"user":{"id":7,"name":"Ada"}}'''
+rules = '''id = $.user.id
+email = $.user.email'''
+output = "report"
