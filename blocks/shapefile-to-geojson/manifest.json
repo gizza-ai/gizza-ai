@@ -1,0 +1,104 @@
+{
+  "name": "gizza-ai/shapefile-to-geojson",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an ESRI shapefile set (.shp/.dbf/.prj, zipped) to GeoJSON",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an ESRI shapefile set into GeoJSON. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). A shapefile is a SET of files, so upload the .zip that holds .shp + .dbf (+ .prj/.cpg) together — that is how Census/TIGER, Natural Earth and most government portals ship them; a bare .shp also works but yields geometry with empty properties. The .shx index is not needed. Geometry: Point, MultiPoint, PolyLine and Polygon, including their Z and M variants; rings are regrouped into Polygon/MultiPolygon by orientation and rewound to RFC 7946 winding, and M (measure) values are dropped because GeoJSON has no slot for them. MultiPatch (type 31) is rejected. Attributes come from the .dbf; the .prj is reported and flagged when it declares a PROJECTED CRS (whose coordinates are metres, not WGS 84 lon/lat, so they need reprojecting before they will line up on a web map). Options: `output` (geojson default, or ndjson/GeoJSONL one feature per line), `pretty`, `precision` (coordinate decimals, default 6, -1 = full), `limit` (feature cap for previews), `properties` (default true), `columns` (keep/reorder attributes), `encoding` (auto/utf-8/latin1/cp1252, auto honours a .cpg), `layer` (pick one .shp from a multi-layer zip), `bbox` (default true), `include_z` (default true), and `rewind` (default true).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bbox": {
+          "default": true,
+          "description": "Add a top-level \"bbox\" ([minLon, minLat, maxLon, maxLat]) to the FeatureCollection, computed from the features actually emitted. Ignored for ndjson. Defaults to true.",
+          "type": "boolean"
+        },
+        "columns": {
+          "default": "",
+          "description": "Comma-separated attribute columns to keep and reorder, by name (case-insensitive) or 0-based index, e.g. \"GEOID,NAME,ALAND\". Leave empty to keep every column in file order.",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "Text decoding for .dbf character fields. \"auto\" honours a .cpg sidecar when present, else UTF-8 if valid, else Latin-1; \"latin1\" (ISO-8859-1) and \"cp1252\" (Windows-1252) cover most legacy tables. Defaults to auto.",
+          "enum": [
+            "auto",
+            "utf-8",
+            "latin1",
+            "cp1252"
+          ],
+          "type": "string"
+        },
+        "include_z": {
+          "default": true,
+          "description": "Keep the Z value of PointZ/PolyLineZ/PolygonZ shapes as a third coordinate. Set false for flat [lon, lat] positions. M (measure) values are always dropped — RFC 7946 has no slot for them. Defaults to true.",
+          "type": "boolean"
+        },
+        "layer": {
+          "default": "",
+          "description": "Which layer to convert when the .zip holds several .shp files: the base name without extension, e.g. \"tl_2023_us_county\". Leave empty to take the first in name order; a wrong name lists the ones available.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of features to emit; 0 (the default) converts every record. Use a small value to preview a large boundary file.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "geojson",
+          "description": "Output shape. \"geojson\" writes one RFC 7946 FeatureCollection. \"ndjson\" writes newline-delimited GeoJSON (GeoJSONL): one Feature object per line, no wrapper, which streams line by line into tools like tippecanoe or DuckDB. Defaults to geojson.",
+          "enum": [
+            "geojson",
+            "ndjson"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": 6,
+          "description": "Decimal places to keep on every coordinate. 6 (the default) is about 11 cm at the equator and often shrinks a boundary file several-fold; use -1 to keep the source's full precision.",
+          "maximum": 17,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Indent the GeoJSON for reading. Leave false for the smallest file. Ignored for ndjson, where each feature must stay on one line. Defaults to false.",
+          "type": "boolean"
+        },
+        "properties": {
+          "default": true,
+          "description": "Attach each record's .dbf attribute row to the feature's \"properties\". Set false for geometry only. Defaults to true.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rewind": {
+          "default": true,
+          "description": "Rewind polygon rings to RFC 7946 winding (exterior counter-clockwise, holes clockwise), the opposite of the shapefile convention. Set false to keep the source's winding byte-for-byte. Defaults to true.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
