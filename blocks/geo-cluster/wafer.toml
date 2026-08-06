@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geo-cluster"
+version = "0.1.0"
+abi = 1
+summary = "Cluster lat/lon points by ground distance and return assignments plus centroids"

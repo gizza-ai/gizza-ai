@@ -1,0 +1,86 @@
+slug          = "geo-cluster"
+title         = "Geo Cluster — DBSCAN & Grid Clustering for Lat/Long Points"
+description   = "Cluster latitude and longitude points by real ground distance with DBSCAN or a grid. Get cluster assignments and centroids, entirely in your browser."
+tags          = ["geo cluster", "dbscan clustering", "cluster gps points", "latitude longitude clustering", "cluster coordinates", "geospatial clustering", "cluster centroids"]
+h1            = "Geo Cluster"
+hero_subtitle = "Group latitude/longitude points that sit near each other on the ground — density (DBSCAN) or a latitude-compensated grid — and get a cluster id per point plus each cluster's centroid. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_geo_cluster_web"
+export        = "run"
+live          = false
+output_label  = "Clusters"
+format        = "text"
+
+[[input]]
+name        = "points"
+label       = "Points"
+placeholder = "51.5074,-0.1278,Charing Cross\n51.5079,-0.1281,Nelson's Column\n51.5155,-0.1410,Oxford Circus\n51.5161,-0.1415,Regent Street\n40.7128,-74.0060,New York"
+source      = "field"
+multiline   = true
+
+# method / units / coord_order / output render as <select>s and the option list
+# derives from the descriptor enums (via manifest.json); the labels below are the
+# friendly text shown for each canonical value.
+[[input]]
+name   = "method"
+label  = "Method"
+source = "field"
+
+[input.labels]
+dbscan = "DBSCAN — density, clusters of any shape"
+grid   = "Grid — fixed cells, one cluster per cell"
+
+[[input]]
+name        = "radius"
+label       = "Radius / cell size"
+placeholder = "500"
+source      = "field"
+
+[[input]]
+name   = "units"
+label  = "Units"
+source = "field"
+
+[input.labels]
+m   = "Metres"
+km  = "Kilometres"
+mi  = "Miles"
+ft  = "Feet"
+nmi = "Nautical miles"
+
+[[input]]
+name        = "min_points"
+label       = "Minimum points per cluster"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "coord_order"
+label  = "Coordinate order"
+source = "field"
+
+[input.labels]
+lat_lon = "lat, lon — latitude first"
+lon_lat = "lon, lat — longitude first"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text    = "Text — cluster summary"
+csv     = "CSV — one row per point"
+json    = "JSON — full result"
+geojson = "GeoJSON — points + centroids"
+
+[[example]]
+label  = "Store visits (200 m density)"
+params = { points = "51.5074,-0.1278,Charing Cross\n51.5079,-0.1281,Nelson's Column\n51.5071,-0.1274,Strand\n51.5155,-0.1410,Oxford Circus\n51.5161,-0.1415,Regent Street\n40.7128,-74.0060,New York", method = "dbscan", radius = "200", units = "m", min_points = "2", coord_order = "lat_lon", output = "text" }
+
+[[example]]
+label  = "Delivery grid (1 km cells, CSV)"
+params = { points = "51.5074,-0.1278,Charing Cross\n51.5079,-0.1281,Nelson's Column\n51.5071,-0.1274,Strand\n51.5155,-0.1410,Oxford Circus\n51.5161,-0.1415,Regent Street\n40.7128,-74.0060,New York", method = "grid", radius = "1", units = "km", min_points = "1", coord_order = "lat_lon", output = "csv" }
+
+[[example]]
+label  = "Outliers only (GeoJSON out)"
+params = { points = "51.5074,-0.1278,Charing Cross\n51.5079,-0.1281,Nelson's Column\n51.5071,-0.1274,Strand\n51.5155,-0.1410,Oxford Circus\n51.5161,-0.1415,Regent Street\n40.7128,-74.0060,New York", method = "dbscan", radius = "200", units = "m", min_points = "3", coord_order = "lat_lon", output = "geojson" }
