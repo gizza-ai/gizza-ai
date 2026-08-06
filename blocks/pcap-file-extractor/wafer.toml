@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pcap-file-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Carve files transferred over HTTP, FTP, and SMB out of a pcap capture."
