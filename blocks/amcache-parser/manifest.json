@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/amcache-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse Amcache.hve program and executable evidence from a registry hive.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Windows Amcache.hve registry hive supplied as hex or Base64 and report installed applications, executable file records, driver binaries and shortcuts from both modern Root\\Inventory* containers and legacy Root\\File/Root\\Programs schemas. Extracts paths, names, publishers, versions, SHA-1 hashes, ProgramId associations, file size, key last-write times, PE link dates and install dates. Output a grouped report, one-line list, CSV, Sleuth Kit bodyfile or de-duplicated hash list. Runs locally; no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "association": {
+          "default": "all",
+          "description": "Filter file-like records by whether their ProgramId resolves to an installed-program record. Program records themselves remain visible; use 'unassociated' to focus on orphan executable records.",
+          "enum": [
+            "all",
+            "associated",
+            "unassociated"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "The raw Windows Amcache.hve registry hive bytes encoded as hex (default) or Base64. Paste the whole regf hive; the tool parses it locally and never uploads it.",
+          "type": "string"
+        },
+        "filter": {
+          "default": "",
+          "description": "Optional case-insensitive substring matched against path, name, publisher, SHA-1, program id and extra values before the entry cap is applied.",
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "hex",
+          "description": "How the hive bytes in data are encoded. 'hex' accepts contiguous or separated bytes with an optional leading 0x; 'base64' accepts standard Base64 with optional whitespace.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "max_entries": {
+          "default": 200,
+          "description": "Maximum records emitted after filtering. Values above 5000 are clamped, and truncation is reported in the output. Default 200.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "report",
+          "description": "Output format. 'report' is grouped and human-readable; 'list' prints one dense line per record; 'csv' emits a spreadsheet table; 'bodyfile' emits Sleuth Kit/mactime rows; 'hashes' prints a de-duplicated SHA-1 list.",
+          "enum": [
+            "report",
+            "list",
+            "csv",
+            "bodyfile",
+            "hashes"
+          ],
+          "type": "string"
+        },
+        "section": {
+          "default": "auto",
+          "description": "Which Amcache containers to report. 'auto' shows programs and executable file records; 'files', 'programs', 'drivers' and 'shortcuts' select one artifact family; 'all' includes every known modern and legacy container.",
+          "enum": [
+            "auto",
+            "files",
+            "programs",
+            "drivers",
+            "shortcuts",
+            "all"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "time",
+          "description": "Ordering before the entry cap. 'time' sorts by key last-write newest first; 'path' sorts by display path or name; 'none' keeps hive traversal order.",
+          "enum": [
+            "time",
+            "path",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

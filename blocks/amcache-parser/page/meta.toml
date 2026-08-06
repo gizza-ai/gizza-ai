@@ -1,0 +1,114 @@
+slug          = "amcache-parser"
+title         = "Amcache Parser — Extract Program and Executable Evidence from Amcache.hve"
+description   = "Parse Windows Amcache.hve bytes from hex or Base64 and report application, executable, driver, shortcut, SHA-1 hash and timestamp evidence locally."
+tags          = ["Amcache parser", "Amcache.hve", "Windows forensics", "DFIR", "program execution", "application inventory", "SHA-1", "ProgramId", "InventoryApplicationFile", "Root File", "bodyfile", "mactime", "registry hive"]
+h1            = "Amcache Parser"
+hero_subtitle = "Paste an Amcache.hve registry hive as hex or Base64 and extract installed-program, executable, driver and shortcut records with paths, SHA-1 hashes, ProgramId links and timestamps. Runs locally in your browser."
+wasm          = "gizza_ai_amcache_parser_web"
+export        = "run"
+live          = false
+output_label  = "Amcache records"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Hive bytes"
+placeholder = "Paste hex bytes starting with 72 65 67 66 (ASCII \"regf\"), or switch the encoding below to Base64"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "input_encoding"
+label   = "Input encoding"
+source  = "field"
+default = "hex"
+
+[input.labels]
+hex    = "Hex bytes (72 65 67 66...)"
+base64 = "Base64"
+
+[[input]]
+name    = "section"
+label   = "Record family"
+source  = "field"
+default = "auto"
+
+[input.labels]
+auto      = "Auto: programs + executable files"
+files     = "Executable files"
+programs  = "Installed programs"
+drivers   = "Driver binaries"
+shortcuts = "Shortcuts"
+all       = "All known containers"
+
+[[input]]
+name    = "mode"
+label   = "Output format"
+source  = "field"
+default = "report"
+
+[input.labels]
+report   = "Report: grouped evidence"
+list     = "List: one line per record"
+csv      = "CSV table"
+bodyfile = "Bodyfile for mactime"
+hashes   = "SHA-1 hash list"
+
+[[input]]
+name    = "association"
+label   = "Program association"
+source  = "field"
+default = "all"
+
+[input.labels]
+all          = "All records"
+associated   = "Only records linked to a program"
+unassociated = "Only orphan file records"
+
+[[input]]
+name        = "filter"
+label       = "Filter (optional)"
+placeholder = "publisher, filename, path, ProgramId or SHA-1 substring"
+source      = "field"
+
+[[input]]
+name    = "sort"
+label   = "Sort order"
+source  = "field"
+default = "time"
+
+[input.labels]
+time = "Key last-write: newest first"
+path = "Path/name A→Z"
+none = "Hive order"
+
+[[input]]
+name        = "max_entries"
+label       = "Maximum records"
+placeholder = "200"
+source      = "field"
+default     = "200"
+
+[[example]]
+label = "Reject a truncated hive"
+[example.params]
+data = "72656766"
+mode = "report"
+max_entries = "25"
+
+[[example]]
+label = "CSV executable records"
+[example.params]
+data = "72656766"
+section = "files"
+mode = "csv"
+max_entries = "25"
+
+[[example]]
+label = "Hash-list mode"
+[example.params]
+data = "72656766"
+section = "all"
+mode = "hashes"
+max_entries = "25"
