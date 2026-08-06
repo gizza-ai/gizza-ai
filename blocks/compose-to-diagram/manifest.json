@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/compose-to-diagram",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a docker-compose.yml into a Mermaid diagram of services, dependencies, ports, volumes and networks.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a docker-compose.yml into a Mermaid flowchart of the stack's architecture. Reads services and their image/build, depends_on edges (both the short list form and the long map form with condition: service_healthy), links, network_mode: service:NAME, same-file extends, published ports, named volumes and bind mounts, network membership, profiles, restart policy and replica counts — then renders a flowchart with networks as subgraphs or nodes, ports and volumes as their own shapes, and colour classes per element type. 'direction' sets orientation, 'labels' controls node detail, 'profile' filters to one compose profile, and 'output' switches between raw Mermaid, a fenced Markdown block, and a plain-text summary that also reports undefined depends_on targets, duplicate host ports, unused declarations and circular dependency chains. Pure text analysis: nothing is executed, pulled or fetched.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "compose": {
+          "description": "The docker-compose.yml (or compose.yaml) contents to diagram. Must be a YAML mapping with a top-level 'services:' key; 'networks:' and 'volumes:' blocks are read when present. Understood per service: image, build (string or context/dockerfile map), depends_on (list form or map form with condition:), links, network_mode: service:NAME, extends, ports (short '8080:80' / '127.0.0.1:8080:80/udp' and long target/published/protocol form), volumes (short 'name:/path:ro' and long type/source/target form), networks (list or map), profiles, restart and deploy.replicas. Environment variables, commands and healthcheck bodies are ignored, ${VAR} placeholders are left verbatim (no .env file is read), and nothing is executed or fetched. Maximum 2000000 bytes and 500 services.",
+          "type": "string"
+        },
+        "direction": {
+          "default": "TD",
+          "description": "Flowchart orientation: 'TD' top-down (default), 'LR' left-to-right (usually best for long dependency chains), 'BT' bottom-up, 'RL' right-to-left.",
+          "enum": [
+            "TD",
+            "LR",
+            "BT",
+            "RL"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "default": "image",
+          "description": "How much detail goes inside each service node. 'name' is the service name only, 'image' (default) adds the image tag or 'build: <context>', and 'full' also adds replica count, restart policy and profiles.",
+          "enum": [
+            "name",
+            "image",
+            "full"
+          ],
+          "type": "string"
+        },
+        "networks": {
+          "default": "subgraph",
+          "description": "How networks are drawn. 'subgraph' (default) boxes each service inside its FIRST declared network and draws a dotted edge for any additional network it joins. 'node' draws every network as a separate hexagon node with dotted membership edges — clearer when services span many networks. 'off' hides networks entirely.",
+          "enum": [
+            "subgraph",
+            "node",
+            "off"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "mermaid",
+          "description": "What to return. 'mermaid' (default) is raw flowchart text to paste into mermaid.live, a README, GitHub, Notion or an IDE preview. 'markdown' wraps that in a ```mermaid fenced code block. 'summary' is a plain-text audit of the file instead of a diagram: every service with its image, ports, volumes, networks and dependencies, plus warnings for undefined depends_on targets, duplicate host ports, unused network/volume declarations and circular dependency chains.",
+          "enum": [
+            "mermaid",
+            "markdown",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "ports": {
+          "default": true,
+          "description": "Draw published ports as their own nodes pointing into the service (default true). Labels use the compose mapping, e.g. '8080:80', '127.0.0.1:8080:80/udp', or 'expose 5432' for a container-only port.",
+          "type": "boolean"
+        },
+        "profile": {
+          "default": "",
+          "description": "Show only the services active in this compose profile, plus services that declare no profiles at all (Docker's own rule). Blank (default) shows every service regardless of profile. Fails if no service matches.",
+          "type": "string"
+        },
+        "styled": {
+          "default": true,
+          "description": "Emit Mermaid classDef colour classes so services, ports, volumes, bind mounts, networks and undefined references each render in a distinct colour (default true). Turn off for plain uncoloured Mermaid that inherits your site or editor theme.",
+          "type": "boolean"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional diagram title. In Mermaid output it becomes a '---\\ntitle: …\\n---' front-matter block; in Markdown output it becomes an H1 above the fenced diagram; in the summary it is appended to the heading. Blank (default) omits it.",
+          "type": "string"
+        },
+        "volumes": {
+          "default": true,
+          "description": "Draw named volumes (cylinders) and bind mounts (slanted boxes) as nodes, with the container mount path on the edge and '(ro)' for read-only mounts (default true). Anonymous volumes — a bare container path with no source — are skipped.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "compose"
+      ],
+      "type": "object"
+    }
+  }
+}

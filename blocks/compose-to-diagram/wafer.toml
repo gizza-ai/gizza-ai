@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "compose-to-diagram"
+version = "0.1.0"
+abi = 1
+summary = "Turn a docker-compose.yml into a Mermaid diagram of services, dependencies, ports, volumes and networks."

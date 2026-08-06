@@ -1,0 +1,112 @@
+slug          = "compose-to-diagram"
+title         = "Docker Compose to Mermaid diagram"
+description   = "Convert docker-compose.yml into Mermaid flowchart text showing services, dependencies, ports, volumes, and networks."
+tags          = ["docker", "compose", "mermaid", "diagram", "devops"]
+h1            = "Docker Compose to Mermaid diagram"
+hero_subtitle = "Paste Compose YAML and get a Mermaid architecture diagram for README files, reviews, and documentation."
+wasm          = "gizza_ai_compose_to_diagram_web"
+export        = "run"
+live          = false
+output_label  = "Diagram output"
+format        = "text"
+
+[[input]]
+name        = "compose"
+label       = "Compose YAML"
+placeholder = "services:\n  web:\n    image: nginx\n    depends_on:\n      - api"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+TD = "Top down"
+LR = "Left to right"
+BT = "Bottom up"
+RL = "Right to left"
+
+[[input]]
+name   = "networks"
+label  = "Networks"
+source = "field"
+
+[input.labels]
+subgraph = "Subgraphs"
+node     = "Network nodes"
+off      = "Hide networks"
+
+[[input]]
+name   = "ports"
+label  = "Show ports"
+source = "field"
+
+[[input]]
+name   = "volumes"
+label  = "Show volumes"
+source = "field"
+
+[[input]]
+name   = "labels"
+label  = "Service labels"
+source = "field"
+
+[input.labels]
+name  = "Name only"
+image = "Name + image/build"
+full  = "Full details"
+
+[[input]]
+name        = "profile"
+label       = "Profile filter"
+placeholder = "debug"
+source      = "field"
+
+[[input]]
+name   = "styled"
+label  = "Emit Mermaid styles"
+source = "field"
+
+[[input]]
+name        = "title"
+label       = "Diagram title"
+placeholder = "Checkout stack"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+mermaid  = "Mermaid"
+markdown = "Markdown fence"
+summary  = "Summary report"
+
+[[example]]
+label = "Web + API + DB"
+compose = "services:\n  web:\n    image: nginx\n    ports: ['8080:80']\n    depends_on:\n      api:\n        condition: service_started\n    networks: [front]\n  api:\n    build: ./api\n    depends_on: [db]\n    networks: [front, back]\n  db:\n    image: postgres:16\n    volumes: ['db-data:/var/lib/postgresql/data:ro']\n    networks: [back]\nnetworks:\n  front: {}\n  back: {}\nvolumes:\n  db-data: {}\n"
+direction = "LR"
+networks = "subgraph"
+ports = "true"
+volumes = "true"
+labels = "image"
+profile = ""
+styled = "true"
+title = "Checkout stack"
+output = "mermaid"
+
+[[example]]
+label = "Summary audit"
+compose = "services:\n  worker:\n    image: app\n    depends_on: [redis]\n  redis:\n    image: redis:7\n"
+direction = "TD"
+networks = "off"
+ports = "false"
+volumes = "false"
+labels = "name"
+profile = ""
+styled = "false"
+title = ""
+output = "summary"
