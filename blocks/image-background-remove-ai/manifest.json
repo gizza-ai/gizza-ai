@@ -2,7 +2,7 @@
   "name": "gizza-ai/image-background-remove-ai",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Remove an image background locally with a general foreground model.",
+  "summary": "Remove an image background locally with a general foreground model",
   "role": "skill",
   "tool": {
     "description": "Remove the background from an image and return a transparent PNG cutout. The standalone browser page runs the pinned U-2-Netp model locally using WebGPU with a WebAssembly fallback; the image is not sent to an inference server. It supports prominent foreground subjects including people, products, animals, and vehicles. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
@@ -20,8 +20,16 @@
       },
       "additionalProperties": false,
       "oneOf": [
-        { "required": ["url"] },
-        { "required": ["ref"] }
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
       ]
     }
   }
