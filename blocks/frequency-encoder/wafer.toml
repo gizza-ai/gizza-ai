@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "frequency-encoder"
+version = "0.1.0"
+abi = 1
+summary = "Frequency-encode a CSV categorical column by value counts"

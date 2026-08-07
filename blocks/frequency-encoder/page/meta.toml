@@ -1,0 +1,137 @@
+slug          = "frequency-encoder"
+title         = "Frequency Encoder — Replace CSV Categories With Their Counts"
+description   = "Frequency/count encode a CSV categorical column: replace each value with its occurrence count, share, percent, or log-count. Rare-category pooling, replace or append."
+tags          = ["frequency encoding", "count encoding", "categorical encoding", "feature engineering", "high cardinality", "csv encoder", "machine learning preprocessing"]
+h1            = "Frequency-encode a CSV categorical column"
+hero_subtitle = "Paste CSV, pick a column, and turn every category into how often it occurs — as a raw count, a 0–1 share, a percent, or a log-count."
+wasm          = "gizza_ai_frequency_encoder_web"
+export        = "run"
+live          = false
+output_label  = "Encoded CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "product_id,price\nX,10\nY,20\nX,30\nZ,40\nX,50\nY,60"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column to encode (name or 1-based number)"
+placeholder = "product_id"
+source      = "field"
+
+[[input]]
+name   = "mode"
+label  = "Encoding"
+source = "field"
+
+[input.labels]
+count       = "Count (raw occurrences)"
+frequency   = "Frequency (share 0–1)"
+percent     = "Percent (%)"
+"log-count" = "Log-count — ln(1 + count)"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+replace = "Replace the column"
+append  = "Append a new column"
+
+[[input]]
+name   = "blank"
+label  = "Blank cells"
+source = "field"
+
+[input.labels]
+count = "Count as their own category"
+nan   = "NaN"
+zero  = "Zero"
+
+[[input]]
+name        = "min_count"
+label       = "Pool categories below this count"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "1"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive values"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "15"
+step        = "1"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[example]]
+label = "Count encode product_id"
+[example.params]
+data = "product_id,price\nX,10\nY,20\nX,30\nZ,40\nX,50\nY,60"
+column = "product_id"
+mode = "count"
+output = "replace"
+blank = "count"
+min_count = "0"
+case_sensitive = "true"
+decimals = "4"
+has_header = "true"
+delimiter = "comma"
+
+[[example]]
+label = "Frequency share, appended"
+[example.params]
+data = "product_id,price\nX,10\nY,20\nX,30\nZ,40\nX,50\nY,60"
+column = "product_id"
+mode = "frequency"
+output = "append"
+blank = "count"
+min_count = "0"
+case_sensitive = "true"
+decimals = "4"
+has_header = "true"
+delimiter = "comma"
+
+[[example]]
+label = "Pool rare categories (min 2)"
+[example.params]
+data = "product_id,price\nX,10\nX,20\nX,30\nY,40\nY,50\nZ,60\nW,70"
+column = "product_id"
+mode = "count"
+output = "append"
+blank = "count"
+min_count = "2"
+case_sensitive = "true"
+decimals = "4"
+has_header = "true"
+delimiter = "comma"
