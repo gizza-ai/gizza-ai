@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "naive-bayes-text-classifier"
+version = "0.1.0"
+abi = 1
+summary = "Train a naive Bayes text classifier on labeled examples and classify new text."
