@@ -1,0 +1,64 @@
+slug          = "json-mask"
+title         = "JSON Mask"
+description   = "Prune a JSON document to just the fields you name with a mask like a,b(c,d) — the Google Partial-Response syntax. Free, in your browser."
+tags          = ["json mask", "partial response fields", "json field mask", "json subtree selector", "prune json fields", "google fields parameter", "remove json fields", "strip json keys", "json field filter"]
+h1            = "JSON Mask"
+hero_subtitle = "Paste a JSON document and a field mask like kind,items(title,stats/length) to get back the same document with everything else pruned away — paths, sub-selections, wildcards and array mapping included. Invert the mask to strip tokens or PII instead. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_json_mask_web"
+export        = "run"
+live          = false
+output_label  = "Masked JSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = """{"kind":"list","etag":"W/\\"9a1\\"","items":[{"title":"First","author":"Ada","stats":{"length":120,"views":3}},{"title":"Second","author":"Grace","stats":{"length":80,"views":9}}]}"""
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mask"
+label       = "Field mask"
+placeholder = "kind,items(title,stats/length)"
+source      = "field"
+
+# mode/format/on_missing/empty render as <select>s because manifest
+# tool.parameters carries each one's enum.
+[[input]]
+name   = "mode"
+label  = "What the mask selects"
+source = "field"
+
+[input.labels]
+keep = "Keep only the masked fields"
+remove = "Remove the masked fields"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+pretty = "Pretty (2-space indent)"
+compact = "Compact (single line)"
+
+[[input]]
+name   = "on_missing"
+label  = "Missing fields"
+source = "field"
+
+[input.labels]
+omit = "Omit them"
+null = "Emit them as null"
+error = "Fail with an error"
+
+[[input]]
+name   = "empty"
+label  = "Emptied objects"
+source = "field"
+
+[input.labels]
+keep = "Keep the empty {} husk"
+drop = "Drop them"

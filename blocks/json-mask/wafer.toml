@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-mask"
+version = "0.1.0"
+abi = 1
+summary = "Select a subtree of JSON with a field mask like a,b(c,d)."

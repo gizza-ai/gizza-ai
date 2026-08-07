@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-json-mask-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order: the masked output keeps the source document's key order,
+# which is what the reference json-mask implementation does (the Go port's
+# sorted output is a map-iteration artefact, not the intended behaviour).
+serde_json = { version = "1", features = ["preserve_order"] }
