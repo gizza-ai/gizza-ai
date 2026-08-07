@@ -1,0 +1,111 @@
+{
+  "name": "gizza-ai/ledger-balance",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Total a ledger-cli / hledger plain-text journal into a balance report for every account and sub-account",
+  "role": "skill",
+  "tool": {
+    "description": "Compute account balances from a ledger-cli / hledger plain-text journal. Pass the pasted journal as 'journal'; every posting is summed into its account and rolled up the ':' hierarchy, exactly like the `ledger balance` / `hledger balance` report. layout is tree (indented, with roll-up) or flat (full account names); depth folds deeper accounts into their ancestor; account_filter takes comma-separated case-insensitive substrings with a 'not:'/'-' prefix to exclude; begin/end select a date range (end is exclusive); status keeps all/cleared/pending/unmarked transactions; include_empty keeps zero and merely-declared accounts; real_only drops virtual '(…)'/'[…]' postings; cost_basis reports '@'/'@@' priced postings in their cost commodity; show_total prints the grand total; percent adds a share-of-top-level-account column; output_format is text, csv, json or markdown. The parser handles multi-commodity amounts, both '1,234.56' and '1.234,56' number styles, an inferred amount-less posting, balance assertions (parsed, never counted), and the account/alias/commodity/D/Y/apply account/comment directives. 'include FILE' is skipped (no filesystem) and reported in the notes. Up to 5000 transactions per run. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "account_filter": {
+          "default": "",
+          "description": "Comma-separated case-insensitive substrings an account must contain, e.g. 'expenses, assets'. Prefix a pattern with 'not:' or '-' to exclude instead, e.g. 'expenses, not:coffee'. Blank (default) keeps every account.",
+          "type": "string"
+        },
+        "begin": {
+          "default": "",
+          "description": "Only count transactions dated on or after this date, as YYYY-MM-DD, e.g. '2024-01-01'. Blank (default) starts at the earliest transaction.",
+          "type": "string"
+        },
+        "cost_basis": {
+          "default": false,
+          "description": "When true, report postings that carry an '@' unit price or '@@' total price in the price's commodity instead of the original one, e.g. '10 AAPL @ $50.00' totals as $500.00. Default false keeps the original commodity.",
+          "type": "boolean"
+        },
+        "depth": {
+          "default": 0,
+          "description": "Fold accounts deeper than this many ':'-separated levels into their ancestor, e.g. 1 reports only Assets/Expenses/Income. 0 (default) keeps the full hierarchy.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end": {
+          "default": "",
+          "description": "Only count transactions dated BEFORE this date (exclusive, as ledger and hledger do), as YYYY-MM-DD, e.g. '2024-04-01' for Q1. Blank (default) runs to the latest transaction.",
+          "type": "string"
+        },
+        "include_empty": {
+          "default": false,
+          "description": "When true, keep accounts whose balance is zero and accounts merely declared with an 'account' directive. Default false hides them.",
+          "type": "boolean"
+        },
+        "journal": {
+          "description": "The ledger-cli / hledger plain-text journal to total, e.g. '2024-01-05 * Groceries' followed by indented postings like '    Expenses:Food  $45.20'. Up to 5000 transactions per run.",
+          "type": "string"
+        },
+        "layout": {
+          "default": "tree",
+          "description": "tree (default) indents sub-accounts under their parent and rolls their totals up; flat lists each posted account once under its full name with no roll-up.",
+          "enum": [
+            "tree",
+            "flat"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "text",
+          "description": "How to render the report: text (default, aligned amounts like the ledger CLI), csv (account,commodity,amount rows), json (structured accounts + totals), or markdown (a table to paste into notes).",
+          "enum": [
+            "text",
+            "csv",
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "percent": {
+          "default": false,
+          "description": "Add a column showing each row as a percentage of its own top-level account, so a balanced journal still gives useful shares. Default false.",
+          "type": "boolean"
+        },
+        "real_only": {
+          "default": false,
+          "description": "When true, ignore virtual postings written in '(…)' or '[…]' brackets (budget/envelope legs). Default false counts them.",
+          "type": "boolean"
+        },
+        "show_total": {
+          "default": true,
+          "description": "Append the grand-total row under a dashed rule (a balanced journal totals zero). Default true; set false to suppress it.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "account",
+          "description": "Row order: account (default, alphabetical), amount (largest balance first), or amount-asc (smallest first). Amount sorting ranks by the journal's most-used commodity.",
+          "enum": [
+            "account",
+            "amount",
+            "amount-asc"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "default": "all",
+          "description": "Keep only transactions with this status flag: all (default), cleared ('*'), pending ('!') or unmarked (no flag).",
+          "enum": [
+            "all",
+            "cleared",
+            "pending",
+            "unmarked"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "journal"
+      ],
+      "type": "object"
+    }
+  }
+}

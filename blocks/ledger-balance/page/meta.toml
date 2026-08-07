@@ -1,0 +1,137 @@
+slug          = "ledger-balance"
+title         = "Ledger Balance — account balances from a ledger-cli / hledger journal"
+description   = "Paste a ledger-cli or hledger plain-text journal and get the balance of every account and sub-account, as a tree, CSV, JSON or Markdown. Runs in your browser."
+tags          = ["ledger balance", "hledger balance", "plain text accounting", "ledger cli balance report", "hledger bal online", "account balances from journal", "trial balance from ledger file", "journal to balance sheet"]
+h1            = "Ledger Balance"
+hero_subtitle = "Total a ledger-cli / hledger plain-text journal into the balance of every account and sub-account — the balance report, with no install. Filter by account, date range or status, fold the tree to any depth, and export as text, CSV, JSON or Markdown. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_ledger_balance_web"
+export        = "run"
+live          = false
+output_label  = "Balance report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "journal"
+label       = "Ledger / hledger journal"
+placeholder = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "account_filter"
+label       = "Account filter (comma-separated; 'not:' excludes)"
+placeholder = "expenses, not:coffee"
+source      = "field"
+
+[[input]]
+name        = "depth"
+label       = "Depth (0 = full hierarchy)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+default     = "0"
+
+# layout renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "layout"
+label  = "Layout"
+source = "field"
+
+# sort renders as a <select>.
+[[input]]
+name   = "sort"
+label  = "Sort rows by"
+source = "field"
+
+[input.labels]
+"account"    = "Account name (A→Z)"
+"amount"     = "Amount (largest first)"
+"amount-asc" = "Amount (smallest first)"
+
+[[input]]
+name        = "begin"
+label       = "Start date (on or after)"
+placeholder = "2024-01-01"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "end"
+label       = "End date (exclusive)"
+placeholder = "2024-03-01"
+source      = "field"
+kind        = "date"
+
+# status renders as a <select>.
+[[input]]
+name   = "status"
+label  = "Transaction status"
+source = "field"
+
+[input.labels]
+"all"      = "All transactions"
+"cleared"  = "Cleared only (*)"
+"pending"  = "Pending only (!)"
+"unmarked" = "Unmarked only"
+
+[[input]]
+name   = "include_empty"
+label  = "Show zero-balance and declared-but-unused accounts"
+source = "field"
+
+[[input]]
+name   = "real_only"
+label  = "Ignore virtual postings — (…) and […]"
+source = "field"
+
+[[input]]
+name   = "cost_basis"
+label  = "Convert @ / @@ priced postings to their cost"
+source = "field"
+
+[[input]]
+name   = "show_total"
+label  = "Show the grand-total row"
+source = "field"
+
+[[input]]
+name   = "percent"
+label  = "Add a % of top-level account column"
+source = "field"
+
+# output_format renders as a <select>.
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[[example]]
+label = "Starter journal — full account tree"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+
+[[example]]
+label = "Top-level summary (depth 1, flat)"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+depth = "1"
+layout = "flat"
+
+[[example]]
+label = "Expenses only, biggest first, with shares"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+account_filter = "expenses"
+layout = "flat"
+sort = "amount"
+percent = "true"
+show_total = "false"
+
+[[example]]
+label = "Shares at cost basis → CSV"
+[example.params]
+journal = "2024-01-02 * Buy shares\n    Assets:Broker:Stocks   10 AAPL @ $50.00\n    Assets:Broker:Cash\n\n2024-01-03 * Buy an index fund\n    Assets:Broker:Stocks    4 VTI @@ $800.00\n    Assets:Broker:Cash"
+cost_basis = "true"
+output_format = "csv"
