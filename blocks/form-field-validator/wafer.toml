@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "form-field-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate a whole form submission: email, phone, URL, postal code, and credit card fields with locale-aware errors"
