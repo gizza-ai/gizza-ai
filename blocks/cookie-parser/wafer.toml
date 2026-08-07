@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cookie-parser"
+version = "0.1.0"
+abi = 1
+summary = "Split a Cookie or Set-Cookie header into individual cookies with their attributes"
