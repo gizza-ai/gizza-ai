@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/typescript-to-json-schema",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a TypeScript interface or type alias to JSON Schema",
+  "role": "skill",
+  "tool": {
+    "description": "Convert pasted TypeScript into an equivalent JSON Schema (Draft 2020-12 or Draft-07). Handles `interface`, `type` aliases, `enum` declarations and bare type literals: primitives (string, number, boolean, null, bigint, any/unknown, never, Date), arrays (`T[]` / `Array<T>`), tuples, optional `?` members, string/number/boolean literal unions (emitted as `enum`), nested object literals, string index signatures and `Record<string, T>` (emitted as `additionalProperties`), `extends` and object intersections (member-merged), and references between declarations (emitted as `$ref` into `$defs`, pruned to what the root actually reaches — recursive types are fine). JSDoc comments become `description` plus constraint keywords such as `@format`, `@minimum`, `@pattern` and `@asType`. Options: root_type (which declaration is the root; default the first), draft, required, additional_properties (strict by default), jsdoc. Constructs that need a real TypeScript type checker — generics, utility/mapped types like Partial or Pick, `keyof`, imports, functions/methods — are rejected with a line-numbered error naming the construct. Returns the pretty-printed schema.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "additional_properties": {
+          "default": false,
+          "description": "Allow properties beyond those declared. false (default) emits 'additionalProperties: false' for strict validation; true omits it. Objects with an index signature or `Record<string, T>` always use that value type instead.",
+          "type": "boolean"
+        },
+        "draft": {
+          "default": "2020-12",
+          "description": "JSON Schema dialect to emit. '2020-12' (default) uses $defs and prefixItems for tuples; 'draft-07' uses definitions, an items array and additionalItems. Also sets the $schema URL.",
+          "enum": [
+            "2020-12",
+            "draft-07"
+          ],
+          "type": "string"
+        },
+        "jsdoc": {
+          "default": true,
+          "description": "Read `/** … */` JSDoc comments. Prose becomes 'description'; the tags @title @format @pattern @minimum @maximum @exclusiveMinimum @exclusiveMaximum @multipleOf @minLength @maxLength @minItems @maxItems @minProperties @maxProperties @uniqueItems @readOnly @writeOnly @default @example @deprecated @nullable and @asType (alias @TJS-type) become the matching JSON Schema keywords. Default true; false ignores comments.",
+          "type": "boolean"
+        },
+        "required": {
+          "default": true,
+          "description": "Emit a 'required' array listing every member that is not marked optional with `?` (or `| undefined`). Default true; false omits 'required' entirely.",
+          "type": "boolean"
+        },
+        "root_type": {
+          "default": "",
+          "description": "Name of the declaration to use as the schema root, e.g. 'User'. Empty (default) uses the FIRST declaration in the source. Other declarations are emitted under $defs/definitions only when the root references them.",
+          "type": "string"
+        },
+        "typescript": {
+          "description": "TypeScript source containing one or more `interface`, `type` or `enum` declarations (a bare type literal like `{ id: string }` also works). Supported: primitives (string/number/boolean/null/bigint/any/unknown/never/Date), arrays (`T[]`, `Array<T>`), tuples, optional `?` members, string/number/boolean literal unions, enums, nested object literals, index signatures, `Record<string, T>`, `extends`, object intersections, and references between declarations. Generics, utility/mapped types (Partial, Pick, Omit, keyof, …), imports and functions are rejected with a line-numbered message. Example: 'interface User { id: number; name: string; role: \"admin\" | \"user\" }'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "typescript"
+      ],
+      "type": "object"
+    }
+  }
+}
