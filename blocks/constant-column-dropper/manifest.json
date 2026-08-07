@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/constant-column-dropper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and remove constant (zero-variance) columns in CSV tables.",
+  "role": "skill",
+  "tool": {
+    "description": "Detect and remove zero-variance columns in CSV/table text: columns holding a single repeated value down every data row, or that are entirely empty. Constancy is measured as one distinct value (works on text, not just numbers). Set dominance below 100 to also catch near-constant columns, e.g. 95 drops a column whose top value covers 95% of rows. empty_cells decides whether a blank counts as its own value or is skipped; keep protects named or numbered columns from being dropped. Choose output='report' for a human summary, 'csv' for the cleaned table, or 'json' for per-column metrics.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "CSV/table text to scan for constant (zero-variance) columns, one row per line. Example: 'id,country,score\\n1,US,10\\n2,US,20'.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Input field separator: comma (default), tab, semicolon, or pipe. CSV output uses the same separator.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "dominance": {
+          "default": 100.0,
+          "description": "Drop a column once its most frequent value covers at least this percent of the counted rows. 100 (default) drops only strictly constant columns; 95 also drops near-constant ones (95% of rows the same). Range 50-100.",
+          "maximum": 100,
+          "minimum": 50,
+          "type": "number"
+        },
+        "empty_cells": {
+          "default": "value",
+          "description": "How empty cells count: 'value' (default) treats an empty cell as its own value, so a column of values plus blanks is not constant; 'ignore' skips empty cells before counting. A column that is entirely empty is dropped either way.",
+          "enum": [
+            "value",
+            "ignore"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "When true (default), treat the first row as column names: it is excluded from the value counts and preserved in CSV output.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": true,
+          "description": "When true (default), compare cells case-insensitively, so a column of 'YES'/'yes' counts as constant.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": true,
+          "description": "When true (default), trim and collapse whitespace before comparing, so 'US' and ' US ' count as the same value.",
+          "type": "boolean"
+        },
+        "keep": {
+          "default": "",
+          "description": "Comma-separated column names or 1-based column numbers that must never be dropped, even when constant. Example: 'id,country' or '1,2'. Empty (default) protects nothing.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output mode: report (human summary of which columns are constant, default), csv (the table with the constant columns removed), or json (per-column metrics: distinct values, top value, top share).",
+          "enum": [
+            "report",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

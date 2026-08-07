@@ -1,0 +1,116 @@
+slug          = "constant-column-dropper"
+title         = "Constant Column Dropper — Remove Zero-Variance CSV Columns"
+description   = "Find and remove constant (zero-variance) columns from a CSV — columns with one repeated value or all blanks. In-browser, no upload."
+tags          = ["constant columns", "zero variance columns", "remove constant columns csv", "drop single value columns", "feature selection", "csv cleanup"]
+h1            = "Drop constant columns from a CSV"
+hero_subtitle = "Paste a CSV and find the columns that never change — a single repeated value, or nothing at all. Report them, get per-column metrics, or download the table without them. Runs entirely in your browser."
+wasm          = "gizza_ai_constant_column_dropper_web"
+export        = "run"
+live          = false
+output_label  = "Constant column report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV/table data"
+placeholder = "id,country,score,notes\n1,US,10,\n2,US,20,\n3,US,30,\n4,US,40,"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma = "Comma (,)"
+tab = "Tab"
+semicolon = "Semicolon (;)"
+pipe = "Pipe (|)"
+
+[[input]]
+name        = "dominance"
+label       = "Dominance threshold (%)"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "empty_cells"
+label  = "Empty cells"
+source = "field"
+
+[input.labels]
+value = "Count as a value"
+ignore = "Skip when counting"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace"
+source = "field"
+
+[[input]]
+name        = "keep"
+label       = "Never drop these columns"
+placeholder = "id, country"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report"
+csv = "Cleaned CSV"
+json = "JSON metrics"
+
+[[example]]
+label = "Report constant columns"
+[example.params]
+data = "id,country,score,notes\n1,US,10,\n2,US,20,\n3,US,30,\n4,US,40,"
+header = "true"
+delimiter = "comma"
+dominance = "100"
+empty_cells = "value"
+ignore_case = "true"
+ignore_whitespace = "true"
+keep = ""
+output = "report"
+
+[[example]]
+label = "Remove them (cleaned CSV)"
+[example.params]
+data = "id,country,score,notes\n1,US,10,\n2,US,20,\n3,US,30,\n4,US,40,"
+header = "true"
+delimiter = "comma"
+dominance = "100"
+empty_cells = "value"
+ignore_case = "true"
+ignore_whitespace = "true"
+keep = ""
+output = "csv"
+
+[[example]]
+label = "Catch near-constant columns (95%)"
+[example.params]
+data = "id,flag\n1,Y\n2,Y\n3,Y\n4,Y\n5,Y\n6,Y\n7,Y\n8,Y\n9,Y\n10,Y\n11,Y\n12,Y\n13,Y\n14,Y\n15,Y\n16,Y\n17,Y\n18,Y\n19,Y\n20,N"
+header = "true"
+delimiter = "comma"
+dominance = "95"
+empty_cells = "value"
+ignore_case = "true"
+ignore_whitespace = "true"
+keep = ""
+output = "report"
