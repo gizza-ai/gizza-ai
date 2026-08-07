@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/env-file-merger",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge layered .env files and show which file set each value.",
+  "role": "skill",
+  "tool": {
+    "description": "Merge up to four layered .env files into one resolved environment and report which file set each value. Paste the files LOWEST priority first: `layer1` is the base .env, then `layer2`, `layer3`, `layer4` each override the ones before them — the same cascade dotenv-flow, Vite and Next.js use (.env < .env.local < .env.<mode> < .env.<mode>.local). Blank layers are skipped, so a missing file is not an error. Every KEY=VALUE line is parsed with the usual dotenv rules (# comments, blank lines, single/double quotes, inline comments, an optional 'export ' prefix), and the last layer that assigns a key wins. Unlike a plain overlay merge, each shadowed value is kept, so the tool can show the full override chain per key. `layer_names` renames the slots for provenance. `output` selects the shape: 'report' (default) the resolved environment with a '# set by <file>' comment per key plus the override chain and warnings; 'env' a merged .env file; 'json' per-key source and overrides; 'shell' export lines; 'markdown' a table; 'conflicts' only the multi-layer keys. `mask_secrets` (default true) masks sensitive-looking values, `sort_keys` sorts alphabetically, `prefix_filter` keeps only keys with a prefix like 'VITE_', and `expand_vars` resolves ${VAR} references against the merged result.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "expand_vars": {
+          "default": false,
+          "description": "Resolve ${VAR}, $VAR and ${VAR:-fallback} references against the merged result, so a reference picks up the winning value from any layer. Single-quoted values stay literal; unresolved and circular names become empty strings and are reported as warnings. Default false.",
+          "type": "boolean"
+        },
+        "layer1": {
+          "description": "The LOWEST-priority .env file's contents — the base file (conventionally .env). KEY=VALUE lines; # comments, blank lines, single/double quotes, inline comments and an 'export ' prefix are all handled.",
+          "type": "string"
+        },
+        "layer2": {
+          "description": "Second .env layer; its keys override layer1 (conventionally .env.local). Leave blank if this file doesn't exist — a blank layer is skipped, not an error.",
+          "type": "string"
+        },
+        "layer3": {
+          "description": "Third .env layer; its keys override layer1 and layer2 (conventionally .env.<mode>, e.g. .env.production). Leave blank if absent.",
+          "type": "string"
+        },
+        "layer4": {
+          "description": "Fourth and HIGHEST-priority .env layer; its keys override every other layer (conventionally .env.<mode>.local). Paste shell/CI variables here to model 'the environment beats the files'. Leave blank if absent.",
+          "type": "string"
+        },
+        "layer_names": {
+          "description": "Comma-separated display names for the four slots, used to say which file set each value (e.g. '.env,.env.local,.env.staging,.env.staging.local'). Names map positionally; blank entries fall back to the conventional cascade names .env, .env.local, .env.production, .env.production.local.",
+          "type": "string"
+        },
+        "mask_secrets": {
+          "default": true,
+          "description": "Mask values of sensitive-looking keys (names containing SECRET, TOKEN, PASSWORD, KEY, AUTH, etc.) in every output. Turn off to get usable values. Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output form: 'report' (default) the resolved environment with a '# set by <file>' provenance comment per key, plus the override chain and warnings; 'env' a plain merged .env file; 'json' a structured document with per-key source and the values it overrode; 'shell' export KEY='value' lines; 'markdown' a Key/Value/Set by/Overrides table; 'conflicts' only the keys set by more than one layer.",
+          "enum": [
+            "report",
+            "env",
+            "json",
+            "shell",
+            "markdown",
+            "conflicts"
+          ],
+          "type": "string"
+        },
+        "prefix_filter": {
+          "description": "Keep only keys starting with this prefix, matched case-sensitively (e.g. 'VITE_' or 'NEXT_PUBLIC_' to see exactly what a framework exposes to the client). Default blank — keep every key.",
+          "type": "string"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "Emit keys in alphabetical order instead of first-seen cascade order. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "layer1"
+      ],
+      "type": "object"
+    }
+  }
+}
