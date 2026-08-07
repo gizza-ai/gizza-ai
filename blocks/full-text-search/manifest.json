@@ -1,0 +1,115 @@
+{
+  "name": "gizza-ai/full-text-search",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "BM25/TF-IDF ranked full-text search over pasted documents",
+  "role": "skill",
+  "tool": {
+    "description": "Full-text search across a set of pasted documents, ranked by relevance with BM25 (or classic TF-IDF) and returned with highlighted keyword-in-context snippets. Paste the documents as one block separated by --- rules, blank lines or form feeds; each document's first line is its title and can be boosted. Supports English Porter stemming (run finds running), stop-word removal, any/all term matching, opt-in prefix matching, \"quoted phrases\" that must match adjacently, and -term exclusion. Tune BM25's k1 and b. To search a PDF/DOCX, extract its text first with document-text-extract. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "bm25",
+          "description": "Relevance scoring: bm25 = Okapi BM25 with term-frequency saturation and length normalisation (recommended), tfidf = classic log-TF x smoothed IDF. Default bm25.",
+          "enum": [
+            "bm25",
+            "tfidf"
+          ],
+          "type": "string"
+        },
+        "b": {
+          "default": 0.75,
+          "description": "BM25 document-length normalisation, 0-1 (standard 0.75). 1 penalises long documents fully, 0 disables the penalty. Ignored by tfidf. Default 0.75.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "corpus": {
+          "description": "The documents to search, pasted as one block of text and split into separate documents by `separator`. Each document's first non-blank line is treated as its title.",
+          "type": "string"
+        },
+        "k1": {
+          "default": 1.2,
+          "description": "BM25 term-frequency saturation, 0-3 (standard range 1.2-2.0). Higher means repeating a term keeps adding relevance; 0 makes one occurrence count the same as ten. Ignored by tfidf. Default 1.2.",
+          "maximum": 3,
+          "minimum": 0,
+          "type": "number"
+        },
+        "match": {
+          "default": "any",
+          "description": "Return documents containing ANY query term (OR) or ALL of them (AND). Quoted phrases count as one term. Default any.",
+          "enum": [
+            "any",
+            "all"
+          ],
+          "type": "string"
+        },
+        "max_results": {
+          "default": 10,
+          "description": "Maximum number of ranked documents to return, 1-50. The total number of matches is reported either way. Default 10.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Result format: text = ranked list with highlighted snippets, json = the full structured result (scores, matched terms, per-document metadata). Default text.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": false,
+          "description": "Also match words that merely START WITH a query term, so 'moto' finds 'motorcycle'. Default off.",
+          "type": "boolean"
+        },
+        "query": {
+          "description": "What to search for. Bare words are terms (e.g. 'refund policy'), \"quoted words\" must appear as an exact adjacent phrase, and a -word prefix excludes any document containing it.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "dashes",
+          "description": "How the pasted corpus is split into documents: dashes = a line of 3+ dashes (---), blank-line = one or more empty lines, form-feed = an ASCII form feed (\\f). Default dashes.",
+          "enum": [
+            "dashes",
+            "blank-line",
+            "form-feed"
+          ],
+          "type": "string"
+        },
+        "snippet_words": {
+          "default": 30,
+          "description": "Words of context shown around the best match in each hit, 0-120. Matched words are wrapped in guillemets. 0 returns ranked hits with no snippet. Default 30.",
+          "maximum": 120,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stemming": {
+          "default": true,
+          "description": "Reduce English words to their Porter stem so a search for 'run' also matches 'running' and 'runs'. Default on.",
+          "type": "boolean"
+        },
+        "stopwords": {
+          "default": true,
+          "description": "Drop common English stop words (the, of, and, ...) from the query. Skipped automatically when it would leave nothing to search for. Default on.",
+          "type": "boolean"
+        },
+        "title_boost": {
+          "default": 2.0,
+          "description": "How much more a match in a document's first line (its title) is worth than one in the body, 1-5. 1 = no boost. Default 2.",
+          "maximum": 5,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "corpus",
+        "query"
+      ],
+      "type": "object"
+    }
+  }
+}
