@@ -1,0 +1,86 @@
+{
+  "name": "gizza-ai/audio-limiter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Apply a brick-wall peak limiter so audio never clips above a chosen ceiling",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a brick-wall lookahead peak limiter to an audio file so no sample crosses a chosen ceiling. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Controls: ceiling (dBFS, -24..0, the hard wall; -1 is the usual safety margin), gain (dB, -20..20, drive applied before the ceiling to make the result louder), attack (ms, 0.1..80, how fast peaks are clamped), release (ms, 1..8000, how fast gain recovers), smooth_release (average the release over recent gain reduction) and auto_level (re-normalize back to full scale afterwards, which overrides the ceiling). This is peak limiting, not loudness normalization (audio-normalize) and not ratio-based dynamic-range compression (audio-compressor). A 0 dB ceiling with 0 dB gain and no auto-level is a no-op and is rejected. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; wav and flac hold the ceiling exactly, lossy formats can overshoot it slightly. Embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "attack": {
+          "default": 5.0,
+          "description": "Lookahead attack time in milliseconds — how fast the limiter clamps an incoming peak. Short (1-5) is transparent on speech, longer (20+) is smoother but lets more through. Default 5.",
+          "maximum": 80,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "auto_level": {
+          "default": false,
+          "description": "After limiting, re-normalize the signal back up to full scale (loudness-maximizer behaviour). This deliberately overrides the ceiling, so leave it off when the ceiling must be honoured. Default false.",
+          "type": "boolean"
+        },
+        "ceiling": {
+          "default": -1.0,
+          "description": "Brick-wall ceiling in dBFS — no output sample is allowed above it. -1 is the usual safety margin before lossy encoding, -0.3 squeezes out the last bit of level, -3 leaves generous headroom. Default -1.",
+          "maximum": 0,
+          "minimum": -24,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps); wav/flac are lossless and hold the ceiling exactly.",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "gain": {
+          "default": 0.0,
+          "description": "Input gain (drive) in dB applied BEFORE the ceiling. 0 only catches peaks that already exceed the ceiling; positive values push more of the signal into the limiter to make it louder. Default 0.",
+          "maximum": 20,
+          "minimum": -20,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "release": {
+          "default": 50.0,
+          "description": "Release time in milliseconds — how fast gain recovers after a peak. Short (20-50) is loud and tight, long (200+) is smoother and less pumpy. Default 50.",
+          "maximum": 8000,
+          "minimum": 1,
+          "type": "number"
+        },
+        "smooth_release": {
+          "default": false,
+          "description": "Average the release over recent gain reduction (ffmpeg's ASC) so dense, peaky material sounds less pumpy. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
