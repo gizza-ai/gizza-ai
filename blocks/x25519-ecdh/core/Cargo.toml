@@ -1,0 +1,23 @@
+[package]
+name = "gizza-ai-x25519-ecdh-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# x25519-dalek: pure-Rust Curve25519 ECDH (StaticSecret + PublicKey + the
+# contributory / all-zero check). getrandom supplies the CSPRNG used when the
+# caller leaves a key field empty — WASI `random_get` under wafer, and the
+# browser's crypto.getRandomValues under wasm-pack (the `js` backend below).
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
+getrandom = "0.2"
+hkdf = "0.12"
+sha2 = "0.10"
+base64 = "0.22"
+hex = "0.4"
+
+# wasm32-unknown-unknown (the page build) has no OS entropy source of its own;
+# getrandom's `js` backend routes to crypto.getRandomValues. Scoped to that
+# target so the wasm32-wasip1 block build keeps the plain WASI backend.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
