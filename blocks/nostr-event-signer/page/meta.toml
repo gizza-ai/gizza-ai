@@ -1,0 +1,126 @@
+slug          = "nostr-event-signer"
+title         = "Nostr Event Signer — Build Signed NIP-01 Event JSON"
+description   = "Build a Nostr event from content, tags and kind, sign it from an nsec or hex secret key, and copy publish-ready JSON. Runs locally in your browser."
+tags          = ["nostr event signer", "sign nostr event", "nsec signer", "nip-01 event", "schnorr signature", "nostr json", "nip-19", "nip-13 pow"]
+h1            = "Sign a Nostr event locally"
+hero_subtitle = "Paste a disposable nsec or hex secret key, set the event kind, content, tags and timestamp, and get a NIP-01 event JSON object with id, pubkey and BIP-340 Schnorr signature. No relay publish, no upload."
+wasm          = "gizza_ai_nostr_event_signer_web"
+export        = "run"
+live          = false
+output_label  = "Signed event"
+format        = "text"
+
+[[input]]
+name        = "nsec"
+label       = "Secret key (nsec or hex)"
+placeholder = "nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "content"
+label       = "Content"
+placeholder = "hello from gizza"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "kind"
+label       = "Kind"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "tags"
+label       = "Tags"
+placeholder = "t=tools\ne=<event id>;wss://relay.example.com;root"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "created_at"
+label       = "Timestamp (0 = now)"
+placeholder = "1700000000"
+source      = "field"
+
+[[input]]
+name        = "template"
+label       = "Unsigned event template (optional JSON)"
+placeholder = '{"kind":1,"content":"hello from template","tags":[],"created_at":1700000000}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pow"
+label       = "Proof-of-work bits"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+event = "Signed event JSON"
+relay-message = "Relay EVENT frame"
+report = "Report + JSON"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[example]]
+label = "Text note"
+[example.params]
+nsec = "nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5"
+content = "hello from gizza"
+kind = "1"
+tags = "t=tools"
+created_at = "1700000000"
+template = ""
+pow = "0"
+output = "event"
+pretty = "true"
+
+[[example]]
+label = "Relay frame"
+[example.params]
+nsec = "0000000000000000000000000000000000000000000000000000000000000003"
+content = "publish me"
+kind = "1"
+tags = ""
+created_at = "1700000000"
+template = ""
+pow = "0"
+output = "relay-message"
+pretty = "false"
+
+[[example]]
+label = "Profile metadata"
+[example.params]
+nsec = "nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5"
+content = '{"name":"demo","about":"test profile"}'
+kind = "0"
+tags = ""
+created_at = "1700000000"
+template = ""
+pow = "0"
+output = "report"
+pretty = "true"
+
+[[example]]
+label = "Template override"
+[example.params]
+nsec = "nsec1vl029mgpspedva04g90vltkh6fvh240zqtv9k0t9af8935ke9laqsnlfe5"
+content = "ignored because template wins"
+kind = "1"
+tags = ""
+created_at = "0"
+template = '{"kind":7,"content":"+","tags":[["e","0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"]],"created_at":1700000000}'
+pow = "0"
+output = "event"
+pretty = "true"

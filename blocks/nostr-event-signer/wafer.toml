@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nostr-event-signer"
+version = "0.1.0"
+abi = 1
+summary = "Build and Schnorr-sign a Nostr event from your nsec"
