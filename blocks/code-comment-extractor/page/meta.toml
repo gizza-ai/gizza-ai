@@ -1,0 +1,123 @@
+slug          = "code-comment-extractor"
+title         = "Code Comment Extractor"
+description   = "Paste source code and list or remove comments across JavaScript, Python, Rust, SQL, HTML, CSS, shell, YAML and more. Filters, JSON, markdown and stats included."
+tags          = ["comment extractor", "strip comments", "code comments", "source code", "documentation comments", "comment density"]
+h1            = "Code Comment Extractor"
+hero_subtitle = "Paste a source snippet and pull out line, block and documentation comments — or return the same code with comments stripped. Handles common comment syntaxes, ignores markers inside strings, and runs entirely in your browser."
+wasm          = "gizza_ai_code_comment_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Comments / stripped code"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Source code"
+placeholder = "function total(items) {\n  // Add every price.\n  return items.reduce((sum, item) => sum + item.price, 0); /* cents */\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+javascript = "JavaScript"
+typescript = "TypeScript"
+python = "Python"
+java = "Java"
+csharp = "C#"
+c = "C"
+cpp = "C++"
+go = "Go"
+rust = "Rust"
+php = "PHP"
+ruby = "Ruby"
+shell = "Shell / Bash"
+sql = "SQL"
+html = "HTML / XML"
+css = "CSS"
+lua = "Lua"
+yaml = "YAML / TOML / INI"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+comments = "Comment list"
+stripped = "Source with comments removed"
+json = "JSON records"
+markdown = "Markdown table"
+stats = "Comment statistics"
+
+[[input]]
+name   = "kind"
+label  = "Comment kind"
+source = "field"
+
+[input.labels]
+all = "All comments"
+line = "Line comments only"
+block = "Block comments only"
+doc = "Documentation comments only"
+
+[[input]]
+name   = "strip_markers"
+label  = "Remove comment markers"
+source = "field"
+
+[[input]]
+name   = "line_numbers"
+label  = "Show line numbers in list output"
+source = "field"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum comment length"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "docstrings"
+label  = "Treat Python docstrings as comments"
+source = "field"
+
+[[example]]
+label = "JavaScript comments"
+[example.params]
+code = "// File header\nconst url = \"https://example.com//path\"; // Real trailing comment\n/* Multi-line\n   block note */\nconsole.log(url);"
+language = "javascript"
+output = "comments"
+kind = "all"
+strip_markers = "true"
+line_numbers = "true"
+min_length = "0"
+docstrings = "true"
+
+[[example]]
+label = "Strip Python comments"
+[example.params]
+code = "\"\"\"Module docstring.\"\"\"\nimport os  # needed for paths\nname = \"# not a comment\"\n# final note"
+language = "python"
+output = "stripped"
+kind = "all"
+strip_markers = "true"
+line_numbers = "false"
+min_length = "0"
+docstrings = "true"
+
+[[example]]
+label = "JSON doc comments"
+[example.params]
+code = "/** Parse a value. */\n/// Returns null for blank input.\nfn parse(input: &str) -> Option<String> {\n    let s = r#\"// not a comment\"#;\n    None\n}"
+language = "rust"
+output = "json"
+kind = "doc"
+strip_markers = "true"
+line_numbers = "false"
+min_length = "0"
+docstrings = "true"

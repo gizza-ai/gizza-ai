@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/code-comment-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract every comment from pasted source code, or strip them out",
+  "role": "skill",
+  "tool": {
+    "description": "Pull the comments out of pasted source code — line, block and documentation comments — or return the same source with them removed. Covers 17 comment syntaxes (javascript, typescript, python, java, csharp, c, cpp, go, rust, php, ruby, shell, sql, html, css, lua, yaml) plus 'auto' detection. A string/char-literal-aware tokenizer means a `//` or `#` inside a string is never mistaken for a comment, and Go backtick strings, Rust raw strings and Python triple-quoted strings are handled. Each comment is classified as line, block or doc (/** */, ///, //!, ##, Python docstrings) and carries its line, column and end line. Options: language, output (comments list, stripped source, json, markdown table, or stats with comment density), kind filter, strip_markers, line_numbers, min_length, docstrings. This is a tokenizer, not a full parser: an unterminated /* runs to the end of input, and output is capped at 50,000 comments.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The source code to scan, pasted as text. Any length; comment markers inside string and character literals are ignored, so `const u = \"https://x/y\"` is not read as a comment. Example: 'const a = 1; // set the counter'.",
+          "type": "string"
+        },
+        "docstrings": {
+          "default": true,
+          "description": "Treat a Python triple-quoted string that starts its own line (a module/class/function docstring) as a doc comment. Default true. Set false to report only real `#` comments; Python has no block-comment syntax, so with this off a docstring-only file returns nothing. Has no effect on other languages.",
+          "type": "boolean"
+        },
+        "kind": {
+          "default": "all",
+          "description": "Which comment kinds to keep. 'all' (default); 'line' = single-line comments only (// # -- …); 'block' = delimited comments only (/* */, <!-- -->, --[[ ]], =begin/=end); 'doc' = documentation comments only (/** */, ///, //!, ##, Python docstrings). With output='stripped' this selects what gets REMOVED — kind='line' strips line comments and keeps doc blocks.",
+          "enum": [
+            "all",
+            "line",
+            "block",
+            "doc"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Comment syntax to use. 'auto' (default) guesses from the code's shape. Named values: javascript, typescript, python, java, csharp, c, cpp, go, rust, php, ruby, shell, sql, html, css, lua, yaml. Pick one when auto-detection guesses wrong — e.g. force 'sql' so `--` is a comment rather than a Lua/SQL toss-up.",
+          "enum": [
+            "auto",
+            "javascript",
+            "typescript",
+            "python",
+            "java",
+            "csharp",
+            "c",
+            "cpp",
+            "go",
+            "rust",
+            "php",
+            "ruby",
+            "shell",
+            "sql",
+            "html",
+            "css",
+            "lua",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "line_numbers": {
+          "default": false,
+          "description": "Prefix each entry of the plain 'comments' list with its 1-based source line, as '[L12] note'. Default false. The json and markdown outputs always carry line numbers, so this only affects output='comments'.",
+          "type": "boolean"
+        },
+        "min_length": {
+          "default": 0,
+          "description": "Drop comments whose text is shorter than this many characters, measured after strip_markers is applied. Default 0 (keep everything); 5 is a good value for filtering noise like '// x' or a commented-out brace.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "comments",
+          "description": "What to return. 'comments' (default) = the comment text, one per line. 'stripped' = the original source with the matched comments removed (blank lines kept so line numbers do not shift). 'json' = an array of {line, column, end_line, kind, text}. 'markdown' = a | Line | Kind | Comment | table. 'stats' = detected language plus comment/code/blank line counts and comment density.",
+          "enum": [
+            "comments",
+            "stripped",
+            "json",
+            "markdown",
+            "stats"
+          ],
+          "type": "string"
+        },
+        "strip_markers": {
+          "default": true,
+          "description": "Remove the comment delimiters from the reported text, so `// note` becomes 'note' and a Javadoc block loses its leading `*` on each line. Default true; set false to get each comment verbatim, markers included. Ignored by output='stripped'.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}
