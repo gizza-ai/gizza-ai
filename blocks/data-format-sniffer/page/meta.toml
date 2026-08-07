@@ -1,0 +1,134 @@
+slug          = "data-format-sniffer"
+title         = "Data Format Sniffer — Detect CSV, TSV, JSON, XML and Delimiters"
+description   = "Paste a data sample and find out what it is: CSV, TSV, JSON, JSON Lines, XML, HTML, fixed-width or binary, plus delimiter, quote char, encoding and column types."
+tags          = ["csv", "delimiter", "detection", "tsv", "json", "encoding", "data format", "sniffer"]
+h1            = "Identify a data sample's format, delimiter and columns"
+hero_subtitle = "Paste rows of data and get the detected format with a confidence score, the delimiter and quote character, line endings, encoding, header row, column count and per-column types."
+wasm          = "gizza_ai_data_format_sniffer_web"
+export        = "run"
+live          = false
+output_label  = "Detection report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data sample"
+placeholder = "name,age,city,joined\nAda,36,London,1815-12-10\nAlan,41,Wilmslow,1912-06-23"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_form"
+label  = "Input is"
+source = "field"
+
+[input.labels]
+text   = "Text (already decoded)"
+base64 = "Bytes as base64"
+hex    = "Bytes as hex"
+
+[[input]]
+name        = "sample_lines"
+label       = "Lines to analyse"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "10000"
+step        = "1"
+
+[[input]]
+name        = "extra_delimiters"
+label       = "Extra delimiters"
+placeholder = "^#"
+source      = "field"
+
+[[input]]
+name        = "comment_prefix"
+label       = "Comment prefix"
+placeholder = "#"
+source      = "field"
+
+[[input]]
+name   = "detect_types"
+label  = "Detect column types and header row"
+source = "field"
+
+[[input]]
+name        = "preview_rows"
+label       = "Preview rows"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "JSON"
+
+[[example]]
+label = "CSV with a header"
+[example.params]
+data = "name,age,city,joined\nAda,36,London,1815-12-10\nAlan,41,Wilmslow,1912-06-23\nGrace,45,New York,1906-12-09"
+input_form = "text"
+sample_lines = "100"
+extra_delimiters = ""
+comment_prefix = ""
+detect_types = "true"
+preview_rows = "5"
+output = "report"
+
+[[example]]
+label = "Semicolon export with comments"
+[example.params]
+data = "# exported 2026-01-04\nid;product;price;in_stock\n1;Widget;9.99;true\n2;Gadget;24.50;false\n3;Doohickey;3.75;true"
+input_form = "text"
+sample_lines = "100"
+extra_delimiters = ""
+comment_prefix = "#"
+detect_types = "true"
+preview_rows = "5"
+output = "report"
+
+[[example]]
+label = "JSON Lines as JSON output"
+[example.params]
+data = "{\"id\":1,\"ok\":true}\n{\"id\":2,\"ok\":false}\n{\"id\":3,\"ok\":true}"
+input_form = "text"
+sample_lines = "100"
+extra_delimiters = ""
+comment_prefix = ""
+detect_types = "true"
+preview_rows = "3"
+output = "json"
+
+[[example]]
+label = "Caret-delimited file"
+[example.params]
+data = "acct^branch^balance\n1001^NW^250.10\n1002^SE^1875.00\n1003^NW^42.75"
+input_form = "text"
+sample_lines = "100"
+extra_delimiters = "^"
+comment_prefix = ""
+detect_types = "true"
+preview_rows = "5"
+output = "report"
+
+[[example]]
+label = "Parquet bytes as hex"
+[example.params]
+data = "50 41 52 31 15 04 15 00 15 02 50 41 52 31"
+input_form = "hex"
+sample_lines = "100"
+extra_delimiters = ""
+comment_prefix = ""
+detect_types = "true"
+preview_rows = "5"
+output = "report"
