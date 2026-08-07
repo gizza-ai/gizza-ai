@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-tar-archive-lister-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# flate2: gzip inflate for .tar.gz / .tgz inputs. The default `rust_backend`
+# (miniz_oxide) is pure Rust, so it builds for both wasm32-wasip1 (chat/CLI)
+# and wasm32-unknown-unknown (the page). Base64/hex decoding and the whole tar
+# header parser are hand-rolled here — no other dependency.
+flate2 = "1"

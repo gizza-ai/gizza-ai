@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/tar-archive-lister",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List tar/tar.gz members with paths, sizes, modes, owners and types.",
+  "role": "skill",
+  "tool": {
+    "description": "List every member of a tar archive — path, byte size, permission mode, owner/group, entry type, modification time and link target — read straight from the 512-byte tar headers, without unpacking any file content. Pass the archive bytes as base64 (default) or hex in 'input' and set input_format accordingly; plain .tar and gzip-wrapped .tar.gz/.tgz are auto-detected (bzip2/xz/zstd are not decompressed and produce a clear error). output='table' (default) renders a `tar -tvf`-style listing, 'paths' one path per line, 'csv' a spreadsheet-ready table, 'json' a structured object with archive totals and every header field per entry (including mode_string, uid/gid, device major/minor and the header byte offset). sort orders by archive/path/size/mtime/type; filter narrows by glob ('*.txt', 'src/*') or plain substring; include_dirs=false drops directory members; time_format picks iso/epoch/none; limit caps how many members are returned. Understands v7, ustar (incl. the prefix field), GNU (long names via L/K, base-256 numeric fields) and PAX (x/g extended headers) dialects. Returns a clear error for input that is not a tar archive, a truncated or checksum-corrupt header, a ZIP file, or a bzip2/xz/zstd stream.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "filter": {
+          "default": "",
+          "description": "Optional path filter. A pattern containing '*' or '?' is treated as a glob matched against the whole member path ('*' matches any characters including '/', '?' matches one), e.g. '*.txt' or 'src/*'. A pattern with no wildcard is a plain substring match, e.g. 'README'. Blank (default) lists every member.",
+          "type": "string"
+        },
+        "include_dirs": {
+          "default": true,
+          "description": "When true (default) directory members are listed alongside files. Set false to list only files, links and device nodes.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The tar archive bytes, encoded as a base64 or hex string. Plain .tar and gzip-wrapped .tar.gz/.tgz are both accepted (gzip is auto-detected from the magic bytes). Example: the base64 of a 3-member archive. Maximum 64 MiB after decompression.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "How the archive bytes are encoded in 'input': 'base64' (default; standard or URL-safe, padding optional) or 'hex' (whitespace, ':' and '-' separators ignored).",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 500,
+          "description": "Maximum number of members to return, 1-200000 (default 500). The summary line and the JSON totals always report the true member count, so truncation is visible.",
+          "maximum": 200000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "table",
+          "description": "Output shape. 'table' (default) is a `tar -tvf`-style aligned listing (mode string, owner/group, size, mtime, path, link target) with a summary line; 'paths' is one member path per line; 'csv' has the header row path,type,size,mode,uid,gid,uname,gname,mtime,link_target,offset; 'json' is an object with archive totals plus an entries array carrying every header field.",
+          "enum": [
+            "table",
+            "paths",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "archive",
+          "description": "Member ordering. 'archive' (default) keeps the physical order stored in the archive; 'path' sorts alphabetically; 'size' sorts largest first; 'mtime' sorts newest first; 'type' groups by entry kind. Ties break on path.",
+          "enum": [
+            "archive",
+            "path",
+            "size",
+            "mtime",
+            "type"
+          ],
+          "type": "string"
+        },
+        "time_format": {
+          "default": "iso",
+          "description": "How each member's modification time is rendered: 'iso' (default) as 'YYYY-MM-DD HH:MM:SS' in UTC, 'epoch' as Unix seconds, or 'none' to omit the time column entirely.",
+          "enum": [
+            "iso",
+            "epoch",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

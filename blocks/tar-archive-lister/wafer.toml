@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tar-archive-lister"
+version = "0.1.0"
+abi = 1
+summary = "List tar/tar.gz members with paths, sizes, modes, owners and types."
