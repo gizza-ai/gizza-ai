@@ -1,0 +1,167 @@
+slug          = "ledger-register"
+title         = "Ledger Register — running totals from a ledger-cli / hledger journal"
+description   = "Paste a ledger-cli or hledger plain-text journal and list matching postings with running totals, filters, CSV, JSON and Markdown output. Runs in your browser."
+tags          = ["ledger register", "hledger register", "plain text accounting", "running balance", "checkbook register", "journal postings", "account register", "ledger cli report"]
+h1            = "Ledger Register"
+hero_subtitle = "Turn a ledger-cli or hledger journal into the register view: one row per matching posting, with date, description, account, amount and a running total. Filter by account, payee, status or date range, then export as text, CSV, JSON or Markdown. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_ledger_register_web"
+export        = "run"
+live          = false
+output_label  = "Register report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "journal"
+label       = "Ledger / hledger journal"
+placeholder = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "account_filter"
+label       = "Account filter (comma-separated; 'not:' excludes)"
+placeholder = "checking"
+source      = "field"
+
+[[input]]
+name        = "payee_filter"
+label       = "Payee / description filter"
+placeholder = "coffee, not:refund"
+source      = "field"
+
+[[input]]
+name        = "begin"
+label       = "Start date (on or after)"
+placeholder = "2024-01-01"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "end"
+label       = "End date (exclusive)"
+placeholder = "2024-03-01"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "status"
+label  = "Transaction status"
+source = "field"
+
+[input.labels]
+"all"      = "All transactions"
+"cleared"  = "Cleared only (*)"
+"pending"  = "Pending only (!)"
+"unmarked" = "Unmarked only"
+
+[[input]]
+name        = "depth"
+label       = "Account depth (0 = full account name)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+default     = "0"
+
+[[input]]
+name   = "running_total"
+label  = "Running total mode"
+source = "field"
+
+[input.labels]
+"period"     = "Period running total"
+"historical" = "Historical total before start date"
+"average"    = "Running average"
+"none"       = "No total column"
+
+[[input]]
+name   = "related"
+label  = "Show related accounts (other side of matching transactions)"
+source = "field"
+
+[[input]]
+name   = "invert"
+label  = "Invert signs"
+source = "field"
+
+[[input]]
+name   = "real_only"
+label  = "Ignore virtual postings — (…) and […]"
+source = "field"
+
+[[input]]
+name   = "cost_basis"
+label  = "Convert @ / @@ priced postings to their cost"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort rows by"
+source = "field"
+
+[input.labels]
+"date"       = "Date (oldest first)"
+"date-desc"  = "Date (newest first)"
+"amount"     = "Amount (largest first)"
+"amount-asc" = "Amount (smallest first)"
+"account"    = "Account name (A→Z)"
+
+[[input]]
+name        = "limit"
+label       = "Row limit (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "limit_from"
+label  = "Limit keeps"
+source = "field"
+
+[input.labels]
+"first" = "First rows"
+"last"  = "Last rows"
+
+[[input]]
+name        = "width"
+label       = "Text width"
+placeholder = "80"
+source      = "field"
+kind        = "slider"
+step        = "1"
+default     = "80"
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[[example]]
+label = "Checking-account register"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+account_filter = "checking"
+
+[[example]]
+label = "Historical total for February"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+account_filter = "checking"
+begin = "2024-02-01"
+running_total = "historical"
+
+[[example]]
+label = "Related expenses for a bank account"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+account_filter = "checking"
+related = "true"
+
+[[example]]
+label = "Recent rows as CSV"
+[example.params]
+journal = "2024-01-05 * Groceries\n    Expenses:Food:Groceries   $45.20\n    Assets:Bank:Checking\n\n2024-01-10 Salary\n    Assets:Bank:Checking      $2,000.00\n    Income:Salary            $-2,000.00\n\n2024-02-01 ! Coffee\n    Expenses:Food:Coffee      $4.80\n    Assets:Bank:Checking     $-4.80"
+account_filter = "checking"
+limit = "2"
+limit_from = "last"
+output_format = "csv"
