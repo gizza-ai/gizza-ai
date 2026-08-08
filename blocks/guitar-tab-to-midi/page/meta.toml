@@ -1,0 +1,117 @@
+slug          = "guitar-tab-to-midi"
+title         = "Guitar Tab to MIDI Converter"
+description   = "Paste ASCII guitar or bass tablature and download a real Standard MIDI File — tuning presets, capo, transpose, tempo, note length and GM instrument."
+tags          = ["guitar tab to midi", "tab to midi converter", "ascii tablature", "bass tab to midi", "midi file generator", "tab converter"]
+h1            = "Guitar Tab to MIDI"
+hero_subtitle = "Paste ASCII tablature — guitar, bass, 7/8-string or ukulele — and download a playable .mid file. Pick a tuning, capo, tempo and General MIDI instrument; the conversion runs in your browser and nothing is uploaded."
+wasm          = "gizza_ai_guitar_tab_to_midi_web"
+export        = "run"
+live          = false
+output_label  = "MIDI file"
+format        = "text"
+
+[[input]]
+name        = "tab"
+label       = "ASCII tablature"
+placeholder = "e|-------------|\nB|-------------|\nG|-------------|\nD|--2--2--5--5-|\nA|--2--2--5--5-|\nE|--0--0--3--3-|"
+source      = "field"
+multiline   = true
+
+# tuning / string_order / note_duration / timing / sustain / instrument are
+# `Param::enumv` in the descriptor, so the generator renders each as a <select>;
+# `labels` only enriches the visible text — the values stay canonical so chips,
+# deep-links and the CLI keep working.
+[[input]]
+name   = "tuning"
+label  = "Tuning"
+source = "field"
+labels = { auto = "Auto — from the number of string lines", standard = "Standard — E A D G B E", drop-d = "Drop D — D A D G B E", half-step-down = "Half step down — Eb Ab Db Gb Bb Eb", full-step-down = "Full step down — D G C F A D", drop-c = "Drop C — C G C F A D", open-g = "Open G — D G D G B D", open-d = "Open D — D A D F# A D", dadgad = "DADGAD — D A D G A D", seven-string = "7-string — B E A D G B E", eight-string = "8-string — F# B E A D G B E", bass-standard = "Bass, 4-string — E A D G", bass-5-string = "Bass, 5-string — B E A D G", ukulele = "Ukulele — g C E A" }
+
+[[input]]
+name        = "custom_tuning"
+label       = "Custom tuning (overrides the preset)"
+placeholder = "D2,A2,D3,G3,B3,E4"
+source      = "field"
+
+[[input]]
+name   = "string_order"
+label  = "Stave layout"
+source = "field"
+labels = { high-on-top = "High string on the top line (usual)", low-on-top = "Low string on the top line (inverted)" }
+
+[[input]]
+name        = "capo"
+label       = "Capo (frets)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "transpose"
+label       = "Transpose (semitones)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "tempo"
+label       = "Tempo (BPM)"
+placeholder = "120"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "note_duration"
+label  = "Length of one tab column"
+source = "field"
+labels = { whole = "Whole note", half = "Half note", quarter = "Quarter note — sparse tabs", eighth = "Eighth note — standard", sixteenth = "Sixteenth note — busy tabs", thirty-second = "Thirty-second note" }
+
+[[input]]
+name   = "timing"
+label  = "How time advances"
+source = "field"
+labels = { columns = "Every column is a step — dash spacing is the rhythm", events = "Only note columns are steps — even onsets" }
+
+[[input]]
+name   = "sustain"
+label  = "Note length"
+source = "field"
+labels = { until-next = "Ring until the string's next note", step = "Stop after one column — detached" }
+
+[[input]]
+name        = "velocity"
+label       = "Velocity (loudness)"
+placeholder = "96"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "instrument"
+label  = "General MIDI instrument"
+source = "field"
+labels = { acoustic-guitar-nylon = "Acoustic guitar — nylon", acoustic-guitar-steel = "Acoustic guitar — steel", electric-guitar-jazz = "Electric guitar — jazz", electric-guitar-clean = "Electric guitar — clean", electric-guitar-muted = "Electric guitar — muted", overdriven-guitar = "Overdriven guitar", distortion-guitar = "Distortion guitar", guitar-harmonics = "Guitar harmonics", acoustic-bass = "Acoustic bass", electric-bass-finger = "Electric bass — finger", electric-bass-pick = "Electric bass — pick", fretless-bass = "Fretless bass", acoustic-grand-piano = "Acoustic grand piano" }
+
+[[input]]
+name   = "muted_notes"
+label  = "Play x/X mutes as short muted notes"
+source = "field"
+
+[[example]]
+label  = "Power-chord riff"
+params = { tab = "e|-------------|\nB|-------------|\nG|-------------|\nD|--2--2--5--5-|\nA|--2--2--5--5-|\nE|--0--0--3--3-|", tuning = "auto", tempo = "120", note_duration = "eighth", instrument = "distortion-guitar" }
+
+[[example]]
+label  = "Drop D, slow"
+params = { tab = "e|----------------|\nB|----------------|\nG|----------------|\nD|--7---7---5---5-|\nA|--7---7---5---5-|\nE|--0---0---0---0-|", tuning = "drop-d", tempo = "80", note_duration = "quarter", instrument = "overdriven-guitar" }
+
+[[example]]
+label  = "Bass line"
+params = { tab = "G|--------------|\nD|--------------|\nA|-----5-----5--|\nE|--3-----3-----|", tuning = "auto", tempo = "100", note_duration = "eighth", instrument = "electric-bass-finger" }
+
+[[example]]
+label  = "Fingerpicked, capo 2"
+params = { tab = "e|--------0-------|\nB|-----1-----1----|\nG|--0-----0-----0-|\nD|----------------|\nA|--2-------------|\nE|----------------|", tuning = "standard", capo = "2", tempo = "96", note_duration = "sixteenth", instrument = "acoustic-guitar-steel", sustain = "until-next" }
