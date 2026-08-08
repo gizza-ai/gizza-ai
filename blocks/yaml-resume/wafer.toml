@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "yaml-resume"
+version = "0.1.0"
+abi = 1
+summary = "Render a YAML or JSON Resume document as a print-ready HTML résumé"
