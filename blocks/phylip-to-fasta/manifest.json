@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/phylip-to-fasta",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert PHYLIP sequential or interleaved alignments into standard FASTA.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a PHYLIP multiple-sequence alignment into standard FASTA. PHYLIP files start with a '<taxa> <sites>' count header, then either the sequential layout (each taxon's whole sequence before the next) or the interleaved layout (repeated blocks holding one chunk per taxon); taxon names are either strict (columns 1-10) or relaxed (the first whitespace-delimited token). Both layouts and both name styles are auto-detected by checking each candidate parse against the declared site count, and can also be forced with the layout and name_style parameters. Gaps are preserved by default; remove_gaps strips '-' and '.' to produce unaligned sequences, uppercase normalizes residues, wrap sets the FASTA line width (default 60, 0 = one line), and tolerant converts anyway when the file disagrees with its own header. Runs entirely locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "layout": {
+          "default": "auto",
+          "description": "Body layout. 'auto' (default) detects it from the block structure and checks the result against the declared site count; 'sequential' = each taxon's whole sequence before the next; 'interleaved' = repeated blocks of one chunk per taxon.",
+          "enum": [
+            "auto",
+            "sequential",
+            "interleaved"
+          ],
+          "type": "string"
+        },
+        "name_style": {
+          "default": "auto",
+          "description": "How the taxon name is separated from the sequence. 'auto' (default) tries relaxed then strict and keeps the parse that matches the site count; 'strict' = the name is exactly columns 1-10; 'relaxed' = the name is the first whitespace-delimited token, so it may exceed 10 characters (RAxML/PhyML style).",
+          "enum": [
+            "auto",
+            "strict",
+            "relaxed"
+          ],
+          "type": "string"
+        },
+        "phylip": {
+          "description": "The PHYLIP alignment text. The first line is the count header '<taxa> <sites>' (e.g. '3 12'); the lines after it hold each taxon's name and sequence, either sequential (one taxon at a time) or interleaved (blocks of one chunk per taxon).",
+          "type": "string"
+        },
+        "remove_gaps": {
+          "default": false,
+          "description": "When true, strip the alignment gap characters '-' and '.', turning the aligned FASTA into unaligned sequences. Default false (gaps are preserved exactly).",
+          "type": "boolean"
+        },
+        "tolerant": {
+          "default": false,
+          "description": "When true, convert anyway if the file disagrees with its own header (wrong taxon count, wrong sequence length, or unexpected residue characters). Default false = report the mismatch instead.",
+          "type": "boolean"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When true, uppercase the sequence residues (acgt -> ACGT). Default false (keep the original case).",
+          "type": "boolean"
+        },
+        "wrap": {
+          "default": 60,
+          "description": "Wrap each FASTA sequence at this many characters per line (1-1000). Default 60, the conventional FASTA width; 0 = one long line per sequence.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "phylip"
+      ],
+      "type": "object"
+    }
+  }
+}
