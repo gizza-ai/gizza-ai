@@ -1,0 +1,69 @@
+slug          = "email-syntax-validator"
+title         = "Email syntax validator — disposable and role address checks"
+description   = "Validate email address syntax offline, flag disposable domains and role-based mailboxes, and get a pass/fail verdict with a low/medium/high risk grade."
+tags          = ["email validator", "email syntax", "disposable email", "role address", "mailbox", "email hygiene", "form validation"]
+h1            = "Email syntax validator"
+hero_subtitle = "Check one email address for practical syntax errors, likely typos, disposable-domain risk and role-based local parts, and get a verdict plus a low/medium/high risk grade. Runs offline with no DNS or SMTP probes."
+wasm          = "gizza_ai_email_syntax_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "email"
+label       = "Email address"
+placeholder = "Ada Lovelace <ada@example.com>"
+source      = "field"
+
+[[input]]
+name   = "check_disposable"
+label  = "Flag disposable domains"
+source = "field"
+
+[[input]]
+name   = "check_role"
+label  = "Flag role-based addresses"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Detailed report"
+summary = "One-line summary"
+json = "JSON"
+
+[[example]]
+label = "Valid business email"
+[example.params]
+email             = "Ada <ada@example.com>"
+check_disposable  = "true"
+check_role        = "true"
+format            = "report"
+
+[[example]]
+label = "Disposable role address"
+[example.params]
+email             = "admin@mailinator.com"
+check_disposable  = "true"
+check_role        = "true"
+format            = "summary"
+
+[[example]]
+label = "Likely domain typo"
+[example.params]
+email             = "ada@gmial.com"
+check_disposable  = "true"
+check_role        = "true"
+format            = "report"
+
+[[example]]
+label = "Syntax error as JSON"
+[example.params]
+email             = "not an address"
+check_disposable  = "false"
+check_role        = "false"
+format            = "json"
