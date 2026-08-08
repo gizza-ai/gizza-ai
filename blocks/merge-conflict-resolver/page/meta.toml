@@ -1,0 +1,108 @@
+slug          = "merge-conflict-resolver"
+title         = "Merge Conflict Resolver"
+description   = "Paste a file with Git conflict markers and resolve every block by keeping ours, theirs, both sides or the diff3 common ancestor, with per-conflict overrides."
+tags          = ["merge conflict resolver", "git conflict", "conflict markers", "resolve merge conflict", "diff3", "accept ours theirs", "developer tools"]
+h1            = "Resolve Git merge conflict markers"
+hero_subtitle = "Paste the conflicted file and keep ours, theirs, both sides or the common ancestor. Per-conflict overrides, a numbered inventory and a side-by-side view, all in your browser."
+wasm          = "gizza_ai_merge_conflict_resolver_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Conflicted file text"
+placeholder = "const port = 1;\n<<<<<<< HEAD\nconst host = \"0.0.0.0\";\n=======\nconst host = \"127.0.0.1\";\n>>>>>>> feature/local\nstart();"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "strategy"
+label  = "Keep"
+source = "field"
+
+[input.labels]
+"ours"              = "Ours (current branch)"
+"theirs"            = "Theirs (incoming branch)"
+"both"              = "Both, ours first"
+"both-theirs-first" = "Both, theirs first"
+"base"              = "Common ancestor (diff3)"
+"keep"              = "Keep the markers"
+
+[[input]]
+name        = "choices"
+label       = "Per-conflict overrides (optional)"
+placeholder = "2=theirs, 3-5=both"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+resolved = "Resolved file text"
+list     = "Numbered conflict list"
+sides    = "Side-by-side comparison"
+json     = "JSON report"
+
+[[input]]
+name   = "strict"
+label  = "Strict: fail if any conflict survives"
+source = "field"
+
+[[example]]
+label = "Keep ours"
+[example.params]
+text = "const port = 1;\n<<<<<<< HEAD\nconst host = \"0.0.0.0\";\n=======\nconst host = \"127.0.0.1\";\n>>>>>>> feature/local\nstart();"
+strategy = "ours"
+choices = ""
+output = "resolved"
+strict = "false"
+
+[[example]]
+label = "Keep theirs"
+[example.params]
+text = "const port = 1;\n<<<<<<< HEAD\nconst host = \"0.0.0.0\";\n=======\nconst host = \"127.0.0.1\";\n>>>>>>> feature/local\nstart();"
+strategy = "theirs"
+choices = ""
+output = "resolved"
+strict = "false"
+
+[[example]]
+label = "List the conflicts"
+[example.params]
+text = "intro\n<<<<<<< HEAD\nalpha-ours\n=======\nalpha-theirs\n>>>>>>> topic\nmiddle\n<<<<<<< HEAD\nbeta-ours\n=======\nbeta-theirs\n>>>>>>> topic\nend"
+strategy = "ours"
+choices = ""
+output = "list"
+strict = "false"
+
+[[example]]
+label = "Mixed per-conflict choices"
+[example.params]
+text = "intro\n<<<<<<< HEAD\nalpha-ours\n=======\nalpha-theirs\n>>>>>>> topic\nmiddle\n<<<<<<< HEAD\nbeta-ours\n=======\nbeta-theirs\n>>>>>>> topic\nend"
+strategy = "ours"
+choices = "2=theirs"
+output = "resolved"
+strict = "false"
+
+[[example]]
+label = "diff3 common ancestor"
+[example.params]
+text = "<<<<<<< HEAD\ntimeout = 30\n||||||| merged common ancestors\ntimeout = 10\n=======\ntimeout = 60\n>>>>>>> topic"
+strategy = "base"
+choices = ""
+output = "resolved"
+strict = "false"
+
+[[example]]
+label = "Side-by-side view"
+[example.params]
+text = "const port = 1;\n<<<<<<< HEAD\nconst host = \"0.0.0.0\";\n=======\nconst host = \"127.0.0.1\";\n>>>>>>> feature/local\nstart();"
+strategy = "ours"
+choices = ""
+output = "sides"
+strict = "false"
