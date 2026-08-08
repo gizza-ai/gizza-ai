@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/cumulative-percent-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort values and add running totals, cumulative percentages and Pareto vital-few labels",
+  "role": "skill",
+  "tool": {
+    "description": "Build a Pareto-ready cumulative percentage table from pasted label,value rows. The tool can auto-detect delimiters, skip a header row, sort descending, compute percent of total, cumulative count, cumulative sum, cumulative percent, and mark the vital-few rows that reach a configurable threshold (80% by default). It can optionally bucket the tail into an Other row and emit aligned text, CSV, or Markdown. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "Rows to rank for Pareto/cumulative-percent analysis. Paste one label and one non-negative value per row, such as category,count. Delimiters can be comma, tab, semicolon, pipe, or whitespace. Up to 10000 rows.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 1,
+          "description": "Decimal places for values and percentages, from 0 to 6. Default 1.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "How to split each row. Auto chooses the most common delimiter per row and falls back to whitespace. Default auto.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first non-empty row is a header. Auto skips it when the value column is not numeric. Default auto.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "table",
+          "description": "Output format: aligned text table with a text Pareto chart, CSV, or Markdown table. Default table.",
+          "enum": [
+            "table",
+            "csv",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "desc",
+          "description": "Sort descending by value before building cumulative percentages, or keep input order. Pareto analysis normally uses desc. Default desc.",
+          "enum": [
+            "desc",
+            "input"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 80.0,
+          "description": "Cumulative percentage cutoff for the vital-few zone. Rows up to and including the first row that crosses this threshold are marked vital. Default 80.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "top_n": {
+          "default": 0,
+          "description": "Optional tail bucketing: keep the top N rows and combine the rest into an Other row. 0 disables bucketing. Default 0.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
