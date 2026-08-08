@@ -1,0 +1,138 @@
+slug          = "wav-to-raw-pcm-extractor"
+title         = "WAV to Raw PCM — Strip the Header, Extract the Data Chunk"
+description   = "Paste an uncompressed WAV as base64 or hex and get just its raw interleaved PCM bytes — header stripped — as base64, hex, or a C array."
+tags          = ["wav to raw pcm", "strip wav header", "extract pcm from wav", "wav data chunk", "wav to pcm converter", "raw audio extractor", "headerless pcm", "wav to c array", "s16le extractor", "pcm byte extractor"]
+h1            = "WAV to Raw PCM Extractor"
+hero_subtitle = "Paste an uncompressed WAV clip as base64 or hex and pull out only the `data` chunk — the bare interleaved PCM sample bytes, with the RIFF header and every other chunk removed. Copy the payload byte-for-byte or re-encode it to u8, s16, s24, s32 or float in either byte order, downmix or split channels, cut a frame window, and read back the ffmpeg / SoX / Audacity settings raw PCM needs. Runs entirely in your browser; the audio is never uploaded."
+wasm          = "gizza_ai_wav_to_raw_pcm_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Raw PCM"
+format        = "text"
+
+# Field ORDER must match the web `run()` parameter order.
+[[input]]
+name        = "input"
+label       = "WAV bytes (base64 or hex)"
+placeholder = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+source      = "field"
+multiline   = true
+
+# input_format / output / sample_format / channels render as <select>; the option
+# lists come from the descriptor schema (manifest.json), not duplicated here.
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output"
+label  = "Output as"
+source = "field"
+
+[input.labels]
+base64  = "Base64 (paste back into a file)"
+hex     = "Hex bytes"
+c_array = "C array"
+info    = "Format report + re-import commands"
+
+[[input]]
+name   = "sample_format"
+label  = "Sample format"
+source = "field"
+
+[input.labels]
+source = "Source (verbatim, no re-encode)"
+u8     = "u8 — unsigned 8-bit"
+s16le  = "s16le — signed 16-bit LE"
+s16be  = "s16be — signed 16-bit BE"
+s24le  = "s24le — signed 24-bit LE"
+s24be  = "s24be — signed 24-bit BE"
+s32le  = "s32le — signed 32-bit LE"
+s32be  = "s32be — signed 32-bit BE"
+f32le  = "f32le — 32-bit float LE"
+f32be  = "f32be — 32-bit float BE"
+
+[[input]]
+name   = "channels"
+label  = "Channels"
+source = "field"
+
+[input.labels]
+all   = "All (interleaved as stored)"
+mono  = "Mono downmix (average)"
+left  = "Left only (channel 1)"
+right = "Right only (channel 2)"
+
+[[input]]
+name        = "start_frame"
+label       = "Start frame"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_frames"
+label       = "Max frames (0 = to the end)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "line_bytes"
+label       = "Bytes per line (hex / C array)"
+placeholder = "16"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+# Preset chips — one click prefills a runnable example.
+[[example]]
+label = "Payload as base64 (defaults)"
+[example.values]
+input        = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+
+[[example]]
+label = "Hex bytes"
+[example.values]
+input         = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format  = "base64"
+output        = "hex"
+sample_format = "source"
+
+[[example]]
+label = "Format report + re-import commands"
+[example.values]
+input        = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+output       = "info"
+
+[[example]]
+label = "Convert 16-bit to 8-bit"
+[example.values]
+input         = "UklGRi4AAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format  = "base64"
+output        = "hex"
+sample_format = "u8"
+
+[[example]]
+label = "Stereo → left channel only"
+[example.values]
+input         = "UklGRjAAAABXQVZFZm10IBAAAAABAAIAgD4AAAD6AAAEABAAZGF0YQgAAAAAQADAAAD/fw=="
+input_format  = "base64"
+output        = "hex"
+sample_format = "source"
+channels      = "left"
+
+[[example]]
+label = "C array for firmware"
+[example.values]
+input         = "UklGRjAAAABXQVZFZm10IBAAAAABAAIAgD4AAAD6AAAEABAAZGF0YQgAAAAAQADAAAD/fw=="
+input_format  = "base64"
+output        = "c_array"
+sample_format = "s16le"
+channels      = "mono"
+line_bytes    = "8"
