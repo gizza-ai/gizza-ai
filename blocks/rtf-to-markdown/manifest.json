@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/rtf-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert RTF documents to clean Markdown.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert pasted Rich Text Format (RTF) source into clean Markdown or tab-separated plain text. Preserves Markdown-expressible structure: bold, italic, strikethrough, underlines as HTML, superscript/subscript, headings from outline/style metadata, bullet and numbered lists, hyperlinks, Unicode escapes, and simple tables. Options control heading detection, table rendering, underline handling, hyperlink conversion, and Markdown escaping. The input must be raw RTF text beginning with {\\rtf.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "escape_markdown": {
+          "default": true,
+          "description": "When true (default), literal Markdown punctuation in the RTF text is backslash-escaped so it renders as text. When false, punctuation is passed through.",
+          "type": "boolean"
+        },
+        "headings": {
+          "default": "auto",
+          "description": "How to handle heading styles: 'auto' (default) detects outline levels and stylesheet names such as heading 1; 'off' renders every paragraph as body text.",
+          "enum": [
+            "auto",
+            "off"
+          ],
+          "type": "string"
+        },
+        "links": {
+          "default": true,
+          "description": "When true (default), RTF HYPERLINK fields become Markdown links. When false, only the visible link text is kept.",
+          "type": "boolean"
+        },
+        "rtf": {
+          "description": "The RTF document source to convert. Paste text that begins with an RTF header such as {\\rtf1\\ansi ...}.",
+          "type": "string"
+        },
+        "tables": {
+          "default": "markdown",
+          "description": "How to render RTF tables: 'markdown' (default) emits GitHub pipe tables; 'text' emits tab-separated rows.",
+          "enum": [
+            "markdown",
+            "text"
+          ],
+          "type": "string"
+        },
+        "underline": {
+          "default": "html",
+          "description": "How to handle underlined text: 'html' (default) wraps runs in <u>...</u>; 'ignore' keeps the text without underline markup.",
+          "enum": [
+            "html",
+            "ignore"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "rtf"
+      ],
+      "type": "object"
+    }
+  }
+}

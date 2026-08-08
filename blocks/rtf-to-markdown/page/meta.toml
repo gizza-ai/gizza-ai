@@ -1,0 +1,85 @@
+slug          = "rtf-to-markdown"
+title         = "RTF to Markdown Converter"
+description   = "Convert raw RTF source to clean Markdown with headings, lists, links, tables, bold, italic, underline, and Unicode escapes preserved in-browser."
+tags          = ["rtf to markdown", "rich text to markdown", "convert rtf", "rtf parser", "markdown converter", "word to markdown", "paste rtf", "plain text"]
+h1            = "RTF to Markdown Converter"
+hero_subtitle = "Paste raw Rich Text Format source and convert it to Markdown or tab-separated text — headings, lists, links, tables, and inline emphasis handled locally in your browser."
+wasm          = "gizza_ai_rtf_to_markdown_web"
+export        = "run"
+live          = false
+output_label  = "Markdown"
+format        = "text"
+
+[[input]]
+name        = "rtf"
+label       = "RTF source"
+placeholder = "{\\rtf1\\ansi{\\pard\\outlinelevel0 Project notes\\par}This is \\b bold\\b0  and \\i italic\\i0  text.\\par}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "headings"
+label  = "Headings"
+source = "field"
+
+[input.labels]
+auto = "Detect headings"
+off  = "Treat as body text"
+
+[[input]]
+name   = "tables"
+label  = "Tables"
+source = "field"
+
+[input.labels]
+markdown = "Markdown pipe tables"
+text     = "Tab-separated rows"
+
+[[input]]
+name   = "underline"
+label  = "Underline"
+source = "field"
+
+[input.labels]
+html   = "Keep as <u> HTML"
+ignore = "Drop underline markup"
+
+[[input]]
+name   = "links"
+label  = "Convert hyperlinks"
+source = "field"
+
+[[input]]
+name   = "escape_markdown"
+label  = "Escape literal Markdown punctuation"
+source = "field"
+
+[[example]]
+label = "Heading and emphasis"
+[example.params]
+rtf = "{\\rtf1\\ansi{\\pard\\outlinelevel0 Project notes\\par}This is \\b bold\\b0  and \\i italic\\i0  text.\\par}"
+headings = "auto"
+tables = "markdown"
+underline = "html"
+links = "true"
+escape_markdown = "true"
+
+[[example]]
+label = "Table as Markdown"
+[example.params]
+rtf = "{\\rtf1\\ansi\\trowd\\intbl Name\\cell Qty\\cell\\row\\trowd\\intbl Bolt\\cell 12\\cell\\row}"
+headings = "auto"
+tables = "markdown"
+underline = "html"
+links = "true"
+escape_markdown = "true"
+
+[[example]]
+label = "Plain text table rows"
+[example.params]
+rtf = "{\\rtf1\\ansi\\trowd\\intbl Name\\cell Qty\\cell\\row\\trowd\\intbl Bolt\\cell 12\\cell\\row}"
+headings = "auto"
+tables = "text"
+underline = "ignore"
+links = "true"
+escape_markdown = "true"
