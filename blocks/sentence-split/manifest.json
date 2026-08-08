@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/sentence-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split text into sentences with abbreviation- and decimal-aware boundaries.",
+  "role": "skill",
+  "tool": {
+    "description": "Split plain text into individual sentences. The rule-based detector keeps abbreviations and titles (Dr., Mrs., e.g., No. 5), initials (J. R. R.), decimals and versions ($99.99, 1.2.3), list markers ('1. Buy milk'), ellipses and quoted speech (\"Stop!\" he said.) from splitting mid-sentence, and also recognises the full-width terminators 。！？. Choose format='lines' (default), 'numbered', 'blank-line' or 'json' (per-sentence index, text, word count and character count plus a total). newlines controls line breaks: 'paragraph' (default, only a blank line breaks), 'never' or 'always'. trim (default true) trims each sentence, min_chars drops short fragments, and extra_abbreviations adds domain abbreviations to the never-split list.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "extra_abbreviations": {
+          "default": "",
+          "description": "Extra abbreviations that must never end a sentence, on top of the built-in list (Dr., Mrs., e.g., No., …). Comma-, semicolon- or space-separated, trailing period optional, case-insensitive — e.g. 'Corp., Ltd., Inc.'. Default empty.",
+          "type": "string"
+        },
+        "format": {
+          "default": "lines",
+          "description": "How to render the sentences. 'lines' (default) = one sentence per line; 'numbered' = one per line prefixed '1. ', '2. '; 'blank-line' = separated by an empty line; 'json' = {\"count\":N,\"sentences\":[{index,text,words,characters}]}.",
+          "enum": [
+            "lines",
+            "numbered",
+            "blank-line",
+            "json"
+          ],
+          "type": "string"
+        },
+        "min_chars": {
+          "default": 0,
+          "description": "Drop sentences shorter than this many characters — useful for clearing stray fragments like 'Yes.'. Default 0 (keep every sentence), maximum 10000.",
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "newlines": {
+          "default": "paragraph",
+          "description": "How line breaks affect boundaries. 'paragraph' (default) = only a blank line ends a sentence; 'never' = line breaks are ordinary whitespace, only punctuation ends a sentence; 'always' = every line break ends a sentence (use for lists, subtitles, one-per-line text).",
+          "enum": [
+            "paragraph",
+            "never",
+            "always"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to split into sentences. Plain text, up to 500000 characters — e.g. 'Dr. Green paid $99.99. It arrived on Mar. 3.'",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Trim each sentence and fold a line break inside a sentence to a single space. Default true. Set false to preserve spacing inside each sentence while still omitting separator whitespace between sentences.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
