@@ -1,0 +1,122 @@
+slug          = "mv-script-generator"
+title         = "mv Script Generator — Bash & PowerShell Rename Scripts with Undo"
+description   = "Paste an old,new filename mapping and get a safe bash mv or PowerShell Rename-Item script, correctly ordered and quoted, plus the matching undo script."
+tags          = ["mv script generator", "bash rename script", "powershell rename script", "bulk rename script", "undo rename", "rename mapping to script", "mv command generator"]
+h1            = "Generate a Safe Rename Script"
+hero_subtitle = "Paste your old → new filename mapping and get a quoted, correctly ordered bash or PowerShell rename script — with the undo script beside it. Nothing moves until you run it."
+wasm          = "gizza_ai_mv_script_generator_web"
+export        = "run"
+live          = false
+output_label  = "Rename script"
+format        = "text"
+
+[[input]]
+name        = "mapping"
+label       = "Mapping (one old,new pair per line)"
+placeholder = "IMG_001.JPG,photo-001.jpg\nIMG_002.JPG,photo-002.jpg"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Mapping format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+csv = "Comma (CSV, quoted fields allowed)"
+tsv = "Tab-separated"
+arrow = "Arrow (old -> new)"
+pipe = "Pipe (old | new)"
+
+[[input]]
+name   = "shell"
+label  = "Script dialect"
+source = "field"
+
+[input.labels]
+bash = "bash / sh (mv)"
+powershell = "PowerShell (Rename-Item / Move-Item)"
+
+[[input]]
+name        = "base_dir"
+label       = "Run the script in this directory (optional)"
+placeholder = "/home/me/photos"
+source      = "field"
+
+[[input]]
+name   = "dry_run"
+label  = "Dry run (report each move, don't perform it)"
+source = "field"
+
+[[input]]
+name   = "overwrite"
+label  = "Allow overwriting an existing destination"
+source = "field"
+
+[[input]]
+name   = "mkdir_parents"
+label  = "Create missing destination directories"
+source = "field"
+
+[[input]]
+name   = "undo_script"
+label  = "Also emit the undo script"
+source = "field"
+
+[[input]]
+name   = "comments"
+label  = "Include the summary header comment"
+source = "field"
+
+[[example]]
+label = "Camera photos → CSV mapping"
+[example.params]
+mapping = "IMG_001.JPG,photo-001.jpg\nIMG_002.JPG,photo-002.jpg\nIMG_003.JPG,photo-003.jpg"
+format = "auto"
+shell = "bash"
+base_dir = ""
+dry_run = "false"
+overwrite = "false"
+mkdir_parents = "true"
+undo_script = "true"
+comments = "true"
+
+[[example]]
+label = "Arrow mapping into subfolders"
+[example.params]
+mapping = "invoice-jan.pdf -> 2026/01/invoice.pdf\ninvoice-feb.pdf -> 2026/02/invoice.pdf"
+format = "arrow"
+shell = "bash"
+base_dir = ""
+dry_run = "false"
+overwrite = "false"
+mkdir_parents = "true"
+undo_script = "true"
+comments = "true"
+
+[[example]]
+label = "Swap two names (needs a temp file)"
+[example.params]
+mapping = "a.txt,b.txt\nb.txt,a.txt"
+format = "csv"
+shell = "bash"
+base_dir = ""
+dry_run = "false"
+overwrite = "false"
+mkdir_parents = "true"
+undo_script = "true"
+comments = "true"
+
+[[example]]
+label = "PowerShell dry run"
+[example.params]
+mapping = "Report Q1.docx,2026-Q1-report.docx\nReport Q2.docx,2026-Q2-report.docx"
+format = "csv"
+shell = "powershell"
+base_dir = "C:\\Users\\me\\Documents"
+dry_run = "true"
+overwrite = "false"
+mkdir_parents = "true"
+undo_script = "true"
+comments = "true"
