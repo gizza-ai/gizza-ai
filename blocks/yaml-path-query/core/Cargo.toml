@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-yaml-path-query-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# yaml-rust2 is used instead of a serde YAML binding because its low-level event
+# parser exposes source Markers (line/column), which is what makes the
+# comment-preserving in-place edits possible. `encoding` (the default feature)
+# only powers YamlDecoder for non-UTF-8 input, which we don't need.
+yaml-rust2 = { version = "0.8", default-features = false }
+# preserve_order: JSON output keeps the YAML source key order instead of
+# alphabetizing it.
+serde_json = { version = "1", features = ["preserve_order"] }

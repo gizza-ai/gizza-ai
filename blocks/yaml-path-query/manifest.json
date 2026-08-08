@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/yaml-path-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Query, set or delete a YAML value by a dotted path while keeping comments and formatting",
+  "role": "skill",
+  "tool": {
+    "description": "Read or edit exactly one value inside a YAML document, addressed by a dotted / bracketed path such as `server.host`, `items[0].name`, `spec.containers[0].image` or `['key with spaces']` (lodash / dot-object notation — a leading `$` is accepted and ignored, but RFC 9535 filters and wildcards are not supported). `mode = \"query\"` (default) returns the value: a scalar comes back raw so it can be piped onward, a mapping or list comes back as YAML, and `format = \"json\"` returns pretty-printed JSON in the document's own key order. `mode = \"set\"` writes `value` at the path and returns the whole document; `value` is parsed as YAML, so `42` is a number, `true` a boolean, `null` empty, `[a, b]` and `{k: v}` inline collections, and `\"8080\"` a quoted string. Missing intermediate levels are created, and a list can be appended to by index. `mode = \"delete\"` removes the key or list element and returns the rest. Edits are made as a surgical text splice on the original source, so comments — including the trailing comment on the edited line — blank lines, key order, quoting style, indentation and flow style all survive; every splice is verified by re-parsing the result against the independently computed tree, and anything that cannot be spliced safely falls back to re-emitting the document from the tree (correct data, normalized formatting). Missing keys, out-of-range indices, descending into a scalar, malformed paths and multi-document input are reported as explicit errors instead of silently returning nothing. Fully local and deterministic — no AI model, no network, no file access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "yaml",
+          "description": "Output format: 'yaml' (default) returns a scalar hit raw with no quotes and anything larger as YAML; 'json' returns pretty-printed JSON keeping the source key order. Edits requested as 'json' are re-emitted from the parsed tree, so comments survive only in 'yaml'.",
+          "enum": [
+            "yaml",
+            "json"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "query",
+          "description": "What to do at the path: 'query' returns the value found there (default), 'set' writes 'value' there and returns the whole document, 'delete' removes that key or list element and returns the whole document. 'get' is accepted as an alias of 'query' and 'unset' of 'delete'.",
+          "enum": [
+            "query",
+            "set",
+            "delete"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Where to point, in dotted / bracketed notation (lodash / dot-object style, not RFC 9535 JSONPath): 'server.host', 'items[0].name' or the equivalent 'items.0.name', and quoted keys for keys that contain a dot, a bracket or a space (['my.key'].id). A leading '$' is accepted and ignored. An empty path selects the whole document.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The value to write when mode is 'set'. It is parsed as YAML, so '42' becomes a number, 'true' a boolean, 'null' an empty value, and '[a, b]' or '{k: v}' inline collections; wrap it in quotes ('\"8080\"') to force a string. Ignored by 'query' and 'delete'.",
+          "type": "string"
+        },
+        "yaml": {
+          "description": "The YAML document, pasted as text. A single document only — input holding several documents separated by '---' is rejected rather than guessed at. Anchors and aliases are resolved on read, and everything outside the edited value keeps its comments, key order, quoting style and indentation.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "yaml",
+        "path"
+      ],
+      "type": "object"
+    }
+  }
+}
