@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "graphql-mock-from-sdl"
+version = "0.1.0"
+abi = 1
+summary = "Generate mock JSON response data from a GraphQL SDL schema"
