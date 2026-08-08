@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-coerce-types"
+version = "0.1.0"
+abi = 1
+summary = "Retype stringified JSON values into real numbers, booleans and nulls"

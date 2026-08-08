@@ -1,0 +1,102 @@
+{
+  "name": "gizza-ai/json-coerce-types",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Retype stringified JSON values into real numbers, booleans and nulls",
+  "role": "skill",
+  "tool": {
+    "description": "Walk a VALID JSON document and coerce loosely-typed string scalars into native JSON types at every depth: \"42\" becomes 42, \"true\" becomes true, \"null\" becomes null. Made for CSV importers, form posts and older APIs that quote every scalar. numbers/booleans/nulls (all default true) switch each type off individually; bool_synonyms adds yes/no/on/off/y/n; null_tokens lists extra tokens that become null (e.g. 'NA,N/A,-'); empty_strings='null' turns \"\" into null; trim strips surrounding whitespace before testing; leading_zeros='keep' (default) protects \"0005\" and ZIP codes, 'coerce' converts them; thousands accepts \"1,234.5\"; skip_keys and only_keys scope the sweep by object key; indent sets output spacing (0 minifies); output='report' lists every coerced path with before -> after instead of returning the document. Nothing is ever deleted, key order is preserved, invalid JSON is rejected with its line/column, and integers too large for 64 bits stay strings rather than losing precision. Input is capped at 5000000 bytes. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bool_synonyms": {
+          "default": false,
+          "description": "Also treat yes/no/on/off/y/n (any capitalisation) as booleans, so \"yes\" becomes true and \"off\" becomes false. Needs booleans=true. Default false, because these words are often real data.",
+          "type": "boolean"
+        },
+        "booleans": {
+          "default": true,
+          "description": "Coerce \"true\" and \"false\" (any capitalisation, e.g. \"TRUE\") into JSON booleans. Default true.",
+          "type": "boolean"
+        },
+        "empty_strings": {
+          "default": "keep",
+          "description": "What an empty string value becomes. 'keep' (default) leaves \"\" untouched; 'null' turns it into null, which is what a blank spreadsheet or form field usually means.",
+          "enum": [
+            "keep",
+            "null"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Output indentation in spaces (0-8). Use 0 to minify onto one line. Default 2. Ignored when output='report'.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The JSON document to retype. Must already be VALID JSON (object, array or bare scalar) — up to 5000000 bytes — e.g. '{\"age\": \"42\", \"active\": \"true\", \"note\": \"null\"}'. Key order is preserved and no key is ever added or removed.",
+          "type": "string"
+        },
+        "leading_zeros": {
+          "default": "keep",
+          "description": "What to do with zero-padded numeric strings such as \"0005\" or the ZIP code \"02134\". 'keep' (default) leaves them as strings so codes and padded IDs survive; 'coerce' converts them anyway (\"0005\" becomes 5). A lone \"0\" always converts.",
+          "enum": [
+            "keep",
+            "coerce"
+          ],
+          "type": "string"
+        },
+        "null_tokens": {
+          "default": "",
+          "description": "Comma-separated extra tokens that become null, e.g. 'NA,N/A,-,none'. Matched case-insensitively against the whole value. Blank (default) adds none beyond the literal \"null\".",
+          "type": "string"
+        },
+        "nulls": {
+          "default": true,
+          "description": "Coerce the string \"null\" (any capitalisation) into JSON null. Default true.",
+          "type": "boolean"
+        },
+        "numbers": {
+          "default": true,
+          "description": "Coerce numeric strings into JSON numbers: '\"42\"' becomes 42, '\"-3.5\"' becomes -3.5, '\"1e3\"' becomes 1000.0. Only strict JSON number shapes convert, so \"12px\", \"0x1f\", \".5\" and \"1.\" stay strings, and an integer too large for 64 bits stays a string rather than losing precision. Default true.",
+          "type": "boolean"
+        },
+        "only_keys": {
+          "default": "",
+          "description": "Comma-separated object keys to restrict the sweep to — only values at, or nested under, these keys are considered, e.g. 'counts,scores'. Exact, case-sensitive match at any depth. Blank (default) sweeps the whole document.",
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "What to return. 'json' (default) is the retyped document; 'report' is a plain-text audit listing every coerced path with its before and after value (e.g. '$.user.age: \"42\" -> 42'), so you can review the damage before applying it.",
+          "enum": [
+            "json",
+            "report"
+          ],
+          "type": "string"
+        },
+        "skip_keys": {
+          "default": "",
+          "description": "Comma-separated object keys to leave completely alone — the key's whole subtree is copied through untouched, e.g. 'zip,phone,id'. Exact, case-sensitive match on the key name at any depth. Blank (default) skips nothing.",
+          "type": "string"
+        },
+        "thousands": {
+          "default": false,
+          "description": "Accept ',' as a thousands separator, so \"1,234.5\" becomes 1234.5 and \"385,134\" becomes 385134. Only well-formed 3-digit groupings convert; \"1,23\" and \"12,3456\" stay strings. Default false.",
+          "type": "boolean"
+        },
+        "trim": {
+          "default": false,
+          "description": "Trim leading/trailing whitespace from every string value before testing it, and keep the trimmed text when nothing coerces: \"  42  \" becomes 42 and \"  hi  \" becomes \"hi\". Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,195 @@
+slug          = "json-coerce-types"
+title         = "JSON Coerce Types — Turn Stringified Values Into Numbers, Booleans and Nulls"
+description   = "Paste JSON where every value is quoted and get real types back: numbers, booleans and nulls. Protects ZIP codes, big integers and chosen keys."
+tags          = ["json", "type coercion", "convert", "string to number", "boolean", "null", "csv import", "data cleaning"]
+h1            = "Convert stringified JSON values back to real types"
+hero_subtitle = "CSV importers, form posts and older APIs quote every scalar. Paste that JSON and get numbers, booleans and nulls back at every depth — with leading zeros, oversized integers and any keys you name left untouched."
+wasm          = "gizza_ai_json_coerce_types_web"
+export        = "run"
+live          = false
+output_label  = "Retyped JSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "JSON"
+placeholder = "{\"age\": \"42\", \"active\": \"true\", \"note\": \"null\", \"zip\": \"02134\"}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "numbers"
+label  = "Coerce numeric strings to numbers"
+source = "field"
+
+[[input]]
+name   = "booleans"
+label  = "Coerce \"true\" / \"false\" to booleans"
+source = "field"
+
+[[input]]
+name   = "nulls"
+label  = "Coerce \"null\" to null"
+source = "field"
+
+[[input]]
+name   = "bool_synonyms"
+label  = "Also treat yes/no/on/off as booleans"
+source = "field"
+
+[[input]]
+name        = "null_tokens"
+label       = "Extra tokens that mean null"
+placeholder = "NA,N/A,-,none"
+source      = "field"
+
+[[input]]
+name   = "empty_strings"
+label  = "Empty strings"
+source = "field"
+
+[input.labels]
+keep = "Keep as \"\""
+null = "Convert to null"
+
+[[input]]
+name   = "trim"
+label  = "Trim whitespace before testing"
+source = "field"
+
+[[input]]
+name   = "leading_zeros"
+label  = "Zero-padded numbers (0005, 02134)"
+source = "field"
+
+[input.labels]
+keep   = "Keep as strings (safe for codes)"
+coerce = "Coerce to numbers"
+
+[[input]]
+name   = "thousands"
+label  = "Accept thousands separators (1,234.5)"
+source = "field"
+
+[[input]]
+name        = "skip_keys"
+label       = "Keys to never touch"
+placeholder = "zip,phone,id"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "only_keys"
+label       = "Only these keys"
+placeholder = "counts,scores"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "indent"
+label       = "Indent (0 minifies)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+json   = "Retyped JSON"
+report = "Change report"
+
+[[example]]
+label = "Quoted CSV import"
+[example.params]
+input = "{\"name\": \"Ada\", \"age\": \"36\", \"active\": \"true\", \"score\": \"-3.5\", \"note\": \"null\"}"
+numbers = "true"
+booleans = "true"
+nulls = "true"
+bool_synonyms = "false"
+null_tokens = ""
+empty_strings = "keep"
+trim = "false"
+leading_zeros = "keep"
+thousands = "false"
+skip_keys = ""
+only_keys = ""
+indent = "2"
+output = "json"
+
+[[example]]
+label = "Spreadsheet export (NA, blanks, padded ZIP)"
+[example.params]
+input = "{\"customer\": {\"zip\": \"02134\", \"phone\": \"0800123\", \"visits\": \"7\"}, \"revenue\": \"1,234.50\", \"churn\": \"NA\", \"comment\": \"\"}"
+numbers = "true"
+booleans = "true"
+nulls = "true"
+bool_synonyms = "false"
+null_tokens = "NA,N/A,-"
+empty_strings = "null"
+trim = "true"
+leading_zeros = "keep"
+thousands = "true"
+skip_keys = "zip,phone"
+only_keys = ""
+indent = "2"
+output = "json"
+
+[[example]]
+label = "Form post with yes/no answers"
+[example.params]
+input = "{\"subscribed\": \"yes\", \"marketing\": \"off\", \"age\": \" 41 \", \"referrer\": \"\"}"
+numbers = "true"
+booleans = "true"
+nulls = "true"
+bool_synonyms = "true"
+null_tokens = ""
+empty_strings = "null"
+trim = "true"
+leading_zeros = "keep"
+thousands = "false"
+skip_keys = ""
+only_keys = ""
+indent = "2"
+output = "json"
+
+[[example]]
+label = "Audit the changes first"
+[example.params]
+input = "{\"order\": {\"id\": \"000431\", \"qty\": \"3\", \"paid\": \"TRUE\"}, \"tags\": [\"1\", \"two\", \"3\"]}"
+numbers = "true"
+booleans = "true"
+nulls = "true"
+bool_synonyms = "false"
+null_tokens = ""
+empty_strings = "keep"
+trim = "false"
+leading_zeros = "keep"
+thousands = "false"
+skip_keys = ""
+only_keys = ""
+indent = "2"
+output = "report"
+
+[[example]]
+label = "Only the counts branch, minified"
+[example.params]
+input = "{\"counts\": {\"clicks\": \"120\", \"views\": \"3400\"}, \"label\": \"42\"}"
+numbers = "true"
+booleans = "true"
+nulls = "true"
+bool_synonyms = "false"
+null_tokens = ""
+empty_strings = "keep"
+trim = "false"
+leading_zeros = "keep"
+thousands = "false"
+skip_keys = ""
+only_keys = "counts"
+indent = "0"
+output = "json"
