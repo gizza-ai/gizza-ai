@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ldif-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Parse an LDAP LDIF export into a CSV table"

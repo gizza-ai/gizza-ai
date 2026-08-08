@@ -1,0 +1,125 @@
+slug          = "ldif-to-csv"
+title         = "LDIF to CSV Converter"
+description   = "Paste an LDAP LDIF export and flatten entries into CSV rows, with DN, repeated attributes, base64 values, changetype records and delimiter controls."
+tags          = ["ldif to csv", "ldap export", "ldif converter", "ldap csv", "directory export", "rfc 2849", "admin tools"]
+h1            = "Convert LDAP LDIF exports to CSV"
+hero_subtitle = "Turn LDIF entries into spreadsheet-ready rows. Handles folded lines, comments, base64 text, URL references, repeated attributes and change records locally in your browser."
+wasm          = "gizza_ai_ldif_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "ldif"
+label       = "LDIF text"
+placeholder = "dn: uid=ada,ou=people,dc=example,dc=com\nobjectClass: top\nobjectClass: person\ncn: Ada Lovelace\nmail: ada@example.com\n\ndn: uid=bo,ou=people,dc=example,dc=com\nobjectClass: top\ncn: Bo Diaz\nmail: bo@example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns (optional, comma-separated)"
+placeholder = "cn,mail,telephoneNumber"
+source      = "field"
+
+[[input]]
+name   = "include_dn"
+label  = "Include DN column"
+source = "field"
+
+[[input]]
+name   = "multi_value"
+label  = "Repeated attributes"
+source = "field"
+
+[input.labels]
+join    = "Join values in one cell"
+indexed = "Numbered columns (attr, attr.2, ...)"
+first   = "Keep first value"
+last    = "Keep last value"
+
+[[input]]
+name        = "value_separator"
+label       = "Join separator"
+placeholder = "|"
+source      = "field"
+
+[[input]]
+name        = "max_indexed"
+label       = "Max indexed columns"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "50"
+step        = "1"
+
+[[input]]
+name   = "decode_base64"
+label  = "Decode base64 text values"
+source = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name   = "include_changetype"
+label  = "Include changetype column"
+source = "field"
+
+[[example]]
+label = "People export"
+[example.params]
+ldif = "dn: uid=ada,ou=people,dc=example,dc=com\nobjectClass: top\nobjectClass: person\ncn: Ada Lovelace\nmail: ada@example.com\n\ndn: uid=bo,ou=people,dc=example,dc=com\nobjectClass: top\ncn: Bo Diaz\nmail: bo@example.com"
+columns = ""
+include_dn = "true"
+multi_value = "join"
+value_separator = "|"
+max_indexed = "10"
+decode_base64 = "true"
+delimiter = ","
+include_changetype = "false"
+
+[[example]]
+label = "Selected columns, tab-separated"
+[example.params]
+ldif = "dn: uid=ada,dc=example,dc=com\ncn: Ada Lovelace\nmail: ada@example.com\ntelephoneNumber: +44 20 7946 0001\n\ndn: uid=bo,dc=example,dc=com\ncn: Bo Diaz\nmail: bo@example.com"
+columns = "cn,mail,telephoneNumber"
+include_dn = "true"
+multi_value = "join"
+value_separator = "|"
+max_indexed = "10"
+decode_base64 = "true"
+delimiter = "tab"
+include_changetype = "false"
+
+[[example]]
+label = "Indexed repeated attributes"
+[example.params]
+ldif = "dn: cn=Group,dc=example,dc=com\nmember: uid=ada,dc=example,dc=com\nmember: uid=bo,dc=example,dc=com\nmember: uid=cy,dc=example,dc=com\ncn: Group"
+columns = "cn,member"
+include_dn = "true"
+multi_value = "indexed"
+value_separator = "|"
+max_indexed = "3"
+decode_base64 = "true"
+delimiter = ","
+include_changetype = "false"
+
+[[example]]
+label = "Change record"
+[example.params]
+ldif = "version: 1\ndn: uid=ada,dc=example,dc=com\nchangetype: modify\nreplace: mail\nmail: ada@new.example.com\n-\nadd: description\ndescription: updated\n-"
+columns = "mail,description"
+include_dn = "true"
+multi_value = "join"
+value_separator = "|"
+max_indexed = "10"
+decode_base64 = "true"
+delimiter = ","
+include_changetype = "true"
