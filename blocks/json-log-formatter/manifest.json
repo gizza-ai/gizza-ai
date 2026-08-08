@@ -1,0 +1,109 @@
+{
+  "name": "gizza-ai/json-log-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn NDJSON application logs into an aligned, filterable log view, table, JSON, or CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Format NDJSON / JSON Lines logs (one JSON object per line) into a readable view. output='pretty' (default) renders aligned '[time] LEVEL message key=value …' lines, or use 'table' (Markdown), 'json', or 'csv'. Nested objects flatten into dotted keys (req.method, items.0.id) unless flatten=false. The time/level/message keys are auto-detected across the usual aliases, or named with time_field/level_field/message_field. level sets a minimum severity and understands level words plus bunyan (10-60) and syslog (0-7) numbers. Filter records with filter + field (a dotted path; blank searches the whole record) and match=contains|exact, project columns with fields, cap rows with limit (default 200), and choose how bad lines are handled with on_invalid=skip|keep|error.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "default": "",
+          "description": "Dotted path the 'filter' text is matched against, e.g. req.method or items.0.id (numeric segments index arrays). Blank (default) searches the whole record, nested values included.",
+          "type": "string"
+        },
+        "fields": {
+          "default": "",
+          "description": "Comma-separated dotted paths to keep, in this order, e.g. 'time, level, msg, req.url'. Missing paths render empty. Blank (default) keeps every key.",
+          "type": "string"
+        },
+        "filter": {
+          "default": "",
+          "description": "Text to keep records by. Blank (default) keeps every record. See 'field' for where it is matched and 'match' for how.",
+          "type": "string"
+        },
+        "flatten": {
+          "default": true,
+          "description": "When true (default), nested objects and arrays expand into dotted keys — req.method, items.0.id. When false, a nested value stays whole and renders as compact JSON.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The NDJSON / JSON Lines log text — one JSON object per line, e.g. {\"time\":\"2024-01-01T00:00:00Z\",\"level\":\"info\",\"msg\":\"server started\"}. Blank lines and lines starting with # or // are skipped.",
+          "type": "string"
+        },
+        "level": {
+          "default": "all",
+          "description": "Minimum severity to keep. 'all' (default) keeps every record; 'warn' keeps warnings, errors and fatals, etc. Level values may be words (info, warning, crit) or numbers — 10/20/30/40/50/60 bunyan-style, or a syslog priority 7/6/5/4/3/2.",
+          "enum": [
+            "all",
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal"
+          ],
+          "type": "string"
+        },
+        "level_field": {
+          "default": "",
+          "description": "Key holding the severity. Blank (default) auto-detects level, lvl, severity, levelname, loglevel, log_level, @level.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 200,
+          "description": "Maximum number of records to render (1-5000). Applied after the level and text filters. Default 200.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "match": {
+          "default": "contains",
+          "description": "How 'filter' is compared. 'contains' (default) is a case-insensitive substring test; 'exact' requires the field's stringified value to equal the filter exactly (case-sensitive) — with a blank 'field', 'exact' matches when any single field equals it.",
+          "enum": [
+            "contains",
+            "exact"
+          ],
+          "type": "string"
+        },
+        "message_field": {
+          "default": "",
+          "description": "Key holding the log message. Blank (default) auto-detects message, msg, text, body, event, log.",
+          "type": "string"
+        },
+        "on_invalid": {
+          "default": "skip",
+          "description": "What to do with a line that is not a JSON object. 'skip' (default) drops it and reports the count; 'keep' passes the raw line through as the message; 'error' fails and names the line number.",
+          "enum": [
+            "skip",
+            "keep",
+            "error"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "pretty",
+          "description": "Output shape. 'pretty' (default) is an aligned log view — [time] LEVEL message key=value …; 'table' is a Markdown table; 'json' is a pretty-printed array of one object per record; 'csv' is header + rows.",
+          "enum": [
+            "pretty",
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "time_field": {
+          "default": "",
+          "description": "Key holding the timestamp. Blank (default) auto-detects time, ts, timestamp, @timestamp, datetime, date, t. Numeric values are read as epoch seconds (or milliseconds when too large for seconds) and rendered as ISO 8601 UTC.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
