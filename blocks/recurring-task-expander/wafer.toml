@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "recurring-task-expander"
+version = "0.1.0"
+abi = 1
+summary = "Expand recurring tasks (rec:1w, rec:+2m, weekdays) into their next dated instances"

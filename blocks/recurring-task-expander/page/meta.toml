@@ -1,0 +1,73 @@
+slug          = "recurring-task-expander"
+title         = "Recurring Task Expander — Turn rec:1w Rules into Dated Tasks"
+description   = "Expand recurring task rules (rec:1w, rec:+2m, mon,thu, weekdays) into the next dated instances. Paste a todo list, get real due dates. Free and in-browser."
+tags          = ["recurring task expander", "rec tag todo.txt", "recurrence rule generator", "repeating tasks", "next due dates", "todo.txt recurrence", "weekly monthly task schedule", "task scheduler", "expand repeating todo"]
+h1            = "Recurring Task Expander"
+hero_subtitle = "Paste a task list with recurrence tags like rec:1w, rec:+2m or rec:mon,thu and get the next concrete dated instances — as plain todo.txt lines, a Markdown checklist, JSON or CSV. Everything runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_recurring_task_expander_web"
+export        = "run"
+live          = false
+output_label  = "Expanded tasks"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "tasks"
+label       = "Tasks (one per line)"
+placeholder = "Pay rent due:2026-09-01 rec:+1m\nWater plants rec:1w\nGym rec:mon,thu\nQuarterly review due:2026-09-30 rec:+3m"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "start"
+label       = "Start date (defaults to today)"
+placeholder = "2026-08-08"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[input]]
+name        = "count"
+label       = "Instances per task"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "default_rec"
+label       = "Recurrence for untagged lines (optional)"
+placeholder = "1w"
+source      = "field"
+
+[[input]]
+name   = "skip_weekends"
+label  = "Move weekend dates to Monday"
+source = "field"
+
+# `format` renders as a <select>; its options come from the descriptor schema
+# (manifest.json), so they are not duplicated here.
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text     = "Plain task lines (todo.txt)"
+markdown = "Markdown checklist"
+json     = "JSON for automation"
+csv      = "CSV (spreadsheet)"
+
+[[example]]
+label  = "Monthly rent (strict)"
+params = { tasks = "Pay rent due:2026-09-01 rec:+1m", start = "2026-08-08", count = "4" }
+
+[[example]]
+label  = "Weekly chores"
+params = { tasks = "Water plants rec:1w\nTake out bins rec:1w", start = "2026-08-08", count = "3" }
+
+[[example]]
+label  = "Gym Mon & Thu"
+params = { tasks = "Gym rec:mon,thu", start = "2026-08-08", count = "6" }
+
+[[example]]
+label  = "Every 2 business days"
+params = { tasks = "Check backups due:2026-08-13 rec:+2b", start = "2026-08-13", count = "5" }
