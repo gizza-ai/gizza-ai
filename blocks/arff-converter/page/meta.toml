@@ -1,0 +1,109 @@
+slug          = "arff-converter"
+title         = "ARFF to CSV Converter Online"
+description   = "Convert Weka ARFF datasets to CSV and CSV tables back to ARFF locally — nominal attributes, numeric types, dates, sparse rows, missing values, and type rows."
+tags          = ["arff", "weka", "csv", "machine learning", "dataset converter", "attribute types"]
+h1            = "ARFF Converter"
+hero_subtitle = "Convert Weka ARFF datasets to CSV and back in your browser, preserving numeric, nominal, string and date attribute types."
+wasm          = "gizza_ai_arff_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted dataset"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "ARFF or CSV input"
+placeholder = "@relation weather\n@attribute outlook {sunny,overcast,rainy}\n@attribute temperature numeric\n@data\nsunny,85\nrainy,70"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+[input.labels]
+auto = "Auto-detect"
+arff-to-csv = "ARFF → CSV"
+csv-to-arff = "CSV → ARFF"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+placeholder = ","
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "CSV has/writes header row"
+source      = "field"
+
+[[input]]
+name        = "relation"
+label       = "ARFF relation name"
+placeholder = "weather"
+source      = "field"
+
+[[input]]
+name        = "nominal_threshold"
+label       = "Nominal threshold"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "column_types"
+label       = "Forced column types"
+placeholder = "class:nominal,2:numeric,date:date"
+source      = "field"
+
+[[input]]
+name        = "date_format"
+label       = "Date format"
+placeholder = "yyyy-MM-dd'T'HH:mm:ss"
+source      = "field"
+
+[[input]]
+name        = "missing_value"
+label       = "CSV missing-value token"
+placeholder = "NA"
+source      = "field"
+
+[[input]]
+name        = "arff_format"
+label       = "ARFF row format"
+source      = "field"
+[input.labels]
+dense = "Dense rows"
+sparse = "Sparse rows"
+
+[[input]]
+name        = "type_row"
+label       = "Include/consume CSV type row"
+source      = "field"
+
+[[example]]
+label = "ARFF → CSV"
+[example.params]
+data = "@relation weather\n@attribute outlook {sunny,overcast,rainy}\n@attribute temperature numeric\n@data\nsunny,85\nrainy,70\n"
+direction = "arff-to-csv"
+
+[[example]]
+label = "CSV → ARFF"
+[example.params]
+data = "outlook,temperature\nsunny,85\nrainy,70\n"
+direction = "csv-to-arff"
+relation = "weather"
+
+[[example]]
+label = "Sparse ARFF"
+[example.params]
+data = "outlook,temperature\nsunny,85\nrainy,0\n"
+direction = "csv-to-arff"
+relation = "weather"
+arff_format = "sparse"
+
+[[example]]
+label = "Keep types (type row)"
+[example.params]
+data = "@relation weather\n@attribute outlook {sunny,overcast,rainy}\n@attribute temperature numeric\n@data\nsunny,85\nrainy,70\n"
+direction = "arff-to-csv"
+type_row = "true"

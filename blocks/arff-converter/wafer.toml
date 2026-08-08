@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "arff-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert Weka ARFF datasets to CSV and back"
