@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json5-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert JSON5/JSONC to strict JSON and back."

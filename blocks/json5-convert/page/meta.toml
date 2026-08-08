@@ -1,0 +1,137 @@
+slug          = "json5-convert"
+title         = "JSON5 / JSONC to JSON Converter — and Back"
+description   = "Convert JSON5 or JSONC to strict JSON — strip // comments and trailing commas, quote keys — or turn plain JSON back into JSON5. Private, in-browser, free."
+tags          = ["json5 to json", "jsonc to json", "json with comments", "remove json comments", "trailing comma", "unquoted keys", "json to json5", "tsconfig", "settings.json", "strict json"]
+h1            = "JSON5 / JSONC ⇄ JSON Converter"
+hero_subtitle = "Paste JSON5 or JSONC — comments, trailing commas, unquoted keys, single quotes, hex numbers — and get strict JSON a normal parser accepts. Or convert plain JSON back to JSON5. Runs entirely in your browser."
+wasm          = "gizza_ai_json5_convert_web"
+export        = "run"
+live          = false
+output_label  = "Converted output"
+format        = "text"
+
+# Field ORDER must match the web `run()` parameter order.
+[[input]]
+name        = "text"
+label       = "JSON5 / JSONC / JSON"
+placeholder = "{\n  // the dev server port\n  port: 8080,\n  hosts: ['a', 'b',],\n}"
+source      = "field"
+multiline   = true
+
+# direction/indent/nonfinite/quote_style render as <select> and the booleans as
+# checkboxes — the control type and option lists come from the descriptor via
+# manifest.json, so only the friendly labels live here.
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+"to-json"  = "JSON5 / JSONC → strict JSON"
+"to-json5" = "JSON → JSON5"
+"auto"     = "Auto — convert whichever way it isn't"
+
+[[input]]
+name   = "indent"
+label  = "Indentation"
+source = "field"
+
+[input.labels]
+"2"      = "2 spaces"
+"4"      = "4 spaces"
+"tab"    = "Tab"
+"minify" = "Minify — one line"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys alphabetically"
+source = "field"
+
+[[input]]
+name   = "nonfinite"
+label  = "NaN / Infinity in strict JSON"
+source = "field"
+
+[input.labels]
+"null"   = "Convert to null"
+"string" = "Convert to a string"
+"error"  = "Refuse the conversion"
+
+[[input]]
+name   = "quote_style"
+label  = "JSON5 quote style"
+source = "field"
+
+[input.labels]
+"single" = "Single quotes ( ' )"
+"double" = "Double quotes ( \" )"
+
+[[input]]
+name   = "unquote_keys"
+label  = "JSON5: leave identifier keys unquoted"
+source = "field"
+
+[[input]]
+name   = "trailing_commas"
+label  = "JSON5: add trailing commas"
+source = "field"
+
+[[example]]
+label = "JSONC config → strict JSON"
+[example.params]
+text = "{\n  // the dev server port\n  port: 8080,\n  /* only these hosts are allowed */\n  hosts: ['a', 'b',],\n}"
+direction = "to-json"
+indent = "2"
+sort_keys = "false"
+nonfinite = "null"
+quote_style = "single"
+unquote_keys = "true"
+trailing_commas = "false"
+
+[[example]]
+label = "Strip comments and minify"
+[example.params]
+text = "{\n  // kept out of the build\n  debug: true,\n  retries: 3,\n}"
+direction = "to-json"
+indent = "minify"
+sort_keys = "false"
+nonfinite = "null"
+quote_style = "single"
+unquote_keys = "true"
+trailing_commas = "false"
+
+[[example]]
+label = "JSON → JSON5"
+[example.params]
+text = "{\"name\": \"ada\", \"tags\": [\"x\", \"y\"]}"
+direction = "to-json5"
+indent = "2"
+sort_keys = "false"
+nonfinite = "null"
+quote_style = "single"
+unquote_keys = "true"
+trailing_commas = "true"
+
+[[example]]
+label = "Hex, NaN and Infinity"
+[example.params]
+text = "{ mask: 0xff, ratio: .5, missing: NaN, cap: Infinity }"
+direction = "to-json"
+indent = "2"
+sort_keys = "false"
+nonfinite = "string"
+quote_style = "single"
+unquote_keys = "true"
+trailing_commas = "false"
+
+[[example]]
+label = "Sort keys for a clean diff"
+[example.params]
+text = "{ zeta: 1, alpha: { delta: 4, beta: 2 } }"
+direction = "to-json"
+indent = "2"
+sort_keys = "true"
+nonfinite = "null"
+quote_style = "single"
+unquote_keys = "true"
+trailing_commas = "false"
