@@ -1,0 +1,90 @@
+slug          = "nexus-to-fasta"
+title         = "NEXUS to FASTA Converter"
+description   = "Convert NEXUS DATA or CHARACTERS sequence matrices to FASTA locally, with interleaved matrices, comments, matchchar expansion, TAXA labels, gaps, and wrapping."
+tags          = ["nexus to fasta", "nexus converter", "fasta", "alignment converter", "bioinformatics", "sequence alignment", "characters block", "data block", "phylogenetics", "nexus matrix"]
+h1            = "NEXUS to FASTA Converter"
+hero_subtitle = "Paste a NEXUS alignment, extract the DATA or CHARACTERS matrix, and get standard FASTA back. Handles interleaved matrices, comments, matchchar shorthand, and TAXA labels in your browser."
+wasm          = "gizza_ai_nexus_to_fasta_web"
+export        = "run"
+live          = false
+output_label  = "FASTA output"
+format        = "text"
+
+[[input]]
+name        = "nexus"
+label       = "NEXUS alignment"
+placeholder = "#NEXUS\nbegin data;\n  dimensions ntax=2 nchar=8;\n  format datatype=dna gap=-;\n  matrix\n    Alpha  ACGTACGT\n    Beta   ACGTTCGT\n  ;\nend;"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layout"
+label       = "Matrix layout"
+source      = "field"
+
+[input.labels]
+"auto"        = "Auto-detect (recommended)"
+"sequential"  = "Sequential — one taxon at a time"
+"interleaved" = "Interleaved — repeated blocks"
+
+[[input]]
+name        = "wrap"
+label       = "FASTA line width (0 = one line)"
+placeholder = "60"
+source      = "field"
+
+[[input]]
+name        = "case"
+label       = "Residue case"
+source      = "field"
+
+[input.labels]
+"keep"  = "Keep original case"
+"upper" = "Uppercase residues"
+"lower" = "Lowercase residues"
+
+[[input]]
+name        = "remove_gaps"
+label       = "Strip gaps"
+source      = "field"
+
+[[input]]
+name        = "expand_matchchar"
+label       = "Expand matchchar (.) from first taxon"
+source      = "field"
+
+[[input]]
+name        = "underscores_to_spaces"
+label       = "Unquoted underscores become spaces"
+source      = "field"
+
+[[input]]
+name        = "tolerant"
+label       = "Tolerant — convert despite dimension mismatches"
+source      = "field"
+
+[[example]]
+label = "DATA block to FASTA"
+[example.params]
+nexus = "#NEXUS\nbegin data;\n  dimensions ntax=2 nchar=8;\n  format datatype=dna gap=-;\n  matrix\n    Alpha  ACGTACGT\n    Beta   ACGTTCGT\n  ;\nend;"
+wrap = "0"
+
+[[example]]
+label = "Interleaved with matchchar"
+[example.params]
+nexus = "#NEXUS\nbegin characters;\n  dimensions ntax=2 nchar=8;\n  format datatype=dna gap=- matchchar=. interleave;\n  matrix\n    Alpha  ACGT\n    Beta   ....\n\n    Alpha  TGCA\n    Beta   ....\n  ;\nend;"
+layout = "interleaved"
+wrap = "0"
+
+[[example]]
+label = "Quoted labels"
+[example.params]
+nexus = "#NEXUS\nbegin data;\n  dimensions ntax=2 nchar=4;\n  matrix\n    'Homo sapiens' ACGT\n    Pan_troglodytes ACGT\n  ;\nend;"
+wrap = "0"
+underscores_to_spaces = "true"
+
+[[example]]
+label = "TAXA labels, no matrix labels"
+[example.params]
+nexus = "#NEXUS\nbegin taxa;\n  dimensions ntax=2;\n  taxlabels Alpha Beta;\nend;\nbegin data;\n  dimensions ntax=2 nchar=4;\n  format labels=no;\n  matrix\n    ACGT\n    TGCA\n  ;\nend;"
+wrap = "0"
