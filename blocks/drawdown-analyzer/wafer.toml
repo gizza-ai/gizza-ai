@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "drawdown-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Max drawdown, every drawdown episode, recovery time and ulcer index from an equity or returns series"
