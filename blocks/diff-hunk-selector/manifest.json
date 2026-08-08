@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/diff-hunk-selector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List, filter, and split the hunks of a unified diff into a smaller patch that still applies.",
+  "role": "skill",
+  "tool": {
+    "description": "Pick hunks out of a pasted unified / git diff. output='list' (default) returns the globally numbered hunk inventory — file, @@ header, +/- counts and per-file totals — so you can see what is in a patch. Then select with hunks ('all', '2', '1,3-5', '4-', '-2'), optionally inverted with invert=true, narrowed to files with comma-separated globs ('src/*.rs', '!*.lock' excludes) or to hunks touching original-file lines with lines ('40-120'). output='patch' emits the selection as one smaller patch with the file headers preserved; output='split' emits one standalone patch per selected hunk; output='json' returns the inventory and selection as data. renumber (default true) shifts kept hunks' new-side starts by the dropped hunks' net delta so the result still applies. Input cap 1 MB; binary/rename-only file entries are listed but carry no hunks.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "diff": {
+          "description": "The unified diff / patch text — the output of `git diff`, `git show`, `git format-patch`, or `diff -u`. Hunks are numbered globally from 1 in the order they appear. Max 1000000 bytes (1 MB).",
+          "type": "string"
+        },
+        "files": {
+          "default": "",
+          "description": "Comma-separated file globs to restrict the selection to, e.g. 'src/*.rs, *.toml'. A '!' prefix excludes ('!*.lock'), and an exclude always wins. '*' matches path separators too; a pattern with no '/' also matches the file's basename. Blank (default) keeps every file.",
+          "type": "string"
+        },
+        "hunks": {
+          "default": "all",
+          "description": "Which hunk numbers to select, using the numbers shown by output=list. 'all' (default) selects every hunk; otherwise a comma list of numbers and ranges — '2', '1,3-5', open-ended '4-' (hunk 4 to the end) or '-2' (up to hunk 2).",
+          "type": "string"
+        },
+        "invert": {
+          "default": false,
+          "description": "When true, keep the hunks the 'hunks' selection does NOT name — e.g. hunks='2' invert=true drops hunk 2 and keeps the rest. Default false. The 'files' and 'lines' filters are not inverted.",
+          "type": "boolean"
+        },
+        "lines": {
+          "default": "",
+          "description": "Keep only hunks touching these ORIGINAL-file line numbers, using the same span grammar as 'hunks' — '40-120', '200-', '-50', or a comma list. Blank (default) applies no line filter.",
+          "type": "string"
+        },
+        "output": {
+          "default": "list",
+          "description": "What to return. 'list' (default) is the numbered hunk inventory — file path, @@ header and +/- counts per hunk, plus per-file totals. 'patch' emits the selected hunks as one smaller, still-applicable patch with the file headers kept. 'split' emits one complete standalone patch per selected hunk under a labelled separator. 'json' is the machine-readable inventory plus the current selection.",
+          "enum": [
+            "list",
+            "patch",
+            "split",
+            "json"
+          ],
+          "type": "string"
+        },
+        "renumber": {
+          "default": true,
+          "description": "When true (default), the new-side start of each kept hunk is shifted back by the net line delta of the dropped hunks before it in the same file, so the emitted patch applies cleanly to the original file. Set false to keep the original @@ headers verbatim (useful when the dropped hunks will be applied separately).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "diff"
+      ],
+      "type": "object"
+    }
+  }
+}

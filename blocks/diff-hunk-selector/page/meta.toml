@@ -1,0 +1,90 @@
+slug          = "diff-hunk-selector"
+title         = "Diff Hunk Selector — List, Filter, and Split Patch Hunks"
+description   = "Paste a unified diff, list its numbered hunks, then export selected hunks as a smaller patch, split patches, or JSON inventory."
+tags          = ["diff hunk selector", "patch hunk picker", "filter diff", "split patch", "git patch", "unified diff", "partial patch"]
+h1            = "Select Hunks from a Unified Diff"
+hero_subtitle = "Paste a git diff, inspect the numbered hunks, and export only the hunks you want as a valid smaller patch, split patches, or JSON."
+wasm          = "gizza_ai_diff_hunk_selector_web"
+export        = "run"
+live          = false
+output_label  = "Selected diff"
+format        = "text"
+
+[[input]]
+name        = "diff"
+label       = "Unified diff"
+placeholder = "diff --git a/src/main.rs b/src/main.rs\n--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,2 +1,3 @@\n fn main() {\n+    println!(\"hello\");\n }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+list = "List numbered hunks"
+patch = "Export selected patch"
+split = "Split into one patch per hunk"
+json = "JSON inventory"
+
+[[input]]
+name        = "hunks"
+label       = "Hunks to select"
+placeholder = "all or 1,3-5"
+source      = "field"
+
+[[input]]
+name   = "invert"
+label  = "Invert hunk selection"
+source = "field"
+
+[[input]]
+name        = "files"
+label       = "File globs"
+placeholder = "src/*.rs, !*.lock"
+source      = "field"
+
+[[input]]
+name        = "lines"
+label       = "Original-file line spans"
+placeholder = "40-120, 200-"
+source      = "field"
+
+[[input]]
+name   = "renumber"
+label  = "Renumber kept hunk headers"
+source = "field"
+
+[[example]]
+label = "Inventory first"
+[example.params]
+diff = "diff --git a/src/main.rs b/src/main.rs\n--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,2 +1,3 @@\n fn main() {\n+    println!(\"hello\");\n }\n@@ -10,2 +11,2 @@\n-old();\n+new();\n"
+output = "list"
+hunks = "all"
+invert = "false"
+files = ""
+lines = ""
+renumber = "true"
+
+[[example]]
+label = "Export hunks 1 and 3"
+[example.params]
+diff = "diff --git a/app.js b/app.js\n--- a/app.js\n+++ b/app.js\n@@ -1,2 +1,3 @@\n const x = 1;\n+const y = 2;\n export { x };\n@@ -20,2 +21,2 @@\n-oldCall();\n+newCall();\n"
+output = "patch"
+hunks = "1"
+invert = "false"
+files = "*.js"
+lines = ""
+renumber = "true"
+
+[[example]]
+label = "Split each selected hunk"
+[example.params]
+diff = "diff --git a/README.md b/README.md\n--- a/README.md\n+++ b/README.md\n@@ -1,2 +1,3 @@\n # Title\n+Summary.\n Body\n@@ -8,2 +9,3 @@\n Usage\n+Example\n End\n"
+output = "split"
+hunks = "all"
+invert = "false"
+files = "*.md"
+lines = ""
+renumber = "true"
