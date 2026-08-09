@@ -26,6 +26,7 @@ fi
 # shellcheck disable=SC1090
 . "$HOME/.cargo/env"
 rustup target add wasm32-unknown-unknown wasm32-wasip1
+rustup component add rust-src
 
 log "wasm-pack"
 command -v wasm-pack >/dev/null 2>&1 || cargo install wasm-pack
@@ -65,7 +66,8 @@ if [ -d "$parent/impresspress" ]; then
 fi
 cargo install --path cli --locked
 
-log "Playwright + chromium"
+log "JavaScript runtimes + Playwright + chromium"
+npm install --no-audit --no-fund
 ( cd tests && npm install && npx playwright install --with-deps chromium )
 
 if [ -d "$parent/impresspress" ]; then

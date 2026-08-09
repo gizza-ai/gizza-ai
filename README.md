@@ -71,6 +71,33 @@ Serve them locally:
 python3 -m http.server --directory pkg 8001
 ```
 
+### Model-backed tool pages
+
+Pages with `runtime = "model"` run Transformers.js in a Web Worker. The pinned
+browser runtime comes from `npm install`, and the page generator copies one
+shared Transformers.js/ONNX bundle to `pkg/tools/_model-runtime/`. Model weights
+are not committed or bundled into every page: the browser downloads the pinned
+model revision on first use and caches it for later runs. The page declares that
+download before processing; user images stay in the browser and are not sent to
+an inference API.
+
+Production hosting must serve the generated `.wasm` file (preferably with
+`application/wasm`), allow the browser to fetch the configured model host, and
+use HTTPS for WebGPU. Every model page should include a `wasm` device fallback
+with a dtype supported by its pinned model for browsers without a usable GPU.
+The background remover therefore needs no server GPU or API key. Its
+configuration lives in `blocks/image-background-remove-ai/page/meta.toml` and
+pins both the model revision and per-device dtype.
+
+Run its normal browser test, or opt into the real network-backed model smoke
+test:
+
+```bash
+cd tests
+npx playwright test --config=playwright.tool-pages.config.ts tool-page-image-background-remove-ai.spec.ts
+RUN_MODEL_E2E=1 PW_WORKERS=1 npx playwright test --config=playwright.tool-pages.config.ts tool-page-image-background-remove-ai.spec.ts --grep "runs the pinned model"
+```
+
 ## CLI: run tools from a terminal or an agent
 
 The `gizza` CLI boots the wasmi runtime, loads a block's `blocks/<slug>/target/block.wasm`
@@ -95,8 +122,8 @@ gizza tool calculator "2*2" --json-out               # full {_for_llm,_for_ui} e
 
 Exit codes: `0` ok · `1` tool error · `2` usage/bad args · `3` unsupported in the
 CLI. Image/video tools shell out to the system `ffmpeg` (install it to use them);
-GPU-only tools (e.g. `imagine`) need a browser GPU and so return an
-`unsupported_in_cli` error here. `gizza list`/`gizza tool` only cover blocks
+Browser-model tools (e.g. `imagine` and the image background remover) return
+an `unsupported_in_cli` error here. `gizza list`/`gizza tool` only cover blocks
 with a committed `Cargo.lock` + `target/block.wasm`. The existing corpus is
 being migrated incrementally, so legacy blocks without those artifacts can
 still ship pages but are not available in a clean-checkout CLI. Every new or

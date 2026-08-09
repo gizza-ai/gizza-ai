@@ -3,9 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test js/query-prefill.test.js js/tool-ffmpeg.test.js js/tools-index.test.js js/tool-svg.test.js"
+    "test": "node --test js/query-prefill.test.js js/tool-ffmpeg.test.js js/tool-model.test.js js/tools-index.test.js js/tool-svg.test.js"
   },
   "devDependencies": {
     "linkedom": "^0.18.0"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.2.0"
   }
 }
