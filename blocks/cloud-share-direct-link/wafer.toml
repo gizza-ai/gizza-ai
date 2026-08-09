@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cloud-share-direct-link"
+version = "0.1.0"
+abi = 1
+summary = "Rewrite a Nextcloud, Dropbox, Google Drive or OneDrive share link into its direct-download URL"
