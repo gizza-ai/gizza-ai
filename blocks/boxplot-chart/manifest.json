@@ -1,0 +1,165 @@
+{
+  "name": "gizza-ai/boxplot-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render grouped box-and-whisker charts from pasted values",
+  "role": "skill",
+  "tool": {
+    "description": "Render a deterministic box-and-whisker chart from pasted numeric data. Accepts a one-column list, a tidy group/value table, or a wide table with one numeric column per group. Computes min, Q1, median, Q3, max, IQR, mean, standard deviation, Tukey/percentile/min-max whiskers, and outliers, then returns SVG by default or a summary/JSON stats report. Options control layout, group/value columns, quartile method, whisker rule, IQR multiplier, percentile whiskers, outlier/all/no point markers, mean marker, notches, orientation, grid, title, axis labels, SVG size, colour, theme, and output format. Everything runs locally with pure Rust; no plotting service or external data is used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "default": "#2563eb",
+          "description": "Primary box colour as CSS color text, for example #2563eb or tomato. Default #2563eb.",
+          "type": "string"
+        },
+        "data": {
+          "description": "Values to plot. Paste a one-column list, a tidy table such as `group,value`, or a wide table with one numeric column per group. CSV, tab, semicolon, and whitespace-separated values are accepted. Required.",
+          "type": "string"
+        },
+        "grid": {
+          "default": true,
+          "description": "Draw background value grid lines. Default true.",
+          "type": "boolean"
+        },
+        "group_column": {
+          "default": "",
+          "description": "For layout=long, the group/category column, by header name or 1-based index. Default empty uses the first non-value-looking column.",
+          "type": "string"
+        },
+        "group_label": {
+          "default": "",
+          "description": "Optional group-axis label, such as `Region`.",
+          "type": "string"
+        },
+        "height": {
+          "default": 480,
+          "description": "SVG height in pixels, 240-1800. Default 480.",
+          "maximum": 1800,
+          "minimum": 240,
+          "type": "integer"
+        },
+        "iqr_multiplier": {
+          "default": 1.5,
+          "description": "Tukey fence multiplier k for whiskers=tukey. Default 1.5; larger values mark fewer outliers.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "layout": {
+          "default": "auto",
+          "description": "Input layout: auto (default) detects a one-column list, group/value table, or wide columns; values forces one series; long uses group_column/value_column; wide treats each numeric column as a separate box.",
+          "enum": [
+            "auto",
+            "values",
+            "long",
+            "wide"
+          ],
+          "type": "string"
+        },
+        "notched": {
+          "default": false,
+          "description": "Draw notched boxes using an approximate median confidence notch. Default false.",
+          "type": "boolean"
+        },
+        "orientation": {
+          "default": "vertical",
+          "description": "Chart orientation: vertical (default) or horizontal.",
+          "enum": [
+            "vertical",
+            "horizontal"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "svg",
+          "description": "Output format: svg (default), summary (five-number table), or json (machine-readable group stats).",
+          "enum": [
+            "svg",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "percentile": {
+          "default": 5.0,
+          "description": "Lower percentile for whiskers=percentile; upper whisker uses 100 minus this value. Default 5.",
+          "maximum": 49,
+          "minimum": 0,
+          "type": "number"
+        },
+        "points": {
+          "default": "outliers",
+          "description": "Point markers to draw: outliers (default), all observations, or none.",
+          "enum": [
+            "outliers",
+            "all",
+            "none"
+          ],
+          "type": "string"
+        },
+        "quartile_method": {
+          "default": "linear",
+          "description": "Quartile calculation: linear (default, interpolated percentile), inclusive (median included in each half), or exclusive (median excluded from halves).",
+          "enum": [
+            "linear",
+            "inclusive",
+            "exclusive"
+          ],
+          "type": "string"
+        },
+        "show_mean": {
+          "default": true,
+          "description": "Draw a mean marker on each box. Default true.",
+          "type": "boolean"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Chart theme: light (default) or dark.",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title shown above the plot.",
+          "type": "string"
+        },
+        "value_column": {
+          "default": "",
+          "description": "For layout=long, the numeric value column, by header name or 1-based index. Default empty uses the first numeric-looking column after the group column.",
+          "type": "string"
+        },
+        "value_label": {
+          "default": "",
+          "description": "Optional value-axis label, such as `Latency (ms)`.",
+          "type": "string"
+        },
+        "whiskers": {
+          "default": "tukey",
+          "description": "Whisker rule: tukey (default, last point inside Q1/Q3 ± k*IQR), minmax (full data range), or percentile (lower percentile and 100-percentile).",
+          "enum": [
+            "tukey",
+            "minmax",
+            "percentile"
+          ],
+          "type": "string"
+        },
+        "width": {
+          "default": 800,
+          "description": "SVG width in pixels, 320-2400. Default 800.",
+          "maximum": 2400,
+          "minimum": 320,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

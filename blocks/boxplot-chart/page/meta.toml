@@ -1,0 +1,222 @@
+slug          = "boxplot-chart"
+title         = "Boxplot Chart Generator — SVG Box-and-Whisker Plots"
+description   = "Paste values or grouped CSV data and render a box-and-whisker SVG with quartiles, whiskers, mean markers, notches, outliers, and summary stats."
+tags          = ["boxplot chart", "box plot", "box and whisker", "quartiles", "outliers", "distribution chart", "svg chart", "statistics"]
+h1            = "Boxplot Chart Generator"
+hero_subtitle = "Turn a list, tidy group/value table, or wide CSV into a deterministic SVG box-and-whisker plot with quartiles, whiskers, outliers, mean markers, and optional JSON stats."
+wasm          = "gizza_ai_boxplot_chart_web"
+export        = "run"
+live          = false
+output_label  = "Boxplot output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "group,value\nA,1\nA,2\nA,3\nA,4\nB,5\nB,6\nB,7\nB,20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layout"
+label       = "Input layout"
+placeholder = "auto"
+source      = "field"
+[input.labels]
+auto = "Auto-detect"
+values = "One list of values"
+long = "Group/value table"
+wide = "One column per group"
+
+[[input]]
+name        = "group_column"
+label       = "Group column (long layout)"
+placeholder = "group"
+source      = "field"
+
+[[input]]
+name        = "value_column"
+label       = "Value column (long layout)"
+placeholder = "value"
+source      = "field"
+
+[[input]]
+name        = "quartile_method"
+label       = "Quartile method"
+placeholder = "linear"
+source      = "field"
+[input.labels]
+linear = "Linear percentile"
+inclusive = "Inclusive halves"
+exclusive = "Exclusive halves"
+
+[[input]]
+name        = "whiskers"
+label       = "Whisker rule"
+placeholder = "tukey"
+source      = "field"
+[input.labels]
+tukey = "Tukey fences"
+minmax = "Minimum/maximum"
+percentile = "Percentile whiskers"
+
+[[input]]
+name        = "iqr_multiplier"
+label       = "IQR multiplier"
+placeholder = "1.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "0.25"
+
+[[input]]
+name        = "percentile"
+label       = "Lower percentile (for percentile whiskers)"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "49"
+step        = "1"
+
+[[input]]
+name        = "points"
+label       = "Point markers"
+placeholder = "outliers"
+source      = "field"
+[input.labels]
+outliers = "Outliers only"
+all = "All observations"
+none = "No points"
+
+[[input]]
+name        = "show_mean"
+label       = "Show mean marker"
+source      = "field"
+
+[[input]]
+name        = "notched"
+label       = "Notched boxes"
+source      = "field"
+
+[[input]]
+name        = "orientation"
+label       = "Orientation"
+placeholder = "vertical"
+source      = "field"
+[input.labels]
+vertical = "Vertical"
+horizontal = "Horizontal"
+
+[[input]]
+name        = "grid"
+label       = "Show grid lines"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "Chart title"
+placeholder = "Latency by region"
+source      = "field"
+
+[[input]]
+name        = "value_label"
+label       = "Value-axis label"
+placeholder = "Latency (ms)"
+source      = "field"
+
+[[input]]
+name        = "group_label"
+label       = "Group-axis label"
+placeholder = "Region"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "SVG width"
+placeholder = "800"
+source      = "field"
+kind        = "slider"
+min         = "320"
+max         = "2400"
+step        = "20"
+
+[[input]]
+name        = "height"
+label       = "SVG height"
+placeholder = "480"
+source      = "field"
+kind        = "slider"
+min         = "240"
+max         = "1800"
+step        = "20"
+
+[[input]]
+name        = "color"
+label       = "Box colour"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "theme"
+label       = "Theme"
+placeholder = "light"
+source      = "field"
+[input.labels]
+light = "Light"
+dark = "Dark"
+
+[[input]]
+name        = "output"
+label       = "Output"
+placeholder = "svg"
+source      = "field"
+[input.labels]
+svg = "SVG chart"
+summary = "Summary table"
+json = "JSON stats"
+
+[[example]]
+label = "Grouped latency"
+[example.params]
+data = "group,value\nA,1\nA,2\nA,3\nA,4\nB,5\nB,6\nB,7\nB,20"
+layout = "auto"
+group_column = "group"
+value_column = "value"
+quartile_method = "linear"
+whiskers = "tukey"
+iqr_multiplier = "1.5"
+percentile = "5"
+points = "outliers"
+show_mean = "true"
+notched = "false"
+orientation = "vertical"
+grid = "true"
+title = "Latency by group"
+value_label = "Latency (ms)"
+group_label = "Group"
+width = "800"
+height = "480"
+color = "#2563eb"
+theme = "light"
+output = "svg"
+
+[[example]]
+label = "Wide class scores"
+[example.params]
+data = "class_a,class_b\n78,82\n83,91\n88,76\n92,99\n,101"
+layout = "wide"
+output = "summary"
+
+[[example]]
+label = "Horizontal dark JSON"
+[example.params]
+data = "1\n2\n3\n4\n5\n100"
+layout = "values"
+orientation = "horizontal"
+theme = "dark"
+points = "all"
+output = "json"
