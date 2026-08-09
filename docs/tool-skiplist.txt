@@ -63,6 +63,7 @@ javascript-runner  # needs a real JS engine (boa); boa compiles to wasm32-wasip1
 sqlite-query  # needs a full SQLite engine over uploaded .db files; available Rust bindings depend on libsqlite3 C/wasm toolchains (rusqlite bundled spike failed for wasm32-wasip1 here), and no proven pure-Rust SQLite query engine fits wafer + wasm-pack + CLI surfaces
 json-csv-converter  # full dup of csv-json-convert (already bidirectional: direction=auto|csv-to-json|json-to-csv, headers/delimiter/pretty/flatten)
 json-to-csv  # dup of csv-json-convert direction=json-to-csv (incl. flatten for nested keys)
+json-transform-pipeline  # duplicate of blocks/jq-query (jq/jaq already supports map, select/filter, pluck/projection, group_by, sort_by, unique and flatten over pasted JSON arrays)
 mix-audio  # needs 2 DISTINCT media inputs (two audio tracks) + audio INPUT; single-input ffmpeg dispatch + no AssetKind::Audio/accept=audio page input
 profanity-filter  # duplicate of blocks/censor-text (built-in common-profanity wordlist, mask + flag, case-insensitive whole-word)
 text-encryptor  # duplicate of blocks/text-encrypt (password-encrypt text to a shareable blob + decrypt, AES-256-GCM)
