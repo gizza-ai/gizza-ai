@@ -1,0 +1,212 @@
+slug          = "number-to-currency-formatter"
+title         = "Number to Currency Formatter Online"
+description   = "Format a pasted number as currency with symbols or codes, grouping, decimal places, rounding, signs, accounting parentheses and locale-style separators."
+tags          = ["currency formatter", "number formatter", "money format", "format amount", "accounting format", "thousands separator", "decimal places", "round money", "indian numbering"]
+h1            = "Format a Number as Currency"
+hero_subtitle = "Paste an amount and format it as money — choose the currency marker, decimal places, rounding, grouping style, separators and accounting signs. No exchange rates, just clean presentation."
+wasm          = "gizza_ai_number_to_currency_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted currency"
+format        = "text"
+
+[[input]]
+name        = "value"
+label       = "Number"
+placeholder = "1234.5"
+source      = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency code or symbol"
+placeholder = "USD"
+source      = "field"
+
+[[input]]
+name   = "symbol_style"
+label  = "Currency display"
+source = "field"
+[input.labels]
+symbol = "Symbol when known (USD → $)"
+code   = "Code text (USD, EUR, INR)"
+none   = "No currency marker"
+
+[[input]]
+name   = "position"
+label  = "Currency position"
+source = "field"
+[input.labels]
+before = "Before the number"
+after  = "After the number"
+
+[[input]]
+name   = "symbol_space"
+label  = "Space between currency and number"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places (0-8)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 8
+step        = "1"
+
+[[input]]
+name   = "rounding"
+label  = "Rounding"
+source = "field"
+[input.labels]
+half_up   = "Half up — 1.005 → 1.01"
+half_down = "Half down"
+half_even = "Half even — banker’s rounding"
+ceil      = "Ceil — toward +∞"
+floor     = "Floor — toward -∞"
+truncate  = "Truncate — toward zero"
+
+[[input]]
+name   = "grouping"
+label  = "Group integer digits"
+source = "field"
+
+[[input]]
+name   = "digit_grouping"
+label  = "Digit grouping style"
+source = "field"
+[input.labels]
+western = "Western — 1,234,567"
+indian  = "Indian — 12,34,567"
+
+[[input]]
+name   = "group_separator"
+label  = "Group separator"
+source = "field"
+[input.labels]
+comma        = "Comma — 1,234"
+period       = "Period — 1.234"
+space        = "Space — 1 234"
+narrow_space = "Narrow no-break space — 1 234"
+apostrophe   = "Apostrophe — 1'234"
+underscore   = "Underscore — 1_234"
+none         = "None — 1234"
+
+[[input]]
+name   = "decimal_separator"
+label  = "Decimal separator"
+source = "field"
+[input.labels]
+period = "Period — 1.23"
+comma  = "Comma — 1,23"
+
+[[input]]
+name   = "sign_style"
+label  = "Sign style"
+source = "field"
+[input.labels]
+auto        = "Auto — minus only"
+always      = "Always — + and -"
+except_zero = "Except zero — + positives"
+never       = "Never — absolute value"
+space       = "Space for positives"
+
+[[input]]
+name   = "accounting"
+label  = "Accounting parentheses for negatives"
+source = "field"
+
+[[input]]
+name   = "trim_zeros"
+label  = "Trim trailing fraction zeros"
+source = "field"
+
+[[example]]
+label = "USD default"
+[example.params]
+value = "1234.5"
+currency = "USD"
+symbol_style = "symbol"
+position = "before"
+symbol_space = "false"
+decimals = "2"
+rounding = "half_up"
+grouping = "true"
+digit_grouping = "western"
+group_separator = "comma"
+decimal_separator = "period"
+sign_style = "auto"
+accounting = "false"
+trim_zeros = "false"
+
+[[example]]
+label = "European EUR"
+[example.params]
+value = "1234.5"
+currency = "EUR"
+symbol_style = "code"
+position = "after"
+symbol_space = "true"
+decimals = "2"
+rounding = "half_up"
+grouping = "true"
+digit_grouping = "western"
+group_separator = "period"
+decimal_separator = "comma"
+sign_style = "auto"
+accounting = "false"
+trim_zeros = "false"
+
+[[example]]
+label = "Indian rupees"
+[example.params]
+value = "12345678.9"
+currency = "INR"
+symbol_style = "symbol"
+position = "before"
+symbol_space = "false"
+decimals = "0"
+rounding = "half_up"
+grouping = "true"
+digit_grouping = "indian"
+group_separator = "comma"
+decimal_separator = "period"
+sign_style = "auto"
+accounting = "false"
+trim_zeros = "false"
+
+[[example]]
+label = "Accounting negative"
+[example.params]
+value = "-1234.5"
+currency = "USD"
+symbol_style = "symbol"
+position = "before"
+symbol_space = "false"
+decimals = "2"
+rounding = "half_up"
+grouping = "true"
+digit_grouping = "western"
+group_separator = "comma"
+decimal_separator = "period"
+sign_style = "auto"
+accounting = "true"
+trim_zeros = "false"
+
+[[example]]
+label = "Crypto trimmed"
+[example.params]
+value = "0.123456789"
+currency = "BTC"
+symbol_style = "symbol"
+position = "before"
+symbol_space = "false"
+decimals = "8"
+rounding = "truncate"
+grouping = "true"
+digit_grouping = "western"
+group_separator = "comma"
+decimal_separator = "period"
+sign_style = "auto"
+accounting = "false"
+trim_zeros = "true"
