@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/audio-reverse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Play an audio clip backwards, optionally joined with the original",
+  "role": "skill",
+  "tool": {
+    "description": "Reverse an audio clip so it plays backwards (ffmpeg areverse) — sample-exact, no pitch change. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). mode selects what to write: 'reverse' (default) is the clip backwards; 'forward-reverse' plays the original then its reversal; 'reverse-forward' plays the reversal then the original, which is how reverse-cymbal risers build into a downbeat (both combined modes are roughly double the input length). Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a. Input up to 10 MiB; embedded album art is dropped. To reverse only part of a clip, trim it first with trim-audio.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps); wav and flac are lossless.",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "reverse",
+          "description": "What to write out. 'reverse' (default) = the clip backwards. 'forward-reverse' = the original then its reversal. 'reverse-forward' = the reversal then the original (the reverse-cymbal swell into the downbeat). Both combined modes are about twice as long as the input.",
+          "enum": [
+            "reverse",
+            "forward-reverse",
+            "reverse-forward"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+slug          = "audio-reverse"
+title         = "Reverse Audio Online — Play an MP3 or WAV Backwards"
+description   = "Play any audio clip backwards in your browser — or join the original and its reversal for a reverse-cymbal riser. Nothing is uploaded."
+tags          = ["audio", "reverse", "backwards", "reverse audio", "mp3 reverser", "backmasking", "reverse cymbal", "riser", "sound design"]
+h1            = "Reverse Audio"
+hero_subtitle = "Pick a clip and get it back playing backwards — reversed on its own, or joined with the original. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_reverse_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Reversed audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "What to output"
+
+[input.labels]
+"reverse"         = "Reversed only"
+"forward-reverse" = "Original, then reversed"
+"reverse-forward" = "Reversed, then original"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+
+[input.labels]
+mp3  = "MP3"
+wav  = "WAV"
+ogg  = "OGG"
+flac = "FLAC"
+m4a  = "M4A"
+
+[[example]]
+label = "Play it backwards"
+params = { mode = "reverse", format = "mp3" }
+
+[[example]]
+label = "Reverse cymbal riser"
+params = { mode = "reverse-forward", format = "mp3" }
+
+[[example]]
+label = "Lossless WAV reverse"
+params = { mode = "reverse", format = "wav" }
