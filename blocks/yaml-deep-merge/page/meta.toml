@@ -1,0 +1,119 @@
+slug          = "yaml-deep-merge"
+title         = "YAML Deep Merge — Helm Values Override Merger"
+description   = "Deep-merge YAML documents left-to-right with Helm-style overrides. Choose array strategy, precedence, null deletion, key sorting and indentation."
+tags          = ["yaml deep merge", "yaml merge", "helm values merge", "kubernetes yaml merge", "merge yaml files", "yaml override", "yaml array merge", "yaml config merge"]
+h1            = "Deep-merge YAML documents with Helm-style overrides"
+hero_subtitle = "Paste two or more YAML documents separated by --- and merge them left-to-right. Mappings merge recursively, later values win by default, and null can delete keys like Helm values files."
+wasm          = "gizza_ai_yaml_deep_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged YAML"
+format        = "text"
+
+[[input]]
+name        = "documents"
+label       = "YAML documents"
+placeholder = "image:\n  repository: app\n  tag: \"1.0\"\nreplicas: 1\nservice:\n  ports:\n    - 80\n---\nimage:\n  tag: \"2.0\"\nservice:\n  ports:\n    - 443"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "precedence"
+label  = "Conflict precedence"
+source = "field"
+[input.labels]
+last  = "Last document wins (Helm default)"
+first = "First document wins"
+error = "Error on conflict"
+
+[[input]]
+name   = "object_merge"
+label  = "Object merge"
+source = "field"
+[input.labels]
+deep    = "Deep recursive merge"
+shallow = "Shallow top-level merge"
+
+[[input]]
+name   = "array_merge"
+label  = "Array merge"
+source = "field"
+[input.labels]
+replace = "Replace arrays (Helm default)"
+append  = "Append arrays"
+unique  = "Append unique items"
+by_key  = "Merge object lists by key"
+
+[[input]]
+name        = "array_key"
+label       = "Array item key"
+placeholder = "name"
+source      = "field"
+
+[[input]]
+name   = "null_deletes"
+label  = "Null deletes keys"
+source = "field"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys A-Z"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 8
+step        = "1"
+
+[[example]]
+label = "Helm values override"
+[example.params]
+documents = "image:\n  repository: app\n  tag: \"1.0\"\nreplicas: 1\nservice:\n  ports:\n    - 80\n---\nimage:\n  tag: \"2.0\"\nservice:\n  ports:\n    - 443"
+precedence = "last"
+object_merge = "deep"
+array_merge = "replace"
+array_key = "name"
+null_deletes = "true"
+sort_keys = "false"
+indent = "2"
+
+[[example]]
+label = "Append unique arrays"
+[example.params]
+documents = "tags:\n  - api\n  - stable\n---\ntags:\n  - stable\n  - canary"
+precedence = "last"
+object_merge = "deep"
+array_merge = "unique"
+array_key = "name"
+null_deletes = "true"
+sort_keys = "false"
+indent = "2"
+
+[[example]]
+label = "Merge env by name"
+[example.params]
+documents = "env:\n  - name: LOG_LEVEL\n    value: info\n  - name: PORT\n    value: \"8080\"\n---\nenv:\n  - name: LOG_LEVEL\n    value: debug\n  - name: FEATURE_FLAG\n    value: \"true\""
+precedence = "last"
+object_merge = "deep"
+array_merge = "by_key"
+array_key = "name"
+null_deletes = "true"
+sort_keys = "false"
+indent = "2"
+
+[[example]]
+label = "Null deletes a key"
+[example.params]
+documents = "resources:\n  limits:\n    cpu: 100m\n    memory: 256Mi\n---\nresources:\n  limits:\n    cpu: null"
+precedence = "last"
+object_merge = "deep"
+array_merge = "replace"
+array_key = "name"
+null_deletes = "true"
+sort_keys = "false"
+indent = "2"

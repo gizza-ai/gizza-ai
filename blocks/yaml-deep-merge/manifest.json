@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/yaml-deep-merge",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Deep-merge YAML documents with Helm-style override semantics",
+  "role": "skill",
+  "tool": {
+    "description": "Deep-merge two or more YAML documents (pasted as one '---' separated stream) left-to-right, the way Helm layers values files: mappings merge recursively, the rightmost document wins a conflict, and a key set to null in a later document is deleted. Lists can be replaced (default), appended, de-duplicated, or merged item-by-item on a shared key such as 'name'. Precedence can be flipped to first-wins or set to error to report conflicts instead of resolving them. Output indentation and key sorting are configurable. Returns the merged YAML. Comments and anchors are not preserved. Max 20 documents / 1 MiB. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_key": {
+          "default": "name",
+          "description": "Field name used to line list items up when array_merge=by_key, e.g. 'name' (default) for Kubernetes env/containers lists, or 'id'. Ignored by the other array strategies.",
+          "type": "string"
+        },
+        "array_merge": {
+          "default": "replace",
+          "description": "How lists combine: 'replace' (default, Helm's rule) = the winning document's list replaces the other; 'append' = concatenate; 'unique' = concatenate then drop duplicate items; 'by_key' = merge items that share the same array_key field (e.g. Kubernetes 'env'/'containers' entries matched on 'name').",
+          "enum": [
+            "replace",
+            "append",
+            "unique",
+            "by_key"
+          ],
+          "type": "string"
+        },
+        "documents": {
+          "description": "Two or more YAML documents to merge, separated by a line containing '---', e.g. 'image:\\n  tag: 1.0\\n---\\nimage:\\n  tag: 2.0'. Merged left-to-right like Helm values files: the rightmost document has the final say. Max 20 documents / 1 MiB.",
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Output indentation in spaces per nesting level (1-8). Default 2.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "null_deletes": {
+          "default": true,
+          "description": "true (default) = a key set to null in a later document REMOVES it from the result, matching how Helm deletes a default key; false = null is kept as an ordinary value. Applies in every precedence mode.",
+          "type": "boolean"
+        },
+        "object_merge": {
+          "default": "deep",
+          "description": "How nested mappings combine: 'deep' (default) merges them recursively, key by key; 'shallow' merges only top-level keys and replaces the whole value below them.",
+          "enum": [
+            "deep",
+            "shallow"
+          ],
+          "type": "string"
+        },
+        "precedence": {
+          "default": "last",
+          "description": "Who wins when two documents set the same key to different values: 'last' (default, Helm's rule) = the later document; 'first' = keep the base value and only let later documents add new keys; 'error' = refuse to merge and report the conflicting key path.",
+          "enum": [
+            "last",
+            "first",
+            "error"
+          ],
+          "type": "string"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "false (default) = keep the base document's key order; true = sort every mapping's keys A-Z, recursively (handy for diffing two merged results).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "type": "object"
+    }
+  }
+}

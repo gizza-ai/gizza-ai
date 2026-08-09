@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-yaml-deep-merge-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# serde_yml parses into an insertion-order-preserving Value model, which is what
+# lets the merge keep the base document's key order.
+serde_yml = "0.0.12"
+# The merged tree is re-emitted through yaml-formatter's proven block writer so
+# indent width / key ordering / scalar quoting behave identically across tools
+# (the libyaml emitter exposes none of those knobs).
+gizza-ai-yaml-formatter-core = { path = "../../yaml-formatter/core" }
