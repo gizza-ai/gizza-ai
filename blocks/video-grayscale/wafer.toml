@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-grayscale"
+version = "0.1.0"
+abi = 1
+summary = "Convert a video to black-and-white or a toned monochrome"

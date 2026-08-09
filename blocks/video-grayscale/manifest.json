@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/video-grayscale",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a video to black-and-white or a toned monochrome",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a video to black-and-white in one ffmpeg pass. method = bt709|bt601|average|red|green|blue picks the luma weighting, intensity 0-100 blends between the original colors (0) and full grayscale (100, default), tint = none|sepia|warm|cool|cyanotype tones the gray, contrast 0.5-2.0 adds punch, quality = fast|balanced|best sets the H.264 CRF, keep_audio=false drops the audio track. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "contrast": {
+          "default": 1.0,
+          "description": "Contrast multiplier applied after the grayscale pass, 0.5–2.0. 1 (default) keeps the original tonality; 1.4 gives a punchy high-contrast black-and-white; below 1 flattens it. Example: 1.4.",
+          "maximum": 2,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "intensity": {
+          "default": 100.0,
+          "description": "How far to desaturate, 0–100 percent. 100 (default) is fully black-and-white, 50 is a half-faded look, 0 leaves the original colors untouched. Example: 60.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "keep_audio": {
+          "default": true,
+          "description": "Keep the original audio track (default true). Set false to drop the audio entirely for a silent-film look.",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "bt709",
+          "description": "How the R/G/B channels are weighted into gray: bt709 (HD/sRGB luma, the default), bt601 (older SD weighting, slightly greener), average (equal thirds, flat and high-key), or red/green/blue to use a single channel — the darkroom color-filter look (red darkens a blue sky, green lightens foliage).",
+          "enum": [
+            "bt709",
+            "bt601",
+            "average",
+            "red",
+            "green",
+            "blue"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": "balanced",
+          "description": "Encode tier for the H.264 output: fast (CRF 28, smallest/quickest), balanced (CRF 23, the default), or best (CRF 20, largest/slowest and closest to the source).",
+          "enum": [
+            "fast",
+            "balanced",
+            "best"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "tint": {
+          "default": "none",
+          "description": "Tone applied to the gray: none (neutral black-and-white, the default), sepia (brown), warm (amber), cool (blue-gray), or cyanotype (strong blue). Folded into the same channel-mixer pass, so it costs nothing extra.",
+          "enum": [
+            "none",
+            "sepia",
+            "warm",
+            "cool",
+            "cyanotype"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
