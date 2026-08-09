@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "number-words-to-digits"
+version = "0.1.0"
+abi = 1
+summary = "Convert numbers written in English words into digits"

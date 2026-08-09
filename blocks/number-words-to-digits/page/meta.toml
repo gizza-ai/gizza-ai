@@ -1,0 +1,130 @@
+slug          = "number-words-to-digits"
+title         = "Words to Numbers Converter"
+description   = "Convert numbers written in English words into digits — inside prose, line by line, or as a list. Handles decimals, fractions, ordinals, lakh/crore and long scale."
+tags          = ["words to numbers", "number words to digits", "spelled out numbers", "text to number", "convert words to digits", "english numbers", "lakh crore parser", "ordinal to number", "written numbers"]
+h1            = "Convert Number Words to Digits"
+hero_subtitle = "Paste text with numbers written out in English and get digits back — rewritten in place, one value per line, or as a list of every number found."
+wasm          = "gizza_ai_number_words_to_digits_web"
+export        = "run"
+live          = false
+output_label  = "Digits"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text or number words"
+placeholder = "We shipped twenty-five units and one hundred and two spares."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "What to return"
+source = "field"
+[input.labels]
+replace = "Replace in text — keep the prose"
+value   = "Value per line — strict number phrases"
+extract = "Extract — list every number found"
+
+[[input]]
+name   = "separator"
+label  = "Thousands separator"
+source = "field"
+[input.labels]
+none       = "None — 1250000"
+comma      = "Comma — 1,250,000"
+space      = "Space — 1 250 000"
+underscore = "Underscore — 1_250_000"
+
+[[input]]
+name   = "scale"
+label  = "Billion / trillion reading"
+source = "field"
+[input.labels]
+short = "Short scale — billion = 10⁹ (US, modern UK)"
+long  = "Long scale — billion = 10¹² (continental)"
+
+[[input]]
+name   = "ordinals"
+label  = "Ordinal words"
+source = "field"
+[input.labels]
+cardinal = "Cardinal — twenty-first → 21"
+suffix   = "Suffix — twenty-first → 21st"
+ignore   = "Ignore — leave ordinal words alone"
+
+[[input]]
+name   = "fractions"
+label  = "Read half and quarter as fractions"
+source = "field"
+
+[[input]]
+name   = "digit_sequences"
+label  = "Read digit runs (nine one one → 911)"
+source = "field"
+
+[[example]]
+label = "Numbers in prose"
+[example.params]
+input = "We shipped twenty-five units and one hundred and two spares."
+mode = "replace"
+separator = "none"
+scale = "short"
+ordinals = "cardinal"
+fractions = "true"
+digit_sequences = "false"
+
+[[example]]
+label = "Single value, grouped"
+[example.params]
+input = "one million two hundred fifty thousand"
+mode = "value"
+separator = "comma"
+scale = "short"
+ordinals = "cardinal"
+fractions = "true"
+digit_sequences = "false"
+
+[[example]]
+label = "Batch, one per line"
+[example.params]
+input = "twelve\nthree hundred\nminus four\none and a half"
+mode = "value"
+separator = "none"
+scale = "short"
+ordinals = "cardinal"
+fractions = "true"
+digit_sequences = "false"
+
+[[example]]
+label = "Extract every number"
+[example.params]
+input = "Order twelve widgets, thirty-four bolts and two hundred washers."
+mode = "extract"
+separator = "none"
+scale = "short"
+ordinals = "cardinal"
+fractions = "true"
+digit_sequences = "false"
+
+[[example]]
+label = "Ordinals as 1st, 2nd"
+[example.params]
+input = "The twenty-first of June is the third Friday."
+mode = "replace"
+separator = "none"
+scale = "short"
+ordinals = "suffix"
+fractions = "true"
+digit_sequences = "false"
+
+[[example]]
+label = "Spoken digit string"
+[example.params]
+input = "Call nine one one"
+mode = "replace"
+separator = "none"
+scale = "short"
+ordinals = "cardinal"
+fractions = "true"
+digit_sequences = "true"
