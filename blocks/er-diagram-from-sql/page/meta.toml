@@ -1,0 +1,95 @@
+slug          = "er-diagram-from-sql"
+title         = "ER Diagram from SQL — CREATE TABLE DDL to Mermaid erDiagram"
+description   = "Paste SQL CREATE TABLE / ALTER TABLE DDL and get Mermaid erDiagram code with entities, typed columns, PK/FK/UK markers, and crow's-foot relationships."
+tags          = ["er diagram from sql", "sql to mermaid", "sql to erd", "mermaid erdiagram generator", "create table to diagram", "database schema diagram", "ddl to er diagram", "entity relationship diagram generator", "sql schema visualizer"]
+h1            = "ER Diagram from SQL"
+hero_subtitle = "Paste your SQL DDL and get Mermaid erDiagram source: one entity per table, columns with their types and PK/FK/UK markers, and crow's-foot relationships inferred from your foreign keys, NOT NULL flags and unique constraints. Nothing is executed and no database is contacted."
+wasm          = "gizza_ai_er_diagram_from_sql_web"
+export        = "run"
+live          = false
+output_label  = "Mermaid erDiagram"
+format        = "text"
+
+[[input]]
+name        = "sql"
+label       = "SQL DDL"
+placeholder = "CREATE TABLE users (\n  id INT PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE\n);\nCREATE TABLE orders (\n  id INT PRIMARY KEY,\n  user_id INT NOT NULL REFERENCES users(id),\n  total DECIMAL(10,2)\n);"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "dialect"
+label       = "SQL dialect"
+source      = "field"
+
+[input.labels]
+"auto"     = "Auto"
+"mysql"    = "MySQL / MariaDB"
+"postgres" = "PostgreSQL"
+"sqlite"   = "SQLite"
+"mssql"    = "SQL Server"
+"generic"  = "Generic / ANSI"
+
+[[input]]
+name   = "attributes"
+label  = "Columns to show"
+source = "field"
+
+[input.labels]
+"all"  = "All columns"
+"keys" = "Key columns only"
+"none" = "No columns (entities only)"
+
+[[input]]
+name   = "key_markers"
+label  = "Show PK / FK / UK markers"
+source = "field"
+
+[[input]]
+name   = "mark_nullable"
+label  = "Mark nullable columns with TYPE?"
+source = "field"
+
+[[input]]
+name   = "infer_relations"
+label  = "Infer relations from <table>_id columns"
+source = "field"
+
+[[input]]
+name   = "relationship_label"
+label  = "Relationship label"
+source = "field"
+
+[input.labels]
+"column"     = "Foreign-key column(s)"
+"constraint" = "Constraint name"
+"none"       = "No label"
+
+[[input]]
+name   = "direction"
+label  = "Layout direction"
+source = "field"
+
+[input.labels]
+"auto" = "Auto (renderer decides)"
+"LR"   = "Left to right"
+"RL"   = "Right to left"
+"TB"   = "Top to bottom"
+"BT"   = "Bottom to top"
+
+[[input]]
+name   = "fence"
+label  = "Wrap in a ```mermaid code fence"
+source = "field"
+
+[[example]]
+label  = "Users and orders"
+params = { sql = "CREATE TABLE users (\n  id INT PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE\n);\nCREATE TABLE orders (\n  id INT PRIMARY KEY,\n  user_id INT NOT NULL REFERENCES users(id),\n  total DECIMAL(10,2)\n);", dialect = "mysql", attributes = "all", key_markers = "true", relationship_label = "column", direction = "auto" }
+
+[[example]]
+label  = "Wide schema — keys only, left to right"
+params = { sql = "CREATE TABLE customers (\n  id INT PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  created_at TIMESTAMP\n);\nCREATE TABLE invoices (\n  id INT PRIMARY KEY,\n  customer_id INT NOT NULL,\n  issued_on DATE,\n  total DECIMAL(12,2) NOT NULL\n);\nALTER TABLE invoices ADD CONSTRAINT fk_invoices_customer FOREIGN KEY (customer_id) REFERENCES customers(id);", dialect = "postgres", attributes = "keys", key_markers = "true", relationship_label = "constraint", direction = "LR" }
+
+[[example]]
+label  = "No foreign keys — infer from *_id"
+params = { sql = "CREATE TABLE companies (\n  id INT PRIMARY KEY,\n  name VARCHAR(120) NOT NULL\n);\nCREATE TABLE employees (\n  id INT PRIMARY KEY,\n  company_id INT NOT NULL,\n  full_name VARCHAR(120)\n);", dialect = "generic", attributes = "all", key_markers = "true", infer_relations = "true", mark_nullable = "true", fence = "true" }
