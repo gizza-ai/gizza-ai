@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/audio-declick",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove clicks, pops and crackle from an audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Repair clicks, pops, ticks and vinyl crackle in an audio file using ffmpeg's adeclick, which replaces damaged samples with values interpolated from their neighbours. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). strength is 1–100 (higher detects more damage; default 50). window_ms is the 10–100 ms repair window (default 55; longer for wide thumps, shorter for digital ticks). burst is 0–10 (how far apart detections fuse into one burst; default 2). method is add (default, smoothest) or save (leaves undetected samples untouched). Set declip to also interpolate over clipped peaks. Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "burst": {
+          "default": 2,
+          "description": "How far apart two detections are still fused into one burst, 0–10 (percent of the window). Default 2; 0 repairs each click on its own.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "declip": {
+          "default": false,
+          "description": "Also interpolate over clipped (flat-topped) peaks with adeclip after declicking. Default off.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "add",
+          "description": "Overlap method: add (default, smoothest, recomputes every sample) or save (only flagged samples are replaced, the rest passes through untouched).",
+          "enum": [
+            "add",
+            "save"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strength": {
+          "default": 50.0,
+          "description": "How aggressively to detect clicks, 1–100 (higher flags more samples as damage but can dull transients). Default 50, which repairs ordinary full-scale clicks.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "window_ms": {
+          "default": 55.0,
+          "description": "Length of each repair window in milliseconds, 10–100. Default 55. Raise it for wide vinyl thumps, lower it for short digital ticks.",
+          "maximum": 100,
+          "minimum": 10,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
