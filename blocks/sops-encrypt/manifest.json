@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/sops-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt config values, keeping keys readable",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt the values of a YAML, JSON or .env document with a passphrase, leaving every key readable. Each selected leaf value is replaced with an ENC[GZAE1,data:...,iv:...,tag:...,type:...] marker (AES-256-GCM, one PBKDF2-HMAC-SHA256 key per document, the value's key path as authenticated data), so the file stays valid, stays diffable, and a ciphertext cannot be moved to another key. Pick which values are covered with encrypted_suffix, unencrypted_suffix (default _unencrypted), encrypted_regex or unencrypted_regex — one at a time. mode=decrypt reverses a document this tool produced and restores the original scalar types. This is a passphrase-based format, not the sops binary's KMS/age/PGP format, so the output is not interchangeable with the sops CLI.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "document": {
+          "type": "string",
+          "description": "The YAML, JSON or .env document to rewrite. Paste the file contents; the format is auto-detected unless format is set. Keys stay readable — only leaf values are replaced with ENC[GZAE1,...] markers, and a metadata block carrying the KDF salt is appended so the same tool can decrypt it later."
+        },
+        "passphrase": {
+          "type": "string",
+          "description": "Passphrase the per-document AES-256-GCM key is derived from (PBKDF2-HMAC-SHA256, 200000 iterations). The same passphrase is needed to decrypt. Treat it as a secret: do not put it in a shared link, a bookmark, a ticket, or anything else that gets pasted alongside the encrypted document."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "default": "encrypt",
+          "description": "encrypt replaces the selected leaf values with ENC[GZAE1,...] markers; decrypt restores a document this tool encrypted, including the original scalar types."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "yaml",
+            "json",
+            "env"
+          ],
+          "default": "auto",
+          "description": "Document format. auto (default) detects JSON by its opening brace, .env when every meaningful line is a KEY=VALUE assignment, and YAML otherwise."
+        },
+        "encrypted_suffix": {
+          "type": "string",
+          "description": "Encrypt ONLY values whose key, or an ancestor key, ends with this suffix (e.g. _secret). Leave empty to encrypt everything the unencrypted rules do not exempt. Only one of encrypted_suffix, unencrypted_suffix, encrypted_regex and unencrypted_regex may be set at a time. Ignored when mode=decrypt."
+        },
+        "unencrypted_suffix": {
+          "type": "string",
+          "default": "_unencrypted",
+          "description": "Leave values whose key, or an ancestor key, ends with this suffix in the clear. Defaults to _unencrypted; set it to an empty string to encrypt every value. Ignored when mode=decrypt."
+        },
+        "encrypted_regex": {
+          "type": "string",
+          "description": "Encrypt ONLY values whose key, or an ancestor key, matches this regular expression (e.g. ^(password|token|.*_key)$). Ignored when mode=decrypt."
+        },
+        "unencrypted_regex": {
+          "type": "string",
+          "description": "Leave values whose key, or an ancestor key, matches this regular expression in the clear (e.g. ^(host|region|port)$). Ignored when mode=decrypt."
+        }
+      },
+      "required": [
+        "document",
+        "passphrase"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

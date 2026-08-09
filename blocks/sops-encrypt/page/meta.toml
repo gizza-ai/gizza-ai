@@ -1,0 +1,117 @@
+slug          = "sops-encrypt"
+title         = "SOPS-style config encryption — encrypt YAML, JSON and .env values"
+description   = "Encrypt or decrypt YAML, JSON and .env values with a passphrase. Keys stay readable, the file stays valid, and diffs still show what changed."
+tags          = ["sops", "encrypt yaml", "encrypt json", "encrypt env file", "secrets", "config encryption", "aes-256-gcm"]
+h1            = "SOPS-style config encryption"
+hero_subtitle = "Paste a YAML, JSON or .env file and a passphrase to encrypt just the values — every key stays readable and the file stays valid. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_sops_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Rewritten document"
+format        = "text"
+
+[[input]]
+name        = "document"
+label       = "YAML, JSON or .env document"
+placeholder = "app: demo\ndatabase:\n  host_unencrypted: db.internal\n  password: s3cr3t\n  port: 5432"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "passphrase"
+label       = "Passphrase"
+placeholder = "A long passphrase you can reproduce later"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+
+[input.labels]
+encrypt = "Encrypt values"
+decrypt = "Decrypt values"
+
+[[input]]
+name        = "format"
+label       = "Document format"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yaml = "YAML"
+json = "JSON"
+env  = ".env"
+
+[[input]]
+name        = "encrypted_suffix"
+label       = "Encrypt only keys ending with"
+placeholder = "_secret"
+source      = "field"
+
+[[input]]
+name        = "unencrypted_suffix"
+label       = "Leave keys ending with in the clear"
+placeholder = "_unencrypted"
+default     = "_unencrypted"
+source      = "field"
+
+[[input]]
+name        = "encrypted_regex"
+label       = "Encrypt only keys matching"
+placeholder = "^(password|token|.*_key)$"
+source      = "field"
+
+[[input]]
+name        = "unencrypted_regex"
+label       = "Leave keys matching in the clear"
+placeholder = "^(host|region|port)$"
+source      = "field"
+
+[[example]]
+label = "Encrypt a YAML config"
+[example.params]
+document = "app: demo\ndatabase:\n  host_unencrypted: db.internal\n  password: s3cr3t\n  port: 5432\n"
+passphrase = "correct horse battery staple"
+mode = "encrypt"
+format = "auto"
+encrypted_suffix = ""
+unencrypted_suffix = "_unencrypted"
+encrypted_regex = ""
+unencrypted_regex = ""
+
+[[example]]
+label = "Encrypt a .env file"
+[example.params]
+document = "# service config\nAPI_KEY=abc123\nexport DB_URL=\"postgres://u:p@h/db\"\nLOG_LEVEL=debug\n"
+passphrase = "correct horse battery staple"
+mode = "encrypt"
+format = "env"
+encrypted_suffix = ""
+unencrypted_suffix = "_unencrypted"
+encrypted_regex = ""
+unencrypted_regex = ""
+
+[[example]]
+label = "Only password and token keys"
+[example.params]
+document = "{\n  \"host\": \"api.internal\",\n  \"password\": \"s3cr3t\",\n  \"token\": \"t-9000\",\n  \"replicas\": 3\n}"
+passphrase = "correct horse battery staple"
+mode = "encrypt"
+format = "json"
+encrypted_suffix = ""
+unencrypted_suffix = ""
+encrypted_regex = "^(password|token)$"
+unencrypted_regex = ""
+
+[[example]]
+label = "Keep host and region readable"
+[example.params]
+document = "host: api.internal\nregion: eu-west-1\npassword: s3cr3t\ntoken: t-9000\n"
+passphrase = "correct horse battery staple"
+mode = "encrypt"
+format = "yaml"
+encrypted_suffix = ""
+unencrypted_suffix = ""
+encrypted_regex = ""
+unencrypted_regex = "^(host|region)$"
