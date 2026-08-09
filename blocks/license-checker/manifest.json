@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/license-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check the SPDX licenses in an SBOM or dependency list against allow/deny rules.",
+  "role": "skill",
+  "tool": {
+    "description": "Check the SPDX license identifiers in an SBOM or dependency list against allow/deny rules and return a PASS/FAIL compliance report. Pass dependencies as file contents: a CycloneDX JSON SBOM, an SPDX JSON or tag-value SBOM, a dependency-inventory JSON object mapping \"name@version\" to a record with a licenses field, or a plain list with one package per line (\"chalk@4.1.2: MIT\", \"left-pad,1.3.0,WTFPL\"); the format is auto-detected unless input_format (auto/cyclonedx-json/spdx-json/spdx-tag/npm-json/list) is set. allow and deny are comma- or newline-separated lists of SPDX identifiers (including \"X WITH Y\" exception forms) and/or category tokens — category:public-domain, category:permissive, category:weak-copyleft, category:strong-copyleft, category:network-copyleft, category:proprietary, category:unknown — and a deny match always beats an allow match. Full SPDX expressions are evaluated: OR is a choice (acceptable when any branch is), AND requires every branch, WITH attaches an exception, deprecated IDs and a trailing + are normalized (GPL-2.0+ becomes GPL-2.0-or-later). exceptions lists \"name\" or \"name@version\" packages that are always accepted. unlisted (allow/warn/deny, default deny) governs licenses matching no rule when an allow list is set; unknown (allow/warn/deny, default warn) governs packages with no license metadata; validate_ids flags identifiers that are not on the SPDX list. output selects text (default), markdown, json, or csv, and include_allowed adds the compliant packages to the report. Everything is local pure compute — no registry lookups. Returns the compliance report as text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow": {
+          "description": "Licenses that are permitted, as a comma- or newline-separated list. Each entry is an SPDX identifier (\"MIT\", \"Apache-2.0\", \"Apache-2.0 WITH LLVM-exception\") or a category token: category:public-domain, category:permissive, category:weak-copyleft, category:strong-copyleft, category:network-copyleft, category:proprietary, category:unknown. Example: \"MIT, Apache-2.0, category:public-domain\". Leave empty to accept anything that is not denied. When this list is non-empty, a license matching nothing in it falls to the unlisted policy.",
+          "type": "string"
+        },
+        "deny": {
+          "description": "Licenses that are forbidden, in the same format as allow (SPDX identifiers and/or category: tokens, comma- or newline-separated). Example: \"category:strong-copyleft, category:network-copyleft, SSPL-1.0\". A deny match always wins over an allow match. Leave empty for no deny list.",
+          "type": "string"
+        },
+        "dependencies": {
+          "description": "The SBOM or dependency list to check. Paste the file contents: a CycloneDX JSON SBOM, an SPDX JSON or tag-value SBOM, a dependency-inventory JSON object mapping \"name@version\" to a record with a licenses field, or a plain list with one package per line (\"chalk@4.1.2: MIT\", \"left-pad,1.3.0,WTFPL\", \"requests Apache-2.0\"). The format is auto-detected unless input_format is set.",
+          "type": "string"
+        },
+        "exceptions": {
+          "description": "Packages that are always accepted regardless of their license, as a comma- or newline-separated list of \"name\" or \"name@version\" entries. Example: \"legacy-widget, my-gpl-tool@2.1.0\". A bare name matches every version. Leave empty for none.",
+          "type": "string"
+        },
+        "include_allowed": {
+          "default": false,
+          "description": "List the compliant packages too, not just the violations — useful for a full inventory export. Default false, so the report leads with what needs attention.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse the input: auto (detect from the content), cyclonedx-json (a CycloneDX JSON SBOM), spdx-json (an SPDX JSON SBOM), spdx-tag (an SPDX tag-value SBOM), npm-json (a \"name@version\" -> {licenses} inventory object), or list (one package per line). Default auto.",
+          "enum": [
+            "auto",
+            "cyclonedx-json",
+            "spdx-json",
+            "spdx-tag",
+            "npm-json",
+            "list"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Report format: text (grouped human-readable report, default), markdown (a PR/CI-friendly table), json (verdict, summary, findings and a per-license roll-up), or csv (one row per reported package).",
+          "enum": [
+            "text",
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "unknown": {
+          "default": "warn",
+          "description": "What to do with a package that has no license metadata at all (missing, NOASSERTION, NONE, UNLICENSED): allow, warn (report it without failing), or deny. Default warn.",
+          "enum": [
+            "allow",
+            "warn",
+            "deny"
+          ],
+          "type": "string"
+        },
+        "unlisted": {
+          "default": "deny",
+          "description": "What to do with a license that matches no rule while an allow list is configured: allow (accept it), warn (report it without failing), or deny (fail the check). Ignored when allow is empty. Default deny, so an allow list is exhaustive.",
+          "enum": [
+            "allow",
+            "warn",
+            "deny"
+          ],
+          "type": "string"
+        },
+        "validate_ids": {
+          "default": true,
+          "description": "Also check that each identifier is a recognized SPDX license ID. Unrecognized IDs are counted as invalid and reported as warnings (LicenseRef-… custom IDs are valid SPDX and are not flagged). Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dependencies"
+      ],
+      "type": "object"
+    }
+  }
+}
