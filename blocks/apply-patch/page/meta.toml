@@ -1,0 +1,119 @@
+slug          = "apply-patch"
+title         = "Apply Patch Online — Apply a Unified Diff to a File"
+description   = "Paste a file and a unified diff to get the patched text in your browser, with reverse apply, fuzz matching, and per-hunk conflict reports."
+tags          = ["apply patch", "unified diff", "git apply", "patch file online", "reverse patch", "patch conflicts", "rejected hunks"]
+h1            = "Apply a Unified Diff to a File"
+hero_subtitle = "Paste the file and the patch; get the patched text back. Unapply a diff in reverse, tolerate drifted context with fuzz, and see exactly which hunks conflicted."
+wasm          = "gizza_ai_apply_patch_web"
+export        = "run"
+live          = false
+output_label  = "Patched file"
+format        = "text"
+
+[[input]]
+name        = "source"
+label       = "Original file"
+placeholder = "fn main() {\n    let x = 1;\n    println!(\"{x}\");\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "patch"
+label       = "Unified diff"
+placeholder = "--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,4 +1,5 @@\n fn main() {\n     let x = 1;\n+    let y = 2;\n     println!(\"{x}\");\n }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+patched = "Patched file text"
+report = "Dry-run report (per hunk)"
+json = "JSON result"
+rejects = "Rejected hunks as a patch"
+
+[[input]]
+name   = "reverse"
+label  = "Reverse (unapply the patch)"
+source = "field"
+
+[[input]]
+name        = "fuzz"
+label       = "Fuzz (context lines droppable per hunk end)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "3"
+step        = "1"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace when matching context"
+source = "field"
+
+[[input]]
+name   = "on_conflict"
+label  = "On conflict"
+source = "field"
+
+[input.labels]
+fail = "Fail — refuse the whole patch"
+skip = "Skip — apply the hunks that match"
+
+[[input]]
+name        = "file"
+label       = "File in a multi-file patch"
+placeholder = "src/main.rs"
+source      = "field"
+
+[[example]]
+label = "Apply a patch"
+[example.params]
+source = "fn main() {\n    let x = 1;\n    println!(\"{x}\");\n}\n"
+patch = "--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,4 +1,5 @@\n fn main() {\n     let x = 1;\n+    let y = 2;\n     println!(\"{x}\");\n }\n"
+output = "patched"
+reverse = "false"
+fuzz = "2"
+ignore_whitespace = "false"
+on_conflict = "fail"
+file = ""
+
+[[example]]
+label = "Unapply (reverse)"
+[example.params]
+source = "fn main() {\n    let x = 1;\n    let y = 2;\n    println!(\"{x}\");\n}\n"
+patch = "--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,4 +1,5 @@\n fn main() {\n     let x = 1;\n+    let y = 2;\n     println!(\"{x}\");\n }\n"
+output = "patched"
+reverse = "true"
+fuzz = "2"
+ignore_whitespace = "false"
+on_conflict = "fail"
+file = ""
+
+[[example]]
+label = "Dry-run report"
+[example.params]
+source = "// header\n// header2\nfn main() {\n    let x = 1;\n    println!(\"{x}\");\n} // trailing comment\n"
+patch = "--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,4 +1,5 @@\n fn main() {\n     let x = 1;\n+    let y = 2;\n     println!(\"{x}\");\n }\n"
+output = "report"
+reverse = "false"
+fuzz = "1"
+ignore_whitespace = "false"
+on_conflict = "fail"
+file = ""
+
+[[example]]
+label = "Rejected hunks"
+[example.params]
+source = "alpha\nbravo\ncharlie\ndelta\necho\nfoxtrot\ngolf\nhotel\n"
+patch = "--- a/list.txt\n+++ b/list.txt\n@@ -1,2 +1,3 @@\n alpha\n+ADDED\n bravo\n@@ -6,2 +7,2 @@\n-NOPE\n+YES\n hotel\n"
+output = "rejects"
+reverse = "false"
+fuzz = "0"
+ignore_whitespace = "false"
+on_conflict = "skip"
+file = ""

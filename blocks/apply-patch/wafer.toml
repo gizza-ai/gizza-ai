@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "apply-patch"
+version = "0.1.0"
+abi = 1
+summary = "Apply a unified diff to a pasted file and return the patched text, with conflict detection."
