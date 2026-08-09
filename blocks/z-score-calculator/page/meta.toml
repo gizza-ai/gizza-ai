@@ -1,0 +1,77 @@
+slug          = "z-score-calculator"
+title         = "Z-Score Calculator — Standard Score, Percentile & P-Value"
+description   = "Turn raw scores into z-scores with percentiles and normal-curve probabilities, invert them, find critical values, or standardize a pasted dataset."
+tags          = ["z-score calculator", "standard score calculator", "z score to percentile", "z score to p value", "critical value calculator", "inverse normal calculator", "area under the normal curve", "sample mean z test", "standardize data"]
+h1            = "Z-Score Calculator"
+hero_subtitle = "Enter a mean and a standard deviation, paste one raw score or a whole column of them, and get the z-score, the percentile and the tail probabilities off the normal curve. The same page also inverts z back to a raw score, converts a probability into its critical z, measures the area between two bounds, and standardizes a dataset. Everything is computed on your device."
+wasm          = "gizza_ai_z_score_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "values"
+label       = "Values"
+placeholder = "130\n85\n115"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "What to compute"
+source = "field"
+
+[input.labels]
+"score"    = "Raw score → z-score, percentile & p-values"
+"raw"      = "z-score → raw score"
+"critical" = "Probability → critical z (inverse normal)"
+"between"  = "Area between two bounds"
+"dataset"  = "Standardize a pasted dataset"
+
+[[input]]
+name        = "mean"
+label       = "Mean (μ)"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "std_dev"
+label       = "Standard deviation (σ)"
+placeholder = "15"
+source      = "field"
+
+[[input]]
+name        = "n"
+label       = "Sample size (n) — 1 for a single score"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "sample"
+label  = "Dataset mode: use the sample standard deviation (÷N−1)"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "IQ 130 against μ=100, σ=15"
+params = { values = "130", mode = "score", mean = "100", std_dev = "15", n = "1", decimals = "6" }
+
+[[example]]
+label  = "95% critical z"
+params = { values = "0.95, 0.975", mode = "critical", mean = "0", std_dev = "1", n = "1", decimals = "6" }
+
+[[example]]
+label  = "Area between −1.96 and 1.96"
+params = { values = "-1.96, 1.96", mode = "between", mean = "0", std_dev = "1", n = "1", decimals = "6" }
+
+[[example]]
+label  = "Standardize a dataset"
+params = { values = "2 4 4 4 5 5 7 9", mode = "dataset", n = "1", decimals = "4" }

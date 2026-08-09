@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "z-score-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Z-scores, percentiles and normal-curve probabilities for a known mean and standard deviation"

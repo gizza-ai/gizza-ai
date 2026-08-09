@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/z-score-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Z-scores, percentiles and normal-curve probabilities for a known mean and standard deviation",
+  "role": "skill",
+  "tool": {
+    "description": "Calculate standard scores (z-scores) against a normal distribution with a known mean and standard deviation, and read the probabilities off the curve. mode=score (default) turns one or many raw scores into z = (x - mean) / std_dev and reports the percentile, the left tail P(X < x), the right tail P(X > x) and the two-tailed p-value. mode=raw inverts it (x = mean + z * std_dev), mode=critical turns a left-tail probability into its critical z (0.975 -> 1.959964), mode=between returns the area between exactly two bounds, and mode=dataset derives the mean and standard deviation from the pasted numbers before standardizing them. Set n above 1 to use the standard error std_dev / sqrt(n) for a sample mean, and decimals to control precision. Values are separated by spaces, commas, semicolons or newlines. Runs locally, no data leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places for every number in the output, 0 to 12. Default 6. Probabilities too small to survive the rounding (deep tails such as P(Z > 6)) keep that many significant digits instead of rounding to zero.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mean": {
+          "default": 0.0,
+          "description": "The population mean (mu) of the reference distribution, e.g. 100 for IQ. Default 0. Ignored in dataset mode, which derives it from the values.",
+          "type": "number"
+        },
+        "mode": {
+          "default": "score",
+          "description": "Which direction to compute. score (default): raw score -> z = (x - mean) / std_dev, plus percentile and tail probabilities. raw: z-score -> x = mean + z * std_dev. critical: left-tail probability -> the z with that area below it (e.g. 0.975 -> 1.959964). between: exactly two bounds -> the area between them. dataset: derive the mean and standard deviation from the pasted numbers themselves, then standardize them.",
+          "enum": [
+            "score",
+            "raw",
+            "critical",
+            "between",
+            "dataset"
+          ],
+          "type": "string"
+        },
+        "n": {
+          "default": 1,
+          "description": "Sample size behind a sample mean. At the default 1 you get the ordinary z-score. Above 1 the divisor becomes the standard error std_dev / sqrt(n), which is the form used to test a sample mean against a known population mean (e.g. mean=100, std_dev=15, n=9 gives a standard error of 5).",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sample": {
+          "default": false,
+          "description": "In dataset mode, derive the SAMPLE standard deviation (divide by N-1) instead of the population one (divide by N). Needs at least 2 values. Default false. Ignored in every other mode.",
+          "type": "boolean"
+        },
+        "std_dev": {
+          "default": 1.0,
+          "description": "The population standard deviation (sigma) of the reference distribution, e.g. 15 for IQ. Must be greater than 0. Default 1, so the defaults describe the standard normal curve. Ignored in dataset mode, which derives it from the values.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "values": {
+          "description": "The numbers to work on, separated by spaces, commas, semicolons or newlines (e.g. '130' or '85, 100, 115'). What they mean depends on mode: raw scores for score and dataset, z-scores for raw, left-tail probabilities in (0,1) for critical, and exactly two bounds for between. Maximum 10000 values.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "values"
+      ],
+      "type": "object"
+    }
+  }
+}
