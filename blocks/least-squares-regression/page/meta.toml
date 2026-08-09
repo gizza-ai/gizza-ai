@@ -1,0 +1,92 @@
+slug          = "least-squares-regression"
+title         = "Least Squares Regression Calculator — Linear & Polynomial Fits"
+description   = "Fit linear, quadratic, or polynomial least-squares models to pasted x,y data. Get coefficients, R², residuals, predictions, CSV, and JSON — all locally."
+tags          = ["least squares regression", "linear regression calculator", "polynomial regression", "r squared calculator", "regression coefficients", "trendline equation", "curve fitting", "ordinary least squares"]
+h1            = "Least Squares Regression Calculator"
+hero_subtitle = "Paste x,y data and fit a straight line or polynomial trendline. The tool reports the equation, coefficients with standard errors, R², adjusted R², RMSE, residual spread, per-point fitted values, and optional predictions — entirely in your browser."
+wasm          = "gizza_ai_least_squares_regression_web"
+export        = "run"
+live          = false
+output_label  = "Regression result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "x,y data"
+placeholder = "x,y\n1,2\n2,4\n3,5\n4,4\n5,5"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "y_values"
+label       = "Separate y values (optional)"
+placeholder = "2, 4, 5, 4, 5"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "degree"
+label       = "Polynomial degree"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "10"
+step        = "1"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect labels"
+yes  = "First row is labels"
+no   = "No header row"
+
+[[input]]
+name   = "intercept"
+label  = "Fit intercept (do not force through origin)"
+source = "field"
+
+[[input]]
+name        = "predict_x"
+label       = "Predict at x values (optional)"
+placeholder = "6, 7"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text = "Text summary"
+csv  = "CSV tables"
+json = "Structured JSON"
+
+[[example]]
+label  = "Straight line with predictions"
+params = { data = "1,2\n2,4\n3,5\n4,4\n5,5", degree = "1", header = "auto", intercept = "true", predict_x = "6,7", decimals = "4", format = "text" }
+
+[[example]]
+label  = "Quadratic curve"
+params = { data = "x,y\n0,1\n1,6\n2,17\n3,34\n4,57", degree = "2", header = "auto", intercept = "true", predict_x = "5", decimals = "3", format = "text" }
+
+[[example]]
+label  = "Separate x and y lists"
+params = { data = "1,2,3,4", y_values = "2,4,6,8", degree = "1", header = "auto", intercept = "true", decimals = "2", format = "csv" }
+
+[[example]]
+label  = "Through the origin"
+params = { data = "1,2\n2,4\n3,6.5", degree = "1", header = "auto", intercept = "false", decimals = "6", format = "text" }

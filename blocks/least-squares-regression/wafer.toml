@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "least-squares-regression"
+version = "0.1.0"
+abi = 1
+summary = "Fit linear or polynomial least-squares regression models to x,y data"
