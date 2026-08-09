@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/email-spam-score",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Score an email's spamminess with transparent, weighted heuristics",
+  "role": "skill",
+  "tool": {
+    "description": "Score how spammy an email looks using transparent, deterministic heuristics — no model, no network, no account. Accepts a raw RFC 5322 message, an HTML body, or plain body text and returns a 0-100 score (higher is spammier) with a LOW/MEDIUM/HIGH/CRITICAL band, message stats (words, uppercase ratio, links, unique link domains, link density, images, trigger-phrase hits, punctuation runs), and every rule that fired with its point contribution. Content rules cover weighted spam trigger phrases across six categories, ALL-CAPS shouting, repeated punctuation and character runs, link count and link density, URL shorteners, suspicious TLDs, insecure http links, obfuscated URLs (userinfo, punycode, bare IP), anchor-text vs href mismatch, image-to-text ratio, tracking pixels, hidden text, zero-width characters, homoglyph mixing, multiple embedded addresses, length extremes, and large headline money amounts. Header rules read the Authentication-Results the receiving gateway already stamped (SPF/DKIM/DMARC) plus From vs Return-Path, Reply-To detours, display-name spoofing, Message-ID, Date, Received and recipient hiding; passing authentication and a working unsubscribe reduce the score. It never performs DNS, SMTP, HTTP, blacklist, or reputation lookups, so it is a reproducible pre-send or triage signal, not a deliverability verdict or a SpamAssassin result.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "check_headers": {
+          "default": true,
+          "description": "Whether to apply the header-anomaly rules (SPF/DKIM/DMARC results, From vs Return-Path, Reply-To detours, display-name spoofing, Message-ID, Date, Received, recipient hiding). Set false to score body content only. Has no effect when the input contains no header block. Defaults to true.",
+          "type": "boolean"
+        },
+        "email": {
+          "description": "The message to score. Paste either a raw RFC 5322 email (header lines, a blank line, then the body), an HTML email body, or plain body text. Example: a message whose header block starts with 'From: Alerts <notice@example.com>' and whose body reads 'ACT NOW to claim your FREE GIFT!'. Maximum 1048576 bytes.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read the input: 'auto' (default) detects a header block and HTML markup on its own; 'raw' requires an RFC 5322 header block; 'html' treats the whole input as an HTML body; 'text' treats it as plain body text with no headers and no markup.",
+          "enum": [
+            "auto",
+            "raw",
+            "html",
+            "text"
+          ],
+          "type": "string"
+        },
+        "report": {
+          "default": "detailed",
+          "description": "Output shape: 'detailed' (default) prints the score, message stats, and every rule that fired with its points; 'summary' prints the score, verdict, and top three signals; 'json' returns a machine-readable object with score, band, stats, and the rule list.",
+          "enum": [
+            "detailed",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "subject": {
+          "default": "",
+          "description": "Subject line to score when the pasted input has no 'Subject:' header. Ignored if a Subject header is present. Example: 'Your invoice for March'. Defaults to empty.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "type": "object"
+    }
+  }
+}
