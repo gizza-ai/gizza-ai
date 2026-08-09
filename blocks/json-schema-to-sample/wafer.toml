@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-schema-to-sample"
+version = "0.1.0"
+abi = 1
+summary = "Build a minimal valid example JSON instance from a JSON Schema"
