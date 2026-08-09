@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/pdf-bookmarks",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Manage PDF bookmarks and outlines",
+  "role": "skill",
+  "tool": {
+    "description": "List, add, generate, or remove the bookmark/outline tree of a PDF. Provide the PDF as either url (HTTP/HTTPS) or ref. Use mode=list to inspect bookmarks, mode=apply with `bookmarks` to write an indented 'Title | page' outline (or JSON), mode=per-page to add one bookmark per page, and mode=remove to strip the outline. Writing options include replace, expanded, show_pane, zoom, and per_page_label.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bookmarks": {
+          "default": "",
+          "description": "Outline to write when mode=apply. Use one 'Title | page' entry per line, indent children with spaces or tabs, and optionally add attributes such as 'bold', 'italic', or '#3366cc'. A JSON array of {title,page,children} entries is also accepted.",
+          "type": "string"
+        },
+        "expanded": {
+          "default": true,
+          "description": "When writing bookmarks, store nested sections expanded/open in supporting PDF viewers. Default true.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "list",
+          "description": "Operation to perform: list existing bookmarks, apply the supplied outline, create one bookmark per page, or remove all bookmarks. Default list.",
+          "enum": [
+            "list",
+            "apply",
+            "per-page",
+            "remove"
+          ],
+          "type": "string"
+        },
+        "per_page_label": {
+          "default": "Page {n}",
+          "description": "Label template for mode=per-page. Use {n} for the page number and {total} for page count, e.g. 'Sheet {n} of {total}'. Default 'Page {n}'.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "replace": {
+          "default": true,
+          "description": "When mode=apply, replace the existing outline if true; append after existing bookmarks if false. Default true.",
+          "type": "boolean"
+        },
+        "show_pane": {
+          "default": true,
+          "description": "When writing bookmarks, request that PDF viewers open the bookmarks/outline pane. Default true.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "zoom": {
+          "default": "fit",
+          "description": "Bookmark destination zoom: fit whole page, fit-width, or keep the reader's current zoom. Default fit.",
+          "enum": [
+            "fit",
+            "fit-width",
+            "keep"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

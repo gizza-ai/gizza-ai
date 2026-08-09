@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-pdf-bookmarks-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+lopdf = { version = "0.36", default-features = false }
+serde_json = "1"
