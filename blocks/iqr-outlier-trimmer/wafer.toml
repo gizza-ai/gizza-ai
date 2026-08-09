@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "iqr-outlier-trimmer"
+version = "0.1.0"
+abi = 1
+summary = "Remove the CSV rows outside the IQR (Tukey) fences of a chosen column"
