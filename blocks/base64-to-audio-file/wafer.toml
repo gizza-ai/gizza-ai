@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "base64-to-audio-file"
+version = "0.1.0"
+abi = 1
+summary = "Decode Base64 or a data: URI into a downloadable audio file"

@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-base64-to-audio-file-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Tolerant Base64 decoding (optional padding, trailing bits) — pure Rust.
+base64 = "0.22"
