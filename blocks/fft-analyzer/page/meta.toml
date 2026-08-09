@@ -1,0 +1,133 @@
+slug          = "fft-analyzer"
+title         = "FFT Analyzer — Fast Fourier Transform Calculator"
+description   = "Paste samples and get the frequency spectrum: magnitude, phase, dominant peaks, bin resolution and Nyquist, with windowing, dB scaling, CSV and JSON."
+tags          = ["fft calculator", "fast fourier transform", "dft calculator", "frequency spectrum analyzer", "signal frequency analysis", "magnitude and phase spectrum", "window function", "dominant frequency finder"]
+h1            = "FFT Analyzer"
+hero_subtitle = "Paste a list of samples and get its frequency spectrum. Choose a sample rate, window function and scaling, and the tool reports bin frequency, level and phase, ranks the dominant peaks, and states the bin resolution and Nyquist frequency — computed entirely in your browser."
+wasm          = "gizza_ai_fft_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Spectrum"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Samples"
+placeholder = "0, 1.1690, 0.6464, 0.5158, 0.5, -0.8984, -1.3536, -0.2452"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "sample_rate"
+label       = "Sample rate (Hz)"
+placeholder = "16"
+source      = "field"
+
+[[input]]
+name   = "window"
+label  = "Window function"
+source = "field"
+
+[input.labels]
+rectangular       = "Rectangular (none)"
+hann              = "Hann"
+hamming           = "Hamming"
+blackman          = "Blackman"
+"blackman-harris" = "Blackman-Harris"
+flattop           = "Flat top"
+
+[[input]]
+name   = "pad"
+label  = "Transform length"
+source = "field"
+
+[input.labels]
+pow2 = "Zero-pad to next power of two"
+none = "Exact input length (direct DFT)"
+
+[[input]]
+name   = "spectrum"
+label  = "Spectrum view"
+source = "field"
+
+[input.labels]
+auto        = "Auto (one-sided for real input)"
+"one-sided" = "One-sided (0 to Nyquist)"
+"two-sided" = "Two-sided (negative frequencies)"
+
+[[input]]
+name   = "scale"
+label  = "Level scale"
+source = "field"
+
+[input.labels]
+amplitude  = "Amplitude"
+magnitude  = "Magnitude (unnormalised)"
+normalized = "Normalised magnitude"
+db         = "Decibels (dB)"
+power      = "Power"
+
+[[input]]
+name   = "phase_unit"
+label  = "Phase unit"
+source = "field"
+
+[input.labels]
+degrees = "Degrees"
+radians = "Radians"
+
+[[input]]
+name   = "remove_dc"
+label  = "Remove DC offset (subtract the mean)"
+source = "field"
+
+[[input]]
+name        = "peaks"
+label       = "Peaks to list"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "20"
+step        = "1"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text  = "Text report"
+chart = "Bar chart"
+csv   = "CSV"
+json  = "Structured JSON"
+
+[[example]]
+label  = "Two tones (2 Hz + 5 Hz)"
+params = { data = "0.0000, 1.1690, 0.6464, 0.5158, 0.5000, -0.8984, -1.3536, -0.2452, 0.0000, 0.2452, 1.3536, 0.8984, -0.5000, -0.5158, -0.6464, -1.1690", sample_rate = "16", window = "rectangular", pad = "pow2", spectrum = "auto", scale = "amplitude", phase_unit = "degrees", peaks = "2", decimals = "4", format = "text" }
+
+[[example]]
+label  = "Windowed tone (Hann)"
+params = { data = "3.0000, 1.6667, -1.1481, -2.9424, -2.1213, 0.5853, 2.7716, 2.4944, 0.0000, -2.4944, -2.7716, -0.5853, 2.1213, 2.9424, 1.1481, -1.6667, -3.0000, -1.6667, 1.1481, 2.9424, 2.1213, -0.5853, -2.7716, -2.4944, 0.0000, 2.4944, 2.7716, 0.5853, -2.1213, -2.9424, -1.1481, 1.6667", sample_rate = "32", window = "hann", pad = "pow2", spectrum = "auto", scale = "amplitude", phase_unit = "degrees", peaks = "1", decimals = "3", format = "text" }
+
+[[example]]
+label  = "DC offset + ripple"
+params = { data = "2.5000, 2.1913, 1.6464, 1.5381, 2.0000, 2.4619, 2.3536, 1.8087, 1.5000, 1.8087, 2.3536, 2.4619, 2.0000, 1.5381, 1.6464, 2.1913", sample_rate = "16", window = "rectangular", pad = "pow2", spectrum = "auto", scale = "amplitude", phase_unit = "degrees", remove_dc = "true", peaks = "1", decimals = "4", format = "text" }
+
+[[example]]
+label  = "Complex phasor (two-sided)"
+params = { data = "1.0000+0.0000i, 0.7071+0.7071i, 0.0000+1.0000i, -0.7071+0.7071i, -1.0000+0.0000i, -0.7071-0.7071i, 0.0000-1.0000i, 0.7071-0.7071i", sample_rate = "8", window = "rectangular", pad = "pow2", spectrum = "auto", scale = "amplitude", phase_unit = "degrees", peaks = "1", decimals = "4", format = "text" }
+
+[[example]]
+label  = "Spectral leakage (off-bin tone)"
+params = { data = "0.0000, 0.8315, 0.9239, 0.1951, -0.7071, -0.9808, -0.3827, 0.5556, 1.0000, 0.5556, -0.3827, -0.9808, -0.7071, 0.1951, 0.9239, 0.8315", sample_rate = "16", window = "rectangular", pad = "pow2", spectrum = "auto", scale = "db", phase_unit = "degrees", peaks = "3", decimals = "2", format = "chart" }
