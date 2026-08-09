@@ -1,0 +1,42 @@
+{
+  "name": "gizza-ai/pkcs12-inspect",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List the bags inside a PKCS#12 (.p12/.pfx) file without its password",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect the structure of a PKCS#12 (.p12/.pfx) keystore WITHOUT its password. Pass the container's bytes as base64 or hex in 'data'. Reports the PFX version, the integrity-MAC parameters (digest algorithm, iteration count, MAC and salt lengths — the MAC itself cannot be verified without the password), and every AuthenticatedSafe SafeContents entry: for password-protected ones the PBE/PBES2 parameters (KDF, PRF, cipher, iterations, salt length, payload size), and for plaintext ones every SafeBag with its type (certBag, keyBag, pkcs8ShroudedKeyBag, crlBag, secretBag, safeContentsBag), friendlyName, localKeyID (the value that pairs a key with its certificate) and other bag attributes. Certificates in plaintext cert bags are decoded fully: subject, issuer, serial, validity window, self-signed and CA flags, public-key algorithm and size, signature algorithm and SHA-256 fingerprint. Nothing is decrypted and private-key material is never emitted — a shrouded key bag is reported by algorithm only. Use format=json for structured output. Everything runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The PKCS#12 container's raw bytes, encoded as base64 or hex — e.g. the output of `base64 -w0 keystore.p12`. Hex may use spaces or colons as separators. Do NOT paste a password: the structure is read without decrypting anything, and up to 4 MiB of decoded data is accepted (real .p12/.pfx files are a few KB).",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "How 'data' is encoded. auto (default) treats input made only of hex digits and separators as hex and everything else as base64; force it with base64 or hex when a container happens to be base64 text that also looks like hex.",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "text (default) renders a readable report of the MAC parameters, each SafeContents entry and every bag; json returns the same data as a structured object with version, mac, safe_contents[].bags[] and a summary of bag counts.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

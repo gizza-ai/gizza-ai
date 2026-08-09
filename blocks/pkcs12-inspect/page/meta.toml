@@ -1,0 +1,47 @@
+slug          = "pkcs12-inspect"
+title         = "PKCS#12 Inspector — List .p12 / .pfx Bags Without the Password"
+description   = "Inspect a .p12/.pfx keystore offline: cert bags, key bags, friendly names, local key IDs, PBE and MAC parameters. No password needed, nothing uploaded."
+tags          = ["pkcs12 inspector", "p12 viewer", "pfx viewer", "pkcs12 parser", "p12 bag structure", "pfx friendly name", "keystore inspector", "pkcs12 without password", "decode p12"]
+h1            = "PKCS#12 Inspector"
+hero_subtitle = "Paste a .p12/.pfx file as base64 or hex and see what is inside it — certificate bags, key bags, friendly names, local key IDs, and the encryption and MAC parameters. No password required, nothing is decrypted, and the file never leaves your browser."
+wasm          = "gizza_ai_pkcs12_inspect_web"
+export        = "run"
+live          = false
+output_label  = "Container structure"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "PKCS#12 container (base64 or hex)"
+placeholder = "MIIDwwIBAzCCA3kGCSqGSIb3DQEHAaCCA2oEggNmMIIDYjCCAmAGCSqGSIb3DQEHAa… (paste the output of `base64 -w0 keystore.p12`)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "encoding"
+label       = "Input encoding"
+placeholder = "auto"
+source      = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "format"
+label       = "Output"
+placeholder = "text"
+source      = "field"
+
+[input.labels]
+text = "Readable report"
+json = "JSON"
+
+[[example]]
+label = "Sample keystore (unencrypted bags)"
+[example.params]
+data = "MIIDwwIBAzCCA3kGCSqGSIb3DQEHAaCCA2oEggNmMIIDYjCCAmAGCSqGSIb3DQEHAaCCAlEEggJNMIICSTCCAkUGCyqGSIb3DQEMCgEDoIIB6jCCAeYGCiqGSIb3DQEJFgGgggHWBIIB0jCCAc4wggFzoAMCAQICFAMGPekIV0XkxoXnGyklq+KYqWwmMAoGCCqGSM49BAMCMDwxCzAJBgNVBAYTAlVTMRMwEQYDVQQKDApHaXp6YSBUZXN0MRgwFgYDVQQDDA9lYy5leGFtcGxlLnRlc3QwHhcNMjYwODA5MTg0NzMwWhcNMzYwODA2MTg0NzMwWjA8MQswCQYDVQQGEwJVUzETMBEGA1UECgwKR2l6emEgVGVzdDEYMBYGA1UEAwwPZWMuZXhhbXBsZS50ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcdaSjnE4vLLMD9rOkaYfAI8QVpfAmQ5xKGErbqRyDkljm2kCLCl6Lxp1yEaR1Pzj0ywEa6tu+ZEZqUJDJul536NTMFEwHQYDVR0OBBYEFLxEbP72k+4zr7sNFtCVR1kP5F5+MB8GA1UdIwQYMBaAFLxEbP72k+4zr7sNFtCVR1kP5F5+MA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSQAwRgIhANQDrybaLGunRUm2ikTpMFY87OTbhgcQDLmParGR6ZY0AiEAmIR+e1ngSKeOfIb0GPFSTo9YO8yUOpkcEPMQOOz6p78xSDAhBgkqhkiG9w0BCRQxFB4SAEUAQwAgAFMAYQBtAHAAbABlMCMGCSqGSIb3DQEJFTEWBBRF9fyy4X7Pjp6V6Rzh/+FzOo5KVjCB+wYJKoZIhvcNAQcBoIHtBIHqMIHnMIHkBgsqhkiG9w0BDAoBAaCBijCBhwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwRtMGsCAQEEIFDV5ZGwB8FXUNaelIohEhurMnRkyHuI4LmtdKi1ZCf8oUQDQgAEcdaSjnE4vLLMD9rOkaYfAI8QVpfAmQ5xKGErbqRyDkljm2kCLCl6Lxp1yEaR1Pzj0ywEa6tu+ZEZqUJDJul53zFIMCEGCSqGSIb3DQEJFDEUHhIARQBDACAAUwBhAG0AcABsAGUwIwYJKoZIhvcNAQkVMRYEFEX1/LLhfs+OnpXpHOH/4XM6jkpWMEEwMTANBglghkgBZQMEAgEFAAQgHSjL6Zx+BgvlZw9U9qitsmKgl1SLXOH9dK4Ik+iEdOgECBkbNrryYGq+AgIIAA=="
+encoding = "auto"
+format = "text"
