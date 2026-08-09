@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "notes-to-html-export"
+version = "0.1.0"
+abi = 1
+summary = "Bundle Markdown notes into a self-contained HTML page"

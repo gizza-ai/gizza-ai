@@ -1,0 +1,88 @@
+slug          = "notes-to-html-export"
+title         = "Export Markdown Notes to Self-Contained HTML"
+description   = "Combine Markdown notes into one standalone HTML page with embedded CSS, sanitized output and a linked table of contents."
+tags          = ["markdown", "notes", "html", "toc", "export", "self-contained", "documentation", "offline"]
+h1            = "Export Markdown Notes to HTML"
+hero_subtitle = "Paste Markdown notes and get one offline-friendly HTML document with embedded styling, sanitized rendered Markdown and a linked table of contents."
+wasm          = "gizza_ai_notes_to_html_export_web"
+export        = "run"
+live          = false
+output_label  = "Standalone HTML"
+format        = "html"
+
+[[input]]
+name        = "notes"
+label       = "Markdown notes"
+placeholder = "# Project notes\n\n## Decisions\n\n- Use one portable HTML export.\n\n# Meeting notes\n\n## Actions\n\n- [ ] Send the summary."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "split"
+source = "field"
+label  = "Split notes by"
+
+[input.labels]
+heading = "Level-1 headings (# Note)"
+hr      = "Thematic breaks (---)"
+
+[[input]]
+name   = "toc"
+source = "field"
+label  = "Table of contents"
+
+[input.labels]
+sidebar = "Sticky sidebar"
+top     = "Top of the document"
+none    = "No TOC"
+
+[[input]]
+name        = "toc_depth"
+source      = "field"
+label       = "TOC depth (1–6)"
+placeholder = "3"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "number_sections"
+source = "field"
+label  = "Number sections"
+
+[[input]]
+name        = "title"
+source      = "field"
+label       = "Document title"
+placeholder = "Notes"
+
+[[input]]
+name   = "theme"
+source = "field"
+label  = "Theme"
+
+[input.labels]
+light = "Light"
+dark  = "Dark"
+auto  = "Auto (reader system setting)"
+
+[[example]]
+label = "Sidebar handbook"
+[example.params]
+notes = "# Project handbook\n\n## Setup\n\nRun the installer.\n\n## Release checklist\n\n- [ ] Tests pass\n- [ ] Changelog updated\n\n# Operations\n\n## Rollback\n\nRestore the previous build."
+split = "heading"
+toc = "sidebar"
+toc_depth = "3"
+number_sections = "true"
+title = "Project Handbook"
+theme = "dark"
+
+[[example]]
+label = "Plain top TOC"
+[example.params]
+notes = "First loose note\n\n---\n\n# Second note\n\n## Details\n\nA portable summary."
+split = "hr"
+toc = "top"
+toc_depth = "2"
+number_sections = "false"
+title = "Shared Notes"
+theme = "light"
