@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/cagr-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compound annual growth rate and period-over-period growth for a value series",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the compound annual growth rate (CAGR) and the period-over-period growth of a series of VALUES — revenue, GDP, price, headcount, subscribers — not a series of returns. Paste one number per line (optionally as 'label,value' like '2000,1234'), or a single comma-separated line; currency symbols, thousands separators and accounting negatives are accepted. Elapsed time comes from the period spacing (annual/quarterly/monthly/weekly/daily), or from an explicit years override, or from an exact start_date/end_date range, in that order of precedence. Returns CAGR, total growth, the growth multiple, absolute change, compound growth per period, the arithmetic mean period growth, best and worst periods, doubling time, an optional years-to-target projection, and a per-period table of change, growth percent and an index rebased to 100. Choose output=summary, table, csv or json. Runs locally. Educational only, not financial advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for the percentages in the output, 0 to 10. Default 2.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end_date": {
+          "default": "",
+          "description": "Optional exact end date as YYYY-MM-DD, paired with start_date. Must be after start_date.",
+          "type": "string"
+        },
+        "has_header": {
+          "default": false,
+          "description": "Skip the first line before parsing, for when the pasted column starts with a header like 'year,gdp'. Default false.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output shape: summary (headline metrics plus the period-over-period table), table (just the table), csv (the table as CSV for a spreadsheet), or json (every computed field). Default summary.",
+          "enum": [
+            "summary",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "period": {
+          "default": "annual",
+          "description": "Spacing between consecutive values, used to work out the elapsed years (annual=1, quarterly=4, monthly=12, weekly=52, daily=365 calendar days per year). Default annual. Ignored when you set years or a date range.",
+          "enum": [
+            "annual",
+            "quarterly",
+            "monthly",
+            "weekly",
+            "daily"
+          ],
+          "type": "string"
+        },
+        "start_date": {
+          "default": "",
+          "description": "Optional exact start date as YYYY-MM-DD (e.g. 2000-01-31). Combined with end_date it sets the elapsed years to the real day count / 365.25. Used only when years is 0.",
+          "type": "string"
+        },
+        "target_value": {
+          "default": 0.0,
+          "description": "Optional goal value. Returns how many more years from the last value it takes to reach it at the computed CAGR. 0 means no projection. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "values": {
+          "description": "The value series (levels, not returns): one number per line, or a single line of numbers separated by commas. Each line may also be 'label,value' (e.g. '2000,1234') to name the periods. Currency symbols, thousands separators and accounting negatives like (1,234) are accepted. Needs at least 2 values, maximum 2000.",
+          "type": "string"
+        },
+        "years": {
+          "default": 0.0,
+          "description": "Total elapsed years spanned by the series, overriding the period spacing. Use this for the classic two-value case (e.g. values=100000,150000 with years=5) or for irregularly spaced data. 0 means derive it from period. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "values"
+      ],
+      "type": "object"
+    }
+  }
+}

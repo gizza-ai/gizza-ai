@@ -1,0 +1,88 @@
+slug          = "cagr-calculator"
+title         = "CAGR Calculator — Compound Annual Growth Rate & Period Growth"
+description   = "Paste a series of values and get the compound annual growth rate, total growth, the multiple, doubling time and a period-by-period growth table."
+tags          = ["cagr calculator", "compound annual growth rate", "annual growth rate calculator", "year over year growth", "period over period growth", "revenue growth calculator", "growth rate from two values", "doubling time calculator", "annualized return calculator"]
+h1            = "CAGR Calculator"
+hero_subtitle = "Paste a series of values — revenue, GDP, price, headcount, subscribers — and get the compound annual growth rate plus the growth between every consecutive period. Two values and a number of years work just as well as a whole pasted column. Everything is computed on your device."
+wasm          = "gizza_ai_cagr_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Growth analysis"
+format        = "text"
+
+[[input]]
+name        = "values"
+label       = "Values"
+placeholder = "2019,100000\n2020,112000\n2021,128500\n2022,141000\n2023,150000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "period"
+label  = "Spacing between values"
+source = "field"
+
+[input.labels]
+"annual"    = "Annual (1 per year)"
+"quarterly" = "Quarterly (4 per year)"
+"monthly"   = "Monthly (12 per year)"
+"weekly"    = "Weekly (52 per year)"
+"daily"     = "Daily (365 per year)"
+
+[[input]]
+name        = "years"
+label       = "Elapsed years (overrides spacing)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "start_date"
+label       = "Start date (optional)"
+placeholder = "2019-01-01"
+source      = "field"
+
+[[input]]
+name        = "end_date"
+label       = "End date (optional)"
+placeholder = "2023-12-31"
+source      = "field"
+
+[[input]]
+name        = "target_value"
+label       = "Target value (optional)"
+placeholder = "300000"
+source      = "field"
+
+[[input]]
+name   = "has_header"
+label  = "First line is a header row"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+"summary" = "Summary + table"
+"table"   = "Table only"
+"csv"     = "CSV"
+"json"    = "JSON"
+
+[[example]]
+label  = "Two values over 5 years"
+params = { values = "100000\n150000", years = "5", period = "annual", decimals = "2", output = "summary" }
+
+[[example]]
+label  = "Yearly revenue column with labels"
+params = { values = "2019,100000\n2020,112000\n2021,128500\n2022,141000\n2023,150000", period = "annual", decimals = "2", output = "summary" }
+
+[[example]]
+label  = "Monthly users, exact date range, CSV"
+params = { values = "month,users\n2024-01,12000\n2024-02,13100\n2024-03,14250\n2024-04,15900", period = "monthly", start_date = "2024-01-31", end_date = "2024-04-30", has_header = "true", decimals = "2", output = "csv" }
