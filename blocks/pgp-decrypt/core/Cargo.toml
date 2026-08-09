@@ -1,0 +1,20 @@
+[package]
+name = "gizza-ai-pgp-decrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+pgp = { version = "0.14", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+hex = "0.4"
+# chrono only formats the embedded signature's creation timestamp (no clock
+# needed here); pgp already pulls it into the tree.
+chrono = { version = "0.4", default-features = false }
+
+[dev-dependencies]
+rand = "0.8"
+smallvec = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }

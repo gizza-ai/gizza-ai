@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/pgp-decrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decrypt an OpenPGP (PGP/GPG) message",
+  "role": "skill",
+  "tool": {
+    "description": "Decrypt an ASCII-armored OpenPGP (PGP/GPG) '-----BEGIN PGP MESSAGE-----' block. Handles both encryption shapes and picks between them from the message's own session-key packets: public-key encryption (supply the recipient's armored 'private_key', plus its 'passphrase' if it is protected) and password/symmetric encryption made by 'gpg --symmetric' (supply only the 'passphrase'). Compressed payloads are decompressed automatically; an embedded signature is reported and, when the signer's 'public_key' is supplied, verified. Returns {plaintext, encryption, output_format, bytes, binary, compressed, decrypted_with_key_id, recipient_key_ids, signature}: encryption is 'public-key' or 'password', output_format is the rendering actually used ('text', 'base64' or 'hex' — 'auto' shows text and falls back to base64 for binary data), and signature carries {valid, signer_key_id, signer_fingerprint, signer_user_id, signed_at, hash_algorithm, note} with valid null when no public key was given. Armored input is capped at 4 MiB. Runs locally — the message, keys and passphrase never leave the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "description": "The encrypted OpenPGP message to decrypt, ASCII-armored: the whole '-----BEGIN PGP MESSAGE-----' ... '-----END PGP MESSAGE-----' block.",
+          "type": "string"
+        },
+        "output_format": {
+          "default": "auto",
+          "description": "How to render the decrypted bytes: 'auto' shows UTF-8 text and falls back to base64 for binary payloads, 'text' always shows text (and errors on non-UTF-8 data), 'base64' and 'hex' always encode.",
+          "enum": [
+            "auto",
+            "text",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "passphrase": {
+          "description": "The passphrase that unlocks the private key, or — for a password-encrypted message — the password the message itself was encrypted with. Leave blank for an unprotected key.",
+          "type": "string"
+        },
+        "private_key": {
+          "description": "The recipient's OpenPGP private key, ASCII-armored ('-----BEGIN PGP PRIVATE KEY BLOCK-----' block). Required for a message encrypted to a public key; leave blank for a password-encrypted ('gpg --symmetric') message.",
+          "type": "string"
+        },
+        "public_key": {
+          "description": "Optional: the signer's OpenPGP public key, ASCII-armored. Supply it to verify the signature of a message that was signed as well as encrypted; without it a signature is reported but not checked.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+slug          = "pgp-decrypt"
+title         = "PGP Decrypt — Decrypt an OpenPGP message in your browser"
+description   = "Decrypt a PGP message online with your private key or the password it was encrypted with. Verifies embedded signatures, handles binary payloads, runs in your browser."
+tags          = ["pgp decrypt", "gpg decrypt", "decrypt pgp message", "openpgp decrypt", "pgp private key", "decrypt pgp online", "gpg symmetric decrypt", "pgp message decryption"]
+h1            = "PGP decrypt"
+hero_subtitle = "Decrypt an ASCII-armored OpenPGP (PGP/GPG) message with your private key, or with the password it was symmetrically encrypted with. Embedded signatures are reported and can be verified — everything runs entirely in your browser."
+wasm          = "gizza_ai_pgp_decrypt_web"
+export        = "run"
+live          = false
+output_label  = "Decryption result"
+format        = "text"
+
+[[input]]
+name        = "message"
+label       = "Encrypted message"
+placeholder = "Paste the whole ASCII-armored PGP message block here"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "private_key"
+label       = "Your private key (public-key encrypted messages)"
+placeholder = "Paste your ASCII-armored private key block; leave blank for password-encrypted messages"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "passphrase"
+label       = "Passphrase or message password"
+placeholder = "Unlocks a protected private key — or the password a 'gpg --symmetric' message was made with"
+source      = "field"
+
+[[input]]
+name        = "public_key"
+label       = "Signer's public key (optional, to verify a signature)"
+placeholder = "Paste the signer's ASCII-armored public key block, or leave blank to skip verification"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output_format"
+label       = "Show the plaintext as"
+source      = "field"
+default     = "auto"
+
+[input.labels]
+auto   = "Auto — text, or base64 if the payload is binary"
+text   = "Text (UTF-8)"
+base64 = "Base64"
+hex    = "Hex"
