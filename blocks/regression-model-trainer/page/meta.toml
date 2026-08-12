@@ -1,0 +1,161 @@
+slug          = "regression-model-trainer"
+title         = "Regression model trainer — linear, ridge & random forest"
+description   = "Fit linear, ridge, or bounded random-forest regression from a pasted numeric table and report R², RMSE, MAE, coefficients, or feature importance."
+tags          = ["regression", "linear regression", "ridge regression", "random forest", "machine learning", "csv"]
+h1            = "Regression model trainer"
+hero_subtitle = "Paste a numeric table, choose a target column, and train a deterministic regression model locally with metrics, coefficients or feature importance."
+wasm          = "gizza_ai_regression_model_trainer_web"
+export        = "run"
+live          = false
+output_label  = "Model report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Training table"
+placeholder = "x,y\n1,3\n2,5\n3,7\n4,9"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "target"
+label       = "Target column"
+placeholder = "last"
+source      = "field"
+
+[[input]]
+name        = "features"
+label       = "Feature columns"
+placeholder = "x1,x2"
+source      = "field"
+
+[[input]]
+name   = "model"
+label  = "Model"
+source = "field"
+
+[input.labels]
+linear        = "Linear regression"
+ridge         = "Ridge regression"
+random_forest = "Random forest"
+
+[[input]]
+name        = "alpha"
+label       = "Ridge alpha"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "0.5"
+
+[[input]]
+name   = "standardize"
+label  = "Standardize predictors for ridge"
+source = "field"
+
+[[input]]
+name        = "trees"
+label       = "Forest trees"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "300"
+step        = "1"
+
+[[input]]
+name        = "max_depth"
+label       = "Forest max depth"
+placeholder = "8"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20"
+step        = "1"
+
+[[input]]
+name        = "test_split"
+label       = "Test split"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "0.5"
+step        = "0.05"
+
+[[input]]
+name        = "cv_folds"
+label       = "CV folds"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "seed"
+label       = "Seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yes  = "First row is header"
+no   = "No header"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Readable report"
+json = "JSON"
+csv  = "CSV"
+
+[[example]]
+label = "Exact line"
+[example.params]
+data = "x,y\n1,3\n2,5\n3,7\n4,9"
+target = "y"
+model = "linear"
+format = "text"
+
+[[example]]
+label = "Ridge with hold-out"
+[example.params]
+data = "sqft,rooms,price\n1,1,6\n2,1,8\n3,2,11\n4,2,14\n5,3,18\n6,3,20\n7,4,23\n8,4,26"
+target = "price"
+features = "sqft,rooms"
+model = "ridge"
+alpha = "2"
+test_split = "0.25"
+cv_folds = "4"
+format = "text"
+
+[[example]]
+label = "Forest importance JSON"
+[example.params]
+data = "a,b,y\n1,0,4\n2,1,7\n3,0,10\n4,1,13\n5,0,16\n6,1,19\n7,0,22\n8,1,25"
+target = "y"
+model = "random_forest"
+trees = "20"
+max_depth = "4"
+format = "json"

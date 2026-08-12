@@ -1,0 +1,116 @@
+{
+  "name": "gizza-ai/regression-model-trainer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Train linear, ridge, or small random-forest regressions from a pasted numeric table.",
+  "role": "skill",
+  "tool": {
+    "description": "Fit a regression model to a pasted numeric table, predict a target column, and report R², RMSE, MAE, coefficients or feature importance, optional test split, and optional cross-validation. Runs locally in pure Rust/WASM.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 1.0,
+          "description": "Ridge L2 penalty strength. Used only when model is ridge.",
+          "maximum": 1000000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "cv_folds": {
+          "default": 0,
+          "description": "Cross-validation folds: 0 disables CV, otherwise use 2 through 10.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "data": {
+          "description": "CSV, TSV, semicolon, pipe, or whitespace-delimited numeric table. Use one row per observation; the first row may be a header.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for text and CSV output.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "features": {
+          "default": "",
+          "description": "Optional comma-separated feature columns by name or 1-based index. Leave empty to use every non-target column.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row contains column names.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "max_depth": {
+          "default": 8,
+          "description": "Maximum depth for each random_forest tree.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "model": {
+          "default": "linear",
+          "description": "Regression algorithm: ordinary least squares, L2-regularized ridge, or a deterministic small random forest.",
+          "enum": [
+            "linear",
+            "ridge",
+            "random_forest"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Deterministic seed for splits, folds, and random forest sampling.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "standardize": {
+          "default": true,
+          "description": "Standardize predictors before applying ridge regularization, then report coefficients back in original units.",
+          "type": "boolean"
+        },
+        "target": {
+          "default": "last",
+          "description": "Target column to predict: last, first, a 1-based index, or a header name.",
+          "type": "string"
+        },
+        "test_split": {
+          "default": 0.0,
+          "description": "Fraction of rows to hold out for a deterministic test set, from 0 to 0.5.",
+          "maximum": 0.5,
+          "minimum": 0,
+          "type": "number"
+        },
+        "trees": {
+          "default": 100,
+          "description": "Number of trees for random_forest.",
+          "maximum": 300,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
