@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/code-language-detect",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect a code snippet's programming language with explainable heuristics.",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the likely programming language of a pasted source-code snippet using deterministic weighted signals, optional filename/shebang hints, a common-language filter, ranked alternatives, confidence, and evidence. Runs locally with no network or ML model.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "candidates": {
+          "default": "",
+          "description": "Optional comma-separated allowlist of language ids to consider, such as rust,python,javascript. Leave empty to consider every built-in language.",
+          "type": "string"
+        },
+        "code": {
+          "description": "The source-code snippet to identify. Paste at least three to five lines for the most reliable result.",
+          "type": "string"
+        },
+        "common_only": {
+          "default": false,
+          "description": "Only consider common mainstream languages. Useful for short snippets where niche-language signals can otherwise win.",
+          "type": "boolean"
+        },
+        "explain": {
+          "default": true,
+          "description": "Include the weighted signals that explain the top detection.",
+          "type": "boolean"
+        },
+        "filename": {
+          "default": "",
+          "description": "Optional filename hint such as main.rs, Dockerfile, package.json, or styles.css. Extensions and special filenames add a strong score bonus.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: readable report, structured JSON, or just the top language id.",
+          "enum": [
+            "report",
+            "json",
+            "language"
+          ],
+          "type": "string"
+        },
+        "top_k": {
+          "default": 3,
+          "description": "Number of ranked candidate languages to show. Use 0 to list every language with a positive score.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}
