@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/edge-detection",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect the edges in an image with Canny or Sobel and return the edge map.",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the edges in an image and return the edge map. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional method canny|sobel|colormix (default canny), low/high Canny hysteresis thresholds as 0-1 fractions (defaults 0.078/0.196, high >= low), blur 0-10 pixels of Gaussian pre-smoothing to suppress noise (default 0), invert true for black lines on white (default false), and format png|jpg|webp (default png).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "blur": {
+          "default": 0.0,
+          "description": "Gaussian noise-reduction radius applied before detection, in pixels of sigma, 0-10 (default 0 = off). Try 1-2 on grainy phone photos or JPEG artifacts to stop noise being detected as edges; large values erase fine detail.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format: png (default, lossless — best for high-contrast line art), jpg (smaller, but rings around thin lines) or webp. Animated inputs keep only their first frame.",
+          "enum": [
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "high": {
+          "default": 0.196078431372549,
+          "description": "Canny upper hysteresis threshold as a fraction of full brightness, 0-1 (default 0.196, i.e. 50/255). Any gradient above this starts an edge. Must be >= low; a common ratio is high = 2-3x low. Ignored when method=sobel.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "invert": {
+          "default": false,
+          "description": "false (default) returns white edges on black, the standard edge map. true returns black lines on white — the look you want for printing, coloring pages, laser engraving or vector tracing.",
+          "type": "boolean"
+        },
+        "low": {
+          "default": 0.0784313725490196,
+          "description": "Canny lower hysteresis threshold as a fraction of full brightness, 0-1 (default 0.078, i.e. 20/255). Weak edges above this are kept only when they touch a strong edge. Lower it to 0.03 to keep faint detail; raise it to 0.2 for a cleaner outline. Ignored when method=sobel.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "method": {
+          "default": "canny",
+          "description": "Edge detector: canny (default) applies Gaussian smoothing, Sobel gradients, thinning and hysteresis for clean 1-pixel white edges on black; sobel is the raw gradient magnitude (soft grey edges, no thresholds, better on blurry photos); colormix keeps the original colors and paints the edges over them for an inked/cartoon look.",
+          "enum": [
+            "canny",
+            "sobel",
+            "colormix"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

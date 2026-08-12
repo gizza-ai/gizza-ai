@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "edge-detection"
+version = "0.1.0"
+abi = 1
+summary = "Detect the edges in an image with Canny or Sobel and return the edge map."
