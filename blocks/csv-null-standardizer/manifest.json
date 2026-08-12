@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/csv-null-standardizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rewrite assorted CSV missing-value tokens (NA, N/A, null, -, NaN, blanks) into one chosen representation.",
+  "role": "skill",
+  "tool": {
+    "description": "Standardize missing-value tokens in a CSV/delimited table. Real-world exports mix NA, N/A, #N/A, NULL, NaN, None, <NA>, a bare dash and empty cells in the same file; this rewrites every one of them into a single representation you choose, so a loader or dataframe needs one rule instead of a dozen. Non-missing cells are copied verbatim (no trimming, no re-typing), the header row is never rewritten, and the field separator round-trips unchanged. delimiter accepts 'auto' (sniffed from the first line), a single char, or 'comma'/'tab'/'semicolon'/'pipe'. na_tokens is the comma-separated missing vocabulary (default 'NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?'; add sentinels like '-999'; empty = blanks only). replace_with is what every missing cell becomes (default empty = a blank cell; try 'NULL', 'NaN', or '\\N' for Postgres COPY). blank_is_missing (default on) includes empty/whitespace-only cells; case_sensitive (default off) requires exact case; trim (default on) ignores padding while matching; header (default on) protects row 1; columns limits the rewrite to named or 1-based columns; quote_style is 'minimal', 'always', or 'never'. This normalizes the TOKEN — it never invents a value, so use an imputer if you need means/medians filled in. Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blank_is_missing": {
+          "default": true,
+          "description": "When true (default), a cell that is empty or whitespace-only also counts as missing and is rewritten. Turn it off to convert only the listed tokens and leave already-blank cells alone.",
+          "type": "boolean"
+        },
+        "case_sensitive": {
+          "default": false,
+          "description": "When false (default), tokens match regardless of case, so one 'NULL' entry also catches 'null' and 'Null'. Turn it on to require an exact-case match.",
+          "type": "boolean"
+        },
+        "columns": {
+          "default": "",
+          "description": "Restrict the rewrite to specific columns: a comma-separated list of column names (needs header = true) or 1-based positions, e.g. 'score,notes' or '2,4'. Default (empty) standardizes every column.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: 'auto' to sniff it from the first line, a single character, or a name ('comma' (default), 'tab', 'semicolon', 'pipe'). The output uses the same separator as the input.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "When true (default), the first row is a header: it is copied through untouched, so a column literally named 'NA' survives, and it supplies the names used by the columns option.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The CSV/delimited table to standardize, as text. Quoted fields with embedded separators or newlines (RFC 4180) are preserved. Rows may be ragged — a short row stays short. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "na_tokens": {
+          "default": "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?",
+          "description": "Comma-separated tokens that count as missing, e.g. 'NA,N/A,NULL,NaN,-'. Defaults to the built-in vocabulary 'NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?'. Edit the list to add your own sentinels (e.g. '-999'). Set it empty to standardize ONLY blank cells.",
+          "type": "string"
+        },
+        "quote_style": {
+          "default": "minimal",
+          "description": "Output quoting: 'minimal' (default) quotes only fields that need it; 'always' quotes every field, the replacement token included, for readers that expect uniformly quoted CSV; 'never' emits bare fields, which is compact but can produce ambiguous CSV when values contain the separator. Keep 'minimal' when replace_with is a loader sentinel such as '\\N', because a quoted sentinel is read as a literal string.",
+          "enum": [
+            "minimal",
+            "always",
+            "never"
+          ],
+          "type": "string"
+        },
+        "replace_with": {
+          "default": "",
+          "description": "The single representation written for every missing cell, e.g. 'NULL', 'NA', 'NaN', or '\\N' for a Postgres COPY load. Default is an empty string, which leaves the cell blank.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "When true (default), whitespace around a cell is ignored while matching, so ' NA ' still counts as missing. Cells that are NOT missing are always copied verbatim, padding included — this option never rewrites real values.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
