@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "prisma-schema-to-sql"
+version = "0.1.0"
+abi = 1
+summary = "Convert a Prisma schema into CREATE TABLE DDL for PostgreSQL, MySQL, SQLite or SQL Server."
