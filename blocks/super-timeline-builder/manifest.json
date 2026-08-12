@@ -1,0 +1,93 @@
+{
+  "name": "gizza-ai/super-timeline-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge parsed forensic artifact CSVs into one sorted super-timeline",
+  "role": "skill",
+  "tool": {
+    "description": "Merge the CSV exports of several already-parsed forensic artifacts (MFT listing, event-log export, prefetch, registry, browser history) into ONE chronologically sorted super-timeline. Paste the CSVs one after another, each under a header line naming its source (`--- mft.csv ---`, `=== evtx ===`, `==> prefetch <==`, `# mft`); every section keeps its own columns and delimiter. Timestamp columns are auto-detected by header name (Created, LastWriteTime, TimeCreated, datetime, epoch, …) or by ISO 8601 values, and split date + time columns are recombined; with expand=true (default) every timestamp column becomes its own row, labelled with that column's name, the way a super-timeline expands one MFT record into Created/Modified/Accessed lines. Times normalize to UTC (use tz_offset for timezone-less input); from/to filter an inclusive range, dedupe drops identical repeats, drop_epoch_zero removes null 1970 placeholders, and order is asc or desc. Output is csv (datetime,timestamp_desc,source,message), l2tcsv (the 17-field legacy log2timeline layout) or tln (pipe-delimited). Up to 100000 rows. Runs locally — evidence never leaves the machine.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "description": "The parsed-artifact CSVs to merge, pasted one after another. Introduce each one with a header line naming the source — `--- mft.csv ---`, `=== evtx ===`, GNU tail `==> prefetch <==`, or `# mft` — and give each its own header row (e.g. `Path,Created,LastModified`). A blob with no header line is read as a single artifact named artifact1.",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": true,
+          "description": "When true (default), drop repeats of an identical (time, source, timestamp type, message) row — useful when two exports overlap.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator of the pasted CSVs. auto (default) detects comma, tab, semicolon or pipe per section from its header row; set it explicitly when a section's data confuses the detector.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "drop_epoch_zero": {
+          "default": false,
+          "description": "When true, drop rows that land exactly on 1970-01-01T00:00:00Z — the usual placeholder for a null/zeroed timestamp. Off by default so nothing disappears silently.",
+          "type": "boolean"
+        },
+        "expand": {
+          "default": true,
+          "description": "When true (default), emit one row per timestamp COLUMN — an MFT row with Created/LastModified/LastAccess becomes three timeline rows, each labelled with its column name. When false, only the first timestamp column of each artifact is used.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "csv",
+          "description": "Output layout: csv (compact datetime,timestamp_desc,source,message), l2tcsv (the 17-field legacy log2timeline CSV that Timeline Explorer and the SANS template read), or tln (pipe-delimited Time|Source|Host|User|Description with epoch-second times).",
+          "enum": [
+            "csv",
+            "l2tcsv",
+            "tln"
+          ],
+          "type": "string"
+        },
+        "from": {
+          "default": "",
+          "description": "Earliest event to keep, inclusive — e.g. 2024-06-01 or 2024-06-01T10:00:00Z. Empty means no lower bound.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 10000,
+          "description": "Maximum rows in the merged timeline (1-100000, default 10000). Producing more is an error naming the actual count, never a silent trim — raise the limit or narrow from/to.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Sort direction of the merged timeline: asc (oldest first, the default) or desc (newest first).",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "to": {
+          "default": "",
+          "description": "Latest event to keep, inclusive — e.g. 2024-06-02 or 2024-06-02T23:59:59Z. Empty means no upper bound.",
+          "type": "string"
+        },
+        "tz_offset": {
+          "default": 0.0,
+          "description": "Hours that timezone-less input timestamps are offset from UTC, e.g. -5 for US Eastern standard time or 5.5 for India. Values that already carry a Z or ±hh:mm offset are unaffected. Output is always UTC. Default 0.",
+          "maximum": 14,
+          "minimum": -14,
+          "type": "number"
+        }
+      },
+      "required": [
+        "artifacts"
+      ],
+      "type": "object"
+    }
+  }
+}

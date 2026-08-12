@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "super-timeline-builder"
+version = "0.1.0"
+abi = 1
+summary = "Merge parsed forensic artifact CSVs into one sorted super-timeline"
