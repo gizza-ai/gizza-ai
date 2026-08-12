@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/image-blank-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect blank, solid-color, all-white, all-black or fully transparent images.",
+  "role": "skill",
+  "tool": {
+    "description": "Check whether an image is blank — an all-white or all-black frame, a single flat colour fill, a fully transparent canvas, or a frame that is empty apart from a stray watermark. These are the signatures of a render, screenshot, thumbnail or export that silently failed, so use this to triage a batch before the empty files ship. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Every pixel is inspected — nothing is sub-sampled — and the answer comes with its evidence: is_blank, verdict (all_white, all_black, solid_color, transparent, near_blank or not_blank), a plain-English reason, confidence 0-1, the dominant fill colour as hex/rgb plus a colour name, the percent of pixels matching it, distinct colour count, transparent-pixel share, luma min/max/mean/standard deviation, per-channel range, and the Shannon entropy of the luma histogram (0 on a flat image, above 6 on a photo). Parameters: tolerance 0-100 percent channel distance (default 2), blank_threshold 50-100 percent coverage required (default 99.5), ignore_transparency boolean (default true). This is an analyser only; it does not modify or delete anything.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "blank_threshold": {
+          "default": 99.5,
+          "description": "Percent of pixels that must match the dominant colour before the image is called blank, 50-100. 100 flags only perfectly uniform images; the default 99.5 also flags a page that is empty apart from a small watermark (default 99.5).",
+          "maximum": 100,
+          "minimum": 50,
+          "type": "number"
+        },
+        "ignore_transparency": {
+          "default": true,
+          "description": "When true, near-transparent pixels are treated as one 'empty' colour so the junk RGB some encoders leave underneath alpha=0 cannot fake content; set false to compare the raw RGBA values as stored (default true).",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 2.0,
+          "description": "How far a pixel may differ per channel and still count as the same colour, as a percent of the 0-255 range, 0-100. 0 demands exactly identical pixels; the default 2 (about 5 levels) absorbs JPEG/WebP compression noise on an otherwise flat fill (default 2).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
