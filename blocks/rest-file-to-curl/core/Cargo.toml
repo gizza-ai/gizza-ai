@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-rest-file-to-curl-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# chrono formats the `{{$datetime …}}` / `{{$timestamp …}}` system variables from
+# the timestamp each surface passes in; alloc-only (no clock, no std) so it
+# builds for wasm32-unknown-unknown (the page) as well as wasm32-wasip1.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
+serde_json = "1"
