@@ -1,0 +1,97 @@
+slug          = "strip-console-logs"
+title         = "Remove console.log — strip console statements from JS & TS"
+description   = "Strip console.log, console.debug and other console.* calls from JavaScript or TypeScript. Strings, comments and regex stay untouched. Free, in-browser."
+tags          = ["remove console.log", "strip console logs", "console log remover", "javascript cleanup", "typescript", "remove debug statements", "drop console"]
+h1            = "Remove console.log statements"
+hero_subtitle = "Paste JavaScript or TypeScript and strip the console.* calls you no longer want to ship. The scanner is token-aware, so a console.log inside a string, comment or regular expression is never touched, and calls used as a value are left alone instead of breaking your code. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_strip_console_logs_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned source"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "code"
+label       = "JavaScript / TypeScript"
+placeholder = "function checkout(cart) {\n  console.log(\"cart\", cart);\n  return cart.length;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "methods"
+label       = "Console methods to strip"
+placeholder = "log,debug,info,warn"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "keep"
+label       = "Never strip these"
+placeholder = "error,warn"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "action"
+label  = "What to do with each statement"
+source = "field"
+
+[input.labels]
+remove  = "Delete the statement"
+comment = "Comment it out"
+blank   = "Blank the line (keep line numbers)"
+
+[[input]]
+name   = "remove_debugger"
+label  = "Also remove debugger statements"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+code   = "Cleaned source"
+report = "Dry-run report"
+
+[[example]]
+label = "Strip debug logs"
+[example.params]
+code = "function checkout(cart) {\n  console.log(\"cart\", cart);\n  let total = cart.reduce((a, i) => a + i.price, 0);\n  console.debug(`total ${total}`);\n  if (total > 100) {\n    console.info(\"free shipping\");\n    total -= 5;\n  }\n  console.error(\"payment failed\");\n  return total;\n}"
+methods = "log,debug,info,warn"
+keep = ""
+action = "remove"
+remove_debugger = "false"
+output = "code"
+
+[[example]]
+label = "Remove all but errors"
+[example.params]
+code = "console.log(\"boot\");\nconsole.table(rows);\nconsole.group(\"net\");\nconsole.error(\"request failed\");\nconsole.warn(\"retrying\");\nstart();"
+methods = "all"
+keep = "error,warn"
+action = "remove"
+remove_debugger = "false"
+output = "code"
+
+[[example]]
+label = "Comment out instead"
+[example.params]
+code = "function save(row) {\n  console.log(\"saving\", row);\n  return db.put(row);\n}"
+methods = "log,debug,info,warn"
+keep = ""
+action = "comment"
+remove_debugger = "false"
+output = "code"
+
+[[example]]
+label = "Dry-run report"
+[example.params]
+code = "console.log(\"boot\");\nconst id = console.log(\"used as a value\");\ndebugger;\nconsole.warn(\"careful\");"
+methods = "all"
+keep = ""
+action = "remove"
+remove_debugger = "true"
+output = "report"

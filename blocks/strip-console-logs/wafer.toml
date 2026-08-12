@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "strip-console-logs"
+version = "0.1.0"
+abi = 1
+summary = "Remove console.log and other console.* statements from JavaScript or TypeScript"
