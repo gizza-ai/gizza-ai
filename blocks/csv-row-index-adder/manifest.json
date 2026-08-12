@@ -1,0 +1,129 @@
+{
+  "name": "gizza-ai/csv-row-index-adder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add sequential, UUID, or composite key columns to CSV rows",
+  "role": "skill",
+  "tool": {
+    "description": "Add a generated key column to CSV text. mode=sequential inserts row numbers with start, step, zero-padding, prefix and suffix. mode=uuid adds one v4 random or v7 time-ordered UUID per data row. mode=composite builds a key by joining existing columns. Choose whether the input has a header, where the new column is inserted, and whether the delimiter is auto-detected or fixed to comma, tab, semicolon, or pipe. Returns updated CSV text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "column_name": {
+          "default": "",
+          "description": "Header for the new column. Leave blank to use index, uuid, or key based on mode.",
+          "type": "string"
+        },
+        "columns": {
+          "default": "",
+          "description": "Composite mode only: comma-separated source columns, by header name or 1-based number, to join into the key.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV or delimited text to update. Paste the full table; the output preserves CSV quoting and the chosen delimiter.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Input delimiter. auto sniffs comma, tab, semicolon, or pipe from the first non-empty line; output uses the same delimiter.",
+          "enum": [
+            "auto",
+            ",",
+            "tab",
+            ";",
+            "|"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first row as a header row. When true, the first row receives column_name instead of a generated value.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "sequential",
+          "description": "Generated value type: sequential numbers, UUIDs, or a composite key joined from existing columns.",
+          "enum": [
+            "sequential",
+            "uuid",
+            "composite"
+          ],
+          "type": "string"
+        },
+        "pad_width": {
+          "default": 0,
+          "description": "Zero-pad sequential numbers to this many digits (0-64). Prefix and suffix are added after padding.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "position": {
+          "default": "start",
+          "description": "Where to insert the generated column: at the start, at the end, before a reference column, or after a reference column.",
+          "enum": [
+            "start",
+            "end",
+            "before",
+            "after"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "Text prepended to each generated value, e.g. INV-.",
+          "type": "string"
+        },
+        "reference_column": {
+          "default": "",
+          "description": "Header name or 1-based column number used when position is before or after.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "-",
+          "description": "Composite mode separator between source column values. Default '-' .",
+          "type": "string"
+        },
+        "start": {
+          "default": 1,
+          "description": "First sequential number. Use 0 for zero-based indexing. Ignored unless mode is sequential.",
+          "type": "integer"
+        },
+        "step": {
+          "default": 1,
+          "description": "Increment between sequential numbers. Negative steps count down; zero is rejected. Ignored unless mode is sequential.",
+          "type": "integer"
+        },
+        "suffix": {
+          "default": "",
+          "description": "Text appended to each generated value, e.g. -2026.",
+          "type": "string"
+        },
+        "uuid_format": {
+          "default": "standard",
+          "description": "UUID rendering: standard lowercase with hyphens, uppercase, compact no-hyphens, braces, or urn.",
+          "enum": [
+            "standard",
+            "uppercase",
+            "compact",
+            "braces",
+            "urn"
+          ],
+          "type": "string"
+        },
+        "uuid_version": {
+          "default": "4",
+          "description": "UUID mode only: v4 random UUIDs or v7 time-ordered UUIDs.",
+          "enum": [
+            "4",
+            "7"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
