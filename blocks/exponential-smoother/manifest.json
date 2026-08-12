@@ -1,0 +1,94 @@
+{
+  "name": "gizza-ai/exponential-smoother",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Smooth a numeric series with an exponentially-weighted moving average.",
+  "role": "skill",
+  "tool": {
+    "description": "Apply exponentially-weighted moving average (EWMA) smoothing to a numeric series. Set the decay as a smoothing factor (alpha), an N-period span, a half-life, or a center of mass, or let mode=auto fit alpha by minimising the one-step-ahead squared forecast error. 'adjust' picks bias-corrected weighting or the plain simple-exponential-smoothing recursion, gaps (na/null/-) are supported with an 'ignore_na' weighting switch, 'min_periods' blanks the warm-up, and 'forecast' projects flat future periods at the final level. Returns the smoothed series, the equivalent alpha/span/halflife/com, one-step-ahead SSE/MSE/RMSE/MAE/MAPE, and JSON, CSV, or an SVG chart. Runs locally — the data never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "adjust": {
+          "default": true,
+          "description": "Divide by the decaying weight sum so early points are not biased toward the first observation. Turn off for the plain recursion y_t = (1-alpha)*y_(t-1) + alpha*x_t used by simple exponential smoothing and finance EMAs. Default true.",
+          "type": "boolean"
+        },
+        "alpha": {
+          "default": 0.3,
+          "description": "Smoothing factor for mode=alpha. Must be greater than 0 and at most 1: higher reacts faster to new points, lower smooths harder. Default 0.3.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "com": {
+          "default": 2.0,
+          "description": "Center of mass for mode=com. Must be 0 or greater and maps to alpha = 1/(1+com). Default 2.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "forecast": {
+          "default": 0,
+          "description": "Future periods to project. Exponential smoothing has a flat forecast, so every projected period sits at the final smoothed level. Default 0.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "halflife": {
+          "default": 3.0,
+          "description": "Half-life in periods for mode=halflife — how many periods until an observation's weight halves. Must be greater than 0 and maps to alpha = 1 - exp(-ln2/halflife). Default 3.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "ignore_na": {
+          "default": false,
+          "description": "Weight points by their position among the observations instead of their position in the series, so a gap does not consume any decay. Default false.",
+          "type": "boolean"
+        },
+        "min_periods": {
+          "default": 0,
+          "description": "Observations required before a smoothed value is reported; earlier positions come back as null. 0 and 1 both emit from the first observation. Default 0.",
+          "maximum": 20000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "alpha",
+          "description": "Which decay setting to read: alpha uses the smoothing factor directly, span uses alpha=2/(span+1), halflife uses alpha=1-exp(-ln2/halflife), com uses alpha=1/(1+com), and auto fits alpha by minimising the one-step-ahead squared forecast error. Default alpha.",
+          "enum": [
+            "alpha",
+            "span",
+            "halflife",
+            "com",
+            "auto"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format: a JSON report, a CSV table of index/value/smoothed/error, or a self-contained SVG chart. Default json.",
+          "enum": [
+            "json",
+            "csv",
+            "svg"
+          ],
+          "type": "string"
+        },
+        "series": {
+          "description": "The numeric series to smooth, separated by commas, spaces, tabs, semicolons, or newlines. A JSON array of numbers works too, a leading text header is skipped, and na/nan/null/none/- mark a missing observation.",
+          "type": "string"
+        },
+        "span": {
+          "default": 5.0,
+          "description": "N-period span for mode=span, the familiar 'N-day EMA' setting. Must be at least 1 and maps to alpha = 2/(span+1). Default 5.",
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "series"
+      ],
+      "type": "object"
+    }
+  }
+}

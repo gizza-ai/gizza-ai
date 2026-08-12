@@ -1,0 +1,166 @@
+slug          = "exponential-smoother"
+title         = "Exponential Smoothing Calculator — EWMA by Alpha or Span"
+description   = "Smooth a numeric series with an EWMA. Set alpha, span, half-life or center of mass, auto-fit alpha, forecast ahead, and export JSON, CSV or SVG."
+tags          = ["ewma", "exponential smoothing", "moving average", "alpha", "span", "half-life", "time series", "forecast"]
+h1            = "Smooth a series with an exponentially weighted moving average"
+hero_subtitle = "Paste your numbers, choose the decay as alpha, span, half-life or center of mass — or auto-fit it — and get the smoothed series, forecast error metrics and a chart."
+wasm          = "gizza_ai_exponential_smoother_web"
+export        = "run"
+live          = false
+output_label  = "Smoothed series"
+format        = "text"
+
+[[input]]
+name        = "series"
+label       = "Series"
+placeholder = "12\n14\n13\n17\n16\n20\n19\n24"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Decay given as"
+source = "field"
+
+[input.labels]
+alpha    = "Alpha (smoothing factor)"
+span     = "Span (N-period EMA)"
+halflife = "Half-life (periods)"
+com      = "Center of mass"
+auto     = "Auto-fit alpha (min SSE)"
+
+[[input]]
+name        = "alpha"
+label       = "Alpha"
+placeholder = "0.3"
+source      = "field"
+kind        = "slider"
+min         = "0.01"
+max         = "1"
+step        = "0.01"
+
+[[input]]
+name        = "span"
+label       = "Span"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "200"
+step        = "1"
+
+[[input]]
+name        = "halflife"
+label       = "Half-life"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0.1"
+max         = "100"
+step        = "0.1"
+
+[[input]]
+name        = "com"
+label       = "Center of mass"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "0.5"
+
+[[input]]
+name   = "adjust"
+label  = "Bias-corrected weighting (adjust)"
+source = "field"
+
+[[input]]
+name   = "ignore_na"
+label  = "Ignore gaps when weighting"
+source = "field"
+
+[[input]]
+name        = "min_periods"
+label       = "Minimum periods"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "forecast"
+label       = "Forecast periods"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "60"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json = "JSON report"
+csv  = "CSV table"
+svg  = "SVG chart"
+
+[[example]]
+label = "Alpha 0.3 JSON"
+[example.params]
+series = "12\n14\n13\n17\n16\n20\n19\n24"
+mode = "alpha"
+alpha = "0.3"
+span = "5"
+halflife = "3"
+com = "2"
+adjust = "true"
+ignore_na = "false"
+min_periods = "0"
+forecast = "0"
+output = "json"
+
+[[example]]
+label = "12-period EMA (finance)"
+[example.params]
+series = "22.27, 22.19, 22.08, 22.17, 22.18, 22.13, 22.23, 22.43, 22.24, 22.29, 22.15, 22.39, 22.38, 22.61, 23.36"
+mode = "span"
+alpha = "0.3"
+span = "12"
+halflife = "3"
+com = "2"
+adjust = "false"
+ignore_na = "false"
+min_periods = "0"
+forecast = "0"
+output = "csv"
+
+[[example]]
+label = "Auto-fit alpha + forecast"
+[example.params]
+series = "112, 118, 132, 129, 121, 135, 148, 148, 136, 119, 104, 118"
+mode = "auto"
+alpha = "0.3"
+span = "5"
+halflife = "3"
+com = "2"
+adjust = "false"
+ignore_na = "false"
+min_periods = "0"
+forecast = "6"
+output = "json"
+
+[[example]]
+label = "Half-life chart with gaps"
+[example.params]
+series = "10, 12, na, 15, 14, null, 18, 21, 20, 25"
+mode = "halflife"
+alpha = "0.3"
+span = "5"
+halflife = "2"
+com = "2"
+adjust = "true"
+ignore_na = "true"
+min_periods = "0"
+forecast = "0"
+output = "svg"
