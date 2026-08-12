@@ -1,0 +1,97 @@
+slug          = "persian-tokenizer"
+title         = "Persian Tokenizer — Split Farsi Text into Words and Sentences"
+description   = "Tokenize Persian text into words and sentences. ZWNJ half-space compounds stay whole, Persian punctuation and digits handled. Free, in your browser."
+tags          = ["persian tokenizer", "farsi tokenizer", "persian word tokenizer", "persian sentence tokenizer", "farsi text segmentation", "zwnj half space", "persian nlp", "tokenize farsi text", "persian word count"]
+h1            = "Persian Tokenizer"
+hero_subtitle = "Split Persian and Farsi text into words and sentences. ZWNJ half-space compounds like می‌خوانیم stay one word, Persian punctuation (، ؛ ؟ « ») and all three digit sets are handled, and URLs, emails, hashtags and dates stay whole. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_persian_tokenizer_web"
+export        = "run"
+live          = false
+output_label  = "Tokens"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Persian text"
+placeholder = "ما کتاب می‌خوانیم. یادگیری خوب است."
+source      = "field"
+multiline   = true
+
+# mode / format / punctuation / newlines render as <select> and the booleans as
+# checkboxes — the control type and options come from the descriptor's schema
+# (manifest.json).
+[[input]]
+name   = "mode"
+label  = "Tokenize into"
+source = "field"
+
+[input.labels]
+words     = "Words"
+sentences = "Sentences"
+both      = "Sentences with their words"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+lines             = "One per line"
+numbered          = "Numbered list (1. 2. 3.)"
+"space-separated" = "Joined by spaces"
+json              = "JSON with counts"
+
+[[input]]
+name   = "punctuation"
+label  = "Punctuation"
+source = "field"
+
+[input.labels]
+separate = "Separate token for each mark"
+attach   = "Keep attached to the word"
+remove   = "Remove punctuation"
+
+[[input]]
+name   = "split_zwnj"
+label  = "Split half-space (ZWNJ) compounds — می‌خوانیم → می + خوانیم"
+source = "field"
+
+[[input]]
+name   = "normalize"
+label  = "Normalize Arabic letters and strip harakat first"
+source = "field"
+
+[[input]]
+name   = "keep_entities"
+label  = "Keep URLs, emails, hashtags and numbers whole"
+source = "field"
+
+[[input]]
+name   = "newlines"
+label  = "Line breaks"
+source = "field"
+
+[input.labels]
+paragraph = "Only a blank line ends a sentence"
+never     = "Never end a sentence (join wrapped lines)"
+always    = "Always end a sentence (one per line)"
+
+[[example]]
+label  = "Words with half-spaces"
+params = { text = "ما کتاب می‌خوانیم. یادگیری خوب است.", mode = "words", format = "lines", punctuation = "separate" }
+
+[[example]]
+label  = "Split half-space compounds"
+params = { text = "ما کتاب می‌خوانیم و کتاب‌ها را نمی‌بندیم.", mode = "words", format = "space-separated", punctuation = "remove", split_zwnj = "true" }
+
+[[example]]
+label  = "Sentences"
+params = { text = "حال شما چطور است؟ من خوبم. عدد پی 3.14 است... ممنون!", mode = "sentences", format = "numbered" }
+
+[[example]]
+label  = "Sentences with their words (JSON)"
+params = { text = "به گزارش خبرگزاری، سمینار از ۱۳۹۶/۰۶/۱۱ آغاز شد. اطلاعات بیشتر: info@example.com", mode = "both", format = "json" }
+
+[[example]]
+label  = "One sentence per line of input"
+params = { text = "خرید شیر\nپیاده‌روی در پارک\nرزرو بلیت", mode = "sentences", format = "lines", newlines = "always" }
