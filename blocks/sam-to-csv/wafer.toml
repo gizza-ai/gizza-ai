@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sam-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Parse SAM alignment records into a CSV table with named columns and decoded FLAG bits."
