@@ -1,0 +1,66 @@
+slug          = "graphql-formatter"
+title         = "GraphQL Formatter"
+description   = "Format, minify, and validate GraphQL queries, mutations, fragments, and SDL schemas in your browser."
+tags          = ["graphql", "formatter", "developer"]
+h1            = "GraphQL formatter"
+hero_subtitle = "Pretty-print, minify, validate, sort, and comment-strip GraphQL documents locally."
+wasm          = "gizza_ai_graphql_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "GraphQL input"
+placeholder = "query Hero($episode: Episode = JEDI) { hero(episode: $episode) { name friends { name } } }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent"
+placeholder = "2"
+source      = "field"
+
+[input.labels]
+"2" = "2 spaces"
+"4" = "4 spaces"
+"8" = "8 spaces"
+tab = "Tab"
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+placeholder = "format"
+source      = "field"
+
+[input.labels]
+format = "Format"
+minify = "Minify"
+
+[[input]]
+name        = "sort_fields"
+label       = "Sort fields"
+source      = "field"
+
+[[input]]
+name        = "remove_comments"
+label       = "Remove comments"
+source      = "field"
+
+[[example]]
+label = "Format query"
+input = "query Hero($episode: Episode = JEDI) { hero(episode: $episode) { name friends { name } } }"
+indent = "2"
+mode = "format"
+sort_fields = "false"
+remove_comments = "false"
+
+[[example]]
+label = "Minify schema"
+input = "type Query { user(id: ID!): User } type User { id: ID! name: String }"
+indent = "2"
+mode = "minify"
+sort_fields = "false"
+remove_comments = "false"
