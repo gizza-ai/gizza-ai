@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/topic-modeler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Discover the latent topics across a set of documents with LDA",
+  "role": "skill",
+  "tool": {
+    "description": "Discover the latent topics running through a collection of documents with LDA (Latent Dirichlet Allocation), fitted right here from the pasted corpus — no training data, no upload, nothing pretrained. Paste two or more documents separated by blank lines, one per line, or --- fences, and the tool tokenises them, drops stopwords and short words, and runs collapsed Gibbs sampling to learn K topics. You get the ranked topics (their top words with weights and each topic's share of the corpus) and every document's topic mixture. Tune topics (K), words_per_topic, iterations, the Dirichlet priors alpha and beta, stopword removal plus your own stopword list, and min_word_length; the seed makes every run reproducible. Output as a readable report, JSON, or CSV (topic keys plus the document–topic matrix). Runs locally and deterministically.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.0,
+          "description": "Dirichlet prior on the document–topic mixture. 0 means auto (50/K, the MALLET convention). Higher values make each document a blend of more topics; lower values make documents more single-topic. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "beta": {
+          "default": 0.01,
+          "description": "Dirichlet prior on the topic–word distribution (0.001–1). Higher values make topics use more of the vocabulary; lower values make them sharper. Default 0.01.",
+          "maximum": 1,
+          "minimum": 0.001,
+          "type": "number"
+        },
+        "documents": {
+          "description": "The corpus to model: two or more documents pasted as one block of text, split by `separator`. Up to 300 documents, 25,000 kept words, and 20,000 distinct terms.",
+          "type": "string"
+        },
+        "iterations": {
+          "default": 200,
+          "description": "Gibbs sampling sweeps over the corpus (50–1000). More iterations let the topics settle further at the cost of runtime. Default 200.",
+          "maximum": 1000,
+          "minimum": 50,
+          "type": "integer"
+        },
+        "min_word_length": {
+          "default": 3,
+          "description": "Shortest word kept, in characters (1–12). Prunes noise like 'a' and 'to' that survive the stopword list. Default 3.",
+          "maximum": 12,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Result format: 'report' (ranked topics with their top words and corpus share, plus each document's topic mixture), 'json' (the full model: topics, word weights, and per-document mixtures), or 'csv' (a topic-keys table followed by the document–topic matrix). Default report.",
+          "enum": [
+            "report",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "remove_stopwords": {
+          "default": true,
+          "description": "Drop common English function words (the, and, of, …) before modelling so topics are built from content words. Default true.",
+          "type": "boolean"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Random seed for the sampler. The same corpus, settings, and seed always produce the same topics; change it to see whether a topic is stable. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "separator": {
+          "default": "blank-line",
+          "description": "How `documents` is split into documents: 'blank-line' (one document per paragraph, separated by an empty line), 'line' (one document per non-empty line), or 'dashes' (documents separated by a line of three or more dashes). Default blank-line.",
+          "enum": [
+            "blank-line",
+            "line",
+            "dashes"
+          ],
+          "type": "string"
+        },
+        "stopwords": {
+          "default": "",
+          "description": "Extra words to exclude, comma or whitespace separated (e.g. `company,report,q3`). Merged with the built-in list, and applied even when remove_stopwords is off — this is also how to filter a non-English corpus.",
+          "type": "string"
+        },
+        "topics": {
+          "default": 5,
+          "description": "Number of topics K to fit (2–20). Fewer topics give broader themes, more topics give finer ones. Default 5.",
+          "maximum": 20,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "words_per_topic": {
+          "default": 8,
+          "description": "How many top words to list per topic (1–25). Default 8.",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "type": "object"
+    }
+  }
+}

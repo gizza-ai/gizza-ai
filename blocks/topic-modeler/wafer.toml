@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "topic-modeler"
+version = "0.1.0"
+abi = 1
+summary = "Discover the latent topics across a set of documents with LDA"
