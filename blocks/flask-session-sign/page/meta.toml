@@ -1,0 +1,93 @@
+slug          = "flask-session-sign"
+title         = "Flask Session Cookie Signer"
+description   = "Sign Flask session cookies from a JSON payload and SECRET_KEY, with Flask defaults plus timestamp, digest, salt, and compression controls."
+tags          = ["flask session signer", "flask cookie", "itsdangerous", "session cookie", "hmac", "secret key", "web security"]
+h1            = "Flask Session Cookie Signer"
+hero_subtitle = "Build a Flask-compatible signed session cookie from JSON and a SECRET_KEY. Defaults match Flask's SecureCookieSessionInterface, and advanced fields cover custom salts, digest algorithms, key derivation, secret byte encodings, reproducible timestamps, and compression."
+wasm          = "gizza_ai_flask_session_sign_web"
+export        = "run"
+live          = false
+output_label  = "Signed cookie details"
+format        = "json"
+
+[[input]]
+name        = "payload"
+label       = "Session payload JSON"
+placeholder = "{\"user\":1,\"admin\":true}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "secret"
+label       = "SECRET_KEY"
+placeholder = "dev-key-123"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt"
+placeholder = "cookie-session"
+source      = "field"
+
+[[input]]
+name        = "secret_encoding"
+label       = "Secret encoding"
+source      = "field"
+
+[[input]]
+name        = "digest"
+label       = "Digest"
+source      = "field"
+
+[[input]]
+name        = "key_derivation"
+label       = "Key derivation"
+source      = "field"
+
+[[input]]
+name        = "timestamp"
+label       = "Timestamp (Unix seconds; 0 = now)"
+placeholder = "1700000000"
+source      = "field"
+
+[[input]]
+name   = "legacy_epoch"
+label  = "Use itsdangerous < 1.0 timestamp epoch"
+source = "field"
+
+[[input]]
+name        = "compress"
+label       = "Compression"
+source      = "field"
+
+[[input]]
+name        = "cookie_name"
+label       = "Cookie name"
+placeholder = "session"
+source      = "field"
+
+[[example]]
+label = "Default Flask cookie"
+[example.params]
+payload = "{\"user\":1,\"admin\":true}"
+secret = "dev-key-123"
+timestamp = "1700000000"
+
+[[example]]
+label = "SHA-256 custom salt"
+[example.params]
+payload = "{\"logged_in\":true}"
+secret = "CHANGEME"
+salt = "cookie-session"
+digest = "sha256"
+timestamp = "1547409146"
+
+[[example]]
+label = "Hex byte secret, no compression"
+[example.params]
+payload = "{\"role\":\"editor\",\"theme\":\"dark\"}"
+secret = "414243444546"
+secret_encoding = "hex"
+compress = "never"
+cookie_name = "admin_session"
+timestamp = "1700000000"
