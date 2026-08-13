@@ -1,0 +1,113 @@
+slug          = "log-pattern-miner"
+title         = "Log Pattern Miner — Cluster Log Lines into Message Templates"
+description   = "Cluster thousands of raw log lines into a handful of ranked message templates with counts. Drain-style mining, typed placeholders. Free, in your browser."
+tags          = ["log pattern miner", "log template extraction", "drain log parser", "cluster log lines", "log clustering online", "log pattern mining", "log message templates", "group similar log lines", "log deduplication", "log triage tool"]
+h1            = "Log Pattern Miner"
+hero_subtitle = "Paste a noisy log and get back the handful of message shapes it is really made of — each template with how many lines it covers, what share of the file that is, and where it first and last appears. Numbers, IPs, UUIDs, paths, URLs and timestamps are masked into typed placeholders before clustering, so a thousand near-identical lines collapse into one row. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_log_pattern_miner_web"
+export        = "run"
+live          = false
+output_label  = "Patterns"
+format        = "text"
+wide          = true
+
+# Field ORDER is the wasm `run(...)` argument order — do not reorder without
+# changing web/src/lib.rs. format / mask render as <select> and the numeric
+# knobs as number boxes (similarity + depth get a paired slider); the control
+# type comes from the descriptor's schema (manifest.json).
+[[input]]
+name        = "logs"
+label       = "Log lines"
+placeholder = "Jan 12 03:04:05 web1 sshd[2311]: Failed password for root from 10.0.0.1 port 51234 ssh2"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+table = "Table (count, percent, first, last, template)"
+json  = "JSON report with examples and variable values"
+lines = "One template per line"
+
+[[input]]
+name        = "similarity"
+label       = "Similarity threshold"
+placeholder = "0.4"
+source      = "field"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "depth"
+label       = "Parse-tree depth"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_children"
+label       = "Max branches per tree node"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "max_patterns"
+label       = "Templates to show"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "min_count"
+label       = "Minimum lines per template"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "mask"
+label  = "Placeholders"
+source = "field"
+
+[input.labels]
+typed    = "Typed — <NUM>, <IP>, <UUID>, <PATH>…"
+wildcard = "Wildcard — every masked value as <*>"
+none     = "None — no pre-masking"
+
+[[input]]
+name        = "extra_delimiters"
+label       = "Extra token delimiters"
+placeholder = "=,:"
+source      = "field"
+
+[[input]]
+name        = "skip_tokens"
+label       = "Leading tokens to drop"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label  = "SSH auth failures"
+params = { logs = "Jan 12 03:04:05 web1 sshd[2311]: Failed password for root from 10.0.0.1 port 51234 ssh2\nJan 12 03:04:07 web1 sshd[2312]: Failed password for admin from 10.0.0.2 port 51999 ssh2\nJan 12 03:04:09 web1 sshd[2313]: Failed password for root from 10.0.0.3 port 52001 ssh2\nJan 12 03:05:00 web1 sshd[2400]: Accepted publickey for deploy from 10.0.0.9 port 60001 ssh2", format = "table", mask = "typed" }
+
+[[example]]
+label  = "App log — UUIDs and durations"
+params = { logs = "2024-05-06 07:08:09 INFO order 550e8400-e29b-41d4-a716-446655440000 shipped in 250ms\n2024-05-06 07:08:11 INFO order 6ba7b810-9dad-11d1-80b4-00c04fd430c8 shipped in 412ms\n2024-05-06 07:08:12 WARN order 6ba7b811-9dad-11d1-80b4-00c04fd430c8 delayed 4200ms\n2024-05-06 07:08:15 INFO order 3f333df6-90a4-4fda-8dd3-9485d27cee36 shipped in 198ms", format = "json", mask = "typed" }
+
+[[example]]
+label  = "Nginx access log"
+params = { logs = "10.0.0.4 - - [12/Jan/2024:03:04:05 +0000] \"GET /api/users/17 HTTP/1.1\" 200 1043\n10.0.0.5 - - [12/Jan/2024:03:04:06 +0000] \"GET /api/users/42 HTTP/1.1\" 200 987\n10.0.0.6 - - [12/Jan/2024:03:04:07 +0000] \"POST /api/orders HTTP/1.1\" 500 66", format = "table", mask = "typed" }
+
+[[example]]
+label  = "Recurring shapes only (min 2 lines)"
+params = { logs = "worker 1 finished in 12ms\nworker 2 finished in 31ms\nworker 3 finished in 27ms\ncache warm complete\nshutdown requested by operator", format = "table", min_count = "2" }
+
+[[example]]
+label  = "key=value payloads, split on ="
+params = { logs = "req=1 status=200 dur=12ms\nreq=2 status=500 dur=88ms\nreq=3 status=200 dur=9ms", format = "lines", extra_delimiters = "=" }
+
+[[example]]
+label  = "Plain wildcards, no timestamp prefix"
+params = { logs = "2024-05-06 07:08:09 INFO cache warm ok\n2024-05-07 09:10:11 INFO cache warm ok\n2024-05-08 11:12:13 WARN cache warm slow", format = "lines", mask = "wildcard", skip_tokens = "2" }

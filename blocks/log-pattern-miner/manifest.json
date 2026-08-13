@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/log-pattern-miner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Cluster raw log lines into ranked message templates with occurrence counts.",
+  "role": "skill",
+  "tool": {
+    "description": "Mine a batch of raw log lines into a handful of ranked message templates (Drain-style fixed-depth parse tree), each with how many lines it covers. Variable parts of every token are masked first — numbers with their units (250ms), hex blobs, IPv4/IPv6, MACs, UUIDs, dates, clock times, file paths, URLs, e-mail addresses and quoted strings — then lines are clustered by token count plus leading-token prefix and merged into a template when enough token positions still agree; disagreeing positions become <*>. Answers 'what is actually being logged, and how often' for a pasted log file. format='table' (default) is tab-separated count/percent/first-line/last-line/template rows; 'json' adds coverage, the untruncated pattern count, first/last and example source lines, and the sampled raw values behind each placeholder; 'lines' is one template per line. Tune with similarity (0-1, default 0.4), depth (2-8, default 4), max_children (default 100), max_patterns (default 20), min_count, mask ('typed' named placeholders, 'wildcard' plain <*>, or 'none'), extra_delimiters (extra token-splitting characters such as '=') and skip_tokens (drop a fixed timestamp/host prefix). Deterministic and stateless: one pass in input order, same input always gives the same templates, nothing is persisted between runs, so there are no stable cluster ids and no streaming/online mode. Up to 2000000 characters and 200000 lines per run; masking uses the built-in placeholder set, not user-supplied regexes.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "depth": {
+          "default": 4,
+          "description": "Parse-tree depth, 2-8 (default 4). The first layer is the token count and the next depth-2 layers are the leading tokens, so a line only ever merges with templates sharing that prefix. Deeper = stricter and faster, shallower = more merging. Use 2 when the log's leading tokens are variable (e.g. a bare timestamp) and skip_tokens is not an option.",
+          "maximum": 8,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "extra_delimiters": {
+          "default": "",
+          "description": "Extra characters that split tokens on top of whitespace, up to 16 — e.g. '=' turns 'status=500' into two tokens so the value masks to <NUM>, and '=,:' also splits CSV-ish and key:value payloads. Default empty (whitespace only). Double-quoted runs stay one token either way.",
+          "type": "string"
+        },
+        "format": {
+          "default": "table",
+          "description": "How to render the ranked templates. 'table' (default) = tab-separated rows with a header (count, percent, first, last, template) where first/last are 1-based line numbers; 'json' = a full report {total_lines, mined_lines, blank_lines, patterns_found, patterns_shown, coverage_percent, settings, patterns:[{rank, count, percent, template, first_index, first_line, last_index, last_line, examples, variables:[{position, placeholder, values}]}]}; 'lines' = one template per line, nothing else (pipe-friendly).",
+          "enum": [
+            "table",
+            "json",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "logs": {
+          "description": "The raw log lines to mine, newline-separated — paste the file as-is, timestamps and all. Up to 2000000 characters and 200000 lines per run. Blank lines are counted but not mined.",
+          "type": "string"
+        },
+        "mask": {
+          "default": "typed",
+          "description": "How variable parts of a token are rendered before clustering. 'typed' (default) = named placeholders <NUM> <HEX> <IP> <MAC> <UUID> <DATE> <TIME> <PATH> <URL> <EMAIL> <STR>; 'wildcard' = every masked value renders as <*>, matching the reference tools' output; 'none' = no pre-masking, so only the similarity merge introduces <*> (useful when the literal values are the thing you are grouping by).",
+          "enum": [
+            "typed",
+            "wildcard",
+            "none"
+          ],
+          "type": "string"
+        },
+        "max_children": {
+          "default": 100,
+          "description": "Branches allowed per parse-tree node, 2-1000 (default 100, the reference value). Once a node is full, further distinct tokens fall into its shared <*> branch instead of growing the tree. Lower it on very high-cardinality logs to force more merging.",
+          "maximum": 1000,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "max_patterns": {
+          "default": 20,
+          "description": "How many of the highest-count templates to return, 1-500 (default 20). Ranking is by occurrence count descending, ties broken by first appearance. The JSON report also carries patterns_found (the untruncated count) and coverage_percent, so a cap is never mistaken for the whole log.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_count": {
+          "default": 1,
+          "description": "Drop templates seen fewer than this many times (default 1, keep everything). Set 2+ to hide one-off lines and see only the recurring message shapes. It is an error if no template reaches the threshold.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "similarity": {
+          "default": 0.4,
+          "description": "Merge threshold, 0-1 (default 0.4, the reference Drain value). A line joins an existing template when at least this fraction of the template's token positions still match; disagreeing positions collapse to <*>. Raise it (0.7-0.9) to keep similar-but-distinct messages apart, lower it (0.2-0.3) to fold more variants into one template.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "skip_tokens": {
+          "default": 0,
+          "description": "Drop this many leading whitespace tokens from every line before mining, 0-16 (default 0). Use it to cut a fixed prefix — '2024-05-06 07:08:09 INFO' is 3 tokens — so the parse tree branches on the message instead of the timestamp.",
+          "maximum": 16,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "logs"
+      ],
+      "type": "object"
+    }
+  }
+}
