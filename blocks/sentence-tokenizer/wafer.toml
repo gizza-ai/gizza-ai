@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sentence-tokenizer"
+version = "0.1.0"
+abi = 1
+summary = "Split text into sentences and tokens with character offsets."
