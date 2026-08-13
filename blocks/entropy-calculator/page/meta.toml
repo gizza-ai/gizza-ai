@@ -1,0 +1,88 @@
+slug          = "entropy-calculator"
+title         = "Shannon Entropy Calculator — Bits per Character, Byte, Word or Line"
+description   = "Measure Shannon entropy locally: bits per character, byte, word, or line, with total information and frequency tables."
+tags          = ["entropy calculator", "shannon entropy", "bits per character", "bits per byte", "randomness", "frequency table", "information theory", "password entropy"]
+h1            = "Shannon entropy calculator"
+hero_subtitle = "Paste text, a key, token, password, log sample, or data string and measure Shannon entropy per symbol. Switch between characters, UTF-8 bytes, words, and lines; report bits, nats, dits, or trits; compare per-line or per-paragraph entropy; and inspect the symbol-frequency table locally in your browser."
+wasm          = "gizza_ai_entropy_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Entropy report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Text to measure"
+placeholder = "password"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "basis"
+label  = "Symbol basis"
+source = "field"
+labels = { characters = "Characters (Unicode scalars)", bytes = "UTF-8 bytes", words = "Words", lines = "Lines" }
+
+[[input]]
+name   = "unit"
+label  = "Entropy unit"
+source = "field"
+labels = { bits = "Bits (base 2)", nats = "Nats (base e)", dits = "Dits / Hartleys (base 10)", trits = "Trits (base 3)" }
+
+[[input]]
+name   = "scope"
+label  = "Scope"
+source = "field"
+labels = { whole = "Whole input", line = "Each line + combined", paragraph = "Each paragraph + combined" }
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case (A = a)"
+source = "field"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace symbols"
+source = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name   = "show_frequencies"
+label  = "Show symbol-frequency table"
+source = "field"
+
+[[input]]
+name        = "top_symbols"
+label       = "Frequency rows to show"
+placeholder = "12"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "64"
+step        = "1"
+
+[[example]]
+label  = "Password-style string"
+params = { text = "password", basis = "characters", unit = "bits", precision = "4" }
+
+[[example]]
+label  = "Uniform alphabet"
+params = { text = "abcd", basis = "characters", unit = "bits", precision = "4" }
+
+[[example]]
+label  = "Compare each line"
+params = { text = "aaaaaa\nabcdef\nababab", basis = "characters", scope = "line", top_symbols = "6" }
+
+[[example]]
+label  = "Bytes and no frequency table"
+params = { text = "hello 🌍", basis = "bytes", show_frequencies = "false", precision = "3" }

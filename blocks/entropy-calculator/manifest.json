@@ -1,0 +1,84 @@
+{
+  "name": "gizza-ai/entropy-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shannon entropy of a string, in bits per character",
+  "role": "skill",
+  "tool": {
+    "description": "Calculate the Shannon entropy of a string in bits per character (or nats, dits, trits), to gauge how random a key, password, token, or passage is. Reports entropy per symbol, total information, distinct and total symbol counts, maximum entropy, efficiency, redundancy, perplexity, and a symbol-frequency table. Symbols can be characters, UTF-8 bytes, words, or lines, and the text can be scored as a whole or per line/paragraph. Pure local math on the text you pass; nothing is stored or transmitted. For binary files use the byte-entropy tool instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "default": "characters",
+          "description": "What counts as one symbol: 'characters' (Unicode scalars, the usual choice for keys and passwords), 'bytes' (UTF-8 bytes, the 0-8 bits/byte convention used for binary data), 'words' (whitespace-separated), or 'lines'. Default 'characters'.",
+          "enum": [
+            "characters",
+            "bytes",
+            "words",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Fold upper- and lower-case together before counting, so 'A' and 'a' are the same symbol. Default false.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": false,
+          "description": "Drop spaces, tabs, and newlines before counting (blank lines when basis='lines'; no effect when basis='words'). Default false.",
+          "type": "boolean"
+        },
+        "precision": {
+          "default": 4,
+          "description": "Decimal places for every non-integer figure, 0 to 10. Default 4.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scope": {
+          "default": "whole",
+          "description": "Score the input as one sequence ('whole', the default), or report one entropy per 'line' or per blank-line-separated 'paragraph' plus a combined figure. Maximum 20000 parts.",
+          "enum": [
+            "whole",
+            "line",
+            "paragraph"
+          ],
+          "type": "string"
+        },
+        "show_frequencies": {
+          "default": true,
+          "description": "Include the symbol-frequency table (symbol, count, share, bar). Default true.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The string, key, password, or passage to measure. Analyzed locally and never stored or sent anywhere. Maximum 1 MiB.",
+          "type": "string"
+        },
+        "top_symbols": {
+          "default": 12,
+          "description": "How many rows the frequency table shows, most frequent first, 0 to 64. Default 12.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "unit": {
+          "default": "bits",
+          "description": "Logarithm base for the entropy figures: 'bits' (base 2, shannons - the default), 'nats' (base e), 'dits' (base 10, also called hartleys or bans), or 'trits' (base 3).",
+          "enum": [
+            "bits",
+            "nats",
+            "dits",
+            "trits"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
