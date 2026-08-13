@@ -1,0 +1,114 @@
+slug          = "multilingual-stemmer"
+title         = "Multilingual Stemmer — Snowball Word Stems in 18 Languages"
+description   = "Stem words with Snowball algorithms in English, German, Spanish, French, Russian, Arabic and more. Browser-local text, stem list, mapping, table or JSON output."
+tags          = ["multilingual stemmer", "snowball stemmer", "porter stemmer", "word stemming", "text normalization", "search indexing", "keyword normalization", "german stemmer", "spanish stemmer", "arabic stemmer"]
+h1            = "Multilingual Stemmer"
+hero_subtitle = "Reduce inflected words to Snowball stems in 18 languages. Paste text, choose a language, and get layout-preserving stemmed text, unique stems, form mappings, frequency tables or JSON groups — all locally in your browser."
+wasm          = "gizza_ai_multilingual_stemmer_web"
+export        = "run"
+live          = false
+output_label  = "Stemmed output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Text to stem"
+placeholder = "The runners were running quickly. Studies studied studying."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "language"
+label       = "Language"
+source      = "field"
+[input.labels]
+arabic = "Arabic"
+danish = "Danish"
+dutch = "Dutch"
+english = "English"
+finnish = "Finnish"
+french = "French"
+german = "German"
+greek = "Greek"
+hungarian = "Hungarian"
+italian = "Italian"
+norwegian = "Norwegian"
+portuguese = "Portuguese"
+romanian = "Romanian"
+russian = "Russian"
+spanish = "Spanish"
+swedish = "Swedish"
+tamil = "Tamil"
+turkish = "Turkish"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+[input.labels]
+text = "Stemmed text (preserve layout)"
+stems = "Unique stems"
+mapping = "Form → stem mapping"
+table = "Stem frequency table"
+json = "JSON groups + stats"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum word length"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "30"
+step        = "1"
+
+[[input]]
+name        = "lowercase"
+label       = "Lowercase before stemming"
+source      = "field"
+
+[[example]]
+label = "English search terms"
+[example.params]
+input = "The runners were running quickly. Studies studied studying."
+language = "english"
+output = "text"
+min_length = "1"
+lowercase = "true"
+
+[[example]]
+label = "German stems"
+[example.params]
+input = "Häuser Häusern Haus"
+language = "german"
+output = "mapping"
+min_length = "1"
+lowercase = "true"
+
+[[example]]
+label = "Spanish table"
+[example.params]
+input = "corriendo corremos corrió correr"
+language = "spanish"
+output = "table"
+min_length = "1"
+lowercase = "true"
+
+[[example]]
+label = "JSON for indexing"
+[example.params]
+input = "cats cat dogs dogged"
+language = "english"
+output = "json"
+min_length = "1"
+lowercase = "true"
+
+[[example]]
+label = "Protect short words"
+[example.params]
+input = "AI APIs were running"
+language = "english"
+output = "text"
+min_length = "4"
+lowercase = "true"
