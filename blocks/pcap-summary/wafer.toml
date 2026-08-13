@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pcap-summary"
+version = "0.1.0"
+abi = 1
+summary = "Summarize a pcap: protocol breakdown, top talkers, conversations, and busiest ports."
