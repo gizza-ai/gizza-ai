@@ -1,0 +1,115 @@
+slug          = "one-time-pad"
+title         = "One-Time Pad Encrypt / Decrypt"
+description   = "Encrypt, decrypt, or generate true one-time pads locally: mod-26 letters, mod-10 digits, or bytewise XOR with hex/Base64 pads."
+tags          = ["one time pad", "otp cipher", "vernam cipher", "xor one time pad", "pad generator", "mod 26 cipher", "local encryption"]
+h1            = "One-Time Pad"
+hero_subtitle = "Encrypt and decrypt with a pad that is at least as long as the message, or generate fresh pad material from your browser's cryptographic RNG. Supports letters, digits, and bytewise XOR."
+wasm          = "gizza_ai_one_time_pad_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+[input.labels]
+encrypt      = "Encrypt"
+decrypt      = "Decrypt"
+generate-pad = "Generate pad"
+
+[[input]]
+name   = "cipher"
+label  = "Cipher alphabet"
+source = "field"
+[input.labels]
+letters = "Letters (A-Z mod 26)"
+digits  = "Digits (0-9 mod 10)"
+xor     = "XOR bytes"
+
+[[input]]
+name        = "message"
+label       = "Message / ciphertext"
+placeholder = "HELLO"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pad"
+label       = "Pad"
+placeholder = "XMCKA (leave empty while encrypting to generate a fresh pad)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "encoding"
+label  = "XOR encoding"
+source = "field"
+[input.labels]
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name        = "length"
+label       = "Generate-pad length"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 256
+step        = "1"
+
+[[input]]
+name        = "group"
+label       = "Group output every N characters"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 20
+step        = "1"
+
+[[example]]
+label = "HELLO + XMCKA"
+[example.params]
+mode = "encrypt"
+cipher = "letters"
+message = "HELLO"
+pad = "XMCKA"
+encoding = "hex"
+length = "0"
+group = "0"
+
+[[example]]
+label = "Decrypt EQNVO"
+[example.params]
+mode = "decrypt"
+cipher = "letters"
+message = "EQNVO"
+pad = "XMCKA"
+encoding = "hex"
+length = "0"
+group = "0"
+
+[[example]]
+label = "Digit pad"
+[example.params]
+mode = "encrypt"
+cipher = "digits"
+message = "12-34"
+pad = "9876"
+encoding = "hex"
+length = "0"
+group = "0"
+
+[[example]]
+label = "Generate 32 XOR bytes"
+[example.params]
+mode = "generate-pad"
+cipher = "xor"
+message = ""
+pad = ""
+encoding = "base64"
+length = "32"
+group = "0"
