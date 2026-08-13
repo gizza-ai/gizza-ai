@@ -1,0 +1,169 @@
+slug          = "gap-finder"
+title         = "Gap Finder — Missing Numbers, Ranges, and Duplicate IDs"
+description   = "Paste invoice numbers, order IDs, cheque numbers, or any sequence that should be consecutive to find missing values, gap ranges, and duplicates."
+tags = [
+  "gap finder",
+  "missing numbers",
+  "missing invoice numbers",
+  "sequence checker",
+  "duplicate id finder",
+  "order id audit",
+  "cheque number gaps",
+  "serial number gaps",
+]
+h1            = "Find missing numbers and gaps in a sequence"
+hero_subtitle = "Audit a pasted run of invoice numbers, order IDs, cheque numbers, or serials. Get missing values, gap ranges, duplicates, off-step entries, and out-of-order rows."
+wasm          = "gizza_ai_gap_finder_web"
+export        = "run"
+live          = false
+output_label  = "Gap audit"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Sequence"
+placeholder = "INV-1001\nINV-1002\nINV-1004\nINV-1004\nINV-1007"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "id_format"
+label  = "ID format"
+source = "field"
+
+[input.labels]
+auto   = "Auto: numbers or shared ID prefix/suffix"
+number = "Plain numbers only"
+
+[[input]]
+name   = "separator"
+label  = "Input separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+newline   = "One value per line"
+comma     = "Comma"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name        = "step"
+label       = "Expected step"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "start"
+label       = "Expected start (optional)"
+placeholder = "INV-1000"
+source      = "field"
+
+[[input]]
+name        = "end"
+label       = "Expected end (optional)"
+placeholder = "INV-1010"
+source      = "field"
+
+[[input]]
+name   = "order"
+label  = "Order check"
+source = "field"
+
+[input.labels]
+sorted = "Treat input as an unordered set"
+input  = "Also flag entries pasted out of order"
+
+[[input]]
+name   = "duplicates"
+label  = "Report duplicates"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report  = "Summary report"
+missing = "Missing values only"
+table   = "Gap table (TSV)"
+json    = "JSON"
+
+[[input]]
+name        = "limit"
+label       = "List limit"
+placeholder = "1000"
+source      = "field"
+
+[[example]]
+label = "Invoice gaps"
+[example.params]
+data = "INV-1001\nINV-1002\nINV-1004\nINV-1004\nINV-1007"
+id_format = "auto"
+separator = "newline"
+step = "1"
+start = "INV-1000"
+end = "INV-1008"
+order = "sorted"
+duplicates = "true"
+output = "report"
+limit = "1000"
+
+[[example]]
+label = "List every missing number"
+[example.params]
+data = "10\n14"
+id_format = "number"
+separator = "newline"
+step = "1"
+start = ""
+end = ""
+order = "sorted"
+duplicates = "true"
+output = "missing"
+limit = "1000"
+
+[[example]]
+label = "Even-numbered cheques"
+[example.params]
+data = "2\n4\n5\n10"
+id_format = "number"
+separator = "newline"
+step = "2"
+start = ""
+end = ""
+order = "sorted"
+duplicates = "true"
+output = "report"
+limit = "1000"
+
+[[example]]
+label = "Out-of-order ledger"
+[example.params]
+data = "1\n3\n2\n4"
+id_format = "number"
+separator = "newline"
+step = "1"
+start = ""
+end = ""
+order = "input"
+duplicates = "false"
+output = "report"
+limit = "1000"
+
+[[example]]
+label = "Gap table"
+[example.params]
+data = "1001\n1002\n1006"
+id_format = "number"
+separator = "newline"
+step = "1"
+start = ""
+end = ""
+order = "sorted"
+duplicates = "true"
+output = "table"
+limit = "1000"

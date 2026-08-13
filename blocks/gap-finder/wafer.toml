@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gap-finder"
+version = "0.1.0"
+abi = 1
+summary = "Find missing values, gap ranges, and duplicates in a sequence that should be consecutive"
