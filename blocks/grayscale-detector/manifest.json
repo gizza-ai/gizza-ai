@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/grayscale-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect whether an RGB image's pixels are effectively grayscale",
+  "role": "skill",
+  "tool": {
+    "description": "Detect whether an image stored as RGB is effectively grayscale by scoring every pixel's red/green/blue spread. Paste image bytes as base64 or hex; PNG, JPEG, WebP, GIF, BMP and TIFF are supported, up to 32 MiB decoded. Options: tolerance 0-255 (default 2) for the highest score still counted as gray, metric channel_delta or saturation, ignore_alpha true/false (default true), max_samples 0-200 (default 20), and output report or json. The result gives a verdict plus dimensions, scanned/gray/color pixel counts and percentages, max and mean score, and sample color-pixel coordinates with hex values.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_alpha": {
+          "default": true,
+          "description": "true (default) scores every pixel on its RGB channels regardless of transparency. false excludes fully transparent pixels (alpha 0) from the verdict and reports them separately.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Image file bytes encoded as base64 or hex. Supports PNG, JPEG, WebP, GIF, BMP, and TIFF. Max 32 MiB decoded.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding of `input`: base64 (default, standard or URL-safe alphabet) or hex (whitespace and ':' '-' '_' separators are ignored).",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "max_samples": {
+          "default": 20,
+          "description": "How many example color pixels to list with their coordinates and hex value (0-200, default 20). Use 0 to report counts only.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "metric": {
+          "default": "channel_delta",
+          "description": "How each pixel is scored: channel_delta (default) = max minus min of R, G, B; saturation = HSV saturation on a 0-255 scale, which also catches faint tints in dark pixels.",
+          "enum": [
+            "channel_delta",
+            "saturation"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: report (default, human-readable verdict with counts and sample pixels) or json (structured metrics and sample coordinates).",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 2,
+          "description": "Highest per-pixel colorfulness score (0-255) still counted as gray. Use 0 for strict R=G=B; the default 2 absorbs JPEG/WebP compression noise; 255 accepts every pixel.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

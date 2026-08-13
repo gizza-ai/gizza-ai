@@ -1,0 +1,114 @@
+slug          = "grayscale-detector"
+title         = "Grayscale Detector — Check RGB Images for Hidden Color Pixels"
+description   = "Paste image bytes and check whether every RGB pixel is effectively grayscale, with tolerance, color-pixel counts, and sample coordinates."
+tags = [
+  "grayscale detector",
+  "check grayscale image",
+  "hidden color pixels",
+  "rgb channel check",
+  "image color audit",
+  "single channel image",
+  "print preflight",
+]
+h1            = "Detect hidden color pixels in an RGB image"
+hero_subtitle = "Check whether an image is truly grayscale or only looks gray. The detector scans every pixel, measures RGB channel spread, and reports colorish pixels with examples."
+wasm          = "gizza_ai_grayscale_detector_web"
+export        = "run"
+live          = false
+output_label  = "Grayscale audit"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Image bytes"
+placeholder = "Paste base64-encoded PNG/JPEG/WebP/GIF/BMP/TIFF bytes…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "tolerance"
+label       = "RGB tolerance"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "metric"
+label  = "Metric"
+source = "field"
+
+[input.labels]
+channel_delta = "Channel delta (max - min RGB)"
+saturation    = "HSV saturation"
+
+[[input]]
+name   = "ignore_alpha"
+label  = "Ignore alpha channel"
+source = "field"
+
+[[input]]
+name        = "max_samples"
+label       = "Max sample pixels"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Summary report"
+json   = "JSON"
+
+[[example]]
+label = "Strict grayscale"
+[example.params]
+input = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGUlEQVR4nGNgYGD439DQ8J/hPxBwcnIyAABEMQeWR4OwxQAAAABJRU5ErkJggg=="
+input_format = "base64"
+tolerance = "0"
+metric = "channel_delta"
+ignore_alpha = "true"
+max_samples = "20"
+output = "report"
+
+[[example]]
+label = "Allow compression noise"
+[example.params]
+input = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAGklEQVR4nGPg4uL6L6ch95+BnYPzPwMDw38AJSoEl4YJu4AAAAAASUVORK5CYII="
+input_format = "base64"
+tolerance = "2"
+metric = "channel_delta"
+ignore_alpha = "true"
+max_samples = "20"
+output = "report"
+
+[[example]]
+label = "JSON metrics"
+[example.params]
+input = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGPgYWD4DwABNAEMg0Z3sgAAAABJRU5ErkJggg=="
+input_format = "base64"
+tolerance = "0"
+metric = "saturation"
+ignore_alpha = "true"
+max_samples = "10"
+output = "json"
+
+[[example]]
+label = "Skip transparent pixels"
+[example.params]
+input = "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR4nGP4z8DAwMHB8R8ACUgCF8+WDOkAAAAASUVORK5CYII="
+input_format = "base64"
+tolerance = "0"
+metric = "channel_delta"
+ignore_alpha = "false"
+max_samples = "20"
+output = "report"
