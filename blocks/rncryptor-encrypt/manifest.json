@@ -1,0 +1,68 @@
+{
+  "name": "gizza-ai/rncryptor-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build or open a password-based RNCryptor v3 container",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt data into a password-based RNCryptor v3 container, or decrypt one back. The output is the complete self-describing blob RNCryptor libraries read: version 0x03, options 0x01, an 8-byte encryption salt, an 8-byte HMAC salt, a 16-byte IV, AES-256-CBC ciphertext with PKCS#7 padding, and a trailing HMAC-SHA256 over everything before it. Both keys come from the password via PBKDF2-HMAC-SHA1 at 10000 iterations; those parameters are fixed by the format and are not adjustable, because changing any of them produces a blob no RNCryptor library can open. Salts and the IV are random per run unless encryption_salt/hmac_salt/iv are supplied as hex, which makes a run reproducible against the spec's published test vectors. data_encoding reads the input as text, hex or base64 (hex/base64 for binary payloads; on decrypt, text auto-detects hex vs base64) and output_encoding prints the result as base64 or hex. operation=decrypt verifies the HMAC in constant time before unpadding, so a wrong password or a modified container fails loudly instead of returning garbage. Handles the password variant only, not key-based containers, and only version 3.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "What to process: the plaintext to seal when operation=encrypt, or the container to open when operation=decrypt. Read according to data_encoding. Capped at 4 MiB of decoded bytes.",
+          "type": "string"
+        },
+        "data_encoding": {
+          "default": "text",
+          "description": "How to read data. text (default) treats it as UTF-8 characters when encrypting and auto-detects hex vs base64 when decrypting; hex and base64 decode it to raw bytes first, which is how you seal binary input. Whitespace and a leading 0x are ignored in hex.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "encryption_salt": {
+          "description": "Optional 8-byte encryption salt as 16 hex characters (e.g. 0001020304050607). Leave empty for a fresh random salt, which is what you want for real data; set it only to reproduce a known container byte for byte. Ignored when operation=decrypt (the salt is read from the container).",
+          "type": "string"
+        },
+        "hmac_salt": {
+          "description": "Optional 8-byte HMAC salt as 16 hex characters (e.g. 0102030405060708). Leave empty for a fresh random salt. Must differ from encryption_salt in practice, since it derives the separate authentication key. Ignored when operation=decrypt.",
+          "type": "string"
+        },
+        "iv": {
+          "description": "Optional 16-byte AES-CBC initialization vector as 32 hex characters (e.g. 02030405060708090a0b0c0d0e0f0001). Leave empty for a fresh random IV — reusing an IV with the same password and salts leaks whether two plaintexts share a prefix. Ignored when operation=decrypt.",
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "encrypt (default) seals data into a new RNCryptor v3 password container; decrypt verifies an existing container's HMAC and returns the plaintext. Anything else is rejected.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        },
+        "output_encoding": {
+          "default": "base64",
+          "description": "How the result is printed. base64 (default) is the compact form to paste between systems; hex is byte-addressable for comparing against a spec test vector. On decrypt this applies only when the plaintext is not valid UTF-8 — readable text comes back as text.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "password": {
+          "description": "The passphrase both keys are derived from (PBKDF2-HMAC-SHA1, 10000 iterations, one pass per salt). Any non-empty string, including non-ASCII; it is UTF-8 encoded before derivation. The exact same password is needed to decrypt — there is no recovery path.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "password"
+      ],
+      "type": "object"
+    }
+  }
+}
