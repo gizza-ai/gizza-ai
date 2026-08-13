@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/logfmt-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert log data between logfmt, JSON, NDJSON, and CSV in any direction.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert log/event data between logfmt (key=value pairs), JSON (a single array), NDJSON (one JSON record per line, a.k.a. JSONL) and CSV in any direction — including WRITING logfmt, which the other log tools cannot do. from='auto' (default) detects the source format; set from/to explicitly to force it. detect_types=true (default) coerces unquoted logfmt/CSV values to numbers, booleans and null, while quoted values stay strings. logfmt output follows the go-logfmt rules: single-space-separated key=value pairs, values double-quoted whenever they hold a space, '=', a quote or a control character, with \\\" \\\\ \\n \\r \\t escapes; a null writes as a bare 'key=' and an empty string as 'key=\"\"'. flatten=true (default) expands nested records into dot-notation keys when writing logfmt/CSV. delimiter picks the CSV separator, pretty indents the 'json' target, and keys is a comma-separated allow-list that also fixes field order.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The logfmt, JSON, NDJSON, or CSV text to convert. One record per line for logfmt and NDJSON; blank lines are ignored. Maximum 1,000,000 characters.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator used for CSV on BOTH sides — reading a CSV source and writing a CSV target. Ignored for the logfmt/JSON/NDJSON formats. Default 'comma'.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "detect_types": {
+          "default": true,
+          "description": "For logfmt and CSV input: turn unquoted values into JSON numbers, true/false, and null (an empty logfmt value). Quoted values always stay strings, so msg=\"200\" survives as text. Leading-zero / '+'-prefixed values (zip codes, phone numbers) also stay strings. Ignored for JSON/NDJSON input. Default true.",
+          "type": "boolean"
+        },
+        "flatten": {
+          "default": true,
+          "description": "When the target is flat (logfmt or CSV): expand nested objects/arrays into dot-notation keys (e.g. {\"user\":{\"id\":7}} becomes user.id=7, and a list becomes tags.0, tags.1). When false, nested values are written as compact JSON strings. Default true.",
+          "type": "boolean"
+        },
+        "from": {
+          "default": "auto",
+          "description": "Source format. 'auto' (default) detects it: text starting with '[' is a JSON array, '{' is a single JSON object (or 'ndjson' when every line is its own JSON value), a leading key=value token means 'logfmt', otherwise 'csv'. Set it explicitly when detection guesses wrong.",
+          "enum": [
+            "auto",
+            "logfmt",
+            "json",
+            "ndjson",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "keys": {
+          "default": "",
+          "description": "Optional comma-separated field allow-list that also fixes the output order, e.g. 'ts,level,msg'. Fields not listed are dropped; a record missing a listed field simply omits it. Blank (default) keeps every field in first-seen order.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Pretty-print (indent) JSON output. Only affects the 'json' target -- NDJSON is always one compact record per line. Default false.",
+          "type": "boolean"
+        },
+        "to": {
+          "default": "json",
+          "description": "Target format: 'logfmt' (key=value pairs, one record per line), 'json' (a single array), 'ndjson' (one compact JSON record per line, a.k.a. JSONL), or 'csv'. Default 'json'.",
+          "enum": [
+            "logfmt",
+            "json",
+            "ndjson",
+            "csv"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

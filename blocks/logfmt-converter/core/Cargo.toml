@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-logfmt-converter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps record key order stable end to end: a JSON object's
+# authored key order survives into logfmt/CSV column order instead of being
+# alphabetised by serde_json's default BTreeMap.
+serde_json = { version = "1", features = ["preserve_order"] }
