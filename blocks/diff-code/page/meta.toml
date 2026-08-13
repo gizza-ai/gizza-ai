@@ -1,0 +1,135 @@
+slug          = "diff-code"
+title         = "Code Diff — Compare Two Code Snippets Side by Side"
+description   = "Paste two code snippets and compare them side by side, with word- or character-level highlighting, a unified patch view, and change stats."
+tags          = ["code diff", "compare code", "side by side diff", "word diff", "unified diff", "text compare", "developer"]
+h1            = "Compare Two Code Snippets"
+hero_subtitle = "Paste the old and new version to get aligned columns with only the changed words marked — or a clean unified patch, a merged word-diff stream, or change stats."
+wasm          = "gizza_ai_diff_code_web"
+export        = "run"
+live          = false
+output_label  = "Diff"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "left"
+label       = "Original code"
+placeholder = "fn main() {\n    println!(\"hi\");\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Updated code"
+placeholder = "fn main() {\n    println!(\"hello\");\n    println!(\"world\");\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "view"
+label  = "View"
+source = "field"
+
+[input.labels]
+"side-by-side" = "Side by side (two columns)"
+unified = "Unified patch (@@ hunks)"
+"word-diff" = "Word diff (one merged stream)"
+stats = "Stats (counts and similarity)"
+json = "JSON report"
+
+[[input]]
+name   = "granularity"
+label  = "Highlight inside changed lines"
+source = "field"
+
+[input.labels]
+word = "Word level"
+char = "Character level"
+none = "Off — mark the whole line"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case when matching"
+source = "field"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore whitespace when matching"
+source = "field"
+
+[[input]]
+name        = "context"
+label       = "Context lines around each change"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "20"
+step        = "1"
+
+[[input]]
+name   = "line_numbers"
+label  = "Show line numbers"
+source = "field"
+
+[[input]]
+name        = "width"
+label       = "Column width (side-by-side)"
+placeholder = "60"
+source      = "field"
+kind        = "slider"
+min         = "20"
+max         = "200"
+step        = "5"
+
+[[example]]
+label = "Side by side"
+[example.params]
+left = "fn main() {\n    println!(\"hi\");\n}\n"
+right = "fn main() {\n    println!(\"hello\");\n    println!(\"world\");\n}\n"
+view = "side-by-side"
+granularity = "word"
+ignore_case = "false"
+ignore_whitespace = "false"
+context = "3"
+line_numbers = "true"
+width = "60"
+
+[[example]]
+label = "Unified patch"
+[example.params]
+left = "fn main() {\n    println!(\"hi\");\n}\n"
+right = "fn main() {\n    println!(\"hello\");\n    println!(\"world\");\n}\n"
+view = "unified"
+granularity = "word"
+ignore_case = "false"
+ignore_whitespace = "false"
+context = "3"
+line_numbers = "true"
+width = "60"
+
+[[example]]
+label = "Character level"
+[example.params]
+left = "var color = getColor();\n"
+right = "var colour = getColour();\n"
+view = "word-diff"
+granularity = "char"
+ignore_case = "false"
+ignore_whitespace = "false"
+context = "3"
+line_numbers = "true"
+width = "60"
+
+[[example]]
+label = "Reformatted only"
+[example.params]
+left = "const a = { x : 1 };\nconst B = 2;\n"
+right = "const a = {x: 1};\nconst b = 2;\n"
+view = "stats"
+granularity = "word"
+ignore_case = "true"
+ignore_whitespace = "true"
+context = "3"
+line_numbers = "true"
+width = "60"
