@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "histogram-bin-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Recommend histogram bin counts and widths with Sturges, Scott, and Freedman-Diaconis"

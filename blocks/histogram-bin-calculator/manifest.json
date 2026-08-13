@@ -1,0 +1,95 @@
+{
+  "name": "gizza-ai/histogram-bin-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Recommend histogram bin counts and widths with Sturges, Scott, and Freedman-Diaconis",
+  "role": "skill",
+  "tool": {
+    "description": "Work out how many bins a histogram of a dataset should have. Reports the bin count and bin width recommended by Sturges (k = ceil(log2 n) + 1), Scott (h = 3.49 x sd x n^(-1/3)), Freedman-Diaconis (h = 2 x IQR x n^(-1/3)), Rice, and the square-root rule side by side, then applies the rule you pick and shows the resulting bin edges, counts, percentages, optional cumulative totals and density, plus n/min/max/mean/median/sd/quartiles/IQR/skewness/kurtosis and an outlier count. Options: rule auto|sturges|scott|freedman_diaconis|rice|sqrt|manual, bins 1-1000 (for manual), range_min/range_max to fix the histogram range, nice_edges true|false for rounded edges, right_closed true|false for (a,b] instead of [a,b), precision 0-12, output report|table|csv|json, cumulative/density/chart true|false. Paste plain decimals or scientific notation; at least 2 and at most 100,000 values. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "default": 10,
+          "description": "Number of bins to use when rule='manual' (ignored otherwise). 1-1000, default 10.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "chart": {
+          "default": true,
+          "description": "Draw an ASCII bar per bin in the 'report' output so the distribution shape is visible (default true; ignored by table/csv/json).",
+          "type": "boolean"
+        },
+        "cumulative": {
+          "default": false,
+          "description": "Add cumulative count and cumulative percentage columns to the bin table (default false).",
+          "type": "boolean"
+        },
+        "density": {
+          "default": false,
+          "description": "Add a density column, count / (n x bin width) — the bar height of a unit-area histogram (default false).",
+          "type": "boolean"
+        },
+        "nice_edges": {
+          "default": false,
+          "description": "Round the bin width up to a human-friendly step (1, 2, 2.5 or 5 x a power of ten) and, when range_min is blank, snap the first edge down to a multiple of it — so edges read 0, 10, 20 instead of 1, 10.75, 20.5. Default false (exact rule-derived edges).",
+          "type": "boolean"
+        },
+        "numbers": {
+          "description": "The dataset to bin, one number per line (commas, semicolons, tabs, pipes and spaces also work). Plain decimals and scientific notation only, e.g. '12', '-3.5', '1.2e3'. At least 2 values, at most 100,000.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output shape: 'report' (default) is the readable rule comparison plus a bin table with ASCII bars; 'table' is the bin table alone as TSV; 'csv' is the same table comma-separated; 'json' is the full structured report (summary, every rule, bins).",
+          "enum": [
+            "report",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": 4,
+          "description": "Decimal places used when printing bin edges, widths and statistics. Default 4.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "range_max": {
+          "description": "Upper edge of the last bin. Blank (default) uses the largest value in the data. Values above it are reported as excluded, not counted.",
+          "type": "string"
+        },
+        "range_min": {
+          "description": "Lower edge of the first bin. Blank (default) uses the smallest value in the data. Values below it are reported as excluded, not counted.",
+          "type": "string"
+        },
+        "right_closed": {
+          "default": false,
+          "description": "Use right-closed intervals '(a, b]' so a value on an edge falls in the LOWER bin. Default false = left-closed '[a, b)', the numpy/matplotlib convention, where the last bin also includes the maximum.",
+          "type": "boolean"
+        },
+        "rule": {
+          "default": "auto",
+          "description": "Which bin-count rule to APPLY (all of them are reported side by side either way). 'auto' (default) takes the finer of Sturges and Freedman-Diaconis, like numpy; 'sturges' is k = ceil(log2(n)) + 1; 'scott' is h = 3.49 x sd x n^(-1/3); 'freedman_diaconis' is h = 2 x IQR x n^(-1/3) and resists outliers; 'rice' is k = ceil(2 x n^(1/3)); 'sqrt' is k = ceil(sqrt(n)); 'manual' uses your own 'bins' count.",
+          "enum": [
+            "auto",
+            "sturges",
+            "scott",
+            "freedman_diaconis",
+            "rice",
+            "sqrt",
+            "manual"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "numbers"
+      ],
+      "type": "object"
+    }
+  }
+}
