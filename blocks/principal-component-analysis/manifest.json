@@ -1,0 +1,49 @@
+{
+  "name": "gizza-ai/principal-component-analysis",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "PCA on a data matrix: explained variance, loadings and scores",
+  "role": "skill",
+  "tool": {
+    "description": "Run principal component analysis (PCA) on a pasted numeric data matrix — one observation per line, one variable per column, split on commas, tabs, semicolons or spaces (a non-numeric first row is read as column names). Columns are mean-centered and, by default (scale=true), standardized to unit variance so the analysis runs on the correlation matrix; set scale=false for covariance PCA. Returns each component's eigenvalue, its proportion and cumulative proportion of the total variance, how many components reach 90/95/99% of the variance, the Kaiser count, the loadings (each variable's weight in each component) and the scores (every observation projected onto the components). Use components to keep only the top N, labels to name the columns, and format='json' or 'csv' to get every score row for plotting. Handles up to 20000 rows and 100 columns; component signs are fixed so the largest loading is positive. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "default": 0,
+          "description": "How many principal components to report, most-variance first. 0 (default) keeps every component. The explained-variance percentages are always computed against the full set.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "data": {
+          "description": "The data matrix: one observation per line, one variable per column, columns separated by commas, tabs, semicolons or spaces. Every row must have the same number of columns and there must be at least 2 columns and 2 rows, e.g. '1,2\\n2,4\\n3,5'. A first row whose values are not all numbers is read as a header of column names. Up to 20000 rows and 100 columns.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: 'text' (default) = a formatted report with the explained-variance table, the loadings and the first 20 score rows; 'json' = the full result including every score, the column means and standard deviations; 'csv' = just the projected coordinates as 'row,PC1,PC2,…', ready to plot.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "description": "Optional comma-separated variable names, one per column in data order (e.g. 'height,weight,age'). They name the loading rows and override any header row. Default v1, v2, … .",
+          "type": "string"
+        },
+        "scale": {
+          "default": true,
+          "description": "Standardize each column to unit variance before the decomposition (default true), i.e. run PCA on the correlation matrix — the right choice when the variables use different units or scales. Set false to use the covariance matrix and let raw magnitudes dominate. Columns are always mean-centered.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

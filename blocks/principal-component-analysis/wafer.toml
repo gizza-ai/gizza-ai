@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "principal-component-analysis"
+version = "0.1.0"
+abi = 1
+summary = "PCA on a data matrix: explained variance, loadings and scores"
