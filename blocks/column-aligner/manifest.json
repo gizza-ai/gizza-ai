@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/column-aligner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Align delimited text into fixed-width columns",
+  "role": "skill",
+  "tool": {
+    "description": "Align whitespace-, tab-, comma-, pipe-, or other delimiter-separated text into neat fixed-width plain-text columns, like `column -t`. Supports left, right, center, automatic numeric alignment, per-column overrides, configurable gaps, optional separator text, Unicode display-width padding, blank-line preservation, and no trailing whitespace. Limits: 20,000 lines and 512 columns.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align": {
+          "default": "left",
+          "description": "Alignment applied to every column unless column_align overrides it. `auto` right-aligns columns whose non-empty cells are all numeric and left-aligns the rest. Default left.",
+          "enum": [
+            "left",
+            "right",
+            "center",
+            "auto"
+          ],
+          "type": "string"
+        },
+        "column_align": {
+          "default": "",
+          "description": "Optional per-column alignment override, e.g. `lrr` or `left,right,center`. Use `-` to inherit the main align setting. Short specs leave remaining columns on align.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "whitespace",
+          "description": "How to split each input row into fields. `whitespace` splits on runs of spaces/tabs; named literal delimiters include tab, comma, semicolon, colon, pipe, and space. Default whitespace.",
+          "enum": [
+            "whitespace",
+            "tab",
+            "comma",
+            "semicolon",
+            "colon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "gap": {
+          "default": 2,
+          "description": "Spaces between columns. With a separator, the gap is placed on both sides of that separator. Default 2, allowed 0–16.",
+          "maximum": 16,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "Rows to align, one record per line. Default delimiter is runs of whitespace, like `column -t`. Blank lines are preserved; max 20,000 lines and 512 columns.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "",
+          "description": "Optional string drawn between columns, such as `|`. Leave empty for plain spaces only.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Trim whitespace around fields after splitting on a literal delimiter. Whitespace-delimited input is always trimmed by the split. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
