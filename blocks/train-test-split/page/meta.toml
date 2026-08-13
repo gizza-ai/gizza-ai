@@ -1,0 +1,108 @@
+slug          = "train-test-split"
+title         = "Train/Test Split — Stratified, Grouped & Seeded CSV Splitter"
+description   = "Split a CSV into train, test and validation sets. Stratify on a label, keep groups together, or split sequentially for time series — with a reproducible seed."
+tags          = ["train test split", "train validation test split", "stratified split", "csv splitter", "dataset split", "holdout set", "grouped split", "time series split", "reproducible seed", "machine learning dataset"]
+h1            = "Train/Test Split"
+hero_subtitle = "Paste a CSV and split its data rows into train and test sets — plus an optional validation set. Stratify on a label column to keep class balance, group rows so related records can't leak across splits, or turn shuffling off for a time-series split. Every draw is reproducible from the seed."
+wasm          = "gizza_ai_train_test_split_web"
+export        = "run"
+live          = false
+output_label  = "Splits"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "id,label\n1,a\n2,b\n3,a\n4,b\n5,a\n6,b\n7,a\n8,b\n9,a\n10,b"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "test_size"
+label       = "Test size (fraction below 1, row count from 1)"
+placeholder = "0.2"
+source      = "field"
+
+[[input]]
+name        = "validation_size"
+label       = "Validation size (0 = no validation set)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "stratify_column"
+label       = "Stratify column (keep class balance)"
+placeholder = "label"
+source      = "field"
+
+[[input]]
+name        = "stratify_bins"
+label       = "Stratify bins for a numeric column (0 = use raw values)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "group_column"
+label       = "Group column (keep matching rows in one split)"
+placeholder = "patient"
+source      = "field"
+
+[[input]]
+name   = "shuffle"
+label  = "Shuffle rows before splitting"
+source = "field"
+
+[[input]]
+name        = "seed"
+label       = "Random seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+"comma"     = "Comma — standard CSV"
+"tab"       = "Tab — TSV"
+"semicolon" = "Semicolon"
+"pipe"      = "Pipe"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+"sections"   = "All splits — each under a labelled heading"
+"train"      = "Train set only"
+"test"       = "Test set only"
+"validation" = "Validation set only"
+"summary"    = "Summary — row counts, percentages and class balance"
+"json"       = "JSON — every split plus counts in one object"
+
+[[example]]
+label  = "80/20 train/test"
+params = { data = "id,label\n1,a\n2,b\n3,a\n4,b\n5,a\n6,b\n7,a\n8,b\n9,a\n10,b", test_size = "0.2", validation_size = "0", stratify_column = "", stratify_bins = "0", group_column = "", shuffle = "true", seed = "42", header = "true", delimiter = "comma", output = "sections" }
+
+[[example]]
+label  = "60/20/20 train/validation/test"
+params = { data = "id,label\n1,a\n2,b\n3,a\n4,b\n5,a\n6,b\n7,a\n8,b\n9,a\n10,b", test_size = "0.2", validation_size = "0.2", stratify_column = "", stratify_bins = "0", group_column = "", shuffle = "true", seed = "42", header = "true", delimiter = "comma", output = "sections" }
+
+[[example]]
+label  = "Stratified on the label column"
+params = { data = "id,label\n1,a\n2,b\n3,a\n4,b\n5,a\n6,b\n7,a\n8,b\n9,a\n10,b", test_size = "0.4", validation_size = "0", stratify_column = "label", stratify_bins = "0", group_column = "", shuffle = "true", seed = "3", header = "true", delimiter = "comma", output = "summary" }
+
+[[example]]
+label  = "Grouped by patient — no leakage"
+params = { data = "patient,visit\np1,1\np1,2\np2,1\np2,2\np3,1\np3,2\np4,1\np4,2", test_size = "0.25", validation_size = "0", stratify_column = "", stratify_bins = "0", group_column = "patient", shuffle = "true", seed = "9", header = "true", delimiter = "comma", output = "sections" }
+
+[[example]]
+label  = "Time series — no shuffle, newest rows in test"
+params = { data = "day,sales\n1,10\n2,12\n3,11\n4,15\n5,14\n6,18\n7,17\n8,21\n9,20\n10,25", test_size = "0.2", validation_size = "0.1", stratify_column = "", stratify_bins = "0", group_column = "", shuffle = "false", seed = "42", header = "true", delimiter = "comma", output = "sections" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "train-test-split"
+version = "0.1.0"
+abi = 1
+summary = "Split a CSV into train/test (and validation) sets with stratification and a reproducible seed"

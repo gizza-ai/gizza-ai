@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/train-test-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a CSV into train/test (and validation) sets with stratification and a reproducible seed",
+  "role": "skill",
+  "tool": {
+    "description": "Split a CSV's data rows into a train and a test set, plus an optional validation set. `test_size`/`validation_size` are a proportion when below 1 (0.2 = 20%) or an absolute row count when 1 or more. `stratify_column` keeps a label column's class balance identical across the splits (use `stratify_bins` to quantile-bin a numeric column first); `group_column` instead keeps all rows sharing a value together so related rows can't leak across splits. Turn `shuffle` off for a sequential time-series split (train first, test last). Every draw is reproducible via `seed`. `output` picks sections (all splits labelled), one split alone, a summary of counts and class balance, or json.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The CSV text to split into train and test sets.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter of the input, also used for the output. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "group_column": {
+          "default": "",
+          "description": "Keep every row sharing a value in this column in the SAME split, so related rows (a patient, a user, a document) can't leak across sets — a header name or a 1-based index. Cannot be combined with stratify_column. Empty means no grouping.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header (repeated at the top of every split, and used to resolve column names). Default true.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "sections",
+          "description": "What to return: sections (every split, each under a '# train (N rows)' label), train/test/validation (that one split's CSV alone), summary (row counts, percentages and the per-class balance), or json (all splits plus counts as a JSON object). Default sections.",
+          "enum": [
+            "sections",
+            "train",
+            "test",
+            "validation",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the reproducible PRNG — the same seed always produces the same split. Change it for a different draw. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "shuffle": {
+          "default": true,
+          "description": "Shuffle rows before splitting. Turn OFF for a sequential/time-series split: train takes the first rows, then validation, then test takes the last rows. Default true.",
+          "type": "boolean"
+        },
+        "stratify_bins": {
+          "default": 0,
+          "description": "For a NUMERIC stratify_column: bin the values into this many equal-count (quantile) strata before splitting, e.g. 4 for quartiles. 0 uses the raw values as classes. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "stratify_column": {
+          "default": "",
+          "description": "Keep this column's class balance identical in every split — a header name (header=true) or a 1-based index, e.g. 'label'. Requires shuffle=true and cannot be combined with group_column. Empty means no stratification.",
+          "type": "string"
+        },
+        "test_size": {
+          "default": 0.2,
+          "description": "Size of the test set: below 1 it is a proportion of the data rows (0.2 = 20%), 1 or more is an absolute row count (50 = 50 rows). Default 0.2.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "validation_size": {
+          "default": 0.0,
+          "description": "Size of an optional third validation set, same convention as test_size (below 1 = proportion, 1 or more = row count). 0 means no validation set. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
