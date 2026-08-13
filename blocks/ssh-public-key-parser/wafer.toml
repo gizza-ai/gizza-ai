@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ssh-public-key-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse OpenSSH public keys into type, size, comment and fingerprints"
