@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mongodb-query-to-sql"
+version = "0.1.0"
+abi = 1
+summary = "Convert a MongoDB find filter or shell query into a SQL WHERE clause or SELECT statement"

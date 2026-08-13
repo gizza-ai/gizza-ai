@@ -1,0 +1,128 @@
+slug          = "mongodb-query-to-sql"
+title         = "MongoDB Query to SQL Converter — WHERE Clause or SELECT"
+description   = "Paste a MongoDB find filter or db.collection.find() shell call and get the equivalent SQL condition, WHERE clause, or full SELECT statement."
+tags = [
+  "mongodb to sql",
+  "mongodb query converter",
+  "mongo find to select",
+  "mongodb where clause",
+  "nosql to sql",
+  "mongodb migration",
+  "mongo filter translator",
+  "db.collection.find to sql",
+]
+h1            = "Convert a MongoDB query to SQL"
+hero_subtitle = "Translate a MongoDB filter or db.collection.find() call into a SQL condition, WHERE clause, or full SELECT — in ANSI, PostgreSQL, MySQL, or SQL Server."
+wasm          = "gizza_ai_mongodb_query_to_sql_web"
+export        = "run"
+live          = false
+output_label  = "SQL"
+format        = "text"
+
+[[input]]
+name        = "query"
+label       = "MongoDB query"
+placeholder = "db.users.find({ age: { $gte: 21 }, status: \"active\" })"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+where     = "WHERE clause"
+condition = "Condition only (no WHERE)"
+select    = "Full SELECT statement"
+
+[[input]]
+name   = "dialect"
+label  = "SQL dialect"
+source = "field"
+
+[input.labels]
+ansi      = "ANSI SQL (\"double quotes\")"
+postgres  = "PostgreSQL"
+mysql     = "MySQL / MariaDB"
+sqlserver = "SQL Server / T-SQL"
+
+[[input]]
+name        = "table"
+label       = "Table name (SELECT output)"
+placeholder = "sales.orders"
+source      = "field"
+
+[[input]]
+name   = "nested"
+label  = "Dotted paths"
+source = "field"
+
+[input.labels]
+column = "Treat a.b as one column name"
+json   = "Extract a JSON path"
+
+[[input]]
+name   = "quote_identifiers"
+label  = "Quote identifiers"
+source = "field"
+
+[[input]]
+name   = "rename_id"
+label  = "Rename _id to id"
+source = "field"
+
+[[example]]
+label = "Basic WHERE clause"
+[example.params]
+query = "db.users.find({ age: { $gte: 21 }, status: \"active\" })"
+output = "where"
+dialect = "ansi"
+table = ""
+nested = "column"
+quote_identifiers = "true"
+rename_id = "false"
+
+[[example]]
+label = "Full SELECT with sort and paging"
+[example.params]
+query = "db.orders.find({ status: { $in: [\"paid\", \"shipped\"] }, total: { $gt: 100 } }, { _id: 0, orderId: 1, total: 1 }).sort({ total: -1 }).limit(10).skip(20)"
+output = "select"
+dialect = "ansi"
+table = ""
+nested = "column"
+quote_identifiers = "true"
+rename_id = "false"
+
+[[example]]
+label = "PostgreSQL JSON path"
+[example.params]
+query = "{ \"address.city\": \"Berlin\", \"meta.score\": { $gte: 10 } }"
+output = "condition"
+dialect = "postgres"
+table = ""
+nested = "json"
+quote_identifiers = "true"
+rename_id = "false"
+
+[[example]]
+label = "SQL Server paging"
+[example.params]
+query = "db.users.find({ active: true }).sort({ createdAt: -1 }).skip(10).limit(5)"
+output = "select"
+dialect = "sqlserver"
+table = ""
+nested = "column"
+quote_identifiers = "true"
+rename_id = "false"
+
+[[example]]
+label = "Rename _id, no quoting"
+[example.params]
+query = "{ _id: ObjectId(\"64b1a2c3d4e5f60718293a4b\"), status: \"active\" }"
+output = "where"
+dialect = "ansi"
+table = ""
+nested = "column"
+quote_identifiers = "false"
+rename_id = "true"
