@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/lazy-load-attributer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add loading=\"lazy\" and decoding=\"async\" to images and iframes that lack them",
+  "role": "skill",
+  "tool": {
+    "description": "Rewrite pasted HTML so every <img> and <iframe> that lacks them gets loading=\"lazy\" and (images only) decoding=\"async\". Pass the markup as 'html'. An attribute that is already present is never overwritten, so re-running is a no-op, and every other byte of the document — text, comments, doctype, script/style bodies, attribute quoting — is copied through unchanged. Tags with no src or srcset are skipped (there is nothing to defer), as are tags carrying a 'skip-lazy'/'no-lazy' class or a data-skip-lazy/data-no-lazy attribute unless respect_skip_markers=false. Use skip_first=N to leave the first N images eager so the above-the-fold LCP image is not deferred, eager_first=true to mark those explicitly with loading=\"eager\", and fetchpriority_first=true to add fetchpriority=\"high\" to the first image. targets narrows to images or iframes; decoding picks the decoding value (async/sync/auto) or 'none' to skip it; output='report' returns a count of what changed instead of the markup. Pure and local: no network, no image files are read, so widths/heights and srcset are never inferred.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decoding": {
+          "default": "async",
+          "description": "Value written for the decoding attribute on <img> tags that lack one: 'async' (default, decode off the main thread), 'sync', 'auto', or 'none' to add no decoding attribute at all. Iframes have no decode step, so they never get this attribute.",
+          "enum": [
+            "async",
+            "sync",
+            "auto",
+            "none"
+          ],
+          "type": "string"
+        },
+        "eager_first": {
+          "default": false,
+          "description": "When true, write loading=\"eager\" on the first skip_first images instead of leaving their loading attribute absent. Default false. Has no effect when skip_first is 0.",
+          "type": "boolean"
+        },
+        "fetchpriority_first": {
+          "default": false,
+          "description": "When true, add fetchpriority=\"high\" to the very first image, hinting that it is the LCP element. Default false. Usually paired with skip_first=1.",
+          "type": "boolean"
+        },
+        "html": {
+          "description": "The HTML to rewrite — a full document or a fragment, e.g. '<img src=\"photo.jpg\"><iframe src=\"https://example.com/embed\"></iframe>'. Everything except the matched start tags is copied through unchanged.",
+          "type": "string"
+        },
+        "output": {
+          "default": "html",
+          "description": "What to return: 'html' (default) is the rewritten markup; 'report' is a human-readable count of what was added and what was left unchanged and why.",
+          "enum": [
+            "html",
+            "report"
+          ],
+          "type": "string"
+        },
+        "respect_skip_markers": {
+          "default": true,
+          "description": "When true (default), leave tags carrying an opt-out marker alone: a 'skip-lazy' or 'no-lazy' class, or a data-skip-lazy / data-no-lazy attribute. Set false to rewrite them anyway.",
+          "type": "boolean"
+        },
+        "skip_first": {
+          "default": 0,
+          "description": "Leave the first N images in document order untouched so the above-the-fold / LCP image is never deferred (0-50, default 0). Counts <img> tags only; iframes are never treated as LCP candidates.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "targets": {
+          "default": "both",
+          "description": "Which elements to rewrite: 'both' (default) does <img> and <iframe>, 'images' does <img> only, 'iframes' does <iframe> only.",
+          "enum": [
+            "both",
+            "images",
+            "iframes"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}
