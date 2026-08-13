@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/document-term-matrix",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build document-term matrices from pasted documents",
+  "role": "skill",
+  "tool": {
+    "description": "Build a document-term matrix from a collection of documents. Paste one document per line or a JSON array of strings; tokenize words locally; optionally case-fold; include unigrams, bigrams or trigrams; filter vocabulary by minimum document frequency; cap max features; export count or binary bag-of-words matrices as CSV, TSV or JSON. Columns are ordered by descending document frequency then term. Limits: 10,000 documents, 5,000 terms, n-grams 1-3.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "Keep uppercase and lowercase terms separate. Default false folds tokens to lowercase before counting.",
+          "type": "boolean"
+        },
+        "documents": {
+          "description": "Documents to vectorize. Use a JSON array of strings (for exact documents with embedded newlines) or one document per line. Blank lines are ignored in lines mode. Limit: 10,000 documents.",
+          "type": "string"
+        },
+        "include_totals": {
+          "default": true,
+          "description": "Add a __total_terms column to delimited output and a total_terms array to JSON. With binary weighting this is the number of distinct kept terms in each document.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read documents: auto treats input starting with '[' as a JSON array of strings and anything else as one document per line; json requires a JSON array; lines reads each nonblank line as one document.",
+          "enum": [
+            "auto",
+            "json",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "max_features": {
+          "default": 0,
+          "description": "Maximum vocabulary columns to keep after sorting by document frequency then term. Use 0 for no cap up to the hard 5,000-column limit.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_df": {
+          "default": 1,
+          "description": "Minimum document frequency: keep only terms that appear in at least this many documents. Raise it to remove rare terms from a large corpus.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ngram_max": {
+          "default": 1,
+          "description": "Largest n-gram length to include. Must be 1-3 and >= ngram_min. Use 1 for ordinary bag-of-words.",
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ngram_min": {
+          "default": 1,
+          "description": "Smallest n-gram length to include. 1 means individual terms; 2 adds adjacent two-word phrases; 3 adds three-word phrases. Must be 1-3 and <= ngram_max.",
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Output format: csv (default) for spreadsheets, tsv for tab-separated matrices, or json for structured terms/document_frequency/matrix arrays.",
+          "enum": [
+            "csv",
+            "json",
+            "tsv"
+          ],
+          "type": "string"
+        },
+        "weighting": {
+          "default": "count",
+          "description": "Cell weighting: count stores term occurrence counts per document; binary stores 1 when the term appears at least once and 0 otherwise.",
+          "enum": [
+            "count",
+            "binary"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "type": "object"
+    }
+  }
+}
