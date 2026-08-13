@@ -1,0 +1,103 @@
+slug          = "geojson-format"
+title         = "GeoJSON Formatter — Pretty Print, Minify, Round Coordinates & Re-key"
+description   = "Format GeoJSON locally: pretty-print, minify, round coordinates, reorder keys, add bbox, fix winding, and prune properties."
+tags          = ["geojson formatter", "geojson minifier", "geojson validator", "geojson bbox", "coordinate precision", "rfc 7946", "geojson pretty print", "geojson canonicalize"]
+h1            = "GeoJSON formatter and minifier"
+hero_subtitle = "Paste one GeoJSON FeatureCollection, Feature, or geometry and rewrite it in place. Pretty-print or minify, round coordinate precision, re-key members, compute or strip bbox values, fix polygon winding, prune properties, and validate RFC 7946 structure locally in your browser."
+wasm          = "gizza_ai_geojson_format_web"
+export        = "run"
+live          = false
+output_label  = "Formatted GeoJSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "GeoJSON input"
+placeholder = "{\"type\":\"Feature\",\"properties\":{\"name\":\"Park\",\"note\":\"\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[12.3456789,-9.8765432]}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent units (0 = minify)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name   = "indent_char"
+label  = "Indent character"
+source = "field"
+labels = { space = "Spaces", tab = "Tabs" }
+
+[[input]]
+name        = "precision"
+label       = "Coordinate decimal places (-1 = keep full precision)"
+placeholder = "-1"
+source      = "field"
+kind        = "slider"
+min         = "-1"
+max         = "15"
+step        = "1"
+
+[[input]]
+name   = "key_order"
+label  = "Key order"
+source = "field"
+labels = { keep = "Keep input order", canonical = "Canonical GeoJSON order", alpha = "Alphabetical (all objects)" }
+
+[[input]]
+name   = "bbox"
+label  = "Bounding boxes"
+source = "field"
+labels = { keep = "Keep existing bbox values", add = "Add/recompute top-level bbox", features = "Add feature bboxes + top-level bbox", strip = "Strip every bbox" }
+
+[[input]]
+name   = "winding"
+label  = "Polygon winding"
+source = "field"
+labels = { keep = "Keep ring order", rfc7946 = "RFC 7946 right-hand rule" }
+
+[[input]]
+name        = "keep_properties"
+label       = "Keep only these properties (optional, comma or newline separated)"
+placeholder = "name,id"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "drop_properties"
+label       = "Drop these properties (optional, comma or newline separated)"
+placeholder = "debug,temp,source"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "drop_empty_properties"
+label  = "Drop empty/null feature properties"
+source = "field"
+
+[[input]]
+name   = "validate"
+label  = "Validate RFC 7946 GeoJSON before formatting"
+source = "field"
+
+[[example]]
+label  = "Pretty-print a feature"
+params = { input = "{\"type\":\"Feature\",\"properties\":{\"name\":\"Park\",\"note\":\"\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[12.3456789,-9.8765432]}}", indent = "2" }
+
+[[example]]
+label  = "Minify and round to 5 decimals"
+params = { input = "{\"type\":\"Point\",\"coordinates\":[12.3456789,-9.8765432]}", indent = "0", precision = "5" }
+
+[[example]]
+label  = "Add bbox and canonical keys"
+params = { input = "{\"features\":[{\"geometry\":{\"coordinates\":[[0,1],[4,-2]],\"type\":\"LineString\"},\"properties\":{},\"type\":\"Feature\"}],\"type\":\"FeatureCollection\"}", indent = "0", bbox = "features", key_order = "canonical" }
+
+[[example]]
+label  = "Prune properties"
+params = { input = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"A\",\"note\":\"\",\"rank\":2},\"geometry\":{\"type\":\"Point\",\"coordinates\":[12.3456789,-9.8765432]}}]}", indent = "0", keep_properties = "name,rank", drop_empty_properties = "true" }

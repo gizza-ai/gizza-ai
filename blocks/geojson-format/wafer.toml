@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geojson-format"
+version = "0.1.0"
+abi = 1
+summary = "Format, minify, round and canonicalize GeoJSON"
