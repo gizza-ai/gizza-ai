@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "absolute-value-transformer"
+version = "0.1.0"
+abi = 1
+summary = "Apply absolute value, sign extraction, or negation to a numeric column"
