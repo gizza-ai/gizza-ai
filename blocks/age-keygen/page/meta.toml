@@ -1,0 +1,78 @@
+slug          = "age-keygen"
+title         = "Age Key Generator — X25519 Identity and Recipient"
+description   = "Generate an age X25519 identity and its shareable age1 public recipient in your browser, or derive the recipient from an identity you already have."
+tags          = ["age", "age-keygen", "x25519", "encryption key", "identity", "recipient", "public key", "keypair"]
+h1            = "Age Key Generator"
+hero_subtitle = "Create an age X25519 identity and its shareable age1… public recipient, in the same key-file layout the age tools expect. Runs entirely in your browser — no key ever leaves your device."
+wasm          = "gizza_ai_age_keygen_web"
+export        = "run"
+live          = false
+output_label  = "Age identity"
+format        = "text"
+
+[[input]]
+name        = "format"
+label       = "Output"
+source      = "field"
+[input.labels]
+text = "Age key file (comments + secret key)"
+json = "JSON (recipient + identity)"
+recipient_only = "Public recipient only (age1…)"
+identity_only = "Secret key only (AGE-SECRET-KEY-1…)"
+
+[[input]]
+name        = "comment"
+label       = "Comment (optional label)"
+placeholder = "laptop backup key"
+source      = "field"
+
+[[input]]
+name        = "include_created"
+label       = "Include # created: timestamp"
+source      = "field"
+
+[[input]]
+name        = "seed_or_identity"
+label       = "Existing identity (optional)"
+placeholder = "AGE-SECRET-KEY-1… — leave blank to generate a fresh random key"
+source      = "field"
+
+[[example]]
+label = "Fresh key file"
+[example.params]
+format = "text"
+comment = ""
+include_created = "true"
+seed_or_identity = ""
+
+[[example]]
+label = "Labelled key, no timestamp"
+[example.params]
+format = "text"
+comment = "laptop backup key"
+include_created = "false"
+seed_or_identity = ""
+
+[[example]]
+label = "Public recipient only"
+[example.params]
+format = "recipient_only"
+comment = ""
+include_created = "false"
+seed_or_identity = ""
+
+[[example]]
+label = "JSON output"
+[example.params]
+format = "json"
+comment = "ci deploy key"
+include_created = "false"
+seed_or_identity = ""
+
+[[example]]
+label = "Recipient from an existing identity"
+[example.params]
+format = "recipient_only"
+comment = ""
+include_created = "false"
+seed_or_identity = "AGE-SECRET-KEY-1GQ9778VQXMMJVE8SK7J6VT8UJ4HDQAJUVSFCWCM02D8GEWQ72PVQ2Y5J33"

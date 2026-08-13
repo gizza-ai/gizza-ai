@@ -1,0 +1,40 @@
+{
+  "name": "gizza-ai/age-keygen",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an age identity and public recipient",
+  "role": "skill",
+  "tool": {
+    "description": "Generate an age X25519 identity locally and return both the secret AGE-SECRET-KEY-1... identity and its shareable age1... public recipient. The default text output matches the age-keygen identity-file shape: optional # created timestamp, optional user comment, # public key, then the secret key. Choose json for machine-readable output, recipient_only for the public key only, or identity_only for the secret line only. Leave seed_or_identity empty for a fresh random key from the browser/OS CSPRNG, or paste an existing AGE-SECRET-KEY-1... identity to derive its recipient like age-keygen -y. This is pure local Rust/WASM: no upload, no network, no filesystem writes, no post-quantum hybrid identities, no vanity-prefix brute force.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "comment": {
+          "description": "Optional one-line label (maximum 200 characters) inserted as a # comment in text output and as comment in JSON output. Newlines are folded to spaces.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output shape. text writes an age-keygen-compatible identity file with comment lines; json returns recipient and identity fields; recipient_only is the public age1... string for sharing; identity_only prints only the secret AGE-SECRET-KEY-1... line.",
+          "enum": [
+            "text",
+            "json",
+            "recipient_only",
+            "identity_only"
+          ],
+          "type": "string"
+        },
+        "include_created": {
+          "default": true,
+          "description": "Include an age-keygen-style # created: timestamp comment in text output. Turn off for deterministic tests or when you want the shortest key file.",
+          "type": "boolean"
+        },
+        "seed_or_identity": {
+          "description": "Leave empty to generate a fresh random identity with the platform CSPRNG. Paste an existing AGE-SECRET-KEY-1... identity to derive its public recipient or to produce deterministic test output. Raw hex seeds are not accepted.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
