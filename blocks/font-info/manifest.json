@@ -1,0 +1,36 @@
+{
+  "name": "gizza-ai/font-info",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect a TTF/OTF/WOFF/WOFF2 font: names, glyph count, metrics and embedding licence",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect a font file (TTF, OTF, WOFF or WOFF2 — the container is auto-detected from the file's bytes, and web fonts are decompressed back to SFNT first) and report everything its tables declare. Returns the input container and glyph outline technology (TrueType glyf vs PostScript/CFF); the name-table strings (family, subfamily, typographic family/subfamily, full name, PostScript name, version, unique id, description, copyright, trademark, manufacturer, designer, vendor and designer URLs, licence description and licence URL, sample text); the glyph count; metrics in design units (units per em, ascender, descender, line gap, line height, OS/2 typographic ascender/descender/line gap, x-height, cap height, underline and strikeout position/thickness) and the global glyph bounding box; the style classification (OS/2 weight class 1-1000 with its CSS weight name, width class 1-9, slope Normal/Italic/Oblique, bold/italic/oblique/regular/monospaced/variable flags, italic angle); the OS/2 fsType embedding permission (Installable, Restricted, Preview & Print or Editable) in plain English with the raw bit field plus the subsetting and outline-embedding flags; the SFNT table directory (tag + uncompressed length) with flags for colour glyphs, hinting programs and OpenType layout; the cmap subtables with the number of distinct Unicode code points the font maps; and the fvar variation axes of a variable font. Useful for checking what a downloaded or licensed font actually permits, for auditing web-font payloads, and for verifying family/style metadata before shipping a font. Font collections (.ttc/.otc) and legacy formats (EOT, SVG, Type 1) are rejected with an explanatory error. This tool is read-only — use woff2-convert to change container or font-subset to shrink a font. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

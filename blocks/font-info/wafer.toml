@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "font-info"
+version = "0.1.0"
+abi = 1
+summary = "Inspect a TTF/OTF/WOFF/WOFF2 font: names, glyph count, metrics and embedding licence"
