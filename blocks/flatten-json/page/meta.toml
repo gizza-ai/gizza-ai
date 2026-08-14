@@ -1,0 +1,115 @@
+slug          = "flatten-json"
+title         = "Flatten JSON — Nested JSON to Dot / Bracket Key Paths (and Back)"
+description   = "Flatten nested JSON into single-level dot or bracket key paths, or unflatten those paths back into nested JSON. Custom separator, CSV/pairs output, no upload."
+tags          = ["flatten json", "unflatten json", "json to dot notation", "nested json to flat", "json key paths", "json to csv keys", "dot notation json", "json flattener", "bracket notation", "json to env keys"]
+h1            = "Flatten JSON"
+hero_subtitle = "Turn nested JSON into one flat level of dot or bracket key paths — or rebuild the nested document from those paths. Custom separators, ENV/SQL key casing, and JSON, key=value, CSV or key-list output. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_flatten_json_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# Field order MUST match the web crate's `run(...)` argument order.
+# direction / array_notation / key_case / output render as <select> and
+# flatten_arrays / preserve_empty / pretty as checkboxes — the control type comes
+# from the descriptor's schema (manifest.json), so no duplication here.
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = "{\"user\":{\"name\":\"Ada\",\"tags\":[\"admin\",\"beta\"]},\"active\":true}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[[input]]
+name        = "separator"
+label       = "Key separator"
+placeholder = "."
+source      = "field"
+
+[[input]]
+name   = "array_notation"
+label  = "Array index notation"
+source = "field"
+
+[[input]]
+name        = "max_depth"
+label       = "Max depth (0 = unlimited)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "flatten_arrays"
+label  = "Expand arrays into indexed paths"
+source = "field"
+
+[[input]]
+name   = "preserve_empty"
+label  = "Keep empty objects and arrays"
+source = "field"
+
+[[input]]
+name   = "key_case"
+label  = "Key case"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON output"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "Flatten a nested object"
+
+[example.params]
+json      = "{\"user\":{\"name\":\"Ada\",\"tags\":[\"admin\",\"beta\"]},\"active\":true}"
+direction = "flatten"
+
+[[example]]
+label = "Unflatten back to nested"
+
+[example.params]
+json      = "{\"user.name\":\"Ada\",\"user.tags[0]\":\"admin\",\"user.tags[1]\":\"beta\",\"active\":true}"
+direction = "unflatten"
+
+[[example]]
+label = "ENV-style keys"
+
+[example.params]
+json      = "{\"db\":{\"host\":\"localhost\",\"port\":5432},\"debug\":false}"
+direction = "flatten"
+separator = "_"
+key_case  = "upper"
+output    = "pairs"
+
+[[example]]
+label = "Two-column CSV for a spreadsheet"
+
+[example.params]
+json      = "{\"order\":{\"id\":\"A-17\",\"items\":[{\"sku\":\"X1\",\"qty\":2}]}}"
+direction = "flatten"
+output    = "csv"
+
+[[example]]
+label = "Dotted array indices"
+
+[example.params]
+json           = "{\"rows\":[{\"id\":1},{\"id\":2}]}"
+direction      = "flatten"
+array_notation = "separator"

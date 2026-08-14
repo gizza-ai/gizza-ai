@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-flatten-json-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = "1"
+# preserve_order keeps the flattened keys in document order, so flatten →
+# unflatten round-trips byte-identically instead of alphabetising the document.
+serde_json = { version = "1", features = ["preserve_order"] }
