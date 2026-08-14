@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-flashcards"
+version = "0.1.0"
+abi = 1
+summary = "Turn Markdown notes into an Anki-importable flashcard deck"
