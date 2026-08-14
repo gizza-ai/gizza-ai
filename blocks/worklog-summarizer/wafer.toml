@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "worklog-summarizer"
+version = "0.1.0"
+abi = 1
+summary = "Summarize timestamped worklogs by project, tag, day or entry"
