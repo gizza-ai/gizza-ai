@@ -78,6 +78,7 @@ video-concat  # multi-input ffmpeg: page file-input is single-upload only and ff
 youtube-upload-spec-checker  # needs ffprobe-style video/audio stream metadata (codec, resolution, frame rate, color, bitrate) and text diagnostics; current gizza ffmpeg surface transforms one media input to one media output and does not expose ffprobe/stdout metadata to CLI/page/chat
 video-luma-histogram-report  # needs ffprobe/signalstats-style numeric aggregation/reporting across video frames; current gizza ffmpeg surface transforms one media input to one media output and does not expose stdout/metadata to CLI/page/chat
 video-speed  # duplicate of blocks/change-speed (speed up/slow down a video by a factor, audio kept in sync)
+code-line-counter  # duplicate of blocks/code-metrics-analyzer (already counts code/comment/blank lines by language and reports complexity/COCOMO-style estimates)
 video-frame-grab  # duplicate of blocks/video-frame-extract (grab a single still frame at a chosen timestamp; PNG-vs-JPEG format is a minor improvement to that tool, not a distinct one)
 video-to-hevc  # browser ffmpeg surface cannot verify/complete libx265 HEVC encoding (Playwright timed out with page stuck Processing); not viable as a page-backed gizza tool
 audio-crossfade  # audio-INPUT + multi-input ffmpeg; no audio page-input + no multi-source ffmpeg surface (deferred)
