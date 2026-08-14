@@ -1,0 +1,62 @@
+slug          = "otpauth-uri-parser"
+title         = "otpauth:// URI Parser — decode a 2FA setup link"
+description   = "Paste an otpauth:// provisioning URI and see its type, issuer, account, base32 secret, algorithm, digits, and period or counter. Runs in your browser."
+tags          = ["otpauth", "totp", "hotp", "2fa", "authenticator", "two-factor", "provisioning uri", "key uri format", "base32 secret", "otp"]
+h1            = "otpauth:// URI parser"
+hero_subtitle = "Paste the otpauth:// link behind a 2FA QR code and read every field it carries — type, issuer, account, base32 secret, algorithm, digits, and period or counter — with spec defaults filled in and compatibility warnings flagged. Runs in your browser; the secret never leaves your device."
+wasm          = "gizza_ai_otpauth_uri_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed fields"
+format        = "text"
+
+[[input]]
+name        = "uri"
+label       = "otpauth:// URI"
+placeholder = "otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json  = "JSON"
+text  = "Readable lines"
+table = "ASCII table"
+
+[[input]]
+name   = "mask_secret"
+label  = "Mask the secret (safe to share)"
+source = "field"
+
+[[input]]
+name   = "strict"
+label  = "Strict mode (spec warnings become errors)"
+source = "field"
+
+[[example]]
+label = "TOTP setup link"
+[example.params]
+uri = "otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30"
+format = "text"
+mask_secret = "false"
+strict = "false"
+
+[[example]]
+label = "HOTP with a counter"
+[example.params]
+uri = "otpauth://hotp/ACME:bob@example.com?secret=K5XXE3DE&issuer=ACME&counter=5&digits=8"
+format = "table"
+mask_secret = "false"
+strict = "false"
+
+[[example]]
+label = "Masked secret for a ticket"
+[example.params]
+uri = "otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example"
+format = "json"
+mask_secret = "true"
+strict = "false"
