@@ -1,0 +1,112 @@
+{
+  "name": "gizza-ai/image-dither",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Dither an image with Floyd-Steinberg, ordered/Bayer or Atkinson against a reduced or fixed palette",
+  "role": "skill",
+  "tool": {
+    "description": "Apply dithering to an image for retro, pixel-art, e-ink or palette-reduction looks. algorithm picks the kernel (floyd_steinberg default, plus bayer/ordered, atkinson, burkes, sierra2, sierra3, sierra2_4a, heckbert, or none for plain quantization). palette picks what to dither against: auto (default, derived from the image with `colors` entries, 2-256), mono (1-bit black and white), gray4/gray16 (e-ink grayscale ramps), green4, amber2, cga4, or custom with a hex list in palette_colors. bayer_scale (0-5) sets the ordered matrix coarseness, pixel_scale (1-16) gives chunky pixel-art dots, and contrast (0.5-3.0) pre-boosts flat photos. format is png (default, lossless) / gif / webp / jpeg / same. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "algorithm": {
+          "default": "floyd_steinberg",
+          "description": "Dithering kernel. floyd_steinberg (default) is the classic error-diffusion look. bayer is ordered dithering: a deterministic 8x8 matrix that gives the flat crosshatch pattern used for retro/print looks (pair it with bayer_scale). atkinson diffuses only part of the error for a high-contrast, sparse early-Mac look. burkes, sierra2, sierra3, and sierra2_4a are further error-diffusion kernels, from soft to sharp. heckbert is a simple error diffusion. none skips dithering entirely and snaps each pixel to the nearest palette colour, which shows the banding dithering exists to hide.",
+          "enum": [
+            "floyd_steinberg",
+            "bayer",
+            "atkinson",
+            "burkes",
+            "sierra2",
+            "sierra3",
+            "sierra2_4a",
+            "heckbert",
+            "none"
+          ],
+          "type": "string"
+        },
+        "bayer_scale": {
+          "default": 2,
+          "description": "Coarseness of the ordered-dither matrix, 0-5 (default 2). 0 is the finest, tightest pattern; 5 is the largest, most visible crosshatch. Only used when algorithm=bayer.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "colors": {
+          "default": 16,
+          "description": "Palette size, 2-256 (default 16). Only used when palette=auto: the palette is generated from the image with at most this many colours. Small values (2-8) give the strongest dithered texture; 32+ starts to look like the original. Ignored for every fixed palette, whose size is fixed by the palette itself.",
+          "maximum": 256,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "contrast": {
+          "default": 1.0,
+          "description": "Contrast applied before dithering, 0.5-3.0 (default 1.0 = unchanged). Flat or hazy photos dither into mud at small palettes; 1.3-1.8 usually gives a much more legible 1-bit or 4-colour result.",
+          "maximum": 3,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output format: png (default, lossless — recommended, since lossy compression smears the single-pixel dither pattern), gif (lossless and small for tiny palettes), webp (written losslessly), jpeg (accepted but will visibly blur the pattern), or same to keep the upload's own format.",
+          "enum": [
+            "same",
+            "png",
+            "jpeg",
+            "webp",
+            "gif"
+          ],
+          "type": "string"
+        },
+        "palette": {
+          "default": "auto",
+          "description": "Which palette to dither against. auto (default) derives one from the image itself with `colors` entries. mono is pure 1-bit black and white. gray4 and gray16 are evenly spaced grayscale ramps, matching common e-ink/e-paper displays. green4 is a 4-shade green reflective-LCD ramp and amber2 an amber-on-black terminal look. cga4 is the 4-colour CGA display palette. custom uses the hex list in palette_colors. Single-hue palettes (mono, gray4, gray16, green4, amber2) convert the image to luma first so brightness, not RGB distance, decides each pixel.",
+          "enum": [
+            "auto",
+            "mono",
+            "gray4",
+            "gray16",
+            "green4",
+            "amber2",
+            "cga4",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "palette_colors": {
+          "default": "",
+          "description": "Custom palette as a comma-separated hex list, 2-16 colours, e.g. \"#1b1b1b,#e8e8e8\" or \"000000,ff5555,55ffff,ffffff\". Both #rgb and #rrggbb forms are accepted, with or without the leading #. Only used when palette=custom.",
+          "type": "string"
+        },
+        "pixel_scale": {
+          "default": 1,
+          "description": "Chunky-pixel factor, 1-16 (default 1 = off). The image is scaled down by this factor with nearest-neighbour, dithered, then scaled back up, so each dithered dot becomes an N x N block. Output dimensions stay the same; use 4-8 for a pixel-art look.",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
