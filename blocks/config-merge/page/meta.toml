@@ -1,0 +1,130 @@
+slug          = "config-merge"
+title         = "Config Merge Tool — Layer JSON, YAML, TOML & env Files"
+description   = "Merge layered JSON, YAML, TOML and .env configuration files with override precedence, array strategy, null deletion and variable substitution."
+tags          = ["config merge", "configuration merge", "json merge", "yaml merge", "toml merge", "env merge", "dotenv merge", "layered config", "deep merge", "variable substitution", "config override", "settings merge"]
+h1            = "Config Merge Tool"
+hero_subtitle = "Paste up to four configuration layers — JSON, YAML, TOML or .env — and merge them from lowest to highest precedence. Choose deep or shallow object merging, list behaviour, null deletion, variable substitution and output as JSON, YAML, TOML, env or an annotated report. Runs locally in your browser."
+wasm          = "gizza_ai_config_merge_web"
+export        = "run"
+live          = false
+output_label  = "Merged config"
+format        = "text"
+wide          = true
+
+# Field order is load-bearing: the page runtime spreads these positionally into
+# web/src/lib.rs run(...), and must match the descriptor order.
+[[input]]
+name        = "layer1"
+label       = "Layer 1 — base config"
+placeholder = "{\n  \"db\": { \"host\": \"localhost\", \"port\": 5432 },\n  \"debug\": false\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer2"
+label       = "Layer 2 — override"
+placeholder = "db:\n  host: staging.internal"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer3"
+label       = "Layer 3 — environment"
+placeholder = "DEBUG=true\nDB__PORT=6543"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer4"
+label       = "Layer 4 — local / highest precedence"
+placeholder = "debug = false"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer_names"
+label       = "Layer names (optional, comma-separated)"
+placeholder = "defaults.json,staging.yaml,.env,local.toml"
+source      = "field"
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+labels = { auto = "Auto-detect each layer", json = "Force JSON", yaml = "Force YAML", toml = "Force TOML", env = "Force .env" }
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+labels = { json = "JSON", yaml = "YAML", toml = "TOML", env = ".env", report = "Annotated report" }
+
+[[input]]
+name   = "object_merge"
+label  = "Object merge"
+source = "field"
+labels = { deep = "Deep merge nested objects", shallow = "Shallow replace at top level" }
+
+[[input]]
+name   = "array_merge"
+label  = "Array merge"
+source = "field"
+labels = { replace = "Replace lists", append = "Append lists", unique = "Append unique values" }
+
+[[input]]
+name   = "key_case"
+label  = "Key case matching"
+source = "field"
+labels = { match = "Match env-style case", preserve = "Preserve exact case" }
+
+[[input]]
+name   = "null_deletes"
+label  = "Null deletes inherited keys"
+source = "field"
+
+[[input]]
+name   = "substitute"
+label  = "Expand ${VAR} strings"
+source = "field"
+
+[[input]]
+name        = "vars"
+label       = "Substitution variables (KEY=VALUE lines)"
+placeholder = "DB_USER=svc\nDB_PASSWORD=***"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys alphabetically"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "JSON/YAML indent"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "8"
+step        = "1"
+
+[[example]]
+label  = "JSON + YAML + env"
+params = { layer1 = "{\n  \"db\": { \"host\": \"localhost\", \"port\": 5432 },\n  \"debug\": false\n}", layer2 = "db:\n  host: staging.internal", layer3 = "DEBUG=true\nDB__PORT=6543", output = "json" }
+
+[[example]]
+label  = "Annotated report"
+params = { layer1 = "{\n  \"db\": { \"host\": \"localhost\", \"port\": 5432 },\n  \"tags\": [\"base\"]\n}", layer2 = "db:\n  host: prod.db\ntags:\n  - prod", layer_names = "defaults.json,prod.yaml", output = "report" }
+
+[[example]]
+label  = "Append unique arrays"
+params = { layer1 = "{\"tags\":[\"api\",\"stable\"]}", layer2 = "{\"tags\":[\"stable\",\"canary\"]}", array_merge = "unique", output = "json" }
+
+[[example]]
+label  = "Output .env"
+params = { layer1 = "{\"db\":{\"host\":\"localhost\",\"port\":5432}}", output = "env" }
+
+[[example]]
+label  = "Variable substitution"
+params = { layer1 = "{\"db\":{\"host\":\"db.internal\"},\"dsn\":\"postgres://${DB_USER}:***@${db.host}/${DB_NAME:-app}\"}", vars = "DB_USER=svc", output = "json" }

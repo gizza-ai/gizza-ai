@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-config-merge-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# preserve_order keeps every layer's key order through the merge, so the output
+# reads like the base file rather than an alphabetised rewrite.
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_yml = "0.0.12"
+toml = "0.8"
