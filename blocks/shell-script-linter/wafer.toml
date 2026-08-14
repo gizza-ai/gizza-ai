@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "shell-script-linter"
+version = "0.1.0"
+abi = 1
+summary = "Lint a bash or sh script for unquoted variables, useless cat, missing set -euo pipefail, and subshell scope traps."

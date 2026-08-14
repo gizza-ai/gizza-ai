@@ -1,0 +1,98 @@
+slug          = "shell-script-linter"
+title         = "Shell Script Linter — Bash and sh Pitfall Checker"
+description   = "Paste a bash, sh, dash or zsh script and catch common shell pitfalls: unquoted variables, missing strict mode, useless cat, risky rm -rf and subshell scope traps."
+tags          = ["shell script", "bash", "sh", "linter", "shellcheck", "strict mode", "ci", "scripting"]
+h1            = "Lint Bash and sh Scripts"
+hero_subtitle = "Find common shell-script mistakes before they hit CI: unquoted expansions, missing set -euo pipefail, useless cat, backticks, pipe-to-while subshell traps, unchecked cd, parse-ls loops and POSIX bashisms."
+wasm          = "gizza_ai_shell_script_linter_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "script"
+label       = "Shell script"
+placeholder = '''#!/usr/bin/env bash
+for f in $(ls *.txt); do
+  cat $f | while read line; do
+    echo $line
+  done
+done'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "shell"
+label  = "Shell dialect"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect from shebang"
+bash = "Bash"
+sh   = "POSIX sh"
+dash = "dash"
+zsh  = "zsh"
+
+[[input]]
+name   = "min_severity"
+label  = "Minimum severity"
+source = "field"
+
+[input.labels]
+all     = "All findings"
+warning = "Warnings + errors"
+error   = "Errors only"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule codes"
+placeholder = "LEGACY-TEST, USELESS-CAT"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Format"
+source = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON for CI"
+
+[[example]]
+label = "Unquoted variables + strict mode"
+[example.params]
+script = '''#!/usr/bin/env bash
+name=$1
+echo Hello $name
+for f in $(ls *.txt); do
+  cat $f | while read line; do
+    echo $line
+  done
+done'''
+shell = "bash"
+min_severity = "all"
+format = "text"
+
+[[example]]
+label = "POSIX sh bashisms"
+[example.params]
+script = '''#!/bin/sh
+items=(one two)
+if [[ -n "$1" ]]; then
+  echo ${items[0]}
+fi'''
+shell = "sh"
+min_severity = "warning"
+format = "text"
+
+[[example]]
+label = "JSON output for CI"
+[example.params]
+script = '''#!/usr/bin/env bash
+set -euo pipefail
+cd "$WORKDIR"
+printf '%s\n' "$1"'''
+shell = "auto"
+min_severity = "all"
+format = "json"

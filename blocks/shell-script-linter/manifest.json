@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/shell-script-linter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint a bash or sh script for unquoted variables, useless cat, missing set -euo pipefail, and subshell scope traps.",
+  "role": "skill",
+  "tool": {
+    "description": "Lint a pasted bash/sh script without running it. Reports block-structure errors (unclosed if/do/case, unterminated quotes) plus common pitfalls: unquoted expansions that word-split, useless use of cat, legacy backticks, missing set -e/-u/-o pipefail, pipe-to-while subshell scope loss, unguarded cd, parsing ls output, spaced assignments, single-bracket tests, risky rm -rf on an interpolated path, and bashisms under a POSIX sh shebang. Parameters: script text, shell (auto/bash/sh/dash/zsh), min_severity filter, ignore list of rule codes, and text/json output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "text",
+          "description": "Output format. 'text' is a human-readable report with line numbers, severities and the offending source line; 'json' returns the resolved shell, summary counts and a findings array for CI.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "ignore": {
+          "default": "",
+          "description": "Optional comma- or space-separated rule codes to suppress, e.g. 'LEGACY-TEST, USELESS-CAT'. Valid codes: SYNTAX, MISSING-SHEBANG, STRICT-MODE, UNQUOTED-VAR, USELESS-CAT, BACKTICKS, SUBSHELL-SCOPE, UNCHECKED-CD, PARSE-LS, ASSIGN-SPACES, LEGACY-TEST, RM-RISK, SH-BASHISM.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Minimum severity to report. 'all' includes info-level style hints, 'warning' hides them, 'error' shows only structural problems such as unclosed blocks, spaced assignments and risky rm -rf.",
+          "enum": [
+            "all",
+            "warning",
+            "error"
+          ],
+          "type": "string"
+        },
+        "script": {
+          "description": "Shell script text to lint, up to 200000 bytes. Comments, single-quoted strings and here-doc bodies are masked first, so examples inside a comment do not produce findings. The script is never executed.",
+          "type": "string"
+        },
+        "shell": {
+          "default": "auto",
+          "description": "Which shell to lint for. 'auto' reads the shebang and falls back to bash. 'sh' and 'dash' enable the SH-BASHISM rule and skip the bash-only LEGACY-TEST hint; 'bash' and 'zsh' do the opposite.",
+          "enum": [
+            "auto",
+            "bash",
+            "sh",
+            "dash",
+            "zsh"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "script"
+      ],
+      "type": "object"
+    }
+  }
+}
