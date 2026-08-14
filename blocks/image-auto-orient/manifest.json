@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/image-auto-orient",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Auto-rotate a photo upright from its EXIF orientation flag and bake it into the pixels",
+  "role": "skill",
+  "tool": {
+    "description": "Rotate a photo to its correct upright orientation using the EXIF Orientation flag and bake the rotation into the pixels, so apps that ignore EXIF still show it upright. The output carries no orientation tag, so it cannot be double-rotated. orientation=auto (default) uses the file's own flag; orientation=1-8 forces an EXIF correction when the flag is missing or wrong. format=same|jpeg|png|webp (default same) and quality=1-100 (default 90, JPEG/WebP only) control the output file. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "same",
+          "description": "Output format: same (default) keeps the input's format; jpeg, png, or webp re-encodes to that format.",
+          "enum": [
+            "same",
+            "jpeg",
+            "png",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "orientation": {
+          "default": "auto",
+          "description": "Which correction to bake in. auto (default) reads the photo's EXIF Orientation tag and applies it. Pass an EXIF value 1-8 to force a correction when the tag is missing, wrong, or already stripped: 1 already upright, 2 mirror left-right, 3 rotate 180, 4 mirror top-bottom, 5 mirror + rotate 90 clockwise, 6 rotate 90 clockwise, 7 mirror + rotate 90 counter-clockwise, 8 rotate 90 counter-clockwise.",
+          "enum": [
+            "auto",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 90,
+          "description": "Output quality 1-100 for JPEG and WebP output (default 90; higher = better and larger). Ignored for PNG, which is lossless.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

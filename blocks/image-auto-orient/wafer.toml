@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-auto-orient"
+version = "0.1.0"
+abi = 1
+summary = "Auto-rotate a photo upright from its EXIF orientation flag and bake it into the pixels"
