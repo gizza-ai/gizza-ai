@@ -1,0 +1,84 @@
+slug          = "prose-linter"
+title         = "Prose Linter — Clichés, Weasel Words, Passive Voice"
+description   = "Paste English prose and flag clichés, weasel words, passive voice, redundancies, jargon, long sentences, and repeated words locally in your browser."
+tags          = ["writing", "prose", "linter", "style", "editing", "passive voice", "cliche"]
+h1            = "Lint English Prose for Style Issues"
+hero_subtitle = "Paste a draft and get deterministic style findings: clichés, weasel words, passive voice, redundancies, jargon, long sentences, repeated words, and more. Runs locally in your browser."
+wasm          = "gizza_ai_prose_linter_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Prose to lint"
+placeholder = "So the proposal was written at the end of the day, and it is very innovative."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "checks"
+label       = "Checks to run"
+placeholder = "all"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report    = "Readable report"
+annotated = "Annotated lines"
+json      = "JSON"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore these phrases"
+placeholder = "very, touch base"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "max_issues"
+label       = "Maximum issues to list"
+placeholder = "200"
+source      = "field"
+
+[[input]]
+name        = "long_sentence_words"
+label       = "Long sentence threshold"
+placeholder = "30"
+source      = "field"
+
+[[example]]
+label = "Business draft"
+[example.params]
+text = "So the plan was written at the end of the day. We should leverage a best-in-class solution and touch base soon."
+checks = "all"
+output = "report"
+ignore = ""
+max_issues = "200"
+long_sentence_words = "30"
+
+[[example]]
+label = "Annotated passive voice"
+[example.params]
+text = "The release was shipped by the team. It is very important."
+checks = "passive,weasel"
+output = "annotated"
+ignore = ""
+max_issues = "200"
+long_sentence_words = "30"
+
+[[example]]
+label = "JSON with E-prime"
+[example.params]
+text = "There is a problem. The copy is vague and very long."
+checks = "all,eprime"
+output = "json"
+ignore = ""
+max_issues = "10"
+long_sentence_words = "12"
