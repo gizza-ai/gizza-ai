@@ -1,0 +1,211 @@
+slug          = "ndjson-viewer"
+title         = "NDJSON Viewer — pretty-print, search and filter JSON Lines"
+description   = "Paste NDJSON / JSON Lines and read it: pretty, compact, array or table view, search any key or value at any depth, and per-line error reporting."
+tags          = ["ndjson viewer", "jsonl viewer", "json lines viewer", "ndjson formatter", "ndjson pretty print", "ndjson to json array", "jsonl search", "ndjson table view"]
+h1            = "NDJSON Viewer"
+hero_subtitle = "Paste a newline-delimited JSON stream and read it — one indented record per block, minified, as a single JSON array, or as an aligned table. Search any key or value at any depth, filter by a dotted path, page through it, and see exactly which lines failed to parse. Nothing leaves your browser."
+wasm          = "gizza_ai_ndjson_viewer_web"
+export        = "run"
+live          = false
+output_label  = "Records"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "NDJSON / JSON Lines (one complete JSON value per line)"
+placeholder = "{\"id\":1,\"status\":\"ok\",\"latency_ms\":12}\n{\"id\":2,\"status\":\"error\",\"latency_ms\":940,\"err\":{\"code\":\"timeout\"}}\n{\"id\":3,\"status\":\"ok\",\"latency_ms\":31}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "view"
+label  = "Show the records as"
+source = "field"
+
+[input.labels]
+pretty = "Pretty — one indented record per block"
+compact = "Compact — one minified record per line"
+array = "Array — every record inside one JSON array"
+table = "Table — aligned columns, one per discovered key"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces, 0 minifies)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "search"
+label       = "Search any key or value, at any depth"
+placeholder = "timeout"
+source      = "field"
+
+[[input]]
+name   = "search_in"
+label  = "Search matches"
+source = "field"
+
+[input.labels]
+any = "Key names and values"
+keys = "Key names only"
+values = "Values only"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive matching"
+source = "field"
+
+[[input]]
+name        = "path"
+label       = "Filter by dotted path (numbers index arrays)"
+placeholder = "err.code"
+source      = "field"
+
+[[input]]
+name        = "value"
+label       = "…and require this value there"
+placeholder = "error"
+source      = "field"
+
+[[input]]
+name   = "match_mode"
+label  = "Compare search and value by"
+source = "field"
+
+[input.labels]
+contains = "Contains — substring match"
+exact = "Exact — the whole key or value"
+regex = "Regex — a regular expression"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort every object's keys alphabetically"
+source = "field"
+
+[[input]]
+name        = "skip"
+label       = "Skip this many matching records"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Show at most this many records (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "invalid"
+label  = "Lines that are not valid JSON"
+source = "field"
+
+[input.labels]
+report = "Report each one in place, keep going"
+skip = "Drop them silently"
+error = "Stop at the first one"
+
+[[input]]
+name   = "line_numbers"
+label  = "Show input line numbers"
+source = "field"
+
+[[input]]
+name   = "stats"
+label  = "Prepend a stats header (# comment lines)"
+source = "field"
+
+[[example]]
+label = "Pretty-print a request log"
+[example.params]
+data = "{\"id\":1,\"status\":\"ok\",\"latency_ms\":12}\n{\"id\":2,\"status\":\"error\",\"latency_ms\":940,\"err\":{\"code\":\"timeout\"}}\n{\"id\":3,\"status\":\"ok\",\"latency_ms\":31}"
+view = "pretty"
+indent = "2"
+search = ""
+search_in = "any"
+case_sensitive = "false"
+path = ""
+value = ""
+match_mode = "contains"
+sort_keys = "false"
+skip = "0"
+limit = "0"
+invalid = "report"
+line_numbers = "false"
+stats = "false"
+
+[[example]]
+label = "Search every field for a word"
+[example.params]
+data = "{\"id\":1,\"status\":\"ok\",\"latency_ms\":12}\n{\"id\":2,\"status\":\"error\",\"latency_ms\":940,\"err\":{\"code\":\"timeout\"}}\n{\"id\":3,\"status\":\"ok\",\"latency_ms\":31}"
+view = "compact"
+indent = "2"
+search = "timeout"
+search_in = "any"
+case_sensitive = "false"
+path = ""
+value = ""
+match_mode = "contains"
+sort_keys = "false"
+skip = "0"
+limit = "0"
+invalid = "report"
+line_numbers = "true"
+stats = "true"
+
+[[example]]
+label = "Table view of mixed-shape records"
+[example.params]
+data = "{\"user\":\"ana\",\"plan\":\"pro\"}\n{\"user\":\"bo\",\"plan\":\"free\",\"trial_days\":14}\n{\"user\":\"cy\",\"plan\":\"pro\",\"seats\":3}"
+view = "table"
+indent = "2"
+search = ""
+search_in = "any"
+case_sensitive = "false"
+path = ""
+value = ""
+match_mode = "contains"
+sort_keys = "false"
+skip = "0"
+limit = "0"
+invalid = "report"
+line_numbers = "true"
+stats = "false"
+
+[[example]]
+label = "Keep only the failures, by path"
+[example.params]
+data = "{\"id\":1,\"status\":\"ok\"}\n{\"id\":2,\"status\":\"error\",\"err\":{\"code\":\"timeout\"}}\n{\"id\":3,\"status\":\"error\",\"err\":{\"code\":\"refused\"}}"
+view = "compact"
+indent = "2"
+search = ""
+search_in = "any"
+case_sensitive = "false"
+path = "status"
+value = "error"
+match_mode = "exact"
+sort_keys = "false"
+skip = "0"
+limit = "0"
+invalid = "report"
+line_numbers = "false"
+stats = "true"
+
+[[example]]
+label = "Collect a broken stream into a JSON array"
+[example.params]
+data = "{\"a\":1}\n{\"a\":2,\n{\"a\":3}"
+view = "array"
+indent = "2"
+search = ""
+search_in = "any"
+case_sensitive = "false"
+path = ""
+value = ""
+match_mode = "contains"
+sort_keys = "true"
+skip = "0"
+limit = "0"
+invalid = "report"
+line_numbers = "false"
+stats = "false"
