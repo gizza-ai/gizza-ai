@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/ini-json-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert INI/conf files to JSON and back, or get, set and delete a single key in place.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert INI / .conf config text to JSON and back, or read and edit a single setting. mode='auto' (default) picks the direction from the input; 'ini_to_json' and 'json_to_ini' force one. mode='get' returns one key's value, 'set' writes `value` to one key, and 'delete' removes a key — or a whole section when only `section` is given. The edit modes rewrite just the target line, so comments, blank lines, key order and the file's existing 'key=value' vs 'key = value' spacing all survive. Address a setting with `section` + `key`, or with a dotted key alone ('database.port'). Sections become nested JSON objects, keys above the first header stay at the root, a key repeated in one section becomes a JSON array, and a JSON array of scalars converts back to repeated key lines. Set detect_types=true to turn values into real JSON booleans and numbers, inline_comments=false to keep trailing ' ; note' text in the value, `delimiter` to choose the spacing of lines this tool writes, `indent` (2/4/tab) for the JSON indent step, and pretty=false for compact JSON. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": "equals_spaced",
+          "description": "Separator for INI lines this tool writes (json_to_ini output and keys added by 'set'). 'equals_spaced' (default) writes 'key = value', 'equals' writes 'key=value', 'colon' writes 'key: value'. A key that already exists keeps the spacing it had.",
+          "enum": [
+            "equals_spaced",
+            "equals",
+            "colon"
+          ],
+          "type": "string"
+        },
+        "detect_types": {
+          "default": false,
+          "description": "When true, INI values become real JSON types: true/false/yes/no/on/off → boolean, integers and decimals → number. Quoted values always stay strings. Default false, so every value stays a string and the text is preserved exactly.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": "2",
+          "description": "One indent step of pretty JSON: '2' (default) two spaces, '4' four spaces, 'tab' a tab character. Ignored when pretty=false.",
+          "enum": [
+            "2",
+            "4",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "inline_comments": {
+          "default": true,
+          "description": "When true (default), a ';' or '#' preceded by whitespace ends the value, so 'port = 8080 ; listen port' converts to '8080' and a set keeps the trailing note. Set false to treat the whole rest of the line as the value.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The config text to convert or edit: INI / .conf text ('[section]' headers, 'key = value' or 'key: value' pairs, ';' and '#' comments, keys above the first header) for every mode except json_to_ini, or a JSON object for json_to_ini.",
+          "type": "string"
+        },
+        "key": {
+          "description": "Key to address for get/set/delete (e.g. 'port'). When `section` is blank, a dotted key is split at the first dot, so key='database.port' means key 'port' in section '[database]'. Leave blank with a `section` to dump that section as JSON (get) or remove the whole section (delete).",
+          "type": "string"
+        },
+        "mode": {
+          "default": "auto",
+          "description": "What to do. 'auto' (default) converts JSON to INI when the input starts with '{' and INI to JSON otherwise; 'ini_to_json' and 'json_to_ini' force a direction; 'get' returns one key's value (or a whole section as JSON); 'set' writes `value` to one key; 'delete' removes one key, or a whole section when only `section` is given. get/set/delete need INI input and return the edited file with its comments, blank lines and key order intact.",
+          "enum": [
+            "auto",
+            "ini_to_json",
+            "json_to_ini",
+            "get",
+            "set",
+            "delete"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "When true (default), JSON output is indented over multiple lines. Set false for a single compact line, which is easier to pipe into another command.",
+          "type": "boolean"
+        },
+        "section": {
+          "description": "Section name to address for get/set/delete, without the brackets (e.g. 'database'). Leave blank to address the section-less keys at the top of the file, or to let a dotted `key` name the section. Ignored by the two conversion modes.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The new value to write in mode='set'. Written verbatim, so quotes, spaces and '=' inside the value are kept as typed; an empty string produces 'key = '. Ignored by every other mode.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
