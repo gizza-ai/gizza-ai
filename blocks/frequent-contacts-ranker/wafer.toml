@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "frequent-contacts-ranker"
+version = "0.1.0"
+abi = 1
+summary = "Rank your most frequent email contacts by frequency and recency"
