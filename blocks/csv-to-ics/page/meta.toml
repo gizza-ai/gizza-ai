@@ -1,0 +1,74 @@
+slug          = "csv-to-ics"
+title         = "CSV to ICS — turn a spreadsheet of events into a calendar file"
+description   = "Paste a CSV of events and get an .ics calendar file to import into Google Calendar, Outlook or Apple Calendar. Free, private, runs in your browser."
+tags          = ["csv to ics", "csv to ical", "csv to calendar", "ics generator", "ics file creator", "import csv into google calendar", "spreadsheet to calendar", "icalendar converter"]
+h1            = "CSV to ICS"
+hero_subtitle = "Paste a spreadsheet of events — title, start, end — and get back a standards-compliant .ics calendar file you can import into Google Calendar, Outlook or Apple Calendar. Nothing leaves your browser."
+wasm          = "gizza_ai_csv_to_ics_web"
+export        = "run"
+live          = false
+output_label  = "ICS calendar"
+format        = "text"
+
+[[input]]
+name        = "csv"
+label       = "Event CSV (the first row names the columns)"
+placeholder = "title,start,end,location\nTeam sync,2026-07-24 09:00,2026-07-24 09:30,Room 2\nConference,2026-07-27,2026-07-29,Berlin"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "timezone"
+label  = "How the times are anchored"
+source = "field"
+
+[input.labels]
+floating = "Floating — 09:00 stays 09:00 in every timezone"
+utc = "UTC — the pasted times are already UTC"
+
+[[input]]
+name        = "default_duration_minutes"
+label       = "Default event length (minutes) when a row has no end"
+placeholder = "60"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "1440"
+step        = "1"
+
+[[input]]
+name   = "include_alarm"
+label  = "Add a 15-minute reminder to every event"
+source = "field"
+
+[[example]]
+label = "Meetings with start and end times"
+[example.params]
+csv = "title,start,end,location\nTeam sync,2026-07-24 09:00,2026-07-24 09:30,Room 2\nDesign review,2026-07-24 11:00,2026-07-24 12:00,Room 4"
+timezone = "floating"
+default_duration_minutes = "60"
+include_alarm = "false"
+
+[[example]]
+label = "All-day events from dates only"
+[example.params]
+csv = "title,start,end\nConference,2026-07-27,2026-07-29\nPublic holiday,2026-08-03,"
+timezone = "floating"
+default_duration_minutes = "60"
+include_alarm = "false"
+
+[[example]]
+label = "Durations instead of end times"
+[example.params]
+csv = "event,date,duration_minutes,notes\nStandup,2026-07-24 09:00,15,Blockers only\nOne-on-one,2026-07-24 15:00,30,Career check-in"
+timezone = "floating"
+default_duration_minutes = "60"
+include_alarm = "true"
+
+[[example]]
+label = "UTC times with stable IDs"
+[example.params]
+csv = "summary,start,end,id\nRelease window,2026-07-24T22:00,2026-07-25T02:00,release-2026-07\nPost-release check,2026-07-25T09:00,2026-07-25T09:30,check-2026-07"
+timezone = "utc"
+default_duration_minutes = "60"
+include_alarm = "false"

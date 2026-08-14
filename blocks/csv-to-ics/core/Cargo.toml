@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-csv-to-ics-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# csv reader: handles quoting/escaping and flexible row widths, pure Rust.
+csv = "1"
+# chrono for date arithmetic + calendar validation; alloc-only and clock-free
+# (DTSTAMP is a fixed constant), so it builds for wasm32-unknown-unknown.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
