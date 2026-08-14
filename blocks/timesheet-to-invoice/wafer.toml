@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "timesheet-to-invoice"
+version = "0.1.0"
+abi = 1
+summary = "Turn tracked hours and an hourly rate into a Markdown or plain-text invoice"
