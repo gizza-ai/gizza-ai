@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "css-color-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert one color between hex, rgb, hsl, hwb, lab, lch, oklch, oklab, P3, CMYK and app code"

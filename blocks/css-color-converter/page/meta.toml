@@ -1,0 +1,80 @@
+slug          = "css-color-converter"
+title         = "CSS Color Converter — hex, rgb, hsl, hwb, lab, oklch and app code"
+description   = "Paste any color — hex, rgb, hsl, hwb, oklch, oklab, a CSS name or 0xAARRGGBB — and get every other notation for it, plus CMYK, Display P3 and WCAG contrast."
+tags          = ["css color converter", "hex to rgb", "hex to hsl", "rgb to hex", "hex to oklch", "oklch converter", "hex to cmyk", "hex to flutter color", "hex to swiftui color", "color contrast checker"]
+h1            = "CSS Color Converter"
+hero_subtitle = "Paste one color in any notation you already have — #hex, rgb(), hsl(), hwb(), oklch(), oklab(), a CSS color name, or the 0xAARRGGBB integer Flutter and Android use — and read back every other notation for exactly the same color, with CMYK, Display P3, the nearest CSS name and its WCAG contrast on white and black. Nothing leaves your browser."
+wasm          = "gizza_ai_css_color_converter_web"
+export        = "run"
+live          = false
+output_label  = "Every notation"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Color (hex, rgb, hsl, hwb, oklch, oklab, a CSS name, or 0xAARRGGBB)"
+placeholder = "#3498db"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name   = "syntax"
+label  = "Write rgb() and hsl() in"
+source = "field"
+
+[input.labels]
+legacy = "Legacy — rgba(52, 152, 219, 0.5)"
+modern = "Modern — rgb(52 152 219 / 0.5)"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places on fractional values"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "uppercase_hex"
+label  = "Upper-case hex digits (#3498DB)"
+source = "field"
+
+[[example]]
+label = "Brand hex → every notation"
+[example.params]
+input = "#3498db"
+syntax = "legacy"
+precision = "3"
+uppercase_hex = "false"
+
+[[example]]
+label = "Half-transparent, modern CSS syntax"
+[example.params]
+input = "rgba(52, 152, 219, 0.5)"
+syntax = "modern"
+precision = "3"
+uppercase_hex = "false"
+
+[[example]]
+label = "Flutter 0xAARRGGBB → CSS"
+[example.params]
+input = "0xFF6750A4"
+syntax = "legacy"
+precision = "3"
+uppercase_hex = "false"
+
+[[example]]
+label = "OKLCH → hex, upper case"
+[example.params]
+input = "oklch(65.309% 0.135 242.687)"
+syntax = "modern"
+precision = "3"
+uppercase_hex = "true"
+
+[[example]]
+label = "CSS name, rounded for pasting"
+[example.params]
+input = "rebeccapurple"
+syntax = "legacy"
+precision = "0"
+uppercase_hex = "false"
