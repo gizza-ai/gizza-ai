@@ -1,0 +1,128 @@
+slug          = "mattermost-export-reader"
+title         = "Mattermost Export Reader — JSONL Bulk Export to Transcript"
+description   = "Paste a Mattermost bulk export (import.jsonl) and get a readable per-channel transcript with resolved authors, timestamps, threads and a summary. Runs locally."
+tags          = ["mattermost", "bulk export", "jsonl", "chat transcript", "import.jsonl", "mmctl export", "channel history"]
+h1            = "Read a Mattermost Bulk Export"
+hero_subtitle = "Turn the JSONL file from a Mattermost bulk export into a readable per-channel transcript — resolved display names, UTC timestamps, nested thread replies, reactions and a summary — all in your browser."
+wasm          = "gizza_ai_mattermost_export_reader_web"
+export        = "run"
+live          = false
+output_label  = "Transcript / summary"
+format        = "text"
+
+[[input]]
+name        = "export"
+label       = "Mattermost export (JSONL)"
+placeholder = '{"type":"post","post":{"team":"core","channel":"town-square","user":"alice","message":"Standup in five","create_at":1705311000000}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+transcript = "Transcript only"
+stats      = "Summary only"
+both       = "Summary + transcript"
+
+[[input]]
+name   = "format"
+label  = "Format"
+source = "field"
+
+[input.labels]
+text     = "Plain text"
+markdown = "Markdown"
+html     = "HTML"
+csv      = "CSV rows"
+
+[[input]]
+name        = "channel"
+label       = "Channel filter"
+placeholder = "town-square"
+source      = "field"
+
+[[input]]
+name        = "user_filter"
+label       = "Author filter"
+placeholder = "alice"
+source      = "field"
+
+[[input]]
+name        = "since"
+label       = "From date (UTC, inclusive)"
+placeholder = "2024-01-15"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "until"
+label       = "To date (UTC, inclusive)"
+placeholder = "2024-01-31"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "include_direct_messages"
+label  = "Include direct messages"
+source = "field"
+
+[[input]]
+name   = "include_replies"
+label  = "Include thread replies"
+source = "field"
+
+[[input]]
+name        = "max_messages"
+label       = "Max messages (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "5000"
+step        = "1"
+
+[[example]]
+label = "Sample export → summary + transcript"
+[example.params]
+export = '''
+{"type":"version","version":1}
+{"type":"team","team":{"name":"core","display_name":"Core Team","type":"O"}}
+{"type":"channel","channel":{"team":"core","name":"town-square","display_name":"Town Square","type":"O"}}
+{"type":"channel","channel":{"team":"core","name":"release","display_name":"Release Room","type":"P"}}
+{"type":"user","user":{"username":"alice","email":"alice@example.com","first_name":"Alice","last_name":"Anderson"}}
+{"type":"user","user":{"username":"bob","email":"bob@example.com","nickname":"Bobby"}}
+{"type":"post","post":{"team":"core","channel":"town-square","user":"alice","message":"Standup in five","create_at":1705311000000,"reactions":[{"user":"bob","emoji_name":"thumbsup","create_at":1705311060000}],"replies":[{"user":"bob","message":"On my way","create_at":1705311120000}]}}
+{"type":"post","post":{"team":"core","channel":"release","user":"bob","message":"Cutting 9.4 today","create_at":1705397400000,"attachments":[{"path":"files/checklist.pdf"}]}}
+{"type":"direct_channel","direct_channel":{"members":["alice","bob"]}}
+{"type":"direct_post","direct_post":{"channel_members":["alice","bob"],"user":"bob","message":"thanks for the review","create_at":1705400000000}}'''
+output = "both"
+format = "text"
+
+[[example]]
+label = "One channel, Markdown"
+[example.params]
+export = '''
+{"type":"version","version":1}
+{"type":"channel","channel":{"team":"core","name":"town-square","display_name":"Town Square","type":"O"}}
+{"type":"user","user":{"username":"alice","first_name":"Alice","last_name":"Anderson"}}
+{"type":"user","user":{"username":"bob","nickname":"Bobby"}}
+{"type":"post","post":{"team":"core","channel":"town-square","user":"alice","message":"Standup in five","create_at":1705311000000,"replies":[{"user":"bob","message":"On my way","create_at":1705311120000}]}}
+{"type":"direct_post","direct_post":{"channel_members":["alice","bob"],"user":"bob","message":"thanks for the review","create_at":1705400000000}}'''
+output = "transcript"
+format = "markdown"
+channel = "town-square"
+
+[[example]]
+label = "CSV rows for a spreadsheet"
+[example.params]
+export = '''
+{"type":"version","version":1}
+{"type":"channel","channel":{"team":"core","name":"town-square","display_name":"Town Square","type":"O"}}
+{"type":"user","user":{"username":"alice","first_name":"Alice","last_name":"Anderson"}}
+{"type":"user","user":{"username":"bob","nickname":"Bobby"}}
+{"type":"post","post":{"team":"core","channel":"town-square","user":"alice","message":"Standup in five","create_at":1705311000000,"replies":[{"user":"bob","message":"On my way","create_at":1705311120000}]}}'''
+output = "transcript"
+format = "csv"

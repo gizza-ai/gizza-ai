@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mattermost-export-reader"
+version = "0.1.0"
+abi = 1
+summary = "Turn a Mattermost bulk export (JSONL) into a readable per-channel transcript with resolved authors and timestamps"
