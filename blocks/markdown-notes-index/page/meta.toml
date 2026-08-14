@@ -1,0 +1,148 @@
+slug          = "markdown-notes-index"
+title         = "Markdown Notes Index — build a linked index of notes, tags & outlines"
+description   = "Paste a pile of Markdown notes and get a linked index: titles, tags, heading outlines and word counts, as Markdown, JSON or CSV. Free, private, in your browser."
+tags          = ["markdown notes index", "notes index generator", "map of content", "markdown table of contents", "obsidian index note", "note tags index", "markdown outline generator", "index markdown notes"]
+h1            = "Markdown Notes Index"
+hero_subtitle = "Paste a bundle of Markdown notes and get back the index note they are missing — every title, tag, heading outline and word count, linked and ready to paste into your vault. Nothing leaves your browser."
+wasm          = "gizza_ai_markdown_notes_index_web"
+export        = "run"
+live          = false
+output_label  = "Index"
+format        = "text"
+
+[[input]]
+name        = "notes"
+label       = "Markdown notes (paste them one after another)"
+placeholder = "# Getting started\n\nSome intro text.\n\n## Install\n\nRun it.\n\n# Weekly review\n\n#planning Notes about the week."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "split"
+label  = "Split notes on"
+source = "field"
+
+[input.labels]
+heading = "Every top-level # heading starts a new note"
+hr = "A --- / *** / ___ thematic break between notes"
+"file-marker" = "File banners like === notes/todo.md ==="
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown index note"
+json = "JSON — structured index"
+csv = "CSV — one row per note"
+
+[[input]]
+name        = "heading_depth"
+label       = "Outline depth (0 = no outline, 6 = every heading)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "6"
+step        = "1"
+
+[[input]]
+name   = "group_by"
+label  = "Contents grouping"
+source = "field"
+
+[input.labels]
+none = "One flat list"
+tag = "A subsection per tag"
+
+[[input]]
+name   = "sort"
+label  = "Note order"
+source = "field"
+
+[input.labels]
+input = "The order they were pasted"
+title = "Title A→Z"
+words = "Longest notes first"
+
+[[input]]
+name   = "link_style"
+label  = "Link style"
+source = "field"
+
+[input.labels]
+anchor = "Anchor links to each note's section"
+wiki = "[[Wiki links]] for Obsidian-style vaults"
+none = "Plain text, no links"
+
+[[input]]
+name   = "include_toc"
+label  = "Include a linked Contents list"
+source = "field"
+
+[[input]]
+name   = "include_stats"
+label  = "Include word and heading counts"
+source = "field"
+
+[[input]]
+name   = "inline_tags"
+label  = "Collect #tags from the note bodies"
+source = "field"
+
+[[example]]
+label = "Index a pasted bundle"
+[example.params]
+notes = "# Getting started\n\nSome intro text.\n\n## Install\n\nRun it.\n\n# Weekly review\n\nNotes about the week."
+split = "heading"
+format = "markdown"
+heading_depth = "2"
+group_by = "none"
+sort = "input"
+link_style = "anchor"
+include_toc = "true"
+include_stats = "true"
+inline_tags = "true"
+
+[[example]]
+label = "Group by tag"
+[example.params]
+notes = "---\ntitle: Q3 plan\ntags: [planning, roadmap]\n---\n\nShip the index tool.\n\n# Standup\n\nBlocked on #infra, see #1234.\n\n# Scratch\n\nNo tags here."
+split = "heading"
+format = "markdown"
+heading_depth = "2"
+group_by = "tag"
+sort = "title"
+link_style = "anchor"
+include_toc = "true"
+include_stats = "true"
+inline_tags = "true"
+
+[[example]]
+label = "Obsidian map of content"
+[example.params]
+notes = "# Meeting notes\n\n## Actions\n\n## Decisions\n\n# Reading list\n\n#reference Books to finish."
+split = "heading"
+format = "markdown"
+heading_depth = "2"
+group_by = "none"
+sort = "input"
+link_style = "wiki"
+include_toc = "true"
+include_stats = "false"
+inline_tags = "true"
+
+[[example]]
+label = "Files to CSV"
+[example.params]
+notes = "=== notes/todo.md ===\n# Todo\n\n## Today\n\n=== notes/ideas.md ===\nIdeas without a heading."
+split = "file-marker"
+format = "csv"
+heading_depth = "2"
+group_by = "none"
+sort = "input"
+link_style = "anchor"
+include_toc = "true"
+include_stats = "true"
+inline_tags = "true"
