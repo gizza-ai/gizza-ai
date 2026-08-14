@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/gif-extract-frames",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split an animated GIF into its individual frame images (ZIP of PNGs)",
+  "role": "skill",
+  "tool": {
+    "description": "Split an animated GIF into its individual frames, returned as a ZIP of PNG images plus a manifest.json. Every frame is fully composited (coalesced/unoptimized) to the GIF's canvas size with its disposal method applied, so partial frames come out as complete pictures instead of sliver artifacts, and transparency is preserved in the PNG alpha channel. prefix names the files (frame -> frame-0001.png, frame-0002.png, … 1-based, zero-padded, in playback order; default 'frame'). max_frames stops extraction early (1-500, default 500, also the hard cap) — the manifest still records the source's real frame count and flags the truncation. manifest.json lists the canvas width/height, frame count, total playback duration, and every frame's index, filename and delay in milliseconds. A static single-frame GIF yields one PNG. Provide the GIF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "max_frames": {
+          "default": 500,
+          "description": "Stop after this many frames (1-500, default 500, which is also the hard cap). Longer GIFs are truncated and the manifest records the source's real frame count.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "prefix": {
+          "default": "frame",
+          "description": "Filename base for each extracted frame, e.g. frame -> frame-0001.png, frame-0002.png. Numbering is 1-based, zero-padded to 4 digits, in playback order. Default 'frame'.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
