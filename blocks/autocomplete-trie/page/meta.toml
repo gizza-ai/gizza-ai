@@ -1,0 +1,100 @@
+slug          = "autocomplete-trie"
+title         = "Autocomplete Trie — Ranked Prefix Suggestions From a Wordlist"
+description   = "Build a prefix trie from a pasted wordlist and get ranked autocomplete suggestions for any typed prefix. Weights, typo tolerance, trie stats, JSON. Runs locally."
+tags          = ["autocomplete trie", "prefix tree", "typeahead suggestions", "prefix search", "weighted autocomplete", "trie visualizer", "wordlist suggestions", "fuzzy prefix match"]
+h1            = "Autocomplete Trie"
+hero_subtitle = "Paste a wordlist, type a prefix, and get the ranked suggestions a typeahead box would show. Terms can carry weights (or just repeat, to act as counts), matching tolerates up to two typos, and you can inspect the prefix tree itself — nodes, depth, and how much the shared prefixes save. Nothing is uploaded."
+wasm          = "gizza_ai_autocomplete_trie_web"
+export        = "run"
+live          = false
+output_label  = "Suggestions"
+format        = "text"
+
+[[input]]
+name        = "wordlist"
+label       = "Wordlist"
+placeholder = "apple,12\napplication,7\napply,3\napricot,5\nbanana,9"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "prefix"
+label       = "Typed prefix"
+placeholder = "app"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max suggestions"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "rank"
+label  = "Rank by"
+source = "field"
+
+[input.labels]
+weight = "Weight (highest first)"
+alphabetical = "Alphabetical (A-Z)"
+shortest = "Shortest term first"
+
+[[input]]
+name        = "max_typos"
+label       = "Typo tolerance"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Ranked list"
+json = "JSON"
+trie = "Trie drawing"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive"
+source = "field"
+
+[[example]]
+label = "Weighted wordlist"
+[example.params]
+wordlist = "apple,12\napplication,7\napply,3\napricot,5\nbanana,9\nband,4"
+prefix   = "app"
+
+[[example]]
+label = "Repeats as counts"
+[example.params]
+wordlist = "checkout\nlogin\ncheckout\ncheckout\ncart\nlogin"
+prefix   = ""
+rank     = "weight"
+
+[[example]]
+label = "Allow one typo"
+[example.params]
+wordlist  = "apple,12\napplication,7\napply,3\napricot,5\nbanana,9\nband,4"
+prefix    = "aple"
+max_typos = "1"
+
+[[example]]
+label = "Draw the trie"
+[example.params]
+wordlist = "car,1\ncart,1\ncarton,1\ncardigan,1"
+prefix   = "car"
+output   = "trie"
+
+[[example]]
+label = "Alphabetical top 5"
+[example.params]
+wordlist = "apple,12\napplication,7\napply,3\napricot,5\nbanana,9\nband,4"
+prefix   = "a"
+rank     = "alphabetical"
+limit    = "5"

@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/autocomplete-trie",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a prefix trie from a wordlist and return ranked autocomplete suggestions for a prefix",
+  "role": "skill",
+  "tool": {
+    "description": "Build a character prefix trie from a pasted wordlist and return ranked autocomplete suggestions for a typed prefix. Terms may carry weights (a tab, pipe, or comma separated number, before or after the term) and repeated terms sum into a frequency weight. Suggestions can be ranked by weight, alphabetically, or shortest-first, capped with a limit, matched case-sensitively, and widened with a 0-2 edit typo budget where exact-prefix hits always rank first. Reports the total match count plus trie statistics (terms, nodes, depth, and how many characters the shared prefixes save), and can output a ranked text list, JSON, or an ASCII drawing of the trie branch under the prefix.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "Match the prefix case-sensitively and keep differently-cased spellings as separate terms. Off by default, so Apple and apple are one term and the first spelling seen is shown.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 10,
+          "description": "Maximum number of suggestions to return, 1-100. The total number of matching terms is reported either way. Default 10.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_typos": {
+          "default": 0,
+          "description": "Typo tolerance for the prefix, 0-2 edits. 0 (default) matches the prefix exactly; 1 also finds terms one insertion, deletion, or substitution away. Exact-prefix matches always rank above near matches.",
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: text = ranked suggestion list with trie statistics, json = the full structured result, trie = an ASCII drawing of the trie branch under the prefix with terminal nodes marked.",
+          "enum": [
+            "text",
+            "json",
+            "trie"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "The typed prefix to autocomplete, for example 'app'. Leave empty to return the highest-ranked terms in the whole wordlist.",
+          "type": "string"
+        },
+        "rank": {
+          "default": "weight",
+          "description": "Suggestion order: weight = highest weight first (ties alphabetical), alphabetical = A to Z, shortest = fewest characters first. Default weight.",
+          "enum": [
+            "weight",
+            "alphabetical",
+            "shortest"
+          ],
+          "type": "string"
+        },
+        "wordlist": {
+          "description": "The terms to index, one per line. A line may carry an optional weight after a tab, pipe, or comma (apple,12) or before one (12|apple). Lines starting with # are ignored, and a term repeated on several lines has its weights added, so a plain list works as a frequency count.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "wordlist"
+      ],
+      "type": "object"
+    }
+  }
+}
