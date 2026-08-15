@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "per-capita-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Turn counts into per-capita, per-1,000 or per-100,000 rates using a population column"
