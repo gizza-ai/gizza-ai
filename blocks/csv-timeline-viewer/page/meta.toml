@@ -1,0 +1,176 @@
+slug          = "csv-timeline-viewer"
+title         = "CSV timeline viewer — filter, search and time-slice event logs"
+description   = "Paste a CSV, TSV or JSON Lines event log and filter it by time range, search every column, sort, pick columns and page through the matches locally."
+tags          = ["csv", "log viewer", "timeline", "jsonl", "event log", "time range", "search"]
+h1            = "CSV timeline viewer"
+hero_subtitle = "Load a CSV, TSV or JSON Lines log of timestamped events, then slice it by time range, search, and per-column filters — entirely in your browser."
+wasm          = "gizza_ai_csv_timeline_viewer_web"
+export        = "run"
+live          = false
+output_label  = "Matching events"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Event data (CSV, TSV or JSON Lines)"
+placeholder = "timestamp,level,service,message\n2024-06-01T10:00:01Z,INFO,api,request started\n2024-06-01T10:00:05Z,ERROR,api,upstream timeout\n2024-06-01T10:00:09Z,WARN,worker,retrying job 42\n2024-06-02T11:30:00Z,ERROR,worker,job 42 failed"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto  = "Auto-detect"
+csv   = "CSV"
+tsv   = "TSV"
+jsonl = "JSON Lines"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name        = "time_column"
+label       = "Timestamp column"
+placeholder = "timestamp (blank auto-detects)"
+source      = "field"
+
+[[input]]
+name        = "from"
+label       = "From (inclusive)"
+placeholder = "2024-06-01"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "To (inclusive)"
+placeholder = "2024-06-01T23:59:59Z"
+source      = "field"
+
+[[input]]
+name        = "tz_offset"
+label       = "Timezone offset for naive timestamps (hours)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-14"
+max         = "14"
+step        = "0.5"
+
+[[input]]
+name        = "search"
+label       = "Search"
+placeholder = "timeout"
+source      = "field"
+
+[[input]]
+name        = "search_fields"
+label       = "Search only these columns"
+placeholder = "message, service (blank searches all)"
+source      = "field"
+
+[[input]]
+name   = "regex"
+label  = "Search is a regular expression"
+source = "field"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Match case"
+source = "field"
+
+[[input]]
+name        = "filters"
+label       = "Column filters (one per line)"
+placeholder = "level == ERROR\nservice contains work"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "sort_by"
+label       = "Sort by column"
+placeholder = "timestamp (blank sorts by time)"
+source      = "field"
+
+[[input]]
+name   = "order"
+label  = "Sort order"
+source = "field"
+
+[input.labels]
+asc  = "Oldest first"
+desc = "Newest first"
+
+[[input]]
+name        = "columns"
+label       = "Show only these columns"
+placeholder = "timestamp, level, message (blank shows all)"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Rows per page"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "offset"
+label       = "Skip rows before the page"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+table   = "Aligned table"
+csv     = "CSV"
+json    = "JSON array"
+jsonl   = "JSON Lines"
+summary = "Activity summary"
+
+[[example]]
+label = "Errors only"
+[example.params]
+data = "timestamp,level,service,message\n2024-06-01T10:00:01Z,INFO,api,request started\n2024-06-01T10:00:05Z,ERROR,api,upstream timeout\n2024-06-01T10:00:09Z,WARN,worker,retrying job 42\n2024-06-02T11:30:00Z,ERROR,worker,job 42 failed"
+filters = "level == ERROR"
+output = "table"
+
+[[example]]
+label = "One day, newest first"
+[example.params]
+data = "timestamp,level,service,message\n2024-06-01T10:00:01Z,INFO,api,request started\n2024-06-01T10:00:05Z,ERROR,api,upstream timeout\n2024-06-01T10:00:09Z,WARN,worker,retrying job 42\n2024-06-02T11:30:00Z,ERROR,worker,job 42 failed"
+from = "2024-06-01"
+to = "2024-06-01"
+order = "desc"
+
+[[example]]
+label = "Search every column"
+[example.params]
+data = "timestamp,level,service,message\n2024-06-01T10:00:01Z,INFO,api,request started\n2024-06-01T10:00:05Z,ERROR,api,upstream timeout\n2024-06-01T10:00:09Z,WARN,worker,retrying job 42\n2024-06-02T11:30:00Z,ERROR,worker,job 42 failed"
+search = "job 42"
+columns = "timestamp, message"
+
+[[example]]
+label = "JSON Lines activity summary"
+[example.params]
+data = "{\"ts\":\"2024-06-01T10:00:00Z\",\"event\":\"login\",\"user\":\"ada\"}\n{\"ts\":\"2024-06-01T10:04:00Z\",\"event\":\"login\",\"user\":\"bo\"}\n{\"ts\":\"2024-06-01T10:05:00Z\",\"event\":\"logout\",\"user\":\"ada\"}"
+output = "summary"

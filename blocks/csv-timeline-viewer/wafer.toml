@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-timeline-viewer"
+version = "0.1.0"
+abi = 1
+summary = "Sort, filter, search and time-slice a CSV/JSONL event timeline"

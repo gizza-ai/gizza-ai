@@ -1,0 +1,143 @@
+{
+  "name": "gizza-ai/csv-timeline-viewer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort, filter, search and time-slice a CSV/JSONL event timeline",
+  "role": "skill",
+  "tool": {
+    "description": "View a large CSV, TSV, or JSON Lines table of timestamped events: filter it to a time range, search across every column, apply per-column conditions, sort, pick columns, and page through the result. The timestamp column is auto-detected by header name (timestamp, time, date, created_at, TimeCreated, …) or by which column's values actually parse as times, and ISO 8601, `YYYY-MM-DD HH:MM:SS`, Apache `01/Jun/2024:10:00:00 +0000`, and bare epoch seconds/millis/micros/nanos are all understood; tz_offset interprets timezone-less values. from/to bound an inclusive range (a bare date covers the whole day), search does case-insensitive substring or opt-in regex matching over every column or just search_fields, and filters applies one `<column> <op> <value>` condition per line (== != < <= > >= contains !contains startswith endswith matches), AND-ed together. sort_by/order sort (by time when blank), columns projects, limit/offset page. Output is table (aligned grid with source row numbers and a match-count footer), csv, json, jsonl, or summary (counts, first/last event, and an activity histogram that reveals spikes). Up to 200000 input lines. Runs locally — the data never leaves the machine.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "When true, `search` matches case exactly. Off by default, so ERROR finds error. Column filters using contains/startswith/endswith always ignore case.",
+          "type": "boolean"
+        },
+        "columns": {
+          "default": "",
+          "description": "Comma-separated columns to show, in this order, by header name or 1-based index — e.g. timestamp, level, message. Empty (default) shows every column.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The event table to view, pasted in full: CSV, TSV, or JSON Lines (one JSON object per line; a whole JSON array of objects is accepted too). Example: `timestamp,level,message` then `2024-06-01T10:00:05Z,ERROR,upstream timeout`. Up to 200000 lines.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator for CSV/TSV input. auto (default) counts commas, semicolons, tabs and pipes outside quotes on the first line and picks the most common. Ignored for jsonl.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "filters": {
+          "default": "",
+          "description": "Column conditions, ONE PER LINE, all of which must hold: `<column> <op> <value>` with op one of == != < <= > >= contains !contains startswith endswith matches. Example: `level == ERROR` on one line and `service contains work` on the next. Comparison is numeric when both sides are numbers, otherwise text; `matches` takes a regular expression. Empty (default) keeps every row.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Input format. auto (default) reads the first non-blank line and picks jsonl when it starts with { or [, otherwise delimited text. Set csv/tsv/jsonl to override a bad guess.",
+          "enum": [
+            "auto",
+            "csv",
+            "tsv",
+            "jsonl"
+          ],
+          "type": "string"
+        },
+        "from": {
+          "default": "",
+          "description": "Keep only events at or after this time, inclusive — e.g. 2024-06-01, 2024-06-01T10:00:00Z, or an epoch value. A date with no time means 00:00:00. Empty (default) means no lower bound.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "When true (default), the first row holds column names. Set false for headerless data — columns are then named column1, column2, … and can be referenced by those names or by 1-based index.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 100,
+          "description": "How many matching rows to show, i.e. the page size (1-100000, default 100). The match count in the footer always reports the full total, so a trim is never silent.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "How many matching rows to skip before the page starts (default 0). Use with limit to page: offset=100 with limit=100 is the second page.",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Sort direction: asc (oldest or smallest first, the default) or desc (newest or largest first).",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "table",
+          "description": "Result shape: table (default, an aligned grid with a # source-row-number column and a match-count footer), csv, json (array of objects), jsonl (one object per line), or summary (row counts, detected time column, first/last event and an activity histogram over the whole match set, ignoring limit/offset).",
+          "enum": [
+            "table",
+            "csv",
+            "json",
+            "jsonl",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "regex": {
+          "default": false,
+          "description": "When true, `search` is a regular expression instead of a plain substring. Off by default. An invalid pattern is an error naming the syntax problem.",
+          "type": "boolean"
+        },
+        "search": {
+          "default": "",
+          "description": "Full-text search: keep rows where any searched column contains this text, e.g. timeout. Case-insensitive substring by default; set regex=true to treat it as a regular expression such as `job \\d+`. Empty (default) searches nothing away.",
+          "type": "string"
+        },
+        "search_fields": {
+          "default": "",
+          "description": "Comma-separated columns the search looks in, by header name or 1-based index — e.g. message, service. Empty (default) searches every column.",
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "",
+          "description": "Column to sort by, as a header name or 1-based index. Empty (default) sorts by the timestamp column; rows whose timestamp does not parse are placed last. Non-time columns sort numerically when both cells are numbers, otherwise alphabetically.",
+          "type": "string"
+        },
+        "time_column": {
+          "default": "",
+          "description": "Which column holds the event time: a header name (case-insensitive) or a 1-based index. Empty (default) auto-detects it by header name (timestamp, time, date, created_at, @timestamp, TimeCreated, …) and falls back to the first column whose values actually parse as times.",
+          "type": "string"
+        },
+        "to": {
+          "default": "",
+          "description": "Keep only events at or before this time, inclusive — e.g. 2024-06-02 or 2024-06-02T23:59:59Z. A date with no time covers that whole day through 23:59:59.999. Empty (default) means no upper bound.",
+          "type": "string"
+        },
+        "tz_offset": {
+          "default": 0.0,
+          "description": "Hours that timezone-less timestamps in the data (and in from/to) are offset from UTC, e.g. -5 for US Eastern standard time or 5.5 for India. Values that already carry a Z or ±hh:mm offset are unaffected. Default 0.",
+          "maximum": 14,
+          "minimum": -14,
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
