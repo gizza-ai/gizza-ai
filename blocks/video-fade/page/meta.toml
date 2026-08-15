@@ -1,0 +1,92 @@
+slug          = "video-fade"
+title         = "Fade Video In and Out Online (Fade to Black)"
+description   = "Add a fade-in and fade-out to a video — picture fading from and to black, sound ramping out of and into silence. Free, private, runs in your browser."
+tags          = ["video fade", "fade to black", "fade in video", "fade out video", "fade video and audio", "video transition", "ffmpeg"]
+h1            = "Fade a Video In and Out"
+hero_subtitle = "Ramp a clip up from black at the start and down to black at the end — sound included — without uploading anything."
+wasm          = "gizza_ai_video_fade_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Faded video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST match web/src/lib.rs build_argv:
+# fade_in, fade_out, duration, streams, color, quality.
+[[input]]
+name        = "fade_in"
+source      = "field"
+label       = "Fade in (seconds)"
+placeholder = "1"
+kind        = "slider"
+min         = "0"
+max         = "30"
+step        = "0.5"
+
+[[input]]
+name        = "fade_out"
+source      = "field"
+label       = "Fade out (seconds)"
+placeholder = "1"
+kind        = "slider"
+min         = "0"
+max         = "30"
+step        = "0.5"
+
+[[input]]
+name        = "duration"
+source      = "field"
+label       = "Exact clip length (seconds) — needed for a fade-out"
+placeholder = "12.5"
+
+[[input]]
+name   = "streams"
+source = "field"
+label  = "Fade"
+
+[input.labels]
+both  = "Picture and sound (default)"
+video = "Picture only — sound stays at full level"
+audio = "Sound only — picture copied untouched"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Fade colour"
+placeholder = "black"
+kind        = "color"
+
+[[input]]
+name   = "quality"
+source = "field"
+label  = "Output quality"
+
+[input.labels]
+high     = "High — CRF 18, largest file"
+balanced = "Balanced — CRF 23 (default)"
+small    = "Small — CRF 28, smallest file"
+
+[[example]]
+label  = "1 s in + out (10 s clip)"
+params = { fade_in = "1", fade_out = "1", duration = "10", streams = "both", color = "black", quality = "balanced" }
+
+[[example]]
+label  = "Fade in only, no length needed"
+params = { fade_in = "2", fade_out = "0", duration = "0", streams = "both", color = "black", quality = "balanced" }
+
+[[example]]
+label  = "Cinematic 3 s tail (30 s clip)"
+params = { fade_in = "0", fade_out = "3", duration = "30", streams = "both", color = "black", quality = "high" }
+
+[[example]]
+label  = "Fade to white"
+params = { fade_in = "1", fade_out = "1", duration = "10", streams = "video", color = "#ffffff", quality = "balanced" }
+
+[[example]]
+label  = "Sound only (picture untouched)"
+params = { fade_in = "1.5", fade_out = "1.5", duration = "10", streams = "audio", color = "black", quality = "balanced" }

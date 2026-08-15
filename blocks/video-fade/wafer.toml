@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-fade"
+version = "0.1.0"
+abi = 1
+summary = "Fade a video in from and out to black at the start and end, sound included"
