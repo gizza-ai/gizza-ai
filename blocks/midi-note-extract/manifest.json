@@ -1,0 +1,104 @@
+{
+  "name": "gizza-ai/midi-note-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract every note from a MIDI file as a CSV/TSV table of pitch, start, duration and velocity",
+  "role": "skill",
+  "tool": {
+    "description": "Extract every note from a Standard MIDI File (SMF, .mid/.midi) as one delimited table — a row per note with pitch, start, duration and velocity, ready for a spreadsheet, pandas or a plotting script. `input` is the MIDI bytes as a base64 or hex string (it must start with a standard `MThd` header chunk; Format 0/1/2), and `encoding` is auto (default) / base64 / hex. Note-on and note-off messages are paired per channel and pitch, every track is flattened into one table, and a note left unclosed by the file is held to the end of its track. `columns` picks the row shape: 'minimal' (start, duration, pitch, velocity), 'standard' (default: track, channel, start, duration, pitch, note_name, velocity) or 'full' (also track_name, end and tempo_bpm). `time_unit` is seconds (default, computed from the file's tempo map), ticks, or beats (quarter notes; metrical PPQ files only). `velocity_scale` is raw 0-127 (default) or normalized 0.0-1.0. `delimiter` is comma (default), semicolon or tab; `header` toggles the column-name row; `sort` is time (default), track or pitch; `track` and `channel` filter to 'all' (default) or a comma-separated list of 0-based numbers; `decimals` (default 3) sets the fractional precision. Returns at most 50000 rows. Read-only — nothing is fetched, persisted, or modified. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "default": "all",
+          "description": "Which MIDI channels to include: 'all' (default) or a comma-separated list of 0-based channel numbers, e.g. '0' or '0,9' (channel 9 is General MIDI drums).",
+          "type": "string"
+        },
+        "columns": {
+          "default": "standard",
+          "description": "Which columns each row carries: 'minimal' = start, duration, pitch, velocity; 'standard' (default) = track, channel, start, duration, pitch, note_name, velocity; 'full' also adds track_name, end and tempo_bpm (the tempo in force when the note starts).",
+          "enum": [
+            "minimal",
+            "standard",
+            "full"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": 3,
+          "description": "Decimal places for the fractional columns (seconds/beats times, normalized velocity, tempo). Default 3. Tick values are always whole numbers.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Column separator: 'comma' (default, CSV), 'semicolon', or 'tab' (TSV). Track names containing the separator, a quote or a newline are quoted RFC 4180 style.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "How `input` is encoded: 'auto' (default) reads it as hex when it is all hex digits with an even length, otherwise base64; 'base64'; or 'hex'.",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Write the column-name header row first. Default true; set false for a bare data table.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The Standard MIDI File (.mid/.midi) bytes as a base64 or hex string. The data must start with a standard `MThd` header chunk (Format 0/1/2). Whitespace, and `:`/`-` separators in hex, are ignored.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "time",
+          "description": "Row order: 'time' (default) chronological across the whole file, 'track' grouped by track then chronological, or 'pitch' lowest note first then chronological.",
+          "enum": [
+            "time",
+            "track",
+            "pitch"
+          ],
+          "type": "string"
+        },
+        "time_unit": {
+          "default": "seconds",
+          "description": "Unit for the start/end/duration columns: 'seconds' (default) from the file's tempo map, 'ticks' (raw whole MIDI ticks), or 'beats' (quarter notes; needs a metrical PPQ file, not SMPTE timecode).",
+          "enum": [
+            "seconds",
+            "ticks",
+            "beats"
+          ],
+          "type": "string"
+        },
+        "track": {
+          "default": "all",
+          "description": "Which tracks to include: 'all' (default) or a comma-separated list of 0-based track numbers, e.g. '1' or '0,2'.",
+          "type": "string"
+        },
+        "velocity_scale": {
+          "default": "raw",
+          "description": "Velocity column scale: 'raw' (default) the MIDI 0-127 integer, or 'normalized' the same value divided by 127 as a 0.0-1.0 decimal.",
+          "enum": [
+            "raw",
+            "normalized"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
