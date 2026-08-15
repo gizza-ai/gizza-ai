@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stl-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Inspect an ASCII or binary STL: triangle count, bounding box, area, volume and whether it is watertight"

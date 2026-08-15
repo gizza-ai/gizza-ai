@@ -1,0 +1,71 @@
+slug          = "stl-inspector"
+title         = "STL Inspector — Triangle Count, Volume, Bounding Box & Watertight Check"
+description   = "Inspect an ASCII or binary STL in your browser: triangles, vertices, bounding box, surface area, volume, watertight and manifold status, weight estimate."
+tags          = ["stl inspector", "stl analyzer", "stl volume calculator", "stl triangle count", "watertight check", "manifold check", "stl bounding box", "3d print weight estimate", "binary stl reader"]
+h1            = "STL inspector"
+hero_subtitle = "Paste an ASCII STL, or a binary STL's bytes as base64 or hex, and read the whole mesh at once — triangle and welded-vertex counts, bounding box, bounds and centre, surface area, signed and absolute volume, watertight and manifold status, open and non-manifold edges, disconnected shells, degenerate and duplicate facets, stored-normal mismatches, and an optional weight estimate from material density. Read-only: your mesh is never modified, and it runs locally in your browser."
+wasm          = "gizza_ai_stl_inspector_web"
+export        = "run"
+live          = false
+output_label  = "Inspection report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "stl"
+label       = "STL mesh"
+placeholder = "solid demo\n  facet normal 0 0 -1\n    outer loop\n      vertex 0 0 0\n      vertex 0 10 0\n      vertex 10 0 0\n    endloop\n  endfacet\nendsolid demo"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+labels = { auto = "Auto-detect", ascii = "ASCII STL text", base64 = "Binary STL bytes, base64", hex = "Binary STL bytes, hex" }
+
+[[input]]
+name   = "output"
+label  = "Report format"
+source = "field"
+labels = { report = "Readable report", json = "JSON (for scripts and CI)" }
+
+[[input]]
+name   = "units"
+label  = "Coordinates are in"
+source = "field"
+labels = { mm = "Millimetres (mm)", cm = "Centimetres (cm)", in = "Inches (in)" }
+
+[[input]]
+name        = "scale"
+label       = "Scale factor applied before measuring"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "density"
+label       = "Material density in g/cm³ for the weight estimate (0 = skip)"
+placeholder = "1.24"
+source      = "field"
+
+[[input]]
+name        = "weld_tolerance"
+label       = "Weld tolerance — corners closer than this are one vertex"
+placeholder = "0.000001"
+source      = "field"
+
+[[example]]
+label  = "ASCII tetrahedron"
+params = { stl = "solid tetra\n  facet normal 0 0 -1\n    outer loop\n      vertex 0 0 0\n      vertex 0 10 0\n      vertex 10 0 0\n    endloop\n  endfacet\n  facet normal 0 -1 0\n    outer loop\n      vertex 0 0 0\n      vertex 10 0 0\n      vertex 0 0 10\n    endloop\n  endfacet\n  facet normal -1 0 0\n    outer loop\n      vertex 0 0 0\n      vertex 0 0 10\n      vertex 0 10 0\n    endloop\n  endfacet\n  facet normal 0.5773502691896257 0.5773502691896257 0.5773502691896257\n    outer loop\n      vertex 10 0 0\n      vertex 0 10 0\n      vertex 0 0 10\n    endloop\n  endfacet\nendsolid tetra\n" }
+
+[[example]]
+label  = "Single open triangle"
+params = { stl = "solid demo\n  facet normal 0 0 -1\n    outer loop\n      vertex 0 0 0\n      vertex 0 10 0\n      vertex 10 0 0\n    endloop\n  endfacet\nendsolid demo\n" }
+
+[[example]]
+label  = "Binary 10 mm cube (base64)"
+params = { stl = "Y3ViZSAxMG1tAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAIC/AAAAAAAAAAAAAAAAAAAAAAAAIEEAAAAAAAAgQQAAIEEAAAAAAAAAAAAAAAAAAAAAgL8AAAAAAAAAAAAAAAAAACBBAAAgQQAAAAAAACBBAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAgQQAAIEEAAAAAAAAgQQAAIEEAACBBAAAgQQAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAACBBAAAgQQAAIEEAACBBAAAAAAAAIEEAACBBAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAACBBAAAAAAAAAAAAACBBAAAAAAAAIEEAAAAAAAAAAIC/AAAAAAAAAAAAAAAAAAAAAAAAIEEAAAAAAAAgQQAAAAAAAAAAAAAgQQAAAAAAAAAAgD8AAAAAAAAgQQAAIEEAAAAAAAAAAAAAIEEAAAAAAAAAAAAAIEEAACBBAAAAAAAAAACAPwAAAIAAACBBAAAgQQAAAAAAAAAAAAAgQQAAIEEAACBBAAAgQQAAIEEAAAAAgL8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgQQAAAAAAACBBAAAgQQAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIEEAACBBAAAAAAAAIEEAAAAAAAAAAIA/AAAAAAAAAAAAACBBAAAAAAAAAAAAACBBAAAgQQAAAAAAACBBAAAgQQAAIEEAAAAAgD8AAAAAAAAAAAAAIEEAAAAAAAAAAAAAIEEAACBBAAAgQQAAIEEAAAAAAAAgQQAA", input_format = "base64" }
+
+[[example]]
+label  = "PLA weight of the tetrahedron"
+params = { stl = "solid tetra\n  facet normal 0 0 -1\n    outer loop\n      vertex 0 0 0\n      vertex 0 10 0\n      vertex 10 0 0\n    endloop\n  endfacet\n  facet normal 0 -1 0\n    outer loop\n      vertex 0 0 0\n      vertex 10 0 0\n      vertex 0 0 10\n    endloop\n  endfacet\n  facet normal -1 0 0\n    outer loop\n      vertex 0 0 0\n      vertex 0 0 10\n      vertex 0 10 0\n    endloop\n  endfacet\n  facet normal 0.5773502691896257 0.5773502691896257 0.5773502691896257\n    outer loop\n      vertex 10 0 0\n      vertex 0 10 0\n      vertex 0 0 10\n    endloop\n  endfacet\nendsolid tetra\n", density = "1.24" }
