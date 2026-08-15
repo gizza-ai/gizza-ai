@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-watermark-tile"
+version = "0.1.0"
+abi = 1
+summary = "Tile a repeating text watermark across a whole image"

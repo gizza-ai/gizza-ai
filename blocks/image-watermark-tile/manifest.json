@@ -1,0 +1,108 @@
+{
+  "name": "gizza-ai/image-watermark-tile",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Tile a repeating text watermark across a whole image",
+  "role": "skill",
+  "tool": {
+    "description": "Stamp a repeating (tiled) text watermark across an entire image so it cannot be cropped off — the anti-theft pattern stock agencies use on previews. Provide the image as url or ref plus the watermark text, and optionally font_size, color, opacity, angle (default 30 = diagonal), columns/rows tile density, pattern (brick or grid), outline, and output format. Text is drawn with a bundled font via ffmpeg drawtext using textfile/fontfile, so no escaping is needed. Tile positions are relative, so the same settings look identical on any image size. Returns the watermarked image. Note: runs on the standalone page and CLI; chat ffmpeg is unavailable.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "angle": {
+          "default": 30.0,
+          "description": "Rotation of the whole tiled pattern in degrees, -90 to 90. Default 30 (the classic diagonal); 0 draws straight horizontal rows.",
+          "maximum": 90,
+          "minimum": -90,
+          "type": "number"
+        },
+        "color": {
+          "default": "#ffffff",
+          "description": "Watermark color as a CSS color name or hex (#ffffff, #fff, black, navy). Default #ffffff — white reads well on photos, black on light scans.",
+          "type": "string"
+        },
+        "columns": {
+          "default": 4,
+          "description": "How many watermark tiles across the image (1-12). Default 4. Higher = denser, harder to crop or clone out.",
+          "maximum": 12,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "font_size": {
+          "default": 32,
+          "description": "Watermark text size in pixels (6-400). Default 32; use ~2% of the image width as a starting point (about 40 for a 2000px-wide photo).",
+          "maximum": 400,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "format": {
+          "default": "keep",
+          "description": "Output container: keep (default) reuses the input's format, or convert to png (lossless), jpg (small, no transparency) or webp.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "opacity": {
+          "default": 0.3,
+          "description": "Watermark opacity from 0.02 (barely visible) to 1.0 (solid). Default 0.3 — visible enough to deter reuse without hiding the picture.",
+          "maximum": 1,
+          "minimum": 0.02,
+          "type": "number"
+        },
+        "outline": {
+          "default": false,
+          "description": "Add a black outline around each watermark so it stays legible over both light and dark areas. Default false.",
+          "type": "boolean"
+        },
+        "pattern": {
+          "default": "brick",
+          "description": "Tile layout: brick (default) offsets alternate rows by half a cell for staggered, checker-wise coverage; grid aligns every row in a plain lattice.",
+          "enum": [
+            "grid",
+            "brick"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rows": {
+          "default": 5,
+          "description": "How many watermark tiles down the image (1-12). Default 5. Higher = denser coverage.",
+          "maximum": 12,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The watermark text repeated over the whole image, e.g. \"SAMPLE\", \"© 2026 Studio\" or \"CONFIDENTIAL\". Drawn literally from a text file, so quotes, colons and commas are safe. Max 120 characters; use \\n for a second line.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
