@@ -1,0 +1,60 @@
+/* midi-track-splitter — the parts table rendered by page/custom.js. Layout only;
+   every colour comes from the shared runtime's CSS variables so the table
+   follows whatever theme the page is rendered with. */
+
+.split-parts {
+  display: block;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.split-summary {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+}
+
+.split-source {
+  margin: 0 0 0.75rem;
+  opacity: 0.75;
+  font-size: 0.85rem;
+}
+
+.split-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.split-table th,
+.split-table td {
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid currentColor;
+  /* A hairline that reads as a rule rather than a hard line in either theme. */
+  border-bottom-color: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.split-table th {
+  font-weight: 600;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.split-download {
+  font-weight: 600;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.split-noname {
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.split-hint {
+  margin: 0.75rem 0 0;
+  opacity: 0.75;
+  font-size: 0.85rem;
+}
