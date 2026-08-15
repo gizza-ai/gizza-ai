@@ -1,0 +1,256 @@
+slug          = "histogram-chart"
+title         = "Histogram Chart Maker — Bin Numbers into an SVG Histogram"
+description   = "Paste a list of numbers and render an SVG histogram. Auto bin rules or an explicit bin count/width, count, percent, density or cumulative bars, mean and median markers."
+tags          = ["histogram chart", "histogram maker", "bin numbers", "frequency distribution", "bin width", "svg chart", "distribution plot", "statistics"]
+h1            = "Histogram Chart Maker"
+hero_subtitle = "Paste numbers, pick automatic bins or an exact bin count or width, and get a deterministic SVG histogram with counts, percent, density or cumulative bars — plus the frequency table as text, CSV or JSON."
+wasm          = "gizza_ai_histogram_chart_web"
+export        = "run"
+live          = false
+output_label  = "Histogram output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Numbers"
+placeholder = "12\n15\n15\n17\n18\n18\n19\n21\n24\n28"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "bin_method"
+label       = "Binning method"
+placeholder = "auto"
+source      = "field"
+[input.labels]
+auto = "Auto (Freedman-Diaconis or Sturges)"
+sturges = "Sturges"
+scott = "Scott"
+freedman_diaconis = "Freedman-Diaconis"
+rice = "Rice"
+doane = "Doane"
+sqrt = "Square root"
+count = "Exact bin count"
+width = "Exact bin width"
+
+[[input]]
+name        = "bins"
+label       = "Bin count (for exact bin count)"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "bin_width"
+label       = "Bin width (for exact bin width)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "range_min"
+label       = "Range minimum"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "range_max"
+label       = "Range maximum"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name        = "normalize"
+label       = "Bars measure"
+placeholder = "count"
+source      = "field"
+[input.labels]
+count = "Count"
+relative = "Relative frequency"
+percent = "Percent"
+density = "Density"
+cumulative_count = "Cumulative count"
+cumulative_percent = "Cumulative percent"
+
+[[input]]
+name        = "right_closed"
+label       = "Right-closed intervals (a, b]"
+source      = "field"
+
+[[input]]
+name        = "show_values"
+label       = "Label each bar with its value"
+source      = "field"
+
+[[input]]
+name        = "show_mean"
+label       = "Show mean marker"
+source      = "field"
+
+[[input]]
+name        = "show_median"
+label       = "Show median marker"
+source      = "field"
+
+[[input]]
+name        = "normal_curve"
+label       = "Overlay normal curve"
+source      = "field"
+
+[[input]]
+name        = "rug"
+label       = "Show rug plot"
+source      = "field"
+
+[[input]]
+name        = "grid"
+label       = "Show grid lines"
+source      = "field"
+
+[[input]]
+name        = "orientation"
+label       = "Orientation"
+placeholder = "vertical"
+source      = "field"
+[input.labels]
+vertical = "Vertical bars"
+horizontal = "Horizontal bars"
+
+[[input]]
+name        = "title"
+label       = "Chart title"
+placeholder = "Response times"
+source      = "field"
+
+[[input]]
+name        = "x_label"
+label       = "Value-axis label"
+placeholder = "Latency (ms)"
+source      = "field"
+
+[[input]]
+name        = "y_label"
+label       = "Measurement-axis label"
+placeholder = "Requests"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "SVG width"
+placeholder = "800"
+source      = "field"
+kind        = "slider"
+min         = "320"
+max         = "2400"
+step        = "20"
+
+[[input]]
+name        = "height"
+label       = "SVG height"
+placeholder = "480"
+source      = "field"
+kind        = "slider"
+min         = "240"
+max         = "1800"
+step        = "20"
+
+[[input]]
+name        = "color"
+label       = "Bar colour"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "opacity"
+label       = "Bar opacity"
+placeholder = "0.9"
+source      = "field"
+kind        = "slider"
+min         = "0.05"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name        = "theme"
+label       = "Theme"
+placeholder = "light"
+source      = "field"
+[input.labels]
+light = "Light"
+dark = "Dark"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name        = "output"
+label       = "Output"
+placeholder = "svg"
+source      = "field"
+[input.labels]
+svg = "SVG chart"
+table = "Frequency table"
+csv = "CSV frequency table"
+json = "JSON bins + stats"
+
+[[example]]
+label = "Auto bins"
+[example.params]
+data = "12\n15\n15\n17\n18\n18\n19\n21\n24\n28\n31\n33\n34\n34\n36\n39\n41\n44\n48\n55"
+bin_method = "auto"
+title = "Response times"
+x_label = "Latency (ms)"
+output = "svg"
+
+[[example]]
+label = "10 exact bins"
+[example.params]
+data = "12\n15\n15\n17\n18\n18\n19\n21\n24\n28\n31\n33\n34\n34\n36\n39\n41\n44\n48\n55"
+bin_method = "count"
+bins = "10"
+show_values = "true"
+output = "svg"
+
+[[example]]
+label = "Bin width 10, 0-60"
+[example.params]
+data = "12\n15\n15\n17\n18\n18\n19\n21\n24\n28\n31\n33\n34\n34\n36\n39\n41\n44\n48\n55"
+bin_method = "width"
+bin_width = "10"
+range_min = "0"
+range_max = "60"
+output = "table"
+
+[[example]]
+label = "Percent + normal curve"
+[example.params]
+data = "12\n15\n15\n17\n18\n18\n19\n21\n24\n28\n31\n33\n34\n34\n36\n39\n41\n44\n48\n55"
+bin_method = "sturges"
+normalize = "percent"
+normal_curve = "true"
+show_mean = "true"
+show_median = "true"
+rug = "true"
+theme = "dark"
+output = "svg"
+
+[[example]]
+label = "Cumulative percent"
+[example.params]
+data = "12\n15\n15\n17\n18\n18\n19\n21\n24\n28\n31\n33\n34\n34\n36\n39\n41\n44\n48\n55"
+bin_method = "count"
+bins = "8"
+normalize = "cumulative_percent"
+orientation = "horizontal"
+output = "svg"
