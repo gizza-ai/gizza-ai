@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "docker-cli-output-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse docker ps, docker images and docker stats output into JSON, CSV or a table"
