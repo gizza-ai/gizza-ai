@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/midi-tempo-change",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Change the tempo or BPM of a MIDI file while every note keeps its musical position",
+  "role": "skill",
+  "tool": {
+    "description": "Change the tempo/BPM of a Standard MIDI File (.mid) and return the retimed file as a download. `input` is the file's bytes as base64 or hex. Notes are never touched: every note-on, note-off, velocity, controller, program change, track name and time signature is carried through unchanged, and only the tempo meta events (microseconds per quarter note) are rewritten, so the relationships between notes survive exactly. `mode` picks how the new tempo is chosen — 'set-bpm' targets an absolute `bpm` (the file's first tempo becomes it) and 'scale' multiplies the existing tempo by `factor` (2.0 = twice as fast, 0.5 = half speed). `tempo_map` decides what happens to a file that already changes tempo while it plays: 'scale' multiplies every tempo event by the same ratio so ritardandos keep their shape, 'flatten' replaces the map with one constant tempo. `keep_duration` re-notates instead of retiming — every tick is rescaled too, so the file plays for the same length of time at the new BPM (a quarter note at 120 becomes a half note at 240), which is how you match a part to a project's BPM without changing how it sounds. A file with no tempo event is treated as the MIDI default 120 BPM and gets one written. SMPTE timecode files are rejected, since their speed comes from the frame rate, not tempo events. Pure compute — nothing is fetched, uploaded or stored.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bpm": {
+          "default": 120.0,
+          "description": "Target tempo in quarter-note beats per minute when `mode` is 'set-bpm' (default 120, range 20-400). Decimals are allowed, e.g. 128.5. Ignored when `mode` is 'scale'.",
+          "maximum": 400,
+          "minimum": 20,
+          "type": "number"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "How `input` is encoded: 'auto' (default) reads it as hex when it is all hex digits with an even length, otherwise base64; 'base64'; or 'hex'.",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "factor": {
+          "default": 1.0,
+          "description": "Speed multiplier when `mode` is 'scale' (default 1.0 = no change, range 0.1-10). 2.0 plays twice as fast, 0.5 half speed, 1.25 is '125% speed'. Ignored when `mode` is 'set-bpm'.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "input": {
+          "description": "The Standard MIDI File (.mid/.midi) bytes as a base64 or hex string. The data must start with a standard `MThd` header chunk (Format 0/1/2), use metrical ticks-per-quarter-note timing, and be at most 4 MiB. Whitespace, and `:`/`-` separators in hex, are ignored.",
+          "type": "string"
+        },
+        "keep_duration": {
+          "default": false,
+          "description": "Re-notate instead of retiming: when true (default false) every event tick is rescaled by the same ratio, so the file still plays for exactly as long as before at the new BPM — a quarter note at 120 becomes a half note at 240. Use it to match a project's BPM without changing how the part sounds.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "set-bpm",
+          "description": "How the new tempo is chosen: 'set-bpm' (default) targets the absolute `bpm` value, so the file's FIRST tempo becomes it; 'scale' multiplies the existing tempo by `factor` (use it when you want '20% faster' rather than a specific number).",
+          "enum": [
+            "set-bpm",
+            "scale"
+          ],
+          "type": "string"
+        },
+        "tempo_map": {
+          "default": "scale",
+          "description": "What to do with a file that already changes tempo as it plays: 'scale' (default) multiplies EVERY tempo event by the same ratio, so ritardandos and accelerandos keep their shape; 'flatten' deletes the whole tempo map and writes one constant tempo at the start.",
+          "enum": [
+            "scale",
+            "flatten"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
