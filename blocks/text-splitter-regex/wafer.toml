@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-splitter-regex"
+version = "0.1.0"
+abi = 1
+summary = "Split text into rows or fields using a regular expression as the delimiter."

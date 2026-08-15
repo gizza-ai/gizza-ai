@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/text-splitter-regex",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split text into rows or fields using a regular expression as the delimiter.",
+  "role": "skill",
+  "tool": {
+    "description": "Split text into parts using a regular expression as the SEPARATOR (the inverse of matching): everything between matches of `pattern` becomes a part, which handles multi-character, mixed and repeated-whitespace delimiters that a literal split cannot. Set field_pattern to split every row again into fields and get a real table. Regex flags ignore_case, multiline and dotall apply to both patterns; trim and remove_empty clean up the parts; max_splits caps the number of row splits and keeps the remainder intact. Render as one-per-line (default), json, csv, tsv, numbered, or joined by a custom separator. Input is capped at 200,000 characters and 100,000 parts.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dotall": {
+          "default": false,
+          "description": "Let . also match newline characters, so a separator can span lines (regex flag s). Default false.",
+          "type": "boolean"
+        },
+        "field_pattern": {
+          "default": "",
+          "description": "Optional second regular expression that splits each row into fields, turning the input into a table (e.g. rows on \\n and fields on \\s*:\\s*). Blank (the default) splits into rows only.",
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match both patterns case-insensitively (regex flag i). Default false.",
+          "type": "boolean"
+        },
+        "max_splits": {
+          "default": 0,
+          "description": "Stop after this many splits into rows and keep the rest as the final row (0 = unlimited, the default). Field splitting is never capped. Example: max_splits=1 on 'key: some: value' with pattern ':\\s*' gives 'key' and 'some: value'.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "multiline": {
+          "default": false,
+          "description": "Let ^ and $ match at line boundaries instead of only the start/end of the text (regex flag m). Default false.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "lines",
+          "description": "How to render the parts. 'lines' (default) = one part per line (fields joined by a tab); 'json' = a JSON array of strings, or of arrays when field_pattern is set; 'csv' = RFC-4180 CSV; 'tsv' = tab-separated; 'numbered' = '1. part' per line; 'separator' = joined by the separator parameter.",
+          "enum": [
+            "lines",
+            "json",
+            "csv",
+            "tsv",
+            "numbered",
+            "separator"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "The separator as a regular expression (Rust regex syntax) — everything between matches becomes a part. Examples: \\s+ (runs of whitespace), [,;|] (any of several delimiters), \\n{2,} (blank lines / paragraphs), \\s*,\\s* (commas with optional spaces).",
+          "type": "string"
+        },
+        "remove_empty": {
+          "default": false,
+          "description": "Drop empty parts (after trimming, if trim is on) — useful for leading, trailing or repeated separators. Default false.",
+          "type": "boolean"
+        },
+        "separator": {
+          "default": ", ",
+          "description": "The string used to join parts when output='separator' (default ', '). The escapes \\n, \\t, \\r and \\\\ are recognised, so \\n\\n puts a blank line between parts. Ignored for every other output format.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to split.",
+          "type": "string"
+        },
+        "trim": {
+          "default": false,
+          "description": "Trim leading/trailing whitespace from every part. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}
