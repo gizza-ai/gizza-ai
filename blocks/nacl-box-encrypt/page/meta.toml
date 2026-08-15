@@ -1,0 +1,121 @@
+slug          = "nacl-box-encrypt"
+title         = "NaCl Crypto Box — public-key encrypt/decrypt"
+description   = "Encrypt or decrypt NaCl crypto_box messages with Curve25519 keys, XSalsa20-Poly1305 authentication, and hex/base64 inputs. Free, local, and browser-based."
+tags          = ["nacl crypto_box", "libsodium box", "curve25519 encryption", "xsalsa20 poly1305", "public key encryption", "authenticated encryption"]
+h1            = "NaCl crypto_box encrypt/decrypt"
+hero_subtitle = "Seal or open public-key authenticated NaCl boxes with Curve25519 sender/recipient keys, a 24-byte nonce, and Poly1305 tag verification."
+wasm          = "gizza_ai_nacl_box_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name   = "operation"
+label  = "Operation"
+source = "field"
+
+[input.labels]
+encrypt = "Encrypt / seal"
+decrypt = "Decrypt / open"
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "Plaintext for encrypt, or nonce+ciphertext+tag for decrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "recipient_key"
+label       = "Recipient key"
+placeholder = "For encrypt: recipient public key. For decrypt: recipient secret key."
+source      = "field"
+
+[[input]]
+name        = "sender_key"
+label       = "Sender key"
+placeholder = "For encrypt: sender secret key. For decrypt: sender public key."
+source      = "field"
+
+[[input]]
+name        = "nonce"
+label       = "Nonce"
+placeholder = "000102030405060708090a0b0c0d0e0f1011121314151617"
+source      = "field"
+
+[[input]]
+name   = "key_encoding"
+label  = "Key encoding"
+source = "field"
+
+[input.labels]
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "nonce_encoding"
+label  = "Nonce encoding"
+source = "field"
+
+[input.labels]
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "data_encoding"
+label  = "Data encoding"
+source = "field"
+
+[input.labels]
+text   = "Text (encrypt default)"
+hex    = "Hex"
+base64 = "Base64 (decrypt default)"
+
+[[input]]
+name   = "output_encoding"
+label  = "Output encoding"
+source = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[example]]
+label = "Encrypt text → base64 box"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+recipient_key = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f"
+sender_key = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+nonce = "000102030405060708090a0b0c0d0e0f1011121314151617"
+key_encoding = "hex"
+nonce_encoding = "hex"
+data_encoding = "text"
+output_encoding = "base64"
+
+[[example]]
+label = "Encrypt text → hex box"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+recipient_key = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f"
+sender_key = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+nonce = "000102030405060708090a0b0c0d0e0f1011121314151617"
+key_encoding = "hex"
+nonce_encoding = "hex"
+data_encoding = "text"
+output_encoding = "hex"
+
+[[example]]
+label = "Decrypt combined base64 box"
+[example.params]
+operation = "decrypt"
+data = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYX9qiZnbyzLGU6Q4fBNnoz2mQ6JMR4HXUcNKf8H9Tk"
+recipient_key = "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb"
+sender_key = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a"
+nonce = ""
+key_encoding = "hex"
+nonce_encoding = "hex"
+data_encoding = "base64"
+output_encoding = "base64"

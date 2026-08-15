@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/nacl-box-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt NaCl crypto_box messages with Curve25519 and XSalsa20-Poly1305",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt data with NaCl crypto_box: Curve25519/X25519 key agreement plus XSalsa20-Poly1305 authenticated encryption. operation=encrypt reads plaintext from data, a recipient public key, a sender secret key, and a required 24-byte nonce, then returns nonce || ciphertext || 16-byte tag. operation=decrypt reads the recipient secret key, sender public key, and a combined nonce || ciphertext || tag (or ciphertext || tag plus a separate nonce), verifies the Poly1305 tag, and returns plaintext. Keys support hex/base64 and must be 32 bytes. Runs locally and performs no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "For encrypt: plaintext (default data_encoding=text) or bytes encoded as hex/base64. For decrypt: nonce || ciphertext || 16-byte Poly1305 tag (default data_encoding=base64), or ciphertext || tag when nonce is supplied separately.",
+          "type": "string"
+        },
+        "data_encoding": {
+          "default": "text",
+          "description": "How to decode data. Empty/default means text for encryption and base64 for decryption; set hex or base64 explicitly for binary plaintext/ciphertext.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key_encoding": {
+          "default": "hex",
+          "description": "How to decode recipient_key and sender_key: hex (default) or base64. Each key must decode to exactly 32 bytes.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "nonce": {
+          "description": "A unique 24-byte nonce. Required for encryption. For decryption it is optional because encrypt output prepends the nonce; provide it only when data contains ciphertext || tag without the nonce prefix.",
+          "type": "string"
+        },
+        "nonce_encoding": {
+          "default": "hex",
+          "description": "How to decode nonce: hex (default) or base64. The nonce must decode to exactly 24 bytes.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "Operation to perform: encrypt plaintext for a recipient public key, or decrypt a NaCl box with the recipient secret key.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        },
+        "output_encoding": {
+          "default": "base64",
+          "description": "How to encode binary output. Encryption returns nonce || ciphertext || tag in base64 (default) or hex. Decryption returns UTF-8 plaintext when valid, otherwise plaintext bytes encoded with this setting.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "recipient_key": {
+          "description": "For encrypt: the recipient's 32-byte Curve25519 public key. For decrypt: the recipient's 32-byte secret key. Decoded with key_encoding.",
+          "type": "string"
+        },
+        "sender_key": {
+          "description": "For encrypt: the sender's 32-byte secret key. For decrypt: the sender's 32-byte public key. Decoded with key_encoding.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "recipient_key",
+        "sender_key"
+      ],
+      "type": "object"
+    }
+  }
+}
