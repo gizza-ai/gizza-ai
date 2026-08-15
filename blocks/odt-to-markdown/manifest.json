@@ -1,0 +1,45 @@
+{
+  "name": "gizza-ai/odt-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an OpenDocument Text (.odt) file to Markdown or plain text",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an OpenDocument Text document (.odt, from LibreOffice/OpenOffice Writer) into clean Markdown (default) or plain text. Keeps headings (from the ODF outline level), bold and italic runs, ordered/unordered and nested lists, tables (as GitHub-flavored Markdown), hyperlinks, images and footnotes; comments and tracked changes are omitted. Flat OpenDocument XML (.fodt) is accepted too. Returns the document title and author from the file's metadata, the converted content, and counts of paragraphs, tables and images. Provide the file as url (HTTP/HTTPS) or ref from a prior tool call. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "markdown",
+          "description": "Output format: markdown (default — keeps headings, bold/italic, lists, tables, links and footnotes) or text (plain text, markup stripped).",
+          "enum": [
+            "markdown",
+            "text"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
