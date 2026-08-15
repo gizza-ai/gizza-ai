@@ -1,0 +1,123 @@
+{
+  "name": "gizza-ai/rule-based-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract named fields from text with regex rules",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a set of named regex rules to unstructured text and return the captured fields as JSON, CSV, a readable listing, or a rule-by-rule report. Write one rule per line as 'field = regex'; a bare regex line contributes every named group it contains. Grok-style placeholders keep rules short — %{DATE_ISO:date}, %{IPV4:client}, %{LOGLEVEL:level} and ~30 other built-ins — and '@NAME = regex' defines your own. Set split to lines/paragraphs/pattern to run the rules per record and get one object per record, matches='all' to collect every hit as an array, and output='report' to see which rules never matched. Good for turning log lines, invoices, emails or scraped text into structured data.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dotall": {
+          "default": false,
+          "description": "Let '.' match newlines too (the regex 's' flag), so a rule can span several lines of a record.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match rules case-insensitively (the regex 'i' flag). Per-rule inline flags like (?i) also work.",
+          "type": "boolean"
+        },
+        "matches": {
+          "default": "first",
+          "description": "Whether each rule keeps only its first match per record (default) or every match. 'all' makes each field a JSON array.",
+          "enum": [
+            "first",
+            "all"
+          ],
+          "type": "string"
+        },
+        "max_matches": {
+          "default": 1000,
+          "description": "Safety cap on how many times one rule may match inside a single record when matches='all'. Exceeding it is an error.",
+          "maximum": 10000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_records": {
+          "default": 5000,
+          "description": "Safety cap on how many records the input may split into. Exceeding it is an error, never a silent truncation.",
+          "maximum": 50000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "multiline": {
+          "default": false,
+          "description": "Make ^ and $ match at every line break inside a record instead of only at its start and end (the regex 'm' flag).",
+          "type": "boolean"
+        },
+        "on_missing": {
+          "default": "skip",
+          "description": "What to do when a rule matches nothing in a record: 'skip' (default) omits the key, 'null' emits it as null/empty so every record has the same shape, 'error' fails with the field name.",
+          "enum": [
+            "skip",
+            "null",
+            "error"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Result format: 'json' (default) objects of named fields, 'csv' one row per record, 'text' a readable field listing, or 'report' a per-rule hit count that shows which rules never matched.",
+          "enum": [
+            "json",
+            "csv",
+            "text",
+            "report"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": false,
+          "description": "Indent the JSON output. Applies to output='json' only.",
+          "type": "boolean"
+        },
+        "rules": {
+          "description": "One rule per line. 'field = regex' captures one named field; a bare regex line captures every named group in it. '@NAME = regex' defines a reusable pattern, and '%{NAME}' / '%{NAME:field}' inserts a built-in or user pattern (WORD, INT, NUMBER, EMAIL, URL, IPV4, IPV6, MAC, UUID, HASH, DATE_ISO, DATE_US, TIME, TIMESTAMP_ISO, SYSLOG_TIME, YEAR, LOGLEVEL, HTTP_METHOD, HTTP_STATUS, HOSTNAME, PATH, QUOTED, MONEY, PERCENT, PHONE, ZIP_US, SEMVER, TICKET, GREEDYDATA, DATA, HEX, NOTSPACE, SPACE, IP). Lines starting with # or // are comments. Max 200 rules.",
+          "type": "string"
+        },
+        "skip_empty_records": {
+          "default": true,
+          "description": "Drop records where no rule matched at all. On by default; ignored when split='whole'.",
+          "type": "boolean"
+        },
+        "split": {
+          "default": "whole",
+          "description": "How the text is divided into records before the rules run. 'whole' (default) treats the input as one record; 'lines' and 'paragraphs' produce one output object per line or blank-line-separated block; 'pattern' splits on the regex in split_pattern.",
+          "enum": [
+            "whole",
+            "lines",
+            "paragraphs",
+            "pattern"
+          ],
+          "type": "string"
+        },
+        "split_pattern": {
+          "default": "",
+          "description": "Record-separator regex, used only when split='pattern'. For example '^-{3,}$' with multiline=true splits on a line of dashes.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to extract from. Up to 1 MB.",
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading and trailing whitespace from every captured value. On by default.",
+          "type": "boolean"
+        },
+        "unique": {
+          "default": false,
+          "description": "With matches='all', drop repeated values within a field, keeping first-seen order.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "rules"
+      ],
+      "type": "object"
+    }
+  }
+}

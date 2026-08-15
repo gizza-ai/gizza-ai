@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rule-based-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract named fields from text with regex rules"
