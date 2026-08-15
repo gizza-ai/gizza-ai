@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-bulk-match"
+version = "0.1.0"
+abi = 1
+summary = "Test one regex against many lines and report match, no-match, and captures per line"
