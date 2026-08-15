@@ -1,0 +1,93 @@
+slug          = "kml-to-geojson"
+title         = "KML to GeoJSON Converter (and GeoJSON back to KML)"
+description   = "Convert KML or KMZ map data into GeoJSON — or GeoJSON back into KML — entirely in your browser. Free, private, no upload, no account."
+tags          = ["kml to geojson", "kmz to geojson", "geojson to kml", "kml converter", "google earth to geojson", "map data converter"]
+h1            = "KML / KMZ to GeoJSON Converter"
+hero_subtitle = "Paste a KML document (or a base64 KMZ) and get a GeoJSON FeatureCollection — or flip the direction and turn GeoJSON back into KML. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_kml_to_geojson_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "KML, KMZ (base64), or GeoJSON"
+placeholder = "<kml xmlns='http://www.opengis.net/kml/2.2'><Document><Folder><name>Trails</name><Placemark><name>Trailhead</name><Point><coordinates>-122.084,37.421,15</coordinates></Point></Placemark></Folder></Document></kml>"
+source      = "field"
+multiline   = true
+
+# output_format renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "output_format"
+label  = "Convert to"
+source = "field"
+
+[input.labels]
+geojson = "GeoJSON (from KML or KMZ)"
+kml     = "KML (from GeoJSON)"
+
+[[input]]
+name   = "include_styles"
+label  = "Carry styles across (KML Style ↔ simplestyle properties)"
+source = "field"
+
+[[input]]
+name   = "include_folders"
+label  = "Carry the folder hierarchy across (KML Folder ↔ folder property)"
+source = "field"
+
+[[input]]
+name        = "precision"
+label       = "Coordinate decimal places"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "document_name"
+label       = "KML document name (GeoJSON → KML only)"
+placeholder = "Weekend Trip"
+source      = "field"
+
+[[input]]
+name   = "altitude_mode"
+label  = "Altitude mode (GeoJSON → KML only)"
+source = "field"
+
+[input.labels]
+clamp_to_ground    = "Clamp to ground (drape on terrain)"
+relative_to_ground = "Relative to ground (height above terrain)"
+absolute           = "Absolute (height above sea level)"
+
+[[example]]
+label = "KML folder + placemark → GeoJSON"
+[example.params]
+input = "<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document>\n<Folder><name>Trails</name>\n<Placemark><name>Trailhead</name><description>Parking lot</description>\n<Point><coordinates>-122.0841234,37.4212345,15</coordinates></Point>\n</Placemark>\n</Folder>\n</Document></kml>"
+output_format = "geojson"
+include_styles = "true"
+include_folders = "true"
+precision = "6"
+document_name = "Weekend Trip"
+altitude_mode = "clamp_to_ground"
+
+[[example]]
+label = "Styled KML route → GeoJSON"
+[example.params]
+input = "<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document>\n<Style id=\"route\"><LineStyle><color>ff0000ff</color><width>4</width></LineStyle></Style>\n<Placemark><name>River Loop</name><styleUrl>#route</styleUrl>\n<LineString><coordinates>5.1,52.1 5.102,52.101 5.104,52.103</coordinates></LineString>\n</Placemark>\n</Document></kml>"
+output_format = "geojson"
+include_styles = "true"
+include_folders = "true"
+precision = "5"
+document_name = "Weekend Trip"
+altitude_mode = "clamp_to_ground"
+
+[[example]]
+label = "GeoJSON → KML"
+[example.params]
+input = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"Camp\",\"folder\":\"Trails/Day 1\",\"marker-color\":\"#0000ff\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[5.1,52.1,10]}},{\"type\":\"Feature\",\"properties\":{\"name\":\"Loop\",\"stroke\":\"#ff0000\",\"stroke-width\":4},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[5.1,52.1],[5.102,52.101]]}}]}"
+output_format = "kml"
+include_styles = "true"
+include_folders = "true"
+precision = "6"
+document_name = "Weekend Trip"
+altitude_mode = "clamp_to_ground"
