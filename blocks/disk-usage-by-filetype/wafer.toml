@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "disk-usage-by-filetype"
+version = "0.1.0"
+abi = 1
+summary = "Add up a pasted file listing by extension or file-type category and chart the biggest space users"

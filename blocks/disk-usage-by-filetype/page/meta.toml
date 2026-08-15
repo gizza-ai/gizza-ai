@@ -1,0 +1,148 @@
+slug          = "disk-usage-by-filetype"
+title         = "Disk Usage by File Type — chart folder space by extension"
+description   = "Paste du, find or ls output and get a sorted bar chart of disk usage by file extension or category, with size, share and file count — free and private in your browser."
+tags          = ["disk usage by file type", "disk space by extension", "folder size by file type", "du output analyzer", "file extension size report", "disk space analyzer", "biggest file types", "space usage chart"]
+h1            = "Disk Usage by File Type"
+hero_subtitle = "Paste a file listing with sizes — `du -ah`, `find -printf '%s %p\\n'`, `ls -lR` or a size,path CSV — and see which file types eat the space, as a sorted bar chart with size, share and file count per extension or category. Nothing leaves your browser."
+wasm          = "gizza_ai_disk_usage_by_filetype_web"
+export        = "run"
+live          = false
+output_label  = "Usage breakdown"
+format        = "text"
+
+[[input]]
+name        = "listing"
+label       = "File listing with sizes (one file per line)"
+placeholder = "12582912\t./media/intro.mp4\n2097152\t./img/hero.png\n1048576\t./img/logo.png\n40960\t./src/app.js\n8192\t./README.md"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "group_by"
+label  = "Group by"
+source = "field"
+
+[input.labels]
+extension = "Extension — one row per .png, .mp4, .tar.gz…"
+category  = "Category — images, video, documents, code…"
+
+[[input]]
+name   = "sort_by"
+label  = "Sort by"
+source = "field"
+
+[input.labels]
+size  = "Size — biggest space user first"
+count = "File count — most files first"
+name  = "Name — alphabetical"
+
+[[input]]
+name   = "order"
+label  = "Order"
+source = "field"
+
+[input.labels]
+desc = "Descending — largest first"
+asc  = "Ascending — smallest first"
+
+[[input]]
+name        = "top_n"
+label       = "Rows before the rest fold into (other)"
+placeholder = "15"
+source      = "field"
+
+[[input]]
+name   = "units"
+label  = "Size units"
+source = "field"
+
+[input.labels]
+binary = "Binary — KiB, MiB, GiB (1024, like du)"
+si     = "Decimal — kB, MB, GB (1000)"
+bytes  = "Raw bytes"
+
+[[input]]
+name        = "chart_width"
+label       = "Bar width (characters)"
+placeholder = "32"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "skip_folders"
+label  = "Skip folder rows (avoids double-counting du -a output)"
+source = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Merge .JPG with .jpg"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output shape"
+source = "field"
+
+[input.labels]
+chart = "Bar chart"
+table = "Table with TOTAL row"
+csv   = "CSV"
+json  = "JSON"
+svg   = "Colored SVG bar chart"
+
+[[example]]
+label = "du -ah output"
+[example.params]
+listing = "4.0K\t./src/app.js\n2.0M\t./assets/hero.png\n1.0M\t./assets/logo.png\n18M\t./media/clip.mp4\n8.0K\t./README.md"
+group_by = "extension"
+sort_by = "size"
+order = "desc"
+top_n = "15"
+units = "binary"
+chart_width = "32"
+skip_folders = "true"
+ignore_case = "true"
+format = "chart"
+
+[[example]]
+label = "By category"
+[example.params]
+listing = "12582912\t./media/intro.mp4\n2097152\t./img/hero.png\n524288\t./img/team.jpg\n204800\t./docs/spec.pdf\n40960\t./src/app.js\n8192\t./README.md"
+group_by = "category"
+sort_by = "size"
+order = "desc"
+top_n = "15"
+units = "binary"
+chart_width = "32"
+skip_folders = "true"
+ignore_case = "true"
+format = "chart"
+
+[[example]]
+label = "find output → table"
+[example.params]
+listing = "1048576 ./photos/a.JPG\n2097152 ./photos/b.jpg\n4096 ./notes.md\n524288 ./backup/site.tar.gz"
+group_by = "extension"
+sort_by = "size"
+order = "desc"
+top_n = "15"
+units = "si"
+chart_width = "32"
+skip_folders = "true"
+ignore_case = "true"
+format = "table"
+
+[[example]]
+label = "Most files first → CSV"
+[example.params]
+listing = "1024,src/a.ts\n2048,src/b.ts\n4096,src/c.ts\n9437184,dist/bundle.map"
+group_by = "extension"
+sort_by = "count"
+order = "desc"
+top_n = "15"
+units = "binary"
+chart_width = "32"
+skip_folders = "true"
+ignore_case = "true"
+format = "csv"

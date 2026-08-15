@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/disk-usage-by-filetype",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add up a pasted file listing by extension or file-type category and chart the biggest space users",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a pasted file listing into a sorted disk-usage breakdown by file type, the way a disk space analyzer's extension list works — but from text you already have, with nothing read from disk. Paste one file per line with a size next to the path: `du -ah` output (`4.0K\tsrc/app.js`), `find . -type f -printf '%s\t%p\n'` (`4096 ./src/app.js`), `ls -l`/`ls -lRh`, or a two-column `size,path` CSV. Unit suffixes are 1024-based like `du -h`; a bare number is bytes; lines with no readable size are ignored and reported. group_by=extension (default) gives one row per extension — `.tar.gz` and friends stay whole, and names like README or .gitignore land in `(no extension)` — while group_by=category rolls them into images, video, audio, documents, archives, code, data, executables, fonts and other. Every row shows total bytes, share of the total and file count; sort_by picks size (default), count or name, order flips it, and top_n folds the tail into one `(other N)` row that still counts toward the total. skip_folders (on) drops `du -a` folder rows so their contents are not counted twice, ignore_case (on) merges .JPG into .jpg, units switches between 1024-based KiB, 1000-based kB and raw bytes, and chart_width sets the bar length. format=chart is the monospace bar chart, table adds a TOTAL row, csv and json are export-ready, and svg returns a colored bar chart as SVG source. Up to 20000 sized files per run. Pure text in, ranked text out.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "chart_width": {
+          "default": 32,
+          "description": "Width in characters of the longest bar in the `chart` output, from 8 to 120 (default 32). The biggest type fills the whole bar and everything else is drawn to scale, in eighth-of-a-character steps. Ignored by the table, csv, json and svg formats.",
+          "maximum": 120,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "format": {
+          "default": "chart",
+          "description": "Output shape. \"chart\" (default) is the monospace bar chart: type, size, share, bar and file count per row. \"table\" is the same numbers as aligned columns with a TOTAL row. \"csv\" gives `name,bytes,size,percent,files` for a spreadsheet. \"json\" returns {group_by, units, total_bytes, total_size, total_files, skipped_folders, ignored_lines, groups[]}. \"svg\" returns a colored horizontal bar chart as SVG source you can paste into a doc, ticket or README.",
+          "enum": [
+            "chart",
+            "table",
+            "csv",
+            "json",
+            "svg"
+          ],
+          "type": "string"
+        },
+        "group_by": {
+          "default": "extension",
+          "description": "What each bar counts. \"extension\" (default) is one row per file extension (`.png`, `.tar.gz`, and `(no extension)` for names like README or .gitignore). \"category\" rolls extensions into broad buckets — images, video, audio, documents, archives, code, data, executables, fonts, other — which is the quicker answer to \"what kind of stuff is eating the disk?\".",
+          "enum": [
+            "extension",
+            "category"
+          ],
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": true,
+          "description": "Treat `.JPG`, `.Jpg` and `.jpg` as one extension and print it lowercase. On by default, because camera and Windows exports mix cases for the same file type. Turn it off to keep the exact spelling of each extension as separate rows.",
+          "type": "boolean"
+        },
+        "listing": {
+          "description": "The file listing to add up, one file per line, each line carrying a size and a path. Anything that pairs the two works: `du -ah`/`du -a` (`4.0K\tsrc/app.js`), `find . -type f -printf '%s\t%p\n'` (`4096 ./src/app.js`), `ls -l`/`ls -lRh` (the permission, size and name columns are read; `total 48` headers are skipped), or a two-column `size,path` CSV export. Unit suffixes are 1024-based like `du -h` (`4.0K` = 4096 bytes, `1.5MiB` = 1572864); a bare number is bytes. Lines with no readable size are ignored and counted at the end. Up to 20000 sized files per run. Nothing is read from disk — only the text you paste.",
+          "type": "string"
+        },
+        "order": {
+          "default": "desc",
+          "description": "Direction of the chosen sort key: \"desc\" (default) puts the largest/most numerous first, \"asc\" reverses it so the smallest types come first. The rolled-up `(other N)` row always stays last.",
+          "enum": [
+            "desc",
+            "asc"
+          ],
+          "type": "string"
+        },
+        "skip_folders": {
+          "default": true,
+          "description": "Ignore lines that describe a folder rather than a file. On by default: `du -a` prints a line per folder whose size already includes everything under it, so counting those would double- or triple-count the same bytes. A line counts as a folder when the path ends in a slash, when `ls -l` marked it `d`, or when another listed path sits inside it. Turn it off when your listing has no folder rows and you want every line counted verbatim.",
+          "type": "boolean"
+        },
+        "sort_by": {
+          "default": "size",
+          "description": "Which column orders the rows. \"size\" (default) is the usage-sorted view every disk analyzer opens with — biggest consumer on top. \"count\" ranks by how many files each type has, which finds the thousands of tiny files a size sort hides. \"name\" is alphabetical by extension or category, handy for diffing two listings.",
+          "enum": [
+            "size",
+            "count",
+            "name"
+          ],
+          "type": "string"
+        },
+        "top_n": {
+          "default": 15,
+          "description": "How many rows to show before the rest are folded into a single `(other N)` row that keeps their bytes in the total. Default 15. Set it to 5 for a headline summary, or to 200 to list every type separately.",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "units": {
+          "default": "binary",
+          "description": "How sizes are printed. \"binary\" (default) is the 1024-based KiB/MiB/GiB that `du` and file managers show. \"si\" is the 1000-based kB/MB/GB that drive makers use. \"bytes\" prints the raw byte count with no unit, for spreadsheets. Percentages and the JSON/CSV `bytes` column are unaffected.",
+          "enum": [
+            "binary",
+            "si",
+            "bytes"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "listing"
+      ],
+      "type": "object"
+    }
+  }
+}
