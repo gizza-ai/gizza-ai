@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/stopword-filter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove stop words from text",
+  "role": "skill",
+  "tool": {
+    "description": "Remove stop words (the, and, of, …) from text using a built-in list for English, Spanish, French, German, Italian, Portuguese, Dutch, or Russian — or set language='none' and supply your own list in `custom_words`. Matching is whole-word, so 'the' never touches 'theatre', and contractions stay one token. `keep_words` protects words that must survive. `output` picks the view: 'text' (cleaned text), 'removed' (each removed word with its count), or 'stats' (counts summary). Set remove_punctuation=true for a bare token stream.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": false,
+          "description": "When false (default), 'The' and 'the' both match a list entry; true removes only exact-case matches.",
+          "type": "boolean"
+        },
+        "custom_words": {
+          "default": "",
+          "description": "Extra words to remove on top of the built-in list, separated by commas, semicolons, or whitespace.",
+          "type": "string"
+        },
+        "keep_words": {
+          "default": "",
+          "description": "Words that must never be removed even when a list contains them (same separators as custom_words). Useful for terms like 'not' or 'no'.",
+          "type": "string"
+        },
+        "language": {
+          "default": "english",
+          "description": "Which built-in stop-word list to remove. 'none' skips the built-in list so only custom_words is removed.",
+          "enum": [
+            "english",
+            "spanish",
+            "french",
+            "german",
+            "italian",
+            "portuguese",
+            "dutch",
+            "russian",
+            "none"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Which view to return: 'text' (default) is the cleaned text, 'removed' lists each removed stop word with its count, 'stats' is a word-count summary.",
+          "enum": [
+            "text",
+            "removed",
+            "stats"
+          ],
+          "type": "string"
+        },
+        "remove_punctuation": {
+          "default": false,
+          "description": "When true, punctuation is stripped as well, leaving a bare token stream. Line breaks are always kept.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text to filter. Up to 200,000 characters.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

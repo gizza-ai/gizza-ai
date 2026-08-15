@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stopword-filter"
+version = "0.1.0"
+abi = 1
+summary = "Remove stop words from text"

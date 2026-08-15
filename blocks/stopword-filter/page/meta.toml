@@ -1,0 +1,141 @@
+slug          = "stopword-filter"
+title         = "Stop Word Remover — Strip Stop Words From Text"
+description   = "Remove stop words from text in 8 languages, or use your own list. Whole-word matching, a keep list, and a removed-words report. Runs in your browser, free."
+tags = [
+  "stop word remover",
+  "remove stop words",
+  "stopword filter",
+  "stop words list",
+  "text preprocessing",
+  "nlp text cleaner",
+  "seo keyword cleaner",
+  "multilingual stopwords",
+]
+h1            = "Stop word remover"
+hero_subtitle = "Strip the, and, of and the rest of the filler out of any text — with built-in lists for 8 languages, your own custom words, and a keep list for terms that must survive. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_stopword_filter_web"
+export        = "run"
+live          = false
+output_label  = "Filtered text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the text to filter…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Built-in stop-word list"
+source = "field"
+
+[input.labels]
+english    = "English"
+spanish    = "Spanish (Español)"
+french     = "French (Français)"
+german     = "German (Deutsch)"
+italian    = "Italian (Italiano)"
+portuguese = "Portuguese (Português)"
+dutch      = "Dutch (Nederlands)"
+russian    = "Russian (Русский)"
+none       = "None — use my custom list only"
+
+[[input]]
+name        = "custom_words"
+label       = "Extra words to remove"
+placeholder = "brand, click here, lorem"
+source      = "field"
+
+[[input]]
+name        = "keep_words"
+label       = "Words to keep (never removed)"
+placeholder = "not, no, without"
+source      = "field"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case sensitive"
+source = "field"
+
+[[input]]
+name   = "remove_punctuation"
+label  = "Also strip punctuation"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text    = "Cleaned text"
+removed = "Removed words + counts"
+stats   = "Summary statistics"
+
+[[example]]
+label = "Clean English prose"
+[example.params]
+text = "This is a test of the emergency broadcast system."
+language = "english"
+custom_words = ""
+keep_words = ""
+case_sensitive = "false"
+remove_punctuation = "false"
+output = "text"
+
+[[example]]
+label = "NLP token stream"
+[example.params]
+text = "The quick brown fox jumps over the lazy dog, again and again!"
+language = "english"
+custom_words = ""
+keep_words = ""
+case_sensitive = "false"
+remove_punctuation = "true"
+output = "text"
+
+[[example]]
+label = "Spanish"
+[example.params]
+text = "el gato y el perro de la casa"
+language = "spanish"
+custom_words = ""
+keep_words = ""
+case_sensitive = "false"
+remove_punctuation = "false"
+output = "text"
+
+[[example]]
+label = "Keep the negation"
+[example.params]
+text = "to be or not to be"
+language = "english"
+custom_words = ""
+keep_words = "not"
+case_sensitive = "false"
+remove_punctuation = "false"
+output = "text"
+
+[[example]]
+label = "Custom list only"
+[example.params]
+text = "buy cheap widgets now"
+language = "none"
+custom_words = "cheap, now"
+keep_words = ""
+case_sensitive = "false"
+remove_punctuation = "false"
+output = "text"
+
+[[example]]
+label = "What got removed"
+[example.params]
+text = "the cat and the dog and the bird"
+language = "english"
+custom_words = ""
+keep_words = ""
+case_sensitive = "false"
+remove_punctuation = "false"
+output = "removed"
