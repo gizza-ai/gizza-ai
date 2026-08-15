@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xpub-derive"
+version = "0.1.0"
+abi = 1
+summary = "Derive watch-only Bitcoin addresses from an extended public key"
