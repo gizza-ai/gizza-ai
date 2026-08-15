@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ts-decompose"
+version = "0.1.0"
+abi = 1
+summary = "Split a time series into trend, seasonal, and residual components and plot them"

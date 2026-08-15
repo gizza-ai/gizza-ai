@@ -1,0 +1,162 @@
+{
+  "name": "gizza-ai/ts-decompose",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a time series into trend, seasonal, and residual components and plot them",
+  "role": "skill",
+  "tool": {
+    "description": "Decompose an evenly spaced time series into trend, seasonal, and residual components and render them as a four-panel SVG (observed, trend, seasonal, residual). Two engines: STL, seasonal-trend decomposition by loess, where the seasonal shape can evolve and a robust mode down-weights outliers; and the classical centred-moving-average method with one fixed seasonal index per cycle position, including a trailing-average option and least-squares fill for the blank ends. Both support an additive model (observed = trend + seasonal + residual) and a multiplicative one (observed = trend x seasonal x residual, decomposed in log space, positive values only). The seasonal period can be given directly (12 monthly, 4 quarterly, 7 daily-with-weekly-cycle, 24 hourly-with-daily-cycle) or detected automatically from the autocorrelation. Input is one value per line, `label,value` rows, or a single separated line. Options control the STL seasonal and trend smoother lengths, the trend and seasonally-adjusted overlays, residual bars or line, grid, title, axis labels, size, colour, theme, and decimal precision. Switch output to table, csv, or json for every component value plus the seasonal indices and the strength-of-trend and strength-of-seasonality diagnostics. Everything runs locally in pure Rust; no plotting service or external data is used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "default": "#2563eb",
+          "description": "Series colour as CSS color text, for example #2563eb, #f00, or teal. Used for all four panels; the trend overlay uses a contrasting accent. Default #2563eb.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The time series, in observation order and evenly spaced. Paste one value per line, or `label,value` rows such as `2024-01,112` where the label becomes the x-axis tick text, or a single comma/space separated line. A leading all-text header row is ignored. Needs at least 4 values, at most 10000, and at least 2 full seasonal cycles. Required.",
+          "type": "string"
+        },
+        "extrapolate_trend": {
+          "default": true,
+          "description": "Classical only: fill the moving average's blank ends by extending a least-squares line fitted to the nearest cycle of trend values, so the chart and table have no gaps. Default true; set false to leave those points empty, as statistics packages do by default.",
+          "type": "boolean"
+        },
+        "grid": {
+          "default": true,
+          "description": "Draw horizontal grid lines in every panel. Default true.",
+          "type": "boolean"
+        },
+        "height": {
+          "default": 720,
+          "description": "SVG height in pixels, 320-2400, split across the four stacked panels. Default 720.",
+          "maximum": 2400,
+          "minimum": 320,
+          "type": "integer"
+        },
+        "method": {
+          "default": "stl",
+          "description": "Decomposition engine. stl (default) is seasonal-trend decomposition by loess: the seasonal shape may evolve and outliers can be down-weighted. classical uses a centred moving-average trend and one fixed seasonal index per cycle position, the textbook method.",
+          "enum": [
+            "stl",
+            "classical"
+          ],
+          "type": "string"
+        },
+        "model": {
+          "default": "additive",
+          "description": "How the components combine. additive (default) gives observed = trend + seasonal + residual, for seasonal swings of a roughly constant size. multiplicative gives observed = trend x seasonal x residual, for swings that grow with the level; it decomposes the logarithms and needs every value to be greater than 0.",
+          "enum": [
+            "additive",
+            "multiplicative"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "svg",
+          "description": "Output format: svg (default, the four-panel chart markup), table (aligned components table plus seasonal indices and strength diagnostics), csv (one row per observation), or json (diagnostics plus every component value).",
+          "enum": [
+            "svg",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "period": {
+          "default": 0,
+          "description": "Number of observations in one seasonal cycle: 12 for monthly data with a yearly cycle, 4 for quarterly, 7 for daily data with a weekly cycle, 24 for hourly data with a daily cycle. Default 0 detects the period from the strongest autocorrelation peak; set it explicitly when you know it.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "precision": {
+          "default": 4,
+          "description": "Decimal places used for component values in the table, csv, and json output, 0-12. Default 4.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "residual_style": {
+          "default": "bar",
+          "description": "How the residual panel is drawn: bar (default) draws one bar per observation from the zero line, which makes individual outliers obvious; line draws a connected line.",
+          "enum": [
+            "bar",
+            "line"
+          ],
+          "type": "string"
+        },
+        "robust": {
+          "default": false,
+          "description": "STL only: run the robust outer loop, which down-weights outliers so one bad reading lands in the residual instead of bending the trend and seasonal components. Slower. Default false.",
+          "type": "boolean"
+        },
+        "seasonal_window": {
+          "default": 0,
+          "description": "STL only: length of the seasonal smoother, in observations. Default 0 is the periodic smoother, which holds one fixed seasonal shape for the whole series. A number (odd; an even one is nudged up by 1) lets the shape drift — smaller means it changes faster, 7 is the usual starting point.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "show_adjusted": {
+          "default": false,
+          "description": "Overlay the seasonally adjusted series (observed with the seasonal component removed) on the top panel. It is always reported as a column in the table, csv, and json output. Default false.",
+          "type": "boolean"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Chart theme: light (default, white background) or dark (slate background).",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn above the panels, for example `Monthly sales`.",
+          "type": "string"
+        },
+        "trend_overlay": {
+          "default": true,
+          "description": "Draw the trend as a dashed line over the observed series in the top panel, as well as in its own panel. Default true.",
+          "type": "boolean"
+        },
+        "trend_window": {
+          "default": 0,
+          "description": "STL only: length of the trend smoother, in observations, always odd. Default 0 uses the standard rule of about 1.5 times the period. Larger values give a smoother, stiffer trend that pushes more variation into the residual.",
+          "maximum": 4000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "two_sided": {
+          "default": true,
+          "description": "Classical only: use a centred moving average (default true), which is symmetric but leaves half a cycle undefined at each end. Set false for a trailing moving average that only uses past values, so the trend reaches the final observation but lags it.",
+          "type": "boolean"
+        },
+        "width": {
+          "default": 900,
+          "description": "SVG width in pixels, 360-2400. Default 900.",
+          "maximum": 2400,
+          "minimum": 360,
+          "type": "integer"
+        },
+        "x_label": {
+          "default": "",
+          "description": "Optional label for the time axis under the bottom panel, for example `Month`. Default empty draws no label.",
+          "type": "string"
+        },
+        "y_label": {
+          "default": "",
+          "description": "Optional label for the value axis, drawn rotated on the left, for example `Units sold`. Default empty shows `Value`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
