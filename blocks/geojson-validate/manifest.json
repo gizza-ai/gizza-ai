@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/geojson-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate GeoJSON and report structural, winding and coordinate errors",
+  "role": "skill",
+  "tool": {
+    "description": "Check one GeoJSON document against RFC 7946 and report EVERY problem it finds, not just the first: missing or wrong type/properties/geometry/coordinates members, unknown geometry types, non-numeric or out-of-range coordinates (longitude -180..180, latitude -90..90), positions that are too short or too long, LineStrings under two positions, polygon rings that are unclosed or have fewer than three distinct nodes, exterior/interior ring winding against the right-hand rule, and malformed bbox members. Each issue carries a stable rule id and a JSON path such as features[3].geometry.coordinates[0][2]. A second family of warnings covers valid-but-problematic data (duplicate nodes, single-element multi-geometries, nested GeometryCollections, null or bare geometries, legacy crs members, antimeridian jumps, excess coordinate precision). Returns a VALID/INVALID verdict, the numbered issues, and a summary counting features, geometry types, positions, rings and the coordinate bounds — as text (default) or as JSON for scripting. Invalid JSON is reported as a finding, so broken files are safe to paste. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_bbox": {
+          "default": true,
+          "description": "Accept bbox members, checking their length (4 or 6 values), numeric type, ranges and [west, south, east, north] order. Set false to also flag every bbox member itself, for consumers that reject them.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "A single GeoJSON document to check: a FeatureCollection, Feature, or bare geometry object. Paste the raw text — invalid JSON is reported as a finding rather than an error, so broken files are fine to submit.",
+          "type": "string"
+        },
+        "max_issues": {
+          "default": 50,
+          "description": "How many issues to LIST per severity before truncating with an 'and N more' line. Counts in the verdict always stay complete. Default 50; raise it to see every issue in a badly broken file.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_precision": {
+          "default": 6,
+          "description": "Warn when a coordinate carries more decimal places than this. 6 is roughly 0.1 m at the equator and the usual recommendation (default); -1 turns the precision check off. Needs warn_problematic on.",
+          "maximum": 15,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Report format. text is a readable verdict plus numbered issues and a summary (default); json returns {valid, error_count, warning_count, errors[], warnings[], summary} with a stable kebab-case rule id and JSON path per issue, for scripts and CI.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "strict_winding": {
+          "default": true,
+          "description": "Treat RFC 7946 right-hand-rule violations (exterior rings must wind counterclockwise, holes clockwise) as errors that make the document invalid. Set false to report them as warnings instead — the RFC says SHOULD, and older GeoJSON commonly winds the other way.",
+          "type": "boolean"
+        },
+        "warn_problematic": {
+          "default": true,
+          "description": "Report the 'valid but problematic' family as warnings: duplicate consecutive nodes, zero-area rings, zero-length lines, single-element MultiPoint/MultiLineString/MultiPolygon and GeometryCollections, nested GeometryCollections, null geometries, bare geometries, legacy crs members, antimeridian crossings and excess coordinate precision. Set false for a spec-only check.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

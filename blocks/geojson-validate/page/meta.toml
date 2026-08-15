@@ -1,0 +1,72 @@
+slug          = "geojson-validate"
+title         = "GeoJSON Validator — Check RFC 7946 Structure, Winding & Coordinates"
+description   = "Validate GeoJSON in your browser. Report every structural error, polygon winding violation, and out-of-range coordinate with a JSON path."
+tags          = ["geojson validator", "validate geojson", "rfc 7946", "right-hand rule", "polygon winding order", "geojson lint", "geojson errors", "coordinate range check"]
+h1            = "GeoJSON validator"
+hero_subtitle = "Paste a FeatureCollection, Feature, or bare geometry and get every problem at once — missing members, unknown geometry types, out-of-range longitude/latitude, unclosed or under-sized polygon rings, right-hand-rule winding violations, and malformed bbox values — each with a rule id and a JSON path. Runs locally in your browser; nothing is uploaded."
+wasm          = "gizza_ai_geojson_validate_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "GeoJSON input"
+placeholder = "{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Report format"
+source = "field"
+labels = { text = "Readable report", json = "JSON (for scripts and CI)" }
+
+[[input]]
+name   = "strict_winding"
+label  = "Right-hand-rule violations are errors (off = warnings)"
+source = "field"
+
+[[input]]
+name   = "allow_bbox"
+label  = "Allow bbox members (still checked for shape and order)"
+source = "field"
+
+[[input]]
+name   = "warn_problematic"
+label  = "Warn about valid-but-problematic data"
+source = "field"
+
+[[input]]
+name        = "max_precision"
+label       = "Warn above this many coordinate decimals (-1 = off)"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = "-1"
+max         = "15"
+step        = "1"
+
+[[input]]
+name        = "max_issues"
+label       = "Issues listed per severity"
+placeholder = "50"
+source      = "field"
+
+[[example]]
+label  = "Valid feature collection"
+params = { input = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"name\":\"Block\"},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}]}" }
+
+[[example]]
+label  = "Backwards polygon winding"
+params = { input = "{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[0,4],[4,4],[4,0],[0,0]]]}" }
+
+[[example]]
+label  = "Projected coordinates, not WGS 84"
+params = { input = "{\"type\":\"Point\",\"coordinates\":[-13627361.03,4544761.85]}" }
+
+[[example]]
+label  = "Unclosed ring, JSON report"
+params = { input = "{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[1,0],[1,1],[0,1]]]}", output = "json" }
