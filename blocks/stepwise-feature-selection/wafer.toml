@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stepwise-feature-selection"
+version = "0.1.0"
+abi = 1
+summary = "Stepwise regression: pick the predictors that best explain a target by AIC/BIC"
