@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "email-phishing-link-scanner"
+version = "0.1.0"
+abi = 1
+summary = "Scan every link in an email for phishing signals"

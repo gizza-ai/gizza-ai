@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/email-phishing-link-scanner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan every link in an email for phishing signals",
+  "role": "skill",
+  "tool": {
+    "description": "Scan an email for suspicious links, offline and deterministically. Accepts a raw RFC 5322 message, an HTML body, or plain text, extracts every <a href> and bare http(s) URL, and rates each link 0-100 with a MINIMAL/LOW/MEDIUM/HIGH/CRITICAL band plus the exact findings behind it. Per-link checks cover display-text vs actual-target mismatch, lookalike domains (homoglyph and digit swaps, punycode decoded before comparison, typosquats by edit distance, combosquats, brand names buried in a subdomain, and brand names on a different suffix) against ~50 built-in brands plus your own list plus the message's sender domain, bare-IP hosts, '@' userinfo tricks, redirect wrappers and open redirects (a single level is unwrapped and the destination scanned), link shorteners, abused TLDs, percent-encoded hosts, plain http, non-standard ports, deep subdomains, hyphen-stacked hosts, credential keywords, excessive length, and digit-heavy hosts. Returns the overall rating, how many links were scanned and flagged, and the per-link detail. It never performs DNS, WHOIS, HTTP, blocklist, or reputation lookups, so a MINIMAL rating means no structural red flags, not proof a link is safe.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "brands": {
+          "default": "",
+          "description": "Extra domains to treat as impersonation targets, in addition to the ~50 built-in ones and the message's own sender domain. Comma-, space-, or newline-separated; a full URL is reduced to its domain. Example: 'acmecorp.com, acme-bank.co.uk'. Defaults to empty (built-in list only).",
+          "type": "string"
+        },
+        "email": {
+          "description": "The message to scan. Paste either a raw RFC 5322 email (header lines, a blank line, then the body), an HTML email body, or plain text containing links. Every <a href> and every bare http(s) URL is extracted and rated separately. Example: a body containing '<a href=\"http://192.0.2.9/login\">https://www.paypal.com/signin</a>'. Maximum 1048576 bytes.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read the input: 'auto' (default) detects a header block and HTML markup on its own; 'raw' requires an RFC 5322 header block; 'html' treats the whole input as an HTML body; 'text' treats it as plain text with no headers and no markup.",
+          "enum": [
+            "auto",
+            "raw",
+            "html",
+            "text"
+          ],
+          "type": "string"
+        },
+        "max_links": {
+          "default": 200,
+          "description": "Maximum number of links to scan, in the order they appear. Extra links are counted and reported as truncated but not rated. Range 1-1000, default 200.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "only_flagged": {
+          "default": false,
+          "description": "Set true to list only the links that raised at least one finding, hiding clean ones. The counts and the overall rating always cover every scanned link. Defaults to false.",
+          "type": "boolean"
+        },
+        "report": {
+          "default": "detailed",
+          "description": "Output shape: 'detailed' (default) lists every link with its target, its visible text, and each finding; 'summary' prints the overall rating plus one line per flagged link; 'json' returns a machine-readable object with the rating, counts, and per-link findings.",
+          "enum": [
+            "detailed",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "type": "object"
+    }
+  }
+}
