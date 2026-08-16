@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/html-form-field-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List every field of every HTML form with its type, required flag, default, and validation rules",
+  "role": "skill",
+  "tool": {
+    "description": "Enumerate every <form> in pasted HTML and list every control it contains. Each field reports its tag, effective type, name, id, resolved label, required flag, default value, placeholder, state flags (disabled/readonly/checked/multiple), validation attributes (pattern, min, max, step, minlength, maxlength, accept, autocomplete), and — for <select> — every option with its value, label, optgroup, and selected state; each form reports its action, method, id, name, and enctype. format='json' (default), 'markdown', or 'csv'. form_index picks one form (0-based; -1 = all). include_buttons (default false) adds submit/reset/button controls; include_hidden (default true) keeps hidden inputs; include_labels (default true) resolves label text. Controls outside any <form> are grouped into a final extra form. Caps at 2000 fields.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "form_index": {
+          "default": -1,
+          "description": "Which form to report, 0-based in document order. -1 (default) reports every form. Controls that sit outside any <form> are grouped into a final extra form.",
+          "minimum": -1,
+          "type": "integer"
+        },
+        "format": {
+          "default": "json",
+          "description": "Output shape: json (default, forms each with a nested fields array), markdown (one table per form, plus option lists), or csv (one flat row per field, spreadsheet-ready).",
+          "enum": [
+            "json",
+            "markdown",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "html": {
+          "description": "The raw HTML containing the form(s), e.g. a page's source or a <form> snippet. Parsed with a real HTML parser, so unquoted attributes and unclosed tags are fine.",
+          "type": "string"
+        },
+        "include_buttons": {
+          "default": false,
+          "description": "Include submit, reset, button, and image controls (and every <button>). Default false — they are actions, not data fields.",
+          "type": "boolean"
+        },
+        "include_hidden": {
+          "default": true,
+          "description": "Include <input type=\"hidden\"> fields such as CSRF tokens and tracking ids. Default true.",
+          "type": "boolean"
+        },
+        "include_labels": {
+          "default": true,
+          "description": "Resolve each control's visible label text from <label for>, a wrapping <label>, aria-label, or title. Default true; set false to drop the label column.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}
