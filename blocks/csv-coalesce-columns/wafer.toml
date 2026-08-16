@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-coalesce-columns"
+version = "0.1.0"
+abi = 1
+summary = "Combine CSV columns into one, taking the first non-empty value per row"
