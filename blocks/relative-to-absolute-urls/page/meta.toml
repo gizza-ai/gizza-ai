@@ -1,0 +1,98 @@
+slug          = "relative-to-absolute-urls"
+title         = "Convert Relative URLs to Absolute URLs in HTML"
+description   = "Rewrite relative href, src and srcset values in HTML to absolute URLs against a base. Only the URLs change. Free, runs in your browser."
+tags          = ["relative to absolute urls", "convert relative links to absolute", "html base url resolver", "rewrite href src to absolute", "fix relative image paths in html", "absolute urls for email html", "rss feed relative link fix", "resolve srcset relative urls"]
+h1            = "Relative to Absolute URLs"
+hero_subtitle = "Paste HTML and the address it came from, and every relative href, src and srcset value becomes a full URL — resolved the same way a browser resolves a link, with <code>../</code> segments, root-relative paths and query-only links all handled. Everything else in the document stays byte for byte where it was, and links inside comments, scripts or template placeholders are left alone. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_relative_to_absolute_urls_web"
+export        = "run"
+live          = false
+output_label  = "Rewritten HTML"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<a href=\"../about.html\">About</a>\n<img src=\"images/logo.png\" alt=\"Logo\">\n<a href=\"#top\">Back to top</a>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "base"
+label       = "Base URL (the page this markup came from)"
+placeholder = "https://example.com/blog/post.html"
+source      = "field"
+
+# attributes / protocol_relative / output render as <select>s and
+# use_base_tag / resolve_fragments / style_urls as checkboxes, derived from the
+# descriptor schema in manifest.json — so the option lists are not duplicated
+# here, only their friendly labels.
+[[input]]
+name    = "attributes"
+label   = "Attributes to rewrite"
+default = "common"
+source  = "field"
+
+[input.labels]
+"href-src" = "href and src only"
+common     = "Common — adds srcset, poster, action, ping, meta refresh (default)"
+all        = "All — adds cite, longdesc, manifest, itemtype and the rest"
+
+[[input]]
+name    = "use_base_tag"
+label   = "Honour a <base href> in the document"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "protocol_relative"
+label   = "Protocol-relative URLs (//cdn.example.com/a.png)"
+default = "resolve"
+source  = "field"
+
+[input.labels]
+resolve = "Give them the base URL's scheme (default)"
+keep    = "Leave them exactly as written"
+
+[[input]]
+name    = "resolve_fragments"
+label   = "Also absolutize bare #anchor links"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "style_urls"
+label   = "Also rewrite url(…) and @import in CSS"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "html"
+source  = "field"
+
+[input.labels]
+html   = "Rewritten HTML (default)"
+report = "Report — the base used and what was rewritten"
+urls   = "Dry run — list every URL and its verdict"
+
+[[example]]
+label  = "Blog post links and images"
+params = { html = "<a href=\"../about.html\">About</a>\n<img src=\"images/logo.png\" alt=\"Logo\">\n<a href=\"#top\">Back to top</a>", base = "https://example.com/blog/post.html", attributes = "common", use_base_tag = "true", protocol_relative = "resolve", resolve_fragments = "false", style_urls = "false", output = "html" }
+
+[[example]]
+label  = "Newsletter — absolutize anchors and CSS too"
+params = { html = "<div style=\"background:url('img/hero.jpg')\">\n  <a href=\"/sale\">Shop the sale</a>\n  <a href=\"#unsubscribe\">Unsubscribe</a>\n</div>", base = "https://shop.example.com/emails/august.html", attributes = "common", use_base_tag = "true", protocol_relative = "resolve", resolve_fragments = "true", style_urls = "true", output = "html" }
+
+[[example]]
+label  = "Responsive images (srcset)"
+params = { html = "<img src=\"photo.jpg\" srcset=\"photo.jpg 1x, retina/photo@2x.jpg 2x\" alt=\"Photo\">", base = "https://example.com/gallery/index.html", attributes = "common", use_base_tag = "true", protocol_relative = "resolve", resolve_fragments = "false", style_urls = "false", output = "html" }
+
+[[example]]
+label  = "Dry run — check a base before trusting it"
+params = { html = "<a href=\"../about.html\">About</a>\n<img src=\"images/logo.png\" alt=\"Logo\">\n<a href=\"mailto:hi@example.com\">Email</a>\n<a href=\"#top\">Back to top</a>", base = "https://example.com/blog/post.html", attributes = "common", use_base_tag = "true", protocol_relative = "resolve", resolve_fragments = "false", style_urls = "false", output = "urls" }
+
+[[example]]
+label  = "Conservative pass — href and src only"
+params = { html = "<video poster=\"still.jpg\" src=\"clip.mp4\"></video>\n<a href=\"docs/\" ping=\"track.php\">Docs</a>", base = "https://example.com/media/page.html", attributes = "href-src", use_base_tag = "true", protocol_relative = "resolve", resolve_fragments = "false", style_urls = "false", output = "html" }

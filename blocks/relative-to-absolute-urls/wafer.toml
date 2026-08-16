@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "relative-to-absolute-urls"
+version = "0.1.0"
+abi = 1
+summary = "Rewrite relative href, src and other URL attributes in HTML to absolute URLs against a base."
