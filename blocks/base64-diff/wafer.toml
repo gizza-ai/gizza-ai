@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "base64-diff"
+version = "0.1.0"
+abi = 1
+summary = "Decode two Base64 or Base64url strings and diff the underlying bytes"
