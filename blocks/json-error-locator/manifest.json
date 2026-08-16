@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/json-error-locator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find the line, column and cause of every JSON syntax error",
+  "role": "skill",
+  "tool": {
+    "description": "Locate JSON syntax errors in pasted text and explain them. Valid input returns a summary (top-level type, member count, nesting depth, lines, bytes). Invalid input returns every problem found — not just the first, the way a parser stops — each with a 1-based line, a character-counted column, a 0-based offset, a plain-English cause, a concrete fix, and an optional caret-marked source snippet. Named problems include trailing commas, single-quoted strings and keys, unquoted keys, unquoted bare-word values, missing commas, missing colons, mismatched or unclosed brackets, unterminated strings, invalid \\escapes and short \\u escapes, unescaped control characters, invalid numbers (leading zeros, .5, 1., +1, hex), JavaScript/Python literals (undefined, NaN, Infinity, True, None), // and /* */ comments, and extra content after the document. output picks a human-readable report or a machine-readable JSON document; context_lines sets the snippet size (0-10); scan_all=false reports only the first issue. Input is capped at 1 MiB and nesting at 200 levels. Deterministic and syntax-only — it diagnoses rather than rewrites, and does not validate against a JSON Schema. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "context_lines": {
+          "default": 2,
+          "description": "How many source lines to show above and below each flagged line, with a caret under the exact column (0-10). Set 0 to omit snippets entirely and get just the positions, causes and fixes. Default 2.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON text to diagnose. Paste the whole document, valid or not: valid input returns a summary (top-level type, member count, nesting depth, size) and invalid input returns every syntax problem found with its line, column and character offset. Example: {\"name\": \"Ada\", \"tags\": [1, 2,]}",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Result format. 'report' (default) is a human-readable listing — one numbered entry per issue with its line/column/offset, a plain-English cause, a suggested fix and a caret-marked source snippet. 'json' returns a machine-readable {valid, issue_count, issues[], parser_stop, summary} document for scripts and CI.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "scan_all": {
+          "default": true,
+          "description": "Report every issue in the document instead of stopping at the first one. A normal JSON parser aborts at the first error, so a file with five mistakes takes five runs to clean up; with scan_all=true a tolerant scanner keeps going and lists them all. Set false to see only the first issue, the way a parser behaves. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

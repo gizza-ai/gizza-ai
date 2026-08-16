@@ -1,0 +1,75 @@
+slug          = "json-error-locator"
+title         = "JSON Error Locator — Find the Line and Column of a Syntax Error"
+description   = "Paste broken JSON and get the exact line, column and cause of every syntax error, with a caret-marked snippet and a suggested fix. Runs in your browser."
+tags          = ["json error locator", "json syntax error", "json validator line number", "trailing comma json", "unexpected token json", "json line column", "unquoted key json", "json lint"]
+h1            = "JSON Error Locator"
+hero_subtitle = "Paste JSON and see exactly where it breaks — line, column and character offset for every syntax error, each with a plain-English cause, a suggested fix, and a caret under the offending character. Nothing is uploaded."
+wasm          = "gizza_ai_json_error_locator_web"
+export        = "run"
+live          = false
+output_label  = "Diagnosis"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON to check"
+placeholder = "{\n  \"name\": \"Ada\",\n  \"tags\": [1, 2,]\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Result format"
+source = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "Machine-readable JSON"
+
+[[input]]
+name        = "context_lines"
+label       = "Context lines around each error"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "scan_all"
+label  = "Report every issue (not just the first)"
+source = "field"
+
+[[example]]
+label = "Trailing comma"
+[example.params]
+json          = "{\n  \"name\": \"Ada\",\n  \"tags\": [1, 2,]\n}"
+output        = "report"
+context_lines = "2"
+
+[[example]]
+label = "Unquoted key"
+[example.params]
+json          = "{\n  name: \"Ada\",\n  \"age\": 36\n}"
+output        = "report"
+context_lines = "2"
+
+[[example]]
+label = "Missing comma"
+[example.params]
+json          = "{\n  \"a\": 1\n  \"b\": 2\n}"
+output        = "report"
+context_lines = "1"
+
+[[example]]
+label = "Single quotes + comment"
+[example.params]
+json          = "{\n  // legacy record\n  'a': 1\n}"
+output        = "report"
+context_lines = "2"
+
+[[example]]
+label = "Machine-readable JSON"
+[example.params]
+json          = "[1, 2, ]"
+output        = "json"
+context_lines = "0"
