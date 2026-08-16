@@ -1,0 +1,174 @@
+slug          = "api-response-diff"
+title         = "API response diff — compare two JSON responses, ignore volatile fields"
+description   = "Compare two JSON API responses and see only the meaningful changes: ignore request ids, timestamps and UUIDs, match arrays by key or as sets, export a JSON Patch."
+tags          = ["api response diff", "compare json responses", "json diff ignore fields", "api regression testing", "json patch", "ignore timestamps"]
+h1            = "API response diff"
+hero_subtitle = "Paste two JSON API responses and see only what actually changed — request ids, timestamps and generated UUIDs can be filtered out, and reordered arrays paired by id."
+wasm          = "gizza_ai_api_response_diff_web"
+export        = "run"
+live          = false
+output_label  = "Diff"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "left"
+label       = "First response (baseline / old)"
+placeholder = "{\"requestId\": \"req-8f21\", \"data\": {\"total\": 2, \"status\": \"ok\"}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Second response (candidate / new)"
+placeholder = "{\"requestId\": \"req-c07d\", \"data\": {\"total\": 3, \"status\": \"ok\"}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "ignore"
+label       = "Ignore fields (comma or newline separated)"
+placeholder = "requestId, generatedAt, $.data.token, *_at"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "ignore_timestamps"
+label       = "Ignore timestamp-shaped values (ISO-8601, epoch)"
+source      = "field"
+
+[[input]]
+name        = "ignore_uuids"
+label       = "Ignore UUID-shaped values"
+source      = "field"
+
+[[input]]
+name        = "array_match"
+label       = "Match array elements"
+source      = "field"
+
+[input.labels]
+index = "By position (index)"
+key   = "By key field"
+set   = "As an unordered set"
+
+[[input]]
+name        = "array_key"
+label       = "Array key field (for \"By key field\")"
+placeholder = "id"
+default     = "id"
+source      = "field"
+
+[[input]]
+name        = "numeric_tolerance"
+label       = "Numeric tolerance (0 = exact)"
+placeholder = "0.01"
+source      = "field"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore string case"
+source      = "field"
+
+[[input]]
+name        = "trim_strings"
+label       = "Trim whitespace around strings"
+source      = "field"
+
+[[input]]
+name        = "null_equals_missing"
+label       = "Treat null as a missing field"
+source      = "field"
+
+[[input]]
+name        = "coerce_types"
+label       = "Compare across types (\"5\" = 5)"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+report  = "Full JSON report"
+summary = "Readable summary"
+patch   = "RFC 6902 JSON Patch"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "Ignore request ids and timestamps"
+[example.params]
+left = "{\"requestId\":\"req-8f21\",\"generatedAt\":\"2026-08-15T09:14:02Z\",\"data\":{\"total\":2,\"status\":\"ok\"}}"
+right = "{\"requestId\":\"req-c07d\",\"generatedAt\":\"2026-08-16T11:02:47Z\",\"data\":{\"total\":3,\"status\":\"ok\"}}"
+ignore = "requestId, generatedAt"
+ignore_timestamps = "false"
+ignore_uuids = "false"
+array_match = "index"
+array_key = "id"
+numeric_tolerance = "0"
+ignore_case = "false"
+trim_strings = "false"
+null_equals_missing = "false"
+coerce_types = "false"
+output = "report"
+indent = "2"
+
+[[example]]
+label = "Reordered list, matched by id"
+[example.params]
+left = "{\"items\":[{\"id\":\"a1\",\"name\":\"Widget\",\"price\":9.99},{\"id\":\"b2\",\"name\":\"Gizmo\",\"price\":14.5}]}"
+right = "{\"items\":[{\"id\":\"b2\",\"name\":\"Gizmo\",\"price\":14.5},{\"id\":\"a1\",\"name\":\"Widget\",\"price\":11.99}]}"
+ignore = ""
+ignore_timestamps = "false"
+ignore_uuids = "false"
+array_match = "key"
+array_key = "id"
+numeric_tolerance = "0"
+ignore_case = "false"
+trim_strings = "false"
+null_equals_missing = "false"
+coerce_types = "false"
+output = "summary"
+indent = "2"
+
+[[example]]
+label = "Volatile ids by shape"
+[example.params]
+left = "{\"traceId\":\"3f2504e0-4f89-11d3-9a0c-0305e82c3301\",\"issuedAt\":1754000000,\"plan\":\"pro\"}"
+right = "{\"traceId\":\"9c858901-8a57-4791-81fe-4c455b099bc9\",\"issuedAt\":1755300000,\"plan\":\"team\"}"
+ignore = ""
+ignore_timestamps = "true"
+ignore_uuids = "true"
+array_match = "index"
+array_key = "id"
+numeric_tolerance = "0"
+ignore_case = "false"
+trim_strings = "false"
+null_equals_missing = "false"
+coerce_types = "false"
+output = "summary"
+indent = "2"
+
+[[example]]
+label = "Export a JSON Patch"
+[example.params]
+left = "{\"name\":\"alice\",\"age\":30,\"legacy\":true}"
+right = "{\"name\":\"alice\",\"age\":31,\"city\":\"NYC\"}"
+ignore = ""
+ignore_timestamps = "false"
+ignore_uuids = "false"
+array_match = "index"
+array_key = "id"
+numeric_tolerance = "0"
+ignore_case = "false"
+trim_strings = "false"
+null_equals_missing = "false"
+coerce_types = "false"
+output = "patch"
+indent = "2"

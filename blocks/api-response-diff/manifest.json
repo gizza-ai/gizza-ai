@@ -1,0 +1,100 @@
+{
+  "name": "gizza-ai/api-response-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Diff two JSON API responses while ignoring volatile fields",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two JSON API responses and report only the meaningful differences. Volatile fields (request ids, timestamps, generated ids) can be dropped by name/path pattern via `ignore`, or by value shape via `ignore_timestamps`/`ignore_uuids`. Arrays are paired by index, by a key field (array_match=key + array_key), or as unordered sets (array_match=set); numbers accept a tolerance and strings optional case/whitespace/type leniency. Returns a JSON report { equal, counts, truncated, notes, ignored_paths, changes:[{ path, kind: added|removed|changed|type_changed, old?, new? }] } with paths like $.data.items[2].name, or a readable summary (output=summary), or an RFC 6902 JSON Patch (output=patch). Runs locally; each response is capped at 4 MiB.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_key": {
+          "default": "id",
+          "description": "Field used to pair array elements when array_match=key, e.g. \"id\" or \"sku\". Arrays whose elements are not objects with a unique value for it fall back to index matching (reported under notes). Default \"id\".",
+          "type": "string"
+        },
+        "array_match": {
+          "default": "index",
+          "description": "How array elements are paired before comparing: \"index\" position by position (default), \"key\" pair objects by the array_key field so reordered lists still diff field-by-field, \"set\" order-insensitive multiset comparison.",
+          "enum": [
+            "index",
+            "key",
+            "set"
+          ],
+          "type": "string"
+        },
+        "coerce_types": {
+          "default": false,
+          "description": "Compare across scalar types, so \"5\" equals 5 and \"true\" equals true. Default false (a type change is reported as type_changed).",
+          "type": "boolean"
+        },
+        "ignore": {
+          "description": "Comma- or newline-separated fields to ignore, e.g. \"requestId, updatedAt, $.data.token\". A bare name (updatedAt, *_at) ignores that key at any depth; a dotted path (data.token or $.data.token) is anchored at the root; '*' matches one path segment, '**' any number, and [2]/[*] match array indices. Default: nothing ignored.",
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare strings case-insensitively. Default false.",
+          "type": "boolean"
+        },
+        "ignore_timestamps": {
+          "default": false,
+          "description": "Ignore a value change when BOTH sides look like timestamps (ISO-8601 dates/datetimes, or epoch seconds/milliseconds). Default false.",
+          "type": "boolean"
+        },
+        "ignore_uuids": {
+          "default": false,
+          "description": "Ignore a value change when BOTH sides look like canonical 8-4-4-4-12 UUIDs. Default false.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Indentation in spaces for the JSON outputs (0-8). Use 0 to minify. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "left": {
+          "description": "The first (baseline/old) API response, as JSON text.",
+          "type": "string"
+        },
+        "null_equals_missing": {
+          "default": false,
+          "description": "Treat an explicit null the same as an absent field, so null -> missing is not reported. Default false.",
+          "type": "boolean"
+        },
+        "numeric_tolerance": {
+          "default": 0.0,
+          "description": "Absolute tolerance for number comparisons: values within this distance count as equal, e.g. 0.01 for money rounding. Default 0 (exact).",
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "report",
+          "description": "Result shape: \"report\" full JSON with counts, notes, ignored_paths and per-change entries (default); \"summary\" one readable line per change (+ - ~ !); \"patch\" an RFC 6902 JSON Patch array (requires array_match=index).",
+          "enum": [
+            "report",
+            "summary",
+            "patch"
+          ],
+          "type": "string"
+        },
+        "right": {
+          "description": "The second (candidate/new) API response, as JSON text.",
+          "type": "string"
+        },
+        "trim_strings": {
+          "default": false,
+          "description": "Trim leading/trailing whitespace from strings before comparing. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "type": "object"
+    }
+  }
+}
