@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "color-transfer"
+version = "0.1.0"
+abi = 1
+summary = "Recolor a photo with the color mood of a reference image by matching channel statistics."

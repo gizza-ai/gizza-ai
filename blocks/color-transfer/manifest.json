@@ -1,0 +1,87 @@
+{
+  "name": "gizza-ai/color-transfer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Recolor a photo with the color mood of a reference image by matching channel statistics.",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Transfer the color mood of a reference photo onto a target photo by matching their channel statistics. The first image source is the target that gets recolored (it defines the output size and keeps its transparency); the second is the reference whose colors are copied. `method` picks the match: lab-stats (default, Reinhard mean+standard-deviation in CIELAB), rgb-stats, histogram (strongest), or mean-only (color cast only). `strength` (0-100) blends the result with the original, `preserve_luminance` keeps the target's lightness, `saturation` (0-200) scales the result's color intensity, and `format` outputs png or jpeg at `quality`. Provide images as an ordered list of two, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "png",
+          "description": "Output image format: png (default, lossless and keeps transparency) or jpeg (smaller, flattens transparency to black).",
+          "enum": [
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "images": {
+          "description": "Exactly two image sources (PNG/JPEG/WebP/GIF/BMP): the target photo to recolor first, the reference photo whose colors you want second. The output keeps the target's size and transparency; the reference is only sampled for its colors. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "method": {
+          "default": "lab-stats",
+          "description": "How the reference's colors are matched: lab-stats (default, Reinhard-style mean+standard-deviation match in perceptual CIELAB — natural results), rgb-stats (same match per red/green/blue channel — punchier, more literal), histogram (full per-channel histogram match — strongest, best for film/LUT-style looks), mean-only (shift the color cast only and keep the target's own contrast — gentle white-balance style).",
+          "enum": [
+            "lab-stats",
+            "rgb-stats",
+            "histogram",
+            "mean-only"
+          ],
+          "type": "string"
+        },
+        "preserve_luminance": {
+          "default": false,
+          "description": "Keep the target's own lightness and take only the reference's color (hue/chroma). Use it when the reference is much brighter or darker than the target and you only want its color mood. Default false.",
+          "type": "boolean"
+        },
+        "quality": {
+          "default": 90,
+          "description": "JPEG quality 1-100 (higher = better and larger). Default 90. Ignored when format is png.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "saturation": {
+          "default": 100.0,
+          "description": "Scale the color intensity of the result, 0-200 percent. 100 (default) leaves the transfer as-is, 0 makes it black and white, 150 boosts it. Applied after the transfer.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "number"
+        },
+        "strength": {
+          "default": 100.0,
+          "description": "How far to push the recolor, 0-100 percent. 100 (default) is the full transfer; 50 blends it half-way with the original; 0 returns the target untouched.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}
