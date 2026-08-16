@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-csv-regex-replace-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+# The `regex` crate has no backreferences/lookaround by design, which is what
+# gives it the linear-time guarantee — a user-supplied pattern can never blow up
+# the sandbox. Default features are fine on wasm (no clock, no filesystem).
+regex = "1"

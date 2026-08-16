@@ -1,0 +1,111 @@
+{
+  "name": "gizza-ai/csv-regex-replace",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find and replace with a regex inside chosen CSV columns, with capture-group substitution.",
+  "role": "skill",
+  "tool": {
+    "description": "Apply one find-and-replace rule to the cells of selected columns of a CSV table, with capture-group substitution in the replacement. The table is PARSED first, so the pattern only ever sees a decoded cell value: it cannot match across a delimiter, eat a quote character, or split a quoted field containing an embedded newline — the failure mode of running a regex over raw CSV text. Output quoting is re-derived, so a replacement that introduces a comma or a quote is re-quoted automatically. pattern is a Rust regular expression by default (mode = 'literal' matches it verbatim instead); replacement expands $1, ${name}, $0 and $$, and a blank replacement deletes every match. columns is blank for every column, or a mix of header names, 1-based indices and '2-4' ranges. match_scope = 'whole_cell' anchors the pattern to the entire cell for value remaps; ignore_case, multiline and dotall are the i/m/s flags; replace_all off replaces only the first match per cell; has_header and include_header control whether the header row is protected (it is, by default); delimiter is 'auto' or a named/single character; quote_style is minimal, always or non_numeric. output is 'csv' (the rewritten table), 'changed' (header plus only the rows that changed), or 'report' (a per-column column,cells_changed,replacements audit with a TOTAL row). Rust regex has no backreferences or lookaround, which keeps matching linear-time. Max 5,000,000 bytes. Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Which columns the rule applies to. Blank (the default) or '*' means every column. Otherwise a comma-separated list of header names ('email'), 1-based indices ('2'), and inclusive index ranges ('2-4') — mixed freely, e.g. 'name,3,5-7'. Names are matched exactly first, then case-insensitively. Cells in unselected columns are copied through byte-for-byte.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV/delimited table to edit, as text. It is parsed before anything is matched, so a pattern only ever sees a decoded cell value — it can never match across a delimiter, eat a quote character, or split a quoted field that contains an embedded newline. Row order, column count and the delimiter are preserved; output quoting is re-derived. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator: 'auto' (default) sniffs it from the first line, counting candidates outside quotes with comma winning a tie; or give a name ('comma', 'tab', 'semicolon', 'pipe') or any single character. The output is written with the same separator.",
+          "type": "string"
+        },
+        "dotall": {
+          "default": false,
+          "description": "The regex 's' flag: '.' also matches a newline, so a pattern can span an embedded line break inside a quoted cell. Off by default, matching the usual regex convention.",
+          "type": "boolean"
+        },
+        "has_header": {
+          "default": true,
+          "description": "When true (default) row 1 is a header: its names can be used in 'columns', it is excluded from replacement unless include_header is on, and it is kept at the top of a 'changed' listing. Turn it off for a headerless table — every row is then data and columns must be given as indices or ranges.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match without regard to case (the regex 'i' flag), so 'error' also matches 'Error' and 'ERROR'. Applies to literal mode too. The replacement text is inserted exactly as written — the original casing is not restored.",
+          "type": "boolean"
+        },
+        "include_header": {
+          "default": false,
+          "description": "Also apply the rule to the header row itself. Off by default, so a pattern like 'code' rewrites the data without renaming the 'code' column. Ignored when has_header is false (there is no header to protect).",
+          "type": "boolean"
+        },
+        "match_scope": {
+          "default": "substring",
+          "description": "Where the pattern is allowed to match. 'substring' (default) matches anywhere inside a cell and can match several times. 'whole_cell' anchors the pattern to the ENTIRE cell value, so it either rewrites the whole cell or leaves it alone — use it for value remaps such as turning exactly 'NA' into an empty cell without touching 'NAME'.",
+          "enum": [
+            "substring",
+            "whole_cell"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "regex",
+          "description": "How to read the pattern. 'regex' (default) compiles it as a regular expression and expands capture references in the replacement. 'literal' escapes every metacharacter, so '.' matches a real dot and '$1' in the replacement stays '$1' — the safe choice for pasted values that happen to contain regex punctuation.",
+          "enum": [
+            "regex",
+            "literal"
+          ],
+          "type": "string"
+        },
+        "multiline": {
+          "default": false,
+          "description": "The regex 'm' flag: ^ and $ also match at line breaks INSIDE a cell instead of only at its start and end. Only meaningful for quoted cells that contain embedded newlines. Whole-cell scope is unaffected — it anchors with \\A and \\z, which this flag cannot loosen.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "csv",
+          "description": "What to return: 'csv' (default) is the whole table with the replacements applied; 'changed' is only the rows that actually changed, plus the header, for reviewing a rule before committing to it; 'report' is a per-column audit table 'column,cells_changed,replacements' with a TOTAL row and no data at all.",
+          "enum": [
+            "csv",
+            "changed",
+            "report"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "What to find. By default this is a Rust regular expression — \\d, \\w, \\b, character classes, alternation, groups, quantifiers and named groups (?<name>...) all work; there are no backreferences or lookaround, which is what keeps matching linear-time. Set mode to 'literal' to match the text exactly as typed instead.",
+          "type": "string"
+        },
+        "quote_style": {
+          "default": "minimal",
+          "description": "How the rewritten table is quoted. 'minimal' (default) quotes only fields that need it — one whose new value contains the delimiter, a quote or a newline is re-quoted automatically. 'always' quotes every field; 'non_numeric' quotes every field that is not a number.",
+          "enum": [
+            "minimal",
+            "always",
+            "non_numeric"
+          ],
+          "type": "string"
+        },
+        "replace_all": {
+          "default": true,
+          "description": "When true (default) every match in a cell is replaced, like a regex 'g' flag. Turn it off to replace only the FIRST match in each cell and leave later ones intact.",
+          "type": "boolean"
+        },
+        "replacement": {
+          "default": "",
+          "description": "What to put in place of each match. In regex mode $1 / ${1} / ${name} expand capture groups, $0 is the whole match and $$ is a literal dollar sign — write ${1}x rather than $1x when a group reference is followed by a word character, since $1x is read as a group named '1x'. In literal mode the text is inserted verbatim, dollar signs included. Leave it blank to DELETE every match.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

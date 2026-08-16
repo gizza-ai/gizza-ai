@@ -1,0 +1,144 @@
+slug          = "csv-regex-replace"
+title         = "CSV Regex Find and Replace — Rewrite Selected Columns"
+description   = "Run a regex find-and-replace on chosen CSV columns, with $1 capture groups. Quoted fields stay intact. Free, runs entirely in your browser."
+tags          = ["csv regex replace", "csv find and replace", "regex find and replace csv", "replace text in csv column", "csv capture group substitution", "bulk edit csv column", "regex replace spreadsheet column", "clean csv values with regex"]
+h1            = "CSV Regex Find and Replace"
+hero_subtitle = "Apply one find-and-replace rule to the cells of the columns you pick, with $1 capture-group substitution. The table is parsed first, so the pattern never eats a comma, a quote or a line break inside a quoted field — and the output is re-quoted for you. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_csv_regex_replace_web"
+export        = "run"
+live          = false
+output_label  = "Rewritten CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (first row is the header)"
+placeholder = "name,city\n\"Lovelace, Ada\",Paris\n\"Hopper, Grace\",Boston"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Find (regular expression, or plain text in Literal mode)"
+placeholder = "(\\w+), (\\w+)"
+source      = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Replace with ($1 and ${name} expand capture groups; blank deletes)"
+placeholder = "$2 $1"
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Columns (blank = every column; names, 1-based indices, 2-4 ranges)"
+placeholder = "name,3,5-7"
+source      = "field"
+
+# mode, match_scope, quote_style and output render as <select>s, and the six
+# flags as checkboxes, derived from the descriptor schema (manifest.json) — so
+# the option lists are not duplicated here.
+[[input]]
+name    = "mode"
+label   = "Pattern mode"
+default = "regex"
+source  = "field"
+
+[input.labels]
+regex   = "Regular expression (default)"
+literal = "Literal text — punctuation matches itself, $1 stays $1"
+
+[[input]]
+name    = "match_scope"
+label   = "Match"
+default = "substring"
+source  = "field"
+
+[input.labels]
+substring  = "Anywhere inside a cell (default)"
+whole_cell = "The entire cell only — for exact value remaps"
+
+[[input]]
+name    = "ignore_case"
+label   = "Ignore case (i)"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "multiline"
+label   = "Multiline — ^ and $ match at line breaks inside a cell (m)"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "dotall"
+label   = "Dot matches newline inside a cell (s)"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "replace_all"
+label   = "Replace every match in a cell (off = first match only)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "has_header"
+label   = "First row is a header"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "include_header"
+label   = "Also rewrite the header row"
+default = "false"
+source  = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (auto , tab ; or |)"
+placeholder = "auto"
+default     = "auto"
+source      = "field"
+
+[[input]]
+name    = "quote_style"
+label   = "Output quoting"
+default = "minimal"
+source  = "field"
+
+[input.labels]
+minimal     = "Minimal — quote only what needs it (default)"
+always      = "Always quote every field"
+non_numeric = "Quote everything except numbers"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "csv"
+source  = "field"
+
+[input.labels]
+csv     = "Rewritten CSV (default)"
+changed = "Only the rows that changed, plus the header"
+report  = "Audit report — replacements per column"
+
+[[example]]
+label  = "\"Last, First\" → \"First Last\""
+params = { data = "name,city\n\"Lovelace, Ada\",Paris\n\"Hopper, Grace\",Boston", pattern = '(\w+), (\w+)', replacement = "$2 $1", columns = "name", mode = "regex", match_scope = "substring", ignore_case = "false", multiline = "false", dotall = "false", replace_all = "true", has_header = "true", include_header = "false", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Phone numbers → digits only"
+params = { data = "id,phone\n1,(555) 010-1234\n2,555.010.9999", pattern = '[^0-9]', replacement = "", columns = "phone", mode = "regex", match_scope = "substring", ignore_case = "false", multiline = "false", dotall = "false", replace_all = "true", has_header = "true", include_header = "false", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Strip currency symbols and thousands separators"
+params = { data = "sku,amount\nA1,\"$1,234.00\"\nB2,\"$99.00\"", pattern = '[$,]', replacement = "", columns = "amount", mode = "regex", match_scope = "substring", ignore_case = "false", multiline = "false", dotall = "false", replace_all = "true", has_header = "true", include_header = "false", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Blank out exactly NA (whole cell, keeps NAME)"
+params = { data = "id,note\n1,NA\n2,NAME\n3,N/A", pattern = 'NA|N/A', replacement = "", columns = "note", mode = "regex", match_scope = "whole_cell", ignore_case = "false", multiline = "false", dotall = "false", replace_all = "true", has_header = "true", include_header = "false", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Audit report — replacements per column"
+params = { data = "id,phone\n1,(555) 010-1234\n2,555.010.9999", pattern = '[^0-9]', replacement = "", columns = "phone", mode = "regex", match_scope = "substring", ignore_case = "false", multiline = "false", dotall = "false", replace_all = "true", has_header = "true", include_header = "false", delimiter = "auto", quote_style = "minimal", output = "report" }
