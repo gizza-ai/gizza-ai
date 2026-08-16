@@ -1,0 +1,73 @@
+slug          = "audio-rms-level-report"
+title         = "Audio RMS Level Report — Per-Channel dBFS Summary"
+description   = "Measure per-channel RMS, sample peak, average level, headroom, DC offset, and clipped samples from pasted audio bytes as JSON, CSV, or a text report."
+tags          = ["audio levels", "rms", "peak", "dbfs", "audio analysis", "clipping", "dc offset", "csv"]
+h1            = "Audio RMS level report"
+hero_subtitle = "Paste audio bytes as base64 or hex and get a whole-file per-channel level summary: RMS, sample peak, average level, crest factor, headroom, DC offset, short-window RMS, and clipping facts."
+wasm          = "gizza_ai_audio_rms_level_report_web"
+export        = "run"
+live          = false
+output_label  = "Level summary"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Audio bytes (base64 or hex)"
+placeholder = "UklGR... (paste the whole audio file's base64 or hex here)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+[input.labels]
+json   = "JSON summary"
+report = "Text report"
+csv    = "CSV rows"
+
+[[input]]
+name        = "rms_window_ms"
+label       = "Short RMS window (ms)"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "1000"
+step        = "1"
+
+[[input]]
+name        = "clip_threshold"
+label       = "Clip threshold (linear full scale)"
+placeholder = "0.99"
+source      = "field"
+kind        = "slider"
+min         = "0.5"
+max         = "1.0"
+step        = "0.01"
+
+[[example]]
+label = "Constant tone → JSON"
+[example.values]
+input = "UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABA"
+input_format = "base64"
+output = "json"
+rms_window_ms = "50"
+clip_threshold = "0.99"
+
+[[example]]
+label = "Same tone → CSV"
+[example.values]
+input = "UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABAAEAAQABA"
+input_format = "base64"
+output = "csv"
+rms_window_ms = "50"
+clip_threshold = "0.99"
