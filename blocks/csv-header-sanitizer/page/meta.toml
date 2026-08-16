@@ -1,0 +1,116 @@
+slug          = "csv-header-sanitizer"
+title         = "CSV Header Sanitizer — Clean Column Names to snake_case"
+description   = "Clean messy CSV column names into valid snake_case, camelCase, or kebab-case identifiers. Fixes blanks and leading digits, deduplicates collisions. Free, in-browser."
+tags          = ["csv header sanitizer", "clean column names", "snake case column names", "csv header cleaner", "sql safe column names", "duplicate column names", "normalize csv headers", "rename csv columns"]
+h1            = "CSV Header Sanitizer"
+hero_subtitle = "Turn a header row of human labels — First Name, Total ($), 2024 Revenue, a blank cell, two columns both called Notes — into valid, consistent identifiers, with every collision deduplicated. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_csv_header_sanitizer_web"
+export        = "run"
+live          = false
+output_label  = "Sanitized CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (first row is the header)"
+placeholder = "First Name, Total ($) ,2024 Revenue,,Notes,Notes\nAda,10,120,x,first,second"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; | or auto)"
+placeholder = ","
+default     = ","
+source      = "field"
+
+# style, ascii, leading_digit, max_length, dedupe and output render as
+# <select>/checkbox/number controls derived from the descriptor schema
+# (manifest.json), so the option lists are not duplicated here.
+[[input]]
+name    = "style"
+label   = "Identifier style"
+default = "snake"
+source  = "field"
+
+[input.labels]
+snake           = "snake_case — first_name (default)"
+camel           = "camelCase — firstName"
+pascal          = "PascalCase — FirstName"
+kebab           = "kebab-case — first-name"
+screaming_snake = "SCREAMING_SNAKE — FIRST_NAME"
+lower           = "lowercase — firstname (no CamelCase split)"
+preserve        = "Preserve case — First_Name"
+
+[[input]]
+name    = "ascii"
+label   = "Transliterate Unicode to ASCII (Año → ano)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "leading_digit"
+label   = "Names starting with a digit"
+default = "underscore"
+source  = "field"
+
+[input.labels]
+underscore = "Prefix an underscore — _2024_revenue (default)"
+col        = "Prefix col — col_2024_revenue"
+keep       = "Keep as-is — 2024_revenue"
+
+[[input]]
+name        = "max_length"
+label       = "Max name length (0 = no limit; 63 = PostgreSQL)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "blank_name"
+label       = "Name for blank headers (position appended)"
+placeholder = "column"
+default     = "column"
+source      = "field"
+
+[[input]]
+name    = "dedupe"
+label   = "When two names collide"
+default = "suffix"
+source  = "field"
+
+[input.labels]
+suffix = "Count up — total, total_2, total_3 (default)"
+index  = "Use the column position — total, total_3"
+allow  = "Allow the collision — total, total"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "csv"
+source  = "field"
+
+[input.labels]
+csv     = "Whole table with the new header (default)"
+header  = "Just the cleaned header row"
+mapping = "Rename map — original,sanitized"
+
+[[example]]
+label  = "Messy headers → snake_case"
+params = { data = "First Name, Total ($) ,2024 Revenue,,Notes,Notes\nAda,10,120,x,first,second", delimiter = ",", style = "snake", ascii = "true", leading_digit = "underscore", max_length = "0", blank_name = "column", dedupe = "suffix", output = "csv" }
+
+[[example]]
+label  = "PostgreSQL-safe (63 chars, col_ prefix)"
+params = { data = "Customer Lifetime Value To Date,2024 Revenue,Größe\n100,120,L", delimiter = ",", style = "snake", ascii = "true", leading_digit = "col", max_length = "63", blank_name = "column", dedupe = "suffix", output = "csv" }
+
+[[example]]
+label  = "camelCase for JSON keys"
+params = { data = "First Name,E-Mail Address,HTTPStatusCode\nAda,a@example.com,404", delimiter = ",", style = "camel", ascii = "true", leading_digit = "underscore", max_length = "0", blank_name = "column", dedupe = "suffix", output = "header" }
+
+[[example]]
+label  = "Rename map only (audit the changes)"
+params = { data = "First Name, Total ($) ,2024 Revenue,,Notes,Notes\nAda,10,120,x,first,second", delimiter = ",", style = "snake", ascii = "true", leading_digit = "underscore", max_length = "0", blank_name = "column", dedupe = "suffix", output = "mapping" }
+
+[[example]]
+label  = "TSV, auto-detected delimiter"
+params = { data = "First Name\tTotal ($)\nAda\t10", delimiter = "auto", style = "snake", ascii = "true", leading_digit = "underscore", max_length = "0", blank_name = "column", dedupe = "suffix", output = "csv" }

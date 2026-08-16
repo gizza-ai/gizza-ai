@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-csv-header-sanitizer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+deunicode = "1"

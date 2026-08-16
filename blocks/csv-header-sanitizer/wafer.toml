@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-header-sanitizer"
+version = "0.1.0"
+abi = 1
+summary = "Clean CSV column names into valid, consistent snake_case identifiers, deduplicating collisions."

@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/csv-header-sanitizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Clean CSV column names into valid, consistent snake_case identifiers, deduplicating collisions.",
+  "role": "skill",
+  "tool": {
+    "description": "Sanitize the header row of a CSV/delimited table into valid, consistent identifiers. 'First Name' becomes first_name, 'Total ($)' becomes total, '2024 Revenue' becomes _2024_revenue, a blank header becomes column_3, and two columns that clean to the same name are deduplicated (total, total_2) so neither is silently lost in a downstream join or import. Only row 1 is rewritten: data rows pass through untouched, quoting is preserved, and the field separator round-trips unchanged. style picks the casing: snake (default), camel, pascal, kebab, screaming_snake, lower (no CamelCase splitting), or preserve (keep the original case). ascii (default on) transliterates Unicode to ASCII. leading_digit repairs names starting with a digit via 'underscore' (default), 'col', or 'keep'. max_length truncates names (0 = no limit; 63 is the PostgreSQL identifier limit) and always keeps a dedupe suffix inside the cap. blank_name is the base for empty headers. dedupe is 'suffix' (default), 'index', or 'allow'. output is 'csv' (default, the whole table), 'header' (just the cleaned header line), or 'mapping' (an original,sanitized audit trail). delimiter accepts 'auto', a single character, or comma/tab/semicolon/pipe. This renames columns only — it never touches the data values, dedupes rows, or infers types. Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ascii": {
+          "default": true,
+          "description": "When true (default), Unicode is transliterated to ASCII before cleaning, so 'Año' becomes ano and 'Größe' becomes grosse. Turn it off to keep non-ASCII letters in the names (valid for quoted SQL identifiers and most dataframe libraries, but not for bare identifiers).",
+          "type": "boolean"
+        },
+        "blank_name": {
+          "default": "column",
+          "description": "Base name for a header cell that is blank or nothing but punctuation; the column's 1-based position is appended, so the default gives column_2, column_3. Set it to something like 'field' or 'unnamed' to match your own convention.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV/delimited table to clean, as text. Row 1 is the header — it is the only row rewritten. Quoted fields with embedded separators or newlines (RFC 4180) are preserved and data rows are passed through unchanged. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": "suffix",
+          "description": "What to do when two headers clean to the same name: 'suffix' (default) counts up — total, total_2, total_3; 'index' names the duplicate after its own 1-based column position — total, total_3; 'allow' leaves the collision in place, which is only safe if the reader keeps duplicate columns.",
+          "enum": [
+            "suffix",
+            "index",
+            "allow"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: 'auto' to sniff it from the header line, a single character, or a name ('comma' (default), 'tab', 'semicolon', 'pipe'). The output uses the same separator as the input.",
+          "type": "string"
+        },
+        "leading_digit": {
+          "default": "underscore",
+          "description": "What to do when a name would start with a digit, which an unquoted SQL identifier cannot: 'underscore' (default) prefixes an underscore ('2024 Revenue' -> _2024_revenue), 'col' prefixes the word col (col_2024_revenue), 'keep' leaves it as 2024_revenue.",
+          "enum": [
+            "underscore",
+            "col",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "max_length": {
+          "default": 0,
+          "description": "Truncate each name to at most this many characters, cutting any dangling separator. 0 (default) means no limit. Use 63 for PostgreSQL identifiers; 300 is BigQuery's ceiling. A deduplication suffix is always kept inside the cap — the base name gives up characters to make room.",
+          "maximum": 300,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "csv",
+          "description": "What to return: 'csv' (default) is the whole table with the rewritten header row; 'header' is just the cleaned header line; 'mapping' is a two-column 'original,sanitized' audit trail so you can review every rename before applying it.",
+          "enum": [
+            "csv",
+            "header",
+            "mapping"
+          ],
+          "type": "string"
+        },
+        "style": {
+          "default": "snake",
+          "description": "Target identifier casing for 'First Name': 'snake' -> first_name (default), 'camel' -> firstName, 'pascal' -> FirstName, 'kebab' -> first-name, 'screaming_snake' -> FIRST_NAME, 'lower' -> lowercase without splitting CamelCase runs (FirstName -> firstname), 'preserve' -> keep the original case and only fix the characters (First_Name).",
+          "enum": [
+            "snake",
+            "camel",
+            "pascal",
+            "kebab",
+            "screaming_snake",
+            "lower",
+            "preserve"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
