@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-table-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Find every Markdown table in a document and export it as CSV or JSON"
