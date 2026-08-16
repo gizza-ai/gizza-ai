@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/postman-collection-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten a Postman collection into a request list with method, URL, headers and body",
+  "role": "skill",
+  "tool": {
+    "description": "Flatten a Postman Collection v2.0/v2.1 export into a list of its requests: folder path, name, method, URL, headers, request body, and auth type. Nested folders are walked recursively; {{variables}} are resolved from the collection's own variables plus optional KEY=VALUE / environment-export overrides (unknown placeholders are left verbatim). Output as an indented list, an aligned table, JSON, CSV, a Markdown table, or a plain deduplicated URL list; filter by HTTP method, URL substring, or folder path. Disabled headers and disabled form fields are skipped; scripts, tests and saved example responses are not extracted, and auth is reported by type only — tokens are never printed. Up to 500 requests, each body truncated at 2000 characters. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collection": {
+          "description": "The Postman Collection export as JSON text — a v2.0/v2.1 object with a top-level `item` array, i.e. what Postman writes for Collection → Export → Collection v2.1. Folders are flattened recursively; up to 500 requests per run.",
+          "type": "string"
+        },
+        "folder": {
+          "default": "",
+          "description": "Keep only requests whose folder path contains this text (case-insensitive substring). Nested folders are joined with ' / ', e.g. 'Admin / Users'. Empty = every folder plus root-level requests.",
+          "type": "string"
+        },
+        "format": {
+          "default": "list",
+          "description": "Output format. 'list' = one block per request with folder, auth, headers and body. 'table' = aligned overview columns (#, METHOD, HDRS, BODY, NAME, URL). 'json' = array of request objects (index, folder, name, method, url, auth, headers, body_mode, body). 'csv' = spreadsheet rows with the same fields. 'markdown' = a GFM table for docs. 'urls' = one URL per line, duplicates removed.",
+          "enum": [
+            "list",
+            "table",
+            "json",
+            "csv",
+            "markdown",
+            "urls"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "",
+          "description": "Keep only requests with this HTTP method — case-insensitive exact match, e.g. GET, POST, DELETE. Empty = all methods.",
+          "type": "string"
+        },
+        "resolve_variables": {
+          "default": true,
+          "description": "Substitute {{placeholders}} in URLs, headers and bodies from the collection's variables plus `variables` (default true). Set false to see the raw {{placeholders}} exactly as exported. Placeholders with no value are always left verbatim.",
+          "type": "boolean"
+        },
+        "url_contains": {
+          "default": "",
+          "description": "Keep only requests whose URL contains this text (case-insensitive substring), e.g. /v1/ or users. Empty = no URL filter.",
+          "type": "string"
+        },
+        "variables": {
+          "default": "",
+          "description": "Extra values for {{placeholders}}, overriding the collection's own variables. Accepts KEY=VALUE lines (baseUrl=https://api.example.com), a JSON object, or a pasted Postman environment export. Empty = use only the collection's variables.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "collection"
+      ],
+      "type": "object"
+    }
+  }
+}
