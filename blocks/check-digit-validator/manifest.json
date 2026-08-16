@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/check-digit-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate or compute check digits for Luhn, ISBN, EAN/UPC, IBAN and more",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a code's check digit — or compute a missing one — across the common schemes: Luhn (payment cards, IMEI, NPI), the GS1 mod-10 family (EAN-8/13, UPC-A, GTIN-14, SSCC-18, ISBN-13), mod-11 (ISBN-10, ISSN, VIN), ISIN, 9-digit ABA routing numbers and IBAN (mod-97-10). With scheme=auto it reports which schemes the code could be and which of them it passes. Accepts up to 5000 codes per run separated by newlines, commas or semicolons; spaces and dashes are ignored. Returns a text report plus per-code fields: matched scheme, valid flag, expected vs actual check digit, card brand or IBAN country, and an optional arithmetic breakdown.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "validate",
+          "description": "'validate' (default) checks the check digit already present in the code. 'compute' takes the payload WITHOUT its check digit and returns the digit plus the completed code; it requires an explicit scheme. For iban pass the country code + account part (check digits optional); for vin pass the full 17 characters — position 9 is rewritten.",
+          "enum": [
+            "validate",
+            "compute"
+          ],
+          "type": "string"
+        },
+        "scheme": {
+          "default": "auto",
+          "description": "Check-digit scheme. Default 'auto' detects every scheme the code's length and character set allow and reports which ones it passes. Explicit values: luhn (generic mod-10), credit-card (Luhn + brand), imei (15 digits), npi (10 digits), isbn10 (mod-11, X allowed), isbn13, issn (mod-11, X allowed), ean8, ean13, upc-a, gtin14, sscc (18 digits), iban (mod-97-10), routing (9-digit ABA), isin, vin (17 characters, check character at position 9).",
+          "enum": [
+            "auto",
+            "luhn",
+            "credit-card",
+            "imei",
+            "npi",
+            "isbn10",
+            "isbn13",
+            "issn",
+            "ean8",
+            "ean13",
+            "upc-a",
+            "gtin14",
+            "sscc",
+            "iban",
+            "routing",
+            "isin",
+            "vin"
+          ],
+          "type": "string"
+        },
+        "show_steps": {
+          "default": false,
+          "description": "Set true to append the arithmetic behind each verdict (weighted sums, the modulo step and the resulting digit). Default false.",
+          "type": "boolean"
+        },
+        "value": {
+          "description": "The code(s) to check, e.g. '4539 1488 0343 6467' or '978-0-306-40615-7'. Spaces, dashes, dots, slashes and colons are ignored. Pass several codes at once separated by newlines, commas or semicolons (max 5000 per run).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,102 @@
+slug          = "check-digit-validator"
+title         = "Check Digit Validator — Luhn, ISBN, EAN/UPC, IBAN, VIN"
+description   = "Validate or compute check digits for Luhn cards, IMEI, NPI, ISBN-10/13, ISSN, EAN/UPC/GTIN/SSCC, IBAN, ABA routing, ISIN and VIN codes."
+tags          = ["check digit", "luhn", "mod 10", "mod 11", "mod 97", "isbn", "issn", "ean", "upc", "gtin", "sscc", "iban", "routing number", "isin", "vin", "imei"]
+h1            = "Check digit validator"
+hero_subtitle = "Paste one code or a whole list and see which check-digit scheme it matches, whether the check digit is correct, and what it should have been — or switch to compute mode to generate the digit for a payload that has none yet."
+wasm          = "gizza_ai_check_digit_validator_web"
+export        = "run"
+live          = false
+output_label  = "Check-digit report"
+format        = "text"
+
+[[input]]
+name        = "value"
+label       = "Codes to check"
+placeholder = "4539 1488 0343 6467\n978-0-306-40615-7\nGB82 WEST 1234 5698 7654 32"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "scheme"
+label       = "Scheme"
+source      = "field"
+[input.labels]
+auto          = "Auto-detect (report every match)"
+luhn          = "Luhn — generic mod-10"
+"credit-card" = "Payment card — Luhn + brand"
+imei          = "IMEI — 15 digits, Luhn"
+npi           = "NPI — 10 digits, Luhn with 80840 prefix"
+isbn10        = "ISBN-10 — mod-11, X allowed"
+isbn13        = "ISBN-13 — GS1 mod-10"
+issn          = "ISSN — mod-11, X allowed"
+ean8          = "EAN-8 — 8 digits"
+ean13         = "EAN-13 — 13 digits"
+"upc-a"       = "UPC-A — 12 digits"
+gtin14        = "GTIN-14 — 14 digits"
+sscc          = "SSCC — 18 digits"
+iban          = "IBAN — mod-97-10"
+routing       = "ABA routing — 9 digits, weighted 3-7-1"
+isin          = "ISIN — 12 characters, Luhn on expanded digits"
+vin           = "VIN — 17 characters, check at position 9"
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+[input.labels]
+validate = "Validate the check digit already in the code"
+compute  = "Compute the missing check digit"
+
+[[input]]
+name   = "show_steps"
+label  = "Show the arithmetic behind each verdict"
+source = "field"
+
+[[example]]
+label = "Payment card — auto-detect"
+[example.values]
+value      = "4539 1488 0343 6467"
+scheme     = "auto"
+mode       = "validate"
+show_steps = "false"
+
+[[example]]
+label = "Book barcode with a typo"
+[example.values]
+value      = "9780306406158"
+scheme     = "isbn13"
+mode       = "validate"
+show_steps = "true"
+
+[[example]]
+label = "Mixed batch — cards, books, IBAN"
+[example.values]
+value      = "4539 1488 0343 6467\n978-0-306-40615-7\nGB82 WEST 1234 5698 7654 32\n021000021"
+scheme     = "auto"
+mode       = "validate"
+show_steps = "false"
+
+[[example]]
+label = "Compute an ISBN-13 check digit"
+[example.values]
+value      = "978030640615"
+scheme     = "isbn13"
+mode       = "compute"
+show_steps = "true"
+
+[[example]]
+label = "IBAN from country + account number"
+[example.values]
+value      = "GBWEST12345698765432"
+scheme     = "iban"
+mode       = "compute"
+show_steps = "false"
+
+[[example]]
+label = "VIN check character"
+[example.values]
+value      = "1HGCM82633A004352"
+scheme     = "vin"
+mode       = "validate"
+show_steps = "true"

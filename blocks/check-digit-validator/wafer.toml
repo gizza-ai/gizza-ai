@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "check-digit-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate or compute check digits for Luhn, ISBN, EAN/UPC, IBAN and more"
