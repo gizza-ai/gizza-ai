@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tempo-map-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Turn a list of beat times into a BPM-versus-time tempo map with statistics and DAW exports"
