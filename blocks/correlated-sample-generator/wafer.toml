@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "correlated-sample-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate multivariate-normal samples matching a mean vector and covariance matrix"
