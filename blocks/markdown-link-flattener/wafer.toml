@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-link-flattener"
+version = "0.1.0"
+abi = 1
+summary = "Remove Markdown link syntax while keeping visible text or appending URLs"
