@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-jsonl-stats-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps each record's keys in the order the line wrote them, so
+# sort = "first-seen" reports the shape a producer actually emits.
+serde_json = { version = "1", features = ["preserve_order"] }
