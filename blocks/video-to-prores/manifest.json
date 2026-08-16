@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/video-to-prores",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Transcode video to Apple ProRes 422 MOV for editing.",
+  "role": "skill",
+  "tool": {
+    "description": "Transcode a video into an Apple ProRes 422 QuickTime MOV intermediate for Final Cut Pro, Premiere Pro, DaVinci Resolve, Avid, and other editorial workflows. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). profile is proxy|lt|standard|hq (default standard); resolution optionally downscales without upscaling; audio is pcm16|pcm24|none (default pcm16). Output is always a large edit-friendly .mov with prores_ks, yuv422p10le, -vendor apl0, and uncompressed PCM unless audio=none. This is not a small web-delivery encode.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio": {
+          "default": "pcm16",
+          "description": "Audio handling for the MOV. pcm16 (default) writes uncompressed 16-bit PCM, pcm24 writes uncompressed 24-bit PCM for 24-bit masters, and none drops audio with -an for a picture-only intermediate.",
+          "enum": [
+            "pcm16",
+            "pcm24",
+            "none"
+          ],
+          "type": "string"
+        },
+        "profile": {
+          "default": "standard",
+          "description": "ProRes 422 tier. proxy is smallest/offline (~45 Mbps at 1080p29.97), lt is lighter editorial (~102 Mbps), standard is plain ProRes 422 and the default (~147 Mbps), hq is largest/headroom for grading (~220 Mbps). All choices are 10-bit 4:2:2 in a MOV container.",
+          "enum": [
+            "proxy",
+            "lt",
+            "standard",
+            "hq"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "resolution": {
+          "default": "source",
+          "description": "Optional downscale cap. source (default) preserves the input dimensions; 2160p, 1440p, 1080p, 720p, 540p, and 480p cap the output height without upscaling smaller sources. Downscaling is the practical size lever for huge ProRes files.",
+          "enum": [
+            "source",
+            "2160p",
+            "1440p",
+            "1080p",
+            "720p",
+            "540p",
+            "480p"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
