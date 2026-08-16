@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-date-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Rewrite mixed CSV date columns into one format, inferring day-first vs month-first per column."

@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-csv-date-normalizer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+# chrono for calendar arithmetic + strftime rendering; alloc-only — every clock
+# value comes from the parsed cell, never from the host, so the core stays pure.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
