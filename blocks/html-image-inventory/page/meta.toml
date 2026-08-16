@@ -1,0 +1,89 @@
+slug          = "html-image-inventory"
+title         = "HTML Image Inventory — Alt Text, Size & Loading Audit"
+description   = "Paste HTML and list every img and picture source with alt text, width, height, loading hints, and flags for missing alt or dimensions. Runs in your browser."
+tags          = ["html image inventory", "missing alt text", "image alt checker", "img tag list", "explicit width and height", "srcset audit", "picture source", "layout shift images"]
+h1            = "Inventory Every Image in Your HTML"
+hero_subtitle = "Paste HTML and get one table row per image source — alt text, width, height, loading, decoding, srcset and sizes — with every image that is missing alt text or explicit dimensions flagged. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_html_image_inventory_web"
+export        = "run"
+live          = false
+output_label  = "Image inventory"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<img src=\"/hero.jpg\" alt=\"Team on a rooftop\" width=\"1200\" height=\"800\">\n<img src=\"/promo.png\" loading=\"lazy\">"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown — a table to paste into a PR"
+csv      = "CSV — one row per image"
+json     = "JSON — structured, with counts"
+
+[[input]]
+name   = "include_sources"
+label  = "Include <picture> sources"
+source = "field"
+
+[[input]]
+name   = "only_issues"
+label  = "Only flagged images"
+source = "field"
+
+[[input]]
+name   = "flag_empty_alt"
+label  = "Flag decorative alt=\"\" too"
+source = "field"
+
+[[input]]
+name   = "include_summary"
+label  = "Show counts summary"
+source = "field"
+
+[[example]]
+label = "Article images → Markdown table"
+[example.params]
+html = "<article>\n  <img src=\"/hero.jpg\" alt=\"Team on a rooftop\" width=\"1200\" height=\"800\" decoding=\"async\" fetchpriority=\"high\">\n  <img src=\"/promo.png\" width=\"600\" height=\"400\" loading=\"lazy\">\n  <img src=\"/divider.svg\" alt=\"\" width=\"8\" height=\"8\">\n  <img src=\"/chart.png\" alt=\"Revenue by quarter\" loading=\"lazy\" decoding=\"async\">\n</article>"
+format = "markdown"
+include_sources = "true"
+only_issues = "false"
+flag_empty_alt = "false"
+include_summary = "true"
+
+[[example]]
+label = "Only the images that need fixing"
+[example.params]
+html = "<article>\n  <img src=\"/hero.jpg\" alt=\"Team on a rooftop\" width=\"1200\" height=\"800\">\n  <img src=\"/promo.png\" width=\"600\" height=\"400\" loading=\"lazy\">\n  <img src=\"/chart.png\" alt=\"Revenue by quarter\" loading=\"lazy\">\n</article>"
+format = "markdown"
+include_sources = "true"
+only_issues = "true"
+flag_empty_alt = "false"
+include_summary = "true"
+
+[[example]]
+label = "Responsive <picture> block"
+[example.params]
+html = "<picture>\n  <source srcset=\"/hero.avif 1x, /hero@2x.avif 2x\" type=\"image/avif\" media=\"(min-width: 800px)\">\n  <source srcset=\"/hero.webp\" type=\"image/webp\">\n  <img src=\"/hero.jpg\" alt=\"A hero image\" width=\"800\" height=\"600\" sizes=\"100vw\" loading=\"lazy\" decoding=\"async\">\n</picture>"
+format = "markdown"
+include_sources = "true"
+only_issues = "false"
+flag_empty_alt = "false"
+include_summary = "true"
+
+[[example]]
+label = "Whole inventory → CSV"
+[example.params]
+html = "<img src=\"/a.jpg\" alt=\"Product photo, front\" width=\"400\" height=\"400\" class=\"card__img\" id=\"a\">\n<img src=\"/b.jpg\" width=\"50%\" loading=\"lazy\" title=\"Second product\">"
+format = "csv"
+include_sources = "true"
+only_issues = "false"
+flag_empty_alt = "false"
+include_summary = "true"

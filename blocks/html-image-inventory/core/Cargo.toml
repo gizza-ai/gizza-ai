@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-html-image-inventory-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# scraper: html5ever-based HTML parsing, wasm32-safe (the same engine
+# html-extract, html-table-extractor and html-form-field-extractor use). Real
+# pages carry unquoted attributes, implied closing tags and stray markup inside
+# <picture>, so a real parser is required — a regex over <img …> would miss the
+# <picture>/<source> nesting this tool reports.
+scraper = { version = "0.20", default-features = false }
+# preserve_order keeps the JSON keys in the order a reader expects
+# (element, src, srcset, alt, width, height, …) instead of alphabetical.
+serde_json = { version = "1", features = ["preserve_order"] }
+# csv gives correct quoting/escaping for the flat one-row-per-image output
+# (alt text and srcset both routinely contain commas).
+csv = "1"

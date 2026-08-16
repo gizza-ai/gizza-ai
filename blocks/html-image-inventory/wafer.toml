@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-image-inventory"
+version = "0.1.0"
+abi = 1
+summary = "Table every img and picture source in HTML with alt text, size, and loading hints"
