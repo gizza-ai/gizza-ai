@@ -1,0 +1,157 @@
+slug          = "mermaid-from-data"
+title         = "Mermaid From Data — Generate Diagrams From Nodes and Edges"
+description   = "Turn structured node and edge rows into Mermaid flowchart, classDiagram or erDiagram source with labels, shapes and relationship styles."
+tags          = ["mermaid", "diagram", "flowchart", "class diagram", "er diagram", "nodes", "edges", "graph", "markdown", "documentation"]
+h1            = "Mermaid from data"
+hero_subtitle = "Paste edges, optional node metadata and relationship styles, then generate Mermaid source for flowcharts, class diagrams or ER diagrams."
+wasm          = "gizza_ai_mermaid_from_data_web"
+export        = "run"
+live          = false
+output_label  = "Mermaid source"
+format        = "text"
+
+[[input]]
+name        = "edges"
+label       = "Edges or paths"
+placeholder = "Start -> Build : implement\nBuild -> Ship : deploy"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "nodes"
+label       = "Node declarations (optional)"
+placeholder = "api | API service | round | Backend\ndb | Postgres | cylinder | Backend"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "diagram"
+label  = "Diagram type"
+source = "field"
+[input.labels]
+flowchart = "Flowchart"
+class = "Class diagram"
+er = "ER diagram"
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+[input.labels]
+TD = "Top down"
+TB = "Top to bottom"
+LR = "Left to right"
+BT = "Bottom to top"
+RL = "Right to left"
+
+[[input]]
+name   = "row_mode"
+label  = "Delimited row mode"
+source = "field"
+[input.labels]
+pair = "Pairs: from, to, label, style"
+chain = "Chain: link each adjacent value"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+[input.labels]
+auto = "Auto-detect"
+pipe = "Pipe |"
+comma = "Comma ,"
+tab = "Tab"
+
+[[input]]
+name   = "node_shape"
+label  = "Default flowchart node shape"
+source = "field"
+[input.labels]
+rect = "Rectangle"
+round = "Rounded"
+stadium = "Stadium"
+subroutine = "Subroutine"
+cylinder = "Cylinder"
+circle = "Circle"
+diamond = "Diamond"
+hexagon = "Hexagon"
+parallelogram = "Parallelogram"
+trapezoid = "Trapezoid"
+
+[[input]]
+name   = "edge_style"
+label  = "Default edge style"
+source = "field"
+[input.labels]
+arrow = "Arrow"
+open = "Open line"
+dotted = "Dotted"
+thick = "Thick"
+bidirectional = "Bidirectional"
+
+[[input]]
+name        = "title"
+label       = "Diagram title"
+placeholder = "Release pipeline"
+source      = "field"
+
+[[input]]
+name   = "fence"
+label  = "Wrap in a Markdown mermaid fence"
+source = "field"
+
+[[example]]
+label = "Release flowchart"
+[example.params]
+edges = "Start -> Build : implement\nBuild -> Test : CI\nTest -> Ship : deploy"
+nodes = "Start | Idea | stadium\nShip | Release | cylinder"
+diagram = "flowchart"
+direction = "LR"
+row_mode = "pair"
+delimiter = "auto"
+node_shape = "rect"
+edge_style = "arrow"
+title = "Release pipeline"
+fence = "false"
+
+[[example]]
+label = "Class relationships"
+[example.params]
+edges = "Animal,Dog,,inheritance\nDog,Collar,wears,composition"
+nodes = "Animal | +String name; +eat()\nDog"
+diagram = "class"
+direction = "LR"
+row_mode = "pair"
+delimiter = "auto"
+node_shape = "rect"
+edge_style = "arrow"
+title = ""
+fence = "false"
+
+[[example]]
+label = "ER model"
+[example.params]
+edges = "CUSTOMER,ORDER,places,one-to-many\nORDER,LINE_ITEM,contains,one-to-one-or-more"
+nodes = "CUSTOMER | string name PK; string email"
+diagram = "er"
+direction = "TD"
+row_mode = "pair"
+delimiter = "auto"
+node_shape = "rect"
+edge_style = "arrow"
+title = ""
+fence = "false"
+
+[[example]]
+label = "Path chain"
+[example.params]
+edges = "Draft,Review,Approve,Publish"
+nodes = ""
+diagram = "flowchart"
+direction = "LR"
+row_mode = "chain"
+delimiter = "comma"
+node_shape = "round"
+edge_style = "thick"
+title = "Content workflow"
+fence = "true"
