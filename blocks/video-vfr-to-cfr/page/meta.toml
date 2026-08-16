@@ -1,0 +1,62 @@
+slug          = "video-vfr-to-cfr"
+title         = "Convert VFR to CFR Video Online — Fix Variable Frame Rate"
+description   = "Convert a variable-frame-rate phone, screen or game recording to constant frame rate in your browser, and stop the audio drifting out of sync in your editor."
+tags          = ["VFR to CFR", "variable frame rate", "constant frame rate", "audio drift", "out of sync", "OBS recording", "screen capture", "phone video", "fps_mode cfr", "ffmpeg", "video editing"]
+h1            = "Convert VFR to CFR"
+hero_subtitle = "Upload a variable-frame-rate clip and get an even, constant-frame-rate video your editor can cut without the audio sliding out of sync. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_video_vfr_to_cfr_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Constant-frame-rate video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# fps, quality, resync_audio.
+[[input]]
+name   = "fps"
+source = "field"
+label  = "Constant frame rate"
+
+[input.labels]
+"auto"   = "Auto — keep the source's own rate, only even out the timing (default)"
+"23.976" = "23.976 — NTSC film"
+"24"     = "24 — cinema"
+"25"     = "25 — PAL / European broadcast"
+"29.97"  = "29.97 — NTSC broadcast"
+"30"     = "30 — web, phone and screen capture"
+"50"     = "50 — PAL high frame rate"
+"59.94"  = "59.94 — NTSC high frame rate"
+"60"     = "60 — gameplay and smooth screen capture"
+
+[[input]]
+name   = "quality"
+source = "field"
+label  = "Quality"
+
+[input.labels]
+"high"     = "High — crf 18, near-transparent, largest file"
+"balanced" = "Balanced — crf 20, default"
+"small"    = "Small — crf 24, smallest file"
+
+[[input]]
+name   = "resync_audio"
+source = "field"
+label  = "Re-lock audio to the rebuilt timeline (fixes drift)"
+
+[[example]]
+label  = "Phone or screen recording — keep the source rate"
+params = { fps = "auto", quality = "balanced", resync_audio = "true" }
+
+[[example]]
+label  = "Lock gameplay capture to 60 fps"
+params = { fps = "60", quality = "high", resync_audio = "true" }
+
+[[example]]
+label  = "PAL 25 fps, keep the audio bit-for-bit"
+params = { fps = "25", quality = "balanced", resync_audio = "false" }
