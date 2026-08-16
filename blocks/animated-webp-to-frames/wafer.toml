@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "animated-webp-to-frames"
+version = "0.1.0"
+abi = 1
+summary = "Split an animated WebP into its individual frame images (ZIP of PNGs)"

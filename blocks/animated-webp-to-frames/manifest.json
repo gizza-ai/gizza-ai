@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/animated-webp-to-frames",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split an animated WebP into its individual frame images (ZIP of PNGs)",
+  "role": "skill",
+  "tool": {
+    "description": "Split an animated WebP into its individual frames, returned as a ZIP of images plus a manifest.json carrying the timing. An animated WebP stores each frame as an ANMF sub-rectangle with its own blend and disposal method; every frame is fully composited (coalesced) onto the canvas first, so frames come out as complete pictures instead of the small patches the file actually holds, and transparency is preserved in the alpha channel. format picks the frame image type: png (lossless, keeps transparency, default), jpg (smaller but lossy, and transparent pixels are flattened onto white), or webp (lossless, keeps transparency). prefix names the files (frame -> frame-0001.png, frame-0002.png, … 1-based, zero-padded, in playback order; default 'frame'). max_frames stops extraction early (1-500, default 500, also the hard cap) — the manifest still records the source's real frame count and flags the truncation. manifest.json lists the canvas width/height, whether the source was animated, the frame count, total playback duration, and every frame's index, filename, delay in milliseconds and start time in the animation. A still (non-animated) WebP yields one image. Provide the WebP as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "png",
+          "description": "Image format for each extracted frame: png (lossless, keeps transparency — the default), jpg (much smaller but lossy, and transparent pixels are flattened onto white because JPEG has no alpha channel), or webp (lossless, keeps transparency, smaller than png).",
+          "enum": [
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "max_frames": {
+          "default": 500,
+          "description": "Stop after this many frames (1-500, default 500, which is also the hard cap). Longer animations are truncated and the manifest records the source's real frame count.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "prefix": {
+          "default": "frame",
+          "description": "Filename base for each extracted frame, e.g. frame -> frame-0001.png, frame-0002.png. Numbering is 1-based, zero-padded to 4 digits, in playback order. Default 'frame'.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "requires": [
+    "wafer-run/network"
+  ]
+}

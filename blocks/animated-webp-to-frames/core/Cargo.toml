@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-animated-webp-to-frames-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: decode the animated WebP (its frame iterator coalesces each ANMF
+# sub-rectangle onto the canvas, applying blend + disposal) and re-encode every
+# frame as PNG / JPEG / lossless WebP. Pure Rust, wasm-safe.
+image = { version = "0.25", default-features = false, features = ["webp", "png", "jpeg"] }
+# zip with deflate only — bundle the frames + manifest into one download.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
