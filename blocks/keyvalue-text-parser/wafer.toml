@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "keyvalue-text-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse key-value text into JSON"

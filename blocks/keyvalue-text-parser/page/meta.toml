@@ -1,0 +1,164 @@
+slug          = "keyvalue-text-parser"
+title         = "Key-Value Text Parser — convert key: value text to JSON"
+description   = "Parse messy key: value or key=value text into JSON, grouping repeated keys, splitting blank-line records, and preserving ordered pairs with line numbers."
+tags          = ["key value", "json", "parser", "text", "kv", "config", "headers", "metadata", "records"]
+h1            = "Key-value text parser"
+hero_subtitle = "Turn pasted labels, headers, metadata dumps, form exports, or key=value notes into structured JSON with duplicate grouping, record splitting, comments, key normalization, and safe type inference."
+wasm          = "gizza_ai_keyvalue_text_parser_web"
+export        = "run"
+live          = false
+output_label  = "JSON output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Key-value text"
+placeholder = "Name: Ada Lovelace\nRole = engineer\ntag: math\ntag: computing"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "separator"
+label  = "Separator"
+source = "field"
+[input.labels]
+auto   = "Auto — first : or = per line"
+colon  = "Colon (:)"
+equals = "Equals (=)"
+tab    = "Tab"
+pipe   = "Pipe (|)"
+custom = "Custom string"
+
+[[input]]
+name        = "custom_separator"
+label       = "Custom separator"
+placeholder = "->"
+source      = "field"
+
+[[input]]
+name   = "structure"
+label  = "Output shape"
+source = "field"
+[input.labels]
+object  = "One object"
+records = "Blank-line records"
+pairs   = "Ordered pairs with line numbers"
+
+[[input]]
+name   = "duplicates"
+label  = "Duplicate keys"
+source = "field"
+[input.labels]
+group = "Group repeated keys into arrays"
+last  = "Keep the last value"
+first = "Keep the first value"
+error = "Fail on duplicate keys"
+
+[[input]]
+name   = "trim"
+label  = "Trim whitespace around keys and values"
+source = "field"
+
+[[input]]
+name   = "unquote"
+label  = "Remove matching quotes around values"
+source = "field"
+
+[[input]]
+name        = "comment_prefixes"
+label       = "Comment prefixes"
+placeholder = "#,;,//"
+source      = "field"
+
+[[input]]
+name   = "infer_types"
+label  = "Infer booleans, nulls and numbers"
+source = "field"
+
+[[input]]
+name   = "key_case"
+label  = "Key case"
+source = "field"
+[input.labels]
+"as-is" = "Keep keys as typed"
+lower   = "Lowercase keys"
+snake   = "snake_case keys"
+
+[[input]]
+name   = "unmatched"
+label  = "Lines without a separator"
+source = "field"
+[input.labels]
+skip  = "Skip unmatched lines"
+error = "Fail and name the line"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[example]]
+label = "Metadata with repeated keys"
+[example.values]
+input = "Title: Quarterly report\nOwner: Ada\ntag: finance\ntag: draft\nReviewed = false"
+separator = "auto"
+structure = "object"
+duplicates = "group"
+trim = "true"
+unquote = "true"
+comment_prefixes = "#,;,//"
+infer_types = "true"
+key_case = "snake"
+unmatched = "skip"
+indent = "2"
+
+[[example]]
+label = "Blank-line records"
+[example.values]
+input = "name: Ada\nrole: engineer\n\nname: Grace\nrole: admiral"
+separator = "colon"
+structure = "records"
+duplicates = "group"
+trim = "true"
+unquote = "true"
+comment_prefixes = "#,;,//"
+infer_types = "false"
+key_case = "lower"
+unmatched = "skip"
+indent = "2"
+
+[[example]]
+label = "Pipe-delimited pairs"
+[example.values]
+input = "host|example.com\nport|443\nsecure|true"
+separator = "pipe"
+structure = "object"
+duplicates = "last"
+trim = "true"
+unquote = "true"
+comment_prefixes = ""
+infer_types = "true"
+key_case = "as-is"
+unmatched = "skip"
+indent = "0"
+
+[[example]]
+label = "Strict custom arrow"
+[example.values]
+input = "sku -> A-001\nqty -> 7\nignore me"
+separator = "custom"
+custom_separator = "->"
+structure = "pairs"
+duplicates = "group"
+trim = "true"
+unquote = "true"
+comment_prefixes = "#,;,//"
+infer_types = "true"
+key_case = "lower"
+unmatched = "skip"
+indent = "2"

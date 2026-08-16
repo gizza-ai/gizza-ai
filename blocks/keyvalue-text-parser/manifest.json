@@ -1,0 +1,108 @@
+{
+  "name": "gizza-ai/keyvalue-text-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse key-value text into JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Parse freeform key-value text into structured JSON. Accepts lines split by colon, equals, tab, pipe, or a custom separator; skips prose/comment lines by default; can split blank-line-separated records, preserve ordered pairs with line numbers, group or reject duplicate keys, normalize keys, unquote values, and optionally infer JSON booleans/nulls/numbers. Returns a JSON string suitable for copy/paste or downstream automation.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "comment_prefixes": {
+          "default": "#,;,//",
+          "description": "Comma-separated line comment prefixes to skip after leading whitespace, for example '#,;,//'. Set empty to treat comment-looking lines as data.",
+          "type": "string"
+        },
+        "custom_separator": {
+          "default": "",
+          "description": "Separator string used only when separator=custom, for example '->' or ' - '. Leave empty for the built-in separator modes.",
+          "type": "string"
+        },
+        "duplicates": {
+          "default": "group",
+          "description": "Duplicate-key policy inside object/record output. group (default) collects repeated keys into arrays, last overwrites, first keeps the first value, error fails on the repeated key.",
+          "enum": [
+            "group",
+            "last",
+            "first",
+            "error"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2.0,
+          "description": "JSON indentation in spaces, from 0 for minified output to 8. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "number"
+        },
+        "infer_types": {
+          "default": false,
+          "description": "Infer unquoted JSON booleans, nulls and numbers. Default false keeps values as strings so IDs like 0042 stay safe.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Freeform text containing key-value lines such as 'Name: Ada' or 'role = engineer'. Lines without the selected separator are skipped by default; paste up to 10,000 lines.",
+          "type": "string"
+        },
+        "key_case": {
+          "default": "as-is",
+          "description": "Key normalization. as-is keeps the key text, lower lowercases it, snake converts punctuation and spaces to underscores.",
+          "enum": [
+            "as-is",
+            "lower",
+            "snake"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "Separator used to split each line. 'auto' (default) uses whichever of ':' or '=' appears first on each line. Pick colon, equals, tab, pipe, or custom for stricter parsing.",
+          "enum": [
+            "auto",
+            "colon",
+            "equals",
+            "tab",
+            "pipe",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "structure": {
+          "default": "object",
+          "description": "Output shape. object returns one flat JSON object; records returns an array split on blank lines; pairs returns ordered {key,value,line} entries without folding duplicates.",
+          "enum": [
+            "object",
+            "records",
+            "pairs"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Trim whitespace around keys and values before parsing. Default true.",
+          "type": "boolean"
+        },
+        "unmatched": {
+          "default": "skip",
+          "description": "What to do with nonblank lines that do not contain the selected separator. skip is tolerant for freeform text; error names the offending line.",
+          "enum": [
+            "skip",
+            "error"
+          ],
+          "type": "string"
+        },
+        "unquote": {
+          "default": true,
+          "description": "Remove one matching pair of single or double quotes around a value before optional type inference. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

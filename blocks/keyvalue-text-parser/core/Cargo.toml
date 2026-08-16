@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-keyvalue-text-parser-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps the output keys in the order they appear in the input.
+serde = "1"
+serde_json = { version = "1", features = ["preserve_order"] }
