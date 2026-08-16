@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-to-dnxhd"
+version = "0.1.0"
+abi = 1
+summary = "Transcode video to Avid DNxHR MOV or MXF for editing."
