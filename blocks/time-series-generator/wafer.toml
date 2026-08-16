@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "time-series-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate deterministic synthetic time-series data with trend, seasonality and noise"

@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-time-series-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde_json = "1"
+# No `clock` feature: the series index is built from the caller's `start`, never
+# from the system clock, so this stays instantiable under both wafer
+# (wasm32-wasip1) and wasm-pack (wasm32-unknown-unknown) with no getrandom/js dep.
+chrono = { version = "0.4", default-features = false, features = ["std"] }

@@ -1,0 +1,347 @@
+slug          = "time-series-generator"
+title         = "Time Series Generator — Synthetic Trend, Seasonality and Noise Data"
+description   = "Generate deterministic synthetic time-series CSV, TSV, JSON or NDJSON with configurable trend, seasonality, noise, missing values and outliers."
+tags          = ["time series", "synthetic data", "csv", "json", "forecasting", "testing", "seasonality", "noise", "statistics", "data generation"]
+h1            = "Time series generator"
+hero_subtitle = "Create reproducible timestamped test data with trend, seasonality, seeded noise, missing values and outliers."
+wasm          = "gizza_ai_time_series_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated series"
+format        = "text"
+
+[[input]]
+name = "start"
+label = "Start timestamp"
+placeholder = "2024-01-01"
+source = "field"
+
+[[input]]
+name = "interval"
+label = "Interval"
+placeholder = "1d"
+source = "field"
+
+[[input]]
+name = "count"
+label = "Rows"
+placeholder = "100"
+source = "field"
+kind = "slider"
+min = "1"
+max = "1000"
+step = "1"
+
+[[input]]
+name = "base"
+label = "Base value"
+placeholder = "100"
+source = "field"
+
+[[input]]
+name = "trend"
+label = "Trend"
+source = "field"
+[input.labels]
+none = "None"
+linear = "Linear"
+exponential = "Exponential"
+logistic = "Logistic S-curve"
+random-walk = "Random walk"
+
+[[input]]
+name = "trend_strength"
+label = "Trend strength"
+placeholder = "0.5"
+source = "field"
+
+[[input]]
+name = "seasonality"
+label = "Seasonality"
+source = "field"
+[input.labels]
+none = "None"
+sine = "Sine"
+cosine = "Cosine"
+square = "Square wave"
+triangle = "Triangle wave"
+sawtooth = "Sawtooth"
+weekday = "Weekday pattern"
+
+[[input]]
+name = "period"
+label = "Period(s)"
+placeholder = "7 or 24,168"
+source = "field"
+
+[[input]]
+name = "amplitude"
+label = "Amplitude(s)"
+placeholder = "10 or 8,4"
+source = "field"
+
+[[input]]
+name = "weekday_pattern"
+label = "Weekday pattern"
+placeholder = "1.1, 1.05, 1, 1.05, 1.25, 0.8, 0.7"
+source = "field"
+
+[[input]]
+name = "combine"
+label = "Combine mode"
+source = "field"
+[input.labels]
+additive = "Additive"
+multiplicative = "Multiplicative"
+
+[[input]]
+name = "noise"
+label = "Noise"
+source = "field"
+[input.labels]
+none = "None"
+gaussian = "Gaussian"
+uniform = "Uniform"
+ar1 = "AR(1) autocorrelated"
+
+[[input]]
+name = "noise_level"
+label = "Noise level"
+placeholder = "5"
+source = "field"
+
+[[input]]
+name = "noise_phi"
+label = "AR(1) phi"
+placeholder = "0.7"
+source = "field"
+
+[[input]]
+name = "missing_rate"
+label = "Missing rate"
+placeholder = "0"
+source = "field"
+kind = "slider"
+min = "0"
+max = "1"
+step = "0.01"
+
+[[input]]
+name = "outlier_rate"
+label = "Outlier rate"
+placeholder = "0"
+source = "field"
+kind = "slider"
+min = "0"
+max = "1"
+step = "0.01"
+
+[[input]]
+name = "outlier_magnitude"
+label = "Outlier magnitude"
+placeholder = "3"
+source = "field"
+
+[[input]]
+name = "outlier_direction"
+label = "Outlier direction"
+source = "field"
+[input.labels]
+both = "Both directions"
+up = "Up only"
+down = "Down only"
+
+[[input]]
+name = "min_value"
+label = "Minimum clamp"
+placeholder = "0"
+source = "field"
+
+[[input]]
+name = "max_value"
+label = "Maximum clamp"
+placeholder = "250"
+source = "field"
+
+[[input]]
+name = "series"
+label = "Series columns"
+placeholder = "1"
+source = "field"
+kind = "slider"
+min = "1"
+max = "20"
+step = "1"
+
+[[input]]
+name = "seed"
+label = "Seed"
+placeholder = "42"
+source = "field"
+
+[[input]]
+name = "decimals"
+label = "Decimals"
+placeholder = "2"
+source = "field"
+kind = "slider"
+min = "0"
+max = "10"
+step = "1"
+
+[[input]]
+name = "output"
+label = "Output format"
+source = "field"
+[input.labels]
+csv = "CSV"
+tsv = "TSV"
+json = "JSON"
+ndjson = "NDJSON"
+stats = "Stats summary"
+
+[[input]]
+name = "timestamp_format"
+label = "Timestamp format"
+source = "field"
+[input.labels]
+auto = "Auto"
+iso = "ISO datetime"
+date = "Date"
+epoch = "Epoch seconds"
+index = "Row index"
+
+[[input]]
+name = "header"
+label = "Include header row"
+source = "field"
+
+[[input]]
+name = "labels"
+label = "Column labels"
+placeholder = "visits,signups"
+source = "field"
+
+[[example]]
+label = "Daily sales"
+[example.params]
+start = "2024-01-01"
+interval = "1d"
+count = "14"
+base = "100"
+trend = "linear"
+trend_strength = "2"
+seasonality = "weekday"
+period = "7"
+amplitude = "15"
+weekday_pattern = "1.05, 1.02, 1, 1.03, 1.15, 0.8, 0.7"
+combine = "additive"
+noise = "none"
+noise_level = "0"
+noise_phi = "0.7"
+missing_rate = "0"
+outlier_rate = "0"
+outlier_magnitude = "3"
+outlier_direction = "both"
+min_value = "0"
+max_value = ""
+series = "1"
+seed = "42"
+decimals = "0"
+output = "csv"
+timestamp_format = "date"
+header = "true"
+labels = "sales"
+
+[[example]]
+label = "Hourly web traffic"
+[example.params]
+start = "2024-06-01T00:00:00Z"
+interval = "1h"
+count = "48"
+base = "1000"
+trend = "linear"
+trend_strength = "3"
+seasonality = "sine"
+period = "24,168"
+amplitude = "120,50"
+weekday_pattern = "1,1,1,1,1,1,1"
+combine = "additive"
+noise = "gaussian"
+noise_level = "20"
+noise_phi = "0.7"
+missing_rate = "0"
+outlier_rate = "0"
+outlier_magnitude = "3"
+outlier_direction = "both"
+min_value = "0"
+max_value = ""
+series = "2"
+seed = "7"
+decimals = "1"
+output = "csv"
+timestamp_format = "iso"
+header = "true"
+labels = "visits,signups"
+
+[[example]]
+label = "Noisy IoT sensor"
+[example.params]
+start = "2024-01-01T00:00:00Z"
+interval = "15m"
+count = "32"
+base = "22"
+trend = "none"
+trend_strength = "0"
+seasonality = "sine"
+period = "96"
+amplitude = "3"
+weekday_pattern = "1,1,1,1,1,1,1"
+combine = "additive"
+noise = "ar1"
+noise_level = "0.7"
+noise_phi = "0.85"
+missing_rate = "0.05"
+outlier_rate = "0.03"
+outlier_magnitude = "2"
+outlier_direction = "up"
+min_value = "0"
+max_value = "80"
+series = "1"
+seed = "123"
+decimals = "2"
+output = "csv"
+timestamp_format = "iso"
+header = "true"
+labels = "temperature"
+
+[[example]]
+label = "Stats check"
+[example.params]
+start = "2024-01-01"
+interval = "1d"
+count = "100"
+base = "50"
+trend = "random-walk"
+trend_strength = "1"
+seasonality = "none"
+period = "7"
+amplitude = "0"
+weekday_pattern = "1,1,1,1,1,1,1"
+combine = "additive"
+noise = "uniform"
+noise_level = "3"
+noise_phi = "0.7"
+missing_rate = "0.1"
+outlier_rate = "0.05"
+outlier_magnitude = "2"
+outlier_direction = "both"
+min_value = "0"
+max_value = ""
+series = "3"
+seed = "99"
+decimals = "2"
+output = "stats"
+timestamp_format = "auto"
+header = "true"
+labels = "a,b,c"
