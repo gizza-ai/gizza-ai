@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "date-format-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Rewrite every date in a block of text into one chosen format, resolving day/month order from the text itself"
