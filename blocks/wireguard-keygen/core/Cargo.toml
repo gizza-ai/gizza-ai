@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-wireguard-keygen-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# x25519-dalek: pure-Rust Curve25519 base-point multiplication (private → public).
+# getrandom is used directly so the private scalar can be clamped exactly like
+# `wg genkey` before it is encoded.
+x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
+getrandom = "0.2"
+base64 = "0.22"

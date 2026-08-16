@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/wireguard-keygen",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate WireGuard key pairs and preshared keys with a wg0.conf snippet",
+  "role": "skill",
+  "tool": {
+    "description": "Generate WireGuard Curve25519 key pairs locally and return the base64 PrivateKey and PublicKey exactly as wg genkey and wg pubkey print them, plus an optional preshared key like wg genpsk and a ready-to-paste wg0.conf snippet. The private key is clamped the same way wg genkey clamps it, so it is byte-indistinguishable from the real tool. Set pairs to generate up to 25 independent key pairs in one call (one per device). Choose format text for the key listing plus an annotated config snippet, json for one machine-readable object per pair, or conf for the snippet only. address sets the snippet's [Interface] Address and endpoint sets the [Peer] Endpoint (leave endpoint empty for a listening server). Keys are generated with the platform CSPRNG and never leave the device: this is pure local Rust/WASM with no network and no filesystem access. It does not derive a public key from a private key you already have, and it does not validate or assemble a full multi-peer config — use the wireguard-config-builder tool for that.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "default": "10.0.0.2/32",
+          "description": "Tunnel address for this device, written as CIDR and used for the snippet's [Interface] Address line (default 10.0.0.2/32). Accepts a comma-separated list and IPv6, e.g. '10.0.0.2/32, fd00::2/128'.",
+          "type": "string"
+        },
+        "endpoint": {
+          "default": "vpn.example.com:51820",
+          "description": "Server host:port for the snippet's [Peer] Endpoint line (default vpn.example.com:51820). IPv6 is written [fd00::1]:51820. Leave empty to omit the Endpoint line, which is what a listening server's own config wants.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output shape. text lists PrivateKey/PublicKey/PresharedKey followed by an annotated wg0.conf snippet (default); json returns one object per pair with index, private_key, public_key, preshared_key and config; conf returns the wg0.conf snippet only.",
+          "enum": [
+            "text",
+            "json",
+            "conf"
+          ],
+          "type": "string"
+        },
+        "pairs": {
+          "default": 1,
+          "description": "How many independent key pairs to generate, 1-25 (default 1). Use one pair per device or peer — never reuse a key pair across machines.",
+          "maximum": 25,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "preshared_key": {
+          "default": true,
+          "description": "Also generate a 32-byte preshared key per pair, like wg genpsk (default true). A preshared key adds a symmetric layer on top of Curve25519 and must be set identically on BOTH peers. Turn it off for a plain key pair.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

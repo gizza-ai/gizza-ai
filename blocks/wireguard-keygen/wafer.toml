@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wireguard-keygen"
+version = "0.1.0"
+abi = 1
+summary = "Generate WireGuard key pairs and preshared keys with a wg0.conf snippet"
