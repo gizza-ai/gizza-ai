@@ -1,0 +1,100 @@
+slug          = "markdown-runbook-extractor"
+title         = "Markdown Runbook Extractor — Code Blocks to a Runnable Script"
+description   = "Extract the named code blocks of a Markdown runbook into one runnable script plus an ordered task list. Strips $ prompts. Runs in your browser."
+tags          = ["markdown runbook", "extract code blocks from markdown", "markdown to shell script", "runbook to script", "executable markdown", "markdown tangle", "literate markdown", "markdown code block extractor", "runbook checklist"]
+h1            = "Markdown Runbook Extractor"
+hero_subtitle = "Paste a Markdown runbook and get one runnable script — every fenced code block becomes a named, numbered step, with pasted `$` prompts stripped and command output dropped. Also exports an ordered task checklist or structured JSON. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_markdown_runbook_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Runnable script"
+format        = "text"
+
+# Field ORDER must equal the web `run` param order:
+# markdown, language, output, tags, strip_prompts, echo_steps, fail_fast, skip_marked.
+# language/output render as <select> (enum) and the four booleans as checkboxes,
+# both derived from manifest.json — option lists are NOT duplicated here.
+[[input]]
+name        = "markdown"
+label       = "Markdown runbook"
+placeholder = "# Deploy the API\n\n## Install dependencies\n\n```console\n$ npm ci\nadded 42 packages\n```\n\n## Run migrations\n\n```bash name=migrate\n./manage.py migrate\n```"
+source      = "field"
+multiline   = true
+
+[[input]]
+name  = "language"
+label = "Code blocks to extract"
+source = "field"
+
+[input.labels]
+auto       = "Auto-detect (most common)"
+shell      = "Shell — bash, sh, zsh, console"
+python     = "Python — python, py, pycon"
+powershell = "PowerShell — powershell, pwsh, ps1"
+javascript = "JavaScript — js, node"
+any        = "Any tagged language"
+
+[[input]]
+name  = "output"
+label = "Output"
+source = "field"
+
+[input.labels]
+script = "Runnable script"
+tasks  = "Task checklist (Markdown)"
+json   = "Steps as JSON"
+
+[[input]]
+name        = "tags"
+label       = "Tag filter (optional)"
+placeholder = "deploy,-slow"
+source      = "field"
+
+[[input]]
+name  = "strip_prompts"
+label = "Strip $ prompts and drop pasted output"
+source = "field"
+
+[[input]]
+name  = "echo_steps"
+label = "Add ==> progress lines"
+source = "field"
+
+[[input]]
+name  = "fail_fast"
+label = "Add abort-on-error header (set -euo pipefail)"
+source = "field"
+
+[[input]]
+name  = "skip_marked"
+label = "Comment out blocks tagged skip / no-run"
+source = "field"
+
+[[example]]
+label = "Runbook → runnable script"
+[example.params]
+markdown = "# Deploy the API\n\n## Install dependencies\n\n```console\n$ npm ci\nadded 42 packages\n```\n\n## Run migrations\n\n```bash name=migrate\n./manage.py migrate\n```\n\n## Rollback (do not run)\n\n```bash skip\n./manage.py migrate --rollback\n```"
+
+[[example]]
+label = "Ordered task checklist"
+[example.params]
+markdown = "# Deploy the API\n\n## Install dependencies\n\n```console\n$ npm ci\nadded 42 packages\n```\n\n## Run migrations\n\n```bash name=migrate\n./manage.py migrate\n```\n\n## Rollback (do not run)\n\n```bash skip\n./manage.py migrate --rollback\n```"
+output   = "tasks"
+
+[[example]]
+label = "Steps as JSON"
+[example.params]
+markdown = "# Deploy the API\n\n## Install dependencies\n\n```console\n$ npm ci\nadded 42 packages\n```\n\n## Run migrations\n\n```bash name=migrate\n./manage.py migrate\n```\n\n## Rollback (do not run)\n\n```bash skip\n./manage.py migrate --rollback\n```"
+output   = "json"
+
+[[example]]
+label = "Only build + deploy tags"
+[example.params]
+markdown = "# Release\n\n```bash#build\nmake build\n```\n\n```bash#test\nmake test\n```\n\n```bash#deploy\nmake deploy\n```"
+tags     = "build,deploy"
+
+[[example]]
+label = "Python notebook-style runbook"
+[example.params]
+markdown = "## Load the data\n\n```pycon\n>>> import pandas as pd\n>>> df = pd.read_csv('sales.csv')\n>>> len(df)\n1042\n```\n\n## Summarise\n\n```python name=summarise\nprint(df.describe())\n```"
+language = "python"
