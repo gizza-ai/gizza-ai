@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sphere-to-wav"
+version = "0.1.0"
+abi = 1
+summary = "Convert a NIST SPHERE (.sph) speech file to a standard WAV."
