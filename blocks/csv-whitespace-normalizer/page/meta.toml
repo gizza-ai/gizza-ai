@@ -1,0 +1,87 @@
+slug          = "csv-whitespace-normalizer"
+title         = "CSV Whitespace Normalizer — Trim and Collapse Cell Spaces"
+description   = "Paste a CSV or TSV to trim every cell, collapse or remove the spaces inside values, and clean up non-breaking spaces. Runs locally in your browser."
+tags          = ["csv whitespace normalizer", "trim csv columns", "remove extra spaces csv", "collapse whitespace", "non-breaking space", "csv cleaning", "tsv trim", "data quality"]
+h1            = "CSV Whitespace Normalizer"
+hero_subtitle = "Trim every cell and fix the spaces inside your values — non-breaking spaces from a spreadsheet paste included — so joins, lookups and duplicate checks stop failing on padding you cannot see."
+wasm          = "gizza_ai_csv_whitespace_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "CSV / TSV table"
+placeholder = "name,city,sku\n  Ada   Lovelace , New   York ,  AB 12  CD \nGrace Hopper,Berlin ,XY34"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (or 'auto' to detect)"
+placeholder = "comma"
+default     = "comma"
+source      = "field"
+
+[[input]]
+name    = "trim"
+label   = "Trim the cell edges"
+default = "both"
+source  = "field"
+labels  = { both = "Both ends (default)", leading = "Leading only — keep right padding", trailing = "Trailing only — keep left padding", none = "None — leave the edges alone" }
+
+[[input]]
+name    = "internal"
+label   = "Whitespace inside the value"
+default = "collapse"
+source  = "field"
+labels  = { collapse = "Collapse runs to one space (default)", remove = "Remove it entirely — AB 12 CD → AB12CD", keep = "Keep it — trim only" }
+
+[[input]]
+name    = "whitespace"
+label   = "What counts as whitespace"
+default = "unicode"
+source  = "field"
+labels  = { unicode = "Unicode — includes NBSP, U+3000, … (default)", ascii = "ASCII only — leave NBSP as content" }
+
+[[input]]
+name        = "columns"
+label       = "Only these columns (names, 1-based positions, ranges; blank = all)"
+placeholder = "sku"
+source      = "field"
+
+[[input]]
+name    = "header"
+label   = "First row is a header"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "normalize_header"
+label   = "Normalize the header cells too"
+default = "true"
+source  = "field"
+
+[[example]]
+label  = "Trim + collapse (default)"
+params = { input = "name,city,sku\n  Ada   Lovelace , New   York ,  AB 12  CD \nGrace Hopper,Berlin ,XY34", delimiter = "comma", trim = "both", internal = "collapse", whitespace = "unicode", columns = "", header = "true", normalize_header = "true" }
+
+[[example]]
+label  = "Pure trim — keep inner spacing"
+params = { input = "name,city,sku\n  Ada   Lovelace , New   York ,  AB 12  CD \nGrace Hopper,Berlin ,XY34", delimiter = "comma", trim = "both", internal = "keep", whitespace = "unicode", columns = "", header = "true", normalize_header = "true" }
+
+[[example]]
+label  = "Squeeze one SKU column shut"
+params = { input = "name,city,sku\n  Ada   Lovelace , New   York ,  AB 12  CD \nGrace Hopper,Berlin ,XY34", delimiter = "comma", trim = "both", internal = "remove", whitespace = "unicode", columns = "sku", header = "true", normalize_header = "true" }
+
+[[example]]
+label  = "Non-breaking spaces from a paste"
+# \u00A0 = non-breaking space, \u3000 = ideographic space: invisible in every
+# editor, and exactly what a spreadsheet or web copy-paste leaves behind.
+params = { input = "country,capital\n\u00A0France\u00A0,\u00A0Paris\nJapan,\u3000Tokyo\u3000", delimiter = "comma", trim = "both", internal = "collapse", whitespace = "unicode", columns = "", header = "true", normalize_header = "true" }
+
+[[example]]
+label  = "TSV, auto-detected delimiter"
+params = { input = "id\tnotes\n1\t  too   many   spaces  \n2\t ok ", delimiter = "auto", trim = "both", internal = "collapse", whitespace = "unicode", columns = "", header = "true", normalize_header = "true" }
