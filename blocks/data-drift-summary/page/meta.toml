@@ -1,0 +1,178 @@
+slug          = "data-drift-summary"
+title         = "Data Drift Summary — Compare Two CSV Datasets Column by Column"
+description   = "Paste a baseline and a current CSV to get a per-column drift report: type, null rate, cardinality, range, new or missing categories and a PSI or JSD score."
+tags          = ["data drift", "drift detection", "psi", "population stability index", "jensen-shannon", "csv compare", "dataset comparison", "schema drift", "data quality", "machine learning monitoring"]
+h1            = "Data drift summary"
+hero_subtitle = "Paste a reference dataset and the current one to see exactly what moved: the inferred type on each side, the null rate and its delta, distinct-value counts, numeric range and mean, the category values that appeared or vanished, and a drift score per column with a dataset-level verdict."
+wasm          = "gizza_ai_data_drift_summary_web"
+export        = "run"
+live          = false
+output_label  = "Drift report"
+format        = "text"
+
+[[input]]
+name        = "reference"
+label       = "Reference dataset (baseline)"
+placeholder = "order_id,amount,country\n1,10,US\n2,12,US\n3,11,FR"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "current"
+label       = "Current dataset (to check)"
+placeholder = "order_id,amount,country\n1,40,US\n2,44,US\n3,,FR"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+[input.labels]
+comma     = "Comma  ,"
+tab       = "Tab"
+semicolon = "Semicolon  ;"
+pipe      = "Pipe  |"
+
+[[input]]
+name        = "header"
+label       = "First row is a header (match columns by name)"
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Only these columns (comma-separated, blank = all)"
+placeholder = "amount, country"
+source      = "field"
+
+[[input]]
+name        = "method"
+label       = "Drift metric"
+source      = "field"
+[input.labels]
+psi = "PSI — Population Stability Index"
+jsd = "JSD — Jensen-Shannon distance (0-1)"
+
+[[input]]
+name        = "threshold"
+label       = "Drift threshold (score at or above = drifted)"
+placeholder = "0.2"
+source      = "field"
+
+[[input]]
+name        = "bins"
+label       = "Numeric bins"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "2"
+max         = "50"
+step        = "1"
+
+[[input]]
+name        = "max_categories"
+label       = "Bin numeric columns above this many distinct values"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "drift_share"
+label       = "Share of drifted columns that flags the dataset"
+placeholder = "0.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name        = "ignore_case"
+label       = "Ignore case and surrounding spaces in category values"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Column order"
+source      = "field"
+[input.labels]
+drift = "Worst drift first"
+name  = "Alphabetical by column"
+order = "As they appear in the reference"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+table    = "Readable report"
+markdown = "Markdown (paste into a PR)"
+json     = "JSON"
+csv      = "CSV (one row per column)"
+
+[[example]]
+label = "Null rate and range shift"
+[example.params]
+reference = "order_id,amount,country\n1,10,US\n2,12,US\n3,11,FR\n4,13,FR\n5,10,US\n6,12,DE"
+current = "order_id,amount,country\n1,40,US\n2,44,US\n3,,FR\n4,47,FR\n5,41,US\n6,,DE"
+delimiter = "comma"
+header = "true"
+columns = ""
+method = "psi"
+threshold = "0.2"
+bins = "10"
+max_categories = "20"
+drift_share = "0.5"
+ignore_case = "false"
+sort = "drift"
+format = "table"
+
+[[example]]
+label = "New and missing categories"
+[example.params]
+reference = "user_id,plan\n1,free\n2,free\n3,pro\n4,pro\n5,trial\n6,trial"
+current = "user_id,plan\n1,free\n2,free\n3,pro\n4,enterprise\n5,enterprise\n6,enterprise"
+delimiter = "comma"
+header = "true"
+columns = "plan"
+method = "psi"
+threshold = "0.2"
+bins = "10"
+max_categories = "20"
+drift_share = "0.5"
+ignore_case = "false"
+sort = "drift"
+format = "table"
+
+[[example]]
+label = "Schema drift — type change and a renamed column"
+[example.params]
+reference = "id,score,region\n1,10,eu\n2,20,eu\n3,30,us"
+current = "id,score,segment\n1,low,eu\n2,high,eu\n3,high,us"
+delimiter = "comma"
+header = "true"
+columns = ""
+method = "psi"
+threshold = "0.2"
+bins = "10"
+max_categories = "20"
+drift_share = "0.5"
+ignore_case = "false"
+sort = "order"
+format = "table"
+
+[[example]]
+label = "JSON report for a CI check"
+[example.params]
+reference = "order_id,amount,country\n1,10,US\n2,12,US\n3,11,FR\n4,13,FR\n5,10,US\n6,12,DE"
+current = "order_id,amount,country\n1,40,US\n2,44,US\n3,,FR\n4,47,FR\n5,41,US\n6,,DE"
+delimiter = "comma"
+header = "true"
+columns = "amount"
+method = "jsd"
+threshold = "0.1"
+bins = "10"
+max_categories = "20"
+drift_share = "0.5"
+ignore_case = "false"
+sort = "drift"
+format = "json"

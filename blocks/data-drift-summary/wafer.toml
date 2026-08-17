@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "data-drift-summary"
+version = "0.1.0"
+abi = 1
+summary = "Compare two tabular datasets and report per-column type, null-rate, cardinality, range and category drift"
