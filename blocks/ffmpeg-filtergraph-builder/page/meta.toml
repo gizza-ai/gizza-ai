@@ -1,0 +1,96 @@
+slug          = "ffmpeg-filtergraph-builder"
+title         = "FFmpeg Filtergraph Builder — steps to -filter_complex"
+description   = "Turn plain filter steps like 'scale to 720p, crop to square, fade in 1s' into a validated ffmpeg -filter_complex string, -vf chain, or full command. Nothing runs."
+tags          = ["ffmpeg filtergraph", "filter_complex builder", "ffmpeg command generator", "ffmpeg -vf chain", "ffmpeg filter chain", "scale crop fade", "ffmpeg syntax", "drawtext builder"]
+h1            = "FFmpeg Filtergraph Builder"
+hero_subtitle = "Write the steps you want — scale to 720p, crop to square, fade in 1s — and get a validated ffmpeg filtergraph back. Copy the -filter_complex string, the -vf chain, or the whole command. Nothing is executed and no file is uploaded."
+wasm          = "gizza_ai_ffmpeg_filtergraph_builder_web"
+export        = "run"
+live          = false
+output_label  = "Filtergraph"
+format        = "text"
+
+[[input]]
+name        = "steps"
+label       = "Filter steps, one per line"
+placeholder = "scale to 720p\ncrop to square\nfade in 1s"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "stream"
+label  = "Stream"
+source = "field"
+
+[input.labels]
+video = "Video — scale, crop, fade, drawtext…"
+audio = "Audio — volume, afade, atempo…"
+
+[[input]]
+name   = "output"
+label  = "Output form"
+source = "field"
+
+[input.labels]
+filter_complex = "-filter_complex — labelled [in]…[out] graph"
+filter_chain   = "-vf / -af — bare filter chain"
+command        = "Full ffmpeg command line"
+
+[[input]]
+name        = "input_label"
+label       = "Source pad label"
+placeholder = "auto (0:v for video, 0:a for audio)"
+source      = "field"
+
+[[input]]
+name        = "output_label"
+label       = "Sink pad label"
+placeholder = "out"
+source      = "field"
+
+[[input]]
+name        = "input_file"
+label       = "Input file (command form)"
+placeholder = "input.mp4"
+source      = "field"
+
+[[input]]
+name        = "output_file"
+label       = "Output file (command form)"
+placeholder = "output.mp4"
+source      = "field"
+
+[[input]]
+name   = "explain"
+label  = "Explain each step"
+source = "field"
+
+[[example]]
+label = "720p → square → fade in"
+[example.params]
+steps = "scale to 720p\ncrop to square\nfade in 1s"
+stream = "video"
+output = "filter_complex"
+
+[[example]]
+label = "Vertical 9:16 with a caption"
+[example.params]
+steps = "scale height 1920\ncrop 9:16\npad 9:16 black\ntext \"Watch to the end\" size 64 color white position bottom box"
+stream = "video"
+output = "filter_complex"
+
+[[example]]
+label = "Full command: trim + speed up"
+[example.params]
+steps = "trim 5 to 20\nspeed 2x\nfps 30"
+stream = "video"
+output = "command"
+input_file = "clip.mov"
+output_file = "fast.mp4"
+
+[[example]]
+label = "Audio: normalize + fades"
+[example.params]
+steps = "normalize\nfade in 2\nfade out 3 at 57"
+stream = "audio"
+output = "filter_chain"
