@@ -1,0 +1,124 @@
+{
+  "name": "gizza-ai/one-hot-encoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "One-hot encode a CSV categorical column into binary dummy columns",
+  "role": "skill",
+  "tool": {
+    "description": "Expand a categorical CSV column into one binary indicator column per distinct category (one-hot / dummy-variable encoding, as produced by pandas get_dummies or scikit-learn OneHotEncoder). Each row gets a 1 in the column matching its value and 0 elsewhere. Supports a custom column prefix and separator, dropping a reference level (first / last / only-if-binary) to avoid the dummy-variable trap, keeping or removing the source column, capping the expansion to the top-N most frequent categories or to values seen at least N times with an optional combined 'other' column, custom positive/negative values (1/0, true/false), blank-cell handling (zeros / separate NaN column / blank / error), case-insensitive grouping, alphabetical / frequency / first-seen column ordering, header or 1-based index column selection, and comma/tab/semicolon/pipe delimiters.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "default": true,
+          "description": "Give values differing only in case their own columns. Turn off to fold 'Paris', 'PARIS', and 'paris' into one column named after the first spelling seen.",
+          "type": "boolean"
+        },
+        "column": {
+          "description": "Categorical column to expand: a header name, or a 1-based column number when there is no header. Example: city.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV text to encode. The chosen column is expanded into one binary indicator (dummy) column per distinct value.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV delimiter used to read and write the data.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "drop": {
+          "default": "none",
+          "description": "Drop one category as the reference level to avoid the dummy-variable trap (perfect collinearity in linear models): 'none' keeps all k columns, 'first'/'last' keep k-1, 'if-binary' drops the first level only when the column has exactly two categories.",
+          "enum": [
+            "none",
+            "first",
+            "last",
+            "if-binary"
+          ],
+          "type": "string"
+        },
+        "drop_original": {
+          "default": true,
+          "description": "Remove the original categorical column from the output, keeping only the indicator columns. Turn off to keep it alongside them.",
+          "type": "boolean"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first CSV row as headers. Turn off to select the column by 1-based number; no header row is then written.",
+          "type": "boolean"
+        },
+        "max_categories": {
+          "default": 0,
+          "description": "Keep only the N most frequent categories and give the rest no column of their own. 0 keeps every category. Use this on high-cardinality columns to stop the output exploding.",
+          "maximum": 512,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_count": {
+          "default": 0,
+          "description": "Keep only categories occurring at least this many times, so one-off values do not each get a column. 0 or 1 keeps every category.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "missing": {
+          "default": "zeros",
+          "description": "What a blank cell means: 'zeros' writes 0 in every indicator, 'separate' adds its own <prefix>_NaN indicator column, 'blank' leaves the indicator cells empty, 'error' rejects the input instead of guessing.",
+          "enum": [
+            "zeros",
+            "separate",
+            "blank",
+            "error"
+          ],
+          "type": "string"
+        },
+        "negative": {
+          "default": "0",
+          "description": "Text written when a row does not belong to that category. Default '0'; use 'false' or 'N' to match the positive value's style.",
+          "type": "string"
+        },
+        "other_column": {
+          "default": false,
+          "description": "Add one combined <prefix>_other indicator for the categories excluded by max_categories or min_count. Off means those rows are 0 in every column.",
+          "type": "boolean"
+        },
+        "positive": {
+          "default": "1",
+          "description": "Text written when a row belongs to that category. Default '1'; use 'true' or 'Y' for a boolean-style output.",
+          "type": "string"
+        },
+        "prefix": {
+          "description": "Prefix for the generated column names. Leave blank to use the source column's own name, so 'city' produces city_Paris, city_Rome.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "_",
+          "description": "Text placed between the prefix and the category value. Default '_' gives city_Paris; use '=' for city=Paris.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "alphabetical",
+          "description": "Order of the generated columns: 'alphabetical' by value, 'frequency' most common first, or 'first-seen' in the order values appear in the data. max_categories always selects by frequency regardless of this.",
+          "enum": [
+            "alphabetical",
+            "frequency",
+            "first-seen"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "column"
+      ],
+      "type": "object"
+    }
+  }
+}
