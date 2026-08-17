@@ -1,0 +1,45 @@
+{
+  "name": "gizza-ai/percent-difference-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Absolute difference, symmetric percent difference, and percent change between two values.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two numbers and report how far apart they are. Returns the absolute difference |a - b|, the signed difference b - a with its direction, the mean, the symmetric percent difference |a - b| / |mean| * 100 (order-independent — swapping a and b gives the same answer), and the directional percent change (b - a) / |a| * 100 in both directions plus the ratio b / a. Set mode to all (default), difference, or change to pick which measures are reported, and decimals (0-10, default 4) for display precision. Negative values are supported; a measure whose denominator is zero is omitted with an explanation.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "description": "First value to compare (the baseline for percent change). Any finite number, negatives included.",
+          "type": "number"
+        },
+        "b": {
+          "description": "Second value to compare (the new value for percent change). Any finite number, negatives included.",
+          "type": "number"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places to show in the report, 0 to 10 (default 4). Display only — the arithmetic is always done at full precision.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "all",
+          "description": "Which measures to report. all: both blocks (default). difference: the symmetric percent difference |a - b| / |mean| * 100, which is order-independent. change: the directional percent change (b - a) / |a| * 100 in both directions plus the ratio b / a.",
+          "enum": [
+            "all",
+            "difference",
+            "change"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b"
+      ],
+      "type": "object"
+    }
+  }
+}
