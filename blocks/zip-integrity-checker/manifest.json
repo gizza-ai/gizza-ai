@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/zip-integrity-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Test a .zip archive for corruption by verifying every entry's CRC-32",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Test a .zip archive for corruption: decompress every entry in memory (nothing is written to disk) and compare the recomputed CRC-32 and byte count against what the archive records. Returns an overall ok verdict plus a one-line summary, and for each entry a status of ok, crc_mismatch (the data does not hash to the recorded checksum), size_mismatch (it expanded to a different number of bytes than recorded), data_error (the stream could not be decompressed — truncated or corrupt), unsupported_method (a compression method this build cannot decode), or encrypted (no password support). Both the recorded expected_crc32 and the recomputed actual_crc32 are reported side by side, along with method, sizes, the name of the first_bad_entry, per-status counts (checked/failed/skipped), archive totals, any prepended self-extracting stub size, and the archive comment. Entries that could not be tested are counted separately and never pass silently. Set report=problems for only the bad entries. Limits: ZIP only (not RAR/7z/tar), detection only — damaged archives are not repaired, encrypted entries need a password this tool does not accept, and the archive is capped at 64 MB with decompression bounded by max_uncompressed_mb. Provide the zip as either url (HTTP/HTTPS) or ref. Runs locally — the archive never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "max_uncompressed_mb": {
+          "default": 512,
+          "description": "Zip-bomb guard: the most data, in megabytes, this check will expand in total (1-4096, default 512). Testing means decompressing every entry, so a small archive can expand enormously; going over the budget is an error naming the size needed, not a pass. Raise it for a genuinely large archive.",
+          "maximum": 4096,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "report": {
+          "default": "all",
+          "description": "Which entries to list: 'all' (default) returns every entry with its verdict; 'problems' returns only the entries that failed or could not be tested — the quiet mode for scripts. The verdict, counts and totals are identical either way; only the entries list is filtered.",
+          "enum": [
+            "all",
+            "problems"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
