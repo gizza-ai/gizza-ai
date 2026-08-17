@@ -1,0 +1,6 @@
+[block]
+org = "gizza-ai"
+name = "grade-to-gpa-parser"
+version = "0.1.0"
+interface = "handler@v1"
+summary = "Convert letter grades to GPA points on a 4.0, 4.3 or 5.0 scale and average them by credit"

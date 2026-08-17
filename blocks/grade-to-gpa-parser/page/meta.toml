@@ -1,0 +1,175 @@
+slug          = "grade-to-gpa-parser"
+title         = "Grade to GPA Parser — Convert Letter Grades to GPA"
+description   = "Paste letter grades, credits, and weighted-course tags to calculate GPA on a 4.0, 4.3, 5.0, or custom scale."
+tags          = ["gpa calculator", "grade to gpa", "letter grade converter", "weighted gpa", "credit weighted gpa", "transcript calculator", "grade points"]
+h1            = "Grade to GPA Parser"
+hero_subtitle = "Paste grades like A, B+, C- or transcript rows like Biology: A- 4, then get GPA, credits, quality points, and a per-course breakdown. Supports weighted AP/honors tags, prior GPA, pass/fail rows, percentages, JSON, and custom school scales."
+wasm          = "gizza_ai_grade_to_gpa_parser_web"
+export        = "run"
+live          = false
+output_label  = "GPA report"
+format        = "text"
+
+[[input]]
+name        = "grades"
+label       = "Grades"
+placeholder = "Biology: A- 4\nMath: B 3\nArt: C 1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "scale"
+label  = "Base scale"
+source = "field"
+
+[input.labels]
+"4.0" = "4.0 scale — A and A+ = 4.0"
+"4.3" = "4.3 scale — A+ = 4.3"
+"5.0" = "5.0 weighted scale"
+
+[[input]]
+name        = "custom_scale"
+label       = "Custom scale overrides"
+placeholder = "A+=4.5, HD=4.0"
+source      = "field"
+
+[[input]]
+name   = "grade_format"
+label  = "Numeric grade handling"
+source = "field"
+
+[input.labels]
+auto    = "Auto — percent when above scale, otherwise points"
+letter  = "Letters only"
+percent = "Percentages"
+points  = "Raw grade points"
+
+[[input]]
+name        = "default_credits"
+label       = "Default credits for entries without credits"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "honors_bonus"
+label       = "Honors bonus points"
+placeholder = "0.5"
+source      = "field"
+
+[[input]]
+name        = "ap_bonus"
+label       = "AP/IB/dual-enrollment bonus points"
+placeholder = "1.0"
+source      = "field"
+
+[[input]]
+name        = "prior_gpa"
+label       = "Prior GPA for cumulative calculation"
+placeholder = "3.20"
+source      = "field"
+
+[[input]]
+name        = "prior_credits"
+label       = "Prior credits"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name   = "skip_nongraded"
+label  = "Skip pass/fail, withdrawal, incomplete and transfer marks"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Report"
+json   = "JSON"
+
+[[example]]
+label = "Simple letter list"
+[example.params]
+grades = "A, B+, C-"
+scale = "4.0"
+custom_scale = ""
+grade_format = "auto"
+default_credits = "1"
+honors_bonus = "0.5"
+ap_bonus = "1.0"
+prior_gpa = "0"
+prior_credits = "0"
+skip_nongraded = "true"
+decimals = "2"
+output = "report"
+
+[[example]]
+label = "Credit-weighted transcript rows"
+[example.params]
+grades = "Biology: A- 4\nMath: B 3\nArt: C 1"
+scale = "4.0"
+custom_scale = ""
+grade_format = "auto"
+default_credits = "1"
+honors_bonus = "0.5"
+ap_bonus = "1.0"
+prior_gpa = "0"
+prior_credits = "0"
+skip_nongraded = "true"
+decimals = "2"
+output = "report"
+
+[[example]]
+label = "AP and honors weighting"
+[example.params]
+grades = "AP History: A 3\nHonors Chem: B 3\nAP Art: F 3"
+scale = "4.0"
+custom_scale = ""
+grade_format = "auto"
+default_credits = "1"
+honors_bonus = "0.5"
+ap_bonus = "1.0"
+prior_gpa = "0"
+prior_credits = "0"
+skip_nongraded = "true"
+decimals = "2"
+output = "report"
+
+[[example]]
+label = "Cumulative GPA"
+[example.params]
+grades = "A 10"
+scale = "4.0"
+custom_scale = ""
+grade_format = "auto"
+default_credits = "1"
+honors_bonus = "0.5"
+ap_bonus = "1.0"
+prior_gpa = "3.0"
+prior_credits = "30"
+skip_nongraded = "true"
+decimals = "2"
+output = "report"
+
+[[example]]
+label = "JSON export"
+[example.params]
+grades = "Biology: A- 4"
+scale = "4.0"
+custom_scale = ""
+grade_format = "auto"
+default_credits = "1"
+honors_bonus = "0.5"
+ap_bonus = "1.0"
+prior_gpa = "0"
+prior_credits = "0"
+skip_nongraded = "true"
+decimals = "2"
+output = "json"

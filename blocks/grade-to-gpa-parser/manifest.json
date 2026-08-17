@@ -1,0 +1,100 @@
+{
+  "name": "gizza-ai/grade-to-gpa-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert letter grades to GPA points on a 4.0, 4.3 or 5.0 scale and average them by credit",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a pasted list of letter grades and turn it into a GPA. Each entry is an optional course name, a grade and optional credit hours ('A', 'A- 4', 'Biology: A- 4', 'AP History: B+ (3)'), separated by newlines, semicolons or commas. Grades map through the 4.0, 4.3 or 5.0 scale, or through LETTER=POINTS overrides in custom_scale, and percentages or raw grade points are accepted too. Credit hours weight the average, honours/AP/IB tags add their weighted bonus, non-graded marks such as P and W are listed but excluded, and prior_gpa with prior_credits adds a cumulative GPA. Returns the GPA, total grade points, total credits and a per-course breakdown as a report or as JSON. Runs locally, no data leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ap_bonus": {
+          "default": 1.0,
+          "description": "Extra grade points added to a course tagged ap, ib, de, dual, college or adv. Default 1.0. Set 0 to ignore those tags. Never applied to a failing grade. A course carrying both an honours and an AP tag gets this one.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "custom_scale": {
+          "default": "",
+          "description": "Optional LETTER=POINTS overrides merged on top of scale, separated by commas or newlines, e.g. 'A+=4.5, HD=4.0, P=2.0'. A letter already on the scale is replaced; anything else is added, which is how you support non-US grades (HD/D/CR, 1.0-5.0 systems, and so on). Empty by default.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for the GPA and every other number in the output, 0 to 6. Default 2, the precision transcripts use.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "default_credits": {
+          "default": 1.0,
+          "description": "Credit hours used for an entry that does not state its own, e.g. 'A, B+, C-'. Must be greater than 0. Default 1, which makes a credit-less list an ordinary unweighted average.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "grade_format": {
+          "default": "auto",
+          "description": "How to read a grade written as a number. auto (default): a number larger than the top of the scale is a percentage, anything at or below it is already grade points, so '92' is a percentage on a 4.0 scale and '3.7' is not. letter: reject numbers and require letter grades. percent: always convert through the percentage bands (97+ A+, 93 A, 90 A-, 87 B+, 83 B, 80 B-, 77 C+, 73 C, 70 C-, 67 D+, 63 D, 60 D-, below 60 F). points: always take the number as grade points as-is.",
+          "enum": [
+            "auto",
+            "letter",
+            "percent",
+            "points"
+          ],
+          "type": "string"
+        },
+        "grades": {
+          "description": "The grades to convert, one course per entry, separated by newlines, semicolons or commas. An entry is an optional course name, the grade, and optional credit hours: 'A', 'A- 4', 'Biology: A- 4', 'AP History: B+ (3)'. A grade is a letter (A+ through F, with E treated as F), a percentage, or raw grade points. Credits default to default_credits when an entry omits them, so a bare list like 'A, B+, C-' is a plain unweighted average. Honours/AP weighting is triggered by an honors, hon, ap, ib, de, dual or college token anywhere in the entry. Maximum 2000 entries.",
+          "type": "string"
+        },
+        "honors_bonus": {
+          "default": 0.5,
+          "description": "Extra grade points added to a course tagged honors, honor, hon or hnrs, the usual weighted-GPA bump. Default 0.5. Set 0 to ignore honours tags and compute an unweighted GPA. Never applied to a failing grade.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "report",
+          "description": "report (default): a readable summary with the GPA, the totals, a per-course breakdown, anything not counted and the scale used. json: the same data as a JSON object with gpa, grade_points, credits, courses_counted, scale, courses[], not_counted[] and an optional cumulative block.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "prior_credits": {
+          "default": 0.0,
+          "description": "Credit hours behind prior_gpa. The cumulative GPA line only appears when this is above 0. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "prior_gpa": {
+          "default": 0.0,
+          "description": "GPA already on the transcript before this list, used with prior_credits to also report a cumulative GPA. Default 0 (no prior record).",
+          "minimum": 0,
+          "type": "number"
+        },
+        "scale": {
+          "default": "4.0",
+          "description": "The base letter-to-points table. 4.0 (default, the standard US unweighted scale): A+ and A = 4.0, A- 3.7, B+ 3.3, B 3.0, B- 2.7, C+ 2.3, C 2.0, C- 1.7, D+ 1.3, D 1.0, D- 0.7, F 0. 4.3: the same but A+ = 4.3. 5.0: the honours/AP table where A = 5.0, A- 4.7, B+ 4.3, B 4.0 and so on down to F = 0. Use custom_scale to change individual grades or add letters your school uses.",
+          "enum": [
+            "4.0",
+            "4.3",
+            "5.0"
+          ],
+          "type": "string"
+        },
+        "skip_nongraded": {
+          "default": true,
+          "description": "Leave non-graded transcript marks (P, NP, S, U, CR, NC, W, WD, I, INC, IP, AU, NG, TR) out of the average and list them separately, which is what schools do. Default true. Set false to error on such a row instead of dropping it silently.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "grades"
+      ],
+      "type": "object"
+    }
+  }
+}
