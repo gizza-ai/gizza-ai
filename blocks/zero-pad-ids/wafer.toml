@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "zero-pad-ids"
+version = "0.1.0"
+abi = 1
+summary = "Pad or strip leading zeros on an ID/code column to a fixed width so codes sort and join correctly."

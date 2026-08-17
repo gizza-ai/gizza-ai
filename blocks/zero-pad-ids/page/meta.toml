@@ -1,0 +1,112 @@
+slug          = "zero-pad-ids"
+title         = "Zero Pad IDs — Fix Leading Zeros on an ID Column"
+description   = "Paste a CSV, TSV or list of IDs and pad (or strip) leading zeros to a fixed width, so ZIP codes, SKUs and account numbers sort and join again. Runs locally."
+tags          = ["zero pad ids", "leading zeros", "csv leading zeros", "pad with zeros", "fixed width ids", "zip code leading zero", "sku padding", "strip leading zeros"]
+h1            = "Zero Pad IDs"
+hero_subtitle = "A loader typed your ID column as a number and 00042 came back as 42. Paste the table, pick the column and the width, and get the codes back — nothing else in the file changes."
+wasm          = "gizza_ai_zero_pad_ids_web"
+export        = "run"
+live          = false
+output_label  = "Fixed table"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "CSV / TSV table, or one ID per line"
+placeholder = "id,name\n42,ada\n7,linus\n12345,grace"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (or 'auto' to detect)"
+placeholder = "comma"
+default     = "comma"
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Only these columns (names or 1-based positions; blank = all)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "Target width (0 = auto-fit each column to its widest value)"
+placeholder = "5"
+default     = "0"
+source      = "field"
+
+[[input]]
+name    = "mode"
+label   = "Direction"
+default = "pad"
+source  = "field"
+
+[input.labels]
+pad   = "Pad — add leading zeros up to the width (default)"
+strip = "Strip — remove every leading zero"
+
+[[input]]
+name    = "overflow"
+label   = "Value already at or over the width"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep  = "Keep it exactly as it is (default)"
+strip = "Strip its excess leading zeros"
+error = "Stop with an error"
+
+[[input]]
+name    = "non_numeric"
+label   = "Cell that is not plain digits"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep  = "Copy it through untouched (default)"
+pad   = "Pad it anyway (alphanumeric codes)"
+error = "Stop with an error"
+
+[[input]]
+name    = "header"
+label   = "First row is a header (never rewritten)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "quote_style"
+label   = "Output quoting"
+default = "minimal"
+source  = "field"
+
+[input.labels]
+minimal = "Minimal — quote only when required (default)"
+always  = "Always — quote every field (helps readers keep the zeros)"
+never   = "Never — bare fields, no quotes"
+
+[[example]]
+label  = "5-digit postal codes"
+params = { input = "zip,city\n2134,Cambridge\n501,Holtsville\n90210,Beverly Hills", delimiter = "comma", columns = "zip", width = "5", mode = "pad", overflow = "keep", non_numeric = "keep", header = "true", quote_style = "minimal" }
+
+[[example]]
+label  = "8-digit SKUs, one column only"
+params = { input = "sku,price\n1234,9.99\n77,14.50\n90210,3.00", delimiter = "comma", columns = "sku", width = "8", mode = "pad", overflow = "keep", non_numeric = "keep", header = "true", quote_style = "minimal" }
+
+[[example]]
+label  = "Auto width — match the longest value"
+params = { input = "id,name\n42,ada\n7,linus\n12345,grace", delimiter = "comma", columns = "id", width = "0", mode = "pad", overflow = "keep", non_numeric = "keep", header = "true", quote_style = "minimal" }
+
+[[example]]
+label  = "Strip zeros back off"
+params = { input = "id,name\n00042,ada\n00007,linus", delimiter = "comma", columns = "id", width = "0", mode = "strip", overflow = "keep", non_numeric = "keep", header = "true", quote_style = "minimal" }
+
+[[example]]
+label  = "Plain list of IDs, no header"
+params = { input = "42\n7\n1234", delimiter = "auto", columns = "", width = "6", mode = "pad", overflow = "keep", non_numeric = "keep", header = "false", quote_style = "minimal" }
+
+[[example]]
+label  = "Re-normalize over-padded codes"
+params = { input = "id\n0000012\n00012345\n123456", delimiter = "comma", columns = "id", width = "5", mode = "pad", overflow = "strip", non_numeric = "keep", header = "true", quote_style = "minimal" }
