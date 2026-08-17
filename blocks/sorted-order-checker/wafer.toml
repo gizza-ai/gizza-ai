@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sorted-order-checker"
+version = "0.1.0"
+abi = 1
+summary = "Check whether a numeric list is sorted ascending or descending and pinpoint the first out-of-order value."
