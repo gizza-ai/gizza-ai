@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/image-histogram-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Per-channel RGB and luminance histograms with clipping, dynamic range and exposure stats.",
+  "role": "skill",
+  "tool": {
+    "description": "Measure an image's tones: per-channel red, green, blue and luminance histograms plus the exposure report a photographer would read off them. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Every pixel is counted at full 256-level precision — nothing is sub-sampled — and the answer carries its evidence: per channel min, max, mean, median, standard deviation, the 1st/5th/95th/99th percentiles, the modal level and its share, distinct levels used, and the pixels pinned at each end as counts and percentages. On top of that: shadow_clipped / highlight_clipped verdicts, dynamic range as levels and photographic stops (99th minus 1st percentile of luma), luma entropy, the shadow/midtone/highlight split, an exposure verdict (underexposed, balanced, overexposed), a contrast verdict (low, normal, high), a colour cast reading (neutral, warm, cool, green, magenta) with the level gap behind it, and a one-line note. Parameters: bins 2-256 for the reported histogram shape (default 256, statistics are unaffected), luma rec601 (default) | rec709 | average | max, clip_margin 0-32 levels in from each end (default 0), clip_percent 0-100 pixels pinned before clipping is flagged (default 0.5), ignore_transparent boolean (default true), output summary (default) | full for the binned arrays | csv for a spreadsheet table. PNG, JPEG, WebP, GIF, BMP and TIFF are supported. This is an analyser only; it never modifies the image.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bins": {
+          "default": 256,
+          "description": "How many buckets the REPORTED histogram is folded into, 2-256. Every statistic is always computed at full 256-level precision, so this only changes the shape of the returned arrays: 256 keeps one bucket per level, 64 or 32 give a chart-sized summary (default 256).",
+          "maximum": 256,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "clip_margin": {
+          "default": 0,
+          "description": "How many levels in from each end still count as clipped, 0-32. 0 (default) counts only pure 0 and pure 255; 2 also catches near-black and near-white pixels that a JPEG re-save nudged off the exact end.",
+          "maximum": 32,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "clip_percent": {
+          "default": 0.5,
+          "description": "Percent of pixels that must be pinned at an end before shadow_clipped / highlight_clipped is flagged, 0-100. 0 flags a single pinned pixel; the default 0.5 ignores the specular dots and deep-shadow noise every real photo has (default 0.5).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ignore_transparent": {
+          "default": true,
+          "description": "When true (default), fully transparent pixels are counted separately and kept out of the histogram, so the junk RGB some encoders leave under alpha=0 cannot fake a spike at level 0; set false to measure the stored RGB values as they are.",
+          "type": "boolean"
+        },
+        "luma": {
+          "default": "rec601",
+          "description": "Which brightness formula builds the luminance histogram. rec601 = 0.299R + 0.587G + 0.114B, what camera and editor histograms show (default); rec709 = 0.2126R + 0.7152G + 0.0722B, the sRGB/HD coefficients; average = (R+G+B)/3; max = max(R,G,B), the strictest highlight-clipping view because a single blown channel shows up immediately.",
+          "enum": [
+            "rec601",
+            "rec709",
+            "average",
+            "max"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "summary",
+          "description": "How much histogram data comes back with the statistics. summary (default) = statistics and verdicts only; full = also the per-channel bin counts as arrays, ready to chart; csv = also a bin,level_start,level_end,red,green,blue,luma table as text for a spreadsheet.",
+          "enum": [
+            "summary",
+            "full",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
