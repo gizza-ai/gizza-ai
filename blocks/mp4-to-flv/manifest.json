@@ -1,0 +1,103 @@
+{
+  "name": "gizza-ai/mp4-to-flv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode a video to an FLV stream for legacy RTMP ingest.",
+  "role": "skill",
+  "tool": {
+    "description": "Encode an MP4 (or any video ffmpeg can decode) into an FLV stream for legacy RTMP/Flash ingest pipelines — Flash Media Server, Wowza, Red5, and old Flash players. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). video_codec is h264|flv1 (default h264); resolution optionally caps the height without upscaling; fps optionally pins a constant frame rate; video_bitrate (kbps, default 2500) sets -b:v with a matching cap; keyframe_seconds (default 2) forces the RTMP-friendly keyframe interval; audio_codec is aac|mp3|none (default aac) with audio_bitrate in kbps. This ALWAYS re-encodes: FLV accepts only H.264/Sorenson video and AAC/MP3 audio, so HEVC, AV1, VP9, Opus, and FLAC sources cannot be stream-copied. Output is a .flv file.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio_bitrate": {
+          "default": 128,
+          "description": "Target audio bitrate in kbps (32-320, default 128). Ignored when audio_codec is none. 96-128 is ample for speech, 160-192 for music.",
+          "maximum": 320,
+          "minimum": 32,
+          "type": "integer"
+        },
+        "audio_codec": {
+          "default": "aac",
+          "description": "Audio codec inside the FLV. aac (default) is the modern RTMP choice and keeps the source sample rate. mp3 is the classic Flash codec and is resampled to 44100 Hz because FLV only permits MP3 at 44100/22050/11025 Hz. none drops audio entirely (-an) for a video-only stream.",
+          "enum": [
+            "aac",
+            "mp3",
+            "none"
+          ],
+          "type": "string"
+        },
+        "fps": {
+          "default": "source",
+          "description": "Output frame rate. source (default) keeps the input timing; 60fps, 30fps, 25fps (PAL), 24fps, and 15fps pin a constant rate, which some legacy RTMP ingest endpoints require. Lowering fps is the cheapest way to fit a low video_bitrate.",
+          "enum": [
+            "source",
+            "60fps",
+            "30fps",
+            "25fps",
+            "24fps",
+            "15fps"
+          ],
+          "type": "string"
+        },
+        "keyframe_seconds": {
+          "default": 2,
+          "description": "Seconds between forced keyframes (1-10, default 2). Two seconds is what most RTMP ingest endpoints ask for; it bounds how long a joining player waits for video. The interval is expressed in time, so it holds whatever frame rate the output ends up at.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "resolution": {
+          "default": "source",
+          "description": "Optional downscale cap. source (default) keeps the input dimensions; 1080p, 720p, 576p, 480p, 360p, and 240p cap the output height without upscaling smaller sources. Width follows the source aspect ratio, and both axes are rounded to even numbers because H.264 rejects odd dimensions.",
+          "enum": [
+            "source",
+            "1080p",
+            "720p",
+            "576p",
+            "480p",
+            "360p",
+            "240p"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "video_bitrate": {
+          "default": 2500,
+          "description": "Target video bitrate in kbps (100-20000, default 2500). Applied as -b:v with a matching -maxrate and a 2-second -bufsize, so the stream stays inside the cap an RTMP endpoint allows. Rough guide: 800-1200 for 480p, 2000-3000 for 720p, 4000-6000 for 1080p; add ~50% for flv1.",
+          "maximum": 20000,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "video_codec": {
+          "default": "h264",
+          "description": "Video codec inside the FLV. h264 (default) is libx264, what modern RTMP ingest and Flash Player 9.0.115+ expect. flv1 is Sorenson Spark (H.263), the original Flash codec for pre-9 players and fixed-function decoders — much weaker compression, so raise video_bitrate when you pick it.",
+          "enum": [
+            "h264",
+            "flv1"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
