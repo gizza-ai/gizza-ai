@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/diff-extract-versions",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rebuild the before and after file versions from a unified diff",
+  "role": "skill",
+  "tool": {
+    "description": "Reconstruct the original (before) and patched (after) file text from a unified diff alone — no original file needed. Paste the output of `git diff`, `git show`, `git format-patch`, `diff -u`, or a .patch file. output=both (default) returns labelled BEFORE/AFTER sections, before/after returns one side as plain text, and json returns a report with both texts plus paths, status (modified/added/deleted/renamed/binary), hunk and added/removed counts, completeness and the missing line ranges. file picks one path out of a multi-file diff (exact path, bare filename, substring, or a * / ? glob). Because a diff only carries the context lines around each hunk, anything between hunks or after the last hunk is unknowable: gaps=marker (default) marks those ranges with a counted placeholder, omit splices hunks together, error refuses a partial result. Wrong `@@` counts are recounted, `\\ No newline at end of file` is honoured per side, and CRLF survives. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "diff": {
+          "description": "The unified diff to reconstruct from: the output of `git diff`, `git show`, `git format-patch`, `diff -u`, or a pasted .patch file. Mail preambles, `index`/mode lines and signature blocks are ignored. Context (`diff -c`) and normal `diff` output are not unified diffs and are rejected. Max 1 MB.",
+          "type": "string"
+        },
+        "file": {
+          "default": "",
+          "description": "Which path to reconstruct from a multi-file diff. Accepts an exact path, a bare filename, a substring, or a `*`/`?` glob such as `src/*.rs`. Leave empty to reconstruct every file in the diff.",
+          "type": "string"
+        },
+        "gaps": {
+          "default": "marker",
+          "description": "What to do about line ranges the diff never carried (a 3-line-context diff omits most of the file). marker (default) inserts a counted `[... N lines not in the diff ...]` placeholder; omit splices the hunks together; error refuses to return a partial reconstruction.",
+          "enum": [
+            "marker",
+            "omit",
+            "error"
+          ],
+          "type": "string"
+        },
+        "line_numbers": {
+          "default": false,
+          "description": "When true, prefix every emitted line with its line number in that version, so gaps and hunk positions line up with the real file. Default false, which returns copy-paste-ready text.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to return. both (default) prints labelled BEFORE and AFTER sections; before prints only the original text; after prints only the patched text; json returns a report with both texts plus paths, status, hunk/added/removed counts, completeness and the missing line ranges.",
+          "enum": [
+            "both",
+            "before",
+            "after",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "diff"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+slug          = "diff-extract-versions"
+title         = "Diff Extract Versions — rebuild the before and after file from a patch"
+description   = "Paste a unified diff and get both file versions back. Reconstructs the original and patched text from a git diff or .patch alone, no source file needed."
+tags          = ["diff", "patch", "unified diff", "git", "reconstruct", "before after", "revert", "code review", "developer"]
+h1            = "Extract both file versions from a diff"
+hero_subtitle = "Paste a unified diff — git diff, git show, git format-patch, diff -u, or a .patch file — and get the original text and the patched text back, with the parts the diff never carried marked instead of quietly closed up."
+wasm          = "gizza_ai_diff_extract_versions_web"
+export        = "run"
+live          = false
+output_label  = "Reconstructed text"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "diff"
+label       = "Unified diff"
+placeholder = "--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,4 +1,5 @@\n fn main() {\n     let x = 1;\n+    let y = 2;\n     println!(\"{x}\");\n }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "What to return"
+source = "field"
+[input.labels]
+both   = "Both versions, labelled"
+before = "Original (before) text only"
+after  = "Patched (after) text only"
+json   = "JSON report with both texts"
+
+[[input]]
+name        = "file"
+label       = "File to pick from a multi-file diff"
+placeholder = "src/main.rs  ·  *.rs  ·  leave empty for all"
+source      = "field"
+
+[[input]]
+name   = "gaps"
+label  = "Lines the diff does not carry"
+source = "field"
+[input.labels]
+marker = "Mark them with a counted placeholder"
+omit   = "Omit them and splice the hunks together"
+error  = "Refuse a partial reconstruction"
+
+[[input]]
+name   = "line_numbers"
+label  = "Prefix each line with its line number"
+source = "field"
+
+[[example]]
+label = "Both versions of a one-line change"
+[example.values]
+diff = "--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,4 +1,5 @@\n fn main() {\n     let x = 1;\n+    let y = 2;\n     println!(\"{x}\");\n }\n"
+output = "both"
+file = ""
+gaps = "marker"
+line_numbers = "false"
+
+[[example]]
+label = "Original text only, ready to paste back"
+[example.values]
+diff = "--- a/config.yml\n+++ b/config.yml\n@@ -1,3 +1,3 @@\n name: service\n-replicas: 2\n+replicas: 5\n port: 8080\n"
+output = "before"
+file = ""
+gaps = "marker"
+line_numbers = "false"
+
+[[example]]
+label = "Partial diff with numbered gap markers"
+[example.values]
+diff = "--- a/list.txt\n+++ b/list.txt\n@@ -9,2 +9,2 @@\n-nine\n+NINE\n ten\n"
+output = "before"
+file = ""
+gaps = "marker"
+line_numbers = "true"
+
+[[example]]
+label = "JSON report for a multi-file patch"
+[example.values]
+diff = "diff --git a/a.txt b/a.txt\n--- a/a.txt\n+++ b/a.txt\n@@ -1 +1 @@\n-alpha\n+ALPHA\ndiff --git a/b.txt b/b.txt\nnew file mode 100644\n--- /dev/null\n+++ b/b.txt\n@@ -0,0 +1 @@\n+bravo\n"
+output = "json"
+file = ""
+gaps = "marker"
+line_numbers = "false"

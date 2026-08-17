@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-diff-extract-versions-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps the JSON report's fields in the order they are authored,
+# so `before_path` reads before the reconstructed text rather than alphabetically.
+serde_json = { version = "1", features = ["preserve_order"] }
