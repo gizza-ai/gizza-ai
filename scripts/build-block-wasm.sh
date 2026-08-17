@@ -140,7 +140,47 @@ else
   ln -s "$actual_rust_sysroot" "$canonical_rust_sysroot"
 fi
 rsync -a "$root/rust-toolchain.toml" "$canonical_root/rust-toolchain.toml"
-for relative in block-utils "blocks/$slug"; do
+
+# Every crate the block reaches through a relative `path = "../…"` dependency
+# has to be staged as well: the shared block-utils crate, plus any sibling
+# block's core a tool reuses so two tools share one implementation. A fresh CI
+# runner starts with an empty canonical workspace, so a missing sibling fails
+# the build outright instead of silently picking up a stale copy.
+path_dep_dirs() {
+  local dir="$1" manifest rel resolved
+  find "$dir" -name Cargo.toml -not -path '*/target/*' -print | while IFS= read -r manifest; do
+    grep -hoE 'path[[:space:]]*=[[:space:]]*"[^"]+"' "$manifest" \
+      | sed -E 's/.*"([^"]+)"/\1/' \
+      | while IFS= read -r rel; do
+          resolved="$(realpath -m "$(dirname "$manifest")/$rel")"
+          case "$resolved" in
+            "$root"/*) resolved="${resolved#"$root/"}" ;;
+            *) continue ;;
+          esac
+          case "$resolved" in
+            blocks/*) printf '%s' "$resolved" | cut -d/ -f1-2 ;;
+            *) printf '%s\n' "${resolved%%/*}" ;;
+          esac
+        done
+  done
+}
+
+relatives="block-utils blocks/$slug"
+queue="$relatives"
+while [[ -n "$queue" ]]; do
+  discovered=""
+  for staged in $queue; do
+    for candidate in $(path_dep_dirs "$root/$staged" | sort -u); do
+      [[ -d "$root/$candidate" ]] || continue
+      case " $relatives $discovered " in *" $candidate "*) continue ;; esac
+      discovered="$discovered $candidate"
+    done
+  done
+  relatives="$relatives$discovered"
+  queue="$discovered"
+done
+
+for relative in $relatives; do
   source_dir="$root/$relative"
   canonical_dir="$canonical_root/$relative"
   if [[ -L "$canonical_dir" || ( -e "$canonical_dir" && ! -d "$canonical_dir" ) ]]; then

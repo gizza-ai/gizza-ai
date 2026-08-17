@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-text-overlay-contrast-checker"
+version = "0.1.0"
+abi = 1
+summary = "Find the worst place on a photo where overlaid text of a given colour fails WCAG contrast."
