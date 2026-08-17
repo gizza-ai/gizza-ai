@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "indent-block-text"
+version = "0.1.0"
+abi = 1
+summary = "Add spaces, tabs, or a custom prefix to selected lines, or outdent/dedent text."

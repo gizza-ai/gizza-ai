@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/indent-block-text",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add spaces, tabs, or a custom prefix to selected lines, or outdent/dedent text.",
+  "role": "skill",
+  "tool": {
+    "description": "Add a configurable number of spaces, tabs, or copies of a custom prefix to the start of every selected line in a text block. It can also outdent by removing the same unit, or dedent by removing common leading whitespace. Choose all lines, first line, hanging indent, or paragraph starts; optionally skip blank lines to avoid trailing whitespace. Useful for code blocks, Markdown quotes, email replies, bibliography hanging indents, and batch prefixing.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "default": 4,
+          "description": "How many indent units to add or remove, from 0 to 200. With style=spaces, count=4 means four spaces. With style=tabs, count=2 means two tabs. With style=custom, count repeats the prefix that many times. Ignored by mode=dedent.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lines": {
+          "default": "all",
+          "description": "Which lines to touch. all changes every selected line. first-line changes only the first line. hanging changes every line except the first. paragraph-starts changes the first line and each line after a blank line.",
+          "enum": [
+            "all",
+            "first-line",
+            "hanging",
+            "paragraph-starts"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "indent",
+          "description": "What to do with leading indentation. indent (default) adds the chosen unit to selected lines. outdent removes up to count copies of the chosen unit from selected lines. dedent removes the common leading whitespace shared by selected non-blank lines, like Python textwrap.dedent.",
+          "enum": [
+            "indent",
+            "outdent",
+            "dedent"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "Custom prefix used when style=custom, such as '> ', '# ', '// ', or '│ '. It may contain Unicode and spaces and is repeated count times. Maximum 100 characters.",
+          "type": "string"
+        },
+        "skip_blank_lines": {
+          "default": true,
+          "description": "Leave blank or whitespace-only lines unchanged instead of adding indentation to them. Default true avoids trailing whitespace on empty lines. Set false when you need blank lines to carry the same prefix.",
+          "type": "boolean"
+        },
+        "style": {
+          "default": "spaces",
+          "description": "Indent unit to add or remove. spaces uses one space per count, tabs uses one tab per count, and custom repeats the exact prefix string. For example style=custom prefix='> ' creates Markdown/email quote lines.",
+          "enum": [
+            "spaces",
+            "tabs",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text block to re-indent. Line endings are preserved, including a final trailing newline. Use this for code snippets, Markdown quotes, email replies, YAML fragments, or any multi-line text where each line needs the same leading spaces, tabs, or prefix.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
