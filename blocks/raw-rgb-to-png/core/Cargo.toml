@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-raw-rgb-to-png-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust PNG encode (and decode in the tests, to assert the exact
+# pixels the tool wrote).
+image = { version = "0.25", default-features = false, features = ["png"] }
+# base64: the base64 input encoding. Pure-Rust, wasm32-safe.
+base64 = "0.22"
