@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-ndjson-to-matrix-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps each record's keys in the order the producer wrote them, so
+# column_order = "first-seen" reproduces the emitting program's field order.
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ndjson-to-matrix"
+version = "0.1.0"
+abi = 1
+summary = "Convert NDJSON records into an aligned 2D matrix, CSV, TSV or JSON table."
