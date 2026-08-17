@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bitcrush"
+version = "0.1.0"
+abi = 1
+summary = "Bitcrush audio by reducing bit depth and sample rate for a lo-fi retro sound"

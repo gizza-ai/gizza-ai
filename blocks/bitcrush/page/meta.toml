@@ -1,0 +1,112 @@
+slug          = "bitcrush"
+title         = "Bitcrush Audio Online"
+description   = "Crush audio into lo-fi, retro and 8-bit textures by reducing bit depth, lowering the effective sample rate and blending the result in your browser."
+tags          = ["audio", "bitcrush", "bitcrusher", "lo-fi", "8-bit", "retro", "sample rate", "bit depth", "ffmpeg"]
+h1            = "Bitcrush an Audio File"
+hero_subtitle = "Drop the bit depth, hold samples for a lower effective rate, then blend the grit back with the original — processing runs locally in your browser."
+wasm          = "gizza_ai_bitcrush_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Bitcrushed audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "bits"
+source      = "field"
+label       = "Bit depth (1-16)"
+placeholder = "8"
+
+[[input]]
+name        = "sample_rate_hz"
+source      = "field"
+label       = "Effective sample rate (Hz)"
+placeholder = "8000"
+
+[[input]]
+name        = "mix"
+source      = "field"
+label       = "Wet/dry mix (0-1)"
+placeholder = "1"
+
+[[input]]
+name        = "drive"
+source      = "field"
+label       = "Input drive (0.25-4)"
+placeholder = "1"
+
+[[input]]
+name        = "output_gain"
+source      = "field"
+label       = "Output gain (0.25-4)"
+placeholder = "1"
+
+[[input]]
+name        = "anti_alias"
+source      = "field"
+label       = "Anti-aliasing (0-1)"
+placeholder = "0.5"
+
+[[input]]
+name        = "mode"
+source      = "field"
+label       = "Quantiser curve"
+placeholder = "lin"
+
+[input.labels]
+lin = "Linear — classic fixed-step crunch"
+log = "Log — rougher near quiet passages"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Output format"
+placeholder = "mp3"
+
+[input.labels]
+mp3  = "MP3 — 192 kbps default"
+wav  = "WAV — lossless PCM"
+ogg  = "OGG Vorbis — 192 kbps"
+flac = "FLAC — lossless compressed"
+m4a  = "M4A/AAC"
+
+[[example]]
+label = "Classic 8-bit sampler"
+[example.params]
+bits           = "8"
+sample_rate_hz = "8000"
+mix            = "1"
+drive          = "1"
+output_gain    = "1"
+anti_alias     = "0.5"
+mode           = "lin"
+format         = "mp3"
+
+[[example]]
+label = "Subtle lo-fi blend"
+[example.params]
+bits           = "12"
+sample_rate_hz = "16000"
+mix            = "0.45"
+drive          = "1"
+output_gain    = "1"
+anti_alias     = "0.8"
+mode           = "lin"
+format         = "wav"
+
+[[example]]
+label = "Hard console grit"
+[example.params]
+bits           = "4"
+sample_rate_hz = "4000"
+mix            = "1"
+drive          = "2"
+output_gain    = "0.6"
+anti_alias     = "0"
+mode           = "log"
+format         = "ogg"
