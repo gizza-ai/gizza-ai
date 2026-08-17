@@ -1,0 +1,107 @@
+slug          = "csv-quote-normalizer"
+title         = "CSV Quote Normalizer — Fix Mixed Quoting and Escaping"
+description   = "Paste a CSV to fix mixed quoting — backslash escapes, single or curly quotes, stray quotes — and re-emit it as clean RFC 4180. Runs in your browser."
+tags          = ["csv quote normalizer", "fix csv quotes", "rfc 4180 csv", "escape quotes csv", "backslash escaped csv", "smart quotes csv", "csv dialect converter", "csv repair"]
+h1            = "CSV Quote Normalizer"
+hero_subtitle = "Read the CSV a strict parser refuses — backslash escapes, single quotes, curly quotes, stray quotes, an unclosed field — and write it back out in one consistent dialect."
+wasm          = "gizza_ai_csv_quote_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "CSV text"
+placeholder = "id,name,note\n1,\"Ada \\\"Countess\\\" Lovelace\",fine\n2,“Grace Hopper”, \"padded, quoted\"\n3,\"He said \"hi\" to me\",ok"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Input delimiter (or 'auto' to detect)"
+placeholder = "auto"
+default     = "auto"
+source      = "field"
+
+[[input]]
+name        = "output_delimiter"
+label       = "Output delimiter ('same' to keep it)"
+placeholder = "same"
+default     = "same"
+source      = "field"
+
+[[input]]
+name    = "input_quote"
+label   = "Quote character to read"
+default = "auto"
+source  = "field"
+labels  = { auto = "Auto-detect (default)", double = "Double \" only", single = "Single ' only", none = "None — quotes are literal text" }
+
+[[input]]
+name    = "quote_style"
+label   = "Which output fields to quote"
+default = "minimal"
+source  = "field"
+labels  = { minimal = "Minimal — only when required (default)", always = "Always — every field", non_numeric = "Non-numeric — everything but plain numbers", never = "Never — needs backslash escaping" }
+
+[[input]]
+name    = "output_quote"
+label   = "Output quote character"
+default = "double"
+source  = "field"
+labels  = { double = "Double \" (RFC 4180, default)", single = "Single '" }
+
+[[input]]
+name    = "escape"
+label   = "How to escape a quote inside a field"
+default = "doubled"
+source  = "field"
+labels  = { doubled = "Doubled \"\" — RFC 4180 (default)", backslash = "Backslash \\\" — MySQL, Postgres COPY" }
+
+[[input]]
+name    = "backslash_escapes"
+label   = "Read \\\" in the input as an escaped quote"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "smart_quotes"
+label   = "Read curly “ ” ‘ ’ as field quotes"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "line_ending"
+label   = "Line ending"
+default = "lf"
+source  = "field"
+labels  = { lf = "LF (\\n) — default", crlf = "CRLF (\\r\\n) — Windows, RFC 4180" }
+
+[[input]]
+name    = "output"
+label   = "Result"
+default = "csv"
+source  = "field"
+labels  = { csv = "The rewritten CSV (default)", report = "A report of what was repaired" }
+
+[[example]]
+label  = "Repair mixed quoting (default)"
+params = { input = "id,name,note\n1,\"Ada \\\"Countess\\\" Lovelace\",fine\n2,“Grace Hopper”, \"padded, quoted\"\n3,\"He said \"hi\" to me\",ok", delimiter = "auto", output_delimiter = "same", input_quote = "auto", quote_style = "minimal", output_quote = "double", escape = "doubled", backslash_escapes = "true", smart_quotes = "true", line_ending = "lf", output = "csv" }
+
+[[example]]
+label  = "See what changed (report)"
+params = { input = "id,name,note\n1,\"Ada \\\"Countess\\\" Lovelace\",fine\n2,“Grace Hopper”, \"padded, quoted\"\n3,\"He said \"hi\" to me\",ok", delimiter = "auto", output_delimiter = "same", input_quote = "auto", quote_style = "minimal", output_quote = "double", escape = "doubled", backslash_escapes = "true", smart_quotes = "true", line_ending = "lf", output = "report" }
+
+[[example]]
+label  = "Quote every field, CRLF"
+params = { input = "id,name,note\n1,\"Ada \\\"Countess\\\" Lovelace\",fine\n2,“Grace Hopper”, \"padded, quoted\"\n3,\"He said \"hi\" to me\",ok", delimiter = "auto", output_delimiter = "same", input_quote = "auto", quote_style = "always", output_quote = "double", escape = "doubled", backslash_escapes = "true", smart_quotes = "true", line_ending = "crlf", output = "csv" }
+
+[[example]]
+label  = "Backslash escaping for MySQL"
+params = { input = "id,name,note\n1,\"Ada \\\"Countess\\\" Lovelace\",fine\n2,“Grace Hopper”, \"padded, quoted\"\n3,\"He said \"hi\" to me\",ok", delimiter = "auto", output_delimiter = "same", input_quote = "auto", quote_style = "minimal", output_quote = "double", escape = "backslash", backslash_escapes = "true", smart_quotes = "true", line_ending = "lf", output = "csv" }
+
+[[example]]
+label  = "Single-quoted CSV out to TSV"
+params = { input = "id,city\n1,'Boston, MA'\n2,'it''s fine'", delimiter = "auto", output_delimiter = "tab", input_quote = "single", quote_style = "minimal", output_quote = "double", escape = "doubled", backslash_escapes = "true", smart_quotes = "true", line_ending = "lf", output = "csv" }
