@@ -1,0 +1,154 @@
+slug          = "category-canonicalize"
+title         = "Category Canonicalize — Rewrite CSV Category Variants"
+description   = "Paste a CSV, TSV, or newline list plus a variant-to-canonical mapping, then rewrite categorical values and review fuzzy suggestions for anything not covered."
+tags          = ["category canonicalize", "categorical data cleaning", "csv clean categories", "standardize category names", "fuzzy category matching", "data prep", "canonical values"]
+h1            = "Category Canonicalize"
+hero_subtitle = "Normalize spelling, case, and whitespace variants in categorical columns using a mapping you control, with suggestions for the values still outside the vocabulary."
+wasm          = "gizza_ai_category_canonicalize_web"
+export        = "run"
+live          = false
+output_label  = "Canonicalized output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV / TSV table, or one value per line"
+placeholder = "country,n\nUSA,1\nu.s.a.,2\nCanadaa,3\nBrazil,4"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mapping"
+label       = "Variant → canonical mapping"
+placeholder = "USA|U.S.A.|us|united states => United States\nCanada|CAN => Canada"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column(s) to canonicalize"
+placeholder = "country"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+default     = "auto"
+source      = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name    = "header"
+label   = "First row is a header"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "ignore_case"
+label   = "Ignore case while matching"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "ignore_spacing"
+label   = "Collapse whitespace while matching"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "unmatched"
+label   = "Unmatched values"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep  = "Keep original values"
+fuzzy = "Apply fuzzy suggestion at threshold"
+blank = "Blank unmatched cells"
+error = "Stop with an error"
+
+[[input]]
+name        = "fuzzy_threshold"
+label       = "Fuzzy threshold"
+placeholder = "85"
+default     = "85"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name    = "output"
+label   = "Output format"
+default = "csv"
+source  = "field"
+
+[input.labels]
+csv         = "Rewritten CSV / table"
+markdown    = "Markdown report + table"
+json        = "JSON stats + table"
+suggestions = "Suggestions review CSV"
+
+[[example]]
+label = "Rewrite countries in a CSV"
+[example.params]
+data = "country,n\nUSA,1\nu.s.a.,2\nCanadaa,3\nBrazil,4"
+mapping = "USA|U.S.A.|us|united states => United States\nCanada|CAN => Canada"
+column = "country"
+delimiter = "auto"
+header = "true"
+ignore_case = "true"
+ignore_spacing = "true"
+unmatched = "keep"
+fuzzy_threshold = "85"
+output = "csv"
+
+[[example]]
+label = "Review uncovered values first"
+[example.params]
+data = "country\nUSA\nCanadaa\nCanadaa\nUnited Sates\nBrazil"
+mapping = "United States\nCanada"
+column = "country"
+delimiter = "auto"
+header = "true"
+ignore_case = "true"
+ignore_spacing = "true"
+unmatched = "keep"
+fuzzy_threshold = "85"
+output = "suggestions"
+
+[[example]]
+label = "Apply high-confidence fuzzy matches"
+[example.params]
+data = "country\nCanadaa\nUnited Sates\nBrazil"
+mapping = "United States\nCanada"
+column = "country"
+delimiter = "auto"
+header = "true"
+ignore_case = "true"
+ignore_spacing = "true"
+unmatched = "fuzzy"
+fuzzy_threshold = "80"
+output = "markdown"
+
+[[example]]
+label = "Plain newline list"
+[example.params]
+data = "USA\nCAN\nMexico"
+mapping = "USA|U.S.A.|us => United States\nCAN|Canada => Canada"
+column = ""
+delimiter = "auto"
+header = "false"
+ignore_case = "true"
+ignore_spacing = "true"
+unmatched = "keep"
+fuzzy_threshold = "85"
+output = "csv"

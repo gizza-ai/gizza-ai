@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/category-canonicalize",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rewrite category variants to canonical values from a supplied mapping",
+  "role": "skill",
+  "tool": {
+    "description": "Canonicalize categorical column(s) against a mapping you supply: every spelling, case, and spacing variant listed is rewritten to its canonical value. Feed `data` as CSV/TSV (pick `column` by header name or 1-based index, comma-separated for several) or a plain newline list (leave `column` blank). `mapping` is one rule per line, 'variant => canonical', with '|' sharing a canonical between variants and a bare line declaring a canonical that has no variants. `ignore_case`/`ignore_spacing` fold those differences before matching. Values the mapping doesn't cover follow `unmatched`: keep, fuzzy (apply the closest canonical at or above `fuzzy_threshold`, a 0–100 edit-distance ratio), blank, or error. `output` is csv (the rewritten table), markdown (table + report), json, or suggestions (a review CSV of what is still uncovered and its closest canonical — paste the rows you accept back into the mapping and re-run). Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "column": {
+          "default": "",
+          "description": "Which column(s) to canonicalize: header name(s) (needs header=true) or 1-based index(es), comma-separated. Blank uses the only column (e.g. a newline list).",
+          "type": "string"
+        },
+        "data": {
+          "description": "The table to clean: CSV/TSV text, or a plain list with one value per line.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator: auto-detect from the first line, comma, tab, semicolon, or pipe. Default auto.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "fuzzy_threshold": {
+          "default": 85,
+          "description": "Similarity 0–100 (edit-distance ratio) a suggestion needs before unmatched=fuzzy applies it. Higher is stricter. Also shown next to every suggestion in the other outputs. Default 85.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "header": {
+          "default": false,
+          "description": "Treat the first row as a header — it is never rewritten, and lets you select columns by name. Default false.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": true,
+          "description": "Ignore letter case when matching a value against the mapping (so 'usa' matches the variant 'USA'). Default true.",
+          "type": "boolean"
+        },
+        "ignore_spacing": {
+          "default": true,
+          "description": "Collapse and trim whitespace when matching (so 'New  York ' matches 'New York'). Default true.",
+          "type": "boolean"
+        },
+        "mapping": {
+          "description": "The vocabulary, one rule per line: 'variant => canonical'. Separate with '=>', '->', '=', a tab, a comma, or a semicolon; share one canonical between several variants with '|' (e.g. 'USA|U.S.A.|us => United States'). A line with no separator declares a canonical value that has no variants. '#' comments a line out.",
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Result format: csv (the rewritten table), markdown (table plus a what-changed report), json (stats, changes and the table), or suggestions (a review CSV of the values still not covered, with the closest canonical).",
+          "enum": [
+            "csv",
+            "markdown",
+            "json",
+            "suggestions"
+          ],
+          "type": "string"
+        },
+        "unmatched": {
+          "default": "keep",
+          "description": "What to do with a value the mapping doesn't cover: keep it as-is (default), fuzzy (replace with the closest canonical when it scores at or above fuzzy_threshold), blank (empty the cell), or error (fail and list the offending values).",
+          "enum": [
+            "keep",
+            "fuzzy",
+            "blank",
+            "error"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "mapping"
+      ],
+      "type": "object"
+    }
+  }
+}
