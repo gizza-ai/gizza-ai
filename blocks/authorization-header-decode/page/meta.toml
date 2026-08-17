@@ -1,0 +1,81 @@
+slug          = "authorization-header-decode"
+title         = "Authorization Header Decoder — Basic, Bearer, Digest"
+description   = "Decode an HTTP Authorization header: Basic to username and password, Bearer token structure, Digest and AWS SigV4 params. Free, in your browser."
+tags          = ["authorization header decoder", "decode basic auth", "basic auth decoder", "bearer token parser", "digest auth parser", "http authorization header", "rfc 7235", "rfc 7617"]
+h1            = "Authorization Header Decoder"
+hero_subtitle = "Paste an HTTP Authorization header and see what it actually carries: the auth-scheme, Basic credentials decoded into username and password, a Bearer token's structure, and Digest or AWS SigV4 parameters. Decoded in your browser — the credentials never leave your device."
+wasm          = "gizza_ai_authorization_header_decode_web"
+export        = "run"
+live          = false
+output_label  = "Decoded header"
+format        = "text"
+
+[[input]]
+name        = "header"
+label       = "Authorization header"
+placeholder = "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+source      = "field"
+multiline   = true
+
+# format renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json  = "JSON (every field + warnings)"
+text  = "Text (aligned key: value)"
+table = "Table (ASCII field/value)"
+
+# mask_credentials renders as a checkbox (boolean param, default off).
+[[input]]
+name   = "mask_credentials"
+label  = "Mask secrets (keep lengths)"
+source = "field"
+
+# strict renders as a checkbox (boolean param, default off).
+[[input]]
+name   = "strict"
+label  = "Strict — fail on warnings"
+source = "field"
+
+[[example]]
+label = "Basic (RFC 7617)"
+[example.params]
+header = "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+format = "json"
+mask_credentials = "false"
+strict = "false"
+
+[[example]]
+label = "Bearer JWT"
+[example.params]
+header = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.c2ln"
+format = "json"
+mask_credentials = "false"
+strict = "false"
+
+[[example]]
+label = "Digest, as a table"
+[example.params]
+header = "Digest username=\"alice\", realm=\"example.com\", nonce=\"dcd98b7102dd2f0e\", uri=\"/dir/index.html\", qop=auth, nc=00000001, response=\"6629fae49393a05397450978507c4ef1\""
+format = "table"
+mask_credentials = "false"
+strict = "false"
+
+[[example]]
+label = "AWS SigV4 scope"
+[example.params]
+header = "AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE/20150830/us-east-1/iam/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=5d672d79c15b13162d9279b0855cfba6789a8edb4c82c400e06b5924a6f2b5d7"
+format = "text"
+mask_credentials = "false"
+strict = "false"
+
+[[example]]
+label = "Masked, safe to share"
+[example.params]
+header = "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+format = "text"
+mask_credentials = "true"
+strict = "false"

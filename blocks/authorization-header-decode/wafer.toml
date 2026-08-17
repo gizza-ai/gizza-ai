@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "authorization-header-decode"
+version = "0.1.0"
+abi = 1
+summary = "Split an Authorization header into its scheme and decoded credentials"
