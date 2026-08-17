@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-json-array-pluck-field-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order: auto-detecting the array inside a wrapper object picks the
+# FIRST array-valued property in DOCUMENT order, which is only stable with the
+# insertion-order map. It also keeps plucked object values printing in source
+# key order.
+serde_json = { version = "1", features = ["preserve_order"] }
