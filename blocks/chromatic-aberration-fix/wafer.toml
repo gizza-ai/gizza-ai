@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "chromatic-aberration-fix"
+version = "0.1.0"
+abi = 1
+summary = "Reduce purple and green chromatic-aberration fringes in an image"
