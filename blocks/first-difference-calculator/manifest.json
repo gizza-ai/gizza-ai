@@ -1,0 +1,60 @@
+{
+  "name": "gizza-ai/first-difference-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "First differences and period-over-period deltas of a numeric series",
+  "role": "skill",
+  "tool": {
+    "description": "Compute first differences (or period-over-period deltas) of a numeric series, separated by spaces, commas, semicolons, or newlines. 'lag' (default 1, -1000..1000, never 0) sets how far back the baseline sits — 1 for step-to-step change, 12 for seasonal differencing, a negative value to compare with a later point. 'order' (default 1, max 10) repeats the transform for second/third differences. 'mode' picks difference (current - baseline), percent ((current - baseline) / baseline x 100), ratio (current / baseline), or log (ln(current / baseline)). 'decimals' (0-10, default 6) rounds the output; 'drop_warmup' (default false) trims the rows with no baseline instead of returning aligned nulls. Returns the per-row values plus their original indices, counts of increases/decreases/unchanged, min/max/mean/sum, the largest move and its index, a constant-differences flag, and a plain-language interpretation (constant first differences mean a linear series, constant second differences a quadratic one). Zero baselines and non-positive log inputs come back as null and are counted, never as infinity. Runs locally — the data never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places to round every returned number to, 0-10 (default 6).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "drop_warmup": {
+          "default": false,
+          "description": "Drop the warm-up rows that have no baseline instead of returning them as aligned nulls (default false). False keeps the output the same length as the input so row i still lines up with input row i; true gives the shorter n - |lag| x order form.",
+          "type": "boolean"
+        },
+        "lag": {
+          "default": 1,
+          "description": "How far back the baseline sits, -1000 to 1000, never 0 (default 1). 1 compares each value with the one before it; 12 gives seasonal differencing for monthly data; a NEGATIVE lag compares each value with a LATER one, which moves the warm-up rows to the end.",
+          "maximum": 1000,
+          "minimum": -1000,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "difference",
+          "description": "How each value is compared with its baseline: 'difference' (default) is current - baseline; 'percent' is (current - baseline) / baseline x 100; 'ratio' is current / baseline; 'log' is ln(current / baseline). A zero baseline (or a non-positive value in log mode) returns null instead of infinity.",
+          "enum": [
+            "difference",
+            "percent",
+            "ratio",
+            "log"
+          ],
+          "type": "string"
+        },
+        "order": {
+          "default": 1,
+          "description": "How many times to repeat the transform on its own output, 1-10 (default 1). 2 gives second differences; each extra order adds |lag| more warm-up rows.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "series": {
+          "description": "The numeric series to difference, in order, separated by spaces, commas, semicolons, or newlines (e.g. '120, 135, 150, 148'). Plain decimals or scientific notation only — strip currency symbols and thousands separators first. Needs at least 2 values; max 20,000.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "series"
+      ],
+      "type": "object"
+    }
+  }
+}

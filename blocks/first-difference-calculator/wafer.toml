@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "first-difference-calculator"
+version = "0.1.0"
+abi = 1
+summary = "First differences and period-over-period deltas of a numeric series"
