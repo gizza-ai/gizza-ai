@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rsa-decrypt"
+version = "0.1.0"
+abi = 1
+summary = "Decrypt RSA ciphertext with a private key"

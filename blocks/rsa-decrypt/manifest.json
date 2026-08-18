@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/rsa-decrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decrypt RSA ciphertext with a private key",
+  "role": "skill",
+  "tool": {
+    "description": "Decrypt RSA ciphertext with an RSA private key and return the plaintext. padding=oaep (default, RSAES-OAEP) or pkcs1v15 (legacy RSAES-PKCS1-v1_5), and hash=sha256 (default), sha384 or sha512 selects the OAEP digest — both must match what the sender used. The ciphertext is base64 or hex (ciphertext_encoding=auto detects it); the private key is PEM (PKCS#8, PKCS#1, or passphrase-protected PKCS#8 via passphrase). output_encoding=utf8 (default), hex, or base64 renders the plaintext — use hex/base64 for binary payloads such as a wrapped AES key. Inverse of rsa-encrypt. Runs locally — the private key never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ciphertext": {
+          "description": "The RSA ciphertext to decrypt, base64 (e.g. 'Q1rN…AA==', standard or URL-safe) or hex. Exactly one RSA block — 256 bytes for a 2048-bit key, 512 for 4096-bit.",
+          "type": "string"
+        },
+        "ciphertext_encoding": {
+          "default": "auto",
+          "description": "How the ciphertext is encoded: auto (default — hex if it is all hex digits, else base64), base64, or hex.",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "hash": {
+          "default": "sha256",
+          "description": "OAEP digest (MGF1 + label hash) the sender used; sha256 (default), sha384, or sha512. Must match exactly. Ignored for pkcs1v15.",
+          "enum": [
+            "sha256",
+            "sha384",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "output_encoding": {
+          "default": "utf8",
+          "description": "How to render the recovered plaintext: utf8 (default, readable text), hex, or base64 (use these for binary payloads such as a wrapped AES key).",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "padding": {
+          "default": "oaep",
+          "description": "Padding the ciphertext was encrypted with: oaep (default, RSAES-OAEP) or pkcs1v15 (legacy RSAES-PKCS1-v1_5). Must match the sender exactly.",
+          "enum": [
+            "oaep",
+            "pkcs1v15"
+          ],
+          "type": "string"
+        },
+        "passphrase": {
+          "default": "",
+          "description": "Passphrase that unlocks an encrypted PKCS#8 ('BEGIN ENCRYPTED PRIVATE KEY') key, e.g. 'hunter2'. Leave empty for an unencrypted key.",
+          "type": "string"
+        },
+        "private_key": {
+          "description": "Your RSA private key, PEM-encoded: PKCS#8 '-----BEGIN PRIVATE KEY-----', PKCS#1 '-----BEGIN RSA PRIVATE KEY-----', or passphrase-protected '-----BEGIN ENCRYPTED PRIVATE KEY-----'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ciphertext",
+        "private_key"
+      ],
+      "type": "object"
+    }
+  }
+}

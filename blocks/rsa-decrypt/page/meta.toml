@@ -1,0 +1,81 @@
+slug          = "rsa-decrypt"
+title         = "RSA Decrypt — OAEP and PKCS#1 v1.5 Private-Key Decryption"
+description   = "Decrypt RSA ciphertext with a PEM private key using OAEP or PKCS#1 v1.5 padding. Supports base64/hex input and UTF-8/hex/base64 output."
+tags          = ["rsa decrypt", "rsa oaep decrypt", "private key decrypt", "pkcs1 v1.5 decrypt", "cryptography", "pem private key"]
+h1            = "RSA Decrypt"
+hero_subtitle = "Decrypt one RSA ciphertext block with a PEM private key. Match the sender's padding and OAEP hash, paste base64 or hex ciphertext, and render text or raw bytes without sending the key anywhere."
+wasm          = "gizza_ai_rsa_decrypt_web"
+export        = "run"
+live          = false
+output_label  = "Plaintext"
+format        = "text"
+
+[[input]]
+name        = "ciphertext"
+label       = "Ciphertext (base64 or hex)"
+placeholder = "Paste the RSA ciphertext, e.g. Q1rN...AA=="
+source      = "field"
+
+[[input]]
+name        = "private_key"
+label       = "Private key PEM"
+placeholder = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+source      = "field"
+kind        = "textarea"
+
+[[input]]
+name        = "passphrase"
+label       = "Key passphrase (optional)"
+placeholder = "Leave blank for an unencrypted private key"
+source      = "field"
+
+[[input]]
+name   = "padding"
+label  = "Padding"
+source = "field"
+
+[input.labels]
+oaep     = "OAEP (recommended/default)"
+pkcs1v15 = "PKCS#1 v1.5 (legacy)"
+
+[[input]]
+name   = "hash"
+label  = "OAEP hash"
+source = "field"
+
+[input.labels]
+sha256 = "SHA-256 (default)"
+sha384 = "SHA-384"
+sha512 = "SHA-512"
+
+[[input]]
+name   = "ciphertext_encoding"
+label  = "Ciphertext encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect base64 vs hex"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output_encoding"
+label  = "Plaintext output"
+source = "field"
+
+[input.labels]
+utf8   = "UTF-8 text"
+hex    = "Hex bytes"
+base64 = "Base64 bytes"
+
+[[example]]
+label  = "OAEP SHA-256 text"
+params = { ciphertext = "P3ogbhFSdYhbKDxOIgZBdxwBOtTLVkq0gV4yNLjZVwh4aFoeP+sEy6gy0zmAu4g5xLwZpvu64ZU8PCUJhoNnF3H2fTy2e3pHjETOzAx1AgxscjzXimsPqRk0wn01t653brCIe5HM6zCesJTyKN3HpnVTdWVH/z5YVsekiuxqNXxxYDhVFJZASJq84/FP5qaOaoN+cHPSzqEhu1hkez8CtdXGYxf+uCuiMAFcCBoF8CiPK33Bwu7SanbM0BgGMHVtYsO25D00Sj3M+TLFrq5pnvgz6iQT0K9BJfuVu1y/vOX29ypTO2elyp+LrZZ5EAt5MSde+7bQ5s1u/5TcAWYRig==", private_key = "", passphrase = "", padding = "oaep", hash = "sha256", ciphertext_encoding = "base64", output_encoding = "utf8" }
+
+[[example]]
+label  = "Hex ciphertext → hex plaintext"
+params = { ciphertext = "", private_key = "", passphrase = "", padding = "oaep", hash = "sha256", ciphertext_encoding = "hex", output_encoding = "hex" }
+
+[[example]]
+label  = "Legacy PKCS#1 v1.5"
+params = { ciphertext = "", private_key = "", passphrase = "", padding = "pkcs1v15", hash = "sha256", ciphertext_encoding = "auto", output_encoding = "utf8" }
