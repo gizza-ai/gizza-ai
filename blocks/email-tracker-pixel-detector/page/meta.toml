@@ -1,0 +1,77 @@
+slug          = "email-tracker-pixel-detector"
+title         = "Email Tracking Pixel Detector — Find Remote Open Beacons"
+description   = "Paste raw email source or HTML to find 1x1 tracking pixels, hidden remote images, known tracker domains, CSS beacons, prefetch assets, and optional click trackers."
+tags          = ["email tracking pixel detector", "tracking pixel", "email privacy", "remote images", "open tracker", "email beacon", "html email", "tracker domains", "mail privacy"]
+h1            = "Email Tracking Pixel Detector"
+hero_subtitle = "Inspect pasted email source locally for 1×1 pixels, hidden remote images, tracker domains, CSS beacons, prefetch assets, and optional click-tracking links."
+wasm          = "gizza_ai_email_tracker_pixel_detector_web"
+export        = "run"
+live          = false
+output_label  = "Tracking report"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Email source or HTML"
+placeholder = "Paste raw .eml source or HTML email markup, e.g. <img src=\"https://track.example/open.gif?u=abc\" width=\"1\" height=\"1\">"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Input type"
+source = "field"
+
+[input.labels]
+auto = "Auto"
+html = "HTML fragment"
+raw  = "Raw email source"
+
+[[input]]
+name   = "report"
+label  = "Report"
+source = "field"
+
+[input.labels]
+summary = "Readable summary"
+json    = "Structured JSON"
+hosts   = "Hosts only"
+
+[[input]]
+name   = "include_links"
+label  = "Also inspect links for click tracking"
+source = "field"
+
+[[input]]
+name        = "vendors"
+label       = "Extra tracker domains"
+placeholder = "track.example.com, email.your-esp.test"
+source      = "field"
+control     = "tag-list"
+
+[[example]]
+label = "Hidden vendor pixel"
+[example.params]
+text = "<html><body><p>Hello</p><img src=\"https://track.hubspot.com/open.gif?email=a@example.com&id=abc123456789abcdef\" width=\"1\" height=\"1\" style=\"display:none\"></body></html>"
+format = "html"
+report = "summary"
+include_links = "false"
+vendors = ""
+
+[[example]]
+label = "Hosts for a blocklist"
+[example.params]
+text = "<img src=\"https://img.newsletter.example/pixel.gif?uid=abc123456789abcdef\" width=\"1\" height=\"1\">"
+format = "html"
+report = "hosts"
+include_links = "false"
+vendors = "newsletter.example"
+
+[[example]]
+label = "Clean embedded logo"
+[example.params]
+text = "<img src=\"cid:logo@example\" width=\"600\" height=\"80\" alt=\"Logo\">"
+format = "html"
+report = "summary"
+include_links = "false"
+vendors = ""
