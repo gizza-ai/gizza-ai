@@ -1,0 +1,94 @@
+slug          = "svg-security-linter"
+title         = "SVG Security Linter — find XSS risks in SVG files"
+description   = "Paste an SVG and check for scripts, on* handlers, javascript: URLs, foreignObject, external refs and XXE entities. Ranked with line numbers."
+tags          = ["svg security", "svg xss", "check svg for scripts", "svg linter", "is my svg safe", "svg upload security", "svg sanitizer check", "svg vulnerability scanner"]
+h1            = "SVG Security Linter"
+hero_subtitle = "Check SVG markup for the constructs that make an uploaded image an XSS vector — scripts, event handlers, javascript: URLs, foreignObject, embedded HTML, remote references and XXE entities — ranked by severity with line and column numbers. Nothing is rendered, fetched or uploaded."
+wasm          = "gizza_ai_svg_security_linter_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "svg"
+label       = "SVG markup"
+placeholder = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" onload=\"alert(1)\">\n  <script>alert(document.domain)</script>\n  <a href=\"javascript:alert(2)\"><text>go</text></a>\n  <image href=\"https://cdn.example/pixel.png\"/>\n</svg>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "min_severity"
+label       = "Minimum severity to list"
+source      = "field"
+
+[input.labels]
+all    = "All (high, medium, low)"
+medium = "Medium and high"
+high   = "High only"
+
+[[input]]
+name        = "allow_external"
+label       = "Allow external references (accept remote http(s) URLs as policy)"
+source      = "field"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule codes"
+placeholder = "UNKNOWN-NS, ANCHOR-TARGET"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Ranked report"
+json = "JSON"
+csv  = "CSV"
+
+[[example]]
+label = "Hostile SVG"
+[example.params]
+svg            = "<svg xmlns=\"http://www.w3.org/2000/svg\" onload=\"alert(1)\">\n  <script>alert(document.domain)</script>\n  <a href=\"javascript:alert(2)\" target=\"_blank\"><text>go</text></a>\n  <image href=\"https://evil.example/pixel.png\"/>\n</svg>"
+min_severity   = "all"
+allow_external = "false"
+ignore         = ""
+format         = "text"
+
+[[example]]
+label = "Clean icon"
+[example.params]
+svg            = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\">\n  <title>Dot</title>\n  <circle cx=\"5\" cy=\"5\" r=\"4\" fill=\"#0a7\"/>\n</svg>"
+min_severity   = "all"
+allow_external = "false"
+ignore         = ""
+format         = "text"
+
+[[example]]
+label = "High only, JSON"
+[example.params]
+svg            = "<svg xmlns=\"http://www.w3.org/2000/svg\"><foreignObject width=\"10\" height=\"10\"><iframe src=\"https://evil.example/\"></iframe></foreignObject></svg>"
+min_severity   = "high"
+allow_external = "false"
+ignore         = ""
+format         = "json"
+
+[[example]]
+label = "CDN allowed, CSV"
+[example.params]
+svg            = "<svg xmlns=\"http://www.w3.org/2000/svg\"><image href=\"https://cdn.example/a.png\"/><rect width=\"1\" height=\"1\" onclick=\"x()\"/></svg>"
+min_severity   = "all"
+allow_external = "true"
+ignore         = ""
+format         = "csv"
+
+[[example]]
+label = "XXE entity + stylesheet"
+[example.params]
+svg            = "<?xml-stylesheet type=\"text/css\" href=\"https://evil.example/x.css\"?>\n<!DOCTYPE svg [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]>\n<svg xmlns=\"http://www.w3.org/2000/svg\"><text>&xxe;</text></svg>"
+min_severity   = "all"
+allow_external = "false"
+ignore         = ""
+format         = "text"
