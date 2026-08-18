@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/sigma-rule-matcher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run Sigma detection rules against parsed Windows event JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Run Sigma detection rules against already-parsed Windows event records. Paste Sigma YAML in rules and JSON events in events (a JSON array, one object, or newline-delimited JSON). The matcher supports common Sigma detection maps/lists, keyword lists, list OR/ALL semantics, null/exists checks, wildcards, contains/startswith/endswith, regex, CIDR, numeric comparisons, base64/base64offset, UTF-16/wide, windash, fieldref, cased, and condition expressions with and/or/not, parentheses, 1 of/all of/N of/prefix*/them. Use min_level and status to filter rules, output=report/table/json for result shape, max_matches to cap displayed detections, and show_event=true when you need the full matching record. EVTX binary parsing, bundled rule sets, backend query conversion, and correlation/aggregation rules are intentionally out of scope; feed JSON from an EVTX parser instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "events": {
+          "description": "Windows event records as JSON: a JSON array, one JSON object, or newline-delimited JSON. Use parsed EVTX output, not raw .evtx bytes.",
+          "type": "string"
+        },
+        "max_matches": {
+          "default": 500,
+          "description": "Maximum detections to print (0 uses the default 500; hard cap 10000). The summary still reports the true detection count.",
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_level": {
+          "default": "any",
+          "description": "Lowest Sigma severity to evaluate. Use any (default) to keep all levels, or informational/low/medium/high/critical.",
+          "enum": [
+            "any",
+            "informational",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output shape: report (human-readable summary), table (Markdown rows), or json (structured detections and counts). Default report.",
+          "enum": [
+            "report",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "rules": {
+          "description": "Sigma detection rules as YAML. Paste one rule or multiple YAML documents separated by ---. Supports common detection selections, field modifiers, and conditions.",
+          "type": "string"
+        },
+        "show_event": {
+          "default": false,
+          "description": "Include the full matching event record in json/table/report output. Default false keeps results compact.",
+          "type": "boolean"
+        },
+        "status": {
+          "default": "any",
+          "description": "Only evaluate rules with this Sigma status. Default any keeps stable, test, experimental, deprecated, unsupported, and blank statuses.",
+          "enum": [
+            "any",
+            "stable",
+            "test",
+            "experimental",
+            "deprecated",
+            "unsupported"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "rules",
+        "events"
+      ],
+      "type": "object"
+    }
+  }
+}
