@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-diff-highlight-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# syntect: syntax highlighting. default-features=false drops the onig (C) regex
+# engine and the loaders we don't need at runtime; `default-fancy` gives the
+# pure-Rust fancy-regex engine plus the bundled (binary-dump) syntaxes and
+# themes, so nothing is read from disk at runtime (wasm has no host fs).
+syntect = { version = "5", default-features = false, features = [
+    "default-fancy",
+] }
+# fontdue: pure-Rust TrueType rasterizer (no freetype / system fonts).
+fontdue = "0.9"
+# png: pure-Rust PNG encoder (lighter than the full `image` crate).
+png = "0.17"

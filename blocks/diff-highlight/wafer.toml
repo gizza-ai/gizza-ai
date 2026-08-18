@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "diff-highlight"
+version = "0.1.0"
+abi = 1
+summary = "Render a diff as a syntax-highlighted PNG"
