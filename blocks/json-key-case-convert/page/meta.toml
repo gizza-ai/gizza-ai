@@ -1,0 +1,65 @@
+slug          = "json-key-case-convert"
+title         = "JSON Key Case Converter — camelCase, snake_case, kebab-case"
+description   = "Rename every JSON key to camelCase, PascalCase, snake_case, kebab-case or SCREAMING_SNAKE_CASE. Values stay untouched. Runs in your browser."
+tags          = ["json key case converter", "json camelcase converter", "json snake_case keys", "convert json keys", "json kebab-case keys", "rename json keys"]
+h1            = "JSON Key Case Converter"
+hero_subtitle = "Rewrite every object key into one naming convention — camelCase, PascalCase, snake_case, kebab-case or SCREAMING_SNAKE_CASE — while every value stays byte-identical. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_key_case_convert_web"
+export        = "run"
+live          = false
+output_label  = "Converted JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "{ \"user_id\": 1, \"profile_data\": { \"first_name\": \"ada\" } }"
+source      = "field"
+multiline   = true
+
+# target_case renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "target_case"
+label  = "Target key case"
+source = "field"
+
+[input.labels]
+camel    = "camelCase (userId)"
+pascal   = "PascalCase (UserId)"
+snake    = "snake_case (user_id)"
+kebab    = "kebab-case (user-id)"
+constant = "SCREAMING_SNAKE_CASE (USER_ID)"
+
+[[input]]
+name   = "recurse"
+label  = "Rename keys at every nesting level"
+source = "field"
+
+[[input]]
+name        = "preserve_keys"
+label       = "Keys to leave untouched (comma-separated)"
+placeholder = "Content-Type, X-Api-Key"
+source      = "field"
+
+[[input]]
+name   = "preserve_prefix"
+label  = "Keep leading _ $ @ sigils (_id, $schema)"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces (0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "API response → camelCase"
+params = { json = "{ \"user_id\": 1, \"profile_data\": { \"first_name\": \"ada\", \"home-address\": { \"zip_code\": \"94107\" } } }", target_case = "camel", recurse = "true", preserve_keys = "", preserve_prefix = "true", indent = "2" }
+
+[[example]]
+label  = "Frontend payload → snake_case"
+params = { json = "{ \"lineItems\": [ { \"itemId\": 1, \"unitPrice\": 9.5 } ], \"createdAt\": \"2026-08-18\" }", target_case = "snake", recurse = "true", preserve_keys = "", preserve_prefix = "true", indent = "2" }
+
+[[example]]
+label  = "kebab-case, minified"
+params = { json = "{ \"userID\": 7, \"HTTPResponse\": { \"statusCode\": 200 } }", target_case = "kebab", recurse = "true", preserve_keys = "", preserve_prefix = "true", indent = "0" }
