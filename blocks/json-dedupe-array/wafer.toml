@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-dedupe-array"
+version = "0.1.0"
+abi = 1
+summary = "Remove duplicate elements from a JSON array, whole-value or by key fields"

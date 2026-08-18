@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/json-dedupe-array",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove duplicate elements from a JSON array, whole-value or by key fields",
+  "role": "skill",
+  "tool": {
+    "description": "Remove duplicate ELEMENTS from a JSON array and return the de-duplicated array. By default elements are compared whole and structurally — nested objects and arrays included, and object key ORDER is ignored when comparing but preserved in the output, so {\"a\":1,\"b\":2} and {\"b\":2,\"a\":1} are duplicates. Set keys to a comma-separated list like \"id\" or \"user.email,country\" to compare only those fields (dot-notation reaches nested fields; a numeric segment indexes an array). Set root to a dot-path such as \"data.items\" when the array is nested inside a wrapper object; the wrapper is kept. keep chooses which occurrence survives, 'first' (default) or 'last'; original order is preserved either way. ignore_case=true compares case-insensitively. output selects 'unique' (default, the de-duplicated array), 'duplicates' (only the removed elements) or 'report' (total/unique/removed counts plus each duplicate group's indexes). indent is spaces per level (1-8, default 2), or 0 to minify. Numbers compare by value, so 2 and 2.0 are duplicates, and an absent field never matches an explicit null. Up to 200000 elements. For NDJSON/JSONL (one JSON value per line) use jsonl-deduplicator instead. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_case": {
+          "default": false,
+          "description": "Compare case-insensitively so \"A@X.com\" and \"a@x.com\" collapse. Applies to string values and to field names. Off by default.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level (1-8) in the output. Use 0 to minify to a single compact line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The JSON text to de-duplicate — a top-level array (of objects, strings, numbers, or nested values), or an object that contains one (see 'root').",
+          "type": "string"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which occurrence of a duplicated element survives: 'first' (default) or 'last'. The survivor keeps that occurrence's position; the array's original order is otherwise preserved.",
+          "enum": [
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "keys": {
+          "default": "",
+          "description": "Comma-separated field(s) to compare on, e.g. \"id\" or \"user.email,country\" (dot-notation reaches nested fields; a numeric segment like \"tags.0\" indexes an array). Leave blank to compare WHOLE elements structurally, nested values included. Elements missing a listed field share one 'absent' group.",
+          "type": "string"
+        },
+        "output": {
+          "default": "unique",
+          "description": "What to return: 'unique' (default) the de-duplicated array, 'duplicates' only the elements that were removed, or 'report' a JSON summary with total/unique/removed counts plus each duplicate group's 0-based indexes and kept element.",
+          "enum": [
+            "unique",
+            "duplicates",
+            "report"
+          ],
+          "type": "string"
+        },
+        "root": {
+          "default": "",
+          "description": "Dot-path to the array when it is nested inside a wrapper object, e.g. \"data.items\" (a numeric segment indexes an array). Leave blank when the whole input is the array. The wrapper is kept in the output.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

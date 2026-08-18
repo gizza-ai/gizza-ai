@@ -1,0 +1,74 @@
+slug          = "json-dedupe-array"
+title         = "JSON Array Deduplicator — Remove Duplicate Elements"
+description   = "Remove duplicate elements from a JSON array: compare whole values or chosen key fields, keep the first or last occurrence, or list the duplicates instead."
+tags          = ["json dedupe array", "remove duplicate json objects", "json duplicate remover", "dedupe json by key", "unique json array", "json array duplicates"]
+h1            = "JSON Array Deduplicator"
+hero_subtitle = "Strip duplicate objects or values out of a JSON array — compare whole elements or just the fields you pick. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_dedupe_array_web"
+export        = "run"
+live          = false
+output_label  = "Result JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON array"
+placeholder = "[ { \"id\": 1, \"email\": \"ada@x.com\" }, { \"id\": 1, \"email\": \"ada@x.com\" }, { \"id\": 2, \"email\": \"bo@x.com\" } ]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "keys"
+label       = "Compare only these fields (blank = whole element)"
+placeholder = "id  ·  user.email,country"
+source      = "field"
+
+[[input]]
+name        = "root"
+label       = "Path to the array (blank = the input itself)"
+placeholder = "data.items"
+source      = "field"
+
+# keep renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "keep"
+label  = "Occurrence to keep"
+source = "field"
+
+[input.labels]
+first = "Keep the first occurrence"
+last  = "Keep the last occurrence"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore letter case"
+source = "field"
+
+# output renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "output"
+label  = "Show"
+source = "field"
+
+[input.labels]
+unique     = "De-duplicated array"
+duplicates = "Only the removed duplicates"
+report     = "Counts + duplicate groups"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces (0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "Remove identical objects"
+params = { json = "[ { \"id\": 1, \"email\": \"ada@x.com\" }, { \"id\": 2, \"email\": \"bo@x.com\" }, { \"id\": 1, \"email\": \"ada@x.com\" } ]", keys = "", root = "", keep = "first", ignore_case = "false", output = "unique", indent = "2" }
+
+[[example]]
+label  = "Dedupe by email, keep the newest"
+params = { json = "[ { \"email\": \"ada@x.com\", \"seen\": \"2024-01-02\" }, { \"email\": \"ADA@x.com\", \"seen\": \"2024-06-09\" }, { \"email\": \"bo@x.com\", \"seen\": \"2024-03-11\" } ]", keys = "email", root = "", keep = "last", ignore_case = "true", output = "unique", indent = "2" }
+
+[[example]]
+label  = "Report duplicates in an API payload"
+params = { json = "{ \"ok\": true, \"data\": { \"items\": [ { \"sku\": \"A1\" }, { \"sku\": \"B2\" }, { \"sku\": \"A1\" } ] } }", keys = "sku", root = "data.items", keep = "first", ignore_case = "false", output = "report", indent = "2" }
