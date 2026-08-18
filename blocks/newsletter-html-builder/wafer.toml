@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "newsletter-html-builder"
+version = "0.1.0"
+abi = 1
+summary = "Build responsive, email-client-safe newsletter HTML from simple sections."

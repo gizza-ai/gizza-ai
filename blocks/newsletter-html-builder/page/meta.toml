@@ -1,0 +1,113 @@
+slug          = "newsletter-html-builder"
+title         = "Newsletter HTML Builder — Responsive Email Markup"
+description   = "Build responsive, email-client-safe newsletter HTML from simple sections: headings, text, buttons, images, columns. Inline CSS, Outlook-safe, in your browser."
+tags          = ["newsletter html builder", "html email generator", "responsive email template", "email safe html", "bulletproof button", "email preheader", "outlook email html", "inline css email", "email newsletter code"]
+h1            = "Newsletter HTML Builder"
+hero_subtitle = "Write your newsletter as one section per line and get a complete, responsive HTML email back — table-based layout, inline CSS, an Outlook ghost table, a hidden preheader and optional dark mode. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_newsletter_html_builder_web"
+export        = "run"
+live          = false
+output_label  = "Email HTML"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "sections"
+label       = "Sections (one per line: type | content | extra)"
+placeholder = "heading | Product update\ntext | Hi {{first_name}}, here is what shipped this month.\nbutton | Read the notes | https://example.com/changelog\ndivider\nfooter | [Unsubscribe](https://example.com/u)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "subject"
+label       = "Document title"
+placeholder = "March newsletter"
+source      = "field"
+
+[[input]]
+name        = "preheader"
+label       = "Preheader (hidden inbox preview line)"
+placeholder = "Three new features and a discount inside"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "Content width (px)"
+placeholder = "600"
+source      = "field"
+kind        = "slider"
+min         = "320"
+max         = "900"
+step        = "10"
+
+[[input]]
+name        = "background"
+label       = "Page background"
+placeholder = "#f4f4f5"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "content_background"
+label       = "Content background"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "text_color"
+label       = "Text colour"
+placeholder = "#1f2937"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "accent"
+label       = "Accent colour (buttons + links)"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+# font renders as a <select> and dark_mode as a checkbox, both derived from the
+# descriptor schema — option lists are not duplicated here.
+[[input]]
+name        = "font"
+label       = "Font stack"
+source      = "field"
+
+[input.labels]
+system    = "System UI (default)"
+arial     = "Arial"
+helvetica = "Helvetica Neue"
+verdana   = "Verdana"
+tahoma    = "Tahoma"
+trebuchet = "Trebuchet MS"
+georgia   = "Georgia"
+times     = "Times New Roman"
+courier   = "Courier New"
+
+[[input]]
+name        = "dark_mode"
+label       = "Include dark-mode styles"
+source      = "field"
+
+[[example]]
+label = "Product update"
+[example.params]
+sections = "heading | What shipped in March\ntext | Hi {{first_name}}, three things went live this month — here are the highlights.\ncolumns | **Faster exports** — up to 4x quicker on large projects. | **New API keys** — scoped, revocable, and audited.\nbutton | Read the release notes | https://example.com/changelog\ndivider\nfooter | You get this because you signed up at example.com. [Unsubscribe]({{unsubscribe_url}})"
+subject = "What shipped in March"
+preheader = "Faster exports, scoped API keys and more"
+width = "600"
+accent = "#2563eb"
+font = "system"
+
+[[example]]
+label = "Simple announcement"
+[example.params]
+sections = "heading | We are open for bookings\ntext | Doors open on *1 June*. Tables are limited, so book early.\nbutton | Book a table | https://example.com/book\nspacer | 16\nfooter | 12 High Street · [Unsubscribe](https://example.com/u)"
+subject = "We are open for bookings"
+preheader = "Book your table for opening week"
+width = "600"
+background = "#fff7ed"
+accent = "#ea580c"
+font = "georgia"
