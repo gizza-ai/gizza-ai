@@ -1,0 +1,112 @@
+slug          = "json-to-graph"
+title         = "JSON to Graph — Mermaid and Graphviz DOT"
+description   = "Turn JSON into a node-link graph as Mermaid flowchart or Graphviz DOT. Collapse deep branches, cap arrays and generate paste-ready diagram source in your browser."
+tags          = ["json to graph", "json visualizer", "json to mermaid", "json to dot", "graphviz json", "mermaid flowchart", "json structure diagram", "json node graph"]
+h1            = "JSON to Graph"
+hero_subtitle = "Paste JSON and get a structure diagram: Mermaid flowchart for markdown/wiki tools or Graphviz DOT for render pipelines. Limit depth, cap arrays, choose layout direction and keep sensitive data local in your browser."
+wasm          = "gizza_ai_json_to_graph_web"
+export        = "run"
+live          = false
+output_label  = "Diagram source"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = "{\"user\":{\"name\":\"Ada\",\"roles\":[\"admin\",\"editor\"]},\"active\":true}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+mermaid = "Mermaid flowchart"
+dot     = "Graphviz DOT"
+
+[[input]]
+name        = "direction"
+label       = "Layout direction"
+source      = "field"
+
+[input.labels]
+TD = "Top down"
+LR = "Left to right"
+BT = "Bottom up"
+RL = "Right to left"
+
+[[input]]
+name        = "max_depth"
+label       = "Max depth (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "max_nodes"
+label       = "Max nodes"
+placeholder = "300"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "5000"
+step        = "10"
+
+[[input]]
+name        = "max_array_items"
+label       = "Max array items per array (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1000"
+step        = "1"
+
+[[input]]
+name        = "include_values"
+label       = "Include scalar values"
+source      = "field"
+
+[[input]]
+name        = "value_max_len"
+label       = "Max label/value length (0 = no truncation)"
+placeholder = "40"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "200"
+step        = "5"
+
+[[input]]
+name        = "show_types"
+label       = "Show type and size hints"
+source      = "field"
+
+[[example]]
+label = "API response"
+[example.params]
+json = "{\"user\":{\"id\":1,\"name\":\"Ada\",\"roles\":[\"admin\",\"editor\"]},\"active\":true}"
+format = "mermaid"
+direction = "TD"
+max_depth = "0"
+max_nodes = "300"
+include_values = "true"
+show_types = "false"
+
+[[example]]
+label = "Keys-only DOT"
+[example.params]
+json = "{\"orders\":[{\"id\":101,\"items\":[{\"sku\":\"A1\",\"qty\":2}]}],\"next\":null}"
+format = "dot"
+direction = "LR"
+max_depth = "3"
+max_nodes = "80"
+max_array_items = "2"
+include_values = "false"
+show_types = "true"

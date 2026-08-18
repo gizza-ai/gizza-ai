@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/json-to-graph",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Visualize a JSON document's structure as a Mermaid flowchart or Graphviz DOT graph",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a JSON document into a node-link graph you can render as a diagram. Each object key and array element becomes a node (objects are boxes, arrays stacked boxes, scalars ellipses) and each parent/child relationship an edge; leaf labels carry the scalar value. Output is diagram SOURCE, ready to paste into Mermaid Live, GitHub/GitLab markdown, Notion, or `dot -Tsvg`. Options: format (mermaid default, or dot for Graphviz), direction (TD default, LR, BT, RL), max_depth (collapse anything deeper into one '… hidden' node; 0 = all), max_nodes (breadth-first cap, default 300, adds a truncation comment), max_array_items (cap elements drawn per array; 0 = all), include_values (default true; false gives a keys-only structure map), value_max_len (truncate long keys/strings, default 40, 0 = off), show_types (annotate objects with {key count}, arrays with [length], scalars with their JSON type).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "TD",
+          "description": "Layout direction: TD top-down (default), LR left-to-right (best for deep documents), BT bottom-up, RL right-to-left. Emitted as `flowchart <dir>` for Mermaid and `rankdir` for DOT (TD maps to TB).",
+          "enum": [
+            "TD",
+            "LR",
+            "BT",
+            "RL"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "mermaid",
+          "description": "Diagram syntax to emit. 'mermaid' (default) returns `flowchart` source for Mermaid Live / GitHub / Notion; 'dot' returns a Graphviz `digraph` you can pipe into `dot -Tsvg`.",
+          "enum": [
+            "mermaid",
+            "dot"
+          ],
+          "type": "string"
+        },
+        "include_values": {
+          "default": true,
+          "description": "Show scalar values in leaf labels ('name: \"Ada\"'). Set false for a keys-only structure map. Default true.",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "The JSON document to visualize (object, array, or any JSON value). Every key becomes a node and every parent/child relationship an edge, e.g. {\"users\":[{\"id\":1}]}.",
+          "type": "string"
+        },
+        "max_array_items": {
+          "default": 0,
+          "description": "Max elements drawn per array; the remainder collapses into one '… N more items' node. 0 (default) draws every element.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_depth": {
+          "default": 0,
+          "description": "Stop expanding below this nesting level; the elided subtree becomes one '… N keys/items hidden' node. Root is level 0. 0 (default) expands every level.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_nodes": {
+          "default": 300,
+          "description": "Hard cap on nodes in the diagram. Nodes are added breadth-first, so the cap keeps the upper levels; a truncation comment is appended when it bites. Default 300.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "show_types": {
+          "default": false,
+          "description": "Annotate labels with type/size: objects get '{n}' keys, arrays '[n]' items, and (when include_values is false) scalars get their JSON type. Default false.",
+          "type": "boolean"
+        },
+        "value_max_len": {
+          "default": 40,
+          "description": "Truncate key names and string values longer than this many characters, appending '…'. 0 disables truncation. Default 40.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
