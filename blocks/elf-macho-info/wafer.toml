@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "elf-macho-info"
+version = "0.1.0"
+abi = 1
+summary = "Parse an ELF or Mach-O binary and report its architecture, sections, symbols, and linked libraries"
