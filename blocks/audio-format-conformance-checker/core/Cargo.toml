@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-audio-format-conformance-checker-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Stream parse (container → codec/rate/channels/duration) reuses the shared
+# media-info core: one copy of the symphonia demuxer + codec-name mapping for the
+# whole repo. Magic-byte sniffing is local and dependency-free.
+gizza-ai-media-info-core = { path = "../../media-info/core" }
+serde = { version = "1", features = ["derive"] }

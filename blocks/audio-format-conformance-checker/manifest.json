@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/audio-format-conformance-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check whether an audio file really is the format and codec it claims to be",
+  "role": "skill",
+  "tool": {
+    "description": "Check an audio file for format conformance: identify its TRUE container from the magic bytes (MP3, WAV/RF64, AIFF/AIFF-C, FLAC, Ogg Vorbis/Opus/Speex/FLAC, M4A/M4B/MP4, AAC-ADTS, CAF, Matroska/WebM, WMA/ASF, AMR, MIDI, APE, WavPack, TTA, Musepack, AU, DSF), read the codec actually inside the container with the pure-Rust symphonia demuxers (PCM, ADPCM, MP1/MP2/MP3, AAC, FLAC, ALAC, Vorbis, Opus), and compare both against what the file claims. The claim comes from claimed_format, or from the filename extension when claimed_format is 'auto'. Returns a verdict (conformant, container_mismatch, codec_mismatch, codec_unverified, no_audio_track, not_audio, unrecognised, unknown_claim, no_claim), a one-line summary, an issues list, the signature bytes as hex, MIME type and format category, sample rate, channels, bit depth, duration and bitrate, plus suggested_extension/suggested_filename when the file is mislabelled. Also names common NON-audio content (PNG, JPEG, PDF, ZIP, HTML error pages) so a renamed or failed download is obvious. Never throws on odd input — a file whose container is known but whose codec cannot be read still gets a container verdict plus parse_error. Set strict=true to reject same-family relatives (.ogg for Opus, .mp4 for M4A). Files up to 20 MiB. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "claimed_format": {
+          "default": "auto",
+          "description": "Format the file claims to be, to check its real bytes against. Use 'auto' (the default) to take the claim from the filename extension instead. Example: claimed_format=mp3 on a file that is really a WAV returns verdict=container_mismatch with suggested_extension=wav.",
+          "enum": [
+            "auto",
+            "mp3",
+            "wav",
+            "aiff",
+            "aifc",
+            "flac",
+            "ogg",
+            "oga",
+            "opus",
+            "spx",
+            "m4a",
+            "m4b",
+            "mp4",
+            "aac",
+            "caf",
+            "mka",
+            "wma",
+            "amr",
+            "mid",
+            "ape",
+            "wv",
+            "tta",
+            "mpc",
+            "au",
+            "dsf"
+          ],
+          "type": "string"
+        },
+        "expected_codec": {
+          "default": "any",
+          "description": "Codec you expect INSIDE the container, checked separately from the container itself — e.g. expected_codec=aac on an .m4a that actually holds ALAC returns verdict=codec_mismatch. 'any' (the default) reports the codec without judging it.",
+          "enum": [
+            "any",
+            "pcm",
+            "adpcm",
+            "mp1",
+            "mp2",
+            "mp3",
+            "aac",
+            "flac",
+            "alac",
+            "vorbis",
+            "opus",
+            "speex"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "Reject a claimed extension that is only a RELATIVE of the real format rather than an exact match — .ogg for an Opus-in-Ogg file, or .mp4 for an M4A-branded file. Off by default (relatives pass); turn it on to require the exact canonical extension.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
