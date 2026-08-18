@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/set-diff-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Union, intersection and difference of two JSON arrays",
+  "role": "skill",
+  "tool": {
+    "description": "Compute a set operation over two JSON arrays: union, intersection, difference (A minus B) or symmetric difference. Elements are compared as JSON *values*, so object key order and 1 vs 1.0 never matter, or matched on a chosen field with `key` (a name or dot-path like meta.sku) the way lodash differenceBy works. `case_insensitive` folds string case, `dedupe` (default on) makes the result a true set. Returns a JSON report { operation, matched_by, counts: { a, b, a_unique, b_unique, only_in_a, only_in_b, in_both, union, result }, result: [...] }, or just the result array with output=array. Elements come from array A wherever an operation could draw from either side, and the first occurrence of a repeated key wins. Inputs may be JSON arrays or NDJSON; each is capped at 50000 elements. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_a": {
+          "description": "Array A, as a JSON array like [1, 2, 3] or [{\"id\":1,\"name\":\"Ada\"}]. NDJSON (one JSON value per line, 2+ lines) is also accepted. Max 50000 elements.",
+          "type": "string"
+        },
+        "array_b": {
+          "description": "Array B, in the same formats as array_a. Difference computes A minus B, so order matters for difference.",
+          "type": "string"
+        },
+        "case_insensitive": {
+          "default": false,
+          "description": "Fold string case when matching, so \"Apple\" and \"APPLE\" are the same element. Default false.",
+          "type": "boolean"
+        },
+        "dedupe": {
+          "default": true,
+          "description": "Collapse repeats so the result is a true set. Default true; set false to keep every occurrence of a matching element.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Indentation in spaces for the JSON output (0-8). Use 0 to minify onto one line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "key": {
+          "default": "",
+          "description": "Field to match elements on instead of comparing whole values, e.g. \"id\" or a dot-path like \"meta.sku\" / \"tags.0\". Every element must carry it. Default blank: compare whole JSON values (object key order and 1 vs 1.0 are ignored).",
+          "type": "string"
+        },
+        "operation": {
+          "default": "difference",
+          "description": "Set operation: \"union\" everything in either array, \"intersection\" elements in both, \"difference\" (default) elements of A missing from B, \"symmetric_difference\" elements in exactly one array.",
+          "enum": [
+            "union",
+            "intersection",
+            "difference",
+            "symmetric_difference"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Result shape: \"report\" (default) a JSON object with operation, matched_by, counts and result; \"array\" the bare result array, ready to paste into the next step.",
+          "enum": [
+            "report",
+            "array"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "array_a",
+        "array_b"
+      ],
+      "type": "object"
+    }
+  }
+}

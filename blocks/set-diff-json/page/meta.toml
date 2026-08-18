@@ -1,0 +1,128 @@
+slug          = "set-diff-json"
+title         = "JSON array set operations — union, intersection, difference"
+description   = "Compare two JSON arrays as sets: union, intersection, difference and symmetric difference, matched on whole values or on an id field, with counts."
+tags          = ["json set operations", "json array difference", "json array intersection", "json union", "symmetric difference", "differenceby"]
+h1            = "JSON array set diff"
+hero_subtitle = "Paste two JSON arrays and get their union, intersection, difference or symmetric difference — compared as JSON values, or matched on an id field like lodash differenceBy."
+wasm          = "gizza_ai_set_diff_json_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "array_a"
+label       = "Array A"
+placeholder = "[{\"id\": 1, \"name\": \"Ada\"}, {\"id\": 2, \"name\": \"Bo\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "array_b"
+label       = "Array B"
+placeholder = "[{\"id\": 2, \"name\": \"Bo\"}, {\"id\": 3, \"name\": \"Cy\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[input.labels]
+union                = "Union (A ∪ B)"
+intersection         = "Intersection (A ∩ B)"
+difference           = "Difference (A − B)"
+symmetric_difference = "Symmetric difference (A △ B)"
+
+[[input]]
+name        = "key"
+label       = "Match on field (blank = whole value)"
+placeholder = "id"
+source      = "field"
+
+[[input]]
+name        = "case_insensitive"
+label       = "Ignore string case"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Collapse repeats (set semantics)"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+report = "Report with counts"
+array  = "Result array only"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "Records missing from B (match on id)"
+[example.params]
+array_a = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Bo\"},{\"id\":3,\"name\":\"Cy\"}]"
+array_b = "[{\"id\":2,\"name\":\"CHANGED\"}]"
+operation = "difference"
+key = "id"
+case_insensitive = "false"
+dedupe = "true"
+output = "report"
+indent = "2"
+
+[[example]]
+label = "Emails in both lists"
+[example.params]
+array_a = "[\"ada@example.com\",\"bo@example.com\",\"cy@example.com\"]"
+array_b = "[\"BO@example.com\",\"cy@example.com\"]"
+operation = "intersection"
+key = ""
+case_insensitive = "true"
+dedupe = "true"
+output = "array"
+indent = "0"
+
+[[example]]
+label = "Merge two tag lists"
+[example.params]
+array_a = "[\"rust\",\"wasm\",\"json\"]"
+array_b = "[\"json\",\"cli\"]"
+operation = "union"
+key = ""
+case_insensitive = "false"
+dedupe = "true"
+output = "array"
+indent = "0"
+
+[[example]]
+label = "Rows on exactly one side (by sku)"
+[example.params]
+array_a = "[{\"meta\":{\"sku\":\"A-1\"}},{\"meta\":{\"sku\":\"B-2\"}}]"
+array_b = "[{\"meta\":{\"sku\":\"B-2\"}},{\"meta\":{\"sku\":\"C-3\"}}]"
+operation = "symmetric_difference"
+key = "meta.sku"
+case_insensitive = "false"
+dedupe = "true"
+output = "array"
+indent = "0"
+
+[[example]]
+label = "Keep every occurrence (no dedupe)"
+[example.params]
+array_a = "[1,1,2,3,3]"
+array_b = "[3]"
+operation = "difference"
+key = ""
+case_insensitive = "false"
+dedupe = "false"
+output = "array"
+indent = "0"
