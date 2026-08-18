@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/ssh-config-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Format, normalize and lint an OpenSSH ~/.ssh/config file.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an OpenSSH client configuration (~/.ssh/config), normalize it (canonical keyword spelling, consistent indent, optional value alignment, alphabetical keyword order, removal of ignored duplicate keywords) and lint it. Flags duplicate Host patterns, blocks shadowed by an earlier pattern, a wildcard Host block that is not last, unknown, deprecated and sshd_config-only keywords, missing values, out-of-range ports and invalid yes/no or fixed-choice values. Output as the formatted config, a readable report, structured JSON, or a plain list of host aliases.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align_values": {
+          "default": false,
+          "description": "Pad each keyword so the values line up in a column within its block. Default false.",
+          "type": "boolean"
+        },
+        "dedupe": {
+          "default": false,
+          "description": "Delete repeated keywords inside a block that SSH already ignores (it keeps the first value). Keywords that may legitimately repeat, such as IdentityFile, LocalForward and SendEnv, are never removed. Default false.",
+          "type": "boolean"
+        },
+        "include_notes": {
+          "default": true,
+          "description": "Append the lint findings as `#` comment lines under the formatted config. Default true; set false for a clean copy-paste config. Only affects the formatted output.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces used to indent directives under a Host or Match header, 0-8. Default 2. Directives before the first Host block are never indented.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "keyword_case": {
+          "default": "canonical",
+          "description": "Keyword spelling in the formatted output: canonical (OpenSSH manual spelling such as HostName and IdentityFile, the default), lower (all lowercase), or preserve (leave each keyword exactly as written). SSH matches keywords case-insensitively either way.",
+          "enum": [
+            "canonical",
+            "lower",
+            "preserve"
+          ],
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "info",
+          "description": "Lowest severity to report: info (everything, the default), warning (skip advisory notes), or error (only findings SSH itself rejects, such as bad values or a missing value).",
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "formatted",
+          "description": "Output shape: formatted (normalized config text, the default), report (readable lint findings plus counts), json (hosts, blocks, issues, stats and the formatted text), or hosts (one Host pattern per line).",
+          "enum": [
+            "formatted",
+            "report",
+            "json",
+            "hosts"
+          ],
+          "type": "string"
+        },
+        "sort_keywords": {
+          "default": false,
+          "description": "Sort the directives inside each block alphabetically by keyword. Comments stay attached to the directive below them. Default false, which preserves the written order.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The OpenSSH client configuration to format, e.g. the contents of ~/.ssh/config or /etc/ssh/ssh_config. Host and Match blocks, comments, and `Keyword=Value` lines are all accepted. Maximum 10000 lines.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
