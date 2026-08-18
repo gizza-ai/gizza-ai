@@ -1,0 +1,102 @@
+{
+  "name": "gizza-ai/pca-visualizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Project a high-dimensional table to 2-D with PCA or t-SNE and plot it as a labelled SVG scatter.",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce a wide numeric table to two dimensions and draw it. Paste the table as `data` — one observation per row, one variable per column, commas/tabs/semicolons/pipes/spaces all work, and a header row is detected automatically. method='pca' (default) runs a deterministic Jacobi eigen-decomposition and labels each axis with the share of variance it explains; method='tsne' runs a PCA-seeded t-distributed stochastic neighbor embedding, tuned with perplexity, iterations and learning_rate. One non-numeric column is used as the class label: it colours the points and builds the legend, auto-detected or named through label_column (header name or 1-based index). scale standardizes the variables first (default true, correlation PCA); set false for covariance PCA. Tune the picture with show_labels, point_size, title, width and height. format='svg' (default) returns a standalone scatter plot, 'csv' returns index,label,pc1,pc2 coordinate rows, and 'json' returns the whole projection including explained variance. Fully deterministic — no RNG — so the same table always yields byte-identical output. Limits: 5000 rows and 100 numeric variables for PCA, 1000 rows for t-SNE.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The table to project: one observation per row, one variable per column, separated by commas, tabs, semicolons, pipes or spaces. A header row is detected automatically. One non-numeric column may hold the class label. Limits: 5000 rows and 100 numeric columns (1000 rows for t-SNE), minimum 3 rows and 2 numeric columns.",
+          "type": "string"
+        },
+        "format": {
+          "default": "svg",
+          "description": "Output format: svg (default) is a standalone scatter plot with axes, legend and grid; csv returns index,label,pc1,pc2 (tsne1,tsne2 for t-SNE) coordinate rows for another chart tool; json returns the full projection — coordinates, categories, variable names and the explained variance per axis.",
+          "enum": [
+            "svg",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "default": 520,
+          "description": "SVG height in pixels, 200 to 2000. Default 520. Ignored when format=csv or json.",
+          "maximum": 2000,
+          "minimum": 200,
+          "type": "integer"
+        },
+        "iterations": {
+          "default": 500,
+          "description": "t-SNE only: gradient-descent iterations, 50 to 2000. Default 500. More iterations settle the layout further at a linear cost in time; the first quarter runs with early exaggeration to separate clusters. Ignored when method=pca.",
+          "maximum": 2000,
+          "minimum": 50,
+          "type": "integer"
+        },
+        "label_column": {
+          "description": "Header name or 1-based column index of the column holding each row's class/group label, e.g. \"species\" or \"5\". It is dropped from the maths and used to colour the points and build the legend. Empty (the default) auto-detects the single non-numeric column, if the table has exactly one.",
+          "type": "string"
+        },
+        "learning_rate": {
+          "default": 200,
+          "description": "t-SNE only: gradient-descent step size, 1 to 1000. Default 200. Too low leaves the points in a dense ball, too high scatters them into a uniform cloud. Ignored when method=pca.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "number"
+        },
+        "method": {
+          "default": "pca",
+          "description": "Which 2-D projection to compute: pca (default) is linear and keeps global structure, with each axis labelled by the share of variance it explains; tsne is non-linear and pulls local neighbourhoods apart into visible clusters. Both are deterministic — t-SNE is seeded from the PCA scores, so the same table always gives the same picture.",
+          "enum": [
+            "pca",
+            "tsne"
+          ],
+          "type": "string"
+        },
+        "perplexity": {
+          "default": 30,
+          "description": "t-SNE only: roughly how many neighbours each point tries to keep close, 1 to 100. Default 30. Lower values expose small tight clusters, higher values favour the broad shape. Automatically clamped to (rows - 1) / 3 on small tables. Ignored when method=pca.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "point_size": {
+          "default": 4,
+          "description": "Marker radius in pixels, 1 to 20. Default 4. Drop to 2 for a few hundred crowded points, raise to 6-8 for a small table or a chart that will be viewed from a distance.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "number"
+        },
+        "scale": {
+          "default": true,
+          "description": "Standardize every numeric column to unit variance before projecting (correlation-matrix PCA). Default true, which is what you want when the variables are in different units. Set false to keep the raw units so high-variance columns dominate (covariance-matrix PCA).",
+          "type": "boolean"
+        },
+        "show_labels": {
+          "default": false,
+          "description": "Draw each point's label text next to its marker, on top of the colour coding. Default false. Only usable up to 200 points, above which the text is unreadable and the tool refuses it.",
+          "type": "boolean"
+        },
+        "title": {
+          "description": "Optional chart title drawn across the top of the SVG, e.g. \"Iris measurements — PCA\". Empty (the default) leaves the plot area untitled and reclaims the space.",
+          "type": "string"
+        },
+        "width": {
+          "default": 720,
+          "description": "SVG width in pixels, 300 to 2000. Default 720. The legend takes a fixed strip on the right, so widen the chart when the label names are long. Ignored when format=csv or json.",
+          "maximum": 2000,
+          "minimum": 300,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
