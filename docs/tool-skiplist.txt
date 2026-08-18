@@ -169,6 +169,7 @@ extract-exif           # duplicate of blocks/image-metadata-viewer (reads EXIF/T
 html-beautify  # duplicate of blocks/html-formatter (indents/pretty-prints HTML, normalizes nesting + attribute spacing; same scope)
 math-expression-evaluator  # duplicate of blocks/calculator (meval-based: evaluates arithmetic expressions with functions e.g. sqrt, parentheses and constants pi/e; same scope)
 md5-hash  # duplicate: text MD5 covered by blocks/hash-text (algorithm="md5", with input/output encodings) and file MD5 covered by blocks/file-hash (returns md5 digest of any file). No distinct surface.
+multi-hash-digest  # duplicate of blocks/hash-all (already computes MD5, SHA-1, SHA-2, SHA3, BLAKE2, BLAKE3, RIPEMD-160 and more in one pass)
 percent-encode-decode  # duplicate of blocks/url-encode (percent-encode/decode text per RFC 3986 with selectable reserved-char sets: component/uri/form covers query/path/component; plus per_line + repeat). Same scope.
 url-codec  # duplicate of blocks/url-encode (percent-encode/decode URLs and query-string components; target=component/uri/form covers form '+' handling, per-line batches, and repeated decode/encode). Same scope.
 readability-scorer  # duplicate of blocks/readability-score (computes Flesch Reading Ease + Flesch-Kincaid Grade + Gunning-Fog + SMOG + Coleman-Liau + ARI with the underlying word/sentence/syllable/complex-word counts; same scope). "Flag long/complex sentences" is a minor improvement to readability-score, not a distinct tool.
