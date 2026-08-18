@@ -1,0 +1,122 @@
+slug          = "shamir-secret-recover"
+title         = "Shamir Secret Recover — combine threshold shares locally"
+description   = "Paste Shamir shares to recover a secret locally, with GF(256) format detection, threshold checks and redundant-share verification."
+tags          = ["shamir secret sharing", "shamir secret recover", "secret sharing combine", "threshold shares", "sss combine", "gf256", "vault unseal", "base64 shares", "hex shares"]
+h1            = "Shamir Secret Recover"
+hero_subtitle = "Combine threshold shares into the original secret without uploading them. Supports common hex, base64url, leading-index and trailing-index GF(256) share layouts."
+wasm          = "gizza_ai_shamir_secret_recover_web"
+export        = "run"
+live          = false
+output_label  = "Recovered secret"
+format        = "text"
+
+[[input]]
+name        = "shares"
+label       = "Shares"
+placeholder = "1-68b509858f664dea3c3829\n2-73fb23909fc0cdded4b830\n3-732b46797f86f75b9aec7d"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "share_format"
+label  = "Share format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+index-prefix = "Index prefix (1-hex)"
+leading-index = "Leading index byte"
+trailing-index = "Trailing index byte"
+
+[[input]]
+name   = "share_encoding"
+label  = "Share encoding"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+hex = "Hex"
+base64 = "Base64 / base64url"
+
+[[input]]
+name   = "field_poly"
+label  = "GF(256) polynomial"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+0x11b = "0x11b (AES / Vault-style)"
+0x11d = "0x11d (secrets.js-lineage)"
+
+[[input]]
+name        = "threshold"
+label       = "Threshold K"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "255"
+step        = "1"
+
+[[input]]
+name   = "verify"
+label  = "Cross-check redundant shares"
+source = "field"
+
+[[input]]
+name   = "secret_encoding"
+label  = "Secret encoding"
+source = "field"
+
+[input.labels]
+auto = "Auto (text, otherwise hex)"
+text = "Text"
+hex = "Hex"
+base64 = "Base64"
+binary = "Binary bits"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+secret = "Secret only"
+report = "Report"
+json = "JSON"
+
+[[example]]
+label = "3-of-5 index-prefixed hex"
+[example.params]
+shares = "1-68b509858f664dea3c3829\n2-73fb23909fc0cdded4b830\n3-732b46797f86f75b9aec7d\n4-32d6d05b38500da0cd34d9"
+share_format = "auto"
+share_encoding = "auto"
+field_poly = "auto"
+threshold = "3"
+verify = "true"
+secret_encoding = "auto"
+output = "report"
+
+[[example]]
+label = "sss: base64url shares"
+[example.params]
+shares = "sss:AQ8hBuB2RlYOWc6_YNs\nsss:Arvzmk1DKTB8CjbzVQI\nsss:A9e97t9QDBJSO5c-Rrw"
+share_format = "auto"
+share_encoding = "auto"
+field_poly = "auto"
+threshold = "2"
+verify = "true"
+secret_encoding = "text"
+output = "secret"
+
+[[example]]
+label = "Trailing-index 0x11d shares"
+[example.params]
+shares = "7b2d29cba93975ea5108479560c3b6bb01\nc5b32e7f030860ac928276c4f6ae75d402\nc8ff72d8de1c7827b0fe5423bb06a61603\n93ed6857fd5383d902bd028a9fe6d3ee04"
+share_format = "trailing-index"
+share_encoding = "hex"
+field_poly = "0x11d"
+threshold = "3"
+verify = "true"
+secret_encoding = "text"
+output = "report"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "shamir-secret-recover"
+version = "0.1.0"
+abi = 1
+summary = "Recover a Shamir secret from threshold shares."
