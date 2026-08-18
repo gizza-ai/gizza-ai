@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/youtube-takeout-stats",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize Google/YouTube Takeout watch history into viewing stats.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Google/YouTube Takeout watch-history.json or watch-history.html export into local viewing statistics: totals, top channels, repeated videos, month trends, weekday and hour patterns, streaks, filters, CSV, and JSON. No YouTube API key, account login, or network lookup is used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "end_date": {
+          "default": "",
+          "description": "Optional inclusive end date in YYYY-MM-DD format. Leave blank to end at the last watch in the export.",
+          "type": "string"
+        },
+        "include_ads": {
+          "default": false,
+          "description": "Include Google Ads impressions from the export. Off by default so ad rows do not inflate viewing totals.",
+          "type": "boolean"
+        },
+        "include_music": {
+          "default": false,
+          "description": "Include YouTube Music watch rows. Off by default to keep the report focused on regular YouTube watch history.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Contents of a Google/YouTube Takeout watch-history.json or watch-history.html export. The tool runs locally and never fetches YouTube or uploads the history.",
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: full text dashboard, CSV table for the selected report, or structured JSON.",
+          "enum": [
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "report": {
+          "default": "overview",
+          "description": "Report section to emit. Overview includes headline totals plus the channel, video, month, weekday, and hour tables.",
+          "enum": [
+            "overview",
+            "channels",
+            "videos",
+            "months",
+            "weekdays",
+            "hours"
+          ],
+          "type": "string"
+        },
+        "start_date": {
+          "default": "",
+          "description": "Optional inclusive start date in YYYY-MM-DD format. Leave blank to start at the first watch in the export.",
+          "type": "string"
+        },
+        "top": {
+          "default": 10,
+          "description": "Maximum ranked rows to include in the top channels and top videos reports, from 1 to 100.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "utc_offset": {
+          "default": 0.0,
+          "description": "Hours to add to JSON export timestamps before bucketing days and hours. Use your local UTC offset, such as -5 or 5.5. HTML exports are already local and ignore this value.",
+          "maximum": 14,
+          "minimum": -14,
+          "type": "number"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
