@@ -1,0 +1,120 @@
+{
+  "name": "gizza-ai/likert-summary",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize Likert survey answers into per-item means, distributions and stacked bars.",
+  "role": "skill",
+  "tool": {
+    "description": "Summarize Likert-scale survey answers. Pass data as either a response CSV (input=responses, the default: first row = item headers, each later row = one respondent, answers as codes 1-points or as the scale labels) or a per-item tally (input=counts: item name then one count per category). Returns a monospaced report: a per-item table with n, missing, mean, SD, median, mode and bottom-box / neutral / top-box percentages; the full response distribution per item; floor and ceiling flags; the overall mean of item means; text stacked bars (optionally diverging around the neutral midpoint); and, with alpha=true, Cronbach's alpha. Options: points (2-11, default 5), scale (agreement/satisfaction/frequency/quality/numeric/custom) with labels for custom label sets, items to pick just the Likert columns, reverse to flip negatively worded items, box_size, missing (exclude/listwise), sort, decimals, chart, delimiter.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": false,
+          "description": "Add Cronbach's alpha, the internal-consistency reliability of the items taken as one scale. Needs at least 2 items and 2 respondents who answered every item; not available for input=counts. Default false.",
+          "type": "boolean"
+        },
+        "box_size": {
+          "default": 2,
+          "description": "How many categories at each end make up the top box and bottom box: 2 gives the usual top-2-box / bottom-2-box percentages, 1 gives top-box only. Must be at most points / 2. Default 2.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "chart": {
+          "default": true,
+          "description": "Draw a text stacked bar per item, 40 characters wide = 100% of that item's valid answers, with a key mapping each character to its category. Default true.",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "The survey answers. With input=responses (default): a CSV whose first row is the item/question headers and each later row is one respondent, with answers as scale codes (1-points) or the scale labels themselves. With input=counts: one row per item — the item name, then how many respondents chose each category, lowest first.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for means, SDs, medians and Cronbach's alpha. Percentages are always shown to 1 decimal place. Default 2.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field delimiter of the input: a single character or one of comma, tab, semicolon, pipe. Default comma.",
+          "type": "string"
+        },
+        "diverging": {
+          "default": false,
+          "description": "Centre the stacked bars between the negative and positive halves of the scale (the neutral category is split across the centre line) instead of stacking from the left. Needs chart=true. Default false.",
+          "type": "boolean"
+        },
+        "input": {
+          "default": "responses",
+          "description": "Shape of the data: responses = one row per respondent, one column per item; counts = one row per item holding a tally per scale category. Default responses.",
+          "enum": [
+            "responses",
+            "counts"
+          ],
+          "type": "string"
+        },
+        "items": {
+          "default": "",
+          "description": "Which columns are Likert items, as a comma-separated list of header names or 1-based indices (e.g. 'Q1,Q3' or '2,3'). Blank = every column. Use this to skip respondent IDs, timestamps, or free-text comments.",
+          "type": "string"
+        },
+        "labels": {
+          "default": "",
+          "description": "Custom category labels, comma-separated, lowest first, one per scale point (e.g. 'Never,Rarely,Sometimes,Often,Always'). Required for scale=custom; overrides the named set if given.",
+          "type": "string"
+        },
+        "missing": {
+          "default": "exclude",
+          "description": "How to treat blank answers and NA/N-A/-/./none/null/missing/? markers: exclude drops them item by item (each item keeps every answer it has); listwise drops any respondent who skipped at least one item. Ignored for input=counts. Default exclude.",
+          "enum": [
+            "exclude",
+            "listwise"
+          ],
+          "type": "string"
+        },
+        "points": {
+          "default": 5,
+          "description": "How many categories the scale has (4, 5 and 7 are the usual ones). Answers must be codes 1-points, where 1 is the most negative. Default 5.",
+          "maximum": 11,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "reverse": {
+          "default": "",
+          "description": "Items to reverse-score before summarizing, as a comma-separated list of header names or 1-based indices. Each answer becomes points + 1 - answer, so negatively worded items point the same way as the rest.",
+          "type": "string"
+        },
+        "scale": {
+          "default": "agreement",
+          "description": "Which label set to print next to each category: agreement (Strongly disagree … Strongly agree), satisfaction, frequency (Never … Always), quality (Poor … Excellent), numeric (1 … N), or custom with labels=. Named sets cover 2-7 points. Default agreement.",
+          "enum": [
+            "agreement",
+            "satisfaction",
+            "frequency",
+            "quality",
+            "numeric",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Row order of the item table: input (as given), mean-desc / mean-asc (by item mean), or top-desc (by top-box percentage). Default input.",
+          "enum": [
+            "input",
+            "mean-desc",
+            "mean-asc",
+            "top-desc"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
