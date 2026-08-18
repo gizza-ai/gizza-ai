@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "time-series-forecaster"
+version = "0.1.0"
+abi = 1
+summary = "Forecast a time series with exponential smoothing and prediction intervals"

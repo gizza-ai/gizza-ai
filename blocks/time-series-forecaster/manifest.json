@@ -1,0 +1,121 @@
+{
+  "name": "gizza-ai/time-series-forecaster",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Forecast a time series with exponential smoothing and prediction intervals",
+  "role": "skill",
+  "tool": {
+    "description": "Forecast future values of a univariate time series using the exponential-smoothing (ETS) family: simple exponential smoothing, Holt's linear trend, damped trend, and Holt-Winters additive or multiplicative seasonality. Smoothing weights left at 0 are fitted automatically by a deterministic grid search that minimises the sum of squared one-step-ahead errors, and model=auto picks the best candidate by AICc. Returns the chosen model, its alpha/beta/gamma/phi weights, in-sample accuracy (MAE, RMSE, MAPE, MASE, residual sigma, AICc), and a forecast table with 80/90/95/99 percent prediction intervals, optionally alongside per-period fitted values and residuals, as text, CSV, or JSON. Accepts labelled rows, single-line series, currency and percent symbols; up to 10000 observations and a 240-period horizon.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.0,
+          "description": "Level smoothing weight between 0 and 1. Leave at 0 (default) to fit it automatically by minimising the sum of squared one-step-ahead errors. Higher values react faster to recent observations.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "beta": {
+          "default": 0.0,
+          "description": "Trend smoothing weight between 0 and 1, used by holt, damped and both Holt-Winters models. Leave at 0 (default) to fit it automatically. Ignored by the simple model.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "confidence": {
+          "default": "95",
+          "description": "Prediction-interval confidence level in percent: 80, 90, 95 (default) or 99. Wider levels give wider bands around each forecast.",
+          "enum": [
+            "80",
+            "90",
+            "95",
+            "99"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "The historical series, oldest observation first. Paste one value per line, an optional label before the value (\"Jan,120\"), or the whole series on one comma/semicolon/space separated line. Values may carry currency symbols, percent signs or accounting-style (12.5) negatives. Minimum 3 observations, maximum 10000.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 3,
+          "description": "Decimal places for forecasts and accuracy metrics, 0 to 10. Default 3.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: text report (model, smoothing parameters, accuracy metrics, forecast table with prediction intervals), csv sections, or structured json. Default text.",
+          "enum": [
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "gamma": {
+          "default": 0.0,
+          "description": "Seasonal smoothing weight between 0 and 1, used by the Holt-Winters models. Leave at 0 (default) to fit it automatically. Ignored by non-seasonal models.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "header": {
+          "default": "auto",
+          "description": "How to treat a leading label row. auto (default) drops the first row only when its value field is not numeric; yes always drops it; no parses every row as data.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "horizon": {
+          "default": 6,
+          "description": "How many future periods to forecast, 1 to 240. Default 6.",
+          "maximum": 240,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "model": {
+          "default": "auto",
+          "description": "Exponential-smoothing model. auto (default) fits every applicable candidate and picks the best AICc; simple = simple exponential smoothing (level only); holt = additive linear trend; damped = trend damped by phi so long horizons flatten; holt-winters-additive = trend plus a constant-size seasonal cycle; holt-winters-multiplicative = trend plus a seasonal cycle that grows with the level (needs strictly positive values). Both Holt-Winters models require season_length of 2 or more.",
+          "enum": [
+            "auto",
+            "simple",
+            "holt",
+            "damped",
+            "holt-winters-additive",
+            "holt-winters-multiplicative"
+          ],
+          "type": "string"
+        },
+        "phi": {
+          "default": 0.0,
+          "description": "Trend damping factor between 0 and 1 for model=damped; values near 1 keep the trend, lower values flatten it quickly. Leave at 0 (default) to fit it automatically in the range 0.6 to 0.99. Ignored by other models.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "season_length": {
+          "default": 0,
+          "description": "Observations per seasonal cycle: 12 for monthly data with a yearly cycle, 4 for quarterly, 7 for daily data with a weekly cycle. Use 0 (default) for a non-seasonal series. Seasonal models need at least two full cycles of history.",
+          "maximum": 366,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "show_fitted": {
+          "default": false,
+          "description": "Include the per-period table of actual values, one-step-ahead fitted values and residuals (default false). Useful for checking how well the model tracked history.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,150 @@
+slug          = "time-series-forecaster"
+title         = "Time Series Forecaster — Exponential Smoothing & Holt-Winters"
+description   = "Forecast a time series with exponential smoothing, Holt trend, damped trend, or Holt-Winters seasonality, including prediction intervals and accuracy metrics."
+tags          = ["time series forecasting", "exponential smoothing calculator", "holt winters forecast", "demand forecasting tool", "sales forecast calculator", "prediction interval", "trend and seasonality", "ets model"]
+h1            = "Time Series Forecaster"
+hero_subtitle = "Paste a series of numbers and project it forward. Choose simple exponential smoothing, Holt's linear trend, a damped trend, or Holt-Winters seasonality — or let the tool pick by AICc. You get the fitted smoothing weights, accuracy metrics, and a forecast table with prediction intervals, computed entirely in your browser."
+wasm          = "gizza_ai_time_series_forecaster_web"
+export        = "run"
+live          = false
+output_label  = "Forecast"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Historical values (oldest first)"
+placeholder = "month,sales\nJan,120\nFeb,132\nMar,141\nApr,158"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "model"
+label  = "Model"
+source = "field"
+
+[input.labels]
+auto                          = "Auto-select by AICc"
+simple                        = "Simple exponential smoothing"
+holt                          = "Holt linear trend"
+damped                        = "Damped trend"
+"holt-winters-additive"       = "Holt-Winters additive seasonality"
+"holt-winters-multiplicative" = "Holt-Winters multiplicative seasonality"
+
+[[input]]
+name        = "horizon"
+label       = "Periods to forecast"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "60"
+step        = "1"
+
+[[input]]
+name        = "season_length"
+label       = "Season length (0 = non-seasonal)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "alpha"
+label       = "Alpha — level weight (0 = fit automatically)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.01"
+
+[[input]]
+name        = "beta"
+label       = "Beta — trend weight (0 = fit automatically)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.01"
+
+[[input]]
+name        = "gamma"
+label       = "Gamma — seasonal weight (0 = fit automatically)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.01"
+
+[[input]]
+name        = "phi"
+label       = "Phi — trend damping (0 = fit automatically)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.01"
+
+[[input]]
+name   = "confidence"
+label  = "Prediction interval"
+source = "field"
+
+[input.labels]
+"80" = "80%"
+"90" = "90%"
+"95" = "95%"
+"99" = "99%"
+
+[[input]]
+name   = "show_fitted"
+label  = "Show fitted values and residuals"
+source = "field"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect labels"
+yes  = "First row is a header"
+no   = "No header row"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text = "Text report"
+csv  = "CSV sections"
+json = "Structured JSON"
+
+[[example]]
+label  = "Monthly sales with a trend"
+params = { data = "month,sales\nJan,120\nFeb,132\nMar,141\nApr,158\nMay,166\nJun,181\nJul,190\nAug,203", model = "holt", horizon = "6", season_length = "0", confidence = "95", decimals = "2", format = "text" }
+
+[[example]]
+label  = "Quarterly demand with seasonality"
+params = { data = "180\n240\n300\n210\n200\n260\n330\n230\n220\n290\n360\n250", model = "holt-winters-additive", horizon = "4", season_length = "4", confidence = "95", decimals = "1", format = "text" }
+
+[[example]]
+label  = "Flat series, damped trend"
+params = { data = "52, 55, 51, 57, 54, 58, 56, 60, 59, 62", model = "damped", horizon = "8", season_length = "0", confidence = "80", decimals = "2", format = "text" }
+
+[[example]]
+label  = "Auto-select, JSON output"
+params = { data = "10\n12\n11\n14\n15\n17\n16\n19\n21\n22\n24\n26", model = "auto", horizon = "5", season_length = "0", confidence = "90", decimals = "3", format = "json" }
