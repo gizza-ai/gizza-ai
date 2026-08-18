@@ -1,0 +1,206 @@
+slug          = "mfcc-extractor"
+title         = "MFCC Extractor"
+description   = "Extract MFCC features from audio as CSV, TSV, or JSON. Tune speech defaults, librosa-style settings, deltas, and sample-rate options locally."
+tags          = ["audio", "mfcc", "speech", "features", "cepstrum", "csv", "machine-learning"]
+h1            = "Extract MFCC Features from Audio"
+hero_subtitle = "Upload an audio file and turn it into a frame-by-coefficient MFCC matrix for speech, speaker-ID, keyword spotting, or audio ML experiments."
+wasm          = "gizza_ai_mfcc_extractor_web"
+export        = "run"
+live          = false
+output_label  = "MFCC matrix"
+format        = "text"
+
+[[input]]
+name   = "input"
+label  = "Audio file"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+placeholder = "base64"
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+placeholder = "csv"
+[input.labels]
+csv  = "CSV"
+tsv  = "TSV"
+json = "JSON with metadata"
+
+[[input]]
+name        = "n_mfcc"
+label       = "MFCC coefficients"
+source      = "field"
+placeholder = "13"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "n_mels"
+label       = "Mel filters"
+source      = "field"
+placeholder = "26"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "frame_ms"
+label       = "Frame length (ms)"
+source      = "field"
+placeholder = "25"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "hop_ms"
+label       = "Hop length (ms)"
+source      = "field"
+placeholder = "10"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "fmin"
+label       = "Low frequency (Hz)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "fmax"
+label       = "High frequency (Hz, 0 = Nyquist)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "window"
+label       = "Analysis window"
+source      = "field"
+placeholder = "hamming"
+[input.labels]
+hamming     = "Hamming"
+hann        = "Hann"
+blackman    = "Blackman"
+rectangular = "Rectangular"
+
+[[input]]
+name        = "preemphasis"
+label       = "Pre-emphasis"
+source      = "field"
+placeholder = "0.97"
+kind        = "slider"
+step        = "0.01"
+
+[[input]]
+name        = "lifter"
+label       = "Cepstral lifter"
+source      = "field"
+placeholder = "22"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "mel_scale"
+label       = "Mel scale"
+source      = "field"
+placeholder = "htk"
+[input.labels]
+htk    = "HTK"
+slaney = "Slaney / area-normalized"
+
+[[input]]
+name   = "append_energy"
+label  = "Replace C0 with log energy"
+source = "field"
+
+[[input]]
+name        = "deltas"
+label       = "Derivative features"
+source      = "field"
+placeholder = "none"
+[input.labels]
+none        = "None"
+delta       = "Delta"
+delta_delta = "Delta + delta-delta"
+
+[[input]]
+name   = "include_time"
+label  = "Include time_s column"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+source      = "field"
+placeholder = "6"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "resample_hz"
+label       = "Analysis sample rate (Hz, 0 = native)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "1000"
+
+[[example]]
+label = "Speech / ASR defaults"
+[example.params]
+output = "csv"
+n_mfcc = "13"
+n_mels = "26"
+frame_ms = "25"
+hop_ms = "10"
+preemphasis = "0.97"
+lifter = "22"
+mel_scale = "htk"
+append_energy = "true"
+include_time = "true"
+
+[[example]]
+label = "Librosa-style compact"
+[example.params]
+output = "csv"
+n_mfcc = "20"
+n_mels = "40"
+frame_ms = "46"
+hop_ms = "23"
+window = "hann"
+preemphasis = "0"
+lifter = "0"
+mel_scale = "slaney"
+append_energy = "false"
+resample_hz = "22050"
+
+[[example]]
+label = "Add deltas"
+[example.params]
+output = "json"
+n_mfcc = "13"
+n_mels = "40"
+deltas = "delta_delta"
+resample_hz = "16000"
+
+[[example]]
+label = "Wide-band music"
+[example.params]
+output = "tsv"
+n_mfcc = "20"
+n_mels = "64"
+frame_ms = "50"
+hop_ms = "25"
+fmax = "12000"
+window = "blackman"
+mel_scale = "slaney"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mfcc-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract MFCC coefficients from audio as a CSV, TSV or JSON matrix."

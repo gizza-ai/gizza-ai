@@ -1,0 +1,152 @@
+{
+  "name": "gizza-ai/mfcc-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract MFCC coefficients from audio as a CSV, TSV or JSON matrix.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract Mel-frequency cepstral coefficients (MFCCs) from a speech or music file and return them as a frames-by-coefficients matrix. Paste the file bytes as base64 or hex. The tool decodes WAV, AIFF, CAF, FLAC, MP3, OGG, MP4/M4A, MKV/WebM and AAC-ADTS with a pure-Rust decoder, downmixes to mono, optionally resamples, then runs the standard pipeline: pre-emphasis, framing every hop_ms into frame_ms windows, windowing, FFT power spectrum, a triangular mel filterbank (HTK or Slaney scale), natural log, orthonormal DCT-II, cepstral liftering, and optional log-energy in C0 plus delta and delta-delta columns. Output as CSV (default), TSV, or JSON with the resolved frame, hop, FFT size and settings alongside the matrix. Frames are complete windows only, taken from sample 0 with no centring or padding.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "append_energy": {
+          "default": true,
+          "description": "Replace coefficient C0 with the natural log of the frame's total energy (default true, the speech-toolkit convention). Turn it off to keep the plain DCT term, which is the mean log-mel energy instead.",
+          "type": "boolean"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places used when printing the coefficients (0-8, default 6). Timestamps always keep at least 3 decimals.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "deltas": {
+          "default": "none",
+          "description": "Append derivative features computed over a +/-2 frame span: 'none' (default), 'delta' adds first-order columns d0..dN, 'delta_delta' also adds second-order columns dd0..dN. Standard extras for acoustic models.",
+          "enum": [
+            "none",
+            "delta",
+            "delta_delta"
+          ],
+          "type": "string"
+        },
+        "fmax": {
+          "default": 0.0,
+          "description": "Highest frequency covered by the filterbank, in Hz (0-24000, default 0 which means the Nyquist rate, half the analysis sample rate). Values above Nyquist are clamped down to it.",
+          "maximum": 24000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fmin": {
+          "default": 0.0,
+          "description": "Lowest frequency covered by the filterbank, in Hz (0-24000, default 0). Telephone-band speech pipelines often set 133 or 300 Hz to drop rumble.",
+          "maximum": 24000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "frame_ms": {
+          "default": 25.0,
+          "description": "Analysis frame (window) length in milliseconds (1-200, default 25). The FFT size is the next power of two at or above this many samples. Speech uses 20-30 ms; longer frames give finer frequency detail and coarser timing.",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "number"
+        },
+        "hop_ms": {
+          "default": 10.0,
+          "description": "Step between consecutive frames in milliseconds (1-200, default 10, i.e. 100 frames per second). Smaller values overlap more and produce more rows.",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "number"
+        },
+        "include_time": {
+          "default": true,
+          "description": "Prepend a 'time_s' column holding each frame's start time in seconds (default true). Turn it off for a bare coefficient matrix ready to load straight into a feature array.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Audio file bytes encoded as base64 or hex, e.g. 'UklGRi...' for a WAV. Decodes WAV, AIFF, CAF, FLAC, MP3, OGG/Vorbis, MP4/M4A (AAC-LC, ALAC), MKV/WebM and AAC-ADTS; the first audio track is used and every channel is downmixed to mono. Limit 24 MiB of decoded bytes, 4,000,000 analysed samples and 200,000 output frames.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding used for the pasted audio bytes: 'base64' (default) or 'hex'. Base64 may be standard or URL-safe and padding is optional; hex may include whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "lifter": {
+          "default": 22.0,
+          "description": "Sinusoidal cepstral lifter L, scaling coefficient k by 1 + (L/2)*sin(pi*k/L) (0-100, default 22). It evens out the dynamic range of the higher coefficients; set 0 to disable liftering.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mel_scale": {
+          "default": "htk",
+          "description": "Mel-scale formula for spacing the filters: 'htk' (default) uses 2595*log10(1+f/700) with unit-height filters; 'slaney' uses the linear-below -1kHz auditory scale and normalises each filter by its bandwidth so all filters carry equal area.",
+          "enum": [
+            "htk",
+            "slaney"
+          ],
+          "type": "string"
+        },
+        "n_mels": {
+          "default": 26,
+          "description": "Number of triangular mel filters in the filterbank the DCT is applied to (4-256, default 26; 40 and 128 are the other common choices). More filters need a longer frame_ms — a filter narrower than one FFT bin is rejected.",
+          "maximum": 256,
+          "minimum": 4,
+          "type": "integer"
+        },
+        "n_mfcc": {
+          "default": 13,
+          "description": "Number of cepstral coefficients kept per frame (1-64, default 13, the usual speech-recognition front end; music work often uses 20). Must not exceed n_mels. C0 is the overall energy/loudness term, C1 upward describe the spectral envelope shape.",
+          "maximum": 64,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Output format. 'csv' (default) is one header row plus one row per analysis frame; 'tsv' is the same matrix tab-separated; 'json' wraps the matrix in an object that also reports the resolved sample rate, frame/hop/FFT sizes and every setting actually used.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "preemphasis": {
+          "default": 0.97,
+          "description": "Pre-emphasis coefficient a in y[n] = x[n] - a*x[n-1], applied before framing (0-1, default 0.97). It boosts high frequencies to offset the natural spectral tilt of voiced speech; set 0 to disable the filter.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "resample_hz": {
+          "default": 0,
+          "description": "Resample the audio to this rate in Hz before analysis (0 = keep the file's own rate, otherwise 4000-48000). Set 16000 to match the usual speech feature pipeline so files of different rates give comparable matrices.",
+          "maximum": 48000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "window": {
+          "default": "hamming",
+          "description": "Analysis window applied to each frame before the FFT: 'hamming' (default, the speech-toolkit standard), 'hann', 'blackman' (lowest spectral leakage) or 'rectangular' (no window).",
+          "enum": [
+            "hamming",
+            "hann",
+            "blackman",
+            "rectangular"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+[package]
+name = "gizza-ai-mfcc-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust container demuxers + audio decoders (same wasm-proven
+# crate + feature set as blocks/audio-rms-level-report). The decoded signal is
+# downmixed to mono inside the packet loop, so native-rate multi-channel PCM is
+# never held in memory. The FFT / mel filterbank / DCT are hand-rolled here — no
+# extra dependency instantiates in the 64 MiB wasmi sandbox for less code.
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }
