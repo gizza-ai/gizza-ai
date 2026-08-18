@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-random-bytes-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# getrandom 0.2 = WASI `random_get` on wasm32-wasip1 (chat/CLI) and the `js`
+# backend on the page target (enabled by the web crate).
+getrandom = "0.2"
+sha2 = "0.10"
+serde_json = "1"
