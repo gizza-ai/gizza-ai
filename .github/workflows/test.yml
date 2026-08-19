@@ -244,8 +244,34 @@ jobs:
           node-version: '20'
 
       - name: JS tests
+        timeout-minutes: 20
+        shell: bash
         run: |
-          npm install --no-audit --no-fund
+          set -euo pipefail
+          # Runner network flakes are the dominant failure mode of a 16-shard
+          # fan-out: one morning's run lost five shards to an apt mirror that
+          # stalled `playwright install --with-deps` for three hours, and two
+          # more to the npm registry timing out. Retry, and bound anything that
+          # can hang so a flake costs minutes instead of a runner-hour.
+          retry() {
+            local n=1
+            until "$@"; do
+              if [ "$n" -ge 3 ]; then
+                echo "::error::failed after $n attempts: $*"
+                return 1
+              fi
+              echo "attempt $n failed, retrying in 15s: $*"
+              n=$((n + 1))
+              sleep 15
+            done
+          }
+          # --with-deps shells out to apt-get; fall back to the browser-only
+          # install, since the runner image already ships chromium's libraries.
+          install_chromium() {
+            timeout 300s npx playwright install --with-deps chromium \
+              || timeout 300s npx playwright install chromium
+          }
+          retry npm install --no-audit --no-fund
           npm test
 
       - name: Generate tool pages (full)
@@ -255,13 +281,37 @@ jobs:
         run: cargo run --manifest-path tools/generator/Cargo.toml -- .
 
       - name: Tool pages Playwright test (full)
+        timeout-minutes: 120
         if: github.event_name != 'pull_request'
         working-directory: tests
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # Runner network flakes are the dominant failure mode of a 16-shard
+          # fan-out: one morning's run lost five shards to an apt mirror that
+          # stalled `playwright install --with-deps` for three hours, and two
+          # more to the npm registry timing out. Retry, and bound anything that
+          # can hang so a flake costs minutes instead of a runner-hour.
+          retry() {
+            local n=1
+            until "$@"; do
+              if [ "$n" -ge 3 ]; then
+                echo "::error::failed after $n attempts: $*"
+                return 1
+              fi
+              echo "attempt $n failed, retrying in 15s: $*"
+              n=$((n + 1))
+              sleep 15
+            done
+          }
+          # --with-deps shells out to apt-get; fall back to the browser-only
+          # install, since the runner image already ships chromium's libraries.
+          install_chromium() {
+            timeout 300s npx playwright install --with-deps chromium \
+              || timeout 300s npx playwright install chromium
+          }
+          retry npm install --no-audit --no-fund
+          retry install_chromium
           npx playwright test tool_pages.spec.ts
 
   # ---------------------------------------------------------------------------
@@ -358,7 +408,34 @@ jobs:
         # root node_modules for model-backed tool pages and hard-errors when it
         # is absent. It used to ride along on the "JS tests" npm install, which
         # now runs in the `repo` job, so this shard has to install its own.
-        run: npm install --no-audit --no-fund
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Runner network flakes are the dominant failure mode of a 16-shard
+          # fan-out: one morning's run lost five shards to an apt mirror that
+          # stalled `playwright install --with-deps` for three hours, and two
+          # more to the npm registry timing out. Retry, and bound anything that
+          # can hang so a flake costs minutes instead of a runner-hour.
+          retry() {
+            local n=1
+            until "$@"; do
+              if [ "$n" -ge 3 ]; then
+                echo "::error::failed after $n attempts: $*"
+                return 1
+              fi
+              echo "attempt $n failed, retrying in 15s: $*"
+              n=$((n + 1))
+              sleep 15
+            done
+          }
+          # --with-deps shells out to apt-get; fall back to the browser-only
+          # install, since the runner image already ships chromium's libraries.
+          install_chromium() {
+            timeout 300s npx playwright install --with-deps chromium \
+              || timeout 300s npx playwright install chromium
+          }
+          retry npm install --no-audit --no-fund
 
       - name: Build changed tool pages
         # Standalone tool pages are self-contained under pkg/tools/<slug>/
@@ -387,6 +464,7 @@ jobs:
           cargo run --manifest-path tools/generator/Cargo.toml -- .
 
       - name: Changed tool-page Playwright tests
+        timeout-minutes: 60
         # Playwright runs headless (the fixtures only go headed under HEADED=1
         # for WebLLM/WebGPU specs, which are not in this set). The webServer in
         # playwright.config.ts serves ../pkg on :8001 automatically.
@@ -407,8 +485,31 @@ jobs:
             echo "No changed tool-page specs in this shard; skipping Playwright."
             exit 0
           fi
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # Runner network flakes are the dominant failure mode of a 16-shard
+          # fan-out: one morning's run lost five shards to an apt mirror that
+          # stalled `playwright install --with-deps` for three hours, and two
+          # more to the npm registry timing out. Retry, and bound anything that
+          # can hang so a flake costs minutes instead of a runner-hour.
+          retry() {
+            local n=1
+            until "$@"; do
+              if [ "$n" -ge 3 ]; then
+                echo "::error::failed after $n attempts: $*"
+                return 1
+              fi
+              echo "attempt $n failed, retrying in 15s: $*"
+              n=$((n + 1))
+              sleep 15
+            done
+          }
+          # --with-deps shells out to apt-get; fall back to the browser-only
+          # install, since the runner image already ships chromium's libraries.
+          install_chromium() {
+            timeout 300s npx playwright install --with-deps chromium \
+              || timeout 300s npx playwright install chromium
+          }
+          retry npm install --no-audit --no-fund
+          retry install_chromium
           for spec in "${specs[@]}"; do
             echo "::group::playwright $spec"
             timeout 180s npx playwright test "$spec" --workers=1 --reporter=line --max-failures=1
