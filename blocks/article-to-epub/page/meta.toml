@@ -1,0 +1,80 @@
+slug          = "article-to-epub"
+title         = "Article to EPUB Converter"
+description   = "Turn article text or cleaned HTML into a valid EPUB 3 ebook with metadata, chapter splits, and a real table of contents. Runs in your browser."
+tags          = ["article to epub", "text to epub", "html to epub", "epub creator", "make an ebook", "epub generator"]
+h1            = "Article to EPUB"
+hero_subtitle = "Paste an article — plain text or cleaned HTML — and download a valid EPUB 3 ebook with proper metadata, chapters split at your headings and a working table of contents. Built in your browser; nothing is uploaded."
+wasm          = "gizza_ai_article_to_epub_web"
+export        = "run"
+live          = false
+output_label  = "Ebook"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "content"
+label       = "Article text or HTML"
+placeholder = "# The Tide Pools of Muir Beach\n\nAt low tide the rocks north of the parking lot turn into a museum.\n\n## What to look for\n\n- Ochre sea stars\n- Green anemones"
+source      = "field"
+multiline   = true
+
+# input_format renders as a <select> from the descriptor enum; `labels` only
+# enriches the visible text — values stay canonical for deep-links.
+[[input]]
+name   = "input_format"
+label  = "Read the content as"
+source = "field"
+labels = { auto = "Auto-detect", html = "HTML", text = "Plain text / Markdown-ish" }
+
+[[input]]
+name        = "title"
+label       = "Book title"
+placeholder = "The Tide Pools of Muir Beach"
+source      = "field"
+
+[[input]]
+name        = "author"
+label       = "Author"
+placeholder = "Jane Doe"
+source      = "field"
+
+[[input]]
+name        = "language"
+label       = "Language (BCP-47)"
+placeholder = "en"
+source      = "field"
+
+[[input]]
+name        = "publisher"
+label       = "Publisher or source"
+placeholder = "Coastal Review"
+source      = "field"
+
+[[input]]
+name   = "split_level"
+label  = "Start a new chapter at"
+source = "field"
+labels = { none = "No split — one chapter", h1 = "Heading 1", h2 = "Heading 2", "h1-h2" = "Heading 1 and 2" }
+
+[[input]]
+name   = "include_title_page"
+label  = "Add a title page"
+source = "field"
+
+[[input]]
+name        = "base_font_size"
+label       = "Base font size (pt, 0 = reader default)"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label  = "Article (Markdown-ish text)"
+params = { content = "# The Tide Pools of Muir Beach\n\nAt low tide the rocks north of the parking lot turn into a museum.\n\n## What to look for\n\n- Ochre sea stars\n- Green anemones\n\n# Getting there\n\nPark early; the lot fills by nine.", input_format = "text", title = "The Tide Pools of Muir Beach", author = "Jane Doe", split_level = "h1" }
+
+[[example]]
+label  = "Cleaned HTML"
+params = { content = "<h1>Release Notes</h1><p>The <em>autumn</em> build ships today.</p><h2>Fixes</h2><ul><li>Faster startup</li><li>Fewer crashes</li></ul>", input_format = "html", title = "Release Notes", split_level = "h1-h2" }
+
+[[example]]
+label  = "Single chapter, larger type"
+params = { content = "A short essay with no headings at all. It should arrive as one readable chapter.", input_format = "text", title = "A Short Essay", split_level = "none", base_font_size = "13" }

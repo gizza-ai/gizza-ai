@@ -1,0 +1,8 @@
+[block]
+name = "gizza-ai/spline-smoother"
+version = "0.1.0"
+kind = "skill"
+summary = "Fit cubic smoothing splines to noisy numeric series."
+
+[build]
+crate = "gizza-ai-spline-smoother-block"

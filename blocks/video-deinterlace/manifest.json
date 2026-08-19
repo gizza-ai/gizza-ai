@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/video-deinterlace",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove interlacing combing from a video",
+  "role": "skill",
+  "tool": {
+    "description": "Remove interlacing combing artifacts (the horizontal comb teeth on moving edges in camcorder, DV, DVD and broadcast footage) and write clean progressive frames, using ffmpeg's motion-adaptive deinterlacers. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus filter (bwdif = default, sharper; or yadif = classic), mode (frame = keep the frame rate, default; field = one frame per field, doubling the frame rate, e.g. 50i → 50p), field_order (auto = trust the file's flags, default; tff or bff to force it when the motion judders) and apply_to (all frames, default; or flagged = only frames marked interlaced). The picture is re-encoded to H.264 (crf 20) and flagged progressive; audio is kept as-is. mp4/mov/m4v/mkv inputs keep their container; other inputs (e.g. webm) are converted to MP4. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "apply_to": {
+          "default": "all",
+          "description": "Which frames to deinterlace: all = every frame (default; use this when the file has no interlaced flags, which is common for captures and re-encodes), or flagged = only frames the decoder marked as interlaced, leaving progressive frames in mixed footage untouched.",
+          "enum": [
+            "all",
+            "flagged"
+          ],
+          "type": "string"
+        },
+        "field_order": {
+          "default": "auto",
+          "description": "Which field is shown first: auto trusts the flags in the file (default, right for almost every capture), tff = top field first (DV/HDV, 1080i broadcast), bff = bottom field first (most SD DVD/analogue captures). Force tff/bff if the deinterlaced motion judders or jerks backwards — that means the flags are wrong.",
+          "enum": [
+            "auto",
+            "tff",
+            "bff"
+          ],
+          "type": "string"
+        },
+        "filter": {
+          "default": "bwdif",
+          "description": "Deinterlacer to run: bwdif (Bob Weaver, motion-adaptive with a sharper interpolator — default, best detail) or yadif (the classic ffmpeg deinterlacer, slightly softer but the most widely documented).",
+          "enum": [
+            "bwdif",
+            "yadif"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "frame",
+          "description": "How fields become frames: frame = one output frame per input frame, frame rate unchanged (50i → 25p; default), or field = one output frame per field, which DOUBLES the frame rate (50i → 50p) and restores the original smooth broadcast motion at ~2x the frames/file size.",
+          "enum": [
+            "frame",
+            "field"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,178 @@
+slug          = "midi-track-splitter"
+title         = "MIDI Track Splitter — split a .mid file into separate tracks"
+description   = "Split a multi-track MIDI file into separate single-track .mid files, one per track or per channel. Tempo and time signature are copied into every part."
+tags = [
+  "midi track splitter",
+  "split midi file",
+  "midi splitter",
+  "separate midi tracks",
+  "extract track from midi",
+  "split midi by channel",
+  "midi to single track files",
+  "midi stem export",
+]
+h1            = "MIDI track splitter"
+hero_subtitle = "Break a multi-track .mid file into one file per track — or one per MIDI channel — with the tempo, time signature and key signature copied into each part so it plays back correctly on its own. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_midi_track_splitter_web"
+export        = "run"
+live          = false
+output_label  = "Split parts"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "MIDI file (base64 or hex)"
+placeholder = "4d546864000000060001000300604d54726b0000002000ff0309436f6e647563746f7200ff510307a12000ff58040402180800ff2f004d54726b0000002000ff03055069616e6f00c00000903c4060903c00009040466090400000ff2f004d54726b0000001800ff03044261737300c12100912464814091240000ff2f00"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "encoding"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect (hex if all hex digits, else base64)"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "split_by"
+label  = "One file per…"
+source = "field"
+
+[input.labels]
+track   = "Track — one file per track chunk (usual for Format 1)"
+channel = "MIDI channel — gathered across every track"
+
+[[input]]
+name   = "include_conductor"
+label  = "Copy tempo, time and key signature into every part"
+source = "field"
+
+[[input]]
+name   = "output_format"
+label  = "Write each part as"
+source = "field"
+
+[input.labels]
+"format-0" = "Format 0 — one merged single track"
+"format-1" = "Format 1 — conductor track + part track"
+
+[[input]]
+name   = "skip_empty"
+label  = "Skip parts with no notes (drops the tempo-only conductor track)"
+source = "field"
+
+[[input]]
+name        = "select"
+label       = "Only these parts (track or channel numbers, e.g. 1,3-5)"
+placeholder = "leave empty for every part"
+source      = "field"
+
+[[input]]
+name        = "filename_prefix"
+label       = "Filename prefix"
+placeholder = "part"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Return"
+source = "field"
+
+[input.labels]
+files = "The .mid files, ready to download"
+list  = "Just the list of parts (preview)"
+
+[[example]]
+label = "Split a 3-track file"
+[example.params]
+input = "4d546864000000060001000300604d54726b0000002000ff0309436f6e647563746f7200ff510307a12000ff58040402180800ff2f004d54726b0000002000ff03055069616e6f00c00000903c4060903c00009040466090400000ff2f004d54726b0000001800ff03044261737300c12100912464814091240000ff2f00"
+encoding = "hex"
+split_by = "track"
+include_conductor = "true"
+output_format = "format-0"
+skip_empty = "true"
+select = ""
+filename_prefix = "part"
+output = "files"
+
+[[example]]
+label = "Preview what is inside first"
+[example.params]
+input = "4d546864000000060001000300604d54726b0000002000ff0309436f6e647563746f7200ff510307a12000ff58040402180800ff2f004d54726b0000002000ff03055069616e6f00c00000903c4060903c00009040466090400000ff2f004d54726b0000001800ff03044261737300c12100912464814091240000ff2f00"
+encoding = "hex"
+split_by = "track"
+include_conductor = "true"
+output_format = "format-0"
+skip_empty = "false"
+select = ""
+filename_prefix = "part"
+output = "list"
+
+[[example]]
+label = "Split by MIDI channel"
+[example.params]
+input = "4d546864000000060001000300604d54726b0000002000ff0309436f6e647563746f7200ff510307a12000ff58040402180800ff2f004d54726b0000002000ff03055069616e6f00c00000903c4060903c00009040466090400000ff2f004d54726b0000001800ff03044261737300c12100912464814091240000ff2f00"
+encoding = "hex"
+split_by = "channel"
+include_conductor = "true"
+output_format = "format-0"
+skip_empty = "true"
+select = ""
+filename_prefix = "part"
+output = "files"
+
+[[example]]
+label = "Just the bass part (track 3)"
+[example.params]
+input = "4d546864000000060001000300604d54726b0000002000ff0309436f6e647563746f7200ff510307a12000ff58040402180800ff2f004d54726b0000002000ff03055069616e6f00c00000903c4060903c00009040466090400000ff2f004d54726b0000001800ff03044261737300c12100912464814091240000ff2f00"
+encoding = "hex"
+split_by = "track"
+include_conductor = "true"
+output_format = "format-0"
+skip_empty = "true"
+select = "3"
+filename_prefix = "stem"
+output = "files"
+
+[[example]]
+label = "Format 0 file — cut by channel"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002600ff0304536f6e6700ff5103061a8000c0040090435a0099246e609043000099240000ff2f00"
+encoding = "hex"
+split_by = "track"
+include_conductor = "true"
+output_format = "format-0"
+skip_empty = "true"
+select = ""
+filename_prefix = "part"
+output = "files"
+
+[[example]]
+label = "Keep the conductor as its own track"
+[example.params]
+input = "4d546864000000060001000300604d54726b0000002000ff0309436f6e647563746f7200ff510307a12000ff58040402180800ff2f004d54726b0000002000ff03055069616e6f00c00000903c4060903c00009040466090400000ff2f004d54726b0000001800ff03044261737300c12100912464814091240000ff2f00"
+encoding = "hex"
+split_by = "track"
+include_conductor = "true"
+output_format = "format-1"
+skip_empty = "true"
+select = ""
+filename_prefix = "part"
+output = "files"
+
+[[example]]
+label = "Base64 input — auto-detected"
+[example.params]
+input = "TVRoZAAAAAYAAQADAGBNVHJrAAAAIAD/AwlDb25kdWN0b3IA/1EDB6EgAP9YBAQCGAgA/y8ATVRyawAAACAA/wMFUGlhbm8AwAAAkDxAYJA8AACQQEZgkEAAAP8vAE1UcmsAAAAYAP8DBEJhc3MAwSEAkSRkgUCRJAAA/y8A"
+encoding = "auto"
+split_by = "track"
+include_conductor = "true"
+output_format = "format-0"
+skip_empty = "true"
+select = ""
+filename_prefix = "part"
+output = "files"

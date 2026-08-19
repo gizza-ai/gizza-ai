@@ -1,0 +1,103 @@
+{
+  "name": "gizza-ai/absolute-value-transformer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Apply absolute value, sign extraction, or negation to a numeric column",
+  "role": "skill",
+  "tool": {
+    "description": "Transform the sign of every number in a pasted column. Choose operation abs (|x|), sign (-1/0/1), negate (flip every sign), or force-negative (-|x|). Options: separator auto|newline|comma|space|semicolon|tab|pipe, output_separator same|<separator name>, decimals auto or 0-6, on_error fail|skip|keep|blank, output values|table|json, stats true|false. Values must be plain decimals or scientific notation — clean currency symbols and thousands separators first. Max 20,000 values.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The numeric column to transform, one value per line (commas, semicolons, tabs, pipes, and spaces also work). Plain decimals and scientific notation only, e.g. '-3', '4.5', '-1.2e3'. Max 20,000 values.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": "auto",
+          "description": "Rounding for the transformed values: 'auto' (default) keeps full precision and prints whole numbers without a trailing .0, or choose 0-6 fixed decimal places.",
+          "enum": [
+            "auto",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6"
+          ],
+          "type": "string"
+        },
+        "on_error": {
+          "default": "fail",
+          "description": "What to do with a value that is not a plain number: 'fail' (default) stops and names the offending value; 'skip' drops it; 'keep' echoes the original text; 'blank' emits an empty value so the column stays aligned.",
+          "enum": [
+            "fail",
+            "skip",
+            "keep",
+            "blank"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "abs",
+          "description": "The transform to apply to every value: 'abs' (default) drops the sign so -3 becomes 3; 'sign' returns -1, 0, or 1; 'negate' flips the sign so -3 becomes 3 and 4 becomes -4; 'force-negative' returns -|x| so every value becomes a debit.",
+          "enum": [
+            "abs",
+            "sign",
+            "negate",
+            "force-negative"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "values",
+          "description": "Output shape: 'values' (default) is the transformed column only; 'table' is a TSV audit table with the original next to the result; 'json' is a structured report with counts.",
+          "enum": [
+            "values",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "output_separator": {
+          "default": "same",
+          "description": "How to join the transformed values. 'same' (default) mirrors the input separator, so a pasted column comes back as a column and a comma list as a comma list.",
+          "enum": [
+            "same",
+            "newline",
+            "comma",
+            "space",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "How the input values are separated. 'auto' (default) splits on any of newline, comma, semicolon, pipe, or whitespace; pick an explicit separator when the data contains the others literally.",
+          "enum": [
+            "auto",
+            "newline",
+            "comma",
+            "space",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": false,
+          "description": "Append a count/sum/min/max/mean summary of the transformed values (default false).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

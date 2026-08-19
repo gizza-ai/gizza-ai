@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-json-schema-to-sample-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order: the sample keeps the schema's own `properties` order instead
+# of being alphabetised, so the example reads like the schema it came from.
+serde_json = { version = "1", features = ["preserve_order"] }

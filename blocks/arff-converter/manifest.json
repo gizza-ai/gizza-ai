@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/arff-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Weka ARFF datasets to CSV and back",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Weka ARFF machine-learning dataset to CSV, or a CSV table to ARFF, preserving attribute types. `direction` defaults to auto-detection. Reading ARFF it handles `%` comments, quoted values with \\n/\\t/\\\\ escapes, nominal `{a,b}` label sets, `date` attributes with a SimpleDateFormat pattern, `?` missing values, sparse `{index value, …}` rows (expanded with type-aware defaults: 0 for numeric, the first label for nominal, empty for string) and trailing `{weight}` instance weights (stripped). Writing ARFF it infers each column's type — all-numeric columns become numeric, columns with at most `nominal_threshold` distinct values become nominal label sets, the rest become string — with `column_types` forcing any column to numeric/nominal/string/date by header name or 1-based index, `relation` naming the dataset, `date_format` supplying the date pattern, and `arff_format=sparse` emitting sparse rows. `type_row` writes the ARFF types as a second CSV header line and reads it back, so ARFF→CSV→ARFF keeps its exact types. `delimiter` and `header` control the CSV side; `missing_value` sets the CSV token for `?`. Relational (multi-instance) attributes are rejected with an explicit error. Fully local and deterministic — no AI model.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "arff_format": {
+          "default": "dense",
+          "description": "Row style when writing ARFF: 'dense' one comma-separated row per instance (default), or 'sparse' {index value, …} rows that omit zeros and first nominal labels. Sparse input is always read correctly regardless of this setting.",
+          "enum": [
+            "dense",
+            "sparse"
+          ],
+          "type": "string"
+        },
+        "column_types": {
+          "description": "CSV to ARFF: force column types, as comma-separated 'column:type' pairs such as 'class:nominal,id:string,3:date'. The column is a header name or a 1-based index; the type is numeric, nominal, string or date. Overrides the inferred type.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The dataset text to convert: either a Weka ARFF document (@relation/@attribute/@data) or a CSV table. Up to 2,000,000 characters.",
+          "type": "string"
+        },
+        "date_format": {
+          "default": "yyyy-MM-dd'T'HH:mm:ss",
+          "description": "Java SimpleDateFormat pattern written for date attributes (columns typed 'date' in column_types). Default \"yyyy-MM-dd'T'HH:mm:ss\".",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV field separator, used for the CSV side in both directions: a single character or 'comma'/'tab'/'semicolon'/'pipe'/'space'. Default ','.",
+          "type": "string"
+        },
+        "direction": {
+          "default": "auto",
+          "description": "Which way to convert. 'auto' (default) reads the input and picks ARFF-to-CSV when it starts with an @relation/@attribute/@data line, otherwise CSV-to-ARFF.",
+          "enum": [
+            "auto",
+            "arff-to-csv",
+            "csv-to-arff"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Whether the CSV has a header row of column names. Reading CSV, false generates att1, att2, … names; writing CSV, false omits the name row. Default true.",
+          "type": "boolean"
+        },
+        "missing_value": {
+          "description": "The CSV text that stands for ARFF's missing value '?'. Empty (the default) writes an empty cell and reads both empty cells and '?' as missing.",
+          "type": "string"
+        },
+        "nominal_threshold": {
+          "default": 10,
+          "description": "CSV to ARFF: a non-numeric column with at most this many distinct values becomes a nominal {a,b,c} attribute; more makes it a string attribute. Default 10; 0 never produces nominal attributes.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "relation": {
+          "description": "The @relation name written when converting CSV to ARFF. Leave empty for 'data'.",
+          "type": "string"
+        },
+        "type_row": {
+          "description": "Keep attribute types in the CSV: writing CSV, adds a second header row holding each ARFF type (numeric, string, date pattern, {a,b} label set); reading CSV, consumes that row instead of guessing types, so ARFF to CSV to ARFF round-trips exactly. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "env-schema-validate"
+version = "0.1.0"
+abi = 1
+summary = "Validate a .env file against a schema of required keys, types and allowed values."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-form-field-extractor"
+version = "0.1.0"
+abi = 1
+summary = "List every field of every HTML form with its type, required flag, default, and validation rules"

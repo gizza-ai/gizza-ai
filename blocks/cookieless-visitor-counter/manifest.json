@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/cookieless-visitor-counter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Count unique visitors in an access log with the daily-salted-hash method — no cookies, no PII stored.",
+  "role": "skill",
+  "tool": {
+    "description": "Count unique visitors in a web access log using the daily-salted-hash method used by privacy-first analytics — no cookies, no tracking, and no IP or user-agent retained. Each request is reduced to SHA-256(salt ‖ period ‖ identity); because the period key is inside the hash, a visitor's ID is different every day and cannot be linked across days, the same guarantee a server gets by rotating its salt every 24 hours. Reads Apache/nginx Combined and Common log formats, JSON/NDJSON lines, and CSV (format='auto' sniffs). identity picks what is hashed: 'ip_ua' (default, IP + user-agent, the Plausible/GoAccess convention), 'ip' (the AWStats convention), or 'network_ua' (IPv4 truncated to /24 and IPv6 to /48 first, Matomo/GA-style). period sets the rotation and bucket window: hour, day (default), month, or total. Set salt to your own secret to make IDs unguessable. exclude_bots (default true) drops crawler and script hits by user-agent. output='report' (default) summarises per-period visitors, pageviews and views-per-visitor plus totals; 'table'/'csv'/'json' give the same rows as data; 'ids' shows the pseudonymous ID per request. Per-period uniques do not sum, so the totals also report distinct visitors over the whole log. Runs locally: logs cannot separate people behind a shared NAT, and a changing IP or user-agent splits one person into several.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "exclude_bots": {
+          "default": true,
+          "description": "Skip crawler and script hits before counting. Default true — bots would otherwise inflate the visitor count. Matches the user-agent case-insensitively against known crawlers (search engines, AI crawlers, SEO and monitoring tools, HTTP libraries, headless browsers) plus the bot/crawl/spider/slurp token heuristic; a missing or '-' user-agent also counts as a bot. Detection is by declared user-agent only — no reverse DNS or IP-range verification. Set false to count every request.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read each line. 'auto' (default) sniffs the format from the first non-blank line. 'combined' = Apache/nginx Combined Log Format (user-agent is the last quoted field). 'common' = Common Log Format, which has no user-agent field at all. 'json' = one JSON object per line, keys matched case-insensitively from ip/remote_addr/client_ip, user_agent/ua/http_user_agent, and time/timestamp/time_local. 'csv' = comma-separated with a header row naming those same columns.",
+          "enum": [
+            "auto",
+            "combined",
+            "common",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "hash_length": {
+          "default": 12,
+          "description": "How many hex characters of the SHA-256 digest form each visitor ID (6-64, default 12). Only affects the ids output and the chance of two visitors colliding; 12 is ample for a single site's daily traffic. Counting itself always uses the truncated ID, so a very short length can merge distinct visitors.",
+          "maximum": 64,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "identity": {
+          "default": "ip_ua",
+          "description": "What identifies a visitor before hashing. 'ip_ua' (default) is IP + user-agent, the convention used by privacy-first analytics and GoAccess. 'ip' is the IP alone, the older AWStats convention — coarser, and merges every browser on one machine into one visitor. 'network_ua' truncates the address to its network first (IPv4 to /24, IPv6 to /48) then adds the user-agent, matching Matomo/Google-Analytics style IP anonymisation. The raw value is only ever hashed, never returned.",
+          "enum": [
+            "ip_ua",
+            "ip",
+            "network_ua"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The web access log — one request per line. Accepts Apache/nginx Combined Log Format ('1.1.1.1 - - [06/Aug/2026:10:00:00 +0000] \"GET / HTTP/1.1\" 200 12 \"-\" \"Mozilla/5.0 ...\"'), Common Log Format, JSON/NDJSON lines (ip/remote_addr + user_agent + time keys), or CSV with a header naming an ip column. Blank lines are skipped; the limit is 200000 lines.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "What to return. 'report' (default) is a readable summary: the method and settings, a per-period table of visitors/pageviews/views-per-visitor, and totals including the distinct-visitor count. 'table' is that table as Markdown; 'csv' is the same rows as CSV; 'json' is a structured object with periods plus totals. 'ids' lists the pseudonymous visitor ID for each parsed request (capped at 5000 rows) so you can verify no IP or user-agent survives.",
+          "enum": [
+            "report",
+            "table",
+            "json",
+            "csv",
+            "ids"
+          ],
+          "type": "string"
+        },
+        "period": {
+          "default": "day",
+          "description": "The salt-rotation and bucketing window. 'day' (default) is the classic daily-salted-hash: one row per calendar date, and a visitor's ID changes at midnight so it cannot be linked across days. 'hour' and 'month' rotate and bucket by hour ('2026-08-06 10:00') or month ('2026-08'). 'total' puts the whole log in one bucket labelled 'all'. Because IDs are un-linkable across periods, per-period uniques do NOT sum — the report also gives the distinct-visitor count over the whole log.",
+          "enum": [
+            "hour",
+            "day",
+            "month",
+            "total"
+          ],
+          "type": "string"
+        },
+        "salt": {
+          "default": "",
+          "description": "Secret salt mixed into every hash. Leave blank (default) to use a fixed built-in salt, which makes runs reproducible; set your own secret string to make the visitor IDs unguessable and specific to you. Changing the salt changes every ID, so IDs from different salts can never be correlated. The salt is never included in the output.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

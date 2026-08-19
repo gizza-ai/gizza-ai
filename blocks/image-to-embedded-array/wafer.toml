@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-to-embedded-array"
+version = "0.1.0"
+abi = 1
+summary = "Convert an image into a C/C++ byte array for embedded TFT and OLED displays"

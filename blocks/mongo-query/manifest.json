@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/mongo-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Filter a JSON array of documents with a MongoDB-style query document.",
+  "role": "skill",
+  "tool": {
+    "description": "Run a MongoDB find filter against a pasted JSON array of documents and return the matches. 'data' is a JSON array of objects (a single object or NDJSON is accepted too); 'query' is the Mongo filter, e.g. {\"age\":{\"$gt\":21},\"tags\":{\"$in\":[\"code\"]}}. Supports $eq $ne $gt $gte $lt $lte $in $nin $exists $type $regex/$options $mod $all $size $elemMatch $not $and $or $nor, dotted paths, and MongoDB's array semantics (a predicate on an array field matches when any element matches) and missing-field semantics ({f: null}, $ne, $nin and $not all match documents lacking the field). Relaxed shell syntax (unquoted keys, single quotes, comments, /regex/i literals, ObjectId()/ISODate() helpers) is accepted. 'projection' keeps or drops fields, 'sort'/'skip'/'limit' reproduce the cursor chain, 'format' is json (default), ndjson, csv or count, and 'pretty' indents the JSON. $where, $expr, $jsonSchema, $text, geospatial and bitwise operators are rejected with an explicit message; aggregation and update operators are out of scope.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The documents to query: a JSON array of objects, e.g. [{\"name\":\"Ada\",\"age\":36},{\"name\":\"Bo\",\"age\":24}]. A single JSON object is treated as a one-document collection, and NDJSON / JSON Lines (one JSON value per line) is accepted too. Maximum 5000000 bytes and 50000 documents.",
+          "type": "string"
+        },
+        "format": {
+          "default": "json",
+          "description": "Output format. 'json' (default): a JSON array of the matching documents. 'ndjson': one compact JSON document per line. 'csv': RFC-4180 CSV whose columns are the first-seen union of the returned documents' top-level keys (nested values are written as JSON). 'count': just the number of matching documents.",
+          "enum": [
+            "json",
+            "ndjson",
+            "csv",
+            "count"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of documents to return, like cursor.limit(); 0 (default) returns every match. The 'count' format always reports the FULL match count, ignoring skip and limit.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Indent the 'json' output for reading (default true). Turn it off for a single compact line. Ignored by the ndjson, csv and count formats.",
+          "type": "boolean"
+        },
+        "projection": {
+          "default": "",
+          "description": "Fields to keep or drop; blank returns whole documents. Mongo form: {\"name\":1,\"email\":1,\"_id\":0} to keep, {\"password\":0} to drop. Short form: 'name, email' to keep and '-password' to drop. Dotted paths (team.name) select nested fields. As in MongoDB, _id is kept by a keep-projection unless you set _id to 0, and mixing kept and dropped fields (other than _id) is an error.",
+          "type": "string"
+        },
+        "query": {
+          "default": "{}",
+          "description": "The MongoDB find filter, e.g. {\"age\":{\"$gt\":21},\"status\":\"active\"}; blank or {} matches every document. Supported operators: $eq $ne $gt $gte $lt $lte $in $nin $exists $type $regex/$options $mod $all $size $elemMatch $not $and $or $nor. Dotted paths (team.name) work and a predicate on an array field matches when ANY element matches. Relaxed shell syntax is accepted: unquoted keys, single quotes, // and /* */ comments, trailing commas, /pattern/flags regex literals and the ObjectId()/ISODate()/NumberLong() helpers. $where, $expr, $jsonSchema, $text, geospatial and bitwise operators are rejected with a message. Maximum 20000 bytes.",
+          "type": "string"
+        },
+        "skip": {
+          "default": 0,
+          "description": "Number of matching documents to skip before returning any, like cursor.skip(). Default 0. Combine with 'limit' to page through results.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sort": {
+          "default": "",
+          "description": "Sort order for the matched documents; blank keeps the input order. Mongo form: {\"age\":-1,\"name\":1} (1 ascending, -1 descending). Short form: 'age:desc, name' (a leading '-' also means descending). Values sort in MongoDB's cross-type order: missing/null first, then numbers, strings, objects, arrays, booleans.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "gizza-ai/form-field-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate a whole form submission: email, phone, URL, postal code, and credit card fields with locale-aware errors",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a whole form submission field by field. `fields` accepts one `name: value` line per form field, or a JSON object of name/value pairs. Field names infer email, phone, URL, postal-code, credit-card, or text validation; `rules` can override types with `field: type`. `country` is `any` or an ISO alpha-2 locale such as US, GB, CA, DE, FR, AU, IN, JP, BR, or ZA, and controls phone and postal-code format checks. `required` can be blank, `*`, or a comma/newline list of field names. `normalize` shows canonical passing values; `mask_sensitive` hides credit-card digits except the last four; `output` is text or json. This is deterministic offline format validation only: no DNS/MX, carrier, address-existence, or BIN lookups.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "country": {
+          "default": "any",
+          "description": "Country / locale for phone and postal-code checks. Use `any` for generic E.164-style phone length and loose postal-code shape, or an ISO 3166-1 alpha-2 code such as US, GB, CA, DE, FR, AU, IN, JP, BR, or ZA for country-specific examples and formats.",
+          "enum": [
+            "any",
+            "AR",
+            "AT",
+            "AU",
+            "BE",
+            "BR",
+            "CA",
+            "CH",
+            "CN",
+            "CZ",
+            "DE",
+            "DK",
+            "ES",
+            "FI",
+            "FR",
+            "GB",
+            "GR",
+            "HU",
+            "IE",
+            "IL",
+            "IN",
+            "IT",
+            "JP",
+            "KR",
+            "MX",
+            "NL",
+            "NO",
+            "NZ",
+            "PL",
+            "PT",
+            "RO",
+            "RU",
+            "SE",
+            "SG",
+            "SK",
+            "TR",
+            "UA",
+            "US",
+            "ZA"
+          ],
+          "type": "string"
+        },
+        "fields": {
+          "description": "Form fields to validate. Use one `name: value` pair per line (for example `email: user@example.com`) or a JSON object of name/value pairs. Field names are used to infer email, phone, URL, postal-code, credit-card, or text validation unless overridden by `rules`. Maximum 200 fields.",
+          "type": "string"
+        },
+        "mask_sensitive": {
+          "default": true,
+          "description": "When true (default), credit-card values are masked in text and JSON output so only the final four digits remain visible. The Luhn and brand checks still run against the full value.",
+          "type": "boolean"
+        },
+        "normalize": {
+          "default": true,
+          "description": "When true (default), passing values are shown in their normalized form where possible: lower-cased email domains, E.164-style phone numbers, canonical postal-code spacing/case, and digits-only credit cards.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: `text` (default) is a human-readable per-field report; `json` returns a machine-readable object with valid/checked/passed/failed/skipped counts plus per-field status, value, normalized value, errors, and expected-format hints.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "required": {
+          "default": "",
+          "description": "Required fields. Leave blank for no required fields, use `*` to require every supplied field, or list names separated by commas or new lines (for example `email, phone, zip`). Missing or blank required fields fail with an explicit error.",
+          "type": "string"
+        },
+        "rules": {
+          "default": "",
+          "description": "Optional type overrides, one per line as `field: type` or `field=type`. Types: email, phone, url, postal-code, credit-card, text. Common aliases like zip, postcode, tel, website, card, and cc are accepted. Blank lines and `#` comments are ignored.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fields"
+      ],
+      "type": "object"
+    }
+  }
+}

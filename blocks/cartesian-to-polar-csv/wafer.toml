@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cartesian-to-polar-csv"
+version = "0.1.0"
+abi = 1
+summary = "Convert a CSV of x,y points to polar r,theta coordinates"

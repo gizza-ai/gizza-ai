@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-rsa-decrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+rsa = { version = "0.9", features = ["sha2"] }
+sha2 = "0.10"
+base64 = "0.22"
+# Enables RsaPrivateKey::from_pkcs8_encrypted_pem for passphrase-protected
+# PKCS#8 keys (feature-unified with the copy of pkcs8 that `rsa` uses).
+pkcs8 = { version = "0.10", features = ["encryption", "pem"] }

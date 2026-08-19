@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/json-transform-rules",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reshape JSON into a new structure with declarative target = selector mapping rules.",
+  "role": "skill",
+  "tool": {
+    "description": "Reshape a JSON document into a new structure using declarative mapping rules instead of an expression language. Each rule names an output 'target' path and where its value comes from — a JSONPath-subset 'source' selector ($, .key, [\"key\"], [0], [*], .*, ..key) or a literal 'value' — plus optional 'default', 'transform' (upper, lower, trim, number, string, boolean, length, sort, unique, count, sum, min, max, avg, first, last, join), 'separator', 'when' guard and op=remove. Rules are written as 'target = selector' shorthand lines, a target → selector JSON object, or a JSON array of rule objects. 'each' fans the rules out over every item a selector matches (one output object per item); 'mode=merge' starts from the input so rules patch or redact it instead of building a fresh object; 'on_missing' and 'array_mode' control unmatched selectors and multi-value matches; 'output=report' explains what each rule matched.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_mode": {
+          "default": "auto",
+          "description": "How a selector that matches several values is shaped. 'auto' (default): one match becomes the value itself, several become an array. 'always': always an array, and a rule that matched nothing writes an empty array. 'first': keep only the first match. Aggregate transforms (count, sum, min, max, avg, first, last, join) always produce a single value first.",
+          "enum": [
+            "auto",
+            "always",
+            "first"
+          ],
+          "type": "string"
+        },
+        "each": {
+          "default": "",
+          "description": "Optional selector that fans the rules out over many items: when set, every rule runs once per matched value and the result is an array of the per-item outputs (selectors inside the rules are then relative to the item). Example: $.automobiles[*]. Blank runs the rules once against the whole document. Maximum 50000 items.",
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Number of spaces per indent level when 'pretty' is on (default 2, maximum 8). Ignored when 'pretty' is false.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "The source JSON document to reshape, e.g. {\"user\":{\"id\":7,\"name\":\"Ada\"}}. Any JSON value works (object, array, or scalar). Maximum 5000000 bytes.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "build",
+          "description": "What the output starts from. 'build' (default) starts from an empty object, so the output contains ONLY what the rules write. 'merge' starts from a copy of the input, so rules override individual paths and '-path' / op=remove rules delete them — use it for redaction or patching.",
+          "enum": [
+            "build",
+            "merge"
+          ],
+          "type": "string"
+        },
+        "on_missing": {
+          "default": "skip",
+          "description": "What to do when a rule's selector matches nothing and the rule has no 'default'. 'skip' (default) omits the target key entirely, 'null' writes null, 'error' fails with the offending target and selector. A rule's own 'default' always wins over this setting.",
+          "enum": [
+            "skip",
+            "null",
+            "error"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "What to return. 'json' (default) is the reshaped document. 'report' is a plain-text trace of each rule — its target, source, transform, how many values it matched and how often it wrote, plus a list of rules that never produced anything — for debugging a mapping that came out empty.",
+          "enum": [
+            "json",
+            "report"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Indent the JSON output over multiple lines (default true). Set false for compact single-line JSON.",
+          "type": "boolean"
+        },
+        "rules": {
+          "description": "The mapping rules, in any of three forms. (1) Shorthand lines, one per line: 'target = selector' (e.g. id = $.user.id), '-path' to drop a path in merge mode, '#'/'//' comments, and a quoted or JSON literal right-hand side for a constant (source = \"import\"). (2) A JSON object of target → selector: {\"id\": \"$.user.id\"}. (3) A JSON array of rule objects, the full form: {\"target\":\"total\",\"source\":\"$..price\",\"transform\":\"sum\",\"default\":0,\"when\":\"$.vip\",\"separator\":\", \",\"op\":\"set\"|\"remove\"}. Selectors are a JSONPath subset: $, .key, [\"key\"], [0], [*], .* and ..key (recursive descent). Targets are dotted/bracketed output paths (user.profile.email, items[0].id, tags[] to append) that create the objects and arrays they need. Transforms: upper, lower, trim, number, string, boolean, length, sort, reverse, unique, flatten, keys, values, count, sum, min, max, avg, first, last, join — a list transform applied to a lone array match reshapes that array's elements. A trailing '?' on the target ('tier ?= \"free\"') writes only when that output path is still absent or null. Maximum 500 rules.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json",
+        "rules"
+      ],
+      "type": "object"
+    }
+  }
+}

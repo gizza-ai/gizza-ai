@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/json-array-pluck-field",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pull one field out of every object in a JSON array into a flat list",
+  "role": "skill",
+  "tool": {
+    "description": "Extract a single field from every object in a JSON array and return the values as a flat list (the _.map(rows,'field') / jq '.[].field' / single-column SELECT operation) — no query language to learn. json accepts a top-level array, a wrapper object holding the array, NDJSON/JSON Lines, or a single object; set root to a dot-path like 'response.items' to choose the array explicitly. field is a key name, a dot-path ('user.name'), an index ('tags.0'), a wildcard path ('orders.*.total'), or a recursive-descent path ('**.city', JSONPath '..city'). format joins the values as 'lines' (default), 'csv', 'tsv', 'json' (native types) or 'custom' with delimiter; quote wraps every value in double quotes; missing controls absent/null fields ('skip' default, 'empty', 'null', 'error'); complex_values renders object/array values as 'json' (default), 'label' or 'skip'; unique drops repeats. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "complex_values": {
+          "default": "json",
+          "description": "What to do when the plucked value is itself an object or array: 'json' serialize it compactly (default), 'label' replace it with {object} / [array], or 'skip' leave it out.",
+          "enum": [
+            "json",
+            "label",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ", ",
+          "description": "Separator used only when format=custom, e.g. ', ' or ' | '. Escapes \\t, \\n, \\r and \\\\ are honoured. Default ', '.",
+          "type": "string"
+        },
+        "field": {
+          "description": "Key to pull from every object. Use dot-notation for nested fields ('user.name') or an array index ('tags.0' or 'tags[0]'); '*' matches every element of an array or every value of an object, so 'orders.*.total' emits one value per order; '**' searches every depth, so '**.city' finds a city however deep it is nested. JSONPath spellings work too: a leading '$' is ignored, '..' means '**', and quoted keys ('$['user'].name') are unwrapped. Max 200 bytes.",
+          "type": "string"
+        },
+        "format": {
+          "default": "lines",
+          "description": "How the values are joined: 'lines' one per line (default), 'csv' comma-separated with RFC 4180 quoting, 'tsv' tab-separated, 'json' a JSON array keeping native types (numbers stay numbers), or 'custom' to join with 'delimiter'.",
+          "enum": [
+            "lines",
+            "csv",
+            "tsv",
+            "json",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "json": {
+          "description": "The JSON to pluck from: an array of objects, a wrapper object containing one ({\"data\": [...]}), NDJSON / JSON Lines (one object per line), or a single object treated as one row. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "missing": {
+          "default": "skip",
+          "description": "What to do with an object whose field is absent or JSON null: 'skip' leave it out (default), 'empty' emit an empty value so the list stays row-aligned, 'null' emit the literal null, or 'error' fail and report the element index.",
+          "enum": [
+            "skip",
+            "empty",
+            "null",
+            "error"
+          ],
+          "type": "string"
+        },
+        "quote": {
+          "default": false,
+          "description": "Wrap every value in double quotes — handy for building a SQL IN list or a JS array. csv/tsv force RFC 4180 quoting (inner \" doubled); lines/custom use JSON escaping. Ignored when format=json. Off by default (csv/tsv still quote values that need it).",
+          "type": "boolean"
+        },
+        "root": {
+          "default": "",
+          "description": "Dot-path of the array to pluck from, e.g. 'response.items'. Leave blank to auto-detect: a top-level array is used as-is, otherwise the first array-valued property of the top-level object.",
+          "type": "string"
+        },
+        "unique": {
+          "default": false,
+          "description": "Drop repeated values, keeping the first occurrence in document order. Off by default, so the value count matches the row count.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "json",
+        "field"
+      ],
+      "type": "object"
+    }
+  }
+}

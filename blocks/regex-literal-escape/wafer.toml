@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-literal-escape"
+version = "0.1.0"
+abi = 1
+summary = "Escape text into a regex-safe literal for a chosen regex flavor"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-error-locator"
+version = "0.1.0"
+abi = 1
+summary = "Find the line, column and cause of every JSON syntax error"

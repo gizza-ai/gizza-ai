@@ -1,0 +1,97 @@
+slug          = "audio-declick"
+title         = "Remove Clicks and Pops from Audio Online"
+description   = "Repair vinyl clicks, pops, crackle, tape ticks and digital glitches in an audio file right in your browser. Nothing is uploaded, no sign-up, free."
+tags          = ["audio", "declick", "click removal", "pops", "crackle", "vinyl", "ticks", "restoration", "adeclick"]
+h1            = "Remove Clicks and Pops from Audio"
+hero_subtitle = "Pick an audio file and repair clicks, pops, crackle and digital glitches — damaged samples are interpolated from their neighbours, in your browser, nothing uploaded."
+wasm          = "gizza_ai_audio_declick_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Declicked audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "strength"
+source      = "field"
+label       = "Detection strength (1–100)"
+placeholder = "50"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "window_ms"
+source      = "field"
+label       = "Repair window (10–100 ms)"
+placeholder = "55"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "burst"
+source      = "field"
+label       = "Burst fusion (0–10, 0 = off)"
+placeholder = "2"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "method"
+source = "field"
+label  = "Overlap method"
+
+[input.labels]
+add  = "Add — smoothest, recomputes every sample (default)"
+save = "Save — only repaired samples change"
+
+[[input]]
+name   = "declip"
+source = "field"
+label  = "Also repair clipped peaks (declip)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[[example]]
+label = "Vinyl crackle"
+[example.params]
+strength  = "70"
+window_ms = "80"
+burst     = "4"
+method    = "add"
+format    = "mp3"
+
+[[example]]
+label = "Digital glitches"
+[example.params]
+strength  = "60"
+window_ms = "20"
+burst     = "0"
+method    = "save"
+format    = "wav"
+
+[[example]]
+label = "Gentle — protect transients"
+[example.params]
+strength  = "25"
+window_ms = "55"
+burst     = "2"
+method    = "save"
+format    = "mp3"
+
+[[example]]
+label = "Declick + declip"
+[example.params]
+strength  = "50"
+window_ms = "55"
+burst     = "2"
+method    = "add"
+declip    = "true"
+format    = "wav"

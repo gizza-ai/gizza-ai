@@ -1,0 +1,193 @@
+slug          = "timesheet-to-invoice"
+title         = "Timesheet to Invoice — Hours to a Markdown Invoice"
+description   = "Turn tracked hours and an hourly rate into a client-ready invoice with line items, totals, tax, discount and Net terms. Markdown, plain text, CSV or JSON."
+tags          = ["invoice", "timesheet", "hourly billing", "freelance", "billable hours", "markdown invoice"]
+h1            = "Turn Tracked Hours Into an Invoice"
+hero_subtitle = "Paste your billable hours, set an hourly rate and client details, and get a formatted invoice with line items, tax, discount and totals. Everything runs locally in your browser."
+wasm          = "gizza_ai_timesheet_to_invoice_web"
+export        = "run"
+live          = false
+output_label  = "Invoice"
+format        = "text"
+
+[[input]]
+name        = "entries"
+label       = "Tracked hours"
+placeholder = "2026-08-03 | Landing page copy | 3.5\n2026-08-04 | Bug fixes | 2h 30m\n2026-08-05 | Client call | 09:00-10:15"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rate"
+label       = "Hourly rate"
+placeholder = "120"
+source      = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+
+[[input]]
+name        = "business"
+label       = "From (your details)"
+placeholder = "Ada Consulting\n12 Harbour Road\nada@example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "client"
+label       = "Bill to (client details)"
+placeholder = "Globex Ltd\nAccounts Payable\n88 Market Street"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "invoice_number"
+label       = "Invoice number"
+placeholder = "INV-001"
+source      = "field"
+
+[[input]]
+name        = "issue_date"
+label       = "Issue date"
+placeholder = "2026-08-14"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "due_date"
+label       = "Due date (blank = issue date + terms)"
+placeholder = "2026-09-13"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "payment_terms"
+label       = "Payment terms (net days)"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "tax_label"
+label       = "Tax label"
+placeholder = "VAT"
+source      = "field"
+
+[[input]]
+name        = "tax_rate"
+label       = "Tax rate %"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "discount_percent"
+label       = "Discount % (before tax)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "round"
+label       = "Round each row up to minutes"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "group_by"
+label  = "Bill rows as"
+source = "field"
+
+[input.labels]
+entry       = "One line per row"
+description = "Merge same description"
+date        = "Merge same day"
+
+[[input]]
+name        = "notes"
+label       = "Notes / payment instructions"
+placeholder = "Payment by bank transfer to IBAN GB00 EXMP 0000 0000.\nLate payments accrue 2% per month."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown"
+text     = "Plain text"
+csv      = "CSV"
+json     = "JSON"
+
+[[example]]
+label = "Freelance invoice, Net 30"
+
+[example.params]
+entries = "2026-08-03 | Landing page copy | 3.5\n2026-08-04 | Bug fixes | 2h 30m\n2026-08-05 | Client call | 09:00-10:15"
+rate = "120"
+currency = "$"
+business = "Ada Consulting\n12 Harbour Road\nada@example.com"
+client = "Globex Ltd\nAccounts Payable\n88 Market Street"
+invoice_number = "INV-001"
+issue_date = "2026-08-14"
+due_date = ""
+payment_terms = "30"
+tax_label = "Tax"
+tax_rate = "0"
+discount_percent = "0"
+round = "0"
+group_by = "entry"
+notes = "Payment by bank transfer within 30 days."
+format = "markdown"
+
+[[example]]
+label = "VAT + discount, 15-min billing"
+
+[example.params]
+entries = "Discovery workshop | 2:45\nPrototype build | 6.25\nRetainer support | 0.4 | 90"
+rate = "150"
+currency = "£"
+business = "Ada Consulting Ltd\nVAT GB123456789"
+client = "Initech Europe"
+invoice_number = "2026-014"
+issue_date = "2026-08-14"
+due_date = "2026-08-28"
+payment_terms = "14"
+tax_label = "VAT"
+tax_rate = "20"
+discount_percent = "10"
+round = "15"
+group_by = "entry"
+notes = "VAT reverse charge does not apply."
+format = "markdown"
+
+[[example]]
+label = "Merge by day, export CSV"
+
+[example.params]
+entries = "2026-08-03 | Draft spec | 1.5\n2026-08-03 | Review | 2\n2026-08-04 | Ship release | 3h 15m"
+rate = "95"
+currency = "$"
+business = "Ada Consulting"
+client = "Globex Ltd"
+invoice_number = "INV-002"
+issue_date = "2026-08-14"
+due_date = ""
+payment_terms = "7"
+tax_label = "Sales tax"
+tax_rate = "8.5"
+discount_percent = "0"
+round = "6"
+group_by = "date"
+notes = ""
+format = "csv"

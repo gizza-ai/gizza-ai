@@ -1,0 +1,109 @@
+slug          = "cloud-share-direct-link"
+title         = "Direct Download Link Generator — Nextcloud, Dropbox, Drive, OneDrive"
+description   = "Paste a Nextcloud, Dropbox, Google Drive or OneDrive share link and get the direct-download URL — plus markdown, HTML, curl or wget. Batch, offline, no sign-up."
+tags          = ["direct download link generator", "dropbox direct link", "google drive direct download", "onedrive direct link", "nextcloud share download url", "share link to download link", "dl=1 dropbox", "hotlink cloud file"]
+h1            = "Cloud Share → Direct Download Link"
+hero_subtitle = "Paste a share link from Nextcloud/ownCloud, Dropbox, Google Drive or OneDrive and get the URL that downloads the file itself instead of opening a preview page. Convert a whole column at once, or emit markdown, HTML, curl or wget. Runs entirely in your browser — the links are rewritten locally and no cloud provider is ever contacted."
+wasm          = "gizza_ai_cloud_share_direct_link_web"
+export        = "run"
+live          = false
+output_label  = "Direct link"
+format        = "text"
+
+[[input]]
+name        = "url"
+label       = "Share link (one per line for a batch)"
+placeholder = "https://www.dropbox.com/scl/fi/abc123/report.pdf?rlkey=xyz&dl=0"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "provider"
+label  = "Provider"
+source = "field"
+
+[input.labels]
+auto         = "Auto-detect from the link"
+google_drive = "Google Drive"
+dropbox      = "Dropbox"
+onedrive     = "OneDrive"
+nextcloud    = "Nextcloud / ownCloud"
+
+[[input]]
+name   = "mode"
+label  = "Link should"
+source = "field"
+
+[input.labels]
+download = "Download the file"
+inline   = "Serve inline (hotlink / embed)"
+
+[[input]]
+name   = "output"
+label  = "Give me"
+source = "field"
+
+[input.labels]
+url      = "The URL"
+markdown = "Markdown link"
+html     = "HTML <a> tag"
+curl     = "curl command"
+wget     = "wget command"
+
+[[input]]
+name   = "onedrive_style"
+label  = "OneDrive method (download only)"
+source = "field"
+
+[input.labels]
+api            = "Shares API content URL (more reliable)"
+download_param = "Add download=1 to the share link"
+
+[[input]]
+name   = "docs_export"
+label  = "Google Docs/Sheets/Slides export as"
+source = "field"
+
+[input.labels]
+pdf    = "PDF"
+office = "Office (docx / xlsx / pptx)"
+txt    = "Plain text (csv for Sheets)"
+
+[[input]]
+name        = "file"
+label       = "File inside a Nextcloud folder share (optional)"
+placeholder = "reports/Q3 report.pdf"
+source      = "field"
+
+[[input]]
+name   = "per_line"
+label  = "Convert each line separately (batch)"
+source = "field"
+
+[[example]]
+label  = "Dropbox → direct download"
+params = { url = "https://www.dropbox.com/scl/fi/abc123/report.pdf?rlkey=xyz&dl=0", provider = "auto", mode = "download", output = "url" }
+
+[[example]]
+label  = "Google Drive (large file, no scan warning)"
+params = { url = "https://drive.google.com/file/d/1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW/view?usp=sharing", provider = "auto", mode = "download", output = "url" }
+
+[[example]]
+label  = "Nextcloud share → download"
+params = { url = "https://cloud.example.com/s/yxcFKRWBJqYYzp4", provider = "auto", mode = "download", output = "url" }
+
+[[example]]
+label  = "OneDrive → shares API link"
+params = { url = "https://1drv.ms/u/s!AhJrpDQRn5d", provider = "auto", mode = "download", output = "url" }
+
+[[example]]
+label  = "Dropbox image → hotlink for markdown"
+params = { url = "https://www.dropbox.com/scl/fi/abc123/logo.png?rlkey=xyz&dl=0", provider = "auto", mode = "inline", output = "markdown" }
+
+[[example]]
+label  = "Google Sheet → xlsx export"
+params = { url = "https://docs.google.com/spreadsheets/d/1A2b3C4d5E6f7G8h9I0jKlMnOpQrStUvW/edit", provider = "auto", mode = "download", output = "url", docs_export = "office" }
+
+[[example]]
+label  = "curl command for a Nextcloud folder file"
+params = { url = "https://cloud.example.com/s/yxcFKRWBJqYYzp4", provider = "auto", mode = "download", output = "curl", file = "reports/Q3 report.pdf" }

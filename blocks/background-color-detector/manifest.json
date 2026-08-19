@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/background-color-detector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect an image's likely background color from its border or corners.",
+  "role": "skill",
+  "tool": {
+    "description": "Determine the likely background colour of an image by sampling the border, corners, edges or full image. Provide the image as url or ref. Returns hex, rgba, rgb, hsl, nearest colour name, background coverage, uniform/gradient verdict, confidence, per-corner hexes, transparency information, dark/light flag, suggested readable text colour and WCAG contrast ratio. Parameters: region=border|corners|edges|full (default border), border_percent 1-50 (default 10), tolerance 0-100 percent channel distance (default 6), uniform_threshold 0-100 (default 90), ignore_transparency boolean (default true). This is an analyser only; it does not remove or replace the background.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "border_percent": {
+          "default": 10.0,
+          "description": "Thickness of the sampled border/corner band as a percent of the shorter image side, 1-50; ignored for region=full (default 10).",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ignore_transparency": {
+          "default": true,
+          "description": "When true, near-transparent pixels are excluded from the colour vote and a mostly transparent border can report is_transparent=true (default true).",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "region": {
+          "default": "border",
+          "description": "Which part of the image votes for the background: border (default, all sides), corners (only corner patches), edges (edge strips without corners), or full (dominant colour of the whole image).",
+          "enum": [
+            "border",
+            "corners",
+            "edges",
+            "full"
+          ],
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 6.0,
+          "description": "Per-channel colour distance, as percent of 0-255, still counted as the same background colour when computing coverage (default 6).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "uniform_threshold": {
+          "default": 90.0,
+          "description": "Coverage percent required before the sampled region counts as a single flat background (default 90).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

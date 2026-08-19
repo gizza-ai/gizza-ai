@@ -1,0 +1,187 @@
+{
+  "name": "gizza-ai/histogram-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bin a list of numbers and render an SVG histogram",
+  "role": "skill",
+  "tool": {
+    "description": "Bin a pasted list of numbers and render the distribution as a deterministic SVG histogram. Bin edges come from an automatic rule (Freedman-Diaconis, Sturges, Scott, Rice, Doane, or square-root) or from an explicit bin count or exact bin width, over the data range or a range you fix with range_min/range_max. Bars can measure raw counts, relative frequency, percent, density, or a cumulative count/percent, with optional value labels, mean and median markers, a normal-curve overlay, and a rug plot. Options control interval closure, orientation, grid lines, title, axis labels, SVG size, bar colour, opacity, theme, and decimal precision. Switch output to table, csv, or json for the frequency table and summary statistics (n, min, max, mean, median, sd, quartiles) instead of the chart. Everything runs locally in pure Rust; no plotting service or external data is used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bin_method": {
+          "default": "auto",
+          "description": "How the bin edges are chosen. auto (default) takes the finer of Freedman-Diaconis and Sturges; sturges, scott, freedman_diaconis, rice, doane, and sqrt apply that named rule; count uses the explicit `bins` value; width uses the explicit `bin_width` value.",
+          "enum": [
+            "auto",
+            "sturges",
+            "scott",
+            "freedman_diaconis",
+            "rice",
+            "doane",
+            "sqrt",
+            "count",
+            "width"
+          ],
+          "type": "string"
+        },
+        "bin_width": {
+          "default": 0.0,
+          "description": "Exact width of each bin when bin_method=width, for example 5 for 0-5, 5-10, 10-15. Must be positive in that mode and must not split the range into more than 500 bins. Default 0 (unused).",
+          "minimum": 0,
+          "type": "number"
+        },
+        "bins": {
+          "default": 10,
+          "description": "Number of bins to use when bin_method=count, 1-500. Default 10. Ignored by every other bin_method.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "color": {
+          "default": "#2563eb",
+          "description": "Bar fill colour as CSS color text, for example #2563eb, #f00, or tomato. Default #2563eb.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The numbers to bin. Paste one value per line or separate them with commas, tabs, semicolons, or spaces; a leading all-text header row is ignored. Plain decimals and scientific notation (1.2e3) both work. Needs at least 2 and at most 100000 values. Required.",
+          "type": "string"
+        },
+        "grid": {
+          "default": true,
+          "description": "Draw background grid lines along the measurement axis. Default true.",
+          "type": "boolean"
+        },
+        "height": {
+          "default": 480,
+          "description": "SVG height in pixels, 240-1800. Default 480.",
+          "maximum": 1800,
+          "minimum": 240,
+          "type": "integer"
+        },
+        "normal_curve": {
+          "default": false,
+          "description": "Overlay the normal (Gaussian) curve for the data's mean and standard deviation, scaled to the chosen normalize mode. Skipped for the cumulative modes, where it has no meaning. Default false.",
+          "type": "boolean"
+        },
+        "normalize": {
+          "default": "count",
+          "description": "What each bar measures: count (default, raw frequency), relative (fraction of n), percent (percent of n), density (bars integrate to 1), cumulative_count, or cumulative_percent.",
+          "enum": [
+            "count",
+            "relative",
+            "percent",
+            "density",
+            "cumulative_count",
+            "cumulative_percent"
+          ],
+          "type": "string"
+        },
+        "opacity": {
+          "default": 0.9,
+          "description": "Bar fill opacity from 0.05 to 1. Default 0.9; lower values let grid lines and an overlaid curve show through.",
+          "maximum": 1,
+          "minimum": 0.05,
+          "type": "number"
+        },
+        "orientation": {
+          "default": "vertical",
+          "description": "Bar direction: vertical (default, bars grow upward) or horizontal (bars grow rightward).",
+          "enum": [
+            "vertical",
+            "horizontal"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "svg",
+          "description": "Output format: svg (default, the chart markup), table (text frequency table plus summary stats), csv (machine-readable frequency table), or json (bins plus stats).",
+          "enum": [
+            "svg",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": 4,
+          "description": "Decimal places used for bin edges, labels, and reported statistics, 0-12. Default 4.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "range_max": {
+          "default": "",
+          "description": "Upper edge of the plotted range instead of the data maximum, for example 100. Values above it are excluded and counted separately. Default empty uses the data maximum.",
+          "type": "string"
+        },
+        "range_min": {
+          "default": "",
+          "description": "Lower edge of the plotted range instead of the data minimum, for example 0. Values below it are excluded and counted separately. Default empty uses the data minimum.",
+          "type": "string"
+        },
+        "right_closed": {
+          "default": false,
+          "description": "Use right-closed intervals (a, b] so a value on a bin edge falls in the lower bin. Default false gives left-closed [a, b) intervals, with the last bin closing on the maximum.",
+          "type": "boolean"
+        },
+        "rug": {
+          "default": false,
+          "description": "Draw a rug plot: one short tick per observation along the value axis. Default false.",
+          "type": "boolean"
+        },
+        "show_mean": {
+          "default": false,
+          "description": "Draw a dashed marker line at the mean, labelled with its value. Default false.",
+          "type": "boolean"
+        },
+        "show_median": {
+          "default": false,
+          "description": "Draw a dotted marker line at the median, labelled with its value. Default false.",
+          "type": "boolean"
+        },
+        "show_values": {
+          "default": false,
+          "description": "Print each bar's value above (or beside) the bar. Default false.",
+          "type": "boolean"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Chart theme: light (default, white background) or dark (slate background).",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn above the plot, for example `Response times`.",
+          "type": "string"
+        },
+        "width": {
+          "default": 800,
+          "description": "SVG width in pixels, 320-2400. Default 800.",
+          "maximum": 2400,
+          "minimum": 320,
+          "type": "integer"
+        },
+        "x_label": {
+          "default": "",
+          "description": "Optional label for the value axis, for example `Latency (ms)`. Default empty shows `Value`.",
+          "type": "string"
+        },
+        "y_label": {
+          "default": "",
+          "description": "Optional label for the measurement axis, for example `Requests`. Default empty names the normalize mode, such as `Count` or `Density`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

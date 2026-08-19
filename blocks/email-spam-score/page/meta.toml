@@ -1,0 +1,80 @@
+slug          = "email-spam-score"
+title         = "Email Spam Score Checker — Transparent Rule-by-Rule Test"
+description   = "Paste an email and get a 0-100 spam score with every rule that fired: trigger phrases, caps ratio, link density, shorteners, and header anomalies. Runs locally."
+tags          = ["email spam score", "spam checker", "spam test", "spam trigger words", "email deliverability", "spam score checker", "email content analyzer"]
+h1            = "Email Spam Score Checker"
+hero_subtitle = "Paste a raw email, an HTML body, or plain copy and get a 0-100 spamminess score with the exact rules, weights, and counts behind it — computed in your browser, never uploaded."
+wasm          = "gizza_ai_email_spam_score_web"
+export        = "run"
+live          = false
+output_label  = "Spam score report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "email"
+label       = "Email message"
+placeholder = "From: Deals <offers@grabber.top>\nSubject: FINAL NOTICE!!\n\nACT NOW to claim your FREE GIFT of $50,000 CASH!!!"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "subject"
+label       = "Subject line (only if the paste has no Subject header)"
+placeholder = "Your invoice for March"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Read the input as"
+placeholder = "auto"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+raw  = "Raw email (headers + body)"
+html = "HTML body"
+text = "Plain text body"
+
+[[input]]
+name        = "report"
+label       = "Report style"
+placeholder = "detailed"
+source      = "field"
+
+[input.labels]
+detailed = "Detailed — every rule with points"
+summary  = "Summary — score and top signals"
+json     = "JSON — machine readable"
+
+[[input]]
+name        = "check_headers"
+label       = "Apply header rules (SPF/DKIM/DMARC, From vs Return-Path, Reply-To)"
+source      = "field"
+
+[[example]]
+label = "Clean newsletter"
+[example.params]
+email = "From: Ada Lovelace <ada@example.com>\nTo: team@example.com\nReturn-Path: <ada@example.com>\nDate: Tue, 1 Jan 2026 09:00:00 +0000\nMessage-ID: <a1@example.com>\nSubject: Notes from Tuesday's planning session\nReceived: from mail.example.com by mx.example.com\nAuthentication-Results: mx.example.com; spf=pass; dkim=pass; dmarc=pass\n\nHi team,\n\nHere are the notes from our planning session. The rollout stays on the schedule we agreed, and the migration document is linked from the shared drive at https://docs.example.com/plan for anyone who needs the detail.\n\nThanks,\nAda"
+subject = ""
+format = "auto"
+report = "detailed"
+check_headers = "true"
+
+[[example]]
+label = "Classic spam copy"
+[example.params]
+email = "ACT NOW! This is your LAST CHANCE to claim your FREE GIFT worth $50,000 CASH!!! Click here to order now, 100% free, no obligation, satisfaction guaranteed!!! http://bit.ly/x1"
+subject = "CONGRATULATIONS!! YOU HAVE WON!!"
+format = "text"
+report = "detailed"
+check_headers = "true"
+
+[[example]]
+label = "Spoofed-header phish"
+[example.params]
+email = "From: \"security@yourbank.com\" <notice@grabber.top>\nTo: undisclosed-recipients:;\nReturn-Path: <bounce@mailer.example>\nReply-To: help@other.example\nSubject: Verify your account\nAuthentication-Results: mx.example.com; spf=fail; dkim=none; dmarc=fail\n\nWe detected unusual activity. Please confirm your account within 24 hours or your account will be closed.\nhttp://192.0.2.9/login"
+subject = ""
+format = "auto"
+report = "detailed"
+check_headers = "true"

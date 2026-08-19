@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pca-visualizer"
+version = "0.1.0"
+abi = 1
+summary = "Project a high-dimensional table to 2-D with PCA or t-SNE and plot it as a labelled SVG scatter."

@@ -1,0 +1,87 @@
+slug          = "chunk-list"
+title         = "Chunk list into batches"
+description   = "Split pasted lines or comma-separated items into fixed-size chunks for batching APIs, imports, prompts, and review queues."
+tags          = ["list chunker", "batch list", "split list", "chunk items", "api batching", "csv chunks"]
+h1            = "Chunk list into batches"
+hero_subtitle = "Paste lines or comma-separated values, choose a chunk size, and get numbered batches as plain text, JSON, CSV, or Markdown. Runs entirely in your browser."
+wasm          = "gizza_ai_chunk_list_web"
+export        = "run"
+live          = false
+output_label  = "Chunks"
+format        = "text"
+
+[[input]]
+name        = "items"
+label       = "Items"
+placeholder = "alpha\nbeta\ngamma\ndelta\nepsilon"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_separator"
+label  = "Input separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma"
+newline   = "Newline"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+custom    = "Custom"
+
+[[input]]
+name        = "custom_separator"
+label       = "Custom separator"
+placeholder = " :: "
+source      = "field"
+
+[[input]]
+name        = "chunk_size"
+label       = "Chunk size"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+plain    = "Plain text"
+json     = "JSON"
+csv      = "CSV"
+markdown = "Markdown"
+
+[[input]]
+name   = "label_chunks"
+label  = "Label chunks"
+source = "field"
+
+[[example]]
+label = "Five names into pairs"
+items = "alpha\nbeta\ngamma\ndelta\nepsilon"
+input_separator = "newline"
+custom_separator = ""
+chunk_size = "2"
+output = "plain"
+label_chunks = "true"
+
+[[example]]
+label = "CSV rows for API batches"
+items = "1001,1002,1003,1004,1005"
+input_separator = "comma"
+custom_separator = ""
+chunk_size = "3"
+output = "csv"
+label_chunks = "false"
+
+[[example]]
+label = "Markdown checklists"
+items = "task A|task B|task C|task D"
+input_separator = "pipe"
+custom_separator = ""
+chunk_size = "2"
+output = "markdown"
+label_chunks = "true"

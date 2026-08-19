@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ssh-config-formatter"
+version = "0.1.0"
+abi = 1
+summary = "Format, normalize and lint an OpenSSH ~/.ssh/config file."

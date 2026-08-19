@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-amcache-parser-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+regf = "0.1"
+base64 = "0.22"

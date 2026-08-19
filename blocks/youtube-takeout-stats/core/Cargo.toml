@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-youtube-takeout-stats-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# scraper: html5ever-based HTML parsing + CSS selectors, wasm32-safe (the same
+# engine html-table-extractor / structured-data-validator already ship). Needed
+# for the watch-history.html Takeout variant.
+scraper = { version = "0.20", default-features = false }
+serde_json = "1"
+# scraper pulls ahash/getrandom in the wasm32-unknown-unknown web build; enable
+# the JS backend so wasm-pack can compile the standalone page.
+getrandom = { version = "0.3", features = ["wasm_js"] }

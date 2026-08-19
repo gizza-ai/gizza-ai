@@ -1,0 +1,105 @@
+slug          = "regex-capture-to-csv"
+title         = "Regex Capture Groups to CSV — Turn Matches into Spreadsheet Rows"
+description   = "Scan text with a regex and get CSV: one row per match, named capture groups as columns. Pick the delimiter, quoting, and columns — all in your browser."
+tags          = ["regex to csv", "capture groups to csv", "extract data to csv", "regex extractor", "log to csv", "text to spreadsheet", "named capture groups", "regex csv export"]
+h1            = "Regex Capture Groups to CSV"
+hero_subtitle = "Paste text, write a regex with named capture groups, and get spreadsheet-ready CSV — one row per match, group names as the header. Choose the delimiter, quoting, and column order, dedupe or sort rows. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_regex_capture_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to scan"
+placeholder = "10.0.0.5 GET /index.html 200\n10.0.0.9 POST /api/login 401"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Regex (named capture groups become columns)"
+placeholder = '(?<ip>\S+) (?<method>[A-Z]+) (?<path>\S+) (?<status>\d{3})'
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Columns (blank = all, in pattern order)"
+placeholder = "status, ip"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+placeholder = ", or tab, semicolon, pipe"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "Header row of column names"
+source = "field"
+
+[[input]]
+name   = "quoting"
+label  = "Quoting"
+source = "field"
+
+[input.labels]
+minimal = "Minimal — only when needed"
+all     = "All fields quoted"
+
+[[input]]
+name   = "line_ending"
+label  = "Line endings"
+source = "field"
+
+[input.labels]
+lf   = "LF (Unix)"
+crlf = "CRLF (Windows / Excel)"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "multiline"
+label  = "Multiline (^ and $ per line)"
+source = "field"
+
+[[input]]
+name   = "dotall"
+label  = "Dot matches newlines (match across lines)"
+source = "field"
+
+[[input]]
+name   = "unique"
+label  = "Drop duplicate rows"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort rows"
+source = "field"
+
+[[example]]
+label = "Access log → CSV"
+[example.params]
+text    = "10.0.0.5 GET /index.html 200\n10.0.0.9 POST /api/login 401"
+pattern = '(?<ip>\S+) (?<method>[A-Z]+) (?<path>\S+) (?<status>\d{3})'
+
+[[example]]
+label = "key=value → CSV, deduped + sorted"
+[example.params]
+text    = "host=web1 region=eu\nhost=web1 region=eu\nhost=db2 region=us"
+pattern = '(?<key>\w+)=(?<value>\S+)'
+unique  = "true"
+sort    = "true"
+
+[[example]]
+label = "HTML cells → TSV"
+[example.params]
+text      = "<td>Widget</td><td>9.99</td>\n<td>Gadget</td><td>14.50</td>"
+pattern   = '<td>(?<item>[^<]+)</td><td>(?<price>[^<]+)</td>'
+delimiter = "tab"

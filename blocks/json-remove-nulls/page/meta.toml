@@ -1,0 +1,66 @@
+slug          = "json-remove-nulls"
+title         = "Remove Nulls from JSON — Strip Null & Empty Values"
+description   = "Recursively remove null values from JSON, and optionally empty strings, arrays and objects. Compact or keep array positions, pretty-print or minify."
+tags          = ["remove nulls from json", "strip null values json", "json null remover", "remove empty values json", "clean json online", "json prune"]
+h1            = "JSON Null Remover"
+hero_subtitle = "Recursively strip null values — and optionally empty strings, arrays and objects — out of any JSON document. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_json_remove_nulls_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON"
+placeholder = "{ \"name\": \"Ada\", \"nickname\": null, \"address\": { \"city\": \"London\", \"zip\": null } }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "remove_empty_strings"
+label  = "Also remove empty strings (\"\")"
+source = "field"
+
+[[input]]
+name   = "remove_empty_arrays"
+label  = "Also remove empty arrays ([])"
+source = "field"
+
+[[input]]
+name   = "remove_empty_objects"
+label  = "Also remove empty objects ({})"
+source = "field"
+
+[[input]]
+name   = "trim_strings"
+label  = "Trim whitespace from string values"
+source = "field"
+
+# arrays renders as a <select>; option list derives from the descriptor enum.
+[[input]]
+name   = "arrays"
+label  = "Values inside arrays"
+source = "field"
+
+[input.labels]
+compact = "Compact — drop them, [1, null, 2] → [1, 2]"
+keep    = "Keep — leave array positions unchanged"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces (0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "Remove nulls"
+params = { json = "{ \"name\": \"Ada\", \"nickname\": null, \"address\": { \"city\": \"London\", \"zip\": null } }", remove_empty_strings = "false", remove_empty_arrays = "false", remove_empty_objects = "false", trim_strings = "false", arrays = "compact", indent = "2" }
+
+[[example]]
+label  = "Strip every empty value"
+params = { json = "{ \"a\": null, \"b\": \"\", \"c\": [], \"d\": {}, \"e\": 0, \"f\": false }", remove_empty_strings = "true", remove_empty_arrays = "true", remove_empty_objects = "true", trim_strings = "false", arrays = "compact", indent = "2" }
+
+[[example]]
+label  = "Keep array positions, minified"
+params = { json = "{ \"rows\": [1, null, 2], \"meta\": { \"tag\": null } }", remove_empty_strings = "false", remove_empty_arrays = "false", remove_empty_objects = "false", trim_strings = "false", arrays = "keep", indent = "0" }

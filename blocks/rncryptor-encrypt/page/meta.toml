@@ -1,0 +1,106 @@
+slug          = "rncryptor-encrypt"
+title         = "RNCryptor encrypt — build v3 password containers"
+description   = "Encrypt text or bytes into the password-based RNCryptor v3 container format, or verify and decrypt one, with base64/hex input and output."
+tags          = ["rncryptor", "encrypt", "decrypt", "aes", "pbkdf2", "hmac", "ios crypto"]
+h1            = "RNCryptor v3 encrypt"
+hero_subtitle = "Paste data and a password to produce the complete RNCryptor v3 password blob that mobile and Python RNCryptor libraries can open. Runs locally in your browser."
+wasm          = "gizza_ai_rncryptor_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "RNCryptor container or plaintext"
+format        = "text"
+
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[input.labels]
+encrypt = "Encrypt to container"
+decrypt = "Decrypt / verify container"
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "attack at dawn"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "password"
+label       = "Password"
+placeholder = "thepassword"
+source      = "field"
+
+[[input]]
+name        = "data_encoding"
+label       = "Input encoding"
+source      = "field"
+
+[input.labels]
+text   = "Text / auto-detect on decrypt"
+hex    = "Hex bytes"
+base64 = "Base64 bytes"
+
+[[input]]
+name        = "output_encoding"
+label       = "Output encoding"
+source      = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "encryption_salt"
+label       = "Encryption salt (optional hex)"
+placeholder = "0001020304050607"
+source      = "field"
+
+[[input]]
+name        = "hmac_salt"
+label       = "HMAC salt (optional hex)"
+placeholder = "0102030405060708"
+source      = "field"
+
+[[input]]
+name        = "iv"
+label       = "IV (optional hex)"
+placeholder = "02030405060708090a0b0c0d0e0f0001"
+source      = "field"
+
+[[example]]
+label = "Encrypt text with fresh random fields"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+password = "correct horse battery staple"
+data_encoding = "text"
+output_encoding = "base64"
+encryption_salt = ""
+hmac_salt = ""
+iv = ""
+
+[[example]]
+label = "Deterministic spec-vector hex output"
+[example.params]
+operation = "encrypt"
+data = "01"
+password = "thepassword"
+data_encoding = "hex"
+output_encoding = "hex"
+encryption_salt = "0001020304050607"
+hmac_salt = "0102030405060708"
+iv = "02030405060708090a0b0c0d0e0f0001"
+
+[[example]]
+label = "Decrypt a known container"
+[example.params]
+operation = "decrypt"
+data = "03010001020304050607010203040506070802030405060708090a0b0c0d0e0f0001a1f8730e0bf480eb7b70f690abf21e029514164ad3c474a51b30c7eaa1ca545b7de3de5b010acbad0a9a13857df696a8"
+password = "thepassword"
+data_encoding = "hex"
+output_encoding = "hex"
+encryption_salt = ""
+hmac_salt = ""
+iv = ""

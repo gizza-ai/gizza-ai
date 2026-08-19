@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/topojson-to-geojson",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Expand compact TopoJSON with shared arcs into standard GeoJSON",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a compact TopoJSON topology into standard RFC 7946 GeoJSON. Shared arcs are decoded once and stitched back into full coordinate rings and lines (negative arc indexes are traversed backwards), the quantization transform (scale + translate) is applied, and delta-encoded arc positions are accumulated back to absolute coordinates. Handles Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon and GeometryCollection, keeping each feature's properties, id and bbox. Set object to expand one named entry of the topology's objects map, or leave it blank to merge them all. output is 'feature-collection' (default) or 'geometry-collection'; include_bbox adds a computed bounding box; precision rounds coordinates to N decimals (-1 = full); indent is spaces per level (0 minifies). Invalid arc indexes, unknown geometry types, unknown object names and non-Topology input are reported by name. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_bbox": {
+          "default": false,
+          "description": "Add a 2D \"bbox\": [west, south, east, north] to the top-level result, computed from the coordinates actually emitted (so it stays correct when a single object was selected). Off by default.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level (1-8). Use 0 to minify to a single compact line. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "object": {
+          "default": "",
+          "description": "Name of the single entry in the topology's \"objects\" map to expand, e.g. 'countries'. Leave blank (the default) to expand every object and merge them into one collection, in document order. An unknown name is rejected with the list of names the topology actually has.",
+          "type": "string"
+        },
+        "output": {
+          "default": "feature-collection",
+          "description": "Shape of the result: 'feature-collection' (default) emits an RFC 7946 FeatureCollection whose features keep their properties, id and bbox; 'geometry-collection' emits a bare GeoJSON GeometryCollection of geometries only, dropping properties and id.",
+          "enum": [
+            "feature-collection",
+            "geometry-collection"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": -1,
+          "description": "Round every coordinate to this many decimal places (0-15). Quantized topologies decode to values like -179.99999999999997; rounding removes that float noise and shrinks the output. Use -1 (the default) to keep full precision.",
+          "maximum": 15,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "topojson": {
+          "description": "The TopoJSON text to expand — a document with \"type\": \"Topology\", an \"objects\" map and an \"arcs\" array, e.g. {\"type\":\"Topology\",\"objects\":{\"l\":{\"type\":\"LineString\",\"arcs\":[0]}},\"arcs\":[[[0,0],[1,1]]]}. Quantized topologies (a \"transform\" with scale/translate and delta-encoded arcs) are decoded automatically.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "topojson"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,77 @@
+slug          = "ssh-public-key-parser"
+title         = "SSH Public Key Parser — Fingerprint, Type and Bit Size"
+description   = "Paste an OpenSSH public key, authorized_keys or known_hosts line and read its algorithm, bit size, comment and SHA256/MD5 fingerprints — free, in your browser."
+tags          = ["ssh public key parser", "ssh key fingerprint", "ssh-keygen -l online", "authorized_keys parser", "known_hosts parser", "ssh key type", "ed25519 fingerprint", "rsa key size", "ssh certificate decoder"]
+h1            = "SSH Public Key Parser"
+hero_subtitle = "Decode an OpenSSH public key into its algorithm, key size, comment and fingerprints — the same SHA256 and MD5 values ssh-keygen -l prints. Handles authorized_keys options, known_hosts entries, OpenSSH certificates and RFC 4716 blocks. Runs entirely in your browser; no key ever leaves your device."
+wasm          = "gizza_ai_ssh_public_key_parser_web"
+export        = "run"
+live          = false
+output_label  = "Key report"
+format        = "json"
+
+[[input]]
+name        = "input"
+label       = "SSH public key(s)"
+placeholder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPc21YeL9wdmn0Bvy1dVCZH/rO/hcbVFBt5YQ/Y8+oOy alice@example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "expected_fingerprint"
+label       = "Expected fingerprint (optional)"
+placeholder = "SHA256:/PcooB4wsFrX/EAwN1wlE0KJbNvM1usU1KT6lCXUah4"
+source      = "field"
+
+# include_sha1 and uppercase_md5 are booleans in the descriptor schema, so the
+# page renders them as checkboxes — the control type comes from manifest.json and
+# is not duplicated here.
+[[input]]
+name        = "include_sha1"
+label       = "Also show the legacy SHA-1 fingerprint"
+source      = "field"
+
+[[input]]
+name        = "uppercase_md5"
+label       = "Uppercase the MD5 hex digits"
+source      = "field"
+
+[[example]]
+label = "Ed25519 key"
+[example.params]
+input = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPc21YeL9wdmn0Bvy1dVCZH/rO/hcbVFBt5YQ/Y8+oOy alice@example.com"
+expected_fingerprint = ""
+include_sha1 = "false"
+uppercase_md5 = "false"
+
+[[example]]
+label = "Weak 1024-bit RSA key"
+[example.params]
+input = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDekXDjgNS3ZxCX3k9Vy2bXyMehgtLFWjqnh/lDhATJjzF97/zmGaPA/4qCyYd5dzfRkwwjldgT+SSbsiPIcREcQKWAF9/jzi5OQh2jOmcaCtUpPs8yRQTBngXobCX2DZx69ZRW01iKRHqWMdKRuyaTGBC4OqQ803k5hIcAuo6KTQ== legacy@old-host"
+expected_fingerprint = ""
+include_sha1 = "false"
+uppercase_md5 = "false"
+
+[[example]]
+label = "authorized_keys line with options"
+[example.params]
+input = "command=\"/usr/local/bin/backup\",no-pty,no-agent-forwarding ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBN3/uf+t2fI/6Zf0xTF6yK8YLLiYDcO6m8h4H5vU5Qrfc8rj95WOLmYBec2w54OFTl9+9iCOgEvM/4J0i2Giudo= ops@host"
+expected_fingerprint = ""
+include_sha1 = "false"
+uppercase_md5 = "false"
+
+[[example]]
+label = "Verify against a known fingerprint"
+[example.params]
+input = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPc21YeL9wdmn0Bvy1dVCZH/rO/hcbVFBt5YQ/Y8+oOy alice@example.com"
+expected_fingerprint = "SHA256:/PcooB4wsFrX/EAwN1wlE0KJbNvM1usU1KT6lCXUah4"
+include_sha1 = "false"
+uppercase_md5 = "false"
+
+[[example]]
+label = "Legacy fingerprints (SHA-1 + uppercase MD5)"
+[example.params]
+input = "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBN3/uf+t2fI/6Zf0xTF6yK8YLLiYDcO6m8h4H5vU5Qrfc8rj95WOLmYBec2w54OFTl9+9iCOgEvM/4J0i2Giudo= ops@host"
+expected_fingerprint = ""
+include_sha1 = "true"
+uppercase_md5 = "true"

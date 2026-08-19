@@ -1,0 +1,96 @@
+{
+  "name": "gizza-ai/twitter-archive-reader",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn the tweets.js file from a Twitter/X archive into a readable transcript with posting stats and top tweets",
+  "role": "skill",
+  "tool": {
+    "description": "Read a Twitter/X data export (paste the contents of the archive's data/tweets.js — the JavaScript file that starts with `window.YTD.tweets.part0 = [`) and return a readable transcript plus posting statistics. The JS wrapper is stripped automatically, t.co short links are expanded back to the URLs stored in the archive, HTML entities are decoded, media becomes [photo: url]/[video: url] placeholders, and every tweet is classified original / reply / retweet with its UTC timestamp, likes, retweets, language, posting app and a https://twitter.com/i/web/status/<id> permalink. The summary reports totals, originals vs replies vs retweets, likes and retweets received with per-tweet averages, the date range, tweets per year, top hashtags, mentions, link domains, posting apps and languages with shares, and the most-liked tweets. Options: output (transcript/stats/both), format (markdown/text/html/csv), sort (newest/oldest/likes/retweets), search, since/until date bounds (YYYY-MM-DD, UTC), include_replies, include_retweets, expand_urls, top_count and max_tweets. Fully local and deterministic — no AI model, no network, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "expand_urls": {
+          "default": true,
+          "description": "When true (default), every t.co short link is rewritten to the expanded_url stored in the archive and the redundant t.co media link is dropped from the text. Set false to keep the tweet text byte-for-byte as exported.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "How to render the result: markdown (headings, summary tables and permalinks, default), text (plain readable transcript), html (escaped article blocks you can paste into a page), or csv (machine-readable rows — the transcript becomes date,id,kind,likes,retweets,language,source,text,permalink).",
+          "enum": [
+            "markdown",
+            "text",
+            "html",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_replies": {
+          "default": true,
+          "description": "When true (default), tweets that reply to someone are included and labelled `reply · to @name`. Set false to keep standalone posts and retweets only.",
+          "type": "boolean"
+        },
+        "include_retweets": {
+          "default": true,
+          "description": "When true (default), retweets (a `RT @name:` post or one carrying a retweeted_status) are included. Set false to keep only what you wrote.",
+          "type": "boolean"
+        },
+        "max_tweets": {
+          "default": 0,
+          "description": "Cap on how many tweets to render, applied after every filter and the sort (0 = no limit). Use it to preview a very large archive; the summary reports the truncation.",
+          "maximum": 500000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to return: transcript (the tweets themselves), stats (a summary with totals, engagement, per-year activity, top hashtags/mentions/domains/apps and the most-liked tweets), or both (default).",
+          "enum": [
+            "transcript",
+            "stats",
+            "both"
+          ],
+          "type": "string"
+        },
+        "search": {
+          "description": "Optional: keep only tweets whose text contains this text, matched case-insensitively after t.co links are expanded (e.g. `rustlang` or `#release`). Omit to keep everything.",
+          "type": "string"
+        },
+        "since": {
+          "description": "Optional inclusive start date in YYYY-MM-DD form, compared against each tweet's UTC date (e.g. `2024-01-15`). Omit for no lower bound.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "newest",
+          "description": "Transcript order: newest first (default, matching the timeline), oldest first for a chronological read, likes for the most-favourited first, or retweets for the most-reposted first.",
+          "enum": [
+            "newest",
+            "oldest",
+            "likes",
+            "retweets"
+          ],
+          "type": "string"
+        },
+        "top_count": {
+          "default": 5,
+          "description": "How many most-liked tweets to list in the summary (default 5, 0 = skip that table). Ties break by retweets, then by date.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tweets": {
+          "description": "Paste the entire contents of the tweets.js file from a Twitter/X data export (it lives in the archive's data/ folder and starts with `window.YTD.tweets.part0 = [`). The JavaScript wrapper is stripped automatically; a bare JSON array of tweets works too.",
+          "type": "string"
+        },
+        "until": {
+          "description": "Optional inclusive end date in YYYY-MM-DD form, compared against each tweet's UTC date (e.g. `2024-01-31`). Omit for no upper bound.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tweets"
+      ],
+      "type": "object"
+    }
+  }
+}

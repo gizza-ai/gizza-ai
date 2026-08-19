@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "logfmt-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert log data between logfmt, JSON, NDJSON, and CSV in any direction."

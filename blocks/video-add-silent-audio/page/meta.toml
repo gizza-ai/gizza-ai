@@ -1,0 +1,73 @@
+slug          = "video-add-silent-audio"
+title         = "Add a Silent Audio Track to a Video Online"
+description   = "Give an audio-less video a silent audio track so uploaders and editors that require an audio stream accept it. The picture is copied untouched, in your browser."
+tags          = ["add silent audio", "silent audio track", "video has no audio", "dummy audio track", "anullsrc", "upload rejected no audio", "add audio stream", "ffmpeg"]
+h1            = "Add a Silent Audio Track to a Video"
+hero_subtitle = "Pick a video with no sound and get it back with a silent audio track added, so tools that demand an audio stream stop rejecting it. The picture is copied untouched and nothing is uploaded."
+wasm          = "gizza_ai_video_add_silent_audio_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Video with a silent audio track"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "channels"
+source = "field"
+label  = "Channels"
+
+[input.labels]
+mono   = "Mono — 1 channel, smallest"
+stereo = "Stereo — 2 channels (default)"
+
+[[input]]
+name   = "sample_rate"
+source = "field"
+label  = "Sample rate"
+
+[input.labels]
+22050 = "22.05 kHz — smallest"
+44100 = "44.1 kHz — CD / editor standard"
+48000 = "48 kHz — video standard (default)"
+
+[[input]]
+name   = "bitrate"
+source = "field"
+label  = "Audio bitrate"
+
+[input.labels]
+32  = "32 kbps — barely any bytes"
+64  = "64 kbps"
+96  = "96 kbps"
+128 = "128 kbps — default"
+192 = "192 kbps — for strict checks"
+
+[[input]]
+name   = "existing_audio"
+source = "field"
+label  = "If the video already has audio"
+
+[input.labels]
+replace = "Replace it — one silent track (default)"
+keep    = "Keep it — add silence as a 2nd track"
+
+[[example]]
+label  = "Platform-safe default"
+params = { channels = "stereo", sample_rate = "48000", bitrate = "128", existing_audio = "replace" }
+
+[[example]]
+label  = "Tiny mono track"
+params = { channels = "mono", sample_rate = "22050", bitrate = "32", existing_audio = "replace" }
+
+[[example]]
+label  = "44.1 kHz for editors"
+params = { channels = "stereo", sample_rate = "44100", bitrate = "128", existing_audio = "replace" }
+
+[[example]]
+label  = "Keep existing audio"
+params = { channels = "stereo", sample_rate = "48000", bitrate = "128", existing_audio = "keep" }

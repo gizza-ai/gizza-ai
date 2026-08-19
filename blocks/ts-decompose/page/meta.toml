@@ -1,0 +1,230 @@
+slug          = "ts-decompose"
+title         = "Time Series Decomposition — Trend, Seasonal and Residual Plot"
+description   = "Paste a time series and split it into trend, seasonal and residual components with STL or classical decomposition. SVG plot plus CSV/JSON components."
+tags          = ["time series decomposition", "stl decomposition", "seasonal trend residual", "seasonal adjustment", "detrend", "seasonality", "classical decomposition", "trend analysis"]
+h1            = "Time Series Decomposition"
+hero_subtitle = "Paste a series, pick STL or the classical moving-average method, and get the trend, seasonal and residual components as a four-panel SVG — plus the component table, seasonal indices and strength diagnostics as text, CSV or JSON."
+wasm          = "gizza_ai_ts_decompose_web"
+export        = "run"
+live          = false
+output_label  = "Decomposition output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Time series"
+placeholder = "2024-01,112\n2024-02,118\n2024-03,132\n2024-04,129"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "method"
+label       = "Method"
+placeholder = "stl"
+source      = "field"
+[input.labels]
+stl = "STL (seasonal-trend by loess)"
+classical = "Classical (moving average)"
+
+[[input]]
+name        = "model"
+label       = "Model"
+placeholder = "additive"
+source      = "field"
+[input.labels]
+additive = "Additive (trend + seasonal + residual)"
+multiplicative = "Multiplicative (trend x seasonal x residual)"
+
+[[input]]
+name        = "period"
+label       = "Seasonal period (0 = detect)"
+placeholder = "12"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "60"
+step        = "1"
+
+[[input]]
+name        = "seasonal_window"
+label       = "STL seasonal window (0 = periodic)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "99"
+step        = "1"
+
+[[input]]
+name        = "trend_window"
+label       = "STL trend window (0 = auto)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "201"
+step        = "1"
+
+[[input]]
+name        = "robust"
+label       = "Robust to outliers (STL)"
+source      = "field"
+
+[[input]]
+name        = "two_sided"
+label       = "Centred moving average (classical)"
+source      = "field"
+
+[[input]]
+name        = "extrapolate_trend"
+label       = "Fill the trend's blank ends (classical)"
+source      = "field"
+
+[[input]]
+name        = "trend_overlay"
+label       = "Overlay the trend on the observed panel"
+source      = "field"
+
+[[input]]
+name        = "show_adjusted"
+label       = "Overlay the seasonally adjusted series"
+source      = "field"
+
+[[input]]
+name        = "residual_style"
+label       = "Residual panel"
+placeholder = "bar"
+source      = "field"
+[input.labels]
+bar = "Bars from zero"
+line = "Line"
+
+[[input]]
+name        = "grid"
+label       = "Show grid lines"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "Chart title"
+placeholder = "Monthly sales"
+source      = "field"
+
+[[input]]
+name        = "x_label"
+label       = "Time-axis label"
+placeholder = "Month"
+source      = "field"
+
+[[input]]
+name        = "y_label"
+label       = "Value-axis label"
+placeholder = "Units sold"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "SVG width"
+placeholder = "900"
+source      = "field"
+kind        = "slider"
+min         = "360"
+max         = "2400"
+step        = "20"
+
+[[input]]
+name        = "height"
+label       = "SVG height"
+placeholder = "720"
+source      = "field"
+kind        = "slider"
+min         = "320"
+max         = "2400"
+step        = "20"
+
+[[input]]
+name        = "color"
+label       = "Series colour"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "theme"
+label       = "Theme"
+placeholder = "light"
+source      = "field"
+[input.labels]
+light = "Light"
+dark = "Dark"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name        = "output"
+label       = "Output"
+placeholder = "svg"
+source      = "field"
+[input.labels]
+svg = "SVG chart"
+table = "Components table"
+csv = "CSV components"
+json = "JSON components + diagnostics"
+
+[[example]]
+label = "Monthly, auto period"
+[example.params]
+data = "2022-01,104\n2022-02,102\n2022-03,99.5\n2022-04,98.5\n2022-05,97\n2022-06,101\n2022-07,104.5\n2022-08,107\n2022-09,110.5\n2022-10,107.5\n2022-11,103\n2022-12,102.5\n2023-01,110\n2023-02,108\n2023-03,105.5\n2023-04,104.5\n2023-05,103\n2023-06,107\n2023-07,110.5\n2023-08,113\n2023-09,116.5\n2023-10,113.5\n2023-11,109\n2023-12,108.5\n2024-01,116\n2024-02,114\n2024-03,111.5\n2024-04,110.5\n2024-05,109\n2024-06,113\n2024-07,116.5\n2024-08,119\n2024-09,122.5\n2024-10,119.5\n2024-11,115\n2024-12,114.5\n2025-01,122\n2025-02,120\n2025-03,117.5\n2025-04,116.5\n2025-05,115\n2025-06,119\n2025-07,122.5\n2025-08,125\n2025-09,128.5\n2025-10,125.5\n2025-11,121\n2025-12,120.5"
+period = "0"
+title = "Monthly sales"
+x_label = "Month"
+y_label = "Units sold"
+output = "svg"
+
+[[example]]
+label = "Quarterly, multiplicative"
+[example.params]
+data = "60\n45\n40\n55\n64\n48\n42.5\n58.5\n68\n51\n45\n62\n72\n54\n47.5\n65.5\n76\n57\n50\n69"
+method = "stl"
+model = "multiplicative"
+period = "4"
+title = "Quarterly revenue"
+show_adjusted = "true"
+output = "svg"
+
+[[example]]
+label = "Daily, weekly cycle"
+[example.params]
+data = "23\n21\n20\n19\n18\n25\n26\n23.5\n21.5\n20.5\n19.5\n18.5\n25.5\n26.5\n24\n22\n21\n20\n19\n26\n27\n24.5\n22.5\n21.5\n20.5\n19.5\n26.5\n27.5\n25\n23\n22\n21\n20\n27\n28"
+period = "7"
+title = "Daily visits"
+x_label = "Day"
+output = "svg"
+
+[[example]]
+label = "Classical, trailing MA"
+[example.params]
+data = "2022-01,104\n2022-02,102\n2022-03,99.5\n2022-04,98.5\n2022-05,97\n2022-06,101\n2022-07,104.5\n2022-08,107\n2022-09,110.5\n2022-10,107.5\n2022-11,103\n2022-12,102.5\n2023-01,110\n2023-02,108\n2023-03,105.5\n2023-04,104.5\n2023-05,103\n2023-06,107\n2023-07,110.5\n2023-08,113\n2023-09,116.5\n2023-10,113.5\n2023-11,109\n2023-12,108.5\n2024-01,116\n2024-02,114\n2024-03,111.5\n2024-04,110.5\n2024-05,109\n2024-06,113\n2024-07,116.5\n2024-08,119\n2024-09,122.5\n2024-10,119.5\n2024-11,115\n2024-12,114.5"
+method = "classical"
+period = "12"
+two_sided = "false"
+title = "Classical decomposition"
+output = "svg"
+
+[[example]]
+label = "Components table"
+[example.params]
+data = "2022-01,104\n2022-02,102\n2022-03,99.5\n2022-04,98.5\n2022-05,97\n2022-06,101\n2022-07,104.5\n2022-08,107\n2022-09,110.5\n2022-10,107.5\n2022-11,103\n2022-12,102.5\n2023-01,110\n2023-02,108\n2023-03,105.5\n2023-04,104.5\n2023-05,103\n2023-06,107\n2023-07,110.5\n2023-08,113\n2023-09,116.5\n2023-10,113.5\n2023-11,109\n2023-12,108.5"
+method = "classical"
+period = "12"
+precision = "2"
+output = "table"

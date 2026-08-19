@@ -1,0 +1,68 @@
+slug          = "gpx-simplify"
+title         = "GPX Simplifier — Reduce Track Points with Douglas-Peucker"
+description   = "Paste a GPX track and reduce its point count with Douglas-Peucker tolerance in meters while preserving route shape, endpoints, elevation and times."
+tags          = ["gpx simplifier", "reduce gpx points", "douglas peucker", "gps track simplify", "gpx file size", "track point reduction", "route simplify", "gps cleanup"]
+h1            = "GPX Simplifier"
+hero_subtitle = "Reduce GPX track points with the Douglas-Peucker algorithm. Choose a tolerance in meters, keep endpoints and shape-critical bends, preserve elevation/time on kept points, and export clean GPX."
+wasm          = "gizza_ai_gpx_simplify_web"
+export        = "run"
+live          = false
+output_label  = "Simplified GPX"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "GPX track"
+placeholder = "<gpx><trk><trkseg>\n<trkpt lat=\"37.7749\" lon=\"-122.4194\"><ele>10</ele><time>2026-08-06T10:00:00Z</time></trkpt>\n<trkpt lat=\"37.7750\" lon=\"-122.4193\"></trkpt>\n<trkpt lat=\"37.7760\" lon=\"-122.4180\"></trkpt>\n</trkseg></trk></gpx>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "tolerance_meters"
+label       = "Tolerance (meters)"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1000"
+step        = "1"
+
+[[input]]
+name        = "keep_every"
+label       = "Also keep every Nth source point (0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Coordinate decimals"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+gpx     = "Simplified GPX"
+summary = "Summary only"
+
+[[example]]
+label = "Simplify a bendy mini track"
+[example.params]
+input = "<gpx><trk><trkseg>\n<trkpt lat=\"0\" lon=\"0\"><ele>1</ele><time>2026-08-06T00:00:00Z</time></trkpt>\n<trkpt lat=\"0\" lon=\"0.0001\"></trkpt>\n<trkpt lat=\"0.001\" lon=\"0.001\"></trkpt>\n<trkpt lat=\"0\" lon=\"0.002\"></trkpt>\n</trkseg></trk></gpx>"
+tolerance_meters = "200"
+output = "summary"
+
+[[example]]
+label = "Export clean GPX"
+[example.params]
+input = "<gpx><trk><trkseg>\n<trkpt lat=\"37.7749\" lon=\"-122.4194\"><time>2026-08-06T10:00:00Z</time></trkpt>\n<trkpt lat=\"37.7750\" lon=\"-122.4193\"></trkpt>\n<trkpt lat=\"37.7760\" lon=\"-122.4180\"></trkpt>\n</trkseg></trk></gpx>"
+tolerance_meters = "25"
+decimals = "6"
+output = "gpx"

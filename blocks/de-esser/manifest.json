@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/de-esser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "De-ess audio: dynamically duck harsh sibilance on vocals without dulling the whole track",
+  "role": "skill",
+  "tool": {
+    "description": "De-ess an audio file: tame the harsh s/sh/t sibilance that spikes in the upper band of a vocal, narration or podcast track. Uses ffmpeg's dynamic deesser filter, so the high band is ducked ONLY while sibilance is present and the rest of the voice keeps its brightness — unlike a static EQ cut (see audio-eq). Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Controls: amount (1..100, how hard detected sibilance is ducked), band (1..100, where the sibilance crossover sits — relative, not Hz, because ffmpeg's deesser uses a sample-rate-dependent one-pole split; higher confines the effect to the very top, lower also dulls the body), max_reduction (1..100, ceiling on how deep the ducking goes) and mode (output = de-essed track, ess = only the removed sibilance for auditioning, input = untouched A/B reference). This is not a noise gate (see audio-noise-gate, which keys off overall level) and not spectral denoising (see audio-noise-reduce). Output is re-encoded to mp3 (192 kbps), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "amount": {
+          "default": 60.0,
+          "description": "How hard sibilance is ducked once detected, as a percentage of the filter's range. 30 is a light polish, 60 is a normal vocal fix, 90+ is aggressive and can start to lisp. Default 60.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "band": {
+          "default": 70.0,
+          "description": "Where the sibilance crossover sits, 1-100 (relative, not Hz — ffmpeg's deesser uses a sample-rate-dependent one-pole split). HIGHER keeps the effect on the very top of the spectrum only; LOWER pulls the split down so more of the voice is treated as sibilance and the body dulls. Default 70.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps).",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "max_reduction": {
+          "default": 50.0,
+          "description": "Ceiling on how deep the ducking may go, 1-100. Higher lets the de-esser cut as far as it needs on strong esses; lower keeps the gain change subtle even when sibilance is loud. Default 50.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "mode": {
+          "default": "output",
+          "description": "What to render: output = the de-essed track (normal), ess = ONLY the sibilance being removed, so you can audition whether the band is right, input = the untouched audio for an A/B reference. Default output.",
+          "enum": [
+            "output",
+            "ess",
+            "input"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

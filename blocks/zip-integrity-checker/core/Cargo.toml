@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-zip-integrity-checker-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only — drop default time/aes/bzip2/zstd features so it stays
+# pure-Rust and wasm32-safe (matches unzip/zip-inspect/create-zip). Entries using
+# a method we cannot decode are reported as unsupported_method, never as a pass.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# crc32fast: recompute the CRC-32 of the decompressed bytes ourselves so the
+# report can show the recorded AND the actual checksum side by side.
+crc32fast = "1"
+serde = { version = "1", features = ["derive"] }

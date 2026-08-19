@@ -1,0 +1,67 @@
+slug          = "prisma-schema-to-sql"
+title         = "Prisma Schema to SQL — schema.prisma to CREATE TABLE DDL"
+description   = "Convert a Prisma schema into SQL CREATE TABLE DDL — columns, primary keys, indexes, enums and foreign keys — for PostgreSQL, MySQL, SQLite or SQL Server, in your browser."
+tags          = ["prisma schema to sql", "prisma to ddl", "schema.prisma to create table", "prisma migrate diff alternative", "prisma to postgres ddl", "prisma to mysql ddl", "prisma sql generator", "prisma schema converter", "create table generator"]
+h1            = "Prisma Schema to SQL"
+hero_subtitle = "Paste a schema.prisma and get runnable CREATE TABLE DDL — columns with Prisma's own type mapping, PRIMARY KEY and index statements, enums, and foreign keys with ON DELETE/ON UPDATE actions. PostgreSQL, MySQL, SQLite and SQL Server. Nothing is executed; it all runs in your browser."
+wasm          = "gizza_ai_prisma_schema_to_sql_web"
+export        = "run"
+live          = false
+output_label  = "SQL DDL"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Prisma schema (schema.prisma)"
+placeholder = "model User {\n  id    Int     @id @default(autoincrement())\n  email String  @unique\n  name  String?\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "dialect"
+label       = "SQL dialect"
+source      = "field"
+
+[input.labels]
+"auto"       = "Auto (from datasource)"
+"postgresql" = "PostgreSQL"
+"mysql"      = "MySQL / MariaDB"
+"sqlite"     = "SQLite"
+"sqlserver"  = "SQL Server"
+
+[[input]]
+name        = "foreign_keys"
+label       = "Emit foreign-key constraints"
+source      = "field"
+
+[[input]]
+name        = "indexes"
+label       = "Emit index statements"
+source      = "field"
+
+[[input]]
+name        = "if_not_exists"
+label       = "Add IF NOT EXISTS guards"
+source      = "field"
+
+[[input]]
+name        = "drop_if_exists"
+label       = "Prepend DROP TABLE IF EXISTS"
+source      = "field"
+
+[[input]]
+name        = "quote_identifiers"
+label       = "Quote identifiers"
+source      = "field"
+
+[[example]]
+label  = "Blog (PostgreSQL)"
+params = { input = "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id    Int     @id @default(autoincrement())\n  email String  @unique\n  name  String?\n  posts Post[]\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String   @db.VarChar(200)\n  published Boolean  @default(false)\n  createdAt DateTime @default(now())\n  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)\n  authorId  Int\n\n  @@index([authorId])\n}", dialect = "auto" }
+
+[[example]]
+label  = "Enum + composite key (MySQL)"
+params = { input = "enum Role {\n  USER\n  ADMIN\n}\n\nmodel Membership {\n  userId Int\n  teamId Int\n  role   Role   @default(USER)\n\n  @@id([userId, teamId])\n  @@map(\"memberships\")\n}", dialect = "mysql" }
+
+[[example]]
+label  = "Re-runnable script (SQLite)"
+params = { input = "model Task {\n  id    Int     @id @default(autoincrement())\n  title String\n  done  Boolean @default(false)\n}", dialect = "sqlite", if_not_exists = "true", drop_if_exists = "true" }

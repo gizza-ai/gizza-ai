@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-font-info-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# ttf-parser: pure-Rust, zero-unsafe SFNT (TTF/OTF) parser — name/OS/2/head/hhea/
+# post/cmap/fvar readers plus the glyf-vs-CFF distinction. wasm32-safe.
+ttf-parser = "0.25"
+# wuff: pure-Rust WOFF and WOFF2 decoder (glyf + CFF), wasm32-safe. Normalises a
+# web font back to the SFNT that ttf-parser reads. Same crate as woff2-convert.
+wuff = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

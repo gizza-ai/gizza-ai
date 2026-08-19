@@ -1,0 +1,118 @@
+slug          = "email-network-analyzer"
+title         = "Email Network Analyzer — Sender and Recipient Graph from Mbox or EML"
+description   = "Paste an mbox, .eml, or raw headers and get a sender-to-recipient network: top senders, recipients, correspondents, and links, plus CSV, JSON, GraphML, and DOT."
+tags          = ["email network analysis", "mbox analyzer", "sender recipient graph", "email graph", "communication network", "mbox statistics", "graphml export", "email metadata"]
+h1            = "Email network analyzer"
+hero_subtitle = "Paste an mbox export, a single .eml, or just the headers and see who mails whom. The tool builds a weighted sender-to-recipient graph, ranks senders, recipients and correspondents, and exports CSV, JSON, GraphML, or Graphviz DOT — all in your browser."
+wasm          = "gizza_ai_email_network_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Network report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Email text (mbox, .eml, or headers)"
+placeholder = "From: Alice <alice@example.com>\nTo: bob@example.com\nCc: carol@example.org\nDate: Tue, 2 Jan 2024 10:00:00 +0000\nSubject: kickoff\n\nhello"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "me"
+label       = "Your address (optional)"
+placeholder = "alice@example.com"
+source      = "field"
+
+[[input]]
+name   = "nodes"
+label  = "Nodes"
+source = "field"
+
+[input.labels]
+address = "One node per email address"
+domain  = "One node per domain (organisation view)"
+
+[[input]]
+name   = "recipients"
+label  = "Recipient headers"
+source = "field"
+
+[input.labels]
+to          = "To: only"
+"to-cc"     = "To: and Cc:"
+"to-cc-bcc" = "To:, Cc: and Bcc:"
+
+[[input]]
+name   = "direction"
+label  = "Link direction"
+source = "field"
+
+[input.labels]
+directed   = "Directed: sender → recipient"
+undirected = "Undirected: merge both ways"
+
+[[input]]
+name        = "top"
+label       = "Rows per ranked list"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "min_messages"
+label       = "Minimum messages per link"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "exclude"
+label       = "Exclude addresses containing"
+placeholder = "noreply,notifications@,mailer-daemon"
+source      = "field"
+
+[[input]]
+name   = "self_loops"
+label  = "Keep self-addressed links"
+source = "field"
+
+[[input]]
+name        = "since"
+label       = "From date (optional)"
+placeholder = "2024-01-01"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "until"
+label       = "To date (optional)"
+placeholder = "2024-12-31"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report  = "Readable report"
+csv     = "CSV edge list"
+json    = "Structured JSON"
+graphml = "GraphML (Gephi, NetworkX)"
+dot     = "Graphviz DOT"
+
+[[example]]
+label  = "Small mbox thread"
+params = { input = "From alice@example.com Mon Jan  1 00:00:00 2024\nFrom: Alice <alice@example.com>\nTo: bob@example.com\nCc: carol@example.org\nDate: Tue, 2 Jan 2024 10:00:00 +0000\nSubject: kickoff\n\nhello\n\nFrom bob@example.com Mon Jan  1 00:00:00 2024\nFrom: Bob <bob@example.com>\nTo: alice@example.com\nDate: Wed, 3 Jan 2024 09:00:00 +0000\nSubject: re: kickoff\n\nack\n\nFrom alice@example.com Mon Jan  1 00:00:00 2024\nFrom: Alice <alice@example.com>\nTo: bob@example.com\nDate: Fri, 5 Jan 2024 11:30:00 +0000\nSubject: status\n\nupdate", me = "alice@example.com", nodes = "address", recipients = "to-cc", direction = "directed", top = "10", min_messages = "1", exclude = "", self_loops = "false", since = "", until = "", format = "report" }
+
+[[example]]
+label  = "Domain-level view"
+params = { input = "From alice@example.com Mon Jan  1 00:00:00 2024\nFrom: Alice <alice@example.com>\nTo: bob@example.com\nCc: carol@example.org\nDate: Tue, 2 Jan 2024 10:00:00 +0000\nSubject: kickoff\n\nhello\n\nFrom bob@example.com Mon Jan  1 00:00:00 2024\nFrom: Bob <bob@example.com>\nTo: dana@partner.net\nDate: Wed, 3 Jan 2024 09:00:00 +0000\nSubject: intro\n\nhi\n\nFrom dana@partner.net Mon Jan  1 00:00:00 2024\nFrom: Dana <dana@partner.net>\nTo: alice@example.com\nDate: Thu, 4 Jan 2024 09:00:00 +0000\nSubject: re: intro\n\nthanks", me = "", nodes = "domain", recipients = "to-cc", direction = "undirected", top = "10", min_messages = "1", exclude = "", self_loops = "false", since = "", until = "", format = "report" }
+
+[[example]]
+label  = "GraphML export for Gephi"
+params = { input = "From alice@example.com Mon Jan  1 00:00:00 2024\nFrom: Alice <alice@example.com>\nTo: bob@example.com\nCc: carol@example.org\nDate: Tue, 2 Jan 2024 10:00:00 +0000\nSubject: kickoff\n\nhello\n\nFrom bob@example.com Mon Jan  1 00:00:00 2024\nFrom: Bob <bob@example.com>\nTo: alice@example.com\nDate: Wed, 3 Jan 2024 09:00:00 +0000\nSubject: re: kickoff\n\nack\n\nFrom alice@example.com Mon Jan  1 00:00:00 2024\nFrom: Alice <alice@example.com>\nTo: bob@example.com\nDate: Fri, 5 Jan 2024 11:30:00 +0000\nSubject: status\n\nupdate", me = "", nodes = "address", recipients = "to-cc", direction = "directed", top = "10", min_messages = "1", exclude = "", self_loops = "false", since = "", until = "", format = "graphml" }

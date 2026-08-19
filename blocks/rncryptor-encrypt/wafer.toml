@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rncryptor-encrypt"
+version = "0.1.0"
+abi = 1
+summary = "Build or open a password-based RNCryptor v3 container"

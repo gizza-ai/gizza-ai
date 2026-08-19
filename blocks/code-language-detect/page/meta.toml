@@ -1,0 +1,95 @@
+slug          = "code-language-detect"
+title         = "Code language detector — identify snippets locally"
+description   = "Detect the likely programming language of a pasted code snippet with ranked alternatives, confidence and explainable signals."
+tags          = ["code language detector", "programming language", "snippet", "syntax", "heuristic", "linguist"]
+h1            = "Code language detector"
+hero_subtitle = "Paste a source snippet and get the likely language, confidence, runner-up candidates and the signals that led to the result. Runs locally in your browser."
+wasm          = "gizza_ai_code_language_detect_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Code snippet"
+placeholder = "Paste code here, for example:\nfn main() {\n    let mut count = 0;\n    println!(\"{count}\");\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "filename"
+label       = "Filename hint"
+placeholder = "main.rs"
+source      = "field"
+
+[[input]]
+name        = "candidates"
+label       = "Candidate allowlist"
+placeholder = "rust,python,javascript"
+source      = "field"
+
+[[input]]
+name        = "top_k"
+label       = "Ranked candidates"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[input.labels]
+"0" = "All scoring languages"
+
+[[input]]
+name        = "common_only"
+label       = "Common languages only"
+source      = "field"
+
+[[input]]
+name        = "explain"
+label       = "Show evidence"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+placeholder = "report"
+source      = "field"
+
+[input.labels]
+report   = "Readable report"
+json     = "JSON"
+language = "Language id only"
+
+[[example]]
+label = "Rust snippet"
+[example.params]
+code = "use std::collections::HashMap;\n\npub fn tally(words: &[&str]) -> HashMap<String, usize> {\n    let mut counts = HashMap::new();\n    for w in words {\n        *counts.entry(w.to_string()).or_insert(0) += 1;\n    }\n    counts\n}"
+filename = "main.rs"
+top_k = "3"
+common_only = "false"
+explain = "true"
+output = "report"
+
+[[example]]
+label = "Short snippet with candidates"
+[example.params]
+code = "print(\"hello\")"
+filename = ""
+candidates = "python,javascript,ruby"
+top_k = "3"
+common_only = "true"
+explain = "true"
+output = "report"
+
+[[example]]
+label = "Machine-readable JSON"
+[example.params]
+code = "interface User {\n  name: string;\n}\nexport function greet(u: User): string {\n  return `hi ${u.name}`;\n}"
+filename = "user.ts"
+top_k = "5"
+common_only = "false"
+explain = "true"
+output = "json"

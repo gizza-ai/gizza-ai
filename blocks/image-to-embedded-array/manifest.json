@@ -1,0 +1,141 @@
+{
+  "name": "gizza-ai/image-to-embedded-array",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an image into a C/C++ byte array for embedded TFT and OLED displays",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an image into a C/C++ byte array you can paste into embedded firmware for a TFT, OLED, or e-paper display. Choose the pixel packing with `format`: rgb565 (default, the usual 16-bit TFT format), bgr565, rgb888, rgb332, grayscale, mono (1 bit per pixel), or xbm. Resize to the panel with `width`/`height` (either alone preserves the aspect ratio), and pick the declaration with `style`: array, arduino (PROGMEM + width/height defines), header (a full .h file), or raw values. `byte_order` selects uint16_t words or split big/little-endian bytes for the 16-bit formats; `threshold`, `dither`, `invert`, and `bit_order` control the 1-bit formats; `background` is the colour transparent pixels are flattened onto. Returns the source text plus the emitted dimensions, element count, and flash cost in bytes. Output is capped at 1048576 pixels — set `width` to resize a large photo first. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "#000000",
+          "description": "Opaque colour that transparent pixels are composited over, as a hex value (#101820 or #fff) or a name (black, white, red, green, blue, magenta). Default #000000, the usual backdrop for a dark panel.",
+          "type": "string"
+        },
+        "bit_order": {
+          "default": "auto",
+          "description": "Which bit of each byte holds the leftmost pixel of a 1-bit row: auto (default — msb for mono, matching Adafruit GFX; lsb for xbm, matching the XBM spec), msb (leftmost pixel in bit 7), or lsb (leftmost pixel in bit 0).",
+          "enum": [
+            "auto",
+            "msb",
+            "lsb"
+          ],
+          "type": "string"
+        },
+        "byte_order": {
+          "default": "word",
+          "description": "How each 16-bit pixel reaches the array (rgb565/bgr565 only): word (default, one uint16_t per pixel like 0xF800 — what pushImage/drawRGBBitmap expect), big (two uint8_t, high byte first: 0xF8, 0x00), or little (low byte first: 0x00, 0xF8). Ignored by the 8/24/1-bit formats.",
+          "enum": [
+            "word",
+            "big",
+            "little"
+          ],
+          "type": "string"
+        },
+        "dither": {
+          "default": false,
+          "description": "Apply Floyd-Steinberg error diffusion before the 1-bit threshold (mono/xbm only), so photos and gradients keep their shading instead of flattening to solid blocks.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "rgb565",
+          "description": "Pixel packing: rgb565 (default, 16-bit 5R-6G-5B — the usual TFT format), bgr565 (red/blue swapped), rgb888 (24-bit, 3 bytes per pixel), rgb332 (8-bit), grayscale (8-bit luminance), mono (1 bit per pixel, rows padded to bytes), or xbm (1-bit X BitMap source file).",
+          "enum": [
+            "rgb565",
+            "bgr565",
+            "rgb888",
+            "rgb332",
+            "grayscale",
+            "mono",
+            "xbm"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "default": 0,
+          "description": "Resize the image to this height in pixels before packing. 0 (default) derives the height from `width` and the source aspect ratio; set both to stretch to an exact size.",
+          "maximum": 4096,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "invert": {
+          "default": false,
+          "description": "Swap ink and background bits for the 1-bit formats (mono/xbm), for panels that draw a 0 bit as lit.",
+          "type": "boolean"
+        },
+        "name": {
+          "default": "image",
+          "description": "C identifier for the generated array (letters, digits, and underscores; must not start with a digit). Default \"image\"; xbm emits `<name>_bits` plus `<name>_width`/`<name>_height`.",
+          "type": "string"
+        },
+        "number_format": {
+          "default": "hex",
+          "description": "How each element is spelled: hex (default, 0xF800) or decimal (63488).",
+          "enum": [
+            "hex",
+            "decimal"
+          ],
+          "type": "string"
+        },
+        "per_line": {
+          "default": 12,
+          "description": "Array elements per source line (1-64, default 12). Use 0 to put exactly one image row on each line, which makes the array visually match the picture.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "style": {
+          "default": "array",
+          "description": "Declaration wrapped around the numbers: array (default, `static const uint16_t name[] = {…};`), arduino (adds PROGMEM, <pgmspace.h>, and NAME_WIDTH/NAME_HEIGHT defines), header (a full .h file with an include guard and <stdint.h>), or raw (the comma-separated values only). Ignored for format=xbm, which has its own fixed syntax.",
+          "enum": [
+            "array",
+            "arduino",
+            "header",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 128,
+          "description": "Brightness cutoff for the 1-bit formats (mono/xbm), 0-255, default 128. Pixels darker than this become set (ink) bits; raise it to capture more of the image, lower it to keep only the darkest areas.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 0,
+          "description": "Resize the image to this width in pixels before packing (e.g. 240 for a 240x240 panel). 0 (default) keeps the source width, or derives it from `height` to preserve the aspect ratio.",
+          "maximum": 4096,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "requires": [
+    "wafer-run/network"
+  ]
+}

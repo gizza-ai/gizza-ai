@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/base64-to-audio-file",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode Base64 or a data: URI into a downloadable audio file",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a Base64 string — or a full data:audio/…;base64,… URI — back into a real, downloadable audio file with the right MIME type and extension. The container is sniffed from the decoded magic header (WAV, MP3 with or without an ID3 tag, Ogg, FLAC, MP4/M4A, ADTS AAC, WebM, AIFF, AMR, WMA/ASF, MIDI); set format to force one for headerless payloads, or 'bin' to save the raw bytes. Whitespace, line breaks, wrapping quotes, the URL-safe alphabet and missing padding are tolerated. Bytes are never re-encoded — use audio-convert to change codecs. Decodes up to 32 MiB, locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The Base64-encoded audio, or a full `data:audio/…;base64,…` URI. Whitespace, line breaks, wrapping quotes, the URL-safe alphabet (-_) and missing = padding are all tolerated. Decodes to at most 32 MiB.",
+          "type": "string"
+        },
+        "filename": {
+          "default": "audio",
+          "description": "Download name without the extension (default 'audio'); the extension follows the resolved format, e.g. audio.wav.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Container of the decoded bytes. 'auto' (default) sniffs it from the magic header; naming one forces that MIME type and extension for headerless payloads, and 'bin' saves the raw bytes.",
+          "enum": [
+            "auto",
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a",
+            "aac",
+            "webm",
+            "aiff",
+            "amr",
+            "wma",
+            "midi",
+            "bin"
+          ],
+          "type": "string"
+        },
+        "strict": {
+          "default": true,
+          "description": "When sniffing (format=auto), reject bytes that are not a recognized audio container instead of saving them as application/octet-stream. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

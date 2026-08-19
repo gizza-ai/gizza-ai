@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cumulative-percent-builder"
+version = "0.1.0"
+abi = 1
+summary = "Sort values and add running totals, cumulative percentages and Pareto vital-few labels"

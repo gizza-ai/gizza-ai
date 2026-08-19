@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "category-canonicalize"
+version = "0.1.0"
+abi = 1
+summary = "Rewrite category variants to canonical values from a supplied mapping"

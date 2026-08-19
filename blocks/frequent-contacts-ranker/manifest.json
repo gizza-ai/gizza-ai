@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/frequent-contacts-ranker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rank your most frequent email contacts by frequency and recency",
+  "role": "skill",
+  "tool": {
+    "description": "Rank the people in a mailbox export by how often and how recently you exchange mail with them, so the top of the list can be pasted straight into an address book or autocomplete field. Paste an mbox archive (Gmail Takeout, Thunderbird, Apple Mail) or raw RFC 5322 messages; From/To/Cc/Bcc/Date headers are parsed, addresses are case-folded to one row per person, and the display name used most often is kept so the list reads as `Name <address>`. Each contact's score combines frequency with recency: every message is weighted 0.5^(age in days / half_life_days), measured from the newest message in the paste, so the ranking is deterministic and offline; half_life_days=0 ranks by raw message count instead. count=recipients|senders|both picks which side to rank, include_cc folds in Cc/Bcc, exclude drops your own address or whole domains, skip_automated (on by default) hides noreply/mailer-daemon style senders, min_messages sets a volume floor and limit caps the rows. format=report gives an aligned rank table with the message total and date range, list gives paste-ready `Name <address>` lines, csv gives rank,name,email,messages,to,from,first_seen,last_seen,score, and json adds the archive metadata. Up to 5000 messages per run. Runs locally — no mailbox account, no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "default": "both",
+          "description": "Which side of the correspondence to rank. \"recipients\" counts only the people you addressed (To, plus Cc/Bcc when include_cc is on) — the \"people you email most\" list. \"senders\" counts only the people who wrote to you (From). \"both\" (default) folds the two directions into one ranking and still reports the per-direction counts in the `to` and `from` columns.",
+          "enum": [
+            "recipients",
+            "senders",
+            "both"
+          ],
+          "type": "string"
+        },
+        "exclude": {
+          "description": "Addresses and domains to leave out, separated by commas, semicolons or spaces. An entry with an @ is matched as a whole address (`me@example.com`); an entry starting with @ or with no @ at all is matched as a domain (`@example.com` or `example.com`). Use it to drop your own address — otherwise you top your own ranking — and any internal or mailing-list domain. Empty by default.",
+          "type": "string"
+        },
+        "format": {
+          "default": "report",
+          "description": "Output shape. \"report\" (default) is an aligned rank table under a summary line with the message total, date range and half-life. \"list\" is one `Name <address>` per line, ready to paste into an address book or autocomplete field. \"csv\" is an RFC 4180 table with rank,name,email,messages,to,from,first_seen,last_seen,score. \"json\" returns an object with the archive metadata plus a contacts array.",
+          "enum": [
+            "report",
+            "list",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "half_life_days": {
+          "default": 180.0,
+          "description": "Recency half-life in days. Each message is weighted 0.5^(age in days / half-life), so at the default 180 a message from six months ago counts half as much as one from the newest day in the archive. Lower it (30–90) to favour who you talk to now; raise it to flatten the curve. 0 turns recency off entirely and ranks by raw message count. Ages are measured from the newest message in the paste, not today's date, so the same archive always ranks the same way.",
+          "maximum": 3650,
+          "minimum": 0,
+          "type": "number"
+        },
+        "include_cc": {
+          "default": true,
+          "description": "Count Cc and Bcc recipients as well as To. On by default, because someone you routinely copy is a real contact. Turn it off to rank only people you addressed directly — useful when large Cc lists inflate the ranking. Ignored when count=\"senders\".",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 25,
+          "description": "How many ranked contacts to return. Default 25; set 0 to return every contact that passed the filters. The header line always reports how many contacts were found before the cut, so you can tell whether the list was truncated.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mbox": {
+          "description": "The mailbox text to rank. Paste an mbox export (Gmail Takeout, Thunderbird, Apple Mail) or one or more raw RFC 5322 messages. Messages are split on the classic `From ` postmark lines at the start of a line, and a single pasted message with no postmark counts as one message. Only the From/To/Cc/Bcc/Date headers are read — bodies and attachments are ignored. Up to 5000 messages per run.",
+          "type": "string"
+        },
+        "min_messages": {
+          "default": 1,
+          "description": "Drop anyone appearing in fewer than this many messages. The default 1 keeps everybody; raise it to 3 or 5 to cut one-off correspondents out of an autocomplete list. Filtering everything out is an error that reports how many addresses were found.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "skip_automated": {
+          "default": true,
+          "description": "Skip machine addresses so they cannot crowd out real people: local parts of noreply, no-reply, no_reply, donotreply, do-not-reply, do_not_reply, mailer-daemon, postmaster, bounce and bounces, including -/+ suffixed variants such as bounces-123@. On by default; turn it off to see newsletter and notification senders too (handy for finding what to unsubscribe from).",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "score",
+          "description": "Row order. \"score\" (default) uses the recency-weighted score, \"messages\" uses the raw message count, \"recent\" puts the most recently seen contact first, and \"name\" sorts A→Z by display name (falling back to the address). Ties always break on message count then address, so the order is reproducible.",
+          "enum": [
+            "score",
+            "messages",
+            "recent",
+            "name"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "mbox"
+      ],
+      "type": "object"
+    }
+  }
+}

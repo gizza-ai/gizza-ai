@@ -1,0 +1,119 @@
+slug          = "csv-to-geojson"
+title         = "CSV to GeoJSON Converter — Lat/Lon Table to Points, Lines or Polygons"
+description   = "Convert CSV, TSV, pipe, semicolon, or JSON coordinate tables into GeoJSON points, lines, or polygons with typing, bbox, and invalid-row controls."
+tags          = ["csv to geojson", "geojson converter", "lat lon to geojson", "coordinates to geojson", "json to geojson", "tsv to geojson", "map data converter"]
+h1            = "CSV to GeoJSON Converter"
+hero_subtitle = "Paste a table with latitude and longitude columns, auto-detect common headers, and export clean RFC 7946 GeoJSON points, lines, or polygons. Runs locally in your browser."
+wasm          = "gizza_ai_csv_to_geojson_web"
+export        = "run"
+live          = false
+output_label  = "GeoJSON"
+format        = "json"
+
+[[input]]
+name        = "input"
+label       = "CSV, TSV, pipe, semicolon table, or JSON rows"
+placeholder = "name,lat,lon\nDenver,39.7392,-104.9903\nBoulder,40.0150,-105.2705"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "lat"
+label       = "Latitude column (optional)"
+placeholder = "lat"
+source      = "field"
+
+[[input]]
+name        = "lon"
+label       = "Longitude column (optional)"
+placeholder = "lon"
+source      = "field"
+
+[[input]]
+name        = "elevation"
+label       = "Elevation column (optional, '-' disables auto-detect)"
+placeholder = "elevation"
+source      = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma CSV"
+semicolon = "Semicolon"
+tab       = "Tab TSV"
+pipe      = "Pipe |"
+
+[[input]]
+name   = "shape"
+label  = "GeoJSON shape"
+source = "field"
+
+[input.labels]
+points  = "Point FeatureCollection"
+line    = "LineString from rows"
+polygon = "Polygon ring from rows"
+
+[[input]]
+name   = "types"
+label  = "Property types"
+source = "field"
+
+[input.labels]
+infer  = "Infer numbers, booleans and nulls"
+string = "Keep CSV cells as strings"
+
+[[input]]
+name        = "precision"
+label       = "Coordinate precision"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "invalid"
+label  = "Invalid coordinate rows"
+source = "field"
+
+[input.labels]
+skip  = "Skip invalid rows"
+error = "Stop with an error"
+null  = "Keep rows with null geometry"
+
+[[input]]
+name   = "bbox"
+label  = "Add bbox"
+source = "field"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[example]]
+label  = "Two point features"
+params = { input = "name,lat,lon\nDenver,39.7392,-104.9903\nBoulder,40.0150,-105.2705", lat = "", lon = "", elevation = "", delimiter = "auto", shape = "points", types = "infer", precision = "4", invalid = "skip", bbox = "false", pretty = "true" }
+
+[[example]]
+label  = "LineString route with bbox"
+params = { input = "stop,lat,lon\nA,39.7392,-104.9903\nB,40.0150,-105.2705\nC,39.7555,-105.2211", lat = "", lon = "", elevation = "-", delimiter = "auto", shape = "line", types = "infer", precision = "4", invalid = "error", bbox = "true", pretty = "true" }
+
+[[example]]
+label  = "Semicolon + comma decimals"
+params = { input = "name;lat;lon\nOslo;59,91;10,75", lat = "lat", lon = "lon", elevation = "-", delimiter = "semicolon", shape = "points", types = "infer", precision = "4", invalid = "error", bbox = "false", pretty = "true" }
+
+[[example]]
+label  = "JSON rows to points"
+params = { input = "[{\"name\":\"A\",\"lat\":40,\"lon\":-105},{\"name\":\"B\",\"lat\":41,\"lon\":-106}]", lat = "", lon = "", elevation = "", delimiter = "auto", shape = "points", types = "infer", precision = "0", invalid = "skip", bbox = "false", pretty = "false" }
+
+[[example]]
+label  = "Keep invalid rows as null geometry"
+params = { input = "name,lat,lon\nValid,40,-105\nMissing,,", lat = "", lon = "", elevation = "-", delimiter = "auto", shape = "points", types = "infer", precision = "0", invalid = "null", bbox = "false", pretty = "true" }
+
+[[example]]
+label  = "Polygon from ordered vertices"
+params = { input = "lat,lon\n0,0\n0,1\n1,1\n1,0", lat = "", lon = "", elevation = "-", delimiter = "auto", shape = "polygon", types = "infer", precision = "0", invalid = "error", bbox = "true", pretty = "false" }

@@ -1,0 +1,115 @@
+{
+  "name": "gizza-ai/markdown-flashcards",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn Markdown notes into an Anki-importable flashcard deck",
+  "role": "skill",
+  "tool": {
+    "description": "Parse Q/A-shaped Markdown notes into a flashcard deck and export an Anki-importable text file. mode=auto (default) detects the shape: heading (`## Question` + the text under it), qa (`Q:` / `A:` blocks), table (`| question | answer |` rows, optional 3rd tags column) or separator (one card per line split on `::`, `=>`, tab, `|`, `;`, ` - ` or `:`); mode=cloze turns every `**bold**`/`==highlighted==` span into a `{{c1::…}}` deletion. separator pins the line delimiter, heading_level (0=auto, 1-6) pins which heading is the question. field_separator=tab (default)|comma|semicolon|pipe sets the export delimiter with RFC-4180 quoting; field_format=html (default) converts bold/italic/code/links/lists/code blocks to HTML and newlines to <br>, or markdown/plain. deck, tags, notetype and include_headers control Anki's `#deck:`/`#tags:`/`#notetype:`/`#columns:` header directives; tags_from_headings tags each card with its heading path; dedupe drops repeated questions. output=anki (default)|preview|json. Limits: 1,000,000 characters, 5,000 cards. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "deck": {
+          "default": "",
+          "description": "Optional deck name for the `#deck:` header, e.g. 'Biology::Cells' (`::` makes a subdeck). Empty (default) imports into whatever deck is selected in Anki.",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": true,
+          "description": "Drop later cards whose question repeats an earlier one, case-insensitively (default true). Set false to keep every card.",
+          "type": "boolean"
+        },
+        "field_format": {
+          "default": "html",
+          "description": "How each field is rendered: 'html' (default) converts bold/italic/code/links/lists/code blocks to HTML and newlines to `<br>` (import with 'Allow HTML in fields'); 'markdown' keeps the raw Markdown; 'plain' strips all markup.",
+          "enum": [
+            "html",
+            "markdown",
+            "plain"
+          ],
+          "type": "string"
+        },
+        "field_separator": {
+          "default": "tab",
+          "description": "Field separator in the exported file: 'tab' (default, what Anki recommends), 'comma' (CSV for Quizlet-style importers), 'semicolon' or 'pipe'. Fields containing the separator, a quote or a newline are quoted RFC-4180 style.",
+          "enum": [
+            "tab",
+            "comma",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "heading_level": {
+          "default": 0,
+          "description": "Heading mode only: which heading level becomes the question. 0 (default) auto-picks the level with the most answers; 1-6 pins `#`…`######`.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "include_headers": {
+          "default": true,
+          "description": "Write Anki's `#separator:`/`#html:`/`#notetype:`/`#deck:`/`#tags:`/`#columns:` header lines at the top of the file (default true). Set false for a bare CSV/TSV for other flashcard apps.",
+          "type": "boolean"
+        },
+        "markdown": {
+          "description": "The Markdown notes to turn into flashcards, e.g. `## What is mitosis?` with the answer underneath, `Q:`/`A:` lines, a `| question | answer |` table, or `term :: definition` lines. Up to 1,000,000 characters and 5,000 cards.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "auto",
+          "description": "How the notes are cut into cards: 'auto' (default) detects the shape; 'heading' uses each heading as the question and the text under it as the answer; 'separator' splits one card per line on a delimiter; 'qa' reads `Q:`/`A:` blocks; 'table' reads Markdown table rows (3rd column = tags); 'cloze' turns each `**bold**` or `==highlighted==` span into a `{{c1::…}}` deletion.",
+          "enum": [
+            "auto",
+            "heading",
+            "separator",
+            "qa",
+            "table",
+            "cloze"
+          ],
+          "type": "string"
+        },
+        "notetype": {
+          "default": "Basic",
+          "description": "Anki note type written to the `#notetype:` header. Default 'Basic'; cloze mode upgrades 'Basic' to 'Cloze' automatically.",
+          "enum": [
+            "Basic",
+            "Basic (and reversed card)",
+            "Basic (type in the answer)",
+            "Cloze"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "anki",
+          "description": "What to return: 'anki' (default) the importable text file; 'preview' a numbered human-readable card list with the detected mode; 'json' the parsed cards as `{mode, notetype, count, cards[]}`.",
+          "enum": [
+            "anki",
+            "preview",
+            "json"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "Separator mode only: what splits the question from the answer on a line. 'auto' (default) picks the most-used of `::`, `=>`, tab, `|`, `;`, ` - `, `:`; or pass a name ('tab', 'colon', 'double-colon', 'semicolon', 'pipe', 'comma', 'dash', 'arrow') or any literal string.",
+          "type": "string"
+        },
+        "tags": {
+          "default": "",
+          "description": "Optional tags applied to every card, space- or comma-separated, e.g. 'exam week1'. Written to the `#tags:` header, or folded into each row's Tags column when include_headers is false.",
+          "type": "string"
+        },
+        "tags_from_headings": {
+          "default": false,
+          "description": "Heading mode only: tag each card with its parent-heading path as one hierarchical Anki tag, e.g. `Biology::Cell_Parts`. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}

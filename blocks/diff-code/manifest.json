@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/diff-code",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two code snippets side by side with word-level highlighting",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two code or text snippets and render the difference as side-by-side columns, a clean unified patch, a merged word-diff stream, a stat summary, or structured JSON. Uses a patience diff so repeated braces and blank lines stay aligned, then refines each changed line pair at word or character level and marks it with the git word-diff convention [-removed-]/{+added+}. Optional case-insensitive and whitespace-insensitive matching never alters the text that is echoed back. Context lines collapse unchanged regions. Limit 1 MB per side.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "default": 3,
+          "description": "Unchanged lines kept around each change; further runs collapse into a '… N unchanged lines …' marker. 0 shows only changes. Default 3.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "granularity": {
+          "default": "word",
+          "description": "Intra-line refinement for a changed line pair: 'word' marks changed tokens (default), 'char' marks individual characters, 'none' marks the whole line. Lines over 400 tokens per side fall back to whole-line marking.",
+          "enum": [
+            "word",
+            "char",
+            "none"
+          ],
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Compare lines case-insensitively. Matching only — the output always echoes the original text. Default false.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": false,
+          "description": "Collapse runs of whitespace and trim line ends before comparing. Matching only — the output always echoes the original text. Default false.",
+          "type": "boolean"
+        },
+        "left": {
+          "description": "The original/left code or text, newline-separated. Max 1 MB. Example: \"fn main() {\\n    println!(\\\"hi\\\");\\n}\".",
+          "type": "string"
+        },
+        "line_numbers": {
+          "default": true,
+          "description": "Show per-side line numbers in the side-by-side and word-diff views. Ignored by 'unified', 'stats', and 'json'. Default true.",
+          "type": "boolean"
+        },
+        "right": {
+          "description": "The updated/right code or text to compare against left, newline-separated. Max 1 MB.",
+          "type": "string"
+        },
+        "view": {
+          "default": "side-by-side",
+          "description": "How to render the diff: 'side-by-side' two aligned columns (default), 'unified' a clean @@ patch you can apply, 'word-diff' one merged stream using [-removed-]/{+added+}, 'stats' counts and similarity, 'json' a structured report with rows and spans.",
+          "enum": [
+            "side-by-side",
+            "unified",
+            "word-diff",
+            "stats",
+            "json"
+          ],
+          "type": "string"
+        },
+        "width": {
+          "default": 60,
+          "description": "Per-column content width in characters for the side-by-side view; tabs expand to 4 spaces for alignment. Default 60.",
+          "maximum": 200,
+          "minimum": 20,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "type": "object"
+    }
+  }
+}

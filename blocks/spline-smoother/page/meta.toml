@@ -1,0 +1,146 @@
+slug          = "spline-smoother"
+title         = "Spline Smoother — Fit Cubic Smoothing Splines"
+description   = "Fit a cubic smoothing spline to noisy numeric data. Choose automatic GCV/CV smoothing, p, lambda, or target degrees of freedom and return JSON, CSV, or SVG."
+tags          = ["spline", "smoothing", "curve fitting", "trend", "time series", "regression", "csv"]
+h1            = "Smooth a noisy numeric series with a cubic spline"
+hero_subtitle = "Paste x,y data or a y-only series, pick the smoothing rule, and get fitted values, residuals, predictions, curve samples, or an SVG chart."
+wasm          = "gizza_ai_spline_smoother_web"
+export        = "run"
+live          = false
+output_label  = "Spline fit"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Data"
+placeholder = "x,y\n1,2.1\n2,3.9\n3,6.2\n4,7.8\n5,10.3\n6,11.7"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Smoothing mode"
+source = "field"
+
+[input.labels]
+auto      = "Auto (GCV/CV)"
+smoothing = "p smoothing value"
+lambda    = "Raw lambda"
+df        = "Target effective df"
+
+[[input]]
+name        = "smoothing"
+label       = "Smoothing p"
+placeholder = "0.99"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.001"
+
+[[input]]
+name        = "lambda"
+label       = "Lambda"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "df"
+label       = "Target effective df"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "2"
+max         = "50"
+step        = "0.5"
+
+[[input]]
+name   = "criterion"
+label  = "Auto criterion"
+source = "field"
+
+[input.labels]
+gcv = "Generalized cross-validation"
+cv  = "Leave-one-out CV"
+
+[[input]]
+name        = "weights"
+label       = "Weights (optional)"
+placeholder = "1, 1, 2, 1, 1, 1"
+source      = "field"
+
+[[input]]
+name        = "predict_at"
+label       = "Predict at x values (optional)"
+placeholder = "1.5, 3.5, 5.5"
+source      = "field"
+
+[[input]]
+name        = "resample"
+label       = "Resampled curve points"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "5000"
+step        = "10"
+
+[[input]]
+name   = "coefficients"
+label  = "Include cubic coefficients"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json = "JSON report"
+csv  = "CSV tables"
+svg  = "SVG chart"
+
+[[example]]
+label = "Auto GCV JSON"
+[example.params]
+input = "x,y\n1,2.1\n2,3.9\n3,6.2\n4,7.8\n5,10.3\n6,11.7\n7,14.2\n8,15.8"
+mode = "auto"
+smoothing = "0.99"
+lambda = "1"
+df = "5"
+criterion = "gcv"
+weights = ""
+predict_at = ""
+resample = "0"
+coefficients = "false"
+output = "json"
+
+[[example]]
+label = "Smoothing slider + predictions"
+[example.params]
+input = "10, 12, 11, 15, 14, 18, 21, 20"
+mode = "smoothing"
+smoothing = "0.95"
+lambda = "1"
+df = "5"
+criterion = "gcv"
+weights = ""
+predict_at = "2.5, 4.5, 6.5"
+resample = "20"
+coefficients = "true"
+output = "csv"
+
+[[example]]
+label = "SVG trend chart"
+[example.params]
+input = "x y\n0 1\n1 3.2\n2 2.7\n3 5.8\n4 7.1\n5 6.9\n6 9.5"
+mode = "df"
+smoothing = "0.99"
+lambda = "1"
+df = "4"
+criterion = "gcv"
+weights = ""
+predict_at = ""
+resample = "0"
+coefficients = "false"
+output = "svg"

@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/wav-to-raw-pcm-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip a WAV header and extract the raw interleaved PCM data chunk.",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the bare PCM payload from an uncompressed WAV file (pasted as base64 or hex bytes): the RIFF header, the fmt chunk and every other chunk (LIST, fact, cue, trailing metadata) are removed and only the data chunk's interleaved sample bytes come back. The default sample_format='source' with channels='all' slices the payload out byte-for-byte with no decode or re-encode, so the output is exactly what the container stored; asking for another sample format (u8, s16le/be, s24le/be, s32le/be, f32le/be) or a channel selection (mono downmix, left, right) decodes and re-encodes each sample the way `ffmpeg -f s16le` or `sox -t raw` would. Extract a window with start_frame/max_frames, and render the result as base64, hex, a compilable C array, or an 'info' report giving the sample rate, channel count, encoding, frame count and chunk map plus ready-to-run ffmpeg, SoX and Audacity re-import settings — raw PCM is headerless, so those parameters have to travel with it.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "channels": {
+          "default": "all",
+          "description": "Which channels end up in the output. 'all' (default) keeps every channel interleaved as stored; 'mono' averages all channels into one; 'left' keeps channel 1 only; 'right' keeps channel 2 only (errors on a mono clip). Anything other than 'all' forces the decode/re-encode path.",
+          "enum": [
+            "all",
+            "mono",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Uncompressed WAV file bytes encoded as base64 (default) or hex, e.g. the output of `base64 clip.wav`. The RIFF header, the `fmt ` chunk and every other chunk (LIST, fact, cue) are discarded; only the `data` chunk payload is returned.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding of the pasted WAV bytes: 'base64' (default) or 'hex'. Hex may contain whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "line_bytes": {
+          "default": 16,
+          "description": "Bytes per line for the 'hex' and 'c_array' outputs (0-64, default 16). Set 0 for one unbroken hex run, which is what `xxd -r -p` expects. Ignored by the 'base64' and 'info' outputs.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_frames": {
+          "default": 0,
+          "description": "How many sample frames to extract, starting at start_frame (default 0 = extract everything to the end of the clip). Use it with start_frame to cut a window out of a long recording and stay under the output size cap.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "base64",
+          "description": "How the extracted PCM is rendered. 'base64' (default) = one base64 string, ready to decode back to a .pcm/.raw file. 'hex' = lowercase hex bytes. 'c_array' = a compilable `const unsigned char pcm_data[]` C array plus its length. 'info' = a format report (sample rate, channels, encoding, frame count, chunk map) with ready-to-run ffmpeg, SoX and Audacity re-import settings, and no sample bytes.",
+          "enum": [
+            "base64",
+            "hex",
+            "c_array",
+            "info"
+          ],
+          "type": "string"
+        },
+        "sample_format": {
+          "default": "source",
+          "description": "Sample encoding of the extracted PCM. 'source' (default) copies the data chunk byte-for-byte with no decode or re-encode. Any other value decodes each sample and re-encodes it: 'u8' unsigned 8-bit, 's16le'/'s16be' signed 16-bit, 's24le'/'s24be' signed 24-bit, 's32le'/'s32be' signed 32-bit, 'f32le'/'f32be' IEEE float — the same names ffmpeg's `-f` and SoX's raw types use. A-law/mu-law files can only be extracted with 'source'.",
+          "enum": [
+            "source",
+            "u8",
+            "s16le",
+            "s16be",
+            "s24le",
+            "s24be",
+            "s32le",
+            "s32be",
+            "f32le",
+            "f32be"
+          ],
+          "type": "string"
+        },
+        "start_frame": {
+          "default": 0,
+          "description": "Zero-based index of the first sample frame to extract (default 0). One frame is one sample per channel, so at 44100 Hz frame 44100 is one second in. Errors if it is at or past the end of the clip.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-pcap-file-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+# Pure Rust, no I/O — instantiates in wafer and runs in the chat sandbox.
+# flate2 (miniz_oxide backend), sha2/md-5 (RustCrypto) and base64 are all already
+# proven wasm32-wasip1-safe by shipped blocks (archive-extractor, file-hash,
+# carve-files).
+[dependencies]
+base64 = "0.22"
+flate2 = "1"
+md-5 = "0.10"
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"

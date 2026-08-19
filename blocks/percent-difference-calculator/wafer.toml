@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "percent-difference-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Absolute difference, symmetric percent difference, and percent change between two values."

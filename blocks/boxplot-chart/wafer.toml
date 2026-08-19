@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "boxplot-chart"
+version = "0.1.0"
+abi = 1
+summary = "Render grouped box-and-whisker charts from pasted values"

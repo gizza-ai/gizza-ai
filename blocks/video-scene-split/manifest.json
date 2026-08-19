@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/video-scene-split",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect scene changes in a video and split it into one clip per scene, bundled as a ZIP",
+  "role": "skill",
+  "tool": {
+    "description": "Detect the scene (shot) changes in a video and split it into one clip per scene. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call); any container ffmpeg reads (MP4/MOV, MKV/WebM, AVI, ...) with a video track, up to 25 MiB. Pass 1 runs ffmpeg's scene detector: threshold (0.0-1.0, default 0.3) is the visual-difference sensitivity (lower = more cuts) and min_scene (seconds, default 0.6) merges boundaries closer than that so each transition yields one clip. Each detected scene is then extracted: mode=reencode (default) writes frame-accurate H.264/AAC MP4 clips at crf (0-51, default 22) and preset (default veryfast); mode=copy remuxes losslessly but snaps each start to the previous keyframe and keeps the source container. keep_audio=false drops audio. Returns ONE application/zip file containing <name>-Scene-001.<ext>, ... plus scenes.csv (scene, start_seconds, end_seconds, duration_seconds, filename). Capped at 200 clips. If no scene change is found the tool says so instead of returning a single clip identical to the input.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "crf": {
+          "default": 22,
+          "description": "x264 quality for mode=reencode: 0 (lossless, huge) to 51 (worst), default 22. Lower is better quality and a bigger file; 18-23 is the usual range. Ignored when mode=copy.",
+          "maximum": 51,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "keep_audio": {
+          "default": true,
+          "description": "Keep the audio track in each clip (default true). Set false to write video-only clips (ffmpeg -an) — smaller files for B-roll or silent inserts.",
+          "type": "boolean"
+        },
+        "min_scene": {
+          "default": 0.6,
+          "description": "Shortest scene to emit, in seconds (default 0.6). Boundaries closer together than this are merged, so one hard cut spread over two frames produces one clip; a trailing scene shorter than this is folded into the one before it. 0 disables merging.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "mode": {
+          "default": "reencode",
+          "description": "How each clip is cut. 'reencode' (default) re-encodes to H.264/AAC MP4 so every clip starts exactly on its detected boundary. 'copy' remuxes the original packets — near-instant and lossless, but each clip snaps back to the previous keyframe, so starts can be off by up to a GOP, and the source container is kept.",
+          "enum": [
+            "reencode",
+            "copy"
+          ],
+          "type": "string"
+        },
+        "preset": {
+          "default": "veryfast",
+          "description": "x264 speed/compression preset for mode=reencode (default veryfast). Slower presets (medium, slow, veryslow) give smaller files for the same crf; faster ones (ultrafast, superfast) finish sooner. Ignored when mode=copy.",
+          "enum": [
+            "ultrafast",
+            "superfast",
+            "veryfast",
+            "faster",
+            "fast",
+            "medium",
+            "slow",
+            "veryslow"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0.3,
+          "description": "Scene-detection sensitivity, 0.0-1.0 (default 0.3). ffmpeg flags a frame as a shot boundary when its visual difference from the previous frame exceeds this. Lower (0.15-0.25) catches soft or graded transitions but also fast motion; higher (0.4-0.6) keeps only hard cuts. 0.3-0.4 suits most footage.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

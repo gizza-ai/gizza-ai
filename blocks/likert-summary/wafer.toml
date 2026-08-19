@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "likert-summary"
+version = "0.1.0"
+abi = 1
+summary = "Summarize Likert survey answers into per-item means, distributions and stacked bars."

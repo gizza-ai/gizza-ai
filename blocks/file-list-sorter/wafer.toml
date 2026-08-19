@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "file-list-sorter"
+version = "0.1.0"
+abi = 1
+summary = "Sort a list of file names or paths by natural order, extension, depth or size"

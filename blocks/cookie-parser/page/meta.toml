@@ -1,0 +1,79 @@
+slug          = "cookie-parser"
+title         = "Cookie Parser"
+description   = "Split a Cookie or Set-Cookie header into individual cookies with their attributes — Domain, Path, Expires, Max-Age, Secure, HttpOnly, SameSite. Free, in your browser."
+tags          = ["cookie parser", "set-cookie parser", "parse cookie header", "http cookie decoder", "samesite checker", "cookie attributes", "max-age vs expires", "httponly secure flags", "cookie size checker"]
+h1            = "Cookie Parser"
+hero_subtitle = "Paste a request Cookie header or one or more Set-Cookie response headers and get every cookie broken out — name, value, size, Domain, Path, Expires, Max-Age, Secure, HttpOnly, SameSite, Priority and Partitioned. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_cookie_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed cookies"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "cookie"
+label       = "Cookie or Set-Cookie header"
+placeholder = "Set-Cookie: sid=abc123; Domain=example.com; Path=/; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly; SameSite=Lax"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select> because manifest tool.parameters carries the enum.
+[[input]]
+name        = "mode"
+label       = "Header direction"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+cookie = "Cookie (request header)"
+"set-cookie" = "Set-Cookie (response header)"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+json = "JSON"
+table = "Table (plain text)"
+csv = "CSV"
+markdown = "Markdown table"
+
+# decode/warnings render as checkboxes, checked by default; raw_attributes is
+# unchecked — each default comes from the descriptor's Param::boolean default.
+[[input]]
+name   = "decode"
+label  = "URL-decode names and values"
+source = "field"
+
+[[input]]
+name   = "raw_attributes"
+label  = "Include raw attributes"
+source = "field"
+
+[[input]]
+name   = "warnings"
+label  = "Flag misconfigurations"
+source = "field"
+
+[[example]]
+label = "Set-Cookie with attributes"
+[example.params]
+cookie = "Set-Cookie: sid=abc123; Domain=example.com; Path=/; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly; SameSite=Lax"
+mode = "auto"
+format = "table"
+
+[[example]]
+label = "Cookie header"
+[example.params]
+cookie = "Cookie: sessionid=abc123; theme=dark; redirect=%2Faccount"
+mode = "auto"
+format = "json"
+
+[[example]]
+label = "Several Set-Cookie lines"
+[example.params]
+cookie = "Set-Cookie: __Host-id=1; Path=/; Secure; HttpOnly; SameSite=Strict\nSet-Cookie: tracker=xyz; Domain=.example.com; Max-Age=0; SameSite=None"
+mode = "set-cookie"
+format = "markdown"

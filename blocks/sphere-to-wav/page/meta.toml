@@ -1,0 +1,115 @@
+slug          = "sphere-to-wav"
+title         = "SPHERE to WAV — convert NIST .sph speech files"
+description   = "Convert a NIST SPHERE (.sph) speech-corpus file to a standard WAV in your browser. Parses the ASCII header, fixes big-endian byte order, expands mu-law and A-law."
+tags          = ["sphere to wav", "sph to wav", "nist sphere converter", "timit wav", "sph2pipe alternative", "switchboard audio", "mu-law to pcm", "speech corpus converter"]
+h1            = "SPHERE (.sph) to WAV Converter"
+hero_subtitle = "Paste a NIST SPHERE speech file as base64 or hex and get a standard RIFF/WAVE file back. The ASCII header is parsed field by field, big-endian samples are byte-swapped to WAV order, and mu-law or A-law corpora are expanded to 16-bit PCM. Pick one side of a two-channel conversation, downmix to mono, cut a sample window, or read the header report instead of the audio. Everything runs locally in your browser through WebAssembly — the recording is never uploaded."
+wasm          = "gizza_ai_sphere_to_wav_web"
+export        = "run"
+live          = false
+output_label  = "Converted audio"
+format        = "text"
+
+# Field ORDER must match the web `run()` parameter order.
+[[input]]
+name        = "input"
+label       = "SPHERE file bytes (base64 or hex)"
+placeholder = "TklTVF8xQQogICAgMjU2CnNhbXBsZV9yYXRlIC1pIDgwMDAKY2hhbm5lbF9jb3VudCAtaSAxCnNhbXBsZV9uX2J5dGVzIC1pIDIKc2FtcGxlX2J5dGVfZm9ybWF0IC1zMiAxMApzYW1wbGVfY29kaW5nIC1zMyBwY20Kc2FtcGxlX2NvdW50IC1pIDIwCmVuZF9oZWFkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAD+Ad4ShYLgsuTCkTHv8RQQF48YTjRtht0kHRf9Y83+rtY/0PDRM="
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output"
+label  = "Return"
+source = "field"
+
+[input.labels]
+data_url = "data: URL (save or play it)"
+base64   = "Base64 audio bytes"
+hex      = "Hex audio bytes"
+info     = "Header report (no audio)"
+
+[[input]]
+name   = "encoding"
+label  = "Sample encoding"
+source = "field"
+
+[input.labels]
+pcm16  = "16-bit PCM (widest compatibility)"
+source = "Keep the file's own encoding"
+ulaw   = "8-bit mu-law (G.711)"
+alaw   = "8-bit A-law (G.711)"
+
+[[input]]
+name   = "channel"
+label  = "Channels"
+source = "field"
+
+[input.labels]
+all  = "All (interleaved as stored)"
+1    = "Channel 1 only"
+2    = "Channel 2 only"
+mono = "Mono downmix (average)"
+
+[[input]]
+name   = "container"
+label  = "Container"
+source = "field"
+
+[input.labels]
+wav = "WAV (RIFF/WAVE header)"
+raw = "Raw, headerless samples"
+
+[[input]]
+name   = "byte_order"
+label  = "Byte order"
+source = "field"
+
+[input.labels]
+auto   = "From the header (sample_byte_format)"
+little = "Force little-endian"
+big    = "Force big-endian"
+
+[[input]]
+name        = "start_sample"
+label       = "Start sample frame"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_samples"
+label       = "Max sample frames (0 = to the end)"
+placeholder = "0"
+source      = "field"
+
+# One-click presets. Each chip prefills a runnable example of the small demo
+# file described in the copy below (8 kHz mono 16-bit big-endian, 20 frames).
+[[example]]
+label  = "Convert to WAV"
+params = { input = "TklTVF8xQQogICAgMjU2CnNhbXBsZV9yYXRlIC1pIDgwMDAKY2hhbm5lbF9jb3VudCAtaSAxCnNhbXBsZV9uX2J5dGVzIC1pIDIKc2FtcGxlX2J5dGVfZm9ybWF0IC1zMiAxMApzYW1wbGVfY29kaW5nIC1zMyBwY20Kc2FtcGxlX2NvdW50IC1pIDIwCmVuZF9oZWFkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAD+Ad4ShYLgsuTCkTHv8RQQF48YTjRtht0kHRf9Y83+rtY/0PDRM=", input_format = "auto", output = "data_url", encoding = "pcm16", channel = "all", container = "wav", byte_order = "auto" }
+
+[[example]]
+label  = "Read the header"
+params = { input = "TklTVF8xQQogICAgMjU2CnNhbXBsZV9yYXRlIC1pIDgwMDAKY2hhbm5lbF9jb3VudCAtaSAxCnNhbXBsZV9uX2J5dGVzIC1pIDIKc2FtcGxlX2J5dGVfZm9ybWF0IC1zMiAxMApzYW1wbGVfY29kaW5nIC1zMyBwY20Kc2FtcGxlX2NvdW50IC1pIDIwCmVuZF9oZWFkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAD+Ad4ShYLgsuTCkTHv8RQQF48YTjRtht0kHRf9Y83+rtY/0PDRM=", input_format = "auto", output = "info", encoding = "pcm16", channel = "all", container = "wav", byte_order = "auto" }
+
+[[example]]
+label  = "Raw PCM as hex"
+params = { input = "TklTVF8xQQogICAgMjU2CnNhbXBsZV9yYXRlIC1pIDgwMDAKY2hhbm5lbF9jb3VudCAtaSAxCnNhbXBsZV9uX2J5dGVzIC1pIDIKc2FtcGxlX2J5dGVfZm9ybWF0IC1zMiAxMApzYW1wbGVfY29kaW5nIC1zMyBwY20Kc2FtcGxlX2NvdW50IC1pIDIwCmVuZF9oZWFkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAD+Ad4ShYLgsuTCkTHv8RQQF48YTjRtht0kHRf9Y83+rtY/0PDRM=", input_format = "auto", output = "hex", encoding = "pcm16", channel = "all", container = "raw", byte_order = "auto" }
+
+[[example]]
+label  = "Mu-law telephone copy"
+params = { input = "TklTVF8xQQogICAgMjU2CnNhbXBsZV9yYXRlIC1pIDgwMDAKY2hhbm5lbF9jb3VudCAtaSAxCnNhbXBsZV9uX2J5dGVzIC1pIDIKc2FtcGxlX2J5dGVfZm9ybWF0IC1zMiAxMApzYW1wbGVfY29kaW5nIC1zMyBwY20Kc2FtcGxlX2NvdW50IC1pIDIwCmVuZF9oZWFkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAD+Ad4ShYLgsuTCkTHv8RQQF48YTjRtht0kHRf9Y83+rtY/0PDRM=", input_format = "auto", output = "info", encoding = "ulaw", channel = "all", container = "wav", byte_order = "auto" }
+
+[[example]]
+label  = "Last 10 frames only"
+params = { input = "TklTVF8xQQogICAgMjU2CnNhbXBsZV9yYXRlIC1pIDgwMDAKY2hhbm5lbF9jb3VudCAtaSAxCnNhbXBsZV9uX2J5dGVzIC1pIDIKc2FtcGxlX2J5dGVfZm9ybWF0IC1zMiAxMApzYW1wbGVfY29kaW5nIC1zMyBwY20Kc2FtcGxlX2NvdW50IC1pIDIwCmVuZF9oZWFkCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAD+Ad4ShYLgsuTCkTHv8RQQF48YTjRtht0kHRf9Y83+rtY/0PDRM=", input_format = "auto", output = "hex", encoding = "pcm16", channel = "all", container = "raw", byte_order = "auto", start_sample = "10" }

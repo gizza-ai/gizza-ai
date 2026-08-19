@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-capture-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Turn regex capture groups into CSV rows — one row per match"

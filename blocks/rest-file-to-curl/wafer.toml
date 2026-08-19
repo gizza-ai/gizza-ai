@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rest-file-to-curl"
+version = "0.1.0"
+abi = 1
+summary = "Convert a .http, .rest or .ain request file into curl commands"

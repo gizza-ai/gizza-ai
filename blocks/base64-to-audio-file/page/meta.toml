@@ -1,0 +1,46 @@
+slug          = "base64-to-audio-file"
+title         = "Base64 to Audio File — decode Base64 or a data: URI to audio"
+description   = "Decode a Base64 string or data: URI back into an audio file in your browser. Auto-detects WAV, MP3, Ogg, FLAC, M4A, AAC, WebM, AIFF and MIDI."
+tags          = ["base64 to audio", "base64 to mp3", "base64 to wav", "decode base64 audio", "base64 audio decoder", "data uri to audio", "base64 to audio file"]
+h1            = "Base64 to Audio File"
+hero_subtitle = "Paste a Base64 string or a data:audio/…;base64,… URI and get the audio file back. The container is detected from the decoded bytes, so the result carries the right MIME type and extension — WAV, MP3, Ogg, FLAC, M4A, AAC, WebM, AIFF, AMR, WMA or MIDI. Nothing is re-encoded and nothing is uploaded: the decode runs in your browser via WebAssembly."
+wasm          = "gizza_ai_base64_to_audio_file_web"
+export        = "run"
+live          = false
+output_label  = "Audio data URL"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Base64 or data: URI"
+placeholder = "UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAob/W…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "filename"
+label       = "File name (no extension)"
+placeholder = "audio"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Format"
+source      = "field"
+
+[[input]]
+name        = "strict"
+label       = "Reject bytes that aren't audio"
+source      = "field"
+
+[[example]]
+label  = "Beep (WAV)"
+params = { data = "UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAob/W4uLXwqSDYkMsHx0nPFl6m7rS4OPaxqqJaEgwIB0lOFN0lbXP3+Pcy7CPbk4zIhwiM05uj7DL3OPfz7WVdFM4JR0gMEhoiarG2uPg0rqbelk8Jx0fLENig6TC1+Li1r+hgF9BKh4eKT5cfZ691OHj2cSnhmVGLiAdJjpWd5i40ODj28itjGtLMSEdJDVQcZKyzd7k3s2yknFQNSQdITFLa4ytyNvj4NC4mHdWOiYdIC5GZYanxNnj4dS9nn1cPikeHipBXw==", filename = "beep", format = "auto", strict = "true" }
+
+[[example]]
+label  = "data: URI"
+params = { data = "data:audio/wav;base64,UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAob/W4uLXwqSDYkMsHx0nPFl6m7rS4OPaxqqJaEgwIB0lOFN0lbXP3+Pcy7CPbk4zIhwiM05uj7DL3OPfz7WVdFM4JR0gMEhoiarG2uPg0rqbelk8Jx0fLENig6TC1+Li1r+hgF9BKh4eKT5cfZ691OHj2cSnhmVGLiAdJjpWd5i40ODj28itjGtLMSEdJDVQcZKyzd7k3s2yknFQNSQdITFLa4ytyNvj4NC4mHdWOiYdIC5GZYanxNnj4dS9nn1cPikeHipBXw==", filename = "clip", format = "auto", strict = "true" }
+
+[[example]]
+label  = "URL-safe, unpadded"
+params = { data = "UklGRuwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YcgAAACAob_W4uLXwqSDYkMsHx0nPFl6m7rS4OPaxqqJaEgwIB0lOFN0lbXP3-Pcy7CPbk4zIhwiM05uj7DL3OPfz7WVdFM4JR0gMEhoiarG2uPg0rqbelk8Jx0fLENig6TC1-Li1r-hgF9BKh4eKT5cfZ691OHj2cSnhmVGLiAdJjpWd5i40ODj28itjGtLMSEdJDVQcZKyzd7k3s2yknFQNSQdITFLa4ytyNvj4NC4mHdWOiYdIC5GZYanxNnj4dS9nn1cPikeHipBXw", filename = "audio", format = "auto", strict = "true" }

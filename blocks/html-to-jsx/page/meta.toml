@@ -1,0 +1,101 @@
+slug          = "html-to-jsx"
+title         = "HTML to JSX Converter"
+description   = "Convert HTML to React JSX in your browser: class becomes className, inline styles become style objects, void tags self-close, comments become JSX."
+tags          = ["html to jsx", "jsx converter", "react", "class to classname", "style object", "html to react", "jsx transform", "convert html"]
+h1            = "HTML to JSX Converter"
+hero_subtitle = "Paste HTML and get React-ready JSX — React attribute names, camelCased inline style objects, self-closed void tags, JSX comments and escaped text, converted locally in your browser."
+wasm          = "gizza_ai_html_to_jsx_web"
+export        = "run"
+live          = false
+output_label  = "JSX"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<div class=\"card\"><label for=\"n\">Name</label><input id=\"n\" tabindex=\"2\" readonly></div>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "indent"
+label  = "Indentation"
+source = "field"
+
+[input.labels]
+"2"   = "2 spaces"
+"4"   = "4 spaces"
+"tab" = "Tabs"
+
+[[input]]
+name        = "component"
+label       = "Wrap in a component (optional)"
+placeholder = "Card"
+source      = "field"
+
+[[input]]
+name   = "comments"
+label  = "HTML comments"
+source = "field"
+
+[input.labels]
+jsx   = "Keep as {/* … */}"
+strip = "Remove"
+
+[[input]]
+name   = "boolean_attrs"
+label  = "Boolean attributes"
+source = "field"
+
+[input.labels]
+explicit  = "Explicit — disabled={true}"
+shorthand = "Shorthand — disabled"
+
+[[input]]
+name   = "value_attrs"
+label  = "value / checked on form fields"
+source = "field"
+
+[input.labels]
+default = "Rewrite to defaultValue / defaultChecked"
+keep    = "Keep as value / checked"
+
+[[example]]
+label = "Form markup"
+[example.params]
+html = "<div class=\"card\"><label for=\"n\">Name</label><input id=\"n\" tabindex=\"2\" readonly></div>"
+indent = "2"
+component = ""
+comments = "jsx"
+boolean_attrs = "explicit"
+value_attrs = "default"
+
+[[example]]
+label = "Inline styles → component"
+[example.params]
+html = "<p style=\"color: red; font-size: 12px\">Hi</p>"
+indent = "4"
+component = "Card"
+comments = "jsx"
+boolean_attrs = "explicit"
+value_attrs = "default"
+
+[[example]]
+label = "SVG icon"
+[example.params]
+html = "<svg viewbox=\"0 0 16 16\"><path stroke-width=\"2\" stroke-linecap=\"round\" d=\"M2 8h12\"/></svg>"
+indent = "2"
+component = ""
+comments = "jsx"
+boolean_attrs = "explicit"
+value_attrs = "default"
+
+[[example]]
+label = "Strip comments, shorthand booleans"
+[example.params]
+html = "<!-- nav --><ul class=\"nav\"><li><a href=\"/\" hidden>Home</a><li><a href=\"/about\">About</a></ul>"
+indent = "2"
+component = ""
+comments = "strip"
+boolean_attrs = "shorthand"
+value_attrs = "default"

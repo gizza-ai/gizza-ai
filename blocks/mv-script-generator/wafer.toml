@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mv-script-generator"
+version = "0.1.0"
+abi = 1
+summary = "Turn an old,new filename mapping into a safe bash or PowerShell rename script plus its undo"

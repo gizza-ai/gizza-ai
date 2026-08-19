@@ -1,0 +1,133 @@
+slug          = "csv-date-normalizer"
+title         = "CSV Date Normalizer — Convert Mixed Date Formats to ISO 8601"
+description   = "Normalize a CSV date column to ISO 8601, Unix time, SQL, or a custom pattern. Infers day-first vs month-first per column. Free, runs in your browser."
+tags          = ["csv date normalizer", "normalize csv dates", "convert csv dates to iso 8601", "fix mixed date formats", "dd/mm vs mm/dd csv", "excel serial date to iso", "unix timestamp to date csv", "standardize date column"]
+h1            = "CSV Date Normalizer"
+hero_subtitle = "Turn a date column that holds 2021-06-01, 06/15/2021, 15 Jan 2024, an Excel serial and a Unix timestamp into one consistent format. Ambiguous values like 03/04/2024 are settled from the whole column, not guessed row by row — and the tool tells you which order it chose and why. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_csv_date_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (first row is the header)"
+placeholder = "id,joined\n1,2021-06-01\n2,06/15/2021\n3,15 Jan 2024\n4,not a date"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns to normalize (names or 0-based indexes, or auto)"
+placeholder = "auto"
+default     = "auto"
+source      = "field"
+
+# format, date_order, on_error and output render as <select>s, and
+# excel_serial / has_header as checkboxes, derived from the descriptor schema
+# (manifest.json) — so the option lists are not duplicated here.
+[[input]]
+name    = "format"
+label   = "Output format"
+default = "iso-auto"
+source  = "field"
+
+[input.labels]
+iso-auto     = "ISO 8601, keep precision — 2024-01-15 / …T10:30:00Z (default)"
+iso-date     = "ISO date only — 2024-01-15"
+iso-datetime = "ISO date-time, no offset — 2024-01-15T10:30:00"
+iso-utc      = "ISO date-time shifted to UTC — 2024-01-15T05:00:00Z"
+unix-seconds = "Unix epoch seconds — 1705314600"
+unix-millis  = "Unix epoch milliseconds — 1705314600000"
+us-date      = "US — 01/15/2024"
+eu-date      = "European — 15/01/2024"
+sql          = "SQL DATETIME — 2024-01-15 10:30:00"
+compact      = "Compact — 20240115"
+rfc2822      = "RFC 2822 — Mon, 15 Jan 2024 10:30:00 +0000"
+custom       = "Custom strftime pattern (see below)"
+
+[[input]]
+name        = "custom_format"
+label       = "Custom pattern (only used when format is Custom)"
+placeholder = "%d %B %Y"
+source      = "field"
+
+[[input]]
+name    = "date_order"
+label   = "Day/month order for 03/04/2024"
+default = "auto"
+source  = "field"
+
+[input.labels]
+auto        = "Auto — infer per column from unambiguous rows (default)"
+day-first   = "Day first — 03/04/2024 is 4 March"
+month-first = "Month first — 03/04/2024 is 3 April"
+
+[[input]]
+name        = "year_pivot"
+label       = "Two-digit year cut-off (68 → 68 is 2068, 69 is 1969)"
+placeholder = "68"
+default     = "68"
+source      = "field"
+
+[[input]]
+name    = "excel_serial"
+label   = "Read bare numbers as Excel serial dates (45000 → 2023-03-15)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "on_error"
+label   = "Unreadable values"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep  = "Keep the original text (default)"
+blank = "Blank the cell"
+error = "Stop and report the first one"
+
+[[input]]
+name    = "has_header"
+label   = "First row is a header"
+default = "true"
+source  = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (auto , tab ; or |)"
+placeholder = "auto"
+default     = "auto"
+source      = "field"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "csv"
+source  = "field"
+
+[input.labels]
+csv    = "Rewritten CSV (default)"
+report = "Audit report — order chosen, counts, failures"
+json   = "JSON — the audit plus the rewritten CSV"
+
+[[example]]
+label  = "Mixed formats → ISO 8601"
+params = { data = "id,joined\n1,2021-06-01\n2,06/15/2021\n3,15 Jan 2024\n4,not a date", columns = "auto", format = "iso-auto", custom_format = "", date_order = "auto", year_pivot = "68", excel_serial = "true", on_error = "keep", has_header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "Force day-first (European 03/04)"
+params = { data = "order_id,order_date\n1,03/04/2024\n2,11/05/2024", columns = "order_date", format = "iso-date", custom_format = "", date_order = "day-first", year_pivot = "68", excel_serial = "true", on_error = "keep", has_header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "Excel serials + Unix timestamps → dates"
+params = { data = "id,ts\n1,45000\n2,1700000000\n3,20240115", columns = "ts", format = "iso-date", custom_format = "", date_order = "auto", year_pivot = "68", excel_serial = "true", on_error = "keep", has_header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "Audit report — what failed and why"
+params = { data = "id,joined\n1,2021-06-01\n2,06/15/2021\n3,15 Jan 2024\n4,not a date", columns = "auto", format = "iso-auto", custom_format = "", date_order = "auto", year_pivot = "68", excel_serial = "true", on_error = "keep", has_header = "true", delimiter = "auto", output = "report" }
+
+[[example]]
+label  = "Custom pattern — 15 January 2024"
+params = { data = "d\n2021-06-01\n15 Jan 2024", columns = "d", format = "custom", custom_format = "%d %B %Y", date_order = "auto", year_pivot = "68", excel_serial = "true", on_error = "keep", has_header = "true", delimiter = "auto", output = "csv" }

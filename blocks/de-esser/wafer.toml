@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "de-esser"
+version = "0.1.0"
+abi = 1
+summary = "De-ess audio: dynamically duck harsh sibilance on vocals without dulling the whole track"

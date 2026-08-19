@@ -1,0 +1,145 @@
+slug          = "twitter-archive-reader"
+title         = "Twitter Archive Reader — tweets.js to Markdown, Text, HTML or CSV"
+description   = "Paste tweets.js from your Twitter/X data export and get a readable transcript, posting stats, top hashtags and top tweets. Runs entirely in your browser."
+tags          = ["twitter archive", "x archive", "tweets.js", "tweet export", "twitter backup", "tweet statistics", "archive to markdown"]
+h1            = "Read Your Twitter/X Archive"
+hero_subtitle = "Turn the tweets.js file from a Twitter/X data export into a readable transcript — expanded t.co links, permalinks, per-year activity, top hashtags and your most-liked tweets — without uploading the archive anywhere."
+wasm          = "gizza_ai_twitter_archive_reader_web"
+export        = "run"
+live          = false
+output_label  = "Transcript / summary"
+format        = "text"
+
+[[input]]
+name        = "tweets"
+label       = "tweets.js (from your archive's data/ folder)"
+placeholder = 'window.YTD.tweets.part0 = [ {"tweet":{"id_str":"1746900000000000001","created_at":"Mon Jan 15 09:30:00 +0000 2024","full_text":"Shipped the new parser today","favorite_count":"42","retweet_count":"7","lang":"en"}} ]'
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+transcript = "Tweets only"
+stats      = "Summary only"
+both       = "Summary + tweets"
+
+[[input]]
+name   = "format"
+label  = "Format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown"
+text     = "Plain text"
+html     = "HTML"
+csv      = "CSV rows"
+
+[[input]]
+name   = "sort"
+label  = "Sort by"
+source = "field"
+
+[input.labels]
+newest   = "Newest first"
+oldest   = "Oldest first"
+likes    = "Most liked"
+retweets = "Most retweeted"
+
+[[input]]
+name        = "search"
+label       = "Search text"
+placeholder = "parser"
+source      = "field"
+
+[[input]]
+name        = "since"
+label       = "From date (UTC, inclusive)"
+placeholder = "2024-01-15"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "until"
+label       = "To date (UTC, inclusive)"
+placeholder = "2024-01-31"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "include_replies"
+label  = "Include replies"
+source = "field"
+
+[[input]]
+name   = "include_retweets"
+label  = "Include retweets"
+source = "field"
+
+[[input]]
+name   = "expand_urls"
+label  = "Expand t.co links"
+source = "field"
+
+[[input]]
+name        = "top_count"
+label       = "Top tweets to list (0 = none)"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "25"
+step        = "1"
+
+[[input]]
+name        = "max_tweets"
+label       = "Max tweets (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "5000"
+step        = "1"
+
+[[example]]
+label = "Sample archive → summary + tweets"
+[example.params]
+tweets = '''
+window.YTD.tweets.part0 = [
+  {"tweet":{"id_str":"1746900000000000001","created_at":"Mon Jan 15 09:30:00 +0000 2024","full_text":"Shipped the new parser today &amp; it is fast https://t.co/abc123 #rust","favorite_count":"42","retweet_count":"7","lang":"en","source":"<a href=\"https://x.com\" rel=\"nofollow\">Twitter Web App</a>","entities":{"hashtags":[{"text":"rust"}],"user_mentions":[],"urls":[{"url":"https://t.co/abc123","expanded_url":"https://example.com/parser","display_url":"example.com/parser"}]}}},
+  {"tweet":{"id_str":"1746900000000000002","created_at":"Mon Jan 15 11:00:00 +0000 2024","full_text":"@bob good point, will fix","favorite_count":"3","retweet_count":"0","lang":"en","source":"<a href=\"https://x.com\" rel=\"nofollow\">Twitter for iPhone</a>","in_reply_to_status_id_str":"1746800000000000009","in_reply_to_screen_name":"bob","entities":{"hashtags":[],"user_mentions":[{"screen_name":"bob"}],"urls":[]}}},
+  {"tweet":{"id_str":"1746900000000000003","created_at":"Tue Jan 16 08:15:00 +0000 2024","full_text":"RT @carol: release notes are up #rust","favorite_count":"0","retweet_count":"12","lang":"en","source":"<a href=\"https://x.com\" rel=\"nofollow\">Twitter Web App</a>","entities":{"hashtags":[{"text":"rust"}],"user_mentions":[{"screen_name":"carol"}],"urls":[]}}}
+]'''
+output = "both"
+format = "markdown"
+sort = "newest"
+
+[[example]]
+label = "Only what I wrote, oldest first"
+[example.params]
+tweets = '''
+window.YTD.tweets.part0 = [
+  {"tweet":{"id_str":"1746900000000000001","created_at":"Mon Jan 15 09:30:00 +0000 2024","full_text":"Shipped the new parser today &amp; it is fast https://t.co/abc123 #rust","favorite_count":"42","retweet_count":"7","lang":"en","entities":{"hashtags":[{"text":"rust"}],"urls":[{"url":"https://t.co/abc123","expanded_url":"https://example.com/parser"}]}}},
+  {"tweet":{"id_str":"1746900000000000002","created_at":"Mon Jan 15 11:00:00 +0000 2024","full_text":"@bob good point, will fix","favorite_count":"3","retweet_count":"0","lang":"en","in_reply_to_screen_name":"bob"}},
+  {"tweet":{"id_str":"1746900000000000003","created_at":"Tue Jan 16 08:15:00 +0000 2024","full_text":"RT @carol: release notes are up #rust","favorite_count":"0","retweet_count":"12","lang":"en"}}
+]'''
+output = "transcript"
+format = "text"
+sort = "oldest"
+include_replies = "false"
+include_retweets = "false"
+
+[[example]]
+label = "Most-liked tweets as CSV"
+[example.params]
+tweets = '''
+window.YTD.tweets.part0 = [
+  {"tweet":{"id_str":"1746900000000000001","created_at":"Mon Jan 15 09:30:00 +0000 2024","full_text":"Shipped the new parser today &amp; it is fast https://t.co/abc123 #rust","favorite_count":"42","retweet_count":"7","lang":"en","entities":{"hashtags":[{"text":"rust"}],"urls":[{"url":"https://t.co/abc123","expanded_url":"https://example.com/parser"}]}}},
+  {"tweet":{"id_str":"1746900000000000003","created_at":"Tue Jan 16 08:15:00 +0000 2024","full_text":"RT @carol: release notes are up #rust","favorite_count":"0","retweet_count":"12","lang":"en"}}
+]'''
+output = "transcript"
+format = "csv"
+sort = "likes"

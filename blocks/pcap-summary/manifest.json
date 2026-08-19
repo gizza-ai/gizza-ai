@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/pcap-summary",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize a pcap: protocol breakdown, top talkers, conversations, and busiest ports.",
+  "role": "skill",
+  "tool": {
+    "description": "Summarize an uploaded libpcap (.pcap) or pcapng (.pcapng) capture into capture statistics. Reports an overview (format, link type, snaplen, packet and byte totals, first/last timestamp, duration, average packet size, packets/s, bits/s, truncated packets), a protocol breakdown with packet and byte percentages plus colon-joined layer-hierarchy paths (eth:ipv4:tcp:https), top talkers with sent/received split (IP, plus MAC endpoints on Ethernet captures), conversations with per-direction counts and relative start/duration, and the busiest service ports. Offline single-file analysis: no live capture, no TLS decryption (encrypted flows are counted and named by port), no reverse DNS or GeoIP. Captures up to 32 MiB. Later IP fragments count toward IP totals but not toward the port or conversation tables. Provide the capture as either url (HTTP/HTTPS) or ref (id from a prior file upload/tool call). Use section to focus on one table, top and sort_by to shape the rankings.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "resolve_ports": {
+          "default": true,
+          "description": "Name well-known ports from a built-in table (443 -> https, 53 -> dns) in the ports list and in the protocol hierarchy paths. Default true; set false for raw port numbers only. No DNS or network lookups are performed.",
+          "type": "boolean"
+        },
+        "section": {
+          "default": "all",
+          "description": "Which part of the summary to return: all (default), overview (capture properties and rates), protocols (per-protocol breakdown plus the layer hierarchy), talkers (top IP endpoints plus MAC endpoints on Ethernet captures), conversations, or ports. Row totals for every section are always included.",
+          "enum": [
+            "all",
+            "overview",
+            "protocols",
+            "talkers",
+            "conversations",
+            "ports"
+          ],
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "bytes",
+          "description": "Column the ranked lists are ordered by: bytes (default, ranks by traffic volume) or packets (ranks by how chatty an endpoint or port is). Both counts are reported on every row either way.",
+          "enum": [
+            "bytes",
+            "packets"
+          ],
+          "type": "string"
+        },
+        "top": {
+          "default": 10,
+          "description": "How many rows to return per ranked list (1-1000, default 10). Each list is accompanied by its untruncated *_total count, so a cap is never mistaken for the whole picture.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

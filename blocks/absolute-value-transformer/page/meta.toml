@@ -1,0 +1,167 @@
+slug          = "absolute-value-transformer"
+title         = "Absolute Value Transformer — Abs, Sign, and Negate a Number Column"
+description   = "Paste a column of numbers and apply absolute value, sign extraction (-1/0/1), sign flipping, or force-negative to every value at once, with rounding and an audit table."
+tags = [
+  "absolute value transformer",
+  "convert negative to positive",
+  "abs a column of numbers",
+  "sign function calculator",
+  "flip signs in bulk",
+  "make numbers negative",
+  "signum extraction",
+  "spreadsheet column math",
+]
+h1            = "Absolute value, sign, or negation for a whole column"
+hero_subtitle = "Paste a column of numbers and transform every sign at once — take absolute values, pull out -1/0/1 signs, flip signs, or force everything negative."
+wasm          = "gizza_ai_absolute_value_transformer_web"
+export        = "run"
+live          = false
+output_label  = "Transformed values"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Numbers"
+placeholder = "-3\n4\n-2.5\n0\n-1.2e3"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "operation"
+label  = "Operation"
+source = "field"
+
+[input.labels]
+"abs"            = "Absolute value: -3 → 3"
+"sign"           = "Sign only: -3 → -1, 0 → 0, 4 → 1"
+"negate"         = "Flip sign: -3 → 3, 4 → -4"
+"force-negative" = "Force negative: 3 → -3"
+
+[[input]]
+name   = "separator"
+label  = "Input separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+newline   = "One value per line"
+comma     = "Comma"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name   = "output_separator"
+label  = "Output separator"
+source = "field"
+
+[input.labels]
+same      = "Same as input"
+newline   = "One value per line"
+comma     = "Comma"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name   = "decimals"
+label  = "Round decimals"
+source = "field"
+
+[input.labels]
+auto = "Keep full precision"
+0    = "0 places"
+1    = "1 place"
+2    = "2 places"
+3    = "3 places"
+4    = "4 places"
+5    = "5 places"
+6    = "6 places"
+
+[[input]]
+name   = "on_error"
+label  = "Values that are not numbers"
+source = "field"
+
+[input.labels]
+fail  = "Stop with an error"
+skip  = "Drop the value"
+keep  = "Keep the original text"
+blank = "Blank value (keeps alignment)"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+values = "Values only"
+table  = "Audit table (original + result)"
+json   = "JSON"
+
+[[input]]
+name   = "stats"
+label  = "Append summary stats"
+source = "field"
+
+[[example]]
+label = "Absolute values"
+[example.params]
+data = "-3\n4\n-2.5\n0"
+operation = "abs"
+separator = "auto"
+output_separator = "same"
+decimals = "auto"
+on_error = "fail"
+output = "values"
+stats = "false"
+
+[[example]]
+label = "Extract signs"
+[example.params]
+data = "-7\n0\n0.001\n42"
+operation = "sign"
+separator = "newline"
+output_separator = "same"
+decimals = "auto"
+on_error = "fail"
+output = "values"
+stats = "false"
+
+[[example]]
+label = "Flip signs"
+[example.params]
+data = "-3, 4, 0, -12.5"
+operation = "negate"
+separator = "comma"
+output_separator = "comma"
+decimals = "auto"
+on_error = "fail"
+output = "values"
+stats = "false"
+
+[[example]]
+label = "Accounting debits"
+[example.params]
+data = "1200.505\n340\n-75.25"
+operation = "force-negative"
+separator = "newline"
+output_separator = "same"
+decimals = "2"
+on_error = "fail"
+output = "values"
+stats = "true"
+
+[[example]]
+label = "Audit messy column"
+[example.params]
+data = "-3\nn/a\n4\n-0.5"
+operation = "abs"
+separator = "newline"
+output_separator = "same"
+decimals = "auto"
+on_error = "blank"
+output = "table"
+stats = "false"

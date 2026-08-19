@@ -1,0 +1,40 @@
+{
+  "name": "gizza-ai/json-schema-to-sample",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a minimal valid example JSON instance from a JSON Schema",
+  "role": "skill",
+  "tool": {
+    "description": "Generate the smallest JSON document that satisfies a JSON Schema, for API docs, fixtures and request bodies. Honours const, default, examples and enum in that order, emits required properties only unless include_optional is set, resolves local $ref into $defs/definitions, merges allOf, takes the first oneOf/anyOf branch, and respects string formats (email, uuid, date-time, uri, ipv4, ...), length/range/multipleOf bounds and array item bounds. Fully deterministic: the same schema always yields the same sample. pattern, if/then/else, not, dependentSchemas and remote $refs are not synthesised.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "array_items": {
+          "default": 1,
+          "description": "How many entries to put in an array that has no minItems of its own (0-50, default 1). A larger minItems always wins, and maxItems still caps the result.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "include_optional": {
+          "default": false,
+          "description": "Include optional properties as well as required ones. Default false, so the sample stays minimal: only required properties plus any property that declares a default.",
+          "type": "boolean"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print the sample with 2-space indentation. Turn off for one compact line.",
+          "type": "boolean"
+        },
+        "schema": {
+          "description": "The JSON Schema to build an example for (draft-07 / 2019-09 / 2020-12). Supported: type, properties, required, default, const, enum, examples, string format, minLength/maxLength, minimum/maximum/exclusive bounds, multipleOf, items/prefixItems/minItems/maxItems/uniqueItems, allOf (merged), oneOf/anyOf (first branch), and local $ref into $defs or definitions. Example: {\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\"}},\"required\":[\"id\"]}",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema"
+      ],
+      "type": "object"
+    }
+  }
+}

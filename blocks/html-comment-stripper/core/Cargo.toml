@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-html-comment-stripper-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Only used for the user-supplied keep/only comment pattern. The `regex` crate
+# has no backreferences or lookaround by design, which is what guarantees
+# linear-time matching — no pattern typed into the page can hang the sandbox.
+regex = "1"

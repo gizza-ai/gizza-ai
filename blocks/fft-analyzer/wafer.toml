@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fft-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Compute the FFT of a sample list and return the frequency spectrum"

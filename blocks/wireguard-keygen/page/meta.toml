@@ -1,0 +1,90 @@
+slug          = "wireguard-keygen"
+title         = "WireGuard Key Generator — Private, Public and Preshared Keys"
+description   = "Generate WireGuard private, public and preshared keys locally, with a ready-to-paste wg0.conf snippet and JSON export."
+tags          = ["wireguard key generator", "wg genkey", "wg pubkey", "wg genpsk", "preshared key", "curve25519", "wireguard config", "vpn keys"]
+h1            = "WireGuard Key Generator"
+hero_subtitle = "Create WireGuard private, public and preshared keys with a ready-to-paste wg0.conf snippet. Keys come from your device's cryptographic RNG and never leave the browser."
+wasm          = "gizza_ai_wireguard_keygen_web"
+export        = "run"
+live          = false
+output_label  = "WireGuard keys"
+format        = "text"
+
+[[input]]
+name        = "pairs"
+label       = "Number of key pairs"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "preshared_key"
+label       = "Also generate a preshared key (wg genpsk)"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output"
+source      = "field"
+[input.labels]
+text = "Keys + annotated wg0.conf snippet"
+json = "JSON (one object per key pair)"
+conf = "wg0.conf snippet only"
+
+[[input]]
+name        = "address"
+label       = "Tunnel address (CIDR)"
+placeholder = "10.0.0.2/32"
+source      = "field"
+
+[[input]]
+name        = "endpoint"
+label       = "Server endpoint (host:port)"
+placeholder = "vpn.example.com:51820"
+source      = "field"
+
+[[example]]
+label = "Single client key set"
+[example.params]
+pairs = "1"
+preshared_key = "true"
+format = "text"
+address = "10.0.0.2/32"
+endpoint = "vpn.example.com:51820"
+
+[[example]]
+label = "Keys only, no preshared key"
+[example.params]
+pairs = "1"
+preshared_key = "false"
+format = "text"
+address = "10.0.0.2/32"
+endpoint = "vpn.example.com:51820"
+
+[[example]]
+label = "Server key (no endpoint)"
+[example.params]
+pairs = "1"
+preshared_key = "true"
+format = "conf"
+address = "10.0.0.1/24"
+endpoint = ""
+
+[[example]]
+label = "10 peers as JSON"
+[example.params]
+pairs = "10"
+preshared_key = "true"
+format = "json"
+address = "10.0.0.2/32"
+endpoint = "vpn.example.com:51820"
+
+[[example]]
+label = "IPv6 tunnel"
+[example.params]
+pairs = "1"
+preshared_key = "true"
+format = "text"
+address = "10.0.0.2/32, fd00::2/128"
+endpoint = "[fd00::1]:51820"

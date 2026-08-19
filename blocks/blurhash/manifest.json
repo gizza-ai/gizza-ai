@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/blurhash",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a compact BlurHash or ThumbHash image placeholder string and preview",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a compact BlurHash or ThumbHash placeholder string for an image, for progressive/lazy image loading: store the tiny hash next to the image and render its blurred preview instantly while the full image downloads. Returns the hash (BlurHash = base83 ASCII, e.g. 28 characters at the default 4x3 grid; ThumbHash = a ~25-byte binary hash given as base64 and hex), its length and storage size, the source width/height and aspect ratio (BlurHash does not encode aspect ratio — keep it alongside), the hash's average color as #rrggbb / rgb() plus an is_dark flag, and a decoded preview as a data:image/png;base64 URL with a ready-to-paste CSS background-image rule. Tune BlurHash detail with components_x/components_y (1-9 each, default 4x3), preview contrast with punch, and the preview resolution with preview_size. Accepts PNG, JPEG, WebP, GIF and BMP. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "algorithm": {
+          "default": "blurhash",
+          "description": "Which placeholder format to produce. \"blurhash\" (default) is Wolt's base83 ASCII string (28 characters at the default 4x3 grid) — widest library support, but it stores no aspect ratio or alpha. \"thumbhash\" is Evan Wallace's ~25-byte binary hash (returned as base64 and hex) — smaller, sharper, and it does carry the aspect ratio and transparency.",
+          "enum": [
+            "blurhash",
+            "thumbhash"
+          ],
+          "type": "string"
+        },
+        "components_x": {
+          "default": 4,
+          "description": "BlurHash horizontal detail: how many DCT components across, 1-9. Optional — defaults to 4. More components mean more detail and a longer hash (length = 6 + 2*(components_x*components_y - 1)). Ignored when algorithm=thumbhash, which picks its own grid.",
+          "maximum": 9,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "components_y": {
+          "default": 3,
+          "description": "BlurHash vertical detail: how many DCT components down, 1-9. Optional — defaults to 3. Match it roughly to the aspect ratio (4x3 for landscape, 3x4 for portrait). Ignored when algorithm=thumbhash.",
+          "maximum": 9,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "preview_size": {
+          "default": 64,
+          "description": "Longest edge, in pixels, of the rendered preview PNG returned as preview_data_url. Optional — defaults to 64. The source aspect ratio is preserved; placeholders are blurry by design, so small is fine.",
+          "maximum": 512,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "punch": {
+          "default": 1.0,
+          "description": "Contrast of the returned BlurHash preview: 1.0 (default) is the plain decode, values above 1 push the colours further apart, below 1 flattens them. Affects the preview only — the hash string is unchanged. Ignored when algorithm=thumbhash.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

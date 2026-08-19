@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/mbox-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split an mbox archive into individual .eml messages",
+  "role": "skill",
+  "tool": {
+    "description": "Split a multi-message mbox archive (Thunderbird, Apple Mail, Gmail Takeout) into the individual RFC 5322 messages it contains, each a ready-to-save .eml with a suggested filename. Messages are split on the classic `From ` postmark lines and sliced out verbatim, so headers, MIME parts and base64 attachments are preserved exactly; the postmark itself is dropped unless keep_postmark=true. Choose output=\"files\" for every message under a labelled header, \"list\" for a numbered index of filename/date/sender/subject/size, \"json\" for structured per-message records, or \"eml\" plus message=N to pull one raw message out. Filenames follow naming=index|subject|date|message-id, always index-prefixed so order and uniqueness survive, with RFC 2047 encoded-word subjects decoded. mboxo/mboxrd `>From ` body quoting is undone by default. A message with no postmark is treated as a single message; archives over 2000 messages are rejected. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "keep_postmark": {
+          "default": false,
+          "description": "Keep the `From sender date` postmark separator line at the top of each split-out message. Off by default because a `.eml` file is a bare RFC 5322 message; turn it on to round-trip pieces back into an mbox.",
+          "type": "boolean"
+        },
+        "mbox": {
+          "description": "The mbox archive text to split. Messages are delimited by the classic `From ` postmark lines at the start of a line (the space after `From` is what distinguishes a postmark from a `From:` header); a single pasted RFC 5322 message with no postmark is treated as one message. Each message is sliced out verbatim, so headers, MIME structure and base64 attachments are never re-serialized.",
+          "type": "string"
+        },
+        "message": {
+          "default": 0,
+          "description": "Which single message to return, 1-based in archive order. The default 0 returns every message; set it with output=\"eml\" to pull one clean `.eml` out of the archive. A number past the end of the archive is an error that reports how many messages there are.",
+          "maximum": 2000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "naming": {
+          "default": "index",
+          "description": "How each suggested filename is built: \"index\" (default) gives `001.eml`, \"subject\" gives `001-quarterly-report.eml`, \"date\" gives `001-2018-09-03-1000.eml` from the Date header, and \"message-id\" gives `001-a1-example-com.eml`. Every scheme keeps the 1-based index prefix so archive order and uniqueness survive; subjects are RFC 2047-decoded and slugged to portable ASCII.",
+          "enum": [
+            "index",
+            "subject",
+            "date",
+            "message-id"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "files",
+          "description": "What to return: \"files\" (default) prints every message under a `===== NNN-name.eml (N bytes) =====` header, \"list\" prints a numbered index of filename, date, sender, subject and size without the message bodies, \"json\" returns an array of {index, filename, subject, from, date, bytes, eml}, and \"eml\" returns one raw message on its own (pair it with `message` to pick which).",
+          "enum": [
+            "files",
+            "list",
+            "json",
+            "eml"
+          ],
+          "type": "string"
+        },
+        "unescape_from": {
+          "default": true,
+          "description": "Undo the mboxo/mboxrd `>From ` body quoting that exporters add to body lines starting with `From `, restoring the original message text. On by default; turn it off to keep the archive bytes exactly as written.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mbox"
+      ],
+      "type": "object"
+    }
+  }
+}

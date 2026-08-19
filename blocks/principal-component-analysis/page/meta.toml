@@ -1,0 +1,58 @@
+slug          = "principal-component-analysis"
+title         = "PCA Calculator — Principal Component Analysis Online (Eigenvalues, Loadings & Scores)"
+description   = "Paste a numeric data matrix and run PCA: eigenvalues, explained variance, scree plot, loadings, and projected scores."
+tags          = ["pca calculator", "principal component analysis", "eigenvalues", "explained variance", "component loadings", "scree plot", "dimensionality reduction", "correlation matrix", "covariance matrix", "factor scores"]
+h1            = "Principal component analysis (PCA) calculator"
+hero_subtitle = "Paste rows of numbers and run PCA: each component's eigenvalue, its share and cumulative share of the variance, a scree plot, the loadings of every variable and the scores of every observation. Standardize to the correlation matrix or centre only. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_principal_component_analysis_web"
+export        = "run"
+live          = false
+output_label  = "PCA report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data matrix (one observation per line; columns split on comma, tab, semicolon or space)"
+placeholder = "height,weight,age\n170,65,30\n180,80,42\n165,59,25\n175,72,35"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "labels"
+label       = "Column names (optional, comma-separated, in data order — overrides a header row)"
+placeholder = "height,weight,age"
+source      = "field"
+
+[[input]]
+name        = "components"
+label       = "Components to report (0 = keep every component)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "scale"
+label  = "Standardize columns to unit variance (correlation matrix; uncheck for covariance)"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+labels = { text = "Formatted report (variance, scree, loadings, scores)", json = "JSON (full result, every score row)", csv = "CSV (scores only, ready to plot)" }
+
+[[example]]
+label  = "Body measurements (height, weight, age)"
+params = { data = "height,weight,age\n170,65,30\n180,80,42\n165,59,25\n175,72,35\n190,95,50\n160,54,22", components = "0" }
+
+[[example]]
+label  = "Keep the top 2 components"
+params = { data = "maths,physics,english,history\n78,74,55,58\n92,95,61,60\n55,52,80,84\n61,58,88,90\n84,88,64,62\n49,45,91,95", components = "2" }
+
+[[example]]
+label  = "Covariance PCA (raw units, no standardizing)"
+params = { data = "0.1,240\n0.3,610\n0.2,395\n0.5,980\n0.4,760", scale = "false" }
+
+[[example]]
+label  = "Scores as CSV"
+params = { data = "1,2,3\n2,4,5\n3,6,8\n4,8,9\n5,10,12", format = "csv" }

@@ -1,0 +1,155 @@
+slug          = "path-extractor"
+title         = "Path Extractor — Pull File Paths from Logs and Stack Traces"
+description   = "Paste build logs, stack traces, git status output, or prose and extract deduplicated POSIX or Windows file paths as a list, CSV, or JSON."
+tags = [
+  "path extractor",
+  "file path extractor",
+  "extract paths from logs",
+  "stack trace path parser",
+  "git status path list",
+  "windows path extractor",
+  "posix path extractor",
+  "dedupe file paths",
+  "extract filenames from text",
+]
+h1            = "Extract file paths from logs and text"
+hero_subtitle = "Paste compiler output, stack traces, git status output, or prose and get the file paths back deduplicated, filtered, sorted, and ready to copy."
+wasm          = "gizza_ai_path_extractor_web"
+export        = "run_extract"
+live          = false
+output_label  = "Extracted paths"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Text to scan"
+placeholder = "error[E0308]\n  --> src/main.rs:42:9\nmodified: docs/readme.md\nopen C:\\Users\\me\\app.log"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "path_style"
+label  = "Path style"
+source = "field"
+
+[input.labels]
+any     = "Any: POSIX, Windows, or bare filenames"
+posix   = "POSIX / forward slash paths"
+windows = "Windows drive, UNC, or backslash paths"
+
+[[input]]
+name   = "require_separator"
+label  = "Require / or \\ in each match"
+source = "field"
+
+[[input]]
+name   = "keep_line_numbers"
+label  = "Keep :line and :column suffixes"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Return"
+source = "field"
+
+[input.labels]
+path      = "Whole path"
+filename  = "Filename only"
+directory = "Directory only"
+
+[[input]]
+name        = "extensions"
+label       = "Extension filter"
+placeholder = "rs, toml, md"
+source      = "field"
+
+[[input]]
+name   = "extension_mode"
+label  = "Extension mode"
+source = "field"
+
+[input.labels]
+include = "Include only listed extensions"
+exclude = "Exclude listed extensions"
+
+[[input]]
+name   = "dedupe"
+label  = "Deduplicate repeated paths"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort order"
+source = "field"
+
+[input.labels]
+first-seen = "First seen"
+asc        = "A to Z"
+desc       = "Z to A"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+list = "Plain list"
+csv  = "CSV with counts"
+json = "JSON with metadata"
+
+[[example]]
+label = "Rust build log"
+[example.params]
+text = "error[E0308]: mismatched types\n  --> src/main.rs:42:9\nwarning: unused import in src/main.rs\n   Compiling foo (/home/dev/projects/foo)"
+path_style = "any"
+require_separator = "true"
+keep_line_numbers = "false"
+output = "path"
+extensions = ""
+extension_mode = "include"
+dedupe = "true"
+sort = "first-seen"
+format = "list"
+
+[[example]]
+label = "Git status filenames"
+[example.params]
+text = "modified:   src/lib.rs\ndeleted:    docs/old.md\nUntracked files:\n\tnotes/todo.txt"
+path_style = "posix"
+require_separator = "true"
+keep_line_numbers = "false"
+output = "filename"
+extensions = "rs, md, txt"
+extension_mode = "include"
+dedupe = "true"
+sort = "asc"
+format = "list"
+
+[[example]]
+label = "Windows paths as JSON"
+[example.params]
+text = "open C:\\Users\\dev\\app.log and \\\\srv\\share\\report.csv and src/main.rs"
+path_style = "windows"
+require_separator = "true"
+keep_line_numbers = "true"
+output = "path"
+extensions = ""
+extension_mode = "include"
+dedupe = "true"
+sort = "first-seen"
+format = "json"
+
+[[example]]
+label = "Bare filenames opt-in"
+[example.params]
+text = "rebuilt main.rs and Cargo.toml, version 1.2.3, pi is 3.14"
+path_style = "any"
+require_separator = "false"
+keep_line_numbers = "false"
+output = "path"
+extensions = "rs, toml"
+extension_mode = "include"
+dedupe = "true"
+sort = "first-seen"
+format = "csv"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gif-extract-frames"
+version = "0.1.0"
+abi = 1
+summary = "Split an animated GIF into its individual frame images (ZIP of PNGs)"

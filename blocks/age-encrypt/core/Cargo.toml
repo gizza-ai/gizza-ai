@@ -1,0 +1,8 @@
+[package]
+name = "gizza-ai-age-encrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+age = { version = "0.12.1", default-features = false, features = ["armor"] }

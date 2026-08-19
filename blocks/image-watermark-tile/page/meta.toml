@@ -1,0 +1,151 @@
+slug          = "image-watermark-tile"
+title         = "Tiled Watermark — repeat text across a whole image"
+description   = "Stamp a repeating tiled watermark across an entire photo. Pick text, size, color, opacity, diagonal angle and tile density. Runs in your browser."
+tags          = ["tiled watermark", "repeating watermark", "diagonal watermark", "watermark image", "anti theft watermark", "stock photo watermark", "batch proof", "copyright stamp"]
+h1            = "Tiled Image Watermark"
+hero_subtitle = "Repeat a text watermark across the whole image — diagonal, staggered and impossible to crop off. Choose size, color, opacity and density. Your file never leaves your browser."
+wasm          = "gizza_ai_image_watermark_tile_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Watermarked image"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "text"
+source      = "field"
+label       = "Watermark text"
+placeholder = "SAMPLE"
+
+[[input]]
+name        = "font_size"
+source      = "field"
+label       = "Text size (px)"
+placeholder = "32"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Text color"
+placeholder = "#ffffff"
+kind        = "color"
+
+[[input]]
+name        = "opacity"
+source      = "field"
+label       = "Opacity (0.02–1)"
+placeholder = "0.3"
+kind        = "slider"
+step        = "0.01"
+
+[[input]]
+name        = "angle"
+source      = "field"
+label       = "Angle (degrees)"
+placeholder = "30"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "columns"
+source      = "field"
+label       = "Tiles across"
+placeholder = "4"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "rows"
+source      = "field"
+label       = "Tiles down"
+placeholder = "5"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "pattern"
+source = "field"
+label  = "Tile layout"
+
+[input.labels]
+grid  = "Grid — rows aligned"
+brick = "Brick — rows staggered"
+
+[[input]]
+name   = "outline"
+source = "field"
+label  = "Black outline (readable on any background)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+keep = "Keep input format"
+png  = "PNG (lossless)"
+jpg  = "JPG (smallest)"
+webp = "WebP"
+
+[[example]]
+label = "Stock-photo SAMPLE"
+[example.params]
+text = "SAMPLE"
+font_size = "32"
+color = "#ffffff"
+opacity = "0.3"
+angle = "30"
+columns = "4"
+rows = "5"
+pattern = "brick"
+outline = "false"
+format = "keep"
+
+[[example]]
+label = "Copyright proof (dense)"
+[example.params]
+text = "© 2026 STUDIO"
+font_size = "26"
+color = "#ffffff"
+opacity = "0.22"
+angle = "30"
+columns = "5"
+rows = "8"
+pattern = "brick"
+outline = "true"
+format = "keep"
+
+[[example]]
+label = "CONFIDENTIAL document"
+[example.params]
+text = "CONFIDENTIAL"
+font_size = "40"
+color = "#c00000"
+opacity = "0.18"
+angle = "45"
+columns = "3"
+rows = "4"
+pattern = "grid"
+outline = "false"
+format = "png"
+
+[[example]]
+label = "Straight rows, no rotation"
+[example.params]
+text = "DRAFT"
+font_size = "28"
+color = "black"
+opacity = "0.25"
+angle = "0"
+columns = "4"
+rows = "6"
+pattern = "grid"
+outline = "false"
+format = "keep"

@@ -1,0 +1,110 @@
+slug          = "code-metrics-analyzer"
+title         = "Code metrics analyzer — LOC and complexity"
+description   = "Paste source code and get line counts, function counts, approximate cyclomatic complexity, maintainability, and risk bands. Runs locally in your browser."
+tags          = ["code metrics", "cyclomatic complexity", "lines of code", "loc", "function count", "maintainability", "halstead", "static analysis", "source code"]
+h1            = "Code metrics analyzer"
+hero_subtitle = "Paste one source file or snippet and measure physical lines, code/comment/blank split, detected functions, approximate cyclomatic and cognitive complexity, maintainability grade, and over-threshold hotspots. Runs locally; no repository upload needed."
+wasm          = "gizza_ai_code_metrics_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Metrics"
+format        = "text"
+
+[[input]]
+name        = "source"
+label       = "Source code"
+placeholder = "function grade(score) {\n  if (score >= 90) return 'A';\n  if (score >= 80) return 'B';\n  return 'C';\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+c = "C"
+cpp = "C++"
+csharp = "C#"
+go = "Go"
+java = "Java"
+javascript = "JavaScript"
+typescript = "TypeScript"
+kotlin = "Kotlin"
+lua = "Lua"
+php = "PHP"
+python = "Python"
+ruby = "Ruby"
+rust = "Rust"
+scala = "Scala"
+shell = "Shell"
+sql = "SQL"
+swift = "Swift"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+summary = "Summary report"
+functions = "Function table"
+json = "JSON"
+csv = "CSV"
+
+[[input]]
+name        = "complexity_threshold"
+label       = "Complexity warning threshold"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "max_functions"
+label       = "Max functions shown (0 = all)"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name   = "sort"
+label  = "Sort functions by"
+source = "field"
+
+[input.labels]
+line = "Source line"
+complexity = "Cyclomatic complexity"
+cognitive = "Cognitive complexity"
+length = "Function length"
+name = "Function name"
+
+[[example]]
+label = "JavaScript branching"
+[example.params]
+source = "function grade(score) {\n  if (score >= 90) return 'A';\n  if (score >= 80) return 'B';\n  return 'C';\n}"
+language = "javascript"
+output = "summary"
+complexity_threshold = "2"
+max_functions = "50"
+sort = "line"
+
+[[example]]
+label = "Rust hotspot JSON"
+[example.params]
+source = "fn score(xs: &[i32]) -> i32 {\n    let mut total = 0;\n    for x in xs {\n        if *x > 0 && *x < 10 {\n            total += x;\n        } else if *x > 100 {\n            total += 1;\n        }\n    }\n    total\n}"
+language = "rust"
+output = "json"
+complexity_threshold = "3"
+max_functions = "0"
+sort = "complexity"
+
+[[example]]
+label = "Python CSV"
+[example.params]
+source = "def classify(name):\n    if not name:\n        return 'missing'\n    elif name.startswith('A'):\n        return 'a'\n    return 'other'"
+language = "python"
+output = "csv"
+complexity_threshold = "10"
+max_functions = "50"
+sort = "name"

@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/sorted-order-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check whether a numeric list is sorted ascending or descending and pinpoint the first out-of-order value.",
+  "role": "skill",
+  "tool": {
+    "description": "Verify that a pasted list of numbers is in order and, when it is not, pinpoint the first out-of-order element. Checks ascending, descending, or auto-detects the direction from the values; `strict` decides whether equal neighbours count as sorted. Reports the first break (position, value, the neighbour it violates and why), every further break up to max_issues, the longest already-sorted run, and min/max/first/last. Accepts comma, space, tab, newline, semicolon or pipe separated values, decimals, negatives and scientific notation; optional thousands-separator stripping. Text or JSON output. Report-only — it never re-orders the list.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "text",
+          "description": "Output format. `text` (default) is the readable report: verdict, first out-of-order element with its reason, every break, and the longest sorted run. `json` returns the same report as an object (`sorted`, `direction`, `first_break`, `breaks`, `longest_run`, `min`/`max`) for scripting.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "max_issues": {
+          "default": 20,
+          "description": "How many out-of-order elements to LIST, 1-1000 (default 20). The first one is always shown; the totals count every break regardless, and a `… and N more` line says how many were withheld. Raise it to see every break in a badly-shuffled list.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "non_numeric": {
+          "default": "error",
+          "description": "What to do with a token that is not a number (a header word, `n/a`, `NaN` — which has no order at all). `error` (default) stops and names the offending token and its position; `ignore` skips it and checks the remaining values, reporting how many were skipped.",
+          "enum": [
+            "error",
+            "ignore"
+          ],
+          "type": "string"
+        },
+        "numbers": {
+          "description": "The numeric list to verify, as pasted text. Values may be separated by commas, spaces, tabs, newlines, semicolons or pipes (see separator). Integers, decimals, negatives, leading `+`, and scientific notation (`1e6`) are all accepted — for example `1, 4, 9, 2, 7`. Up to 20000 values per run. The list is never re-ordered; this reports on it.",
+          "type": "string"
+        },
+        "order": {
+          "default": "auto",
+          "description": "Which order to verify. `auto` (default) reads the direction off the first two differing values and then checks the whole list against it — use it when you just want to know whether the list is in ANY order. `ascending` (smallest first) and `descending` (largest first) assert a specific direction and report every value that breaks it.",
+          "enum": [
+            "auto",
+            "ascending",
+            "descending"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "How the values are separated. `auto` (default) splits on any whitespace, comma, semicolon or pipe. Pick an explicit separator for ambiguous data — for example `newline` for one value per line, or `space` together with strip_thousands for `1,024 2,048`. Blank entries are skipped.",
+          "enum": [
+            "auto",
+            "comma",
+            "newline",
+            "space",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "Require a change at every step. Default false: equal neighbours count as sorted, so `1 2 2 5` is ascending. Set true for a strictly increasing/decreasing list — repeated values are then reported as out-of-order (useful for checking unique, gap-free ids or timestamps).",
+          "type": "boolean"
+        },
+        "strip_thousands": {
+          "default": false,
+          "description": "Treat `,` and `_` INSIDE a value as digit-group separators, so `1,234,567` and `1_000` parse as single numbers. Default false. When true, commas stop acting as delimiters under separator=auto; combining it with separator=comma is rejected, because a comma cannot be both.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "numbers"
+      ],
+      "type": "object"
+    }
+  }
+}

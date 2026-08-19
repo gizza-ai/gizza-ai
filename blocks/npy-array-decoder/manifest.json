@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/npy-array-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a NumPy .npy file: dtype, shape and values as JSON or CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode a NumPy .npy array file without NumPy, Python or a server. Paste the file bytes as base64 or hex in 'input' (input_format='auto' tells them apart). Reads .npy format versions 1.0, 2.0 and 3.0, reports the dtype, shape, C/Fortran order and byte layout, and emits the values. Supported dtypes: bool, int8/16/32/64, uint8/16/32/64, float16/32/64, complex64/128, fixed-width bytes (S<n>) and fixed-width text (U<n>), little- or big-endian; Fortran-ordered data is re-indexed to row-major. Choose output='summary' (default, a readable report), 'json' (metadata plus a nested data array), 'csv' (values only, one row per last-axis slice, separator set by 'delimiter'), or 'header' (metadata only). 'limit' caps how many values are rendered (default 1000, max 100000); larger arrays are truncated and flagged. Object/pickled arrays, structured (record) dtypes, datetime64/timedelta64 and .npz archives are rejected with an explanation. Errors name what was expected: a bad magic number, an unsupported version, a malformed header dict, an unsupported dtype, or data shorter than the declared shape.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator for 'csv' output: a single character such as \",\", \";\" or \"|\", or the word \"tab\". Defaults to a comma. Ignored by the other output modes.",
+          "type": "string"
+        },
+        "input": {
+          "description": "The contents of a .npy file, as a base64 or hex string (e.g. `base64 -w0 array.npy`). A `data:...;base64,` prefix is accepted and ignored. Maximum 8 MiB of decoded bytes.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How the bytes are encoded: 'auto' (default) tells base64 and hex apart from the file's own magic bytes, 'base64' (standard or URL-safe, padding optional) or 'hex' (whitespace, ':' and '-' separators ignored).",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 1000,
+          "description": "Maximum number of values to render (1-100000; 0 uses the default 1000). Larger arrays are truncated in row-major order — 'json'/'summary' then emit a flat list and flag it with truncated=true, and 'csv' emits whole rows only. Ignored by 'header'.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "summary",
+          "description": "What to return. 'summary' (default) is a readable report — dtype, shape, order, byte layout and the values; 'json' is a JSON object with the same metadata plus a nested `data` array; 'csv' is just the values, one row per last-axis slice; 'header' is the metadata only, as JSON, with no values.",
+          "enum": [
+            "summary",
+            "json",
+            "csv",
+            "header"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

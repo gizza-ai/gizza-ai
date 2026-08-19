@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-cookieless-visitor-counter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+sha2 = "0.10"
+serde_json = "1"

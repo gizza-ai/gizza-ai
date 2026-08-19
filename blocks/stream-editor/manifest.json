@@ -1,0 +1,68 @@
+{
+  "name": "gizza-ai/stream-editor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Apply sed-style edit scripts to pasted text",
+  "role": "skill",
+  "tool": {
+    "description": "Apply a safe ed/sed-style command script to pasted text in one pass. Supports line/regex addresses, ranges, substitutions, delete, print, insert/append/change text, transliteration, labels/branches, hold-space commands, line numbers and list output. Filesystem and shell sed commands are intentionally unavailable in the sandbox. Use quiet=true for sed -n behaviour, regex_flavor=extended for sed -E syntax, whole_buffer=true for multi-line edits, and max_output_lines as a safety cap.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_case": {
+          "default": false,
+          "description": "Make every regex address and substitution pattern case-insensitive. Default false.",
+          "type": "boolean"
+        },
+        "line_ending": {
+          "default": "lf",
+          "description": "Output line ending: lf (Unix, default) or crlf (Windows).",
+          "enum": [
+            "lf",
+            "crlf"
+          ],
+          "type": "string"
+        },
+        "max_output_lines": {
+          "default": 100000,
+          "description": "Safety cap on emitted output lines. Default 100000.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "quiet": {
+          "default": false,
+          "description": "Suppress automatic printing like sed -n; only explicit p/P/= /l commands emit output. Default false.",
+          "type": "boolean"
+        },
+        "regex_flavor": {
+          "default": "basic",
+          "description": "Regex syntax for script patterns: basic (sed/BRE style, default) or extended (sed -E style).",
+          "enum": [
+            "basic",
+            "extended"
+          ],
+          "type": "string"
+        },
+        "script": {
+          "default": "s/foo/bar/g\n/^[[:space:]]*$/d",
+          "description": "ed/sed-style command script. Supports addresses (line numbers, $, /regex/, ranges), s/// substitutions, d/D delete, p/P print, i/a/c text, y transliteration, labels and branches, hold-space commands, q/Q quit, = line numbers and l list.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Input text to edit. The script is applied line-by-line by default, similar to sed's pattern-space cycle.",
+          "type": "string"
+        },
+        "whole_buffer": {
+          "default": false,
+          "description": "Treat the entire input as one pattern space instead of one line per cycle. Useful for multi-line substitutions. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

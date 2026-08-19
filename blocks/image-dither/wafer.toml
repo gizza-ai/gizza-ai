@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-dither"
+version = "0.1.0"
+abi = 1
+summary = "Dither an image with Floyd-Steinberg, ordered/Bayer or Atkinson against a reduced or fixed palette"

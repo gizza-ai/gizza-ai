@@ -1,0 +1,20 @@
+[package]
+name = "gizza-ai-sops-encrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# AES-256-GCM per value (with the key path as AAD) + PBKDF2-HMAC-SHA256 once per
+# document. All pure-Rust and wasm32-safe; getrandom supplies the salt + IVs
+# (wasi random_get on wasm32-wasip1, the OS RNG natively).
+aes-gcm = "0.10"
+pbkdf2 = { version = "0.12", default-features = false }
+hmac = "0.12"
+sha2 = "0.10"
+getrandom = { version = "0.2", features = ["js"] }
+base64 = "0.22"
+regex = "1"
+# preserve_order: encrypted JSON keeps the source key order so the diff is minimal.
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_yml = "0.0.12"

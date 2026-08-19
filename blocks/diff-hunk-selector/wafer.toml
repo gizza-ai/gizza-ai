@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "diff-hunk-selector"
+version = "0.1.0"
+abi = 1
+summary = "List, filter, and split the hunks of a unified diff into a smaller patch that still applies."

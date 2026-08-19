@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/strip-console-logs",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove console.log and other console.* statements from JavaScript or TypeScript",
+  "role": "skill",
+  "tool": {
+    "description": "Strip console.* debug statements out of JavaScript or TypeScript source before shipping it. The scanner is token-aware: a console.log written inside a string, template literal, regular expression or comment is never touched, and multi-line calls with nested parentheses are matched as a whole. Pick the methods to strip (default log, debug, info, warn), use methods=all for every console call, and keep=error,warn as an exclude list. action=remove deletes the statement, action=comment comments it out, action=blank keeps line numbers stable. remove_debugger also drops `debugger;`. output=report is a dry run listing line numbers and per-method counts instead of rewriting. Calls used as a value (const a = console.log(x), x && console.log(y), arrow bodies, chained calls) are deliberately left in place because deleting them would change behaviour; an un-braced if/for/while/else/do body becomes an empty statement so the control flow still parses. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "default": "remove",
+          "description": "What to do with each matched statement: \"remove\" deletes it (dropping the line when it held nothing else), \"comment\" comments it out in place, \"blank\" replaces it with blank lines so every later line keeps its number. Default \"remove\".",
+          "enum": [
+            "remove",
+            "comment",
+            "blank"
+          ],
+          "type": "string"
+        },
+        "code": {
+          "description": "The JavaScript, TypeScript, JSX or TSX source to clean up. Max 500000 characters.",
+          "type": "string"
+        },
+        "keep": {
+          "default": "",
+          "description": "Comma-separated console methods to never strip, e.g. \"error,warn\". Wins over methods, so methods=all with keep=error is an exclude list. Default empty.",
+          "type": "string"
+        },
+        "methods": {
+          "default": "log,debug,info,warn",
+          "description": "Comma-separated console methods to strip, e.g. \"log,debug\". Use \"all\" for every console.* call. Names are case-insensitive and an optional \"console.\" prefix is allowed. Default \"log,debug,info,warn\".",
+          "type": "string"
+        },
+        "output": {
+          "default": "code",
+          "description": "\"code\" returns the rewritten source; \"report\" is a dry run that leaves the source alone and lists the line number of every statement it would remove, a per-method tally, and the calls it deliberately kept. Default \"code\".",
+          "enum": [
+            "code",
+            "report"
+          ],
+          "type": "string"
+        },
+        "remove_debugger": {
+          "default": false,
+          "description": "Also drop standalone `debugger;` statements. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}

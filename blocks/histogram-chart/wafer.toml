@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "histogram-chart"
+version = "0.1.0"
+abi = 1
+summary = "Bin a list of numbers and render an SVG histogram"

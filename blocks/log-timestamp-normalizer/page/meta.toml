@@ -1,0 +1,189 @@
+slug          = "log-timestamp-normalizer"
+title         = "Log Timestamp Normalizer — one format, one timezone, with deltas"
+description   = "Paste logs whose timestamps are in ISO-8601, epoch, syslog or Apache format and get one format, one timezone and the gap between events. Free and private."
+tags          = ["log timestamp normalizer", "normalize log timestamps", "log timestamp converter", "epoch to iso 8601", "syslog timestamp converter", "apache log date converter", "log time delta", "log timezone converter"]
+h1            = "Log Timestamp Normalizer"
+hero_subtitle = "Paste log lines whose timestamps came out in ISO-8601, epoch, syslog or Apache format and get them all rewritten into one format and one timezone, with the elapsed time between consecutive events. Nothing leaves your browser."
+wasm          = "gizza_ai_log_timestamp_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized log"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "log"
+label       = "Log lines (one event per line, formats can be mixed)"
+placeholder = "2023-12-01T10:15:30Z INFO  boot: starting service\n1701425735123 WARN  cache: miss for key user:42\nDec  1 10:16:20 web01 nginx: GET /health 200\n01/Dec/2023:10:17:05 +0000 \"GET /api/orders HTTP/1.1\" 200"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output_format"
+label  = "Write every timestamp as"
+source = "field"
+
+[input.labels]
+iso8601 = "ISO-8601 — 2023-12-01T10:15:30+00:00"
+iso8601_ms = "ISO-8601 with milliseconds — 2023-12-01T10:15:30.123+00:00"
+epoch_seconds = "Epoch seconds — 1701425730"
+epoch_millis = "Epoch milliseconds — 1701425730123"
+rfc2822 = "RFC 2822 / HTTP date — Fri, 1 Dec 2023 10:15:30 +0000"
+datetime = "Plain date and time — 2023-12-01 10:15:30"
+
+[[input]]
+name        = "output_timezone"
+label       = "Output timezone (IANA name, UTC, or a fixed offset)"
+placeholder = "UTC"
+source      = "field"
+options     = "timezones"
+
+[[input]]
+name        = "assume_timezone"
+label       = "Read zone-less timestamps as (syslog, bare date-times)"
+placeholder = "UTC"
+source      = "field"
+options     = "timezones"
+
+[[input]]
+name        = "assume_year"
+label       = "Year for syslog stamps (0 = infer it from the paste)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Line order"
+source = "field"
+
+[input.labels]
+input = "Leave the paste order alone"
+oldest = "Oldest event first"
+newest = "Newest event first"
+
+[[input]]
+name   = "output_mode"
+label  = "Each output line is"
+source = "field"
+
+[input.labels]
+replace = "The original line with its timestamp replaced"
+prefix = "The normalized timestamp, then the original line"
+timestamp = "The normalized timestamp only"
+
+[[input]]
+name   = "delta"
+label  = "Annotate the time since the previous event"
+source = "field"
+
+[[input]]
+name   = "delta_format"
+label  = "Elapsed time shown as"
+source = "field"
+
+[input.labels]
+auto = "Auto — 850ms, 5.123s, 1m45s, 2h03m10s"
+seconds = "Seconds — +105.5s"
+milliseconds = "Milliseconds — +105500ms"
+hms = "Clock — +0:01:45"
+
+[[input]]
+name        = "gap_threshold_seconds"
+label       = "Mark gaps at or above this many seconds (0 = off)"
+placeholder = "60"
+source      = "field"
+
+[[input]]
+name   = "unmatched"
+label  = "Lines with no timestamp"
+source = "field"
+
+[input.labels]
+keep = "Keep them as they are"
+drop = "Drop them"
+mark = "Keep them and mark them"
+
+[[input]]
+name   = "summary"
+label  = "Prepend a summary header (# comment lines)"
+source = "field"
+
+[[example]]
+label = "Mixed formats in one paste"
+[example.params]
+log = "2023-12-01T10:15:30Z INFO  boot: starting service\n1701425735123 WARN  cache: miss for key user:42\nDec  1 10:16:20 web01 nginx: GET /health 200\n01/Dec/2023:10:17:05 +0000 \"GET /api/orders HTTP/1.1\" 200\n1701425830 INFO  boot: ready"
+output_format = "iso8601"
+output_timezone = "UTC"
+assume_timezone = "UTC"
+assume_year = "0"
+sort = "input"
+output_mode = "replace"
+delta = "true"
+delta_format = "auto"
+gap_threshold_seconds = "0"
+unmatched = "keep"
+summary = "false"
+
+[[example]]
+label = "Syslog with a year and a local zone"
+[example.params]
+log = "Dec  1 10:15:30 web01 sshd[2201]: Accepted publickey for deploy\nDec  1 10:15:33 web01 sudo:  deploy : TTY=pts/0 ; COMMAND=/bin/systemctl restart api\nDec  1 10:17:05 web01 systemd[1]: api.service: Succeeded."
+output_format = "iso8601"
+output_timezone = "UTC"
+assume_timezone = "Europe/Berlin"
+assume_year = "2023"
+sort = "input"
+output_mode = "replace"
+delta = "true"
+delta_format = "auto"
+gap_threshold_seconds = "0"
+unmatched = "keep"
+summary = "false"
+
+[[example]]
+label = "Epoch to a readable local time"
+[example.params]
+log = "1701425730 request start id=7f3a\n1701425730123 upstream connect\n1701425730.850 upstream response 200\n1701425731 request end id=7f3a"
+output_format = "datetime"
+output_timezone = "America/New_York"
+assume_timezone = "UTC"
+assume_year = "0"
+sort = "input"
+output_mode = "prefix"
+delta = "true"
+delta_format = "milliseconds"
+gap_threshold_seconds = "0"
+unmatched = "keep"
+summary = "false"
+
+[[example]]
+label = "Hunt the slow step, with a summary"
+[example.params]
+log = "== deploy 2023-12-01 ==\n2023-12-01T10:15:30Z step: pull image\n2023-12-01T10:15:31Z step: run migrations\n2023-12-01T10:20:31Z step: health check\n  waiting for /healthz\n2023-12-01T10:20:33Z step: done"
+output_format = "iso8601"
+output_timezone = "UTC"
+assume_timezone = "UTC"
+assume_year = "0"
+sort = "input"
+output_mode = "replace"
+delta = "true"
+delta_format = "auto"
+gap_threshold_seconds = "60"
+unmatched = "mark"
+summary = "true"
+
+[[example]]
+label = "Merge two services into one timeline"
+[example.params]
+log = "2023-12-01T10:17:05+01:00 api: order 8812 accepted\n1701425730 worker: job 8812 picked up\nFri, 01 Dec 2023 10:16:10 +0000 gateway: POST /orders 202\n2023-12-01T10:18:00Z worker: job 8812 done"
+output_format = "iso8601"
+output_timezone = "UTC"
+assume_timezone = "UTC"
+assume_year = "0"
+sort = "oldest"
+output_mode = "prefix"
+delta = "true"
+delta_format = "auto"
+gap_threshold_seconds = "0"
+unmatched = "keep"
+summary = "true"

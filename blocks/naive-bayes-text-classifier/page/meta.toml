@@ -1,0 +1,201 @@
+slug          = "naive-bayes-text-classifier"
+title         = "Naive Bayes Text Classifier — Train and Classify Locally"
+description   = "Train a naive Bayes classifier from labeled examples, then classify text with multinomial, Bernoulli, or complement scoring and token explanations."
+tags          = ["naive bayes", "text classification", "machine learning", "spam", "nlp", "classifier", "probability"]
+h1            = "Train a local Naive Bayes text classifier"
+hero_subtitle = "Paste labeled examples, classify new text, and see the predicted label, class probabilities, model settings, training statistics, and the tokens that drove the decision."
+wasm          = "gizza_ai_naive_bayes_text_classifier_web"
+export        = "run"
+live          = false
+output_label  = "Classification result"
+format        = "text"
+
+[[input]]
+name        = "training_data"
+label       = "Training data"
+placeholder = "spam,win a free prize now\nspam,free money click here\nham,meeting at ten tomorrow\nham,lunch with the team"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "text"
+label       = "Text to classify"
+placeholder = "claim your free money now"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "separator"
+label  = "Training separator"
+source = "field"
+
+[input.labels]
+auto  = "Auto-detect"
+tab   = "Tab"
+comma = "Comma"
+pipe  = "Pipe"
+colon = "Colon"
+
+[[input]]
+name   = "input_mode"
+label  = "Classify as"
+source = "field"
+
+[input.labels]
+single = "One document"
+lines  = "One document per line"
+
+[[input]]
+name   = "model"
+label  = "Naive Bayes variant"
+source = "field"
+
+[input.labels]
+multinomial = "Multinomial (word counts)"
+bernoulli   = "Bernoulli (word presence)"
+complement  = "Complement (imbalanced labels)"
+
+[[input]]
+name        = "alpha"
+label       = "Smoothing alpha"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "0.1"
+
+[[input]]
+name        = "ngram_max"
+label       = "Max n-gram length"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "3"
+step        = "1"
+
+[[input]]
+name   = "lowercase"
+label  = "Lowercase before tokenizing"
+source = "field"
+
+[[input]]
+name   = "remove_stopwords"
+label  = "Remove English stop words"
+source = "field"
+
+[[input]]
+name        = "min_count"
+label       = "Minimum token count"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "100"
+step        = "1"
+
+[[input]]
+name   = "priors"
+label  = "Class priors"
+source = "field"
+
+[input.labels]
+empirical = "Empirical (training-set share)"
+uniform   = "Uniform (equal labels)"
+
+[[input]]
+name        = "top_k"
+label       = "Classes to show"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "1"
+
+[[input]]
+name   = "explain"
+label  = "Explain top tokens"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "JSON"
+
+[[example]]
+label = "Spam vs ham"
+[example.params]
+training_data = "spam,win a free prize now\nspam,free money click here\nspam,claim your free gift\nham,meeting at ten tomorrow\nham,lunch with the team\nham,project update attached"
+text = "claim your free money now"
+separator = "auto"
+input_mode = "single"
+model = "multinomial"
+alpha = "1"
+ngram_max = "1"
+lowercase = "true"
+remove_stopwords = "false"
+min_count = "1"
+priors = "empirical"
+top_k = "3"
+explain = "true"
+output = "report"
+
+[[example]]
+label = "Batch-label support tickets"
+[example.params]
+training_data = "billing,invoice charge refund\nbilling,payment failed card\ntech,error login password reset\ntech,server timeout bug\nsales,pricing demo quote\nsales,contract renewal discount"
+text = "card charged twice\npassword reset timeout\npricing quote for renewal"
+separator = "auto"
+input_mode = "lines"
+model = "multinomial"
+alpha = "1"
+ngram_max = "1"
+lowercase = "true"
+remove_stopwords = "false"
+min_count = "1"
+priors = "empirical"
+top_k = "3"
+explain = "true"
+output = "report"
+
+[[example]]
+label = "Complement model JSON"
+[example.params]
+training_data = "good,great helpful friendly service\ngood,love the fast support\nbad,terrible broken slow response\nbad,refund because product failed"
+text = "fast friendly support"
+separator = "auto"
+input_mode = "single"
+model = "complement"
+alpha = "0.5"
+ngram_max = "2"
+lowercase = "true"
+remove_stopwords = "true"
+min_count = "1"
+priors = "uniform"
+top_k = "0"
+explain = "true"
+output = "json"
+
+[[example]]
+label = "Case-sensitive labels"
+[example.params]
+training_data = "alert,URGENT OUTAGE NOW\nalert,CRITICAL FAILURE DETECTED\nnormal,weekly update notes\nnormal,meeting recap attached"
+text = "URGENT FAILURE"
+separator = "auto"
+input_mode = "single"
+model = "bernoulli"
+alpha = "1"
+ngram_max = "1"
+lowercase = "false"
+remove_stopwords = "false"
+min_count = "1"
+priors = "empirical"
+top_k = "2"
+explain = "true"
+output = "report"

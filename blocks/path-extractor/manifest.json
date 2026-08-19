@@ -1,0 +1,92 @@
+{
+  "name": "gizza-ai/path-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract and deduplicate file paths from logs or prose",
+  "role": "skill",
+  "tool": {
+    "description": "Extract file paths from arbitrary pasted text such as build logs, stack traces, git status output, compiler messages, and prose. Detects POSIX absolute/relative paths, Windows drive-letter paths, UNC paths, tilde paths, quoted paths with spaces when anchored, and common path:LINE[:COL] or path(LINE,COL) locators. Options filter by path style, include or strip line numbers, return whole paths/filenames/directories, include or exclude extensions, deduplicate with occurrence counts, sort first-seen/A-Z/Z-A, and render as a newline list, CSV, or JSON. The matcher is shape-based only: it never stats the filesystem, never opens files, ignores URLs/dates/prose, and runs locally with a 1 MB input cap.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": true,
+          "description": "Deduplicate repeated paths and count occurrences (default true). Turn off to keep every occurrence in first-seen order.",
+          "type": "boolean"
+        },
+        "extension_mode": {
+          "default": "include",
+          "description": "How to apply the extensions list: 'include' keeps only listed extensions (default), while 'exclude' drops listed extensions. Ignored when extensions is blank.",
+          "enum": [
+            "include",
+            "exclude"
+          ],
+          "type": "string"
+        },
+        "extensions": {
+          "default": "",
+          "description": "Optional extension filter as a comma/space/semicolon-separated list, with or without dots (for example 'rs, toml, md'). Leave blank to keep all extensions.",
+          "type": "string"
+        },
+        "format": {
+          "default": "list",
+          "description": "Output format: newline list (default), CSV with occurrence counts, or JSON with count and match metadata.",
+          "enum": [
+            "list",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "keep_line_numbers": {
+          "default": false,
+          "description": "Keep trailing source locators in the returned path text when present, such as src/main.rs:42 or src/main.rs:42:9 (default false strips them). JSON output still exposes line and column fields when they were found.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "path",
+          "description": "Return the whole path (default), only the final filename, or only the containing directory.",
+          "enum": [
+            "path",
+            "filename",
+            "directory"
+          ],
+          "type": "string"
+        },
+        "path_style": {
+          "default": "any",
+          "description": "Which path flavour to keep: 'any' (default), 'posix' for forward-slash paths, or 'windows' for drive-letter/UNC/backslash paths. Bare filenames matched with require_separator=false survive both posix and windows filters.",
+          "enum": [
+            "any",
+            "posix",
+            "windows"
+          ],
+          "type": "string"
+        },
+        "require_separator": {
+          "default": true,
+          "description": "Require a directory separator (/ or \\) in each match (default true). Turn off to also match bare extension-bearing filenames like main.rs and Cargo.toml; this is higher recall but can pick up more ambiguous tokens.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "first-seen",
+          "description": "Result ordering: keep first-seen order (default), sort ascending A to Z, or sort descending Z to A. Sorting is case-insensitive with a stable path tie-breaker.",
+          "enum": [
+            "first-seen",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "Log, stack trace, git status output, compiler output, or prose to scan for file paths. Handles POSIX paths, Windows drive paths, UNC paths, quoted paths, and common path:line[:column] locators. Limit: 1,000,000 bytes.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

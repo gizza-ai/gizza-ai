@@ -1,0 +1,144 @@
+slug          = "wav-samples-to-json"
+title         = "WAV to JSON — Export PCM Samples + Format Metadata"
+description   = "Paste an uncompressed WAV as base64 or hex and get JSON: the sample rate, channels, bit depth and duration alongside the PCM samples as an array. Runs in your browser."
+tags          = ["wav to json", "wav samples to json", "pcm samples to json", "wav to json converter", "audio samples json", "wav metadata json", "export wav samples", "wav sample array", "wav decoder json", "waveform json"]
+h1            = "WAV Samples to JSON"
+hero_subtitle = "Paste an uncompressed WAV clip as base64 or hex and export its decoded PCM samples as a JSON array, alongside the format metadata read from the fmt chunk — sample rate, channels, bit depth, encoding, duration. Choose interleaved or per-channel layout, float / integer / dBFS values, and a frame window or stride. Runs entirely in your browser; the audio is never uploaded."
+wasm          = "gizza_ai_wav_samples_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "WAV bytes (base64 or hex)"
+placeholder = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+source      = "field"
+multiline   = true
+
+# input_format / output / layout / value_scale render as <select>; the option
+# lists come from the descriptor schema (manifest.json), not duplicated here.
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output"
+label  = "JSON document"
+source = "field"
+
+[input.labels]
+full     = "Metadata + samples"
+samples  = "Samples array only"
+metadata = "Format metadata only"
+
+[[input]]
+name   = "layout"
+label  = "Sample layout"
+source = "field"
+
+[input.labels]
+interleaved = "Interleaved (one flat array)"
+channels    = "Per channel (array per channel)"
+
+[[input]]
+name   = "value_scale"
+label  = "Sample value scale"
+source = "field"
+
+[input.labels]
+float = "Normalized float (-1 to 1)"
+int   = "Raw PCM integer"
+db    = "dBFS magnitude"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places (float / dB)"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "start_frame"
+label       = "Start frame"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "frame_step"
+label       = "Keep every Nth frame"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "max_frames"
+label       = "Max frames"
+placeholder = "50000"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "JSON indent (0 = compact)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+# Preset chips — one click prefills a runnable example.
+[[example]]
+label = "Metadata + samples (defaults)"
+[example.values]
+input        = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+
+[[example]]
+label = "Samples array only"
+[example.values]
+input        = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+output       = "samples"
+value_scale  = "int"
+
+[[example]]
+label = "Format metadata only"
+[example.values]
+input        = "UklGRiwAAABXQVZFZm10IBAAAAABAAIAgD4AAAD6AAAEABAAZGF0YQgAAAAAQADAAAD/fw=="
+input_format = "base64"
+output       = "metadata"
+
+[[example]]
+label = "Stereo, one array per channel"
+[example.values]
+input        = "UklGRiwAAABXQVZFZm10IBAAAAABAAIAgD4AAAD6AAAEABAAZGF0YQgAAAAAQADAAAD/fw=="
+input_format = "base64"
+output       = "samples"
+layout       = "channels"
+value_scale  = "int"
+
+[[example]]
+label = "Decimated waveform preview"
+[example.values]
+input        = "UklGRjQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YRAAAAAAAAAQACAAMABAAFAAYABw"
+input_format = "base64"
+output       = "samples"
+value_scale  = "float"
+precision    = "3"
+frame_step   = "2"
+indent       = "0"
+
+[[example]]
+label = "Compact dBFS levels"
+[example.values]
+input        = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+input_format = "base64"
+output       = "samples"
+value_scale  = "db"
+precision    = "2"
+indent       = "0"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cookieless-visitor-counter"
+version = "0.1.0"
+abi = 1
+summary = "Count unique visitors in an access log with the daily-salted-hash method — no cookies, no PII stored."

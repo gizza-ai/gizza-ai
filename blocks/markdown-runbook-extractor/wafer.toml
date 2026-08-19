@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-runbook-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Turn a Markdown runbook's named code blocks into one runnable script plus an ordered task list"

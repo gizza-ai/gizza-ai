@@ -1,0 +1,113 @@
+slug          = "mongo-query"
+title         = "MongoDB Query Runner for JSON"
+description   = "Run a MongoDB find filter against a JSON array in your browser. Supports $gt, $in, $and, $elemMatch, dotted paths, projection, sort, skip and limit."
+tags          = ["mongodb query", "mongo query json", "mongodb find filter", "query json array", "json filter mongodb", "elemmatch", "mongodb query tester", "mongo query online"]
+h1            = "MongoDB Query Runner for JSON"
+hero_subtitle = "Paste a JSON array of documents and a MongoDB find filter — $gt, $in, $regex, $elemMatch, dotted paths and all — and see exactly which documents match. Add a projection, sort, skip and limit to reproduce a whole cursor chain, then export as JSON, NDJSON, CSV or a count. Runs entirely in your browser — no database, no upload, no sign-up."
+wasm          = "gizza_ai_mongo_query_web"
+export        = "run"
+live          = false
+output_label  = "Matching documents"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Documents (JSON array, one object per record)"
+placeholder = '''[
+  {"name":"Ada","age":36,"team":{"name":"core"},"tags":["math","code"]},
+  {"name":"Bo","age":24,"team":{"name":"infra"},"tags":["ops"]},
+  {"name":"Cy","age":41,"team":{"name":"core"},"tags":["code","ops"]}
+]'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "query"
+label       = "Query filter (blank or {} matches everything)"
+placeholder = '{"age": {"$gt": 30}, "tags": {"$in": ["code"]}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "projection"
+label       = "Projection — fields to keep, or -field to drop (blank keeps whole documents)"
+placeholder = "name, age"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort (blank keeps the input order)"
+placeholder = "age:desc, name"
+source      = "field"
+
+[[input]]
+name        = "skip"
+label       = "Skip (documents to step over)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Limit (0 = every match)"
+placeholder = "0"
+source      = "field"
+
+# format renders as a <select> and pretty as a checkbox — the control types +
+# option lists come from the descriptor's schema (manifest.json).
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+json   = "JSON array"
+ndjson = "NDJSON (one document per line)"
+csv    = "CSV"
+count  = "Count only"
+
+[[input]]
+name        = "pretty"
+label       = "Indent the JSON output"
+source      = "field"
+
+[[example]]
+label = "Comparison filter"
+[example.params]
+data  = '''[
+  {"name":"Ada","age":36,"team":{"name":"core"},"tags":["math","code"]},
+  {"name":"Bo","age":24,"team":{"name":"infra"},"tags":["ops"]},
+  {"name":"Cy","age":41,"team":{"name":"core"},"tags":["code","ops"]}
+]'''
+query = '{"age": {"$gt": 30}}'
+
+[[example]]
+label = "$in + projection + sort"
+[example.params]
+data       = '''[
+  {"name":"Ada","age":36,"team":{"name":"core"},"tags":["math","code"]},
+  {"name":"Bo","age":24,"team":{"name":"infra"},"tags":["ops"]},
+  {"name":"Cy","age":41,"team":{"name":"core"},"tags":["code","ops"]}
+]'''
+query      = '{"tags": {"$in": ["code"]}}'
+projection = "name, age"
+sort       = "age:desc"
+
+[[example]]
+label = "$elemMatch on an array of sub-documents"
+[example.params]
+data  = '''[
+  {"id":1,"items":[{"sku":"a","qty":2},{"sku":"b","qty":9}]},
+  {"id":2,"items":[{"sku":"a","qty":9}]}
+]'''
+query = '{"items": {"$elemMatch": {"sku": "a", "qty": {"$gt": 5}}}}'
+
+[[example]]
+label = "Count matches"
+[example.params]
+data   = '''[
+  {"name":"Ada","age":36,"team":{"name":"core"},"tags":["math","code"]},
+  {"name":"Bo","age":24,"team":{"name":"infra"},"tags":["ops"]},
+  {"name":"Cy","age":41,"team":{"name":"core"},"tags":["code","ops"]}
+]'''
+query  = '{"team.name": "core"}'
+format = "count"

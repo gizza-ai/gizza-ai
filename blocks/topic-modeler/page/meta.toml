@@ -1,0 +1,109 @@
+slug          = "topic-modeler"
+title         = "Topic Modeler — LDA Topic Discovery"
+description   = "Discover latent topics across pasted documents with deterministic browser-local LDA, including topic word lists, document mixtures, JSON, and CSV output."
+tags          = ["topic modeling", "lda", "latent dirichlet allocation", "text analysis", "document clustering", "keyword topics", "corpus analysis"]
+h1            = "Topic Modeler"
+hero_subtitle = "Paste two or more documents and fit a small LDA model locally. Tune topics, iterations, priors, stopwords, and output format, then review ranked topic word lists plus each document's topic mixture."
+wasm          = "gizza_ai_topic_modeler_web"
+export        = "run"
+live          = false
+output_label  = "Topic model"
+format        = "text"
+
+[[input]]
+name        = "documents"
+label       = "Documents"
+placeholder = "The recipe uses butter flour sugar and a hot oven.\n\nThe compiler checks module types and function signatures."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "separator"
+label  = "Document separator"
+source = "field"
+
+[[input]]
+name        = "topics"
+label       = "Topics"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "words_per_topic"
+label       = "Words per topic"
+placeholder = "8"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "iterations"
+label       = "Sampling iterations"
+placeholder = "200"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "alpha"
+label       = "Alpha (0 = auto)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "beta"
+label       = "Beta"
+placeholder = "0.01"
+source      = "field"
+
+[[input]]
+name   = "remove_stopwords"
+label  = "Remove English stopwords"
+source = "field"
+
+[[input]]
+name        = "stopwords"
+label       = "Extra stopwords"
+placeholder = "company, report, q3"
+source      = "field"
+
+[[input]]
+name        = "min_word_length"
+label       = "Minimum word length"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "seed"
+label       = "Random seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[[example]]
+label = "Cooking vs code notes"
+[example.params]
+documents = "Butter flour sugar and oven heat make a crisp pastry.\nBaking dough with butter and sugar creates a golden crust.\n\nCompiler modules check function signatures and return types.\nType errors appear when the module function returns the wrong value."
+topics = "2"
+words_per_topic = "6"
+iterations = "200"
+seed = "42"
+
+[[example]]
+label = "One document per line"
+[example.params]
+documents = "Roadmap planning covers launch milestones and customer feedback\nRevenue forecast reviews pipeline quota and renewal risk\nEngineering retro discusses tests deployments and incident followups\nSupport notes list tickets bugs and response time"
+separator = "line"
+topics = "3"
+words_per_topic = "5"
+
+[[example]]
+label = "CSV doc-topic matrix"
+[example.params]
+documents = "Solar wind panels battery grid renewable\nBattery storage grid inverter solar energy\n\nInvoice ledger payment revenue forecast budget\nExpense budget invoice payment ledger close"
+topics = "2"
+output = "csv"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-fragmented-mp4"
+version = "0.1.0"
+abi = 1
+summary = "Convert an MP4 into a fragmented MP4 for streaming playback"

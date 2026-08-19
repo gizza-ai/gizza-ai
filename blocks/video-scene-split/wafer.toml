@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-scene-split"
+version = "0.1.0"
+abi = 1
+summary = "Detect scene changes in a video and split it into one clip per scene, bundled as a ZIP"

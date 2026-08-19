@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "full-text-search"
+version = "0.1.0"
+abi = 1
+summary = "BM25/TF-IDF ranked full-text search over pasted documents"

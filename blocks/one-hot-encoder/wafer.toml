@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "one-hot-encoder"
+version = "0.1.0"
+abi = 1
+summary = "One-hot encode a CSV categorical column into binary dummy columns"

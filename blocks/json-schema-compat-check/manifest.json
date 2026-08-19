@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/json-schema-compat-check",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare old and new JSON Schemas for consumer and producer compatibility.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare an old JSON Schema with a proposed new schema and report compatibility findings. Consumer/backward compatibility asks whether the new schema still accepts data that satisfied the old schema. Producer/forward compatibility asks whether data produced for the new schema will still be accepted by consumers using the old schema. The checker handles common draft-7 keywords such as type, enum, const, required, properties, items, additionalProperties, numeric and string bounds, and reports warnings for composition or pattern changes it cannot prove.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "both",
+          "description": "Compatibility question to answer. consumer/backward checks whether the new schema still accepts old data. producer/forward checks whether new data remains acceptable to old consumers. both reports both sides.",
+          "enum": [
+            "both",
+            "consumer",
+            "producer"
+          ],
+          "type": "string"
+        },
+        "new_schema": {
+          "description": "Proposed new JSON Schema document to compare against old_schema.",
+          "type": "string"
+        },
+        "old_schema": {
+          "description": "Current or old JSON Schema document. Paste draft-7-style JSON; this is the schema existing data/producers already satisfy.",
+          "type": "string"
+        },
+        "strict_required": {
+          "default": false,
+          "description": "When true, treat any required-field set change as breaking in the relevant direction. When false, added or removed required fields are still reported but with the checker's default direction-aware severity.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "old_schema",
+        "new_schema"
+      ],
+      "type": "object"
+    }
+  }
+}

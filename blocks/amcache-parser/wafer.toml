@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "amcache-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse Amcache.hve program and executable evidence from a registry hive."

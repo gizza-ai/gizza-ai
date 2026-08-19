@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "churn-cohort-retention"
+version = "0.1.0"
+abi = 1
+summary = "Build cohort retention and churn tables and curves from signup and activity data."

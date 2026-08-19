@@ -1,0 +1,112 @@
+slug          = "form-field-validator"
+title         = "Form Field Validator — locale-aware email, phone, URL, postal code & card checks"
+description   = "Validate a whole form locally: email, phone, URL, postal code, and credit card fields with required checks, locale hints, normalization, and JSON."
+tags          = ["form field validator", "email phone postal validator", "postal code validator", "credit card validator", "locale validation", "form validation"]
+h1            = "Form Field Validator"
+hero_subtitle = "Paste a form submission and validate every named field at once — email, phone, URL, postal code, credit card, required fields, and country-specific format hints. Runs locally with no lookup services."
+wasm          = "gizza_ai_form_field_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "fields"
+label       = "Fields (name: value, one per line or JSON object)"
+placeholder = "email: john@example.com\nphone: (415) 555-2671\nzip: 90210\nwebsite: https://example.com\ncard: 4111 1111 1111 1111"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "country"
+label  = "Country rules"
+source = "field"
+
+[input.labels]
+any = "Any / generic"
+US = "United States"
+GB = "United Kingdom"
+CA = "Canada"
+DE = "Germany"
+FR = "France"
+AU = "Australia"
+IN = "India"
+JP = "Japan"
+BR = "Brazil"
+ZA = "South Africa"
+
+[[input]]
+name        = "required"
+label       = "Required fields"
+placeholder = "email, phone, zip"
+source      = "field"
+
+[[input]]
+name        = "rules"
+label       = "Type overrides (field: type)"
+placeholder = "zip: postal-code\ncard: credit-card"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "normalize"
+label  = "Normalize passing values"
+source = "field"
+
+[[input]]
+name   = "mask_sensitive"
+label  = "Mask credit-card digits"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text = "Human report"
+json = "JSON report"
+
+[[example]]
+label = "Valid US signup"
+[example.params]
+fields = "email: John.Doe@Example.COM\nphone: (415) 555-2671\nzip: 90210\nwebsite: https://example.com\ncard: 4111 1111 1111 1111"
+country = "US"
+required = "email, phone, zip"
+rules = "zip: postal-code\ncard: credit-card"
+normalize = "true"
+mask_sensitive = "true"
+output = "text"
+
+[[example]]
+label = "Broken required fields"
+[example.params]
+fields = "email: john@\nphone: 555-12\nzip: 9021"
+country = "US"
+required = "email, phone, zip, website"
+rules = "zip: postal-code"
+normalize = "true"
+mask_sensitive = "true"
+output = "text"
+
+[[example]]
+label = "UK postcode + JSON"
+[example.params]
+fields = "postcode: SW1A 1AA\nmobile: +44 20 7946 0958\nemail: team@example.co.uk"
+country = "GB"
+required = "postcode, mobile, email"
+rules = "postcode: postal-code"
+normalize = "true"
+mask_sensitive = "true"
+output = "json"
+
+[[example]]
+label = "JSON body"
+[example.params]
+fields = '{"email":"a@example.com","postal_code":"K1A 0B1","card":"4000 0000 0000 0002"}'
+country = "CA"
+required = "*"
+rules = "postal_code: postal-code\ncard: credit-card"
+normalize = "true"
+mask_sensitive = "true"
+output = "text"

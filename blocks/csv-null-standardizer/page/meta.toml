@@ -1,0 +1,99 @@
+slug          = "csv-null-standardizer"
+title         = "CSV Null Standardizer — One Missing-Value Token"
+description   = "Paste a CSV or TSV and rewrite NA, N/A, #N/A, NULL, NaN, None, dashes and blank cells into one missing-value token. Runs locally in your browser."
+tags          = ["csv null standardizer", "missing values", "na values", "null representation", "normalize nulls", "csv cleaning", "na_rep", "data quality"]
+h1            = "CSV Null Standardizer"
+hero_subtitle = "Turn every flavour of \"no data\" — NA, N/A, NULL, NaN, a bare dash, an empty cell — into the one token you actually want, without touching your real values."
+wasm          = "gizza_ai_csv_null_standardizer_web"
+export        = "run"
+live          = false
+output_label  = "Standardized CSV"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "CSV / TSV table"
+placeholder = "id,score,notes\n1,42,ok\n2,NA,\n3,null,-\n4,n/a,NaN"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (or 'auto' to detect)"
+placeholder = "comma"
+default     = "comma"
+source      = "field"
+
+[[input]]
+name        = "na_tokens"
+label       = "Tokens that count as missing (comma-separated)"
+placeholder = "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?"
+default     = "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?"
+source      = "field"
+
+[[input]]
+name        = "replace_with"
+label       = "Replace missing cells with (leave blank for an empty cell)"
+placeholder = "NULL"
+source      = "field"
+
+[[input]]
+name    = "blank_is_missing"
+label   = "Also standardize blank / whitespace-only cells"
+default = "true"
+source  = "field"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Match tokens case-sensitively"
+source = "field"
+
+[[input]]
+name    = "trim"
+label   = "Ignore whitespace around a cell when matching"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "header"
+label   = "First row is a header (never rewritten)"
+default = "true"
+source  = "field"
+
+[[input]]
+name        = "columns"
+label       = "Only these columns (names or 1-based positions; blank = all)"
+placeholder = "score,notes"
+source      = "field"
+
+[[input]]
+name    = "quote_style"
+label   = "Output quoting"
+default = "minimal"
+source  = "field"
+
+[input.labels]
+minimal = "Minimal — quote only when required (default)"
+always  = "Always — quote every field"
+never   = "Never — bare fields, no quotes"
+
+[[example]]
+label  = "Everything → blank cells"
+params = { input = "id,score,notes\n1,42,ok\n2,NA,\n3,null,-\n4,n/a,NaN", delimiter = "comma", na_tokens = "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?", replace_with = "", blank_is_missing = "true", case_sensitive = "false", trim = "true", header = "true", columns = "", quote_style = "minimal" }
+
+[[example]]
+label  = "Everything → NULL"
+params = { input = "id,score,notes\n1,42,ok\n2,NA,\n3,null,-\n4,n/a,NaN", delimiter = "comma", na_tokens = "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?", replace_with = "NULL", blank_is_missing = "true", case_sensitive = "false", trim = "true", header = "true", columns = "", quote_style = "minimal" }
+
+[[example]]
+label  = "Postgres COPY sentinel (\\N)"
+params = { input = "id,score,notes\n1,42,ok\n2,NA,\n3,null,-\n4,n/a,NaN", delimiter = "comma", na_tokens = "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?", replace_with = "\\N", blank_is_missing = "true", case_sensitive = "false", trim = "true", header = "true", columns = "", quote_style = "minimal" }
+
+[[example]]
+label  = "One column only, custom sentinel"
+params = { input = "station,temp,notes\nA,-999,ok\nB,20,-999\nC,-999,fine", delimiter = "comma", na_tokens = "-999", replace_with = "NaN", blank_is_missing = "false", case_sensitive = "false", trim = "true", header = "true", columns = "temp", quote_style = "minimal" }
+
+[[example]]
+label  = "TSV, auto-detected delimiter"
+params = { input = "id\tval\n1\t9\n2\tN/A\n3\t", delimiter = "auto", na_tokens = "NA,N/A,N.A.,#N/A,#N/A N/A,#NA,NULL,NIL,NaN,None,<NA>,-,--,?", replace_with = "NULL", blank_is_missing = "true", case_sensitive = "false", trim = "true", header = "true", columns = "", quote_style = "minimal" }

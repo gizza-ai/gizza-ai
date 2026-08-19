@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/multilingual-stemmer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Stem text in 18 languages with Snowball algorithms",
+  "role": "skill",
+  "tool": {
+    "description": "Stem words in 18 languages with pure-Rust Snowball algorithms. Pass text as 'input' and choose a 'language' such as english, german, spanish, french, russian, arabic, tamil or turkish. The default 'output=text' preserves punctuation, spacing and line breaks while replacing each word with its stem; 'stems' lists unique stems, 'mapping' returns surface form -> stem pairs, 'table' counts stems, and 'json' returns machine-readable groups and corpus statistics. Optional 'min_length' leaves short words unchanged, and 'lowercase' controls whether words are lowercased before stemming. Useful for search indexing, keyword normalization, deduplicating inflected terms and comparing vocabulary across small corpora. Stemming is not lemmatization: stems may not be dictionary words.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "Text to stem. Paste words, sentences, search queries or a small corpus; punctuation, spacing and line breaks are preserved in text output. Limit: 200,000 characters.",
+          "type": "string"
+        },
+        "language": {
+          "default": "english",
+          "description": "Snowball stemming language to apply. Pick the language of the input text; using the wrong language gives misleading stems. Default: english.",
+          "enum": [
+            "arabic",
+            "danish",
+            "dutch",
+            "english",
+            "finnish",
+            "french",
+            "german",
+            "greek",
+            "hungarian",
+            "italian",
+            "norwegian",
+            "portuguese",
+            "romanian",
+            "russian",
+            "spanish",
+            "swedish",
+            "tamil",
+            "turkish"
+          ],
+          "type": "string"
+        },
+        "lowercase": {
+          "default": true,
+          "description": "Lowercase words before stemming. Snowball algorithms are defined for lowercase input, so this should usually stay on. Turn it off only when case distinctions are meaningful. Default: true.",
+          "type": "boolean"
+        },
+        "min_length": {
+          "default": 1,
+          "description": "Minimum word length, in Unicode characters, that will be stemmed. Shorter words pass through unchanged. Use this to protect abbreviations or short codes. Default: 1; maximum: 30.",
+          "maximum": 30,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: text preserves the original layout with each word replaced by its stem; stems lists unique stems; mapping lists surface form -> stem; table counts stems; json returns machine-readable groups and stats. Default: text.",
+          "enum": [
+            "text",
+            "stems",
+            "mapping",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

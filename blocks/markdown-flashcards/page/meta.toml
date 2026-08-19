@@ -1,0 +1,147 @@
+slug          = "markdown-flashcards"
+title         = "Markdown to Anki Flashcards Converter"
+description   = "Turn Markdown notes into an Anki-importable flashcard deck. Headings, Q/A lines, tables or cloze — with deck, tags, note type and TSV/CSV controls."
+tags          = ["markdown to anki", "markdown flashcards", "anki csv export", "notes to flashcards", "anki deck generator", "cloze generator", "tsv for anki", "study cards"]
+h1            = "Markdown to Anki Flashcards"
+hero_subtitle = "Paste your Markdown notes and get an Anki-importable deck file — headings, Q/A lines, tables and cloze deletions all supported, with deck, tag and note-type controls. Runs entirely in your browser, no sign-up."
+wasm          = "gizza_ai_markdown_flashcards_web"
+export        = "run"
+live          = false
+output_label  = "Anki import file"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "markdown"
+label       = "Markdown notes"
+placeholder = "## What is mitosis?\nCell division that makes two identical cells.\n\n## What is meiosis?\nCell division that makes gametes."
+source      = "field"
+multiline   = true
+
+# mode / field_separator / field_format / notetype / output render as <select>
+# from the descriptor enums (via manifest.json); the booleans render as
+# checkboxes. Option lists are NOT duplicated here.
+[[input]]
+name        = "mode"
+label       = "Card format"
+source      = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+heading   = "Headings (## question + answer)"
+separator = "One card per line (split on a delimiter)"
+qa        = "Q: / A: blocks"
+table     = "Markdown table rows"
+cloze     = "Cloze from **bold** text"
+
+[[input]]
+name        = "separator"
+label       = "Line delimiter (one-card-per-line mode)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "heading_level"
+label       = "Heading level for the question (0 = auto)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "field_separator"
+label       = "Field separator"
+source      = "field"
+
+[input.labels]
+tab       = "Tab (recommended for Anki)"
+comma     = "Comma (CSV)"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+
+[[input]]
+name        = "field_format"
+label       = "Field formatting"
+source      = "field"
+
+[input.labels]
+html     = "HTML (bold, code, lists, line breaks)"
+markdown = "Keep raw Markdown"
+plain    = "Plain text (strip markup)"
+
+[[input]]
+name        = "notetype"
+label       = "Note type"
+source      = "field"
+
+[[input]]
+name        = "deck"
+label       = "Deck name (optional)"
+placeholder = "Biology::Cells"
+source      = "field"
+
+[[input]]
+name        = "tags"
+label       = "Tags for every card (optional)"
+placeholder = "exam week1"
+source      = "field"
+
+[[input]]
+name        = "tags_from_headings"
+label       = "Tag each card with its heading path"
+source      = "field"
+
+[[input]]
+name        = "include_headers"
+label       = "Include Anki #header lines"
+source      = "field"
+
+[[input]]
+name        = "dedupe"
+label       = "Drop duplicate questions"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+anki    = "Anki import file"
+preview = "Readable preview"
+json    = "JSON"
+
+[[example]]
+label = "Heading notes"
+[example.params]
+markdown = "## What is mitosis?\nCell division that makes two identical cells.\n\n## What is meiosis?\nCell division that makes gametes."
+mode     = "auto"
+output   = "anki"
+
+[[example]]
+label = "Q: / A: blocks"
+[example.params]
+markdown = "Q: Capital of France?\nA: Paris\n\nQ: Capital of Japan?\nA: Tokyo"
+mode     = "qa"
+output   = "anki"
+
+[[example]]
+label = "Vocabulary list"
+[example.params]
+markdown  = "gato :: cat\nperro :: dog\nlibro :: book"
+mode      = "separator"
+separator = "auto"
+deck      = "Spanish::Week 1"
+
+[[example]]
+label = "Cloze from bold"
+[example.params]
+markdown = "The **mitochondrion** is the powerhouse of the cell.\nWater boils at **100 °C** at sea level."
+mode     = "cloze"
+
+[[example]]
+label = "Table + tags"
+[example.params]
+markdown = "| Front | Back | Tags |\n| --- | --- | --- |\n| ser | to be | spanish verbs |\n| estar | to be (state) | spanish verbs |"
+mode     = "table"
+output   = "preview"

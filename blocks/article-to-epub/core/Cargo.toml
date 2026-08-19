@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-article-to-epub-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# An EPUB is an OCF ZIP container. Pure-Rust deflate (no system zlib), so it
+# instantiates under wafer (wasm32-wasip1) and builds for the browser target.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+# Used only by the tests, to prove every emitted chapter is well-formed XML —
+# an EPUB whose XHTML doesn't parse fails to open in strict readers.
+quick-xml = { version = "0.40", default-features = false }

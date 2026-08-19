@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "article-to-epub"
+version = "0.1.0"
+abi = 1
+summary = "Package article text or cleaned HTML into a valid EPUB ebook"

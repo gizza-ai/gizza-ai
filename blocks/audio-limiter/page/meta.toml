@@ -1,0 +1,91 @@
+slug          = "audio-limiter"
+title         = "Audio Limiter Online (Brick-Wall Peak Limiter)"
+description   = "Brick-wall limit an audio file so it never clips. Set the ceiling in dBFS plus input gain, attack and release — it all runs in your browser."
+tags          = ["audio", "limiter", "brick wall", "peak limiter", "alimiter", "ceiling", "dbfs", "clipping", "mastering", "loudness"]
+h1            = "Brick-Wall Audio Limiter"
+hero_subtitle = "Pick an audio file and a ceiling — peaks are limited in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_limiter_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Limited audio"
+format        = "audio"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+# The two dB dials are bounded and explored by ear — drag them. The time
+# controls stay number boxes: attack (0.1-80) and release (1-8000) span orders
+# of magnitude, so typing a value beats hunting for it on a linear track.
+[[input]]
+name        = "ceiling"
+source      = "field"
+label       = "Ceiling (dBFS)"
+placeholder = "-1"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "gain"
+source      = "field"
+label       = "Input gain (dB)"
+placeholder = "0"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "attack"
+source      = "field"
+label       = "Attack (ms)"
+placeholder = "5"
+
+[[input]]
+name        = "release"
+source      = "field"
+label       = "Release (ms)"
+placeholder = "50"
+
+[[input]]
+name   = "smooth_release"
+source = "field"
+label  = "Smooth release (less pumping)"
+
+[[input]]
+name   = "auto_level"
+source = "field"
+label  = "Maximize back to full scale (overrides the ceiling)"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Output format"
+placeholder = "mp3"
+
+[[example]]
+label = "Safety limit a master to -1 dBFS"
+[example.params]
+ceiling = "-1"
+gain    = "0"
+attack  = "5"
+release = "50"
+format  = "wav"
+
+[[example]]
+label = "Louder podcast (+6 dB drive)"
+[example.params]
+ceiling = "-1"
+gain    = "6"
+attack  = "5"
+release = "80"
+format  = "mp3"
+
+[[example]]
+label = "Gentle, transparent peak catch"
+[example.params]
+ceiling = "-3"
+gain    = "0"
+attack  = "20"
+release = "250"
+format  = "flac"

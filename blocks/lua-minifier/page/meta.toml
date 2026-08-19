@@ -1,0 +1,69 @@
+slug          = "lua-minifier"
+title         = "Lua Minifier — shrink Lua source safely"
+description   = "Paste Lua source and strip comments and whitespace, preserve license banners, keep or strip line breaks, and optionally rename locals."
+tags          = ["lua minifier", "lua compressor", "lua obfuscator", "minify lua", "lua whitespace remover", "lua comment stripper", "luajit minifier"]
+h1            = "Lua Minifier"
+hero_subtitle = "Paste a Lua script and produce compact Lua that keeps strings, long brackets, shebangs and token boundaries intact. Strip comments and whitespace, preserve license banners by default, keep line structure when you need readable errors, and opt into scope-aware local renaming when size matters."
+wasm          = "gizza_ai_lua_minifier_web"
+export        = "run"
+live          = false
+output_label  = "Minified Lua"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Lua source"
+placeholder = "--! @license MIT\nlocal function greet(name)\n  -- build a greeting\n  local message = \"hello, \" .. name\n  print(message)\nend\n\ngreet(\"Ada\")"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "remove_comments"
+label  = "Strip Lua comments"
+source = "field"
+
+[[input]]
+name   = "keep_license"
+label  = "Preserve license / copyright banners"
+source = "field"
+
+[[input]]
+name   = "rename_locals"
+label  = "Rename locals and parameters to short aliases"
+source = "field"
+
+[[input]]
+name   = "line_breaks"
+label  = "Line breaks"
+source = "field"
+
+[input.labels]
+strip = "Strip — one compact line"
+keep = "Keep — one output line per non-empty source line"
+
+[[example]]
+label = "Minify a Lua module"
+[example.params]
+code = "--! @license MIT\nlocal function greet(name)\n  -- build a greeting\n  local message = \"hello, \" .. name\n  print(message)\nend\n\ngreet(\"Ada\")"
+remove_comments = "true"
+keep_license = "true"
+rename_locals = "false"
+line_breaks = "strip"
+
+[[example]]
+label = "Rename locals for maximum shrink"
+[example.params]
+code = "local total = 0\nfor index = 1, 10 do\n  total = total + index\nend\nreturn total"
+remove_comments = "true"
+keep_license = "true"
+rename_locals = "true"
+line_breaks = "strip"
+
+[[example]]
+label = "Keep line structure for debugging"
+[example.params]
+code = "-- keep this diagnostic shape\nlocal count = 3\nif count > 1 then\n  print(count)\nend"
+remove_comments = "true"
+keep_license = "true"
+rename_locals = "false"
+line_breaks = "keep"

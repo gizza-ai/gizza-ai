@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "zip-integrity-checker"
+version = "0.1.0"
+abi = 1
+summary = "Test a .zip archive for corruption by verifying every entry's CRC-32"

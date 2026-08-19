@@ -1,0 +1,115 @@
+slug          = "column-aligner"
+title         = "Column Aligner — Format Text into Fixed-Width Columns"
+description   = "Paste whitespace-, tab-, comma-, or pipe-delimited text and align it into neat fixed-width plain-text columns with Unicode-aware padding."
+tags          = ["column align", "format columns", "column t", "text columns", "fixed width", "delimiter", "developer"]
+h1            = "Align Text into Neat Columns"
+hero_subtitle = "Paste rows from logs, reports, TSV, CSV, or command output and get plain text columns aligned like column -t — with optional numeric alignment, separators, and per-column overrides."
+wasm          = "gizza_ai_column_aligner_web"
+export        = "run"
+live          = false
+output_label  = "Aligned text"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Input rows"
+placeholder = "name age city\nalice 30 Berlin\nbo 7 SF"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "delimiter"
+label  = "Input delimiter"
+source = "field"
+
+[input.labels]
+whitespace = "Whitespace runs"
+tab = "Tab"
+comma = "Comma"
+semicolon = "Semicolon"
+colon = "Colon"
+pipe = "Pipe"
+space = "Single space"
+
+[[input]]
+name   = "align"
+label  = "Alignment"
+source = "field"
+
+[input.labels]
+left = "Left"
+right = "Right"
+center = "Center"
+auto = "Auto — numeric columns right"
+
+[[input]]
+name        = "column_align"
+label       = "Per-column alignment"
+placeholder = "lrr"
+source      = "field"
+
+[[input]]
+name        = "gap"
+label       = "Gap spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "16"
+step        = "1"
+
+[[input]]
+name        = "separator"
+label       = "Separator"
+placeholder = "|"
+source      = "field"
+
+[[input]]
+name   = "trim"
+label  = "Trim fields"
+source = "field"
+
+[[example]]
+label = "column -t style"
+[example.params]
+input = "name age city\nalice 30 Berlin\nbo 7 SF"
+delimiter = "whitespace"
+align = "left"
+column_align = ""
+gap = "2"
+separator = ""
+trim = "true"
+
+[[example]]
+label = "CSV to columns"
+[example.params]
+input = "name, qty, price\nwidget, 5, $12.00\nbolt, 1200, $0.03"
+delimiter = "comma"
+align = "auto"
+column_align = ""
+gap = "2"
+separator = ""
+trim = "true"
+
+[[example]]
+label = "Pipe separated"
+[example.params]
+input = "key value\nshort 1\nvery-long-key 200"
+delimiter = "whitespace"
+align = "left"
+column_align = "lr"
+gap = "1"
+separator = "|"
+trim = "true"
+
+[[example]]
+label = "Center labels"
+[example.params]
+input = "env status owner\nprod ok platform\ndev degraded app"
+delimiter = "whitespace"
+align = "center"
+column_align = ""
+gap = "2"
+separator = ""
+trim = "true"

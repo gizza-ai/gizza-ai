@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/elf-macho-info",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an ELF or Mach-O binary and report its architecture, sections, symbols, and linked libraries",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Parse an ELF or Mach-O binary and report a structured summary of its internals. Handles ELF (Linux/BSD/Solaris executables, .so shared objects, .o relocatables, core dumps) and Mach-O (macOS/iOS executables, .dylib libraries, bundles, .kext kernel extensions), including fat/universal Mach-O archives that bundle several architecture slices — pass arch (e.g. x86_64, arm64) to pick one, otherwise the first slice is reported. Both formats come back in ONE shape: container format and word size (32/64-bit), byte order, target architecture, file type (Executable / Shared object / PIE / dylib / Bundle / kext / …), ELF OS-ABI or Mach-O deployment target, entry point, whether it is position-independent, dynamically linked, and stripped, the dynamic linker / interpreter, SONAME or install name, Mach-O LC_UUID, decoded header flags, RPATH/RUNPATH search paths, linked libraries (with Mach-O current/compatibility versions), the section table (name, type, flags, address, offset, size), the symbol table(s) from .symtab/.dynsym/LC_SYMTAB (name, type, binding, address, size), and the imported (undefined) and exported symbol names. Set sections, symbols, or imports to false to omit a list, and limit (1-5000, default 100) to cap entries per list — each list still reports its pre-cap total. Returns a plain-text report plus the same figures as JSON. Useful for reverse engineering, malware triage, dependency inspection, and verifying build settings. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "arch": {
+          "description": "For a fat/universal Mach-O: which architecture slice to report, e.g. x86_64 or arm64. Defaults to the first slice.",
+          "type": "string"
+        },
+        "imports": {
+          "default": true,
+          "description": "Include linked libraries, imported symbols, and exported symbols (default true).",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 100,
+          "description": "Maximum entries per list — sections, symbols, imports, exports (1-5000, default 100). Each list also reports its pre-cap total.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sections": {
+          "default": true,
+          "description": "Include the section table (default true).",
+          "type": "boolean"
+        },
+        "symbols": {
+          "default": true,
+          "description": "Include the symbol table(s) (default true). Turn off for a fast header-only summary of a large binary.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

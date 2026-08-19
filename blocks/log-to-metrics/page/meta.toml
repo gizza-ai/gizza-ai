@@ -1,0 +1,160 @@
+slug          = "log-to-metrics"
+title         = "Log to Metrics — Counts, Rates and p95 Latency per Field"
+description   = "Turn JSON, logfmt or CSV logs into per-group counts, throughput rates, error rates and exact p50/p95/p99 latency. Table, JSON, CSV or Prometheus output."
+tags          = ["log to metrics", "log aggregation online", "p95 latency from logs", "log percentile calculator", "group logs by field", "error rate from logs", "ndjson aggregation", "logfmt aggregation", "logs to prometheus", "requests per second from logs"]
+h1            = "Log to Metrics"
+hero_subtitle = "Paste structured log lines — NDJSON, logfmt or CSV — and get the RED metrics back: how many requests per endpoint, what share of traffic, the throughput rate over the log's own time span, the error rate, and exact p50/p95/p99 latency. Group by any field or combination of fields, rank by the slowest, and export as a table, JSON, CSV or Prometheus exposition. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_log_to_metrics_web"
+export        = "run"
+live          = false
+output_label  = "Metrics"
+format        = "text"
+wide          = true
+
+# Field ORDER is the wasm `run(...)` argument order — do not reorder without
+# changing web/src/lib.rs. format / percentile_method / rate_unit / sort /
+# output render as <select>, `other` as a checkbox and `limit` as a number box;
+# the control type comes from the descriptor's schema (manifest.json).
+[[input]]
+name        = "data"
+label       = "Log lines"
+placeholder = "{\"ts\":\"2024-05-06T07:00:00Z\",\"route\":\"/api/users\",\"status\":200,\"duration_ms\":37}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+json   = "JSON / NDJSON — one object per line"
+logfmt = "logfmt — key=value pairs"
+csv    = "CSV / TSV — header row plus rows"
+
+[[input]]
+name        = "group_by"
+label       = "Group by fields"
+placeholder = "route"
+source      = "field"
+
+[[input]]
+name        = "value_field"
+label       = "Numeric field (latency, bytes…)"
+placeholder = "duration_ms"
+source      = "field"
+
+[[input]]
+name        = "percentiles"
+label       = "Percentiles"
+placeholder = "50,95,99"
+source      = "field"
+
+[[input]]
+name   = "percentile_method"
+label  = "Percentile method"
+source = "field"
+
+[input.labels]
+linear  = "Linear interpolation (numpy/R type 7)"
+nearest = "Nearest rank — a value that really occurred"
+
+[[input]]
+name        = "time_field"
+label       = "Timestamp field"
+placeholder = "auto-detect, or none"
+source      = "field"
+
+[[input]]
+name   = "rate_unit"
+label  = "Rate unit"
+source = "field"
+
+[input.labels]
+auto   = "Auto — from the log's time span"
+second = "Per second"
+minute = "Per minute"
+hour   = "Per hour"
+
+[[input]]
+name        = "error_field"
+label       = "Error field"
+placeholder = "status"
+source      = "field"
+
+[[input]]
+name        = "error_values"
+label       = "Values that count as errors"
+placeholder = "5*, >=500, error, fatal"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Groups to show"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name   = "other"
+label  = "Roll the remainder into an (other) row"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort groups by"
+source = "field"
+
+[input.labels]
+count  = "Line count (most first)"
+group  = "Group name (alphabetical)"
+sum    = "Sum of the numeric field"
+avg    = "Average of the numeric field"
+max    = "Maximum of the numeric field"
+errors = "Error count"
+p_top  = "Highest percentile — slowest groups first"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+table      = "Table with a summary line"
+json       = "JSON report with totals"
+csv        = "CSV for a spreadsheet"
+prometheus = "Prometheus text exposition"
+
+[[input]]
+name        = "metric_prefix"
+label       = "Prometheus metric prefix"
+placeholder = "log"
+source      = "field"
+
+[[example]]
+label  = "Requests and p95 per endpoint (NDJSON)"
+params = { data = "{\"ts\":\"2024-05-06T07:00:00Z\",\"route\":\"/api/users\",\"status\":200,\"duration_ms\":37}\n{\"ts\":\"2024-05-06T07:00:20Z\",\"route\":\"/api/users\",\"status\":500,\"duration_ms\":412}\n{\"ts\":\"2024-05-06T07:00:40Z\",\"route\":\"/api/users\",\"status\":200,\"duration_ms\":58}\n{\"ts\":\"2024-05-06T07:01:00Z\",\"route\":\"/api/orders\",\"status\":200,\"duration_ms\":120}\n{\"ts\":\"2024-05-06T07:01:20Z\",\"route\":\"/health\",\"status\":200,\"duration_ms\":2}", format = "json", group_by = "route", value_field = "duration_ms", error_field = "status", output = "table" }
+
+[[example]]
+label  = "Error rate by service (logfmt)"
+params = { data = "time=2024-05-06T07:00:00Z svc=api status=200 dur=250ms\ntime=2024-05-06T07:00:10Z svc=api status=503 dur=1.5s\ntime=2024-05-06T07:00:20Z svc=web status=200 dur=100ms\ntime=2024-05-06T07:00:30Z svc=web status=404 dur=90ms", format = "logfmt", group_by = "svc", value_field = "dur", error_field = "status", error_values = ">=500", sort = "errors", output = "table" }
+
+[[example]]
+label  = "Slowest endpoints first (p99)"
+params = { data = "route=/report ms=4200\nroute=/report ms=3900\nroute=/login ms=45\nroute=/login ms=52\nroute=/login ms=39", format = "logfmt", group_by = "route", value_field = "ms", percentiles = "50,99", time_field = "none", sort = "p_top", output = "table" }
+
+[[example]]
+label  = "CSV in, JSON report out"
+params = { data = "route,ms,level\n/a,10,info\n/a,20,error\n/a,30,info\n/b,5,info", format = "csv", group_by = "route", value_field = "ms", error_field = "level", time_field = "none", output = "json" }
+
+[[example]]
+label  = "Prometheus exposition"
+params = { data = "{\"ts\":\"2024-05-06T07:00:00Z\",\"route\":\"/api/users\",\"status\":200,\"duration_ms\":37}\n{\"ts\":\"2024-05-06T07:00:30Z\",\"route\":\"/api/users\",\"status\":500,\"duration_ms\":412}\n{\"ts\":\"2024-05-06T07:01:00Z\",\"route\":\"/health\",\"status\":200,\"duration_ms\":2}", format = "json", group_by = "route", value_field = "duration_ms", percentiles = "95", error_field = "status", output = "prometheus", metric_prefix = "http" }
+
+[[example]]
+label  = "Overall totals, no grouping"
+params = { data = "{\"ts\":1714978800,\"ms\":10}\n{\"ts\":1714978810,\"ms\":20}\n{\"ts\":1714978820,\"ms\":30}\n{\"ts\":1714978830,\"ms\":40}", format = "json", value_field = "ms", percentiles = "50,90", percentile_method = "nearest", output = "table" }
+
+[[example]]
+label  = "Top 2 routes, rest as (other)"
+params = { data = "route=/a\nroute=/a\nroute=/a\nroute=/b\nroute=/b\nroute=/c\nroute=/d", format = "logfmt", group_by = "route", time_field = "none", limit = "2", output = "csv" }

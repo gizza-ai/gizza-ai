@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sentence-split"
+version = "0.1.0"
+abi = 1
+summary = "Split text into sentences with abbreviation- and decimal-aware boundaries."

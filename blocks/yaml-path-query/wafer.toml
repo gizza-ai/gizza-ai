@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "yaml-path-query"
+version = "0.1.0"
+abi = 1
+summary = "Query, set or delete a YAML value by a dotted path while keeping comments and formatting"

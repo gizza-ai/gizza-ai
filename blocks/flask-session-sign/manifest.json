@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/flask-session-sign",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sign Flask session cookies from JSON and a SECRET_KEY.",
+  "role": "skill",
+  "tool": {
+    "description": "Build a Flask-compatible signed session cookie from a JSON object payload and SECRET_KEY. Defaults match Flask's SecureCookieSessionInterface: salt cookie-session, hmac key derivation, sha1 digest, automatic zlib compression, and cookie name session. Set timestamp for reproducible output, choose sha256/sha512 or alternate itsdangerous derivations for custom apps, and use hex/base64 secret encodings for byte keys. Returns the cookie, Set-Cookie header, serialized payload, signature segments, derived key, timestamp, size, and warnings.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "compress": {
+          "default": "auto",
+          "description": "Payload compression mode. auto matches itsdangerous: zlib only when it saves more than one byte.",
+          "enum": [
+            "auto",
+            "always",
+            "never"
+          ],
+          "type": "string"
+        },
+        "cookie_name": {
+          "default": "session",
+          "description": "Cookie name used in the Set-Cookie header and byte-limit warning. Default session.",
+          "type": "string"
+        },
+        "digest": {
+          "default": "sha1",
+          "description": "Digest algorithm for key derivation and HMAC signature. Flask defaults to sha1.",
+          "enum": [
+            "sha1",
+            "sha256",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "key_derivation": {
+          "default": "hmac",
+          "description": "itsdangerous key derivation method. Flask configures hmac; itsdangerous' own default is django-concat.",
+          "enum": [
+            "hmac",
+            "django-concat",
+            "concat",
+            "none"
+          ],
+          "type": "string"
+        },
+        "legacy_epoch": {
+          "default": false,
+          "description": "Encode timestamps as itsdangerous < 1.0 seconds since 2011-01-01 instead of full Unix seconds. Default false.",
+          "type": "boolean"
+        },
+        "payload": {
+          "description": "Session data as a JSON object string, for example {\"user\":1,\"admin\":true}. Use JSON true/false/null, not Python literals.",
+          "type": "string"
+        },
+        "salt": {
+          "default": "cookie-session",
+          "description": "itsdangerous salt. Flask's SecureCookieSessionInterface uses cookie-session by default.",
+          "type": "string"
+        },
+        "secret": {
+          "description": "The Flask SECRET_KEY used to sign the session cookie.",
+          "type": "string"
+        },
+        "secret_encoding": {
+          "default": "utf8",
+          "description": "How to decode the secret text before signing: utf8 text, hex bytes, or base64 bytes. Default utf8.",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "timestamp": {
+          "default": 0.0,
+          "description": "Unix timestamp seconds to embed. Use 0 to sign with the current clock; set a fixed value for reproducible cookies.",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "payload",
+        "secret"
+      ],
+      "type": "object"
+    }
+  }
+}

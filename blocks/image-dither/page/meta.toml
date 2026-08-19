@@ -1,0 +1,165 @@
+slug          = "image-dither"
+title         = "Dither an Image — Floyd-Steinberg, Ordered & Atkinson"
+description   = "Apply Floyd-Steinberg, ordered (Bayer) or Atkinson dithering to any image. Pick a 1-bit, e-ink grayscale, retro or custom palette. Runs in your browser, free."
+tags          = ["image", "dither", "dithering", "floyd-steinberg", "bayer", "ordered", "atkinson", "pixel-art", "e-ink", "palette", "retro", "1-bit"]
+h1            = "Dither an Image"
+hero_subtitle = "Upload a photo and reduce it to a small palette with error-diffusion or ordered dithering — the retro, pixel-art and e-ink look, with the banding dithered away."
+wasm          = "gizza_ai_image_dither_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Dithered image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "algorithm"
+source      = "field"
+label       = "Dither algorithm"
+placeholder = "floyd_steinberg"
+
+[input.labels]
+"floyd_steinberg" = "Floyd-Steinberg — the classic error diffusion"
+"bayer"           = "Ordered (Bayer) — deterministic crosshatch"
+"atkinson"        = "Atkinson — sparse, high-contrast early-Mac look"
+"burkes"          = "Burkes — softer error diffusion"
+"sierra2"         = "Sierra 2 — balanced error diffusion"
+"sierra3"         = "Sierra 3 — smoothest error diffusion"
+"sierra2_4a"      = "Sierra Lite — fastest, grainier"
+"heckbert"        = "Heckbert — simple error diffusion"
+"none"            = "None — plain quantize, no dithering"
+
+[[input]]
+name        = "palette"
+source      = "field"
+label       = "Palette"
+placeholder = "auto"
+
+[input.labels]
+"auto"   = "Auto — derived from the image"
+"mono"   = "Mono — pure 1-bit black & white"
+"gray4"  = "Grayscale, 4 levels (e-ink)"
+"gray16" = "Grayscale, 16 levels (e-ink)"
+"green4" = "Green LCD — 4 shades"
+"amber2" = "Amber terminal — 2 shades"
+"cga4"   = "CGA — 4 colours"
+"custom" = "Custom — my own hex list"
+
+[[input]]
+name        = "colors"
+source      = "field"
+kind        = "slider"
+min         = 2
+max         = 256
+step        = "1"
+label       = "Palette size (auto palette only)"
+placeholder = "16"
+
+[[input]]
+name        = "palette_colors"
+source      = "field"
+kind        = "color"
+label       = "Custom palette (custom only)"
+placeholder = "#1b1b1b,#e8e8e8"
+
+[[input]]
+name        = "bayer_scale"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 5
+step        = "1"
+label       = "Ordered matrix coarseness (Bayer only)"
+placeholder = "2"
+
+[[input]]
+name        = "pixel_scale"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 16
+step        = "1"
+label       = "Chunky pixel size"
+placeholder = "1"
+
+[[input]]
+name        = "contrast"
+source      = "field"
+kind        = "slider"
+min         = 0.5
+max         = 3.0
+step        = "0.1"
+label       = "Contrast before dithering"
+placeholder = "1.0"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Output format"
+placeholder = "png"
+
+[input.labels]
+"png"  = "PNG (lossless — recommended)"
+"gif"  = "GIF (small for tiny palettes)"
+"webp" = "WebP (lossless)"
+"jpeg" = "JPEG (will blur the pattern)"
+"same" = "Same as the upload"
+
+[[example]]
+label = "Classic Floyd-Steinberg, 16 colours"
+[example.params]
+algorithm   = "floyd_steinberg"
+palette     = "auto"
+colors      = "16"
+bayer_scale = "2"
+pixel_scale = "1"
+contrast    = "1.0"
+format      = "png"
+
+[[example]]
+label = "1-bit black & white"
+[example.params]
+algorithm   = "floyd_steinberg"
+palette     = "mono"
+colors      = "16"
+bayer_scale = "2"
+pixel_scale = "1"
+contrast    = "1.4"
+format      = "png"
+
+[[example]]
+label = "E-ink, 4 grays"
+[example.params]
+algorithm   = "atkinson"
+palette     = "gray4"
+colors      = "16"
+bayer_scale = "2"
+pixel_scale = "1"
+contrast    = "1.3"
+format      = "png"
+
+[[example]]
+label = "Ordered / Bayer crosshatch"
+[example.params]
+algorithm   = "bayer"
+palette     = "mono"
+colors      = "16"
+bayer_scale = "5"
+pixel_scale = "1"
+contrast    = "1.2"
+format      = "png"
+
+[[example]]
+label = "Chunky retro pixel art"
+[example.params]
+algorithm   = "floyd_steinberg"
+palette     = "green4"
+colors      = "16"
+bayer_scale = "2"
+pixel_scale = "6"
+contrast    = "1.3"
+format      = "png"

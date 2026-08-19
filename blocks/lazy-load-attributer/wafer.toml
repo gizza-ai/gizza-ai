@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "lazy-load-attributer"
+version = "0.1.0"
+abi = 1
+summary = "Add loading=\"lazy\" and decoding=\"async\" to images and iframes that lack them"

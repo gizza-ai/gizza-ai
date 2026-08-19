@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/env-schema-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate a .env file against a schema of required keys, types and allowed values.",
+  "role": "skill",
+  "tool": {
+    "description": "Check a .env (dotenv) file against a DECLARED schema and report every variable that is missing, mistyped or outside its allowed values — before the app starts and fails with a confusing runtime error. Pass the file text in `env` and the schema in `schema`. The rules dialect is one 'KEY=rule|rule:arg' line per variable: required/optional; the types string, number, integer, boolean, port, url, email, host and json; enum:a,b,c for allowed values; min:N/max:N (numeric bound for numeric types, character-length bound otherwise); pattern:REGEX; secure (mixed-case + digit + symbol, 8+ chars); and default:VALUE (documentation only — a missing key that documents a default is a warning, not an error). A bare 'KEY=' line means required, so a .env.example pastes straight in (or set schema_format='example' to treat every key of a template as required). A JSON Schema object is accepted as well (type/required/properties with enum, minimum/maximum, minLength/maxLength, pattern, format and default) — schema_format='auto' detects it. `unknown_keys` controls whether keys set in the file but absent from the schema warn (default), are ignored, or fail. `empty_is_missing` (default true) treats 'KEY=' as not set. `output` selects 'report' (default, human-readable with line numbers and severities) or 'json' (structured, for CI). Values of secret-looking keys (SECRET/TOKEN/PASSWORD/KEY/AUTH) are masked in the report. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "empty_is_missing": {
+          "default": true,
+          "description": "Treat an empty value ('KEY=') as not set, so a required key with a blank value is reported as missing. Turn off to validate the empty string against the declared type and rules instead. Default true.",
+          "type": "boolean"
+        },
+        "env": {
+          "description": "The .env file contents to check (KEY=VALUE lines; # comments, blank lines, quotes, inline comments and an 'export ' prefix are understood; duplicate keys are last-wins). Nothing is uploaded — the file is only read to produce the report.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output form: 'report' (default) a human-readable PASSED/FAILED summary plus one line per issue with the .env line number, severity and rule, or 'json' a structured {ok, declared_keys, file_keys, error_count, warning_count, issues[]} object for CI.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "schema": {
+          "description": "The schema the .env must satisfy. Rules dialect: one 'KEY=rule|rule:arg' line per variable, e.g. 'PORT=required|port', 'NODE_ENV=required|enum:development,production', 'API_KEY=required|min:32', 'DB_PASSWORD=required|secure', 'RELEASE=pattern:^v[0-9]+$', 'TIMEOUT=number|min:1|max:60|default:30'. Rules: required, optional, string, number, integer, boolean, port, url, email, host, json, enum:a,b, min:N, max:N (value bound for numeric types, character-length bound otherwise), pattern:REGEX, secure, default:VALUE (documentation only). A bare 'KEY=' line just means required. JSON Schema is accepted too (see schema_format).",
+          "type": "string"
+        },
+        "schema_format": {
+          "default": "auto",
+          "description": "How to read `schema`: 'auto' (default — text starting with '{' is JSON Schema, anything else is the rules dialect), 'rules', 'json-schema' (a JSON Schema object using type/required/properties with enum, minimum/maximum, minLength/maxLength, pattern, format uri|email|hostname and default), or 'example' (paste a .env.example — every key it lists becomes required and its placeholder values are ignored).",
+          "enum": [
+            "auto",
+            "rules",
+            "json-schema",
+            "example"
+          ],
+          "type": "string"
+        },
+        "unknown_keys": {
+          "default": "warn",
+          "description": "What to do with keys set in the .env but not declared in the schema: 'warn' (default, listed as a warning), 'ignore' (say nothing), or 'error' (strict mode — an undeclared key fails the check).",
+          "enum": [
+            "warn",
+            "ignore",
+            "error"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "env",
+        "schema"
+      ],
+      "type": "object"
+    }
+  }
+}

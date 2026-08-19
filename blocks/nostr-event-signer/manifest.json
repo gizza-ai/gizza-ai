@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/nostr-event-signer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build and Schnorr-sign a Nostr event from your nsec",
+  "role": "skill",
+  "tool": {
+    "description": "Build a Nostr event and sign it with a BIP-340 Schnorr signature over secp256k1, producing publish-ready JSON. Give it a private key (nsec1… or 64 hex characters) plus the event's content, kind, tags and timestamp, or paste a partial unsigned event as 'template'. It derives the x-only public key, serializes the event per NIP-01 as [0,pubkey,created_at,kind,tags,content], hashes that with SHA-256 to get the event id, signs the id, and verifies its own signature before returning. Output is the signed event JSON, a [\"EVENT\", {…}] relay frame ready to send over a relay websocket, or a labeled report with the NIP-19 note1…/npub1… forms. Optional NIP-13 proof-of-work mines a nonce tag up to 20 leading zero bits. Signing is deterministic (no auxiliary randomness), so the same inputs always give the same id and signature. Runs locally; the key is never uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "The event body. For kind 1 this is the note text; for kind 0 it is a JSON profile object; for kind 4 it would be ciphertext. Any UTF-8 is allowed and is escaped per NIP-01 when the id is hashed. Defaults to an empty string.",
+          "type": "string"
+        },
+        "created_at": {
+          "default": 0,
+          "description": "Event timestamp as whole seconds since 1970-01-01 UTC, e.g. 1700000000. Use 0 (the default) to stamp the event with the current time; pass an explicit value when you need a reproducible id and signature.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "default": 1,
+          "description": "Nostr event kind, a whole number from 0 to 65535. Common values: 0 profile metadata, 1 text note (default), 3 follow list, 5 deletion request, 6 repost, 7 reaction, 30023 long-form article.",
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "nsec": {
+          "description": "Your Nostr private (secret) key, either as a NIP-19 'nsec1…' bech32 string or as 64 hex characters (a leading 0x and any whitespace are ignored). Everything is computed locally — the key is never sent anywhere. Use a disposable test key unless you fully trust the machine.",
+          "type": "string"
+        },
+        "output": {
+          "default": "event",
+          "description": "Output shape. 'event' (default) is the signed event JSON object. 'relay-message' wraps it as [\"EVENT\", {…}], the exact frame a relay websocket expects. 'report' prints a labeled summary — id, note1…, pubkey, npub1…, timestamp, kind, proof-of-work bits, signature and a verification line — followed by the event JSON.",
+          "enum": [
+            "event",
+            "relay-message",
+            "report"
+          ],
+          "type": "string"
+        },
+        "pow": {
+          "default": 0,
+          "description": "NIP-13 proof-of-work difficulty in leading zero bits of the event id, 0 to 20. 0 (the default) skips mining. Anything above ~16 can take a noticeable while; a mined event carries a [\"nonce\",\"<counter>\",\"<target>\"] tag and any nonce tag you supplied is replaced.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Indent the JSON output. True (the default) is easier to read; false emits the single-line compact form that relays and other tools expect when pasting.",
+          "type": "boolean"
+        },
+        "tags": {
+          "description": "Event tags, in either form. Shorthand: one tag per line (or comma-separated) as 'name=value1;value2', e.g. 'e=<event id>;wss://relay.example.com;root' and 'p=<pubkey hex>'. JSON: a full array of arrays of strings, e.g. [[\"e\",\"<event id>\"],[\"p\",\"<pubkey hex>\"]] — use this form when a value contains a comma or newline. Defaults to no tags. Limit 2000 tags.",
+          "type": "string"
+        },
+        "template": {
+          "description": "Optional unsigned-event JSON object, e.g. {\"kind\":1,\"content\":\"hello\",\"tags\":[],\"created_at\":1700000000}. Any of kind/content/tags/created_at present here OVERRIDES the matching parameter above; id, pubkey and sig are always recomputed from the signing key and ignored if present. Leave empty to build the event from the individual fields.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nsec"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/spreadsheet-formula-audit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan a workbook for circular formulas, broken references, and formula error cells",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Scan a spreadsheet workbook (.xlsx, .xlsm, .xls, or .ods) for formula problems. Provide the file via url or ref. The audit reports formulas containing #REF!, cells with cached Excel error values, formulas that point at missing sheets, external workbook links, and circular references in the formula dependency graph. It reads only the stored workbook bytes and does not recalculate formulas; INDIRECT/OFFSET and structured table references are documented limits.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "check_cycles": {
+          "default": true,
+          "description": "Build a formula dependency graph and report circular references (default true). Literal A1 references are followed; INDIRECT/OFFSET/table names are documented limits.",
+          "type": "boolean"
+        },
+        "check_error_values": {
+          "default": true,
+          "description": "Report cells whose cached workbook value is an Excel error such as #REF!, #DIV/0!, #VALUE!, #NAME?, #N/A, #NUM!, or #NULL! (default true).",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output format: readable fixed-width table (default), structured JSON, or CSV rows.",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_hidden": {
+          "default": true,
+          "description": "Include hidden and very-hidden worksheets when scanning the whole workbook (default true).",
+          "type": "boolean"
+        },
+        "max_findings": {
+          "default": 200.0,
+          "description": "Maximum findings to include in the report before clipping with a note (default 200).",
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sheet": {
+          "description": "Worksheet to report on: a sheet name, or a 0-based index as a string (e.g. \"0\"). Blank/default scans all worksheets.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

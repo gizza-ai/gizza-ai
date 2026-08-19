@@ -1,0 +1,124 @@
+slug          = "text-splitter-regex"
+title         = "Regex Text Splitter — Split Text into Rows or Fields by Pattern"
+description   = "Split text on a regular expression instead of a fixed character: whitespace runs, mixed delimiters, blank lines. Add a field pattern for columns. Runs in your browser."
+tags          = ["regex text splitter", "split text by regex", "split on regular expression", "text to columns", "split on whitespace", "multi character delimiter", "split by pattern", "regex delimiter"]
+h1            = "Regex Text Splitter"
+hero_subtitle = "Split text using a regular expression as the delimiter — runs of whitespace, several separators at once, blank lines between paragraphs, or any pattern a plain character cannot express. Add a second pattern to split each row into fields and get a table. Output as lines, JSON, CSV, TSV, numbered or a custom join. Nothing is uploaded."
+wasm          = "gizza_ai_text_splitter_regex_web"
+export        = "run"
+live          = false
+output_label  = "Parts"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to split"
+placeholder = "alpha   beta\t\tgamma\ndelta,epsilon"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Split pattern (regex separator)"
+placeholder = '\s+'
+source      = "field"
+
+[[input]]
+name        = "field_pattern"
+label       = "Field pattern (blank = rows only)"
+placeholder = '\s*:\s*'
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+lines     = "One part per line"
+json      = "JSON array"
+csv       = "CSV"
+tsv       = "TSV (tab separated)"
+numbered  = "Numbered list"
+separator = "Joined by a separator"
+
+[[input]]
+name        = "separator"
+label       = "Join separator (output = joined)"
+placeholder = ", or \\n\\n or ---"
+source      = "field"
+
+[[input]]
+name        = "max_splits"
+label       = "Max splits (0 = unlimited)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "multiline"
+label  = "Multiline (^ and $ per line)"
+source = "field"
+
+[[input]]
+name   = "dotall"
+label  = "Dot matches newlines"
+source = "field"
+
+[[input]]
+name   = "trim"
+label  = "Trim each part"
+source = "field"
+
+[[input]]
+name   = "remove_empty"
+label  = "Remove empty parts"
+source = "field"
+
+[[example]]
+label = "Whitespace runs"
+[example.params]
+text    = "alpha   beta\t\tgamma"
+pattern = '\s+'
+
+[[example]]
+label = "Several delimiters at once"
+[example.params]
+text         = "a,b;c|d"
+pattern      = '[,;|]'
+remove_empty = "true"
+
+[[example]]
+label = "Paragraphs on blank lines"
+[example.params]
+text    = "First paragraph.\n\n\nSecond paragraph.\n\nThird."
+pattern = '\n{2,}'
+trim    = "true"
+
+[[example]]
+label = "key: value → CSV table"
+[example.params]
+text          = "host: web1\nregion: eu-west\nrole: api"
+pattern       = '\n'
+field_pattern = '\s*:\s*'
+output        = "csv"
+
+[[example]]
+label = "Comma list → JSON array"
+[example.params]
+text         = "red, green , blue,, yellow"
+pattern      = ','
+output       = "json"
+trim         = "true"
+remove_empty = "true"
+
+[[example]]
+label = "Split off the first field only"
+[example.params]
+text       = "ERROR: disk full: /dev/sda1"
+pattern    = ':\s*'
+max_splits = "1"

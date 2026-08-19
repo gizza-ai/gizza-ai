@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "raw-rgb-to-png"
+version = "0.1.0"
+abi = 1
+summary = "Assemble raw RGB/RGBA bytes plus width and height into a PNG"

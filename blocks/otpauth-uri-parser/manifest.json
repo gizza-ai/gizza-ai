@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/otpauth-uri-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an otpauth:// 2FA URI into its fields",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a single otpauth:// provisioning URI (the Key Uri Format authenticator apps read from a 2FA QR code) into its fields: type (totp or hotp), issuer, account name, base32 secret, algorithm, digits, and period or counter. The label is percent-decoded and split on its first colon, the secret is normalized to unpadded upper-case base32 and validated against RFC 4648, and the spec defaults (SHA1, 6 digits, 30-second period) are applied and reported under defaults_applied. Warnings flag an issuer that differs between the label and the issuer parameter, a missing issuer, non-standard digit counts, duplicate or unknown query parameters, and a counter on a totp URI. Set format=json (default), text, or table; mask_secret=true hides the secret while keeping its length; strict=true turns those warnings into errors. Runs locally — the secret never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Output format: json (default) returns every field plus warnings as an object; text returns aligned key: value lines; table returns an ASCII field/value table.",
+          "enum": [
+            "json",
+            "text",
+            "table"
+          ],
+          "type": "string"
+        },
+        "mask_secret": {
+          "default": false,
+          "description": "Set true to replace the secret with asterisks so the result is safe to paste into a ticket or screenshot. The reported secret_chars and secret_bytes stay accurate. Default false.",
+          "type": "boolean"
+        },
+        "strict": {
+          "default": false,
+          "description": "Set true to enforce the Key Uri Format's recommendations as errors instead of warnings: a missing issuer, an issuer mismatch between label and query, a digit count other than 6 or 8, a duplicate parameter, or any parameter outside the spec will fail. Default false (report them as warnings).",
+          "type": "boolean"
+        },
+        "uri": {
+          "description": "The otpauth:// provisioning URI to parse, e.g. otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&digits=6&period=30. Line breaks in a pasted URI are ignored; the limit is 4096 characters.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "type": "object"
+    }
+  }
+}

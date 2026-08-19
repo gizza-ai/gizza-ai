@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wav-samples-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Export WAV PCM samples as a JSON array with the format metadata."

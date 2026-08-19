@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/pcap-file-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Carve files transferred over HTTP, FTP, and SMB out of a pcap capture.",
+  "role": "skill",
+  "tool": {
+    "description": "Reassemble the TCP streams inside an uploaded libpcap (.pcap) or pcapng (.pcapng) capture and carve out the files that were transferred over HTTP, FTP, and SMB. HTTP objects cover response bodies (downloads) and POST/PUT/PATCH bodies (uploads), de-chunked and gzip/deflate-inflated, named from Content-Disposition or the request URI. FTP objects take their real filename and direction from the control channel (RETR/STOR/LIST with PASV/EPSV/PORT/EPRT). SMB objects are SMB2/3 CREATE+READ/WRITE, assembled at their true file offsets. Every object reports protocol, filename, path, host, direction, declared content type, the type sniffed from the recovered bytes (with type_mismatch flagging an executable served as text), size, source and destination endpoints, packet number, timestamp, MD5, SHA-256, a completeness percentage, and its bytes inline as base64 within max_content_bytes. Limits, stated up front: encrypted transports (HTTPS/TLS, FTPS, SMB3 encryption) yield nothing without key material; SMB1/CIFS is detected but not carved; email protocols (SMTP/POP3/IMAP) and UDP-borne transfers (TFTP, QUIC) are out of scope; IP fragments after the first are skipped; captures are capped at 32 MiB. Provide the capture as either url (HTTP/HTTPS) or ref (id from a prior file upload/tool call). Runs locally — the capture never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "filter": {
+          "default": "",
+          "description": "Case-insensitive substring that an object must match on its filename, request path, host, or declared content type — the equivalent of a packet analyser's object-list text filter. Example: 'exe' or 'invoice'. Empty (default) keeps everything.",
+          "type": "string"
+        },
+        "include_content": {
+          "default": true,
+          "description": "Return each object's bytes inline as base64 (default true). Set false for a fast inventory — filenames, sizes, types, MD5 and SHA-256 are still reported without the payload.",
+          "type": "boolean"
+        },
+        "include_incomplete": {
+          "default": true,
+          "description": "Include objects whose bytes were only partly captured (default true). Each object reports complete plus completeness_percent, so a partial carve is never mistaken for a whole file. Set false to keep only 100%-complete files.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 100,
+          "description": "Maximum number of recovered objects to return (1-5000, default 100). files_total always reports how many matched before this cap.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_content_bytes": {
+          "default": 4194304,
+          "description": "Total budget in bytes for inline base64 content across all returned objects (default 4194304 = 4 MiB, maximum 16777216 = 16 MiB). Objects are inlined in packet order until the budget runs out; the rest are still listed with their hashes, and a note says so.",
+          "maximum": 16777216,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_size": {
+          "default": 0,
+          "description": "Drop recovered objects smaller than this many bytes (default 0 = keep all). Useful for skipping 1-pixel trackers and tiny redirect bodies.",
+          "maximum": 1073741824,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "protocols": {
+          "default": "all",
+          "description": "Which protocols to carve: 'all' (default) or a comma-separated subset of http, ftp, smb — for example 'http,smb'. HTTP covers response bodies and POST/PUT/PATCH uploads; FTP uses the control channel (RETR/STOR/LIST plus PASV/EPSV/PORT/EPRT) to name each data connection; SMB covers SMB2/3 CREATE+READ/WRITE (SMB1/CIFS is detected and reported, not carved).",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mongo-query"
+version = "0.1.0"
+abi = 1
+summary = "Filter a JSON array of documents with a MongoDB-style query document."

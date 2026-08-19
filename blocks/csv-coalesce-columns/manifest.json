@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/csv-coalesce-columns",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine CSV columns into one, taking the first non-empty value per row",
+  "role": "skill",
+  "tool": {
+    "description": "Coalesce several CSV columns into one: each row takes the first non-empty value across `columns`, read in the order you list them (SQL COALESCE over columns). `columns` accepts header names (header=true) or 1-based indices. `output` names the new column (default 'coalesced'), `position` places it (end/start/first-source), `fallback` fills rows where every source is empty, and `drop_sources`=true removes the sources so only the merged column remains. `blank_is_empty`=true (default) also skips whitespace-only cells, and `null_tokens` (e.g. 'NULL,NA,-') lists placeholder values that count as empty too. `delimiter` is a char or comma/tab/semicolon/pipe.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blank_is_empty": {
+          "default": true,
+          "description": "Treat whitespace-only cells (a stray space or tab) as empty so they are skipped. Default true; false only skips truly zero-length cells.",
+          "type": "boolean"
+        },
+        "columns": {
+          "description": "Comma-separated source columns in PRIORITY order — the first one that has a value wins. Use header names when header=true (e.g. 'mobile,office,home') or 1-based indices (e.g. '2,3,4').",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV text to process, e.g. 'name,mobile,office\\nAnn,,555-2'. Rows shorter than the header are padded with empty cells.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "drop_sources": {
+          "default": false,
+          "description": "Remove the source columns after coalescing, leaving just the new column. Default false keeps them.",
+          "type": "boolean"
+        },
+        "fallback": {
+          "default": "",
+          "description": "Value written when EVERY source column is empty for that row, e.g. 'N/A' or 'unknown'. Default '' leaves the cell blank.",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header: it is rewritten with the new column and lets `columns` use names. Default true.",
+          "type": "boolean"
+        },
+        "null_tokens": {
+          "default": "",
+          "description": "Comma-separated placeholder values that also count as empty, matched case-insensitively on the trimmed cell, e.g. 'NULL,NA,N/A,-'. Default '' = only blank cells count as empty.",
+          "type": "string"
+        },
+        "output": {
+          "default": "",
+          "description": "Name for the new coalesced column. Default '' = 'coalesced'. It must not collide with a column you keep.",
+          "type": "string"
+        },
+        "position": {
+          "default": "end",
+          "description": "Where the new column goes: 'end' appends it after the last column (default), 'start' puts it first, 'first-source' puts it where the first listed source column sat.",
+          "enum": [
+            "end",
+            "start",
+            "first-source"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "columns"
+      ],
+      "type": "object"
+    }
+  }
+}

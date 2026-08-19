@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "midi-track-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split a multi-track MIDI file into separate single-track .mid files, one per track or channel"

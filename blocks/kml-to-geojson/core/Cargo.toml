@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-kml-to-geojson-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps property keys in insertion order (name, description,
+# ExtendedData, ... then folder) instead of alphabetizing them.
+serde_json = { version = "1", features = ["preserve_order"] }
+# quick-xml: pure-Rust, wasm-safe streaming XML reader — parses KML (the
+# Placemark pass in kml_parse.rs) and the Folder path scan.
+quick-xml = { version = "0.40", default-features = false }
+# zip: pure-Rust (miniz_oxide deflate), wasm-safe — a KMZ is a zip archive.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# base64: a KMZ is binary, and every surface here takes text, so KMZ arrives
+# base64-encoded.
+base64 = "0.22"

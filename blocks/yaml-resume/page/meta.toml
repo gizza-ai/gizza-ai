@@ -1,0 +1,180 @@
+slug          = "yaml-resume"
+title         = "YAML Resume to HTML — print-ready résumé builder"
+description   = "Turn a JSON Resume document written in YAML or JSON into one self-contained, print-ready HTML résumé with themes, accent color, fonts and page setup."
+tags          = ["yaml resume", "json resume", "resume to html", "cv generator", "resume pdf", "ats resume"]
+h1            = "YAML Resume to HTML"
+hero_subtitle = "Paste a JSON Resume document as YAML or JSON and get one self-contained HTML file — styles embedded, print stylesheet included — ready to open and Print → Save as PDF."
+wasm          = "gizza_ai_yaml_resume_web"
+export        = "run"
+live          = false
+output_label  = "HTML résumé"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Résumé document (YAML or JSON)"
+placeholder = "basics:\n  name: Ada Lovelace\n  label: Analytical Engineer\nwork:\n  - name: Analytical Engine Co\n    position: Lead Engineer\n    startDate: \"1843-01\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Document format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yaml = "YAML"
+json = "JSON"
+
+[[input]]
+name   = "theme"
+label  = "Theme"
+source = "field"
+
+[input.labels]
+classic = "Classic — centered header, ruled titles"
+modern  = "Modern — left header, accent bar"
+compact = "Compact — tighter, fits more"
+ats     = "ATS — plain single column, no color"
+
+[[input]]
+name        = "accent"
+label       = "Accent color"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name   = "font"
+label  = "Body font"
+source = "field"
+
+[input.labels]
+sans  = "Sans-serif"
+serif = "Serif"
+
+[[input]]
+name        = "font_size"
+label       = "Body size (pt)"
+placeholder = "10.5"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name   = "page_size"
+label  = "Page size"
+source = "field"
+
+[input.labels]
+letter = "US Letter (8.5 × 11 in)"
+a4     = "A4 (210 × 297 mm)"
+
+[[input]]
+name        = "margin"
+label       = "Print margin (in)"
+placeholder = "0.5"
+source      = "field"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name   = "date_format"
+label  = "Date style"
+source = "field"
+
+[input.labels]
+"month-year" = "Month and year — Jan 2020"
+year         = "Year only — 2020"
+iso          = "As written — 2020-01-15"
+
+[[input]]
+name        = "sections"
+label       = "Sections (blank = all, in order)"
+placeholder = "summary, work, education, skills"
+source      = "field"
+
+[[example]]
+label = "Modern one-pager"
+[example.params]
+data = """
+basics:
+  name: Ada Lovelace
+  label: Analytical Engineer
+  email: ada@example.com
+  location:
+    city: London
+    countryCode: UK
+  summary: Mathematician who wrote the first published algorithm.
+work:
+  - name: Analytical Engine Co
+    position: Lead Engineer
+    startDate: "1843-01"
+    endDate: "1852-11"
+    highlights:
+      - Published the first algorithm intended for a machine
+education:
+  - institution: Home tutoring
+    studyType: Study
+    area: Mathematics
+    startDate: "1830"
+skills:
+  - name: Mathematics
+    level: Expert
+    keywords: [Algorithms, Analysis]
+"""
+format = "yaml"
+theme = "modern"
+accent = "#2563eb"
+font = "sans"
+font_size = "10.5"
+page_size = "letter"
+margin = "0.5"
+date_format = "month-year"
+sections = ""
+
+[[example]]
+label = "ATS-safe plain text layout"
+[example.params]
+data = """
+basics:
+  name: Grace Hopper
+  label: Systems Engineer
+  email: grace@example.com
+  summary: Built the first compiler and standardised machine-independent languages.
+work:
+  - name: Remington Rand
+    position: Director of Automatic Programming
+    startDate: "1955-01"
+    highlights:
+      - Led the team that produced the first English-like data processing compiler
+skills:
+  - name: Compilers
+    keywords: [COBOL, FLOW-MATIC]
+"""
+format = "yaml"
+theme = "ats"
+accent = "#2563eb"
+font = "sans"
+font_size = "11"
+page_size = "letter"
+margin = "0.75"
+date_format = "year"
+sections = ""
+
+[[example]]
+label = "Compact A4 from JSON"
+[example.params]
+data = """
+{"basics":{"name":"Alan Turing","label":"Mathematician","email":"alan@example.com"},"work":[{"name":"National Physical Laboratory","position":"Senior Scientific Officer","startDate":"1945-10","endDate":"1947-09","highlights":["Designed the Automatic Computing Engine"]}],"skills":[{"name":"Logic","keywords":["Computability","Cryptanalysis"]}]}
+"""
+format = "json"
+theme = "compact"
+accent = "#0f766e"
+font = "serif"
+font_size = "9.5"
+page_size = "a4"
+margin = "0.4"
+date_format = "month-year"
+sections = "work, skills"

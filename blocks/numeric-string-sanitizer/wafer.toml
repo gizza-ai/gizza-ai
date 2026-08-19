@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "numeric-string-sanitizer"
+version = "0.1.0"
+abi = 1
+summary = "Strip currency, separators, units, percents, and whitespace from messy number cells"

@@ -1,0 +1,98 @@
+{
+  "name": "gizza-ai/email-network-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a sender-to-recipient email network graph with ranked senders, recipients, and links.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn raw email text into a communication network. Paste an mbox export, a single .eml, or just the headers as `input`; every message becomes edges from its From: address to each To:/Cc:/Bcc: recipient, weighted by message volume. Returns a ranked report: message/participant/link totals, the date span, top senders, top recipients, top correspondents (sent + received), and the heaviest links with their first/last dates. Set `me` to your own address for a personal section (who you mail most, who mails you most, and a reciprocity ratio). Use nodes='domain' for an organisation-level rollup, direction='undirected' to merge A->B with B->A, recipients to choose which headers count, since/until (YYYY-MM-DD, inclusive) to window the analysis, exclude to drop noreply/automated addresses, min_messages to prune one-off contacts, self_loops to keep self-addressed mail, and top to size the ranked lists. format='csv' returns an edge list, 'json' the full node/edge structure, 'graphml' a weighted graph for Gephi or NetworkX, and 'dot' Graphviz source. Runs entirely on the pasted text — no mailbox account or network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "directed",
+          "description": "directed (default) keeps sender -> recipient as its own link, so A->B and B->A are separate. undirected merges both ways into one pair link with the message counts added together.",
+          "enum": [
+            "directed",
+            "undirected"
+          ],
+          "type": "string"
+        },
+        "exclude": {
+          "description": "Comma-separated substrings; any address containing one is dropped from both ends of every edge, e.g. \"noreply,notifications@,mailer-daemon\". Matching is case-insensitive substring matching, so a bare domain like \"example.org\" excludes everyone at it.",
+          "type": "string"
+        },
+        "format": {
+          "default": "report",
+          "description": "Output format: report (readable ranked summary, default), csv (edge list: from,to,messages,first,last), json (summary plus every node and edge), graphml (weighted graph for Gephi/NetworkX), or dot (Graphviz source).",
+          "enum": [
+            "report",
+            "csv",
+            "json",
+            "graphml",
+            "dot"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Raw email text: an mbox export (messages separated by a `From ` postmark line at column 0), a single .eml, or just the headers. Only From:/To:/Cc:/Bcc:/Date: are read; message bodies are ignored. Max 4 MiB, 20000 messages.",
+          "type": "string"
+        },
+        "me": {
+          "description": "Your own email address, e.g. \"alice@example.com\". Optional — when set, the report adds a personal section: how much you sent and received, your reciprocity ratio (received per sent), and who you mail / hear from most. Case-insensitive.",
+          "type": "string"
+        },
+        "min_messages": {
+          "default": 1,
+          "description": "Minimum messages a link must carry to be kept, 1 to 10000. Default 1 (keep everything). Raise it to drop one-off contacts and leave only the regular correspondence.",
+          "maximum": 10000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "nodes": {
+          "default": "address",
+          "description": "What each node is: address (default) keeps one node per email address; domain collapses every address to the part after the @, giving an organisation-level graph.",
+          "enum": [
+            "address",
+            "domain"
+          ],
+          "type": "string"
+        },
+        "recipients": {
+          "default": "to-cc",
+          "description": "Which recipient headers become edges: to (To: only), to-cc (To: plus Cc:, the default), or to-cc-bcc (also Bcc:, which is normally only present in your own sent mail).",
+          "enum": [
+            "to",
+            "to-cc",
+            "to-cc-bcc"
+          ],
+          "type": "string"
+        },
+        "self_loops": {
+          "default": false,
+          "description": "Keep links where sender and recipient are the same node (you Cc'ing yourself; in domain mode, all mail inside one company). Default false, which drops them and reports the count in the notes.",
+          "type": "boolean"
+        },
+        "since": {
+          "description": "Earliest message date to include, as YYYY-MM-DD, inclusive, e.g. \"2024-01-01\". Empty means no lower bound. While either bound is set, messages with no Date: header are skipped and counted in the notes.",
+          "type": "string"
+        },
+        "top": {
+          "default": 10,
+          "description": "How many rows to show in each ranked list (top senders, recipients, correspondents, links, and the personal lists), 1 to 100. Default 10. Does not affect csv/json/graphml/dot, which always export the full graph.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "until": {
+          "description": "Latest message date to include, as YYYY-MM-DD, inclusive, e.g. \"2024-12-31\". Empty means no upper bound. Must not be earlier than `since`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

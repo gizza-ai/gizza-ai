@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "jsonl-stats"
+version = "0.1.0"
+abi = 1
+summary = "Summarize JSON Lines key coverage, types, and value distributions."

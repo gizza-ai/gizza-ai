@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-key-case-convert"
+version = "0.1.0"
+abi = 1
+summary = "Rename every JSON key to camelCase, PascalCase, snake_case, kebab-case or SCREAMING_SNAKE_CASE"

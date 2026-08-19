@@ -1,0 +1,130 @@
+slug          = "numeric-string-sanitizer"
+title         = "Numeric String Sanitizer — Clean Messy Number Cells"
+description   = "Strip currency symbols, thousands separators, units, percents, and stray whitespace from messy spreadsheet number cells and parse them into clean floats."
+tags          = ["numeric string sanitizer", "clean number cells", "parse currency", "remove thousands separators", "spreadsheet cleanup", "csv numbers", "percent converter", "accounting negatives"]
+h1            = "Clean messy number cells into floats"
+hero_subtitle = "Paste a column of formatted numbers — currency, commas, units, percent signs, accounting parentheses — and get back plain machine-readable values."
+wasm          = "gizza_ai_numeric_string_sanitizer_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned numbers"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Numbers to clean"
+placeholder = "$1,234.50 USD\n(250.00)\n1.2K\n45.2%\nCHF 1'234'567.89"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "decimal_separator"
+label  = "Decimal separator"
+source = "field"
+
+[input.labels]
+auto  = "Auto-detect column convention"
+dot   = "Dot decimal: 1,234.56"
+comma = "Comma decimal: 1.234,56"
+
+[[input]]
+name   = "percent"
+label  = "Percent signs"
+source = "field"
+
+[input.labels]
+strip  = "Strip only: 45.2% → 45.2"
+divide = "Divide by 100: 45.2% → 0.452"
+
+[[input]]
+name   = "magnitude_suffixes"
+label  = "Expand K/M/B/T suffixes"
+source = "field"
+
+[[input]]
+name   = "parentheses_negative"
+label  = "Accounting parentheses are negative"
+source = "field"
+
+[[input]]
+name   = "decimals"
+label  = "Round decimals"
+source = "field"
+
+[input.labels]
+auto = "Keep full precision"
+0    = "0 places"
+1    = "1 place"
+2    = "2 places"
+3    = "3 places"
+4    = "4 places"
+5    = "5 places"
+6    = "6 places"
+8    = "8 places"
+10   = "10 places"
+12   = "12 places"
+
+[[input]]
+name   = "on_error"
+label  = "Rows that cannot be parsed"
+source = "field"
+
+[input.labels]
+blank  = "Blank line (keeps row alignment)"
+keep   = "Keep original text"
+marker = "Write #ERROR"
+fail   = "Stop with an error"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+values = "Values only"
+table  = "Audit table (TSV)"
+json   = "JSON"
+
+[[input]]
+name   = "stats"
+label  = "Append summary stats"
+source = "field"
+
+[[example]]
+label = "Currency column"
+[example.params]
+input = "$1,234.50 USD\n€ 2,500.75\n(300.00)\n1.2K"
+decimal_separator = "auto"
+percent = "strip"
+magnitude_suffixes = "true"
+parentheses_negative = "true"
+decimals = "auto"
+on_error = "blank"
+output = "values"
+stats = "false"
+
+[[example]]
+label = "Percent fractions"
+[example.params]
+input = "45.2%\n12%\n0.5%"
+decimal_separator = "dot"
+percent = "divide"
+magnitude_suffixes = "true"
+parentheses_negative = "true"
+decimals = "4"
+on_error = "blank"
+output = "values"
+stats = "true"
+
+[[example]]
+label = "Audit bad rows"
+[example.params]
+input = "1,200\nn/a\n34 kg"
+decimal_separator = "auto"
+percent = "strip"
+magnitude_suffixes = "true"
+parentheses_negative = "true"
+decimals = "auto"
+on_error = "marker"
+output = "table"
+stats = "false"

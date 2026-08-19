@@ -1,0 +1,107 @@
+{
+  "name": "gizza-ai/image-text-overlay-contrast-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find the worst place on a photo where overlaid text of a given colour fails WCAG contrast.",
+  "role": "skill",
+  "tool": {
+    "description": "Scan a photo for the worst-case region where overlaid text of a given colour would fail WCAG contrast, and say what would fix it. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). A text-block-shaped window slides across the picture; every position is scored with the WCAG 2.x contrast ratio between the text colour and that window's gamma-correct mean colour. Returns the verdict for the whole area, the worst window (its pixel box, its position as a percentage, its mean colour and its ratio), the best window, how many sampled windows fall short, the twelve candidate caption areas (three full-width bands plus the nine thirds cells) ranked best-first so you can see where the caption is safe, the minimum black or white scrim opacity that would lift the whole area over the bar (with a ready-to-paste rgba() value), how pure black and pure white text would fare instead, and a one-line note. Parameters: text_color hex/rgb/hsl/CSS name (default #ffffff), level aa (default) | aaa, text_size normal (default) | large | ui, region full (default) | top | middle | bottom | left | center | right, window_width 1-100 percent (default 30), window_height 1-100 percent (default 10), alpha_background white (default) | black for what shows through transparency, output summary (default) | full for the per-window ratio grid | csv for a spreadsheet table. PNG, JPEG, WebP, GIF, BMP and TIFF are supported; the scan runs on a box-downscaled copy at most 512px on the long edge, which is exact for text-sized averages. This is an analyser only; it never modifies the image.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "alpha_background": {
+          "default": "white",
+          "description": "What transparent and semi-transparent pixels are measured against, i.e. the page colour showing through a PNG with alpha. white (default) matches a light page; use black for a dark-themed page. Fully opaque images ignore this.",
+          "enum": [
+            "white",
+            "black"
+          ],
+          "type": "string"
+        },
+        "level": {
+          "default": "aa",
+          "description": "Which WCAG 2.x conformance level the text must reach. aa (default) is the legal baseline most sites are held to: 4.5:1 for normal text, 3:1 for large. aaa is the enhanced level: 7:1 normal, 4.5:1 large. UI graphics stay at 3:1 under both (SC 1.4.11 has no AAA variant).",
+          "enum": [
+            "aa",
+            "aaa"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "summary",
+          "description": "How much window detail comes back. summary (default) = verdict, worst and best window, the ranked placements and the scrim fix. full = also every window's contrast ratio as rows of numbers, ready to chart as a heat map. csv = also the same grid as a row,column,contrast_ratio,passes table. full and csv are capped at 10000 windows.",
+          "enum": [
+            "summary",
+            "full",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "region": {
+          "default": "full",
+          "description": "Which slice of the picture to scan. full (default) scans everything and ranks the areas for you; top / middle / bottom scan a horizontal third and left / center / right a vertical third — use one when you already know the caption goes there and want the verdict for that band only. All coordinates and placements in the answer are then relative to that slice.",
+          "enum": [
+            "full",
+            "top",
+            "middle",
+            "bottom",
+            "left",
+            "center",
+            "right"
+          ],
+          "type": "string"
+        },
+        "text_color": {
+          "default": "#ffffff",
+          "description": "The colour the overlaid text will be drawn in. Accepts a hex code (#ffffff, #fff, bare ffffff), an rgb triple (rgb(255,255,255) or 255,255,255), an hsl triple (hsl(0,0%,100%)), or a CSS colour name (white, gold, navy). Default #ffffff, the usual hero-caption colour.",
+          "type": "string"
+        },
+        "text_size": {
+          "default": "normal",
+          "description": "Which success criterion the overlay falls under, because it sets the bar. normal (default) = body/caption text under 24px (or under 18.66px bold), needs 4.5:1 at AA. large = 24px+ or 18.66px+ bold headlines, needs 3:1 at AA. ui = icons, logo strokes, focus rings and other non-text graphics, 3:1.",
+          "enum": [
+            "normal",
+            "large",
+            "ui"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "window_height": {
+          "default": 10.0,
+          "description": "Height of the sliding text block, as a percent of the scanned area's height, 1-100 (default 10). Roughly one line of caption on a 16:9 hero; raise it for a multi-line block. The window steps a quarter of its own size at a time, so smaller windows mean more sample positions.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "window_width": {
+          "default": 30.0,
+          "description": "Width of the sliding text block, as a percent of the scanned area's width, 1-100 (default 30). Match it to how wide the caption really is: a narrow window finds small hot spots a wide headline would average away, a wide one models a full-bleed strapline.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

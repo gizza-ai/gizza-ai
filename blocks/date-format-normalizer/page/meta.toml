@@ -1,0 +1,237 @@
+slug          = "date-format-normalizer"
+title         = "Date Format Normalizer — rewrite every date in a text to one format"
+description   = "Paste text with dates in mixed formats and get them all rewritten to ISO 8601 or any format you pick, with the day/month order settled from the text. Free and private."
+tags          = ["date format normalizer", "normalize dates in text", "convert dates to iso 8601", "bulk date format converter", "change date format online", "dd/mm vs mm/dd converter", "standardize date formats", "date cleaner"]
+h1            = "Date Format Normalizer"
+hero_subtitle = "Paste text whose dates came out as 03/04/2024, 5 Jan 2024, 2024-01-05 and 5.1.24 all at once, and get every one of them rewritten into the single format you choose. The day-first vs month-first question is settled from the text itself. Nothing leaves your browser."
+wasm          = "gizza_ai_date_format_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized text"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Text (dates can be in any mix of formats)"
+placeholder = "Order 4471 was placed 03/04/2024 and shipped 15/04/2024.\nThe invoice is dated 22 April 2024 and falls due 2024-05-06.\nSupport ticket opened Friday, 3 May 2024 at 2:30 PM."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output_format"
+label  = "Rewrite every date as"
+source = "field"
+
+[input.labels]
+iso = "ISO 8601 — 2024-01-05 (and 2024-01-05T14:30:00Z with a time)"
+ymd = "Year first — 2024-01-05"
+dmy = "Day first — 05-01-2024"
+mdy = "Month first — 01-05-2024"
+month_day_year = "Month name first — January 5, 2024"
+day_month_year = "Day then month name — 5 January 2024"
+rfc2822 = "RFC 2822 / email date — Fri, 5 Jan 2024 00:00:00 +0000"
+unix_seconds = "Unix seconds — 1704412800"
+unix_millis = "Unix milliseconds — 1704412800000"
+custom = "Custom strftime pattern (fill in the field below)"
+
+[[input]]
+name        = "custom_format"
+label       = "Custom pattern (only used by the custom format)"
+placeholder = "%d.%m.%Y"
+source      = "field"
+
+[[input]]
+name   = "separator"
+label  = "Separator between the numeric fields"
+source = "field"
+
+[input.labels]
+dash = "Dash — 05-01-2024"
+slash = "Slash — 05/01/2024"
+dot = "Dot — 05.01.2024"
+none = "None — 05012024"
+space = "Space — 05 01 2024"
+
+[[input]]
+name   = "month_style"
+label  = "Month name written as"
+source = "field"
+
+[input.labels]
+full = "Full — January"
+short = "Short — Jan"
+
+[[input]]
+name   = "year_style"
+label  = "Year written as"
+source = "field"
+
+[input.labels]
+four = "Four digits — 2024"
+two = "Two digits — 24"
+
+[[input]]
+name   = "leading_zeros"
+label  = "Pad single-digit days and months with a zero"
+source = "field"
+
+[[input]]
+name   = "input_order"
+label  = "Reading a numeric date like 03/04/2024"
+source = "field"
+
+[input.labels]
+auto = "Auto — let the text decide, fall back to month-first"
+day_first = "Day first — 3 April 2024"
+month_first = "Month first — 4 March 2024"
+
+[[input]]
+name        = "two_digit_year_pivot"
+label       = "Two-digit years at or below this become 20xx"
+placeholder = "68"
+source      = "field"
+
+[[input]]
+name   = "keep_time"
+label  = "Keep the clock time when a date has one"
+source = "field"
+
+[[input]]
+name   = "time_style"
+label  = "Clock time shown as"
+source = "field"
+
+[input.labels]
+"24h" = "24-hour — 14:30"
+"12h" = "12-hour — 2:30 PM"
+
+[[input]]
+name        = "output_timezone"
+label       = "Move dates that carry an offset to (IANA name, UTC, or an offset)"
+placeholder = "source"
+source      = "field"
+options     = "timezones"
+
+[[input]]
+name   = "detect_timestamps"
+label  = "Also read bare 10- and 13-digit numbers as unix timestamps"
+source = "field"
+
+[[input]]
+name   = "output_mode"
+label  = "Give me back"
+source = "field"
+
+[input.labels]
+text = "The text, with every date rewritten in place"
+list = "Just the normalized dates, one per line"
+report = "A report: line, column, original, result, ambiguity"
+
+[[example]]
+label = "Mixed formats to ISO 8601"
+[example.params]
+text = "Order 4471 was placed 03/04/2024 and shipped 15/04/2024.\nThe invoice is dated 22 April 2024 and falls due 2024-05-06.\nSupport ticket opened Friday, 3 May 2024 at 2:30 PM."
+output_format = "iso"
+custom_format = ""
+separator = "dash"
+month_style = "full"
+year_style = "four"
+leading_zeros = "true"
+input_order = "auto"
+two_digit_year_pivot = "68"
+keep_time = "true"
+time_style = "24h"
+output_timezone = "source"
+detect_timestamps = "false"
+output_mode = "text"
+
+[[example]]
+label = "US dates to European dd.mm.yyyy"
+[example.params]
+text = "Contract signed 01/05/2024, renewed 12/31/2024, cancelled Jan 5, 2025."
+output_format = "dmy"
+custom_format = ""
+separator = "dot"
+month_style = "full"
+year_style = "four"
+leading_zeros = "true"
+input_order = "auto"
+two_digit_year_pivot = "68"
+keep_time = "true"
+time_style = "24h"
+output_timezone = "source"
+detect_timestamps = "false"
+output_mode = "text"
+
+[[example]]
+label = "Sortable 20240105 filename stamps"
+[example.params]
+text = "scan 5 Jan 2024.pdf\nscan 12 Feb 2024.pdf\nscan 3 March 2024.pdf"
+output_format = "ymd"
+custom_format = ""
+separator = "none"
+month_style = "full"
+year_style = "four"
+leading_zeros = "true"
+input_order = "auto"
+two_digit_year_pivot = "68"
+keep_time = "true"
+time_style = "24h"
+output_timezone = "source"
+detect_timestamps = "false"
+output_mode = "text"
+
+[[example]]
+label = "Pull the dates out as a clean column"
+[example.params]
+text = "Renewal 03/04/2024, review 15/04/2024, audit 2 May 2024, close 2024-06-30."
+output_format = "iso"
+custom_format = ""
+separator = "dash"
+month_style = "full"
+year_style = "four"
+leading_zeros = "true"
+input_order = "auto"
+two_digit_year_pivot = "68"
+keep_time = "true"
+time_style = "24h"
+output_timezone = "source"
+detect_timestamps = "false"
+output_mode = "list"
+
+[[example]]
+label = "Audit what was detected and why"
+[example.params]
+text = "Kickoff 03/04/2024, freeze 15/04/2024, launch 05/06/2024."
+output_format = "iso"
+custom_format = ""
+separator = "dash"
+month_style = "full"
+year_style = "four"
+leading_zeros = "true"
+input_order = "auto"
+two_digit_year_pivot = "68"
+keep_time = "true"
+time_style = "24h"
+output_timezone = "source"
+detect_timestamps = "false"
+output_mode = "report"
+
+[[example]]
+label = "Epoch numbers and offsets to Berlin time"
+[example.params]
+text = "created 1704465000, updated 2024-01-05T14:30:00Z, closed Fri, 05 Jan 2024 18:00:00 +0000"
+output_format = "iso"
+custom_format = ""
+separator = "dash"
+month_style = "full"
+year_style = "four"
+leading_zeros = "true"
+input_order = "auto"
+two_digit_year_pivot = "68"
+keep_time = "true"
+time_style = "24h"
+output_timezone = "Europe/Berlin"
+detect_timestamps = "true"
+output_mode = "text"

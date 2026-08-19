@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dot-to-mermaid"
+version = "0.1.0"
+abi = 1
+summary = "Convert Graphviz DOT to Mermaid flowchart syntax"

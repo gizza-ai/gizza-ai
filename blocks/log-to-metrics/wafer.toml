@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-to-metrics"
+version = "0.1.0"
+abi = 1
+summary = "Aggregate structured logs into per-group counts, rates, error rates and latency percentiles."

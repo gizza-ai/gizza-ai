@@ -1,0 +1,80 @@
+slug          = "json-schema-compat-check"
+title         = "JSON Schema Compatibility Checker — Backward & Forward Changes"
+description   = "Compare old and new JSON Schemas for consumer/backward and producer/forward compatibility. Flags enum, type, required-field, object, array, and bound changes."
+tags = [
+  "json schema compatibility",
+  "schema evolution",
+  "backward compatibility",
+  "forward compatibility",
+  "api contract check",
+  "breaking change detector",
+  "schema diff",
+]
+h1            = "JSON Schema compatibility check"
+hero_subtitle = "Paste an old and a proposed JSON Schema to see which changes are safe for consumers, producers, or both."
+wasm          = "gizza_ai_json_schema_compat_check_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "old_schema"
+label       = "Old schema"
+placeholder = "{\"type\":\"object\",\"required\":[\"id\"],\"properties\":{\"id\":{\"type\":\"string\"}}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "new_schema"
+label       = "New schema"
+placeholder = "{\"type\":\"object\",\"required\":[\"id\",\"email\"],\"properties\":{\"id\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"}}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Compatibility direction"
+source = "field"
+
+[input.labels]
+both     = "Both directions"
+consumer = "Consumer/backward only"
+producer = "Producer/forward only"
+
+[[input]]
+name   = "strict_required"
+label  = "Treat every required-field change as strict"
+source = "field"
+
+[[example]]
+label = "Added required field"
+[example.params]
+old_schema = "{\"type\":\"object\",\"required\":[\"id\"],\"properties\":{\"id\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"}}}"
+new_schema = "{\"type\":\"object\",\"required\":[\"id\",\"email\"],\"properties\":{\"id\":{\"type\":\"string\"},\"email\":{\"type\":\"string\"}}}"
+direction = "both"
+strict_required = "false"
+
+[[example]]
+label = "Enum narrowed"
+[example.params]
+old_schema = "{\"type\":\"string\",\"enum\":[\"draft\",\"sent\",\"archived\"]}"
+new_schema = "{\"type\":\"string\",\"enum\":[\"draft\",\"sent\"]}"
+direction = "consumer"
+strict_required = "false"
+
+[[example]]
+label = "Producer widening"
+[example.params]
+old_schema = "{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}"
+new_schema = "{\"type\":\"integer\",\"minimum\":-5,\"maximum\":20}"
+direction = "producer"
+strict_required = "false"
+
+[[example]]
+label = "Compatible annotation edit"
+[example.params]
+old_schema = "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"description\":\"Identifier\"}}}"
+new_schema = "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"description\":\"Stable identifier\"}}}"
+direction = "both"
+strict_required = "false"

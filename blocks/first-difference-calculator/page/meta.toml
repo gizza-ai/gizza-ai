@@ -1,0 +1,121 @@
+slug          = "first-difference-calculator"
+title         = "First Difference Calculator — Period-Over-Period Deltas of a Series"
+description   = "Paste a number series and get first differences, second differences, or period-over-period change as an absolute delta, percent, ratio, or log difference."
+tags = [
+  "first difference calculator",
+  "period over period change",
+  "second differences",
+  "differencing a time series",
+  "percent change between rows",
+  "seasonal differencing lag 12",
+  "constant differences linear or quadratic",
+  "delta between consecutive values",
+  "log difference growth rate",
+]
+h1            = "First differences and period-over-period deltas"
+hero_subtitle = "Paste a number series and see how much it moves from row to row — as an absolute delta, a percent change, a ratio, or a log difference, at any lag and any order."
+wasm          = "gizza_ai_first_difference_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Differences (JSON)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "series"
+label       = "Number series"
+placeholder = "120, 135, 150, 148, 161"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "lag"
+label       = "Lag (baseline distance)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "order"
+label       = "Order (how many times to difference)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 10
+step        = "1"
+
+[[input]]
+name   = "mode"
+label  = "Comparison"
+source = "field"
+
+[input.labels]
+difference = "Difference: current − baseline"
+percent    = "Percent change: (current − baseline) ÷ baseline × 100"
+ratio      = "Ratio: current ÷ baseline"
+log        = "Log difference: ln(current ÷ baseline)"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 10
+step        = "1"
+
+[[input]]
+name   = "drop_warmup"
+label  = "Drop the warm-up rows (shorter output)"
+source = "field"
+
+[[example]]
+label = "Monthly deltas"
+[example.params]
+series = "120, 135, 150, 148, 161"
+lag = "1"
+order = "1"
+mode = "difference"
+decimals = "6"
+drop_warmup = "false"
+
+[[example]]
+label = "Percent change"
+[example.params]
+series = "120, 135, 150, 148, 161"
+lag = "1"
+order = "1"
+mode = "percent"
+decimals = "2"
+drop_warmup = "true"
+
+[[example]]
+label = "Seasonal lag 12"
+[example.params]
+series = "10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 15, 17, 19, 21"
+lag = "12"
+order = "1"
+mode = "difference"
+decimals = "6"
+drop_warmup = "true"
+
+[[example]]
+label = "Second differences"
+[example.params]
+series = "1, 4, 9, 16, 25, 36"
+lag = "1"
+order = "2"
+mode = "difference"
+decimals = "6"
+drop_warmup = "false"
+
+[[example]]
+label = "Log growth rate"
+[example.params]
+series = "100, 105, 110.25, 115.7625"
+lag = "1"
+order = "1"
+mode = "log"
+decimals = "6"
+drop_warmup = "true"

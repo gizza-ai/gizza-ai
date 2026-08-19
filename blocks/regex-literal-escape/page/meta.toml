@@ -1,0 +1,74 @@
+slug          = "regex-literal-escape"
+title         = "Regex Escape — Turn Text Into a Regex-Safe Literal (PCRE, JS, RE2)"
+description   = "Escape special characters so a regex matches text literally. Nine flavors: PCRE, JavaScript, Python, Go/RE2, .NET, Java, Ruby, and Rust."
+tags          = ["regex escape", "escape regex characters", "preg_quote", "RegExp.escape", "re.escape", "QuoteMeta", "Regex.Escape", "Pattern.quote", "regex special characters", "escape metacharacters"]
+h1            = "Regex Literal Escape"
+hero_subtitle = "Paste any text and get it back escaped so a regex engine matches it literally — with the exact rules of PCRE, JavaScript, Python, Go/RE2, .NET, Java, Ruby, or Rust. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_regex_literal_escape_web"
+export        = "run"
+live          = false
+output_label  = "Escaped literal"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text to escape"
+placeholder = "a.b*c+(d)"
+source      = "field"
+multiline   = true
+
+# flavor renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name  = "flavor"
+label = "Regex flavor"
+source = "field"
+[input.labels]
+pcre                = "PCRE / PHP preg_quote()"
+javascript          = "JavaScript — new RegExp()"
+"javascript-strict" = "JavaScript — RegExp.escape() (ES2025)"
+python              = "Python — re.escape()"
+re2                 = "Go / RE2 — regexp.QuoteMeta()"
+dotnet              = ".NET — Regex.Escape()"
+java                = "Java — Pattern.quote()"
+ruby                = "Ruby — Regexp.escape()"
+rust                = "Rust — regex::escape()"
+
+[[input]]
+name        = "delimiter"
+label       = "Also escape (delimiter)"
+placeholder = "/"
+source      = "field"
+
+[[input]]
+name   = "escape_whitespace"
+label  = "Escape whitespace (/x extended mode)"
+source = "field"
+
+[[input]]
+name   = "string_literal"
+label  = "Escape again for a code string literal"
+source = "field"
+
+[[example]]
+label  = "PHP preg_quote"
+params = { text = "$40 for a g3/400", flavor = "pcre", delimiter = "/" }
+
+[[example]]
+label  = "JavaScript new RegExp"
+params = { text = "price: $9.99 (sale)", flavor = "javascript" }
+
+[[example]]
+label  = "Go QuoteMeta"
+params = { text = "a.b*c+(d)", flavor = "re2" }
+
+[[example]]
+label  = "Java \\Q…\\E"
+params = { text = "C:\\Program Files\\app.exe", flavor = "java" }
+
+[[example]]
+label  = "URL for a Python pattern"
+params = { text = "https://example.com/path?q=1", flavor = "python" }
+
+[[example]]
+label  = "Extended (/x) mode"
+params = { text = "two words", flavor = "pcre", escape_whitespace = "true" }

@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/video-to-animated-webp",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a short video clip into a looping animated WebP",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a video clip into a looping animated WebP, a modern smaller alternative to GIF that can preserve transparency. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional start (seconds, default 0), duration (seconds, default 0 = to the end), fps (default 12, max 60), width (default 0 = keep source size), quality (lossy WebP quality 0-100, default 80), and lossless (default false). The output is image/webp encoded by ffmpeg/libwebp with loop=0. Keep clips short: animated WebP is efficient, but long/high-fps clips can still be large.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "duration": {
+          "description": "Clip length in seconds (default 0 = to the end of the video). Keep animated WebP clips short for browser compatibility and file size.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "fps": {
+          "description": "Frames per second for the animated WebP (default 12). Lower fps = smaller file.",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "number"
+        },
+        "lossless": {
+          "default": false,
+          "description": "Use lossless WebP encoding instead of lossy quality mode (default false). Preserves detail and transparency, but files are usually larger.",
+          "type": "boolean"
+        },
+        "quality": {
+          "description": "Lossy WebP quality 0-100 (default 80). Ignored when lossless is true.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Start time in seconds (default 0, from the beginning).",
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "description": "Output width in pixels; height scales to keep aspect ratio and is rounded even (default 0 = keep source size).",
+          "maximum": 4096,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

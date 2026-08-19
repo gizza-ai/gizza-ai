@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "youtube-takeout-stats"
+version = "0.1.0"
+abi = 1
+summary = "Summarize Google/YouTube Takeout watch history into viewing stats."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pkcs12-inspect"
+version = "0.1.0"
+abi = 1
+summary = "List the bags inside a PKCS#12 (.p12/.pfx) file without its password"

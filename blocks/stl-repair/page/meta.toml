@@ -1,0 +1,108 @@
+slug          = "stl-repair"
+title         = "STL Repair — fix mesh errors and check watertightness online"
+description   = "Paste an STL or OBJ mesh to weld vertices, drop degenerate and duplicate triangles, fix flipped normals, fill holes and check watertightness."
+tags          = ["stl repair", "fix stl", "watertight check", "mesh repair", "non-manifold edges", "flipped normals", "degenerate triangles", "3d printing"]
+h1            = "STL Repair & Watertight Checker"
+hero_subtitle = "Paste an ASCII STL or Wavefront OBJ mesh and get a plain-language diagnosis: degenerate and duplicate triangles, coincident vertices, non-manifold and open edges, flipped faces and shell count — then export the repaired, outward-facing mesh. Everything runs locally in your browser."
+wasm          = "gizza_ai_stl_repair_web"
+export        = "run"
+live          = false
+output_label  = "Repair report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "stl"
+label       = "Mesh text (ASCII STL or OBJ)"
+placeholder = "solid part\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid part"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Return"
+source = "field"
+
+[input.labels]
+report = "Repair report"
+stl    = "Repaired mesh (STL)"
+json   = "Report as JSON"
+
+[[input]]
+name        = "weld_tolerance"
+label       = "Weld tolerance (model units)"
+placeholder = "0.000001"
+source      = "field"
+
+[[input]]
+name   = "remove_degenerate"
+label  = "Remove degenerate (zero-area) triangles"
+source = "field"
+
+[[input]]
+name   = "remove_duplicates"
+label  = "Remove duplicate triangles"
+source = "field"
+
+[[input]]
+name   = "fix_winding"
+label  = "Fix winding and point normals outward"
+source = "field"
+
+[[input]]
+name   = "fill_holes"
+label  = "Fill open boundary loops"
+source = "field"
+
+[[input]]
+name   = "keep_largest_shell"
+label  = "Keep only the largest shell"
+source = "field"
+
+[[input]]
+name   = "stl_encoding"
+label  = "STL encoding (when returning a mesh)"
+source = "field"
+
+[input.labels]
+ascii  = "ASCII STL text"
+binary = "Binary STL data URL"
+
+[[example]]
+label = "Diagnose a tetrahedron with a flipped face"
+[example.params]
+stl = "solid tetra\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 0 1\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 0 0 1\nvertex 0 1 0\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 1 0 0\nvertex 0 1 0\nvertex 0 0 1\nendloop\nendfacet\nendsolid tetra"
+output = "report"
+weld_tolerance = "0.000001"
+remove_degenerate = "true"
+remove_duplicates = "true"
+fix_winding = "true"
+fill_holes = "false"
+keep_largest_shell = "false"
+stl_encoding = "ascii"
+
+[[example]]
+label = "Export the repaired STL"
+[example.params]
+stl = "solid tetra\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 0 1\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 0 0 1\nvertex 0 1 0\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 1 0 0\nvertex 0 1 0\nvertex 0 0 1\nendloop\nendfacet\nendsolid tetra"
+output = "stl"
+weld_tolerance = "0.000001"
+remove_degenerate = "true"
+remove_duplicates = "true"
+fix_winding = "true"
+fill_holes = "false"
+keep_largest_shell = "false"
+stl_encoding = "ascii"
+
+[[example]]
+label = "Close a hole in an open mesh"
+[example.params]
+stl = "solid open\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 0 1\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 0 0 0\nvertex 0 0 1\nvertex 0 1 0\nendloop\nendfacet\nfacet normal 0 0 0\nouter loop\nvertex 1 0 0\nvertex 0 1 0\nvertex 0 0 1\nendloop\nendfacet\nendsolid open"
+output = "report"
+weld_tolerance = "0.000001"
+remove_degenerate = "true"
+remove_duplicates = "true"
+fix_winding = "true"
+fill_holes = "true"
+keep_largest_shell = "false"
+stl_encoding = "ascii"

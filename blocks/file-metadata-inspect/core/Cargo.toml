@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-file-metadata-inspect-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Reuse proven, wasm-safe crates:
+# - kamadak-exif reads EXIF/TIFF (same recipe as image-metadata-viewer),
+# - lopdf parses the PDF trailer/Info dictionary (same as pdf-metadata-edit),
+# - zip + quick-xml open OOXML/ODF/EPUB containers (same as docx-text-extract).
+kamadak-exif = "0.6"
+lopdf = { version = "0.36", default-features = false }
+zip = { version = "8", default-features = false, features = ["deflate"] }
+quick-xml = { version = "0.40", default-features = false }
+serde = { version = "1", features = ["derive"] }

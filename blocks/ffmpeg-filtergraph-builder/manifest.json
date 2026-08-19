@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/ffmpeg-filtergraph-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a validated ffmpeg filtergraph from described filter steps",
+  "role": "skill",
+  "tool": {
+    "description": "Turn an ordered list of described filter steps (one per line, e.g. 'scale to 720p', 'crop to square', 'fade in 1s') into a validated ffmpeg filtergraph string. Returns a -filter_complex graph with [in]/[out] pad labels, a bare -vf/-af chain, or a complete ffmpeg command line. Handles video (scale, crop, pad, fade, rotate, flip, grayscale, blur, sharpen, fps, speed, trim, reverse, brightness, contrast, saturation, hue, text) and audio (volume, fade, trim, speed, reverse, normalize, mono, highpass, lowpass) steps, plus a syntax-checked 'raw <filter>' escape hatch. NOTHING is executed and no media is read — it only composes and validates the string you would paste into your own ffmpeg invocation. To actually transform a file, use one of the video-*/audio-* tools instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "explain": {
+          "default": false,
+          "description": "When true, append '#' comment lines showing which ffmpeg filter each step compiled to (default false).",
+          "type": "boolean"
+        },
+        "input_file": {
+          "default": "input.mp4",
+          "description": "Input file name used by the 'command' output form (default input.mp4). Letters, digits, '.', '_', '-', '+' and '/' only — shell metacharacters are rejected.",
+          "type": "string"
+        },
+        "input_label": {
+          "default": "auto",
+          "description": "Source pad label for filter_complex/command output, e.g. '0:v' or '1:a'. 'auto' (default) uses 0:v for video and 0:a for audio.",
+          "type": "string"
+        },
+        "output": {
+          "default": "filter_complex",
+          "description": "Shape of the returned string: 'filter_complex' (default) wraps the chain in [in]…[out] pad labels; 'filter_chain' is the bare comma-separated chain for -vf/-af; 'command' is a complete ffmpeg command line.",
+          "enum": [
+            "filter_complex",
+            "filter_chain",
+            "command"
+          ],
+          "type": "string"
+        },
+        "output_file": {
+          "default": "output.mp4",
+          "description": "Output file name used by the 'command' output form (default output.mp4). Same allowed characters as input_file.",
+          "type": "string"
+        },
+        "output_label": {
+          "default": "out",
+          "description": "Sink pad label for filter_complex/command output (default 'out'), used as [out] and in the -map argument.",
+          "type": "string"
+        },
+        "steps": {
+          "description": "The filter steps in order, one per line (or separated by ';' / 'then'). Video steps: scale, crop, pad, fade, rotate, flip, grayscale, blur, sharpen, fps, speed, trim, reverse, brightness, contrast, saturation, hue, text, raw. Audio steps: volume, fade, trim, speed, reverse, normalize, mono, highpass, lowpass, raw. Example: 'scale to 720p' / 'crop to square' / 'fade in 1s'. Max 30 steps.",
+          "type": "string"
+        },
+        "stream": {
+          "default": "video",
+          "description": "Which stream the steps apply to: 'video' (default) or 'audio'. Audio steps use the a-prefixed ffmpeg filters (afade, atrim, atempo).",
+          "enum": [
+            "video",
+            "audio"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "steps"
+      ],
+      "type": "object"
+    }
+  }
+}

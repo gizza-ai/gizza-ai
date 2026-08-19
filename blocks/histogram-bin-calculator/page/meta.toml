@@ -1,0 +1,112 @@
+slug          = "histogram-bin-calculator"
+title         = "Histogram Bin Calculator — Sturges, Scott & Freedman–Diaconis Bin Widths"
+description   = "Work out how many bins a histogram needs. Compare Sturges, Scott, Freedman-Diaconis, Rice and square-root, then get the bin edges, counts and percentages."
+tags          = ["histogram bin calculator", "how many bins histogram", "sturges rule calculator", "scott's rule bin width", "freedman diaconis calculator", "rice rule bins", "square root rule histogram", "bin width calculator", "histogram class interval calculator", "frequency distribution table"]
+h1            = "Histogram Bin Calculator"
+hero_subtitle = "Paste a column of numbers and see how many bins each classic rule recommends — Sturges, Scott, Freedman-Diaconis, Rice and the square-root rule — side by side with the bin width each one implies. Pick a rule (or set your own bin count) and the page builds the histogram: bin edges, counts, percentages, optional cumulative and density columns, and an ASCII bar per bin. Everything is computed on your device."
+wasm          = "gizza_ai_histogram_bin_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "numbers"
+label       = "Numbers"
+placeholder = "1\n2\n2\n3\n4\n7\n8\n9\n12\n15\n22\n40"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "rule"
+label  = "Bin-count rule to apply"
+source = "field"
+
+[input.labels]
+"auto"              = "Auto — finer of Sturges and Freedman-Diaconis (numpy)"
+"sturges"           = "Sturges — k = ceil(log2 n) + 1"
+"scott"             = "Scott — h = 3.49 × sd × n^(-1/3)"
+"freedman_diaconis" = "Freedman-Diaconis — h = 2 × IQR × n^(-1/3)"
+"rice"              = "Rice — k = ceil(2 × n^(1/3))"
+"sqrt"              = "Square root — k = ceil(sqrt n)"
+"manual"            = "Manual — use my own bin count"
+
+[[input]]
+name        = "bins"
+label       = "Bin count (used when the rule is Manual)"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "range_min"
+label       = "Range start (blank = smallest value)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "range_max"
+label       = "Range end (blank = largest value)"
+placeholder = "40"
+source      = "field"
+
+[[input]]
+name   = "nice_edges"
+label  = "Round bin width and first edge to human-friendly steps"
+source = "field"
+
+[[input]]
+name   = "right_closed"
+label  = "Right-closed intervals (a, b] instead of [a, b)"
+source = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+"report" = "Report — rule comparison, bin table and bars"
+"table"  = "Table — bin rows as TSV"
+"csv"    = "CSV — bin rows comma-separated"
+"json"   = "JSON — full structured report"
+
+[[input]]
+name   = "cumulative"
+label  = "Add cumulative count and cumulative percent columns"
+source = "field"
+
+[[input]]
+name   = "density"
+label  = "Add a density column, count / (n × bin width)"
+source = "field"
+
+[[input]]
+name   = "chart"
+label  = "Draw an ASCII bar per bin (report output)"
+source = "field"
+
+[[example]]
+label  = "Compare every rule on a small sample"
+params = { numbers = "1\n2\n2\n3\n4\n7\n8\n9\n12\n15\n22\n40", rule = "auto", bins = "10", range_min = "", range_max = "", nice_edges = "false", right_closed = "false", precision = "4", output = "report", cumulative = "false", density = "false", chart = "true" }
+
+[[example]]
+label  = "Sturges with rounded edges"
+params = { numbers = "1\n2\n2\n3\n4\n7\n8\n9\n12\n15\n22\n40", rule = "sturges", bins = "10", range_min = "", range_max = "", nice_edges = "true", right_closed = "false", precision = "4", output = "report", cumulative = "false", density = "false", chart = "true" }
+
+[[example]]
+label  = "Ten manual bins over a fixed 0–100 range"
+params = { numbers = "3\n11\n18\n25\n27\n31\n38\n44\n49\n52\n55\n61\n66\n70\n74\n79\n83\n88\n92\n97", rule = "manual", bins = "10", range_min = "0", range_max = "100", nice_edges = "false", right_closed = "false", precision = "4", output = "report", cumulative = "true", density = "false", chart = "true" }
+
+[[example]]
+label  = "Frequency table as CSV"
+params = { numbers = "1\n2\n2\n3\n4\n7\n8\n9\n12\n15\n22\n40", rule = "manual", bins = "4", range_min = "", range_max = "", nice_edges = "false", right_closed = "false", precision = "4", output = "csv", cumulative = "true", density = "true", chart = "false" }

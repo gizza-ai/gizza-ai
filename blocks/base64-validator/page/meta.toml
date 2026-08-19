@@ -1,0 +1,94 @@
+slug          = "base64-validator"
+title         = "Base64 Validator & Base64url Checker"
+description   = "Validate Base64 and Base64url strings in your browser — find invalid characters, padding mistakes, mixed alphabets, line-length issues, and decoded size."
+tags          = ["base64 validator", "base64url validator", "base64 check", "base64 padding", "jwt base64url", "rfc 4648", "base64 decode check", "data uri base64"]
+h1            = "Base64 Validator"
+hero_subtitle = "Check Base64 or Base64url strings and get precise errors for bad characters, padding, mixed alphabets, line wrapping, and non-canonical trailing bits. Runs entirely in your browser."
+wasm          = "gizza_ai_base64_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Base64 / Base64url input"
+placeholder = "SGVsbG8sIHdvcmxkIQ=="
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "variant"
+label       = "Alphabet"
+source      = "field"
+
+[input.labels]
+"auto" = "Auto-detect"
+"standard" = "Standard Base64 (+ /)"
+"url-safe" = "URL-safe Base64url (- _)"
+
+[[input]]
+name        = "padding"
+label       = "Padding rule"
+source      = "field"
+
+[input.labels]
+"optional" = "Optional padding"
+"required" = "Padding required"
+"forbidden" = "Padding forbidden"
+
+[[input]]
+name        = "ignore_whitespace"
+label       = "Ignore whitespace"
+source      = "field"
+
+[[input]]
+name        = "max_line_length"
+label       = "Max line length"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[example]]
+label = "Valid text"
+[example.params]
+input = "SGVsbG8sIHdvcmxkIQ=="
+variant = "auto"
+padding = "optional"
+ignore_whitespace = "true"
+max_line_length = "0"
+output = "text"
+
+[[example]]
+label = "JWT-style Base64url"
+[example.params]
+input = "eyJzdWIiOiIxMjMifQ"
+variant = "url-safe"
+padding = "forbidden"
+ignore_whitespace = "true"
+max_line_length = "0"
+output = "text"
+
+[[example]]
+label = "Find an error"
+[example.params]
+input = "SGVsbG8s!Q=="
+variant = "auto"
+padding = "optional"
+ignore_whitespace = "true"
+max_line_length = "0"
+output = "text"
+
+[[example]]
+label = "Strict MIME lines"
+[example.params]
+input = "QUJD\nRA=="
+variant = "standard"
+padding = "required"
+ignore_whitespace = "true"
+max_line_length = "76"
+output = "json"

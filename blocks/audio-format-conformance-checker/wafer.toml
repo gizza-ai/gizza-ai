@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-format-conformance-checker"
+version = "0.1.0"
+abi = 1
+summary = "Check whether an audio file really is the format and codec it claims to be"

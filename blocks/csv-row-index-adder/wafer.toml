@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-row-index-adder"
+version = "0.1.0"
+abi = 1
+summary = "Add sequential, UUID, or composite key columns to CSV rows"

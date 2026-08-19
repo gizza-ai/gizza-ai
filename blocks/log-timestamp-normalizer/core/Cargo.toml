@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-log-timestamp-normalizer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# chrono for calendar arithmetic + formatting; alloc-only and clock-free (every
+# instant comes from the pasted text), so it builds for wasm32-unknown-unknown.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
+# chrono-tz bundles the IANA tz database (DST rules baked in), pure Rust, no I/O.
+chrono-tz = { version = "0.10", default-features = false }
+# regex drives the per-line timestamp detection (one pattern per source format).
+regex = "1"

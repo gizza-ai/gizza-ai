@@ -1,0 +1,88 @@
+slug          = "video-scene-split"
+title         = "Split a Video into Scenes — Automatic Shot Detection"
+description   = "Detect every scene change in a video and cut it into one clip per shot, with a CSV of the timings. Multi-pass ffmpeg runs in your browser — nothing is uploaded."
+tags          = ["video", "scene detection", "shot detection", "split", "cut", "scenes", "clips", "ffmpeg", "mp4"]
+h1            = "Split a Video into Scenes"
+hero_subtitle = "Finds every shot boundary and cuts the video into one clip per scene — right in your browser, no upload, with a downloadable timing table."
+wasm          = "gizza_ai_video_scene_split_web"
+export        = "detect_argv"
+runtime       = "ffmpeg"
+output_label  = "Scene clips"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "threshold"
+source      = "field"
+label       = "Detection sensitivity (0–1)"
+placeholder = "0.3"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name        = "min_scene"
+source      = "field"
+label       = "Shortest scene (seconds)"
+placeholder = "0.6"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Cut mode"
+
+[input.labels]
+reencode = "Re-encode — frame-accurate cuts (H.264/AAC MP4)"
+copy     = "Stream copy — instant, snaps to keyframes"
+
+[[input]]
+name        = "crf"
+source      = "field"
+label       = "Quality (CRF, re-encode only)"
+placeholder = "22"
+kind        = "slider"
+min         = "0"
+max         = "51"
+step        = "1"
+
+[[input]]
+name   = "preset"
+source = "field"
+label  = "Encoding speed (re-encode only)"
+
+[input.labels]
+ultrafast = "ultrafast — fastest, biggest files"
+superfast = "superfast"
+veryfast  = "veryfast — default"
+faster    = "faster"
+fast      = "fast"
+medium    = "medium"
+slow      = "slow"
+veryslow  = "veryslow — slowest, smallest files"
+
+[[input]]
+name   = "keep_audio"
+source = "field"
+label  = "Keep the audio track in each clip"
+
+[[example]]
+label  = "Hard cuts only"
+params = { threshold = "0.45", min_scene = "1" }
+
+[[example]]
+label  = "Catch soft transitions"
+params = { threshold = "0.18", min_scene = "0.4" }
+
+[[example]]
+label  = "Instant lossless split"
+params = { mode = "copy", threshold = "0.3", min_scene = "0.6" }
+
+[[example]]
+label  = "Silent B-roll clips"
+params = { keep_audio = "false", threshold = "0.3", min_scene = "0.6" }

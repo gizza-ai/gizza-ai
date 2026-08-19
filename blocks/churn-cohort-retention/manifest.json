@@ -1,0 +1,105 @@
+{
+  "name": "gizza-ai/churn-cohort-retention",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build cohort retention and churn tables and curves from signup and activity data.",
+  "role": "skill",
+  "tool": {
+    "description": "Build a cohort retention or churn analysis from raw user data. Paste an activity/event log (a user-id column and an activity-date column) as `data`, and optionally a signup/users table as `signups`; users are grouped into monthly, weekly, or daily cohorts by their signup date, or by their first activity when no signup table is given. Returns a cohort-by-period grid (P0 = the signup period) with each cohort's size, the users active in each period, a weighted average row across the cohorts that can observe each period, and a text retention curve. Use metric='churn' for period-over-period loss instead of retention, values='count' or 'both' to show user counts, granularity to change the period size, periods to set how many follow-up periods to report, and as_of to set the analysis date (cells a cohort has not aged into show '-' rather than a misleading 0). Dates must be ISO-8601 (YYYY-MM-DD, or a timestamp) or a Unix epoch; ambiguous day/month-first dates are rejected. format='csv' returns the grid for a spreadsheet, format='json' returns structured numbers.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "description": "Analysis date as YYYY-MM-DD. Periods a cohort has not aged into by this date are shown as '-' (unobservable) instead of 0. Defaults to the latest date found in the data.",
+          "type": "string"
+        },
+        "data": {
+          "description": "Activity/event log as CSV/table text: one row per user action, with a user-id column and an activity-date column (e.g. \"user,date\\nu1,2024-01-05\"). Rows may use comma, tab, semicolon, or pipe.",
+          "type": "string"
+        },
+        "date": {
+          "description": "Activity-date column in the activity data: a header name or a 1-based column index. Defaults to the second column.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Input delimiter for both tables: comma (default), tab, semicolon, or pipe.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output format: table (aligned cohort grid plus a text curve, default), csv (the grid alone, for a spreadsheet), or json (structured per-cohort counts and percentages).",
+          "enum": [
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "granularity": {
+          "default": "month",
+          "description": "Cohort/period size: month (default), week (weeks start Monday), or day. Cohorts are labelled YYYY-MM for months and by the period's first date for weeks/days.",
+          "enum": [
+            "month",
+            "week",
+            "day"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "When true (default), the first row of each table is treated as column names so `user`/`date`/`signup_date` can reference them by name. Turn it off for headerless data and use 1-based column indexes.",
+          "type": "boolean"
+        },
+        "metric": {
+          "default": "retention",
+          "description": "retention (default) = active users divided by the cohort size. churn = users lost since the PREVIOUS period, divided by that period's active users; a negative churn rate means users came back.",
+          "enum": [
+            "retention",
+            "churn"
+          ],
+          "type": "string"
+        },
+        "periods": {
+          "default": 6,
+          "description": "How many follow-up periods to report after signup, 1 to 36. Columns are P0 (the signup period) through P<periods>. Default 6.",
+          "maximum": 36,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "signup_date": {
+          "description": "Signup-date column in the signup table: a header name or a 1-based column index. Defaults to the second column. Ignored when no signup table is given.",
+          "type": "string"
+        },
+        "signups": {
+          "description": "Optional signup/users table as CSV/table text: one row per user, with the same user-id column and a signup-date column. When omitted, each user's cohort is their FIRST activity date instead.",
+          "type": "string"
+        },
+        "user": {
+          "description": "User-id column: a header name or a 1-based column index. Defaults to the first column. The same name is looked up in the signup table; if it is not there, the signup table's first column is used.",
+          "type": "string"
+        },
+        "values": {
+          "default": "percent",
+          "description": "What each cell shows: percent (default), count (active users, or users lost for churn), or both (\"12 (60%)\").",
+          "enum": [
+            "percent",
+            "count",
+            "both"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

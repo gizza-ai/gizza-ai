@@ -1,0 +1,78 @@
+slug          = "sentence-split"
+title         = "Sentence Splitter — Split Text into Sentences Online"
+description   = "Split text into one sentence per line. Abbreviation-, decimal- and quote-aware boundaries, numbered or JSON output, custom abbreviations. Free, in your browser."
+tags          = ["sentence splitter", "split text into sentences", "sentence tokenizer", "sentence segmentation", "one sentence per line", "sentence boundary detection", "text to sentences", "sentence extractor"]
+h1            = "Sentence Splitter"
+hero_subtitle = "Split any text into one sentence per line. The rule-based detector keeps abbreviations, initials, decimals, list markers and quoted speech from breaking a sentence in the wrong place. Numbered, blank-line-separated or JSON output with word and character counts. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_sentence_split_web"
+export        = "run"
+live          = false
+output_label  = "Sentences"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Dr. Green paid $99.99 for it. It arrived on Mar. 3 and works fine."
+source      = "field"
+multiline   = true
+
+# format / newlines render as <select> and trim as a checkbox — the control type
+# and options come from the descriptor's schema (manifest.json).
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+"lines"      = "One sentence per line"
+"numbered"   = "Numbered list (1. 2. 3.)"
+"blank-line" = "Blank line between sentences"
+"json"       = "JSON with word and character counts"
+
+[[input]]
+name   = "newlines"
+label  = "Line breaks"
+source = "field"
+
+[input.labels]
+paragraph = "Only a blank line ends a sentence"
+never     = "Never end a sentence (join wrapped lines)"
+always    = "Always end a sentence (one per line)"
+
+[[input]]
+name   = "trim"
+label  = "Trim each sentence"
+source = "field"
+
+[[input]]
+name        = "min_chars"
+label       = "Minimum sentence length (characters)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "extra_abbreviations"
+label       = "Extra abbreviations (never split after these)"
+placeholder = "Corp., Ltd., Inc."
+source      = "field"
+
+[[example]]
+label  = "Abbreviations and decimals"
+params = { text = "Dr. Green met Mrs. Hall at 5 p.m. Pi is 3.14 and the bill was $99.99. Release 1.2.3 shipped, e.g. Chapter 2. See No. 5 for details.", format = "lines", newlines = "paragraph", trim = "true" }
+
+[[example]]
+label  = "Dialogue, numbered"
+params = { text = "\"Stop!\" he said. Wait... really? J. R. R. Tolkien wrote it. Fine.", format = "numbered", newlines = "paragraph", trim = "true" }
+
+[[example]]
+label  = "One sentence per line of input"
+params = { text = "Buy milk\nWalk the dog\nBook the flight", format = "lines", newlines = "always", trim = "true" }
+
+[[example]]
+label  = "JSON with a length filter"
+params = { text = "Yes. This sentence is long enough to keep. No. So is this one, comfortably.", format = "json", newlines = "paragraph", trim = "true", min_chars = "10" }
+
+[[example]]
+label  = "Custom abbreviations"
+params = { text = "Ship it to Acme Corp. Then invoice Beta Ltd. Thanks.", format = "lines", newlines = "paragraph", trim = "true", extra_abbreviations = "Corp., Ltd." }

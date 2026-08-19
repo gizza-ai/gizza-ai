@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "er-diagram-from-sql"
+version = "0.1.0"
+abi = 1
+summary = "Turn SQL CREATE TABLE / ALTER TABLE DDL into a Mermaid erDiagram with crow's-foot relationships."

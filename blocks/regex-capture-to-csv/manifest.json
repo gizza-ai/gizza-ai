@@ -1,0 +1,86 @@
+{
+  "name": "gizza-ai/regex-capture-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn regex capture groups into CSV rows — one row per match",
+  "role": "skill",
+  "tool": {
+    "description": "Scan text with a regular expression (Rust regex syntax) and emit CSV: one row per match, with the capture groups as columns. Named groups ((?<name>…) or (?P<name>…)) supply the header; unnamed groups become column1, column2, …; a pattern with no groups yields a single 'match' column. Pick and reorder columns, choose the delimiter (comma, semicolon, tab, pipe, colon, space or any character), toggle the header row, quote minimally or always (RFC 4180 doubling), pick LF or CRLF line endings, apply the i/m/s regex flags, and optionally dedupe or sort rows. The pattern runs against the whole text, so with dotall a match may span lines. Groups that did not participate yield empty fields. Input is capped at 1 MB and 100000 rows. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Comma-separated column names to emit, in the order you want them (e.g. 'status, ip'). Blank (default) emits every capture group in pattern order. A name may repeat; an unknown name is an error that lists the available names.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "Field delimiter: a single character, the escape \\t, or one of the keywords comma, semicolon, tab, pipe, colon, space. Default ','.",
+          "type": "string"
+        },
+        "dotall": {
+          "default": false,
+          "description": "Let . also match newline characters (the s flag) so one match can span lines — useful for HTML blocks and stack traces.",
+          "type": "boolean"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit a first row of column names. Default true; turn it off to append the rows to an existing CSV.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match case-insensitively (the i flag).",
+          "type": "boolean"
+        },
+        "line_ending": {
+          "default": "lf",
+          "description": "Row terminator: 'lf' (default, Unix) or 'crlf' (Windows/Excel-friendly).",
+          "enum": [
+            "lf",
+            "crlf"
+          ],
+          "type": "string"
+        },
+        "multiline": {
+          "default": false,
+          "description": "Let ^ and $ match at line boundaries, not only the start/end of the text (the m flag).",
+          "type": "boolean"
+        },
+        "pattern": {
+          "description": "Regular expression (Rust regex syntax). Columns come from its capture groups: NAMED groups — (?<name>…) or (?P<name>…) — become the header, e.g. (?<ip>\\S+) (?<status>\\d{3}). A pattern with only unnamed groups gets column1, column2, …; a pattern with no groups gets a single 'match' column holding the whole match.",
+          "type": "string"
+        },
+        "quoting": {
+          "default": "minimal",
+          "description": "When to wrap a field in double quotes: 'minimal' (default) quotes only fields containing the delimiter, a quote, or a line break; 'all' quotes every field including the header. Embedded quotes are always doubled (RFC 4180).",
+          "enum": [
+            "minimal",
+            "all"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": false,
+          "description": "Sort the rows lexicographically by the first column, then the rest. Applied after unique.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text to scan — logs, HTML, exports, command output. The regex is applied to the whole text, so a match may span several lines. Max 1 MB.",
+          "type": "string"
+        },
+        "unique": {
+          "default": false,
+          "description": "Drop duplicate rows, keeping first-seen order.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

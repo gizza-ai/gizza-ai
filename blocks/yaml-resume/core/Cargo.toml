@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-yaml-resume-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde_json = "1"
+serde_yml = "0.0.12"

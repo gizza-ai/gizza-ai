@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-shapefile-to-geojson-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# JSON output construction. Pure Rust, wasm-safe (used across the workspace).
+serde_json = "1"
+# Shapefile "sets" are distributed as a .zip (.shp + .dbf + .shx + .prj), which is
+# the only way a single-upload tool can receive the sidecar files. `zip` 8 with
+# default features off + deflate is the proven wasm-safe read path in this repo
+# (same recipe as blocks/epub-to-markdown and blocks/unzip).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# Attribute table parsing is NOT re-implemented: the sibling block already owns a
+# hand-rolled, wasm-safe dBase reader (types C/N/F/D/L/I, code-page decoding,
+# deleted-record flags). Reusing it keeps one DBF implementation in the repo.
+gizza-ai-dbf-table-parser-core = { path = "../../dbf-table-parser/core" }

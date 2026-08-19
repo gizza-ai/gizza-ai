@@ -1,0 +1,96 @@
+slug          = "docker-cli-output-parser"
+title         = "Docker CLI Output Parser — docker ps / images / stats to JSON, CSV or a Table"
+description   = "Paste docker ps, docker images or docker stats output and get JSON, CSV, TSV, or a Markdown table. Splits CONTAINER ID, MEM USAGE / LIMIT and NET I/O correctly."
+tags          = ["docker ps parser", "docker output to json", "docker stats to csv", "docker images to table", "parse docker cli output", "docker ps to csv", "docker stats json", "docker cli formatting"]
+h1            = "Docker CLI output parser"
+hero_subtitle = "Paste the table docker printed — ps, images or stats — and get JSON, CSV, TSV, a Markdown table, or aligned text. The header line is used as a fixed-width ruler, so titles with spaces (CONTAINER ID, MEM USAGE / LIMIT, NET I/O) and values with spaces (COMMAND, CREATED, STATUS, PORTS) split at the right boundaries. Percentages, PIDs, port lists and sizes are typed for you. Runs locally in your browser; nothing is uploaded."
+wasm          = "gizza_ai_docker_cli_output_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Docker CLI output (include the header line)"
+placeholder = "CONTAINER ID   IMAGE        COMMAND                  CREATED         STATUS         PORTS                  NAMES\n9f21a1b2c3d4   nginx:1.25   \"/docker-entrypoint.…\"   3 minutes ago   Up 3 minutes   0.0.0.0:8080->80/tcp   web"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "kind"
+label   = "Which docker command"
+source  = "field"
+default = "auto"
+labels  = { auto = "Detect from the header", ps = "docker ps", images = "docker images", stats = "docker stats" }
+
+[[input]]
+name    = "output"
+label   = "Output format"
+source  = "field"
+default = "json"
+labels  = { json = "JSON", csv = "CSV", tsv = "TSV", markdown = "Markdown table", table = "Aligned text table" }
+
+[[input]]
+name    = "keys"
+label   = "Column naming"
+source  = "field"
+default = "snake"
+labels  = { snake = "snake_case (container_id)", header = "Printed titles (CONTAINER ID)", docker = "docker --format names (CPUPerc)" }
+
+[[input]]
+name    = "parse_values"
+label   = "Type and split values (numbers, byte counts, port lists)"
+source  = "field"
+default = "true"
+
+[[input]]
+name        = "columns"
+label       = "Columns to keep (comma-separated, blank = all)"
+placeholder = "names,cpu_percent,mem_usage_bytes"
+source      = "field"
+
+[[input]]
+name    = "header"
+label   = "Include header row (CSV, TSV, Markdown, table)"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "strict"
+label   = "Strict — fail on truncated rows and header/kind mismatch"
+source  = "field"
+default = "false"
+
+[[input]]
+name        = "limit"
+label       = "Maximum rows"
+placeholder = "500"
+source      = "field"
+default     = "500"
+
+[[example]]
+label = "docker ps → JSON"
+[example.params]
+input = "CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                    NAMES\n9f21a1b2c3d4   nginx:1.25     \"/docker-entrypoint.…\"   3 minutes ago   Up 3 minutes   0.0.0.0:8080->80/tcp     web\n0011deadbeef   postgres:16    \"docker-entrypoint.s…\"   2 hours ago     Up 2 hours                              db"
+output = "json"
+
+[[example]]
+label = "docker stats → CSV"
+[example.params]
+input = "CONTAINER ID   NAME   CPU %   MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O     PIDS\n9f21a1b2c3d4   web    0.07%   12.05MiB / 7.667GiB   0.15%     1.31kB / 0B       0B / 8.19kB   5\n0011deadbeef   db     1.25%   64.5MiB / 7.667GiB    0.82%     18.4kB / 12.2kB   4.1MB / 0B    12"
+output = "csv"
+
+[[example]]
+label = "docker images → Markdown"
+[example.params]
+input = "REPOSITORY   TAG       IMAGE ID       CREATED        SIZE\nnginx        1.25      a1b2c3d4e5f6   2 weeks ago    187MB\npostgres     16        112233445566   3 months ago   432MB"
+output = "markdown"
+
+[[example]]
+label = "Pick columns from stats"
+[example.params]
+input = "CONTAINER ID   NAME   CPU %   MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O     PIDS\n9f21a1b2c3d4   web    0.07%   12.05MiB / 7.667GiB   0.15%     1.31kB / 0B       0B / 8.19kB   5\n0011deadbeef   db     1.25%   64.5MiB / 7.667GiB    0.82%     18.4kB / 12.2kB   4.1MB / 0B    12"
+columns = "name,cpu_percent,mem_usage_bytes,pids"
+output = "table"

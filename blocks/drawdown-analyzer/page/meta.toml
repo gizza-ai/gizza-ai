@@ -1,0 +1,107 @@
+slug          = "drawdown-analyzer"
+title         = "Drawdown Analyzer — Max Drawdown, Recovery Time & Underwater Curve"
+description   = "Analyze an equity curve or return series for maximum drawdown, drawdown duration, recovery time, current drawdown, ulcer index, pain index, and top drawdown episodes."
+tags          = ["drawdown analyzer", "maximum drawdown", "underwater curve", "portfolio risk", "equity curve", "returns analysis", "recovery time", "ulcer index"]
+h1            = "Analyze max drawdown and recovery time"
+hero_subtitle = "Paste equity values or periodic returns and get maximum drawdown, peak/trough positions, recovery periods, current drawdown, top drawdown episodes, and a text underwater curve."
+wasm          = "gizza_ai_drawdown_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Drawdown report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "series"
+label       = "Series (equity levels or returns)"
+placeholder = "10000\n11200\n9800\n10400\n12100\n11600\n13000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "series_type"
+label  = "Series type"
+source = "field"
+
+[input.labels]
+equity  = "Equity / balance levels"
+returns = "Periodic returns"
+
+[[input]]
+name   = "frequency"
+label  = "Observation frequency"
+source = "field"
+
+[input.labels]
+period    = "Plain periods"
+daily     = "Daily calendar days"
+trading   = "Trading days (weekdays)"
+weekly    = "Weekly"
+monthly   = "Monthly"
+quarterly = "Quarterly"
+annual    = "Annual"
+
+[[input]]
+name        = "start_date"
+label       = "Start date (optional)"
+placeholder = "2020-01-31"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "has_header"
+label  = "First non-empty line is a header"
+source = "field"
+
+[[input]]
+name        = "top_n"
+label       = "Drawdown episodes to list"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20"
+step        = "1"
+
+[[input]]
+name        = "recovery_cagr"
+label       = "Assumed annual recovery rate (%)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "0.5"
+
+[[example]]
+label = "Equity curve"
+[example.params]
+series = "10000\n11200\n9800\n10400\n12100\n11600\n13000"
+series_type = "equity"
+frequency = "period"
+start_date = ""
+has_header = "false"
+top_n = "5"
+recovery_cagr = "0"
+
+[[example]]
+label = "Monthly returns"
+[example.params]
+series = "2.0%\n-5.0%\n3.0%\n-8.0%\n7.5%\n4.0%"
+series_type = "returns"
+frequency = "monthly"
+start_date = "2024-01-31"
+has_header = "false"
+top_n = "3"
+recovery_cagr = "8"
+
+[[example]]
+label = "Dated balances with header"
+[example.params]
+series = "date,balance\n2023-01-31,10000\n2023-02-28,10800\n2023-03-31,9200\n2023-04-30,9800\n2023-05-31,11100"
+series_type = "equity"
+frequency = "monthly"
+start_date = ""
+has_header = "true"
+top_n = "5"
+recovery_cagr = "10"

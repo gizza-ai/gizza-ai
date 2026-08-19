@@ -1,0 +1,121 @@
+slug          = "super-timeline-builder"
+title         = "Super timeline builder — merge forensic CSV timelines"
+description   = "Merge parsed forensic artifact CSVs into one sorted UTC timeline with expansion, dedupe, filters, and CSV/l2tcsv/TLN exports."
+tags          = ["forensics", "timeline", "csv", "incident response", "dfir", "log2timeline"]
+h1            = "Super timeline builder"
+hero_subtitle = "Paste parsed artifact CSVs, expand every timestamp column, normalize to UTC, and export one sorted super-timeline locally."
+wasm          = "gizza_ai_super_timeline_builder_web"
+export        = "run"
+live          = false
+output_label  = "Merged timeline"
+format        = "text"
+
+[[input]]
+name        = "artifacts"
+label       = "Artifact CSV sections"
+placeholder = "--- mft ---\nPath,Created,LastModified\n\\Users\\a\\evil.exe,2024-06-01 10:00:05,2024-06-01 10:00:09\n=== evtx ===\nTimeCreated,EventID,Computer\n2024-06-01 10:00:01,4624,DC01"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+csv    = "Compact CSV"
+l2tcsv = "Legacy l2tcsv"
+tln    = "TLN pipe format"
+
+[[input]]
+name   = "order"
+label  = "Sort order"
+source = "field"
+
+[input.labels]
+asc  = "Oldest first"
+desc = "Newest first"
+
+[[input]]
+name   = "expand"
+label  = "Expand timestamp columns"
+source = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Remove duplicate events"
+source = "field"
+
+[[input]]
+name        = "from"
+label       = "From"
+placeholder = "2024-06-01T00:00:00Z"
+source      = "field"
+kind        = "datetime-local"
+
+[[input]]
+name        = "to"
+label       = "To"
+placeholder = "2024-06-02T23:59:59Z"
+source      = "field"
+kind        = "datetime-local"
+
+[[input]]
+name        = "tz_offset"
+label       = "Naive timezone offset (hours)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-14"
+max         = "14"
+step        = "0.5"
+
+[[input]]
+name   = "drop_epoch_zero"
+label  = "Drop 1970-01-01 zero timestamps"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma"
+tab       = "Tab"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+
+[[input]]
+name        = "limit"
+label       = "Row limit"
+placeholder = "10000"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "100000"
+step        = "1000"
+
+[[example]]
+label = "MFT + EVTX compact CSV"
+[example.params]
+artifacts = "--- mft ---\nPath,Created,LastModified\n\\Users\\a\\evil.exe,2024-06-01 10:00:05,2024-06-01 10:00:09\n=== evtx ===\nTimeCreated,EventID,Computer\n2024-06-01 10:00:01,4624,DC01"
+format = "csv"
+order = "asc"
+expand = "true"
+
+[[example]]
+label = "Newest-first l2tcsv"
+[example.params]
+artifacts = "# l2t\ndate,time,timezone,MACB,source,desc\n06/01/2024,10:00:07,UTC,MACB,FILE,evil.exe"
+format = "l2tcsv"
+order = "desc"
+
+[[example]]
+label = "Range-filtered TLN"
+[example.params]
+artifacts = "# evtx\nTimeCreated,EventID,Computer\n2024-06-01 10:00:01,4624,DC01\n2024-06-02 12:00:00,4688,DC01"
+format = "tln"
+from = "2024-06-01T00:00:00Z"
+to = "2024-06-01T23:59:59Z"

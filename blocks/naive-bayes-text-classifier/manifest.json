@@ -1,0 +1,120 @@
+{
+  "name": "gizza-ai/naive-bayes-text-classifier",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Train a naive Bayes text classifier on labeled examples and classify new text.",
+  "role": "skill",
+  "tool": {
+    "description": "Train a naive Bayes text classifier from pasted labeled examples and immediately classify new text with it. Training data is one example per line as label<separator>text, with the separator auto-detected from tab, comma, pipe or colon. Supports the multinomial, Bernoulli and complement variants, Lidstone/Laplace smoothing, word n-grams up to 3, case folding, English stop-word removal, a minimum token count, and empirical or uniform class priors. Returns the predicted label, per-class probabilities, the tokens that decided it, the model settings and training statistics as an aligned report or JSON. Can classify one document or batch-label every line of a list. Trains from scratch on each call and runs entirely locally — nothing is uploaded and no pre-trained model is downloaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 1.0,
+          "description": "Additive (Lidstone) smoothing added to every token count so unseen words do not force a zero probability. 1.0 (default) is Laplace smoothing; lower values such as 0.1 trust the training counts more and give sharper confidences; higher values flatten them. 0 is clipped to 1e-10 so the logs stay finite. Maximum 10.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "explain": {
+          "default": true,
+          "description": "Include the tokens that pushed the decision towards the winning label, scored as the weight gap between the top label and the runner-up. Default true. In batch mode this becomes a compact top-tokens column per row.",
+          "type": "boolean"
+        },
+        "input_mode": {
+          "default": "single",
+          "description": "What text holds: single (default) classifies the whole value as one document; lines classifies every non-blank line separately and returns one row per line, for batch-labelling a list.",
+          "enum": [
+            "single",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "lowercase": {
+          "default": true,
+          "description": "Fold the training data and the input to lower case before tokenizing, so `Free` and `free` are the same feature. Default true. Turn it off when capitalisation itself is a signal, for example ALL-CAPS shouting.",
+          "type": "boolean"
+        },
+        "min_count": {
+          "default": 1,
+          "description": "Minimum number of times a token must occur across the whole training set to stay in the vocabulary. 1 (default) keeps everything; 2 or 3 removes one-off typos and names and shrinks the model. Maximum 100. If it would empty the vocabulary you get an error instead.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "model": {
+          "default": "multinomial",
+          "description": "Which naive Bayes variant to train. multinomial (default) counts how often each token occurs and is the usual choice for topic and spam classification. bernoulli uses presence/absence per token and also scores the words that are missing, which suits short texts. complement uses complement-class statistics and holds up better when one label has many more examples than the others.",
+          "enum": [
+            "multinomial",
+            "bernoulli",
+            "complement"
+          ],
+          "type": "string"
+        },
+        "ngram_max": {
+          "default": 1,
+          "description": "Longest word n-gram used as a feature. 1 (default) is a plain bag of words; 2 also learns adjacent word pairs such as `free money`, which helps on short texts at the cost of a much larger vocabulary; 3 adds triples. Maximum 3.",
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: report (default) is an aligned human-readable summary with the prediction, class probabilities, explanation, model settings and training statistics; json is the same information as a machine-readable object (prediction, confidence, classes, explanation, model, training, notes). Default report.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "priors": {
+          "default": "empirical",
+          "description": "Class prior probabilities: empirical (default) uses each label's share of the training examples, so a label with more examples starts ahead; uniform gives every label the same starting probability, which is what you want when the example counts do not reflect real-world frequencies. Ignored by the complement model, which scores from complement-class weights only.",
+          "enum": [
+            "empirical",
+            "uniform"
+          ],
+          "type": "string"
+        },
+        "remove_stopwords": {
+          "default": false,
+          "description": "Drop common English function words (the, and, is, to, …) before features are formed. Default false, because naive Bayes usually handles them fine and they matter in some domains. Turn it on for topic classification of longer English documents.",
+          "type": "boolean"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "How each training line is split into label and text: auto (default — picks whichever of tab, comma, pipe or colon appears on the most lines), or force one of tab, comma, pipe, colon. Force it when your example text contains the auto-detected character more often than the labels do.",
+          "enum": [
+            "auto",
+            "tab",
+            "comma",
+            "pipe",
+            "colon"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to classify with the freshly trained model. With input_mode=single the whole value is one document; with input_mode=lines each non-blank line is classified separately. Capped at 256 KiB and 1000 batch lines.",
+          "type": "string"
+        },
+        "top_k": {
+          "default": 3,
+          "description": "How many of the highest-scoring labels to list with their probabilities. Default 3; 0 lists every label. Maximum 50. The prediction itself is always the top label regardless of this setting.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "training_data": {
+          "description": "The labeled training set: one example per line, written as label<separator>text, for example `spam,win a free prize now`. Use at least 2 distinct labels and ideally 10+ examples per label. The first separator on a line splits the label from the text, so the text itself may contain more of them. Surrounding double quotes are stripped, so a pasted two-column CSV works. Capped at 1 MiB, 20000 examples and 200 labels.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "training_data",
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

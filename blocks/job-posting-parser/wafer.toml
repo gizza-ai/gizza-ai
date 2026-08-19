@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "job-posting-parser"
+version = "0.1.0"
+abi = 1
+summary = "Extract title, company, salary, location, skills, and work mode from a pasted job ad."

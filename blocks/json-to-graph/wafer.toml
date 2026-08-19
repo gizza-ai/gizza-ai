@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-graph"
+version = "0.1.0"
+abi = 1
+summary = "Visualize a JSON document's structure as a Mermaid flowchart or Graphviz DOT graph"

@@ -1,0 +1,104 @@
+slug          = "log-return-calculator"
+title         = "Log Return Calculator — Continuously Compounded Returns"
+description   = "Paste a price series and get continuously compounded log returns per period, cumulative and total log return, volatility, and annualized figures as text, CSV or JSON."
+tags          = ["log return", "continuously compounded return", "logarithmic return", "cc return", "volatility", "annualized return", "cagr", "price series"]
+h1            = "Log return calculator"
+hero_subtitle = "Turn a column of prices into continuously compounded (log) returns — ln(price ÷ previous price) per period, a running cumulative, the total, per-period and annualized volatility, and the equivalent simple returns. Runs entirely in your browser. Educational only, not financial advice."
+wasm          = "gizza_ai_log_return_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Log returns"
+format        = "text"
+
+[[input]]
+name        = "prices"
+label       = "Price or level series"
+placeholder = "2024-01-02,187.15\n2024-01-03,184.25\n2024-01-04,181.91"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "has_header"
+label       = "First line is a header row (skip it)"
+source      = "field"
+
+[[input]]
+name        = "periods_per_year"
+label       = "Periods per year (for annualizing)"
+source      = "field"
+[input.labels]
+"252" = "252 — daily (trading days)"
+"365" = "365 — daily (calendar days)"
+"52"  = "52 — weekly"
+"26"  = "26 — biweekly"
+"12"  = "12 — monthly"
+"4"   = "4 — quarterly"
+"1"   = "1 — annual"
+
+[[input]]
+name        = "unit"
+label       = "Return unit"
+source      = "field"
+[input.labels]
+percent = "Percent (+18.2322%)"
+decimal = "Decimal log value (+0.182322)"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "output"
+label       = "Output shape"
+source      = "field"
+[input.labels]
+summary = "Summary + per-period table"
+table   = "Per-period table only"
+csv     = "CSV for a spreadsheet"
+json    = "JSON (every field)"
+
+[[example]]
+label = "Daily closes → summary"
+[example.values]
+prices = "2024-01-02,187.15\n2024-01-03,184.25\n2024-01-04,181.91\n2024-01-05,181.18\n2024-01-08,185.56"
+has_header = "false"
+periods_per_year = "252"
+unit = "percent"
+decimals = "4"
+output = "summary"
+
+[[example]]
+label = "Monthly NAVs → CSV"
+[example.values]
+prices = "date,nav\n2024-01-31,100\n2024-02-29,105\n2024-03-31,103\n2024-04-30,108"
+has_header = "true"
+periods_per_year = "12"
+unit = "percent"
+decimals = "4"
+output = "csv"
+
+[[example]]
+label = "One-line series → decimal log values"
+[example.values]
+prices = "100, 105, 103, 108"
+has_header = "false"
+periods_per_year = "252"
+unit = "decimal"
+decimals = "6"
+output = "table"
+
+[[example]]
+label = "Symmetry check: 50 → 70 → 50"
+[example.values]
+prices = "50\n70\n50"
+has_header = "false"
+periods_per_year = "1"
+unit = "percent"
+decimals = "4"
+output = "summary"

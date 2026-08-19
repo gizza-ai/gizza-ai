@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-docx-comment-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# A DOCX is a ZIP of WordprocessingML XML parts. Both crates instantiate under
+# wasm32-wasip1 (the same pair docx-text-extract uses): zip with deflate only,
+# quick-xml as a pull parser.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+quick-xml = { version = "0.40", default-features = false }

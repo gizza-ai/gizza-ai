@@ -1,0 +1,103 @@
+{
+  "name": "gizza-ai/chromatic-aberration-fix",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reduce purple and green chromatic-aberration fringes in an image",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce purple/violet and green chromatic-aberration halos on high-contrast image edges. The tool first optionally applies radial red/blue lateral channel correction, then performs edge-gated defringe passes that only reduce channel excess instead of bluntly desaturating the whole image. Provide an image as url (HTTP/HTTPS) or ref. Use amount/radius/hue controls carefully: strong settings can gray out legitimate purple or green subject detail near edges.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "blue_shift": {
+          "default": 0.0,
+          "description": "Optional radial lateral chromatic-aberration correction for the blue channel, measured in pixels at the image corner (-10 to 10, default 0). Positive pulls blue inward; negative pushes it outward.",
+          "maximum": 10,
+          "minimum": -10,
+          "type": "number"
+        },
+        "edge_threshold": {
+          "default": 20,
+          "description": "Minimum local luma contrast (0-255, default 20) before a pixel is considered near an edge. Raise to protect low-contrast colored subjects; 0 allows correction everywhere.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Output image format: auto keeps JPEG/WebP input as that format and uses PNG otherwise; png preserves alpha; jpeg flattens alpha; webp writes WebP.",
+          "enum": [
+            "auto",
+            "png",
+            "jpeg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "green_amount": {
+          "default": 5,
+          "description": "Strength for reducing green halos around high-contrast edges (0-20, default 5). 0 disables the green pass; 20 pulls green channel excess fully down to the brighter red/blue reference.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hue_tolerance": {
+          "default": 40,
+          "description": "Hue half-window in degrees around purple (285°) and green (120°), 5-90, default 40. Wider tolerances catch more fringe colors but risk desaturating real subject color.",
+          "maximum": 90,
+          "minimum": 5,
+          "type": "integer"
+        },
+        "purple_amount": {
+          "default": 8,
+          "description": "Strength for reducing purple/violet halos around high-contrast edges (0-20, default 8). 0 disables the purple pass; 20 pulls red/blue channel excess fully down to green.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "quality": {
+          "default": 90,
+          "description": "Encoder quality for JPEG output (1-100, default 90). PNG/WebP are written with the image crate's lossless/default encoder and ignore this value.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "radius": {
+          "default": 4,
+          "description": "How many pixels the edge mask reaches around a detected edge (1-20, default 4). Larger values catch wider halos but can affect nearby purple/green detail.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "red_shift": {
+          "default": 0.0,
+          "description": "Optional radial lateral chromatic-aberration correction for the red channel, measured in pixels at the image corner (-10 to 10, default 0). Positive pulls red inward; negative pushes it outward.",
+          "maximum": 10,
+          "minimum": -10,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

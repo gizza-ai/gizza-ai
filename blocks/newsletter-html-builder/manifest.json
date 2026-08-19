@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/newsletter-html-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build responsive, email-client-safe newsletter HTML from simple sections.",
+  "role": "skill",
+  "tool": {
+    "description": "Build a complete, responsive, email-client-safe newsletter HTML document from a plain list of sections. Write one section per line as 'type | content | extra': heading, subheading, text, button (label + URL), image (URL + alt + optional link), columns (two columns that stack on mobile), divider, spacer (px), footer, or html for raw markup; **bold**, *italic*, [links](url) and \\n work inside text, and merge tags like {{first_name}} pass through. The output uses nested role=presentation tables with every style inlined, an Outlook ghost-table conditional comment, a hidden preheader line, a mobile media query and an optional prefers-color-scheme dark block. Content width, page/card/text/accent colours, the email-safe font stack, the document title and the preheader are all configurable.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "accent": {
+          "default": "#2563eb",
+          "description": "Accent colour used for button backgrounds and links, as a hex colour or CSS colour name. Default '#2563eb' (blue).",
+          "type": "string"
+        },
+        "background": {
+          "default": "#f4f4f5",
+          "description": "Page background behind the content card, as a hex colour ('#f4f4f5', default) or a CSS colour name ('white'). Default '#f4f4f5'.",
+          "type": "string"
+        },
+        "content_background": {
+          "default": "#ffffff",
+          "description": "Background of the content card itself, as a hex colour or CSS colour name. Default '#ffffff'.",
+          "type": "string"
+        },
+        "dark_mode": {
+          "default": true,
+          "description": "When true (default), add the 'color-scheme' meta tags and a 'prefers-color-scheme: dark' block so the newsletter gets readable dark colours in clients that support it. Set false to always render the light palette.",
+          "type": "boolean"
+        },
+        "font": {
+          "default": "system",
+          "description": "Which email-safe font stack to inline: 'system' (default, native UI font), 'arial', 'helvetica', 'verdana', 'tahoma', 'trebuchet', 'georgia', 'times' or 'courier'. Web fonts are deliberately not offered — several major clients ignore them.",
+          "enum": [
+            "system",
+            "arial",
+            "helvetica",
+            "verdana",
+            "tahoma",
+            "trebuchet",
+            "georgia",
+            "times",
+            "courier"
+          ],
+          "type": "string"
+        },
+        "preheader": {
+          "default": "",
+          "description": "Hidden preview line shown after the subject in most inboxes, e.g. 'Three new features and a discount inside'. Rendered as a hidden, zero-height div padded with zero-width characters so body copy does not bleed into the preview. Blank (default) omits it.",
+          "type": "string"
+        },
+        "sections": {
+          "description": "The newsletter content, ONE section per line, pipe-separated as 'type | content | extra'. Types: 'heading | Big title'; 'subheading | Smaller title'; 'text | A paragraph'; 'button | Read more | https://example.com'; 'image | https://example.com/hero.png | Alt text | https://example.com' (4th part is an optional click-through link); 'columns | Left copy | Right copy' (stacks on mobile); 'divider'; 'spacer | 24' (height in px); 'footer | Small print'; 'html | <p>raw markup</p>'. Inside any text you can use **bold**, *italic*, [label](https://example.com) and \\n for a line break; merge tags such as {{first_name}} pass through untouched. Lines starting with '#' are comments. Max 200 sections.",
+          "type": "string"
+        },
+        "subject": {
+          "default": "",
+          "description": "Text for the document <title> (what a browser tab or an email client's 'view in browser' shows), e.g. 'March newsletter'. Blank (default) uses 'Newsletter'.",
+          "type": "string"
+        },
+        "text_color": {
+          "default": "#1f2937",
+          "description": "Body text colour, as a hex colour or CSS colour name. Default '#1f2937' (near-black).",
+          "type": "string"
+        },
+        "width": {
+          "default": 600,
+          "description": "Content width in pixels (320-900). 600 (default) is the standard newsletter width that fits every desktop client; the layout drops to 100% width below this size.",
+          "maximum": 900,
+          "minimum": 320,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sections"
+      ],
+      "type": "object"
+    }
+  }
+}

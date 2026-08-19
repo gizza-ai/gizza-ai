@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "config-merge"
+version = "0.1.0"
+abi = 1
+summary = "Merge layered config files across JSON, YAML, TOML and .env"

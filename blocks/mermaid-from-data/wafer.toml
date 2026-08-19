@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mermaid-from-data"
+version = "0.1.0"
+abi = 1
+summary = "Generate Mermaid diagram source from structured nodes and edges"

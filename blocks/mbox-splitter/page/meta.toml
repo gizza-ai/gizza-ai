@@ -1,0 +1,86 @@
+slug          = "mbox-splitter"
+title         = "MBOX Splitter — split an mbox into individual EML messages"
+description   = "Paste an mbox archive and split it into individual .eml messages with suggested filenames. List what is inside, pull out one message, or export JSON — all local."
+tags          = ["mbox splitter", "mbox to eml", "split mbox file", "extract emails from mbox", "mbox converter", "eml export", "thunderbird mbox", "gmail takeout mbox"]
+h1            = "MBOX Splitter"
+hero_subtitle = "Paste an mbox export and split it into the individual messages it holds — each a ready-to-save .eml with a suggested filename. Preview an index first, pull out a single message, or get JSON, all in your browser."
+wasm          = "gizza_ai_mbox_splitter_web"
+export        = "run"
+live          = false
+output_label  = "Split messages"
+format        = "text"
+
+[[input]]
+name        = "mbox"
+label       = "MBOX text"
+placeholder = "From alice@example.com Mon Sep 03 10:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Quarterly report\nMessage-ID: <a1@example.com>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nfirst body\n\nFrom bob@example.com Mon Sep 03 11:00:00 2018\nFrom: Bob <bob@example.com>\nSubject: Lunch?\nMessage-ID: <b2@example.com>\nDate: Mon, 3 Sep 2018 11:30:00 +0000\n\nsecond body"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "What to return"
+source = "field"
+
+[input.labels]
+files = "Every message as .eml text"
+list  = "Index of what is inside"
+json  = "JSON records"
+eml   = "One raw message only"
+
+[[input]]
+name   = "naming"
+label  = "Suggested filenames"
+source = "field"
+
+[input.labels]
+index        = "Numbered — 001.eml"
+subject      = "Subject — 001-quarterly-report.eml"
+date         = "Date — 001-2018-09-03-1000.eml"
+"message-id" = "Message-ID — 001-a1-example-com.eml"
+
+[[input]]
+name        = "message"
+label       = "Single message number (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "unescape_from"
+label  = "Undo >From body quoting"
+source = "field"
+
+[[input]]
+name   = "keep_postmark"
+label  = "Keep the From postmark line"
+source = "field"
+
+[[example]]
+label = "Split all to .eml"
+[example.params]
+mbox = "From alice@example.com Mon Sep 03 10:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Quarterly report\nMessage-ID: <a1@example.com>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nNumbers attached.\n\nFrom bob@example.com Mon Sep 03 11:30:00 2018\nFrom: Bob <bob@example.com>\nSubject: Lunch?\nMessage-ID: <b2@example.com>\nDate: Mon, 3 Sep 2018 11:30:00 +0000\n\nOne o'clock?"
+output = "files"
+naming = "subject"
+message = "0"
+unescape_from = "true"
+keep_postmark = "false"
+
+[[example]]
+label = "List what is inside"
+[example.params]
+mbox = "From alice@example.com Mon Sep 03 10:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Quarterly report\nMessage-ID: <a1@example.com>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nNumbers attached.\n\nFrom bob@example.com Mon Sep 03 11:30:00 2018\nFrom: Bob <bob@example.com>\nSubject: Lunch?\nMessage-ID: <b2@example.com>\nDate: Mon, 3 Sep 2018 11:30:00 +0000\n\nOne o'clock?"
+output = "list"
+naming = "date"
+message = "0"
+unescape_from = "true"
+keep_postmark = "false"
+
+[[example]]
+label = "Pull out message 2"
+[example.params]
+mbox = "From alice@example.com Mon Sep 03 10:00:00 2018\nFrom: Alice <alice@example.com>\nSubject: Quarterly report\nMessage-ID: <a1@example.com>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nNumbers attached.\n\nFrom bob@example.com Mon Sep 03 11:30:00 2018\nFrom: Bob <bob@example.com>\nSubject: Lunch?\nMessage-ID: <b2@example.com>\nDate: Mon, 3 Sep 2018 11:30:00 +0000\n\nOne o'clock?"
+output = "eml"
+naming = "index"
+message = "2"
+unescape_from = "true"
+keep_postmark = "false"

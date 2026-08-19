@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/video-set-keyframe-interval",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-encode a video with a fixed keyframe (GOP) interval.",
+  "role": "skill",
+  "tool": {
+    "description": "Re-encode a video with a FIXED keyframe (GOP) interval — e.g. one keyframe every 2 seconds — so players seek cleanly and HLS/DASH packagers can cut evenly-sized segments on keyframe boundaries. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). interval is the cadence (default 2) in the unit given by unit: seconds (default, 0.1-60, placed by timestamp so it is correct even for variable-frame-rate sources) or frames (a GOP size of 1-3000, i.e. ffmpeg -g/-keyint_min). scene_cut=false (default) disables scene-cut detection so the spacing is strictly even; closed_gop=true (default) requests closed GOPs. quality is libx264 CRF 1-51 (default 23, lower = better) and preset is the libx264 speed preset (default medium). Output is always a re-encoded progressive H.264/AAC MP4 with +faststart — a fixed cadence cannot be applied by stream copy. For a FRAGMENTED MP4 for MSE/DASH playback use video-fragmented-mp4 instead. Note: runs on the standalone page and CLI; chat ffmpeg is unavailable.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "closed_gop": {
+          "default": true,
+          "description": "Request closed GOPs (ffmpeg -flags +cgop) so no frame references anything before its keyframe. true (default) is what seeking and bitrate switching want. false leaves open GOPs, which compress marginally better.",
+          "type": "boolean"
+        },
+        "interval": {
+          "default": 2.0,
+          "description": "How far apart keyframes are placed, in the unit given by unit. With unit=seconds (default) the accepted range is 0.1-60 and 2 is the streaming-standard cadence; with unit=frames it is a GOP size of 1-3000 frames (e.g. 60 frames = 2 seconds at 30 fps). Smaller = faster seeking and finer segments but a larger file.",
+          "maximum": 3000,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "preset": {
+          "default": "medium",
+          "description": "libx264 speed/compression preset (default medium). Slower presets produce a smaller file at the same CRF but take longer; the keyframe cadence is identical at every preset.",
+          "enum": [
+            "ultrafast",
+            "superfast",
+            "veryfast",
+            "faster",
+            "fast",
+            "medium",
+            "slow",
+            "slower",
+            "veryslow"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 23,
+          "description": "libx264 CRF quality, 1-51 (default 23). LOWER is better quality and a bigger file: 18 is near-visually-lossless, 23 is the balanced default, 28 is noticeably compressed. Setting a keyframe interval always re-encodes, so this controls the quality cost. True-lossless CRF 0 is excluded because it blows past the output size cap.",
+          "maximum": 51,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "scene_cut": {
+          "default": false,
+          "description": "Allow the encoder to add EXTRA keyframes at scene changes. false (default) passes -sc_threshold 0 so the cadence is strictly fixed — what HLS/DASH segment alignment needs. true lets scene-cut detection insert additional keyframes, which looks better on hard cuts but breaks even spacing.",
+          "type": "boolean"
+        },
+        "unit": {
+          "default": "seconds",
+          "description": "Unit for interval. seconds (default) places keyframes by timestamp (ffmpeg -force_key_frames), which stays correct at any frame rate including variable-frame-rate sources. frames sets the classic GOP size (ffmpeg -g / -keyint_min) and is exact for constant-frame-rate sources.",
+          "enum": [
+            "seconds",
+            "frames"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

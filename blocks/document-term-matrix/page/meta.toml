@@ -1,0 +1,105 @@
+slug          = "document-term-matrix"
+title         = "Document-Term Matrix Builder — Bag-of-Words Counts, Binary Vectors & N-grams"
+description   = "Turn pasted documents into a document-term matrix. Export CSV, TSV, or JSON bag-of-words counts with binary weighting, n-grams, min document frequency, and feature caps."
+tags          = ["document term matrix", "bag of words", "text vectorizer", "count vectorizer", "term document matrix", "word count matrix", "binary term matrix", "ngram matrix", "text mining", "corpus vocabulary"]
+h1            = "Document-Term Matrix Builder"
+hero_subtitle = "Paste one document per line or a JSON array of strings, choose count or binary weighting, add unigrams/bigrams/trigrams, filter by document frequency, and export a deterministic matrix as CSV, TSV, or JSON."
+wasm          = "gizza_ai_document_term_matrix_web"
+export        = "run"
+live          = false
+output_label  = "Matrix"
+format        = "text"
+
+[[input]]
+name        = "documents"
+label       = "Documents"
+placeholder = "the cat sat\nthe dog sat\nthe cat chased the dog"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+"auto"  = "Auto — JSON array when input starts with [, otherwise one document per line"
+"json"  = "JSON array of strings"
+"lines" = "One document per nonblank line"
+
+[[input]]
+name   = "weighting"
+label  = "Cell weighting"
+source = "field"
+
+[input.labels]
+"count"  = "Count — term occurrences per document"
+"binary" = "Binary — 1 when the term appears"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive terms"
+source = "field"
+
+[[input]]
+name        = "ngram_min"
+label       = "Minimum n-gram length"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "ngram_max"
+label       = "Maximum n-gram length"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "min_df"
+label       = "Minimum document frequency"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_features"
+label       = "Max features (0 = no cap)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+"csv"  = "CSV — spreadsheet-ready matrix"
+"tsv"  = "TSV — tab-separated matrix"
+"json" = "JSON — terms, document frequencies, and matrix arrays"
+
+[[input]]
+name   = "include_totals"
+label  = "Include total kept terms per document"
+source = "field"
+
+[[example]]
+label  = "Counts for three short documents"
+params = { documents = "the cat sat\nthe dog sat\nthe cat chased the dog", input_format = "lines", weighting = "count", case_sensitive = "false", ngram_min = "1", ngram_max = "1", min_df = "1", max_features = "0", output = "csv", include_totals = "true" }
+
+[[example]]
+label  = "Binary unigram + bigram features"
+params = { documents = "quick red fox\nquick blue fox", input_format = "lines", weighting = "binary", case_sensitive = "false", ngram_min = "1", ngram_max = "2", min_df = "1", max_features = "0", output = "csv", include_totals = "true" }
+
+[[example]]
+label  = "JSON-array corpus as structured output"
+params = { documents = "[\"Alpha beta beta\", \"Beta gamma\"]", input_format = "json", weighting = "count", case_sensitive = "false", ngram_min = "1", ngram_max = "1", min_df = "1", max_features = "0", output = "json", include_totals = "true" }
+
+[[example]]
+label  = "Top two shared terms only"
+params = { documents = "apple pear\napple plum\napple pear", input_format = "lines", weighting = "count", case_sensitive = "false", ngram_min = "1", ngram_max = "1", min_df = "2", max_features = "2", output = "csv", include_totals = "false" }

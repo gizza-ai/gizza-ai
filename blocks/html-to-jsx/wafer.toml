@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-to-jsx"
+version = "0.1.0"
+abi = 1
+summary = "Convert raw HTML into React JSX."

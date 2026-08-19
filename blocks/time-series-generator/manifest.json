@@ -1,0 +1,211 @@
+{
+  "name": "gizza-ai/time-series-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate deterministic synthetic time-series data with trend, seasonality and noise",
+  "role": "skill",
+  "tool": {
+    "description": "Generate synthetic time-series data for tests, demos and examples. The tool builds a timestamp index from start, interval and count; layers configurable trend, seasonality, seeded noise, missing values and outliers; supports one or more parallel series; clamps and rounds values; and returns CSV, TSV, JSON, NDJSON or a stats summary. Randomness is deterministic from seed so the same settings reproduce exactly across chat, CLI and browser. Runs locally and does not upload data.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "amplitude": {
+          "default": "10",
+          "description": "Seasonal amplitude. May be a comma-separated list matching period; in multiplicative mode values are fractions of the level, otherwise they are additive units. Default 10.",
+          "type": "string"
+        },
+        "base": {
+          "default": 100.0,
+          "description": "Starting level of the series before trend, seasonality and noise are applied. Default 100.",
+          "type": "number"
+        },
+        "combine": {
+          "default": "additive",
+          "description": "How trend and seasonal/noise layers combine. additive sums units; multiplicative treats amplitude and noise_level as fractions of the current level. Default additive.",
+          "enum": [
+            "additive",
+            "multiplicative"
+          ],
+          "type": "string"
+        },
+        "count": {
+          "default": 100,
+          "description": "Rows to generate, 1-100000. The total count x series is capped at 200000 emitted values. Default 100.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Digits after the decimal point, 0-10. Use 0 for integer-like counts. Default 2.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "header": {
+          "default": true,
+          "description": "Include the timestamp/value header row in csv and tsv output. Ignored by json, ndjson and stats. Default true.",
+          "type": "boolean"
+        },
+        "interval": {
+          "default": "1d",
+          "description": "Step between rows. Use a positive number plus unit: ms, s, m, h, d, w, mo, q or y, for example 15m, 1h, 1d or 1mo. Calendar months/quarters/years keep month ends aligned. Default 1d.",
+          "type": "string"
+        },
+        "labels": {
+          "default": "",
+          "description": "Optional comma-separated labels for value columns. Supply one label per series; leave blank to use value, value_2 and so on.",
+          "type": "string"
+        },
+        "max_value": {
+          "default": "",
+          "description": "Optional numeric upper clamp applied after outliers. Leave blank for no upper bound.",
+          "type": "string"
+        },
+        "min_value": {
+          "default": "",
+          "description": "Optional numeric lower clamp applied after outliers. Leave blank for no lower bound.",
+          "type": "string"
+        },
+        "missing_rate": {
+          "default": 0.0,
+          "description": "Probability that each generated value is blank/null, from 0 to 1. CSV/TSV emit an empty cell; JSON/NDJSON emit null. Default 0.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "noise": {
+          "default": "gaussian",
+          "description": "Noise process. gaussian draws normal noise, uniform draws in +/- noise_level, and ar1 creates autocorrelated noise controlled by noise_phi. Default gaussian.",
+          "enum": [
+            "none",
+            "gaussian",
+            "uniform",
+            "ar1"
+          ],
+          "type": "string"
+        },
+        "noise_level": {
+          "default": 5.0,
+          "description": "Noise scale. For gaussian it is the standard deviation, for uniform it is the half-width, and for multiplicative mode it is a fraction of the level. Default 5.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "noise_phi": {
+          "default": 0.7,
+          "description": "AR(1) correlation coefficient used only when noise=ar1. Must be between -0.99 and 0.99. Default 0.7.",
+          "maximum": 0.99,
+          "minimum": -0.99,
+          "type": "number"
+        },
+        "outlier_direction": {
+          "default": "both",
+          "description": "Allowed outlier direction: both, up only, or down only. Default both.",
+          "enum": [
+            "both",
+            "up",
+            "down"
+          ],
+          "type": "string"
+        },
+        "outlier_magnitude": {
+          "default": 3.0,
+          "description": "Outlier size as a multiple of the value: 3 means upward outliers become value*(1+3), downward outliers become value/(1+3). Default 3.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "outlier_rate": {
+          "default": 0.0,
+          "description": "Probability that each generated value receives an outlier multiplier, from 0 to 1. Default 0.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Result format. csv/tsv emit rows, json emits one object with rows, ndjson emits one object per row, and stats reports achieved min/max/mean/sd plus missing/outlier counts. Default csv.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json",
+            "ndjson",
+            "stats"
+          ],
+          "type": "string"
+        },
+        "period": {
+          "default": "7",
+          "description": "Cycle length in rows. Comma-separated lists superimpose multiple cycles, such as period='24,168' for daily and weekly hourly data. Default 7.",
+          "type": "string"
+        },
+        "seasonality": {
+          "default": "sine",
+          "description": "Seasonality shape. Cyclic shapes use period and amplitude; weekday uses weekday_pattern as Monday through Sunday multipliers. Default sine.",
+          "enum": [
+            "none",
+            "sine",
+            "cosine",
+            "square",
+            "triangle",
+            "sawtooth",
+            "weekday"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the deterministic SplitMix64 random streams. The same settings and seed return identical output in chat, CLI and page. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "series": {
+          "default": 1,
+          "description": "Number of parallel value columns, 1-20. Columns share the trend/seasonal signal but have independent seeded noise, missingness and outliers. Default 1.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "start": {
+          "default": "2024-01-01",
+          "description": "First timestamp. Accepts YYYY-MM-DD, RFC3339/ISO datetimes, or a Unix epoch seconds value. Default 2024-01-01.",
+          "type": "string"
+        },
+        "timestamp_format": {
+          "default": "auto",
+          "description": "Timestamp output format. auto uses dates for day-or-larger intervals and ISO datetimes for sub-day intervals; epoch emits seconds; index emits row numbers. Default auto.",
+          "enum": [
+            "auto",
+            "iso",
+            "date",
+            "epoch",
+            "index"
+          ],
+          "type": "string"
+        },
+        "trend": {
+          "default": "linear",
+          "description": "Trend layer. none keeps the base flat; linear adds trend_strength per step; exponential compounds by trend_strength percent per step; logistic makes an S-curve across the requested count; random-walk adds seeded increments. Default linear.",
+          "enum": [
+            "none",
+            "linear",
+            "exponential",
+            "logistic",
+            "random-walk"
+          ],
+          "type": "string"
+        },
+        "trend_strength": {
+          "default": 0.5,
+          "description": "Trend amount. For linear/random-walk it is units per step, for exponential it is percent per step, and for logistic it is the total rise from first to last row. Default 0.5.",
+          "type": "number"
+        },
+        "weekday_pattern": {
+          "default": "1.1, 1.05, 1, 1.05, 1.25, 0.8, 0.7",
+          "description": "Seven Monday-through-Sunday values used when seasonality=weekday. The pattern is mean-centred and scaled by amplitude so it works with additive or multiplicative combine modes.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

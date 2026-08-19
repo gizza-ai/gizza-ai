@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/video-fade",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fade a video in from and out to black at the start and end, sound included",
+  "role": "skill",
+  "tool": {
+    "description": "Add a fade-in at the start and/or a fade-out at the end of a video: the picture ramps up from (and down to) a solid colour — black by default — and the sound ramps out of and into silence over the same spans. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). fade_in and fade_out are lengths in seconds (0–30); 0 skips that side and at least one must be greater than 0. duration is the clip's exact length in seconds and is REQUIRED when fade_out is greater than 0 (the fade-out starts at duration − fade_out). streams picks both/video/audio, color sets the fade colour, quality picks the H.264 CRF. Fading the picture re-encodes to H.264/AAC MP4; streams=audio copies the picture untouched and keeps the input container. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "color": {
+          "default": "black",
+          "description": "Colour the picture fades from and to: a name (black, white), a hex value (#101820 or 0x101820) or name@alpha (black@0.8). Default black. Ignored when streams=audio.",
+          "type": "string"
+        },
+        "duration": {
+          "default": 0.0,
+          "description": "Exact length of the source clip in seconds (for example 12.5). Required whenever fade_out is greater than 0; leave at 0 for a fade-in-only run. fade_in + fade_out must not exceed it.",
+          "maximum": 36000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade_in": {
+          "default": 0.0,
+          "description": "Length in seconds of the opening fade, ramped up from the fade colour (and from silence) at the START of the clip. 0 skips it. Range 0–30 s. At least one of fade_in / fade_out must be greater than 0.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fade_out": {
+          "default": 0.0,
+          "description": "Length in seconds of the closing fade, ramped down to the fade colour (and to silence) at the END of the clip. 0 skips it. Range 0–30 s. Requires duration, because the fade-out is placed at duration − fade_out.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "quality": {
+          "default": "balanced",
+          "description": "H.264 quality for the re-encoded picture: high (CRF 18), balanced (CRF 23, default) or small (CRF 28). Higher quality makes a larger file. Ignored when streams=audio, which copies the picture losslessly.",
+          "enum": [
+            "high",
+            "balanced",
+            "small"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "streams": {
+          "default": "both",
+          "description": "Which streams to fade: both (default — picture and sound), video (picture only, the sound stays at full level) or audio (sound only; the picture is stream-copied untouched and the input container is kept).",
+          "enum": [
+            "both",
+            "video",
+            "audio"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

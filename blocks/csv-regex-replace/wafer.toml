@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-regex-replace"
+version = "0.1.0"
+abi = 1
+summary = "Find and replace with a regex inside chosen CSV columns, with capture-group substitution."

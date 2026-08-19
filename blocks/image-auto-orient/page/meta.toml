@@ -1,0 +1,84 @@
+slug          = "image-auto-orient"
+title         = "Auto-Rotate a Photo from its EXIF Orientation"
+description   = "Fix sideways and upside-down photos: reads the EXIF orientation flag, bakes the rotation into the pixels, and drops the tag. Runs in your browser, free."
+tags          = ["image", "exif", "orientation", "auto-rotate", "photo", "sideways", "metadata"]
+h1            = "Auto-Rotate a Photo to its Correct Orientation"
+hero_subtitle = "Upload a photo that shows up sideways — the EXIF orientation flag is applied to the pixels and stripped, so every app shows it upright."
+wasm          = "gizza_ai_image_auto_orient_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Upright image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Photo"
+
+[[input]]
+name        = "orientation"
+source      = "field"
+label       = "Correction"
+placeholder = "auto"
+
+[input.labels]
+"auto" = "Auto — use the photo's EXIF flag"
+"1"    = "1 — already upright (just drop the flag)"
+"2"    = "2 — mirrored left-right"
+"3"    = "3 — rotate 180°"
+"4"    = "4 — mirrored top-bottom"
+"5"    = "5 — mirrored, then rotate 90° clockwise"
+"6"    = "6 — rotate 90° clockwise"
+"7"    = "7 — mirrored, then rotate 90° counter-clockwise"
+"8"    = "8 — rotate 90° counter-clockwise"
+
+[[input]]
+name        = "format"
+source      = "field"
+label       = "Output format"
+placeholder = "same"
+
+[input.labels]
+"same" = "Same as the upload"
+"jpeg" = "JPEG"
+"png"  = "PNG (lossless)"
+"webp" = "WebP"
+
+[[input]]
+name        = "quality"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 100
+step        = "1"
+label       = "Quality (JPEG/WebP only)"
+placeholder = "90"
+
+[[example]]
+label = "Auto-fix a sideways photo"
+[example.params]
+orientation = "auto"
+format      = "same"
+quality     = "90"
+
+[[example]]
+label = "Force 90° clockwise"
+[example.params]
+orientation = "6"
+format      = "same"
+quality     = "90"
+
+[[example]]
+label = "Upright PNG (no re-compression)"
+[example.params]
+orientation = "auto"
+format      = "png"
+quality     = "90"
+
+[[example]]
+label = "Un-mirror a selfie"
+[example.params]
+orientation = "2"
+format      = "same"
+quality     = "90"

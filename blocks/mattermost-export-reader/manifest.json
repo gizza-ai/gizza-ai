@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/mattermost-export-reader",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a Mattermost bulk export (JSONL) into a readable per-channel transcript with resolved authors and timestamps",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a Mattermost bulk export (paste the contents of the export's import.jsonl — the JSON Lines file produced by `mmctl export create` or the bulk export tool) into a readable per-channel transcript plus a summary. Each channel post and direct message is rendered with a UTC timestamp, the author's resolved display name (from the export's user lines: nickname, then first + last name, then username) and its channel's display name; thread replies nest under their parent, reactions are aggregated (:thumbsup: x2) and attachments become [attachment: path] placeholders. The summary reports the export format version, teams, channels, direct conversations, users, custom emoji, message/reaction/attachment counts, the date range, and messages per channel and per author with each share. Options: output (transcript/stats/both), format (text/markdown/html/csv), channel filter, user_filter, since/until date bounds (YYYY-MM-DD, UTC), include_direct_messages, include_replies and max_messages. Fully local and deterministic — no AI model, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "description": "Optional: keep only this channel, matched case-insensitively against the channel name or its display name (e.g. `town-square` or `Town Square`; a leading `#` is ignored). While a channel filter is set, direct messages are excluded.",
+          "type": "string"
+        },
+        "export": {
+          "description": "Paste the entire contents of a Mattermost bulk export .jsonl file (the import.jsonl inside the archive from `mmctl export create` / the bulk export tool). It is JSON Lines: one object per line, each tagged with a type such as version, team, channel, user, post, direct_channel or direct_post.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "How to render the result: text (plain readable transcript, default), markdown (headings, bullets and summary tables), html (escaped paragraphs you can paste into a page), or csv (machine-readable rows — the transcript becomes timestamp,channel,author,username,kind,message).",
+          "enum": [
+            "text",
+            "markdown",
+            "html",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_direct_messages": {
+          "default": true,
+          "description": "When true (default), direct_post lines are included and labelled by their members (Direct message: Alice, Bob). Set false to keep channel posts only.",
+          "type": "boolean"
+        },
+        "include_replies": {
+          "default": true,
+          "description": "When true (default), thread replies are rendered indented under their parent post. Set false for root posts only.",
+          "type": "boolean"
+        },
+        "max_messages": {
+          "default": 0,
+          "description": "Cap on how many messages to render, applied in chronological order after every filter (0 = no limit). Use it to preview a very large export; the summary reports the truncation.",
+          "maximum": 500000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "both",
+          "description": "What to return: transcript (messages grouped per channel, threads nested), stats (a summary with export counts plus messages per channel and per author), or both (default).",
+          "enum": [
+            "transcript",
+            "stats",
+            "both"
+          ],
+          "type": "string"
+        },
+        "since": {
+          "description": "Optional inclusive start date in YYYY-MM-DD form, compared against each message's UTC date (e.g. `2024-01-15`). Omit for no lower bound.",
+          "type": "string"
+        },
+        "until": {
+          "description": "Optional inclusive end date in YYYY-MM-DD form, compared against each message's UTC date (e.g. `2024-01-31`). Omit for no upper bound.",
+          "type": "string"
+        },
+        "user_filter": {
+          "description": "Optional: keep only messages from this person, matched case-insensitively against the export username or the resolved display name (e.g. `alice` or `Alice Anderson`; a leading `@` is ignored). Omit to include everyone.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "export"
+      ],
+      "type": "object"
+    }
+  }
+}

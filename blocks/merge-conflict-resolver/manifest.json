@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/merge-conflict-resolver",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Resolve Git merge conflict markers by keeping ours, theirs, both or the common ancestor",
+  "role": "skill",
+  "tool": {
+    "description": "Rewrite the merge conflict markers Git leaves in a working-tree file. Paste the whole conflicted file and every '<<<<<<< / ======= / >>>>>>>' block collapses to the side you pick: `ours` (current branch, default), `theirs` (incoming), `both` in either order, `base` (the '|||||||' common-ancestor section that the diff3 and zdiff3 conflict styles add), or `keep` to leave a block untouched. `choices` overrides individual conflicts by number ('2=theirs, 3-5=both'), matching the numbering shown by `output=list`. `output` also offers `sides` (an aligned ours-vs-theirs comparison) and `json` (per-conflict line spans, branch labels, side contents and the resolved text). `strict` turns a marker-free paste or a surviving conflict into an error, which is useful as a pre-commit gate. Text outside conflict blocks is preserved byte for byte, CRLF line endings and a missing final newline survive, and a bare '=======' outside a conflict is treated as ordinary text. Malformed marker sequences report the offending line number instead of producing silently wrong output. Fully local and deterministic — no AI model, no repository access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "choices": {
+          "description": "Per-conflict overrides using the numbers from output=list, comma-separated: '2=theirs, 3-5=both, 4-=keep, all=ours'. A later entry wins over an earlier overlapping one. Leave empty to apply 'strategy' to every conflict.",
+          "type": "string"
+        },
+        "output": {
+          "default": "resolved",
+          "description": "What to return: 'resolved' the rewritten file text (default), 'list' a numbered inventory with line spans, branch labels and the chosen strategy, 'sides' an aligned ours-vs-theirs text comparison, 'json' the full inventory plus the resolved text.",
+          "enum": [
+            "resolved",
+            "list",
+            "sides",
+            "json"
+          ],
+          "type": "string"
+        },
+        "strategy": {
+          "default": "ours",
+          "description": "Which side every conflict collapses to: 'ours' the current branch (default), 'theirs' the incoming branch, 'both' ours then theirs, 'both-theirs-first' theirs then ours, 'base' the '|||||||' common ancestor (diff3/zdiff3 input only), 'keep' leaves the block and its markers untouched.",
+          "enum": [
+            "ours",
+            "theirs",
+            "both",
+            "both-theirs-first",
+            "base",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "strict": {
+          "description": "Fail instead of returning text when the input has no conflict markers at all, or when any conflict is still left unresolved by 'keep'. Default false.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The conflicted file text, pasted with its Git markers intact ('<<<<<<<', an optional '|||||||' common-ancestor section, '=======', '>>>>>>>'). Everything outside a conflict block is preserved byte for byte. Up to 1 MB.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

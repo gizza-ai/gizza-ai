@@ -1,0 +1,110 @@
+slug          = "postman-collection-extractor"
+title         = "Postman Collection Extractor — list every request as table, CSV or JSON"
+description   = "Paste a Postman Collection v2 export and list every request — folder, method, URL, headers, body, auth — as a table, CSV, JSON, Markdown or URLs. Browser-only."
+tags          = ["postman collection extractor", "postman collection to csv", "list postman requests", "postman collection to json", "extract urls from postman collection", "postman collection to markdown", "postman api inventory", "postman collection viewer"]
+h1            = "Postman Collection Extractor"
+hero_subtitle = "Paste a Postman Collection v2.0/v2.1 export and get every request it contains — folder path, name, method, URL, headers, body and auth type — as an indented list, an aligned table, CSV, JSON, a Markdown table, or plain URLs. Nested folders are flattened, {{variables}} filled in, and you can filter by method, URL or folder. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_postman_collection_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Request list"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "collection"
+label       = "Collection export (JSON)"
+placeholder = '{"info":{"name":"Demo API"},"item":[{"name":"List users","request":{"method":"GET","url":"https://api.example.com/users"}}]}'
+source      = "field"
+multiline   = true
+
+# Renders as a <select> (the control type comes from the descriptor enum in
+# manifest.json); labels map the canonical values to friendly names.
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+list     = "List (full detail)"
+table    = "Table (aligned overview)"
+json     = "JSON"
+csv      = "CSV (spreadsheet)"
+markdown = "Markdown table"
+urls     = "URL list (one per line)"
+
+[[input]]
+name        = "method"
+label       = "Method filter"
+placeholder = "POST"
+source      = "field"
+
+[[input]]
+name        = "url_contains"
+label       = "URL contains"
+placeholder = "/v1/"
+source      = "field"
+
+[[input]]
+name        = "folder"
+label       = "Folder contains"
+placeholder = "Users"
+source      = "field"
+
+[[input]]
+name        = "variables"
+label       = "Variables (optional)"
+placeholder = "baseUrl=https://api.example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "resolve_variables"
+label  = "Resolve {{variables}}"
+source = "field"
+
+# Preset chips — competitors either browse a collection in a UI with no
+# exportable text or convert the whole thing to one document; these prefill a
+# real nested collection so each output format is one click away.
+[[example]]
+label = "Overview table"
+[example.params]
+collection        = '{"info":{"name":"Demo API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"https://api.example.com"}],"auth":{"type":"bearer","bearer":[{"key":"token","value":"REDACTED"}]},"item":[{"name":"List users","request":{"method":"GET","url":{"raw":"{{baseUrl}}/users?page=1"}}},{"name":"Users","item":[{"name":"Create user","request":{"method":"POST","url":"{{baseUrl}}/users","header":[{"key":"Content-Type","value":"application/json"},{"key":"X-Debug","value":"1","disabled":true}],"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}},{"name":"Delete user","request":{"method":"DELETE","url":"{{baseUrl}}/users/1"}}]}]}'
+format            = "table"
+resolve_variables = "true"
+
+[[example]]
+label = "Headers + body detail"
+[example.params]
+collection        = '{"info":{"name":"Demo API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"https://api.example.com"}],"auth":{"type":"bearer","bearer":[{"key":"token","value":"REDACTED"}]},"item":[{"name":"List users","request":{"method":"GET","url":{"raw":"{{baseUrl}}/users?page=1"}}},{"name":"Users","item":[{"name":"Create user","request":{"method":"POST","url":"{{baseUrl}}/users","header":[{"key":"Content-Type","value":"application/json"},{"key":"X-Debug","value":"1","disabled":true}],"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}},{"name":"Delete user","request":{"method":"DELETE","url":"{{baseUrl}}/users/1"}}]}]}'
+format            = "list"
+resolve_variables = "true"
+
+[[example]]
+label = "Export to CSV"
+[example.params]
+collection        = '{"info":{"name":"Demo API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"https://api.example.com"}],"auth":{"type":"bearer","bearer":[{"key":"token","value":"REDACTED"}]},"item":[{"name":"List users","request":{"method":"GET","url":{"raw":"{{baseUrl}}/users?page=1"}}},{"name":"Users","item":[{"name":"Create user","request":{"method":"POST","url":"{{baseUrl}}/users","header":[{"key":"Content-Type","value":"application/json"},{"key":"X-Debug","value":"1","disabled":true}],"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}},{"name":"Delete user","request":{"method":"DELETE","url":"{{baseUrl}}/users/1"}}]}]}'
+format            = "csv"
+resolve_variables = "true"
+
+[[example]]
+label = "Markdown docs table"
+[example.params]
+collection        = '{"info":{"name":"Demo API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"https://api.example.com"}],"auth":{"type":"bearer","bearer":[{"key":"token","value":"REDACTED"}]},"item":[{"name":"List users","request":{"method":"GET","url":{"raw":"{{baseUrl}}/users?page=1"}}},{"name":"Users","item":[{"name":"Create user","request":{"method":"POST","url":"{{baseUrl}}/users","header":[{"key":"Content-Type","value":"application/json"},{"key":"X-Debug","value":"1","disabled":true}],"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}},{"name":"Delete user","request":{"method":"DELETE","url":"{{baseUrl}}/users/1"}}]}]}'
+format            = "markdown"
+resolve_variables = "true"
+
+[[example]]
+label = "Just the endpoints"
+[example.params]
+collection        = '{"info":{"name":"Demo API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"https://api.example.com"}],"auth":{"type":"bearer","bearer":[{"key":"token","value":"REDACTED"}]},"item":[{"name":"List users","request":{"method":"GET","url":{"raw":"{{baseUrl}}/users?page=1"}}},{"name":"Users","item":[{"name":"Create user","request":{"method":"POST","url":"{{baseUrl}}/users","header":[{"key":"Content-Type","value":"application/json"},{"key":"X-Debug","value":"1","disabled":true}],"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}},{"name":"Delete user","request":{"method":"DELETE","url":"{{baseUrl}}/users/1"}}]}]}'
+format            = "urls"
+resolve_variables = "true"
+
+[[example]]
+label = "Point at staging"
+[example.params]
+collection        = '{"info":{"name":"Demo API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},"variable":[{"key":"baseUrl","value":"https://api.example.com"}],"auth":{"type":"bearer","bearer":[{"key":"token","value":"REDACTED"}]},"item":[{"name":"List users","request":{"method":"GET","url":{"raw":"{{baseUrl}}/users?page=1"}}},{"name":"Users","item":[{"name":"Create user","request":{"method":"POST","url":"{{baseUrl}}/users","header":[{"key":"Content-Type","value":"application/json"},{"key":"X-Debug","value":"1","disabled":true}],"body":{"mode":"raw","raw":"{\"name\":\"Ada\"}","options":{"raw":{"language":"json"}}}}},{"name":"Delete user","request":{"method":"DELETE","url":"{{baseUrl}}/users/1"}}]}]}'
+format            = "urls"
+variables         = "baseUrl=https://staging.example.com"
+resolve_variables = "true"

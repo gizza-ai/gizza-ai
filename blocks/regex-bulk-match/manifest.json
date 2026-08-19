@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/regex-bulk-match",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Test one regex against many lines and report match, no-match, and captures per line",
+  "role": "skill",
+  "tool": {
+    "description": "Test a single regular expression against many input lines at once and report a verdict for every line: matched or not matched, the matched text, its offsets, and each capture group (named groups by name). Supports whole-line or match-anywhere mode, case-insensitive and dot-all matching, whitespace trimming, blank-line skipping, filtering to only matching or only non-matching lines, a line cap, and text, JSON, or CSV output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "captures": {
+          "default": true,
+          "description": "Report capture groups for each matching line. Named groups like (?<name>...) are reported by name, unnamed groups by number.",
+          "type": "boolean"
+        },
+        "dotall": {
+          "default": false,
+          "description": "Let . also match a newline, the same as (?s). Only matters for patterns that span line breaks.",
+          "type": "boolean"
+        },
+        "full_match": {
+          "default": false,
+          "description": "Require the pattern to match the whole line. Off (default) reports a match when the pattern is found anywhere in the line.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match case-insensitively, the same as prefixing the pattern with (?i).",
+          "type": "boolean"
+        },
+        "lines": {
+          "description": "Input text: one test string per line, for example a pasted list of emails, IDs, or log lines.",
+          "type": "string"
+        },
+        "max_lines": {
+          "default": 1000,
+          "description": "Maximum number of lines to test. Extra lines are skipped and the report is flagged as truncated.",
+          "maximum": 20000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format: a readable per-line report, a JSON object, or CSV with one column per capture group.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Rust regular expression to test against each line, for example \\d{5} or ^[\\w.+-]+@([\\w-]+\\.[\\w.]+)$. Inline flags like (?i), (?m), (?s), and (?x) are supported.",
+          "type": "string"
+        },
+        "show": {
+          "default": "all",
+          "description": "Which lines to list: every line with its verdict, only the lines that matched, or only the lines that did not. Totals always cover every tested line.",
+          "enum": [
+            "all",
+            "matching",
+            "non-matching"
+          ],
+          "type": "string"
+        },
+        "show_position": {
+          "default": false,
+          "description": "Add the match start and end byte offsets to the text and CSV reports. JSON output always includes them.",
+          "type": "boolean"
+        },
+        "skip_blank": {
+          "default": true,
+          "description": "Ignore blank lines instead of counting them as failures. Line numbers still refer to the original input.",
+          "type": "boolean"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading and trailing whitespace from each line before testing. Turn off to test lines exactly as pasted.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "lines",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

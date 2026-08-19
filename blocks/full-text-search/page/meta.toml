@@ -1,0 +1,188 @@
+slug          = "full-text-search"
+title         = "Full Text Search — BM25 & TF-IDF over pasted documents"
+description   = "Search pasted documents with BM25 or TF-IDF ranking, stemming, stopwords, phrase and exclusion queries, and highlighted snippets."
+tags          = ["full text search", "bm25 search", "tfidf search", "document search", "stemming search", "snippet highlighting"]
+h1            = "Full Text Search"
+hero_subtitle = "Paste a document corpus, search it with BM25 or TF-IDF, and get ranked results with Porter stemming, stop-word filtering, phrase search, exclusions, prefix matching, and snippets."
+wasm          = "gizza_ai_full_text_search_web"
+export        = "run"
+live          = false
+output_label  = "Search results"
+format        = "text"
+
+[[input]]
+name        = "corpus"
+label       = "Documents"
+placeholder = "Refund policy\nRefunds take five days.\n---\nShipping guide\nOrders ship within two days."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "query"
+label       = "Query"
+placeholder = "refund -shipping"
+source      = "field"
+
+[[input]]
+name   = "separator"
+label  = "Document separator"
+source = "field"
+
+[input.labels]
+dashes = "Line of dashes (---)"
+blank-line = "Blank line"
+form-feed = "Form feed"
+
+[[input]]
+name   = "algorithm"
+label  = "Ranking"
+source = "field"
+
+[input.labels]
+bm25 = "BM25 (recommended)"
+tfidf = "Classic TF-IDF"
+
+[[input]]
+name   = "stemming"
+label  = "Porter stemming"
+source = "field"
+
+[[input]]
+name   = "stopwords"
+label  = "Remove stop words"
+source = "field"
+
+[[input]]
+name   = "match"
+label  = "Term matching"
+source = "field"
+
+[input.labels]
+any = "Any word (OR)"
+all = "All words (AND)"
+
+[[input]]
+name   = "prefix"
+label  = "Prefix search"
+source = "field"
+
+[[input]]
+name        = "max_results"
+label       = "Max results"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "snippet_words"
+label       = "Snippet words"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "k1"
+label       = "BM25 k1"
+placeholder = "1.2"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "b"
+label       = "BM25 b"
+placeholder = "0.75"
+source      = "field"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "title_boost"
+label       = "Title boost"
+placeholder = "2.0"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text = "Human report"
+json = "JSON report"
+
+[[example]]
+label = "BM25 refund search"
+[example.params]
+corpus = "Refund policy\nRefunds take five business days.\n---\nShipping guide\nOrders ship within two days.\n---\nReturn labels\nPrint a return label before requesting a refund."
+query = "refund"
+separator = "dashes"
+algorithm = "bm25"
+stemming = "true"
+stopwords = "true"
+match = "any"
+prefix = "false"
+max_results = "10"
+snippet_words = "12"
+k1 = "1.2"
+b = "0.75"
+title_boost = "2.0"
+output = "text"
+
+[[example]]
+label = "Stemming demo"
+[example.params]
+corpus = "Running notes\nThe team is running daily experiments.\n---\nArchive\nA prior run finished yesterday."
+query = "run"
+separator = "dashes"
+algorithm = "bm25"
+stemming = "true"
+stopwords = "true"
+match = "any"
+prefix = "false"
+max_results = "10"
+snippet_words = "12"
+k1 = "1.2"
+b = "0.75"
+title_boost = "2.0"
+output = "text"
+
+[[example]]
+label = "Quoted phrase + exclusion"
+[example.params]
+corpus = "Payment FAQ\nThe refund policy covers card payments.\n---\nShipping FAQ\nThe refund policy excludes shipping charges."
+query = "\"refund policy\" -shipping"
+separator = "dashes"
+algorithm = "bm25"
+stemming = "true"
+stopwords = "true"
+match = "any"
+prefix = "false"
+max_results = "10"
+snippet_words = "16"
+k1 = "1.2"
+b = "0.75"
+title_boost = "2.0"
+output = "text"
+
+[[example]]
+label = "TF-IDF JSON"
+[example.params]
+corpus = "Motorcycle notes\nMotorcycle helmets and motor oil.\n---\nCar notes\nCar tires and oil changes."
+query = "moto oil"
+separator = "dashes"
+algorithm = "tfidf"
+stemming = "true"
+stopwords = "true"
+match = "any"
+prefix = "true"
+max_results = "5"
+snippet_words = "10"
+k1 = "1.2"
+b = "0.75"
+title_boost = "2.0"
+output = "json"

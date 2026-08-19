@@ -1,0 +1,66 @@
+slug          = "video-deinterlace"
+title         = "Deinterlace a Video Online"
+description   = "Remove interlacing combing from camcorder, DV, DVD or broadcast footage in your browser — pick bwdif or yadif and keep or double the frame rate."
+tags          = ["video", "deinterlace", "deinterlacer", "interlaced", "combing", "yadif", "bwdif", "camcorder", "DV", "1080i", "50i to 50p", "progressive"]
+h1            = "Deinterlace a Video"
+hero_subtitle = "Pick an interlaced clip — the comb teeth on moving edges are removed and you get clean progressive frames, all in your browser. Nothing is uploaded."
+wasm          = "gizza_ai_video_deinterlace_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Deinterlaced video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "filter"
+source = "field"
+label  = "Deinterlacer"
+
+[input.labels]
+bwdif = "bwdif — motion-adaptive, sharpest detail (default)"
+yadif = "yadif — the classic ffmpeg deinterlacer"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Frame rate"
+
+[input.labels]
+frame = "Keep frame rate — one frame per frame (50i → 25p, default)"
+field = "Double frame rate — one frame per field (50i → 50p, smoothest motion)"
+
+[[input]]
+name   = "field_order"
+source = "field"
+label  = "Field order"
+
+[input.labels]
+auto = "Auto — trust the flags in the file (default)"
+tff  = "Top field first — DV/HDV, 1080i broadcast"
+bff  = "Bottom field first — most SD DVD/analogue captures"
+
+[[input]]
+name   = "apply_to"
+source = "field"
+label  = "Apply to"
+
+[input.labels]
+all     = "All frames (default — use when the file has no interlaced flags)"
+flagged = "Only frames flagged interlaced (mixed footage)"
+
+[[example]]
+label  = "Camcorder / DV tape (bottom field first)"
+params = { filter = "bwdif", mode = "frame", field_order = "bff", apply_to = "all" }
+
+[[example]]
+label  = "Broadcast 1080i → 50p (double rate)"
+params = { filter = "bwdif", mode = "field", field_order = "tff", apply_to = "all" }
+
+[[example]]
+label  = "Mixed footage — only flagged frames (yadif)"
+params = { filter = "yadif", mode = "frame", field_order = "auto", apply_to = "flagged" }

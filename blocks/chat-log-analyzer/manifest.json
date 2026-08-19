@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/chat-log-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze a chat or IRC log for who talked most, activity by hour, and word stats",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a chat or IRC log and return a report: total messages, participants, words and characters, the time span covered, who talked most (messages, share, words, characters, words and characters per message), activity by hour of day and by weekday as ASCII bar charts, the most-used words, the links shared with their top domains, and channel events (joins, parts, quits, nick changes, kicks, mode and topic changes, /me actions). Auto-detects the common log dialects — irssi/HexChat/mIRC angle-bracket lines with optional [bracketed] or bare timestamps, dated and ISO timestamps, 12-hour AM/PM times, tab-separated WeeChat columns, and plain 'nick: message' transcripts — so no format option is needed. Event lines are excluded from the message and word stats. Options: output (summary or json), top (how many entries per ranking), min_word_length, ignore_stopwords, and exclude_nicks (comma list, trailing * matches by prefix) to drop bots. Fully local and deterministic — no AI model, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "exclude_nicks": {
+          "default": "",
+          "description": "Comma-separated nicks to leave out of every statistic, for bots and services — e.g. 'gizzabot, travis*'. A trailing * matches by prefix. Empty by default, which counts everyone.",
+          "type": "string"
+        },
+        "ignore_stopwords": {
+          "default": true,
+          "description": "When true (default), drop common English filler words (the, and, you, lol, …) from the word ranking.",
+          "type": "boolean"
+        },
+        "log": {
+          "description": "The chat or IRC log text. Paste the raw lines, e.g. '21:07 <alice> hey', '[21:07:33] <@alice> hey', '2024-01-05 21:07:33 <alice> hey', a tab-separated WeeChat log, or a plain 'alice: hey' transcript. Timestamps are optional. Maximum 5000000 bytes.",
+          "type": "string"
+        },
+        "min_word_length": {
+          "default": 3,
+          "description": "Ignore words shorter than this many characters in the word ranking (1 = keep all). Default 3.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Report shape: summary (readable text report with ASCII bar charts) or json (the same numbers as a machine-readable object). Default summary.",
+          "enum": [
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "top": {
+          "default": 10,
+          "description": "How many people, words, and link domains to list in each ranking (0 = all). Default 10.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "log"
+      ],
+      "type": "object"
+    }
+  }
+}

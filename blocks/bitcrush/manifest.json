@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/bitcrush",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bitcrush audio by reducing bit depth and sample rate for a lo-fi retro sound",
+  "role": "skill",
+  "tool": {
+    "description": "Bitcrush an audio file with ffmpeg: quantise samples to fewer bits and hold each sample so the effective sample rate drops, for a deliberate lo-fi, 8-bit, or retro-console sound. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). bits sets the depth (1-16); sample_rate_hz sets the target effective rate (192-48000, snapped to the nearest 48000/N); mix blends wet against dry; drive pushes the level into the quantiser and output_gain pulls it back afterwards; anti_alias trades grit for smoothness; mode picks a linear or logarithmic quantiser. Output is re-encoded to mp3, wav, ogg, flac, or m4a and embedded album art is dropped. Runs locally through the ffmpeg runtime.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "anti_alias": {
+          "default": 0.5,
+          "description": "Anti-aliasing amount from 0 to 1 (default 0.5). 0 keeps the raw stepped edges for maximum grit; 1 smooths the hardest aliasing artefacts.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "bits": {
+          "default": 8.0,
+          "description": "Bit depth to quantise each sample to (1-16, default 8). Lower values add more gritty quantisation noise: 12 is a mild lo-fi tint, 8 is the classic sampler crunch, 4 or less is heavy digital distortion.",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "number"
+        },
+        "drive": {
+          "default": 1.0,
+          "description": "Input drive into the quantiser (0.25-4, default 1). Above 1 pushes harder for a louder, more distorted crush; below 1 backs the level off. Pair a hot drive with a lower output_gain to keep the distortion without clipping.",
+          "maximum": 4,
+          "minimum": 0.25,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps); wav/flac are lossless re-encodes, ogg is Vorbis, m4a is AAC.",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "mix": {
+          "default": 1.0,
+          "description": "Wet/dry blend from 0 to 1 (default 1 = fully crushed). 0 returns the untouched signal; 0.3-0.6 leaves the original audible underneath the crushed layer.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mode": {
+          "default": "lin",
+          "description": "Quantiser curve. lin (default) uses evenly spaced steps like classic fixed-point hardware; log uses coarser steps near silence, closer to companded gear.",
+          "enum": [
+            "lin",
+            "log"
+          ],
+          "type": "string"
+        },
+        "output_gain": {
+          "default": 1.0,
+          "description": "Level applied after the quantiser (0.25-4, default 1). Use it to pull back a hot drive: the crush already happened, so lowering this restores headroom without softening the distortion.",
+          "maximum": 4,
+          "minimum": 0.25,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sample_rate_hz": {
+          "default": 8000.0,
+          "description": "Target effective sample rate in Hz (192-48000, default 8000). Audio is resampled to 48000 Hz and then each sample is held for a whole number of samples, so the rate snaps to the nearest 48000/N (22050 becomes 24000). Lower rates dull the highs and add aliasing.",
+          "maximum": 48000,
+          "minimum": 192,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

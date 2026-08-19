@@ -1,0 +1,119 @@
+{
+  "name": "gizza-ai/timesheet-to-invoice",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn tracked hours and an hourly rate into a Markdown or plain-text invoice",
+  "role": "skill",
+  "tool": {
+    "description": "Turn tracked hours into a client-ready invoice with line items, totals and payment terms. Each entry line is 'description | hours' with optional per-row rate and a leading YYYY-MM-DD service date; hours accept decimals, '2h 30m', '2:30', or clock ranges such as 09:00-12:30 and 9am-5pm. Options cover the default hourly rate, currency symbol, from/bill-to blocks, invoice number, issue date, explicit or Net-terms due date, a labelled tax percentage, a discount applied before tax, billing-increment rounding, merging rows by description or date, notes, and the output format (markdown, text, csv, json). Totals show billed hours, subtotal, discount, tax and amount due. Fully local and deterministic — no AI model, no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "business": {
+          "default": "",
+          "description": "Your business block printed under 'From', one detail per line: name, address, email, tax id. Blank omits the block.",
+          "type": "string"
+        },
+        "client": {
+          "default": "",
+          "description": "Client block printed under 'Bill to', one detail per line: company, contact, address. Blank omits the block.",
+          "type": "string"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol or code placed before each amount, such as $, £, € or 'USD '. Default '$'.",
+          "type": "string"
+        },
+        "discount_percent": {
+          "default": 0.0,
+          "description": "Discount percentage applied to the subtotal before tax (0 = no discount line). Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "due_date": {
+          "default": "",
+          "description": "Explicit due date in YYYY-MM-DD form. Blank computes it as the issue date plus payment_terms days.",
+          "type": "string"
+        },
+        "entries": {
+          "description": "Tracked-hours lines, one billable row each, fields separated by '|' or a tab: 'description | hours', 'description | hours | rate', or with a leading service date 'YYYY-MM-DD | description | hours [| rate]'. Hours accept decimals (3.5), '2h 30m', '2:30', or a clock range such as '09:00-12:30' or '9am-5pm'. Blank lines and lines starting with # or // are ignored. Maximum 1000000 bytes and 500 billable rows.",
+          "type": "string"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output document: markdown (tables and bold totals), text (fixed-width plain text), csv (spreadsheet rows plus total rows), or json (full structured invoice). Default markdown.",
+          "enum": [
+            "markdown",
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "group_by": {
+          "default": "entry",
+          "description": "How rows are billed: entry keeps one line per input row, description merges rows with the same description and rate, date merges rows with the same service date and rate. Default entry.",
+          "enum": [
+            "entry",
+            "description",
+            "date"
+          ],
+          "type": "string"
+        },
+        "invoice_number": {
+          "default": "INV-001",
+          "description": "Invoice reference shown in the heading, such as INV-001 or 2026-014. Default 'INV-001'.",
+          "type": "string"
+        },
+        "issue_date": {
+          "default": "",
+          "description": "Invoice date in YYYY-MM-DD form, for example 2026-08-14. Blank omits the issue date and disables the automatic due date.",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "description": "Notes or payment instructions printed at the end of the invoice, such as bank details or a late-fee policy. Blank omits the section.",
+          "type": "string"
+        },
+        "payment_terms": {
+          "default": 30,
+          "description": "Net payment days used to compute the due date from the issue date (0 = no terms line). Common values are 7, 14, 30 and 60. Default 30.",
+          "maximum": 365,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rate": {
+          "default": 100.0,
+          "description": "Default hourly rate applied to every row that has no per-row rate, in the chosen currency. Default 100.",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "round": {
+          "default": 0,
+          "description": "Billing increment in minutes: each row's tracked time is rounded up to the next multiple before pricing (0 = bill exactly what was tracked). Common increments are 6 and 15.",
+          "maximum": 60,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tax_label": {
+          "default": "Tax",
+          "description": "Name of the tax line, such as Tax, VAT, GST or Sales tax. Default 'Tax'.",
+          "type": "string"
+        },
+        "tax_rate": {
+          "default": 0.0,
+          "description": "Tax percentage applied to the subtotal after any discount (0 = no tax line). Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "entries"
+      ],
+      "type": "object"
+    }
+  }
+}

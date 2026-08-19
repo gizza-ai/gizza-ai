@@ -1,0 +1,131 @@
+slug          = "ssh-config-formatter"
+title         = "SSH Config Formatter — format, lint and validate ~/.ssh/config"
+description   = "Pretty-print ~/.ssh/config with canonical keywords and consistent indent, then flag duplicate hosts, shadowed blocks, unknown keywords and bad values."
+tags          = ["ssh config formatter", "ssh config validator", "ssh config lint", "~/.ssh/config", "ssh_config", "openssh client config", "duplicate host", "shadowed host pattern", "ssh config beautifier"]
+h1            = "SSH Config Formatter"
+hero_subtitle = "Normalize an OpenSSH client config — canonical keyword spelling, consistent indent, optional alignment — and flag duplicate hosts, shadowed patterns, unknown keywords and invalid values. Nothing leaves your browser."
+wasm          = "gizza_ai_ssh_config_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted config"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "SSH config"
+placeholder = "Paste ~/.ssh/config, e.g.\nHost web\n  hostname=10.0.0.5\n  User deploy\n  port 2222"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+formatted = "Formatted config"
+report    = "Lint report"
+json      = "Structured JSON"
+hosts     = "Host list only"
+
+[[input]]
+name        = "indent"
+label       = "Indent (spaces)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name   = "keyword_case"
+label  = "Keyword spelling"
+source = "field"
+
+[input.labels]
+canonical = "Canonical (HostName)"
+lower     = "Lowercase (hostname)"
+preserve  = "Preserve as written"
+
+[[input]]
+name   = "align_values"
+label  = "Align values in a column"
+source = "field"
+
+[[input]]
+name   = "sort_keywords"
+label  = "Sort keywords alphabetically"
+source = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Remove duplicate keywords SSH ignores"
+source = "field"
+
+[[input]]
+name   = "include_notes"
+label  = "Append findings as # comments"
+source = "field"
+
+[[input]]
+name   = "min_severity"
+label  = "Report from severity"
+source = "field"
+
+[input.labels]
+info    = "Info and above (everything)"
+warning = "Warnings and errors"
+error   = "Errors only"
+
+[[example]]
+label = "Tidy a messy config"
+[example.params]
+text = "Host  web\nhostname=10.0.0.5\n   User deploy\n  port 2222\n\nHost db\n\tHostName db.internal\n\tuser postgres"
+output = "formatted"
+indent = "2"
+keyword_case = "canonical"
+align_values = "true"
+sort_keywords = "false"
+dedupe = "false"
+include_notes = "true"
+min_severity = "info"
+
+[[example]]
+label = "Find shadowed hosts"
+[example.params]
+text = "Host *\n  User root\n  ForwardAgent yes\n\nHost web\n  HostName 10.0.0.5\n  User deploy\n\nHost web\n  Port 2222"
+output = "report"
+indent = "2"
+keyword_case = "canonical"
+align_values = "false"
+sort_keywords = "false"
+dedupe = "false"
+include_notes = "true"
+min_severity = "info"
+
+[[example]]
+label = "Errors only"
+[example.params]
+text = "Host web\n  Port 70000\n  Compression maybe\n  StrictHostKeyChecking sure\n  PermitRootLogin no\n  HostNmae typo.example"
+output = "report"
+indent = "2"
+keyword_case = "canonical"
+align_values = "false"
+sort_keywords = "false"
+dedupe = "false"
+include_notes = "true"
+min_severity = "error"
+
+[[example]]
+label = "List host aliases"
+[example.params]
+text = "Host web prod\n  HostName 10.0.0.5\nHost db\n  HostName db.internal\nHost bastion\n  HostName jump.example.com"
+output = "hosts"
+indent = "2"
+keyword_case = "canonical"
+align_values = "false"
+sort_keywords = "false"
+dedupe = "false"
+include_notes = "true"
+min_severity = "info"

@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-csv-timeline-viewer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+regex = "1"
+serde_json = { version = "1", features = ["preserve_order"] }
+# No `clock` feature: timestamps are parsed and formatted, never read from the
+# system clock, so this stays instantiable under both wafer (wasm32-wasip1) and
+# wasm-pack (wasm32-unknown-unknown) with no getrandom/js dependency.
+chrono = { version = "0.4", default-features = false, features = ["std", "alloc"] }

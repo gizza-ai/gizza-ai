@@ -1,0 +1,125 @@
+slug          = "regex-bulk-match"
+title         = "Bulk Regex Matcher — Test One Pattern Against Many Lines"
+description   = "Check one regular expression against a pasted list of lines. See match/no-match status, captures, positions, JSON, or CSV output. Runs locally."
+tags          = ["bulk regex matcher", "regex tester", "line by line regex", "regex captures", "regex validation", "regex csv export", "match no match", "rust regex"]
+h1            = "Bulk Regex Matcher"
+hero_subtitle = "Paste many lines, enter one regular expression, and get a per-line report: matched or not matched, the matched text, capture groups, and optional offsets. Filter to only matching or non-matching rows and export as text, JSON, or CSV. Nothing is uploaded."
+wasm          = "gizza_ai_regex_bulk_match_web"
+export        = "run"
+live          = false
+output_label  = "Match report"
+format        = "text"
+
+[[input]]
+name        = "lines"
+label       = "Lines to test"
+placeholder = "ada@example.com\nnot-an-email\nbo@test.org"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Regex pattern"
+placeholder = '^[\w.+-]+@([\w-]+\.[\w.]+)$'
+source      = "field"
+
+[[input]]
+name   = "show"
+label  = "Rows to show"
+source = "field"
+
+[input.labels]
+all = "All rows"
+matching = "Matching rows only"
+non-matching = "Non-matching rows only"
+text = "Text report"
+json = "JSON"
+csv = "CSV"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[[input]]
+name        = "max_lines"
+label       = "Max lines"
+placeholder = "1000"
+source      = "field"
+
+[[input]]
+name   = "full_match"
+label  = "Require whole-line match"
+source = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "dotall"
+label  = "Dot matches newlines"
+source = "field"
+
+[[input]]
+name   = "trim"
+label  = "Trim each line"
+source = "field"
+
+[[input]]
+name   = "skip_blank"
+label  = "Skip blank lines"
+source = "field"
+
+[[input]]
+name   = "captures"
+label  = "Report capture groups"
+source = "field"
+
+[[input]]
+name   = "show_position"
+label  = "Show match offsets"
+source = "field"
+
+[[example]]
+label = "Validate email list"
+[example.params]
+lines       = "ada@example.com\nnot-an-email\nbo@test.org"
+pattern     = '^[\w.+-]+@([\w-]+\.[\w.]+)$'
+full_match  = "true"
+captures    = "true"
+
+[[example]]
+label = "Only failing IDs"
+[example.params]
+lines      = "AB-123\nwrong\nCD-456"
+pattern    = '^[A-Z]{2}-\d{3}$'
+full_match = "true"
+show       = "non-matching"
+
+[[example]]
+label = "Named date captures"
+[example.params]
+lines       = "2026-08-15\n15/08/2026"
+pattern     = '^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})$'
+full_match  = "true"
+captures    = "true"
+output      = "json"
+
+[[example]]
+label = "CSV with match offsets"
+[example.params]
+lines         = "error: disk full\ninfo: ok"
+pattern       = '^([a-z]+):\s*(.*)$'
+captures      = "true"
+show_position = "true"
+output        = "csv"
+
+[[example]]
+label = "Case-insensitive keywords"
+[example.params]
+lines       = "WARN disk\ninfo ok\nWarning cpu"
+pattern     = 'warn(ing)?'
+ignore_case = "true"
+show        = "matching"

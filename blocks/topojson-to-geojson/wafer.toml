@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "topojson-to-geojson"
+version = "0.1.0"
+abi = 1
+summary = "Expand compact TopoJSON with shared arcs into standard GeoJSON"

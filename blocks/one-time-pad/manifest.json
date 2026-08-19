@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/one-time-pad",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt, decrypt and generate one-time pads (mod-26 letters, mod-10 digits or XOR)",
+  "role": "skill",
+  "tool": {
+    "description": "One-time pad encryption, decryption and pad generation, all locally. `cipher=letters` (default) applies C = (P + K) mod 26 to A-Z while preserving case, spaces and punctuation (which consume no pad); `cipher=digits` is the mod-10 equivalent; `cipher=xor` XORs the message's UTF-8 bytes with the pad, both carried as hex or base64 per `encoding`. Encrypting with an empty `pad` generates a fresh cryptographically random pad sized to the message and returns it with the ciphertext; `mode=generate-pad` returns pad material alone (`length` symbols, or sized from `message` when length is 0). A pad shorter than the message is a hard error naming the shortfall — the pad is never repeated, which is what separates this from a Vigenère or repeating-key XOR. `group` splits the returned ciphertext and pad into fixed-size blocks. Returns JSON with the mode, cipher, ciphertext or plaintext, the pad, and any warnings.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "cipher": {
+          "default": "letters",
+          "description": "Pad alphabet: 'letters' (default) adds the pad to A-Z with C = (P + K) mod 26, keeping case, spaces and punctuation and consuming pad only for letters; 'digits' does the same mod 10 over 0-9; 'xor' XORs the message's raw UTF-8 bytes. Default letters.",
+          "enum": [
+            "letters",
+            "digits",
+            "xor"
+          ],
+          "type": "string"
+        },
+        "encoding": {
+          "default": "hex",
+          "description": "How the xor pad and ciphertext are encoded. Ignored by the letters and digits ciphers. Default hex.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "group": {
+          "default": 0,
+          "description": "Split the returned ciphertext and pad into blocks of this many characters — 5 gives classic five-character traffic groups. 0 (default) keeps the original layout.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "length": {
+          "default": 0,
+          "description": "generate-pad only: how many pad symbols (letters, digits or bytes) to generate. 0 (default) sizes the pad from message.",
+          "maximum": 16384,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "message": {
+          "default": "",
+          "description": "The plaintext to encrypt, or the ciphertext to decrypt (for cipher=xor a decrypt message is the encoded ciphertext). In generate-pad it is optional and only used to size the pad when length is 0.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "encrypt",
+          "description": "What to do: encrypt a message with a pad, decrypt a ciphertext with the pad it was encrypted with, or generate-pad to produce pad material on its own. Default encrypt.",
+          "enum": [
+            "encrypt",
+            "decrypt",
+            "generate-pad"
+          ],
+          "type": "string"
+        },
+        "pad": {
+          "default": "",
+          "description": "The pad — A-Z for letters, 0-9 for digits, hex or base64 bytes for xor; spaces are ignored. Leave empty when encrypting to generate a fresh pad sized to the message (returned alongside the ciphertext). Required to decrypt. A pad shorter than the message is an error: it is never repeated.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

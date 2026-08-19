@@ -1,0 +1,142 @@
+slug          = "mp4-to-flv"
+title         = "MP4 to FLV Converter (RTMP-ready Flash Video)"
+description   = "Convert MP4, MOV, MKV or WebM to FLV in your browser — H.264 or Sorenson Spark, AAC or MP3, with RTMP-friendly bitrate and keyframe controls. Nothing uploaded, free."
+tags          = ["video", "flv", "mp4 to flv", "flash video", "rtmp", "sorenson spark", "convert", "encoder", "legacy"]
+h1            = "Convert MP4 to FLV"
+hero_subtitle = "Pick a video and encode it as an FLV stream for RTMP ingest or a Flash-era player — bitrate, keyframe interval and codecs are yours to set, and the file never leaves your browser."
+wasm          = "gizza_ai_mp4_to_flv_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "FLV video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "video_codec"
+source = "field"
+label  = "Video codec"
+
+[input.labels]
+h264 = "H.264 — modern RTMP ingest, Flash 9.0.115+ (default)"
+flv1 = "Sorenson Spark (FLV1) — pre-9 Flash players"
+
+[[input]]
+name   = "resolution"
+source = "field"
+label  = "Resolution cap"
+
+[input.labels]
+source  = "Keep source size"
+"1080p" = "1080p — cap height at 1080"
+"720p"  = "720p — cap height at 720"
+"576p"  = "576p — cap height at 576 (PAL)"
+"480p"  = "480p — cap height at 480"
+"360p"  = "360p — cap height at 360"
+"240p"  = "240p — cap height at 240"
+
+[[input]]
+name   = "fps"
+source = "field"
+label  = "Frame rate"
+
+[input.labels]
+source  = "Keep source frame rate"
+"60fps" = "60 fps"
+"30fps" = "30 fps"
+"25fps" = "25 fps (PAL)"
+"24fps" = "24 fps"
+"15fps" = "15 fps — lowest bandwidth"
+
+[[input]]
+name        = "video_bitrate"
+source      = "field"
+label       = "Video bitrate (kbps)"
+placeholder = "2500"
+kind        = "slider"
+step         = "100"
+
+[[input]]
+name        = "keyframe_seconds"
+source      = "field"
+label       = "Keyframe interval (seconds)"
+placeholder = "2"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "audio_codec"
+source = "field"
+label  = "Audio codec"
+
+[input.labels]
+aac  = "AAC — modern RTMP ingest (default)"
+mp3  = "MP3 — classic Flash, resampled to 44.1 kHz"
+none = "No audio — video-only FLV"
+
+[[input]]
+name        = "audio_bitrate"
+source      = "field"
+label       = "Audio bitrate (kbps)"
+placeholder = "128"
+kind        = "slider"
+step         = "16"
+
+[[example]]
+label = "RTMP live ingest (720p)"
+[example.params]
+video_codec      = "h264"
+resolution       = "720p"
+fps              = "30fps"
+video_bitrate    = "2500"
+keyframe_seconds = "2"
+audio_codec      = "aac"
+audio_bitrate    = "128"
+
+[[example]]
+label = "1080p high bitrate"
+[example.params]
+video_codec      = "h264"
+resolution       = "1080p"
+fps              = "30fps"
+video_bitrate    = "5000"
+keyframe_seconds = "2"
+audio_codec      = "aac"
+audio_bitrate    = "192"
+
+[[example]]
+label = "Low bandwidth (480p)"
+[example.params]
+video_codec      = "h264"
+resolution       = "480p"
+fps              = "25fps"
+video_bitrate    = "1000"
+keyframe_seconds = "2"
+audio_codec      = "aac"
+audio_bitrate    = "96"
+
+[[example]]
+label = "Legacy Flash player (Sorenson + MP3)"
+[example.params]
+video_codec      = "flv1"
+resolution       = "360p"
+fps              = "15fps"
+video_bitrate    = "800"
+keyframe_seconds = "2"
+audio_codec      = "mp3"
+audio_bitrate    = "96"
+
+[[example]]
+label = "Video-only stream (no audio)"
+[example.params]
+video_codec      = "h264"
+resolution       = "source"
+fps              = "source"
+video_bitrate    = "2500"
+keyframe_seconds = "2"
+audio_codec      = "none"
+audio_bitrate    = "128"

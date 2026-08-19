@@ -1,0 +1,142 @@
+slug          = "graphql-mock-from-sdl"
+title         = "GraphQL Mock Data Generator from SDL Schema"
+description   = "Paste GraphQL SDL and get deterministic mock JSON: every type, one named type, or a {\"data\": ...} query response with seed, depth and null controls."
+tags          = ["graphql mock data", "sdl to json", "graphql schema mock", "fake graphql response", "graphql fixtures", "mock api json", "graphql test data"]
+h1            = "Generate mock JSON from a GraphQL SDL schema"
+hero_subtitle = "Paste your SDL and get realistic, reproducible mock data — one object per type, a single named type, or a full query response envelope. Interfaces, unions, enums, custom scalars and @fake / @examples / @listLength directives all resolve."
+wasm          = "gizza_ai_graphql_mock_from_sdl_web"
+export        = "run"
+live          = false
+output_label  = "Mock JSON"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "sdl"
+label       = "GraphQL SDL schema"
+placeholder = "type Query {\n  user: User\n}\n\ntype User {\n  id: ID!\n  fullName: String!\n  email: String!\n  role: Role!\n}\n\nenum Role { ADMIN EDITOR VIEWER }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "What to generate"
+source = "field"
+
+[input.labels]
+"all-types"      = "One mock per type in the schema"
+"query-response" = "Query response envelope ({\"data\": ...})"
+"single-type"    = "A single named type"
+
+[[input]]
+name        = "type_name"
+label       = "Type name (single-type mode only)"
+placeholder = "User"
+source      = "field"
+
+[[input]]
+name        = "list_length"
+label       = "Items per list field"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "depth"
+label       = "Maximum nesting depth"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "6"
+step        = "1"
+
+[[input]]
+name   = "nullable_fields"
+label  = "Nullable fields"
+source = "field"
+
+[input.labels]
+fill = "Fill them with values"
+null = "Force them to null"
+omit = "Leave them out entirely"
+
+[[input]]
+name   = "smart_values"
+label  = "Infer realistic values from field names"
+source = "field"
+
+[[input]]
+name   = "typename"
+label  = "Add __typename to every object"
+source = "field"
+
+[[input]]
+name        = "seed"
+label       = "Seed (same seed = same output)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print the JSON"
+source = "field"
+
+[[example]]
+label = "Query response"
+[example.params]
+sdl = "type Query {\n  user: User\n}\n\ntype User {\n  id: ID!\n  fullName: String!\n  email: String!\n  role: Role!\n}\n\nenum Role { ADMIN EDITOR VIEWER }"
+mode = "query-response"
+type_name = ""
+list_length = "2"
+depth = "3"
+nullable_fields = "fill"
+smart_values = "true"
+typename = "false"
+seed = "1"
+pretty = "true"
+
+[[example]]
+label = "One type, with __typename"
+[example.params]
+sdl = "type User {\n  id: ID!\n  fullName: String!\n  email: String!\n  createdAt: String!\n  tags: [String!]!\n}"
+mode = "single-type"
+type_name = "User"
+list_length = "3"
+depth = "2"
+nullable_fields = "fill"
+smart_values = "true"
+typename = "true"
+seed = "7"
+pretty = "true"
+
+[[example]]
+label = "Faker directives"
+[example.params]
+sdl = "type Person {\n  salutation: String! @examples(values: [\"Mx\", \"Dr\"])\n  handle: String! @fake(type: firstName)\n  nicknames: [String!]! @listLength(min: 4, max: 4)\n}"
+mode = "single-type"
+type_name = "Person"
+list_length = "2"
+depth = "3"
+nullable_fields = "fill"
+smart_values = "true"
+typename = "false"
+seed = "9"
+pretty = "true"
+
+[[example]]
+label = "Nulls only, compact"
+[example.params]
+sdl = "type Query {\n  post: Post!\n}\n\ntype Post {\n  id: ID!\n  title: String!\n  body: String\n  views: Int\n}"
+mode = "query-response"
+type_name = ""
+list_length = "1"
+depth = "3"
+nullable_fields = "null"
+smart_values = "true"
+typename = "false"
+seed = "1"
+pretty = "false"

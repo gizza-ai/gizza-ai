@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-typescript-to-json-schema-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps emitted schema keys in TypeScript source order.
+serde_json = { version = "1", features = ["preserve_order"] }

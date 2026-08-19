@@ -1,0 +1,74 @@
+slug          = "registry-hive-parser"
+title         = "Registry Hive Parser — Inspect NTUSER.DAT, SYSTEM and SOFTWARE Locally"
+description   = "Parse offline Windows registry hive bytes from hex or Base64, inspect regf header integrity, browse keys and values, and sweep Run/RunOnce autostart locations locally."
+tags          = ["registry hive parser", "NTUSER.DAT viewer", "Windows registry forensics", "RunKeys", "RunOnce", "regf", "offline registry", "DFIR", "SYSTEM hive", "SOFTWARE hive", "USRCLASS.DAT", "Amcache"]
+h1            = "Registry Hive Parser"
+hero_subtitle = "Paste a hex or Base64-encoded Windows registry hive and inspect the regf header, root keys, selected paths, or common Run/RunOnce autostart locations. Runs locally in your browser; no hive upload."
+wasm          = "gizza_ai_registry_hive_parser_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Hive bytes"
+placeholder = "Paste hex bytes starting with 72 65 67 66 ... (ASCII 'regf'), or choose Base64 below"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "input_encoding"
+label   = "Input encoding"
+source  = "field"
+default = "hex"
+
+[input.labels]
+hex    = "Hex bytes (72 65 67 66...)"
+base64 = "Base64"
+
+[[input]]
+name    = "mode"
+label   = "Inspection mode"
+source  = "field"
+default = "summary"
+
+[input.labels]
+summary = "Summary: header, integrity, root entries"
+path    = "Browse a key path"
+runkeys = "Sweep Run/RunOnce autostart keys"
+
+[[input]]
+name        = "path"
+label       = "Key path (for path mode)"
+placeholder = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+source      = "field"
+
+[[input]]
+name        = "max_entries"
+label       = "Maximum entries per section"
+placeholder = "50"
+source      = "field"
+default     = "50"
+
+[[example]]
+label = "Reject a non-hive file"
+[example.params]
+data = "504b0304140000000800"
+mode = "summary"
+max_entries = "10"
+
+[[example]]
+label = "Browse a Run key"
+[example.params]
+data = "72656766"
+mode = "path"
+path = "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+max_entries = "25"
+
+[[example]]
+label = "Autostart sweep"
+[example.params]
+data = "72656766"
+mode = "runkeys"
+max_entries = "25"

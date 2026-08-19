@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/sentence-tokenizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split text into sentences and tokens with character offsets.",
+  "role": "skill",
+  "tool": {
+    "description": "Tokenize plain text into sentences and into word, number, punctuation, symbol, URL and e-mail tokens, each with its start/end character offset in the original text. The rule-based segmenter keeps abbreviations and titles (Dr., Mrs., e.g., No. 5), initials (J. R. R.), decimals and versions ($99.99, 1.2.3), list markers ('1. Buy milk'), ellipses, quoted speech and full-width terminators 。！？ from splitting mid-sentence, and keeps URLs, e-mail addresses and numbers with internal separators (1,000.00, 2018-11-11) as single tokens. format='json' (default) returns counts plus sentences with per-token spans and types; 'table' is tab-separated rows with offsets; 'lines' is one token per line; 'spaces' re-joins each sentence's tokens with single spaces; 'sentences' is one sentence per line. newlines controls line breaks: 'paragraph' (default), 'never' or 'always'. split_contractions (default true) cuts don't into do + n't, split_hyphenated splits state-of-the-art, lowercase lowercases the emitted text while keeping original offsets, drop_punctuation removes punctuation and symbol tokens, and extra_abbreviations adds domain abbreviations to the never-split list.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "drop_punctuation": {
+          "default": false,
+          "description": "Drop punctuation and symbol tokens from the output, leaving words, numbers, URLs and e-mail addresses. Default false. Sentence boundaries are still detected from the punctuation before it is dropped.",
+          "type": "boolean"
+        },
+        "extra_abbreviations": {
+          "default": "",
+          "description": "Extra abbreviations that must never end a sentence, on top of the built-in list (Dr., Mrs., e.g., No., Inc., …). Comma-, semicolon- or space-separated, trailing period optional, case-insensitive — e.g. 'Blarg., Zyx.'. Default empty.",
+          "type": "string"
+        },
+        "format": {
+          "default": "json",
+          "description": "How to render the token stream. 'json' (default) = {\"counts\":{...},\"sentences\":[{index,start,end,text,tokens:[{index,start,end,type,text}]}]}; 'table' = tab-separated rows (sentence, token, start, end, type, text) with a header line; 'lines' = one token per line; 'spaces' = one sentence per line with tokens separated by single spaces; 'sentences' = one sentence per line of original text.",
+          "enum": [
+            "json",
+            "table",
+            "lines",
+            "spaces",
+            "sentences"
+          ],
+          "type": "string"
+        },
+        "lowercase": {
+          "default": false,
+          "description": "Lowercase the emitted token and sentence text. Default false. Offsets always point at the original, unmodified text, so a lowercased token can still be mapped back to its source span.",
+          "type": "boolean"
+        },
+        "newlines": {
+          "default": "paragraph",
+          "description": "How line breaks affect sentence boundaries. 'paragraph' (default) = only a blank line ends a sentence; 'never' = line breaks are ordinary whitespace, only punctuation ends a sentence; 'always' = every line break ends a sentence (use for lists, subtitles, one-per-line text).",
+          "enum": [
+            "paragraph",
+            "never",
+            "always"
+          ],
+          "type": "string"
+        },
+        "split_contractions": {
+          "default": true,
+          "description": "Split contractions Penn Treebank style: don't -> do + n't, Anna's -> Anna + 's, we'll -> we + 'll. Default true. Set false to keep each contraction as one token. Split pieces keep their exact character offsets.",
+          "type": "boolean"
+        },
+        "split_hyphenated": {
+          "default": false,
+          "description": "Split hyphenated compounds into their parts plus the hyphens: state-of-the-art -> state + - + of + - + the + - + art. Default false, which keeps the compound as a single word token.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text to tokenize. Plain text, up to 500000 characters — e.g. 'Dr. Green paid $99.99. It works.'. Line breaks are meaningful input: they interact with the newlines parameter.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

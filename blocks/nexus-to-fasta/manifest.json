@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/nexus-to-fasta",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract a NEXUS DATA/CHARACTERS matrix and write it out as FASTA.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a NEXUS (PAUP/MrBayes/MEGA) alignment into standard FASTA. The tool strips bracketed [comments], finds the 'begin data;' or 'begin characters;' block, reads its dimensions (ntax/nchar) and format (gap, matchchar, interleave, labels) commands, and extracts the matrix — sequential or interleaved, auto-detected by checking each candidate parse against the declared nchar. Single-quoted taxon labels with spaces are supported, as are matchchar shorthand ('.' = same as the first taxon, expanded by default), non-default gap symbols, bracketed state sets like (01) that count as one site, and matrices with 'labels=no' whose names come from the TAXA block. Gaps are preserved by default; remove_gaps strips them for unaligned output, case normalizes residues, wrap sets the FASTA line width (default 60, 0 = one line), underscores_to_spaces applies the NEXUS underscore convention, and tolerant converts anyway when the matrix disagrees with its dimensions. Runs entirely locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "case": {
+          "default": "keep",
+          "description": "Residue case in the output. 'keep' (default) copies the matrix verbatim; 'upper' normalizes to ACGT; 'lower' normalizes to acgt.",
+          "enum": [
+            "keep",
+            "upper",
+            "lower"
+          ],
+          "type": "string"
+        },
+        "expand_matchchar": {
+          "default": true,
+          "description": "When true (default), replace each occurrence of the block's declared matchchar= symbol (usually '.') with the residue the first taxon has at that site, which is what the symbol means. Set false to copy the symbol through unchanged.",
+          "type": "boolean"
+        },
+        "layout": {
+          "default": "auto",
+          "description": "Matrix layout. 'auto' (default) honours the format command's 'interleave' flag and otherwise keeps whichever parse matches the declared nchar; 'sequential' = each taxon's whole sequence before the next; 'interleaved' = repeated blocks of one row per taxon.",
+          "enum": [
+            "auto",
+            "sequential",
+            "interleaved"
+          ],
+          "type": "string"
+        },
+        "nexus": {
+          "description": "The NEXUS document text. It starts with '#NEXUS' and must contain a 'begin data;' (or 'begin characters;') block holding the 'dimensions', 'format' and 'matrix' commands; bracketed [comments] and any other blocks (TAXA, TREES, ASSUMPTIONS) are ignored.",
+          "type": "string"
+        },
+        "remove_gaps": {
+          "default": false,
+          "description": "When true, strip the alignment gap characters (the block's declared gap= symbol plus '-' and '.'), turning the aligned FASTA into unaligned sequences. Default false (gaps are preserved exactly).",
+          "type": "boolean"
+        },
+        "tolerant": {
+          "default": false,
+          "description": "When true, convert anyway if the matrix disagrees with the dimensions command (wrong ntax, or a taxon whose sequence is not nchar sites long). Default false = report the mismatch instead.",
+          "type": "boolean"
+        },
+        "underscores_to_spaces": {
+          "default": false,
+          "description": "When true, turn '_' in an UNQUOTED taxon label into a space, the NEXUS convention ('Homo_sapiens' -> 'Homo sapiens'). Single-quoted labels are always taken literally. Default false (underscores are kept, which is safer for FASTA headers).",
+          "type": "boolean"
+        },
+        "wrap": {
+          "default": 60,
+          "description": "Wrap each FASTA sequence at this many characters per line (1-1000). Default 60, the conventional FASTA width; 0 = one long line per sequence.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "nexus"
+      ],
+      "type": "object"
+    }
+  }
+}

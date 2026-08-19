@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "grayscale-detector"
+version = "0.1.0"
+abi = 1
+summary = "Detect whether an RGB image's pixels are effectively grayscale"

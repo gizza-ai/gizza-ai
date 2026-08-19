@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/recipe-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fetch a recipe page and extract the clean recipe",
+  "role": "skill",
+  "tool": {
+    "description": "Fetch a recipe page and return just the recipe: title, ingredients, numbered steps, prep/cook/total time, yield and nutrition — without the blog story, ads or comments. Reads the schema.org/Recipe data the page publishes (JSON-LD, with a microdata fallback). Set format='markdown' (default), 'text' or 'json', and scale=2 to double the ingredient quantities.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "markdown",
+          "description": "Output shape: \"markdown\" (default) = headed Markdown with bullet ingredients and numbered steps, \"text\" = plain text, \"json\" = the full structured record (title, ingredients, instructions, times, yield, nutrition, image, source).",
+          "enum": [
+            "markdown",
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "include_nutrition": {
+          "default": true,
+          "description": "Include the page's published nutrition facts (calories, protein, fat, …) when it has any (default true). Set false for just the recipe.",
+          "type": "boolean"
+        },
+        "max_bytes": {
+          "description": "Maximum number of bytes of HTML to download (default 4194304, max 8388608). A larger page is rejected rather than truncated, so half a recipe is never returned.",
+          "maximum": 8388608,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Multiply every ingredient quantity by this factor (default 1 = as published; 2 = double, 0.5 = half). Whole numbers, decimals, 1/2, 1 1/2 and unicode fractions are rescaled; quantities the parser can't read (\"salt to taste\") and the step text are left untouched.",
+          "maximum": 100,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "url": {
+          "description": "Absolute http or https URL of the recipe page to read.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    }
+  }
+}

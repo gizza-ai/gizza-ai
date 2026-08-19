@@ -1,0 +1,195 @@
+slug          = "ndjson-to-matrix"
+title         = "NDJSON to Matrix — JSON Lines to Aligned CSV, TSV or Numeric Grid"
+description   = "Turn NDJSON / JSON Lines records into one aligned table: unified columns from dotted paths, chosen fill for missing cells, CSV, TSV, matrix or JSON out."
+tags          = ["ndjson", "jsonl", "json lines", "matrix", "csv", "tsv", "flatten", "numeric matrix", "transpose", "data conversion"]
+h1            = "NDJSON to matrix"
+hero_subtitle = "Paste newline-delimited JSON and get one rectangular table: nested objects flattened to dotted columns, the union of every path as the header, missing cells filled the way you choose, and CSV, TSV, an aligned grid or a JSON array of rows out."
+wasm          = "gizza_ai_ndjson_to_matrix_web"
+export        = "run"
+live          = false
+output_label  = "Matrix"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "NDJSON / JSON Lines"
+placeholder = "{\"id\":1,\"latency_ms\":12,\"user\":{\"tier\":\"pro\"}}\n{\"id\":2,\"latency_ms\":940}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+csv    = "CSV"
+tsv    = "TSV (tab-separated)"
+matrix = "Aligned matrix grid"
+json   = "JSON array of rows"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+[input.labels]
+comma     = "Comma  ,"
+tab       = "Tab"
+semicolon = "Semicolon  ;"
+pipe      = "Pipe  |"
+space     = "Space"
+
+[[input]]
+name        = "separator"
+label       = "Nested path separator"
+placeholder = "."
+source      = "field"
+
+[[input]]
+name        = "arrays"
+label       = "Nested arrays"
+source      = "field"
+[input.labels]
+index = "Index into columns (v.0, v.1)"
+json  = "Keep as JSON in one cell"
+skip  = "Drop array columns"
+
+[[input]]
+name        = "columns"
+label       = "Columns to keep (comma-separated, in order)"
+placeholder = "latency_ms, user.tier"
+source      = "field"
+
+[[input]]
+name        = "column_order"
+label       = "Column order"
+source      = "field"
+[input.labels]
+first-seen = "First seen in the data"
+alpha      = "Alphabetical by path"
+coverage   = "Most-populated first"
+
+[[input]]
+name        = "fill"
+label       = "Fill for missing cells"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "headers"
+label       = "Include the header row"
+source      = "field"
+
+[[input]]
+name        = "row_index"
+label       = "Add a 1-based row column"
+source      = "field"
+
+[[input]]
+name        = "numeric_only"
+label       = "Numeric columns only"
+source      = "field"
+
+[[input]]
+name        = "transpose"
+label       = "Transpose (columns become rows)"
+source      = "field"
+
+[[input]]
+name        = "max_depth"
+label       = "Flatten depth (0 = all levels)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "limit"
+label       = "Row limit (0 = all records)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "invalid"
+label       = "Unparsable lines"
+source      = "field"
+[input.labels]
+error = "Stop and report the line"
+skip  = "Skip them"
+
+[[example]]
+label = "Ragged log records → CSV"
+[example.values]
+data = "{\"id\":1,\"latency_ms\":12,\"user\":{\"tier\":\"pro\"}}\n{\"id\":2,\"latency_ms\":940}\n{\"id\":3,\"latency_ms\":31,\"user\":{\"tier\":\"free\"}}"
+format = "csv"
+delimiter = "comma"
+separator = "."
+arrays = "index"
+columns = ""
+column_order = "first-seen"
+fill = ""
+headers = "true"
+row_index = "false"
+numeric_only = "false"
+transpose = "false"
+max_depth = "0"
+limit = "0"
+invalid = "error"
+
+[[example]]
+label = "Numeric matrix for numpy (no header, 0-filled)"
+[example.values]
+data = "{\"x\":1,\"y\":2,\"label\":\"a\"}\n{\"x\":3,\"y\":4,\"label\":\"b\"}\n{\"x\":5,\"label\":\"c\"}"
+format = "matrix"
+delimiter = "comma"
+separator = "."
+arrays = "index"
+columns = ""
+column_order = "first-seen"
+fill = "0"
+headers = "false"
+row_index = "false"
+numeric_only = "true"
+transpose = "false"
+max_depth = "0"
+limit = "0"
+invalid = "error"
+
+[[example]]
+label = "Vectors indexed into columns → TSV"
+[example.values]
+data = "{\"sensor\":\"a\",\"reading\":[1.5,2.5,3.5]}\n{\"sensor\":\"b\",\"reading\":[4.5,5.5]}"
+format = "tsv"
+delimiter = "comma"
+separator = "."
+arrays = "index"
+columns = ""
+column_order = "first-seen"
+fill = "NaN"
+headers = "true"
+row_index = "false"
+numeric_only = "false"
+transpose = "false"
+max_depth = "0"
+limit = "0"
+invalid = "error"
+
+[[example]]
+label = "Transposed series for plotting"
+[example.values]
+data = "{\"t\":0,\"v\":1}\n{\"t\":1,\"v\":4}\n{\"t\":2,\"v\":9}"
+format = "csv"
+delimiter = "comma"
+separator = "."
+arrays = "index"
+columns = ""
+column_order = "first-seen"
+fill = ""
+headers = "true"
+row_index = "false"
+numeric_only = "false"
+transpose = "true"
+max_depth = "0"
+limit = "0"
+invalid = "error"

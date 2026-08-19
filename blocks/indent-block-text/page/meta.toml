@@ -1,0 +1,110 @@
+slug          = "indent-block-text"
+title         = "Indent Block Text — Add Spaces, Tabs, or Prefixes to Lines"
+description   = "Indent, outdent, dedent, or prefix every selected line of a text block with spaces, tabs, or custom text."
+tags          = ["indent text", "prefix lines", "add prefix to lines", "dedent text", "outdent text", "hanging indent", "markdown quote", "code indent"]
+h1            = "Indent Block Text"
+hero_subtitle = "Add spaces, tabs, or a fixed prefix to every line — or outdent and dedent copied blocks. Useful for code snippets, Markdown quotes, comments, hanging indents, and bulk line prefixing."
+wasm          = "gizza_ai_indent_block_text_web"
+export        = "run"
+live          = false
+output_label  = "Indented text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text block"
+placeholder = "alpha\nbeta\ngamma"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Operation"
+source = "field"
+
+[input.labels]
+indent = "Indent — add the unit"
+outdent = "Outdent — remove the unit"
+dedent = "Dedent — remove common whitespace"
+
+[[input]]
+name   = "style"
+label  = "Indent style"
+source = "field"
+
+[input.labels]
+spaces = "Spaces"
+tabs = "Tabs"
+custom = "Custom prefix"
+
+[[input]]
+name        = "count"
+label       = "Count"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Custom prefix"
+placeholder = "> "
+source      = "field"
+
+[[input]]
+name   = "lines"
+label  = "Lines to change"
+source = "field"
+
+[input.labels]
+all = "All lines"
+first-line = "First line only"
+hanging = "Hanging indent — all but first"
+paragraph-starts = "Paragraph starts"
+
+[[input]]
+name   = "skip_blank_lines"
+label  = "Skip blank lines"
+source = "field"
+
+[[example]]
+label = "Four-space code block"
+[example.params]
+text = "fn main() {\n    println!(\"hi\");\n}"
+mode = "indent"
+style = "spaces"
+count = "4"
+prefix = ""
+lines = "all"
+skip_blank_lines = "true"
+
+[[example]]
+label = "Markdown quote"
+[example.params]
+text = "alpha\nbeta"
+mode = "indent"
+style = "custom"
+count = "1"
+prefix = "> "
+lines = "all"
+skip_blank_lines = "true"
+
+[[example]]
+label = "Hanging indent"
+[example.params]
+text = "Author, A. (2020). Title.\ncontinued line\nmore detail"
+mode = "indent"
+style = "spaces"
+count = "4"
+prefix = ""
+lines = "hanging"
+skip_blank_lines = "true"
+
+[[example]]
+label = "Dedent code"
+[example.params]
+text = "    fn main() {\n        println!(\"hi\");\n    }"
+mode = "dedent"
+style = "spaces"
+count = "0"
+prefix = ""
+lines = "all"
+skip_blank_lines = "true"

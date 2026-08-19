@@ -1,0 +1,128 @@
+slug          = "iqr-outlier-trimmer"
+title         = "IQR Outlier Trimmer — Remove Outlier Rows from CSV (Tukey Fences)"
+description   = "Drop the CSV rows outside Q1-k*IQR to Q3+k*IQR on a column you choose. Adjustable k, winsorize or flag instead, quartile stats. Free, in-browser, no upload."
+tags          = ["iqr outlier", "tukey fences", "remove outliers csv", "outlier removal", "winsorize"]
+h1            = "IQR Outlier Trimmer"
+hero_subtitle = "Remove the rows whose chosen column falls outside the Tukey fences Q1 − k·IQR … Q3 + k·IQR — or clip them, flag them, or just read the quartile stats. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_iqr_outlier_trimmer_web"
+export        = "run"
+live          = false
+output_label  = "Trimmed CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV / TSV"
+placeholder = "name,price\na,10\nb,11\nc,12\nd,13\ne,100"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns to fence (blank = every numeric column)"
+placeholder = "price"
+source      = "field"
+
+[[input]]
+name        = "k"
+label       = "Fence multiplier k (1.5 = mild, 3 = extreme)"
+placeholder = "1.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "5"
+step        = "0.1"
+
+[[input]]
+name   = "action"
+label  = "What to do with the outlier rows"
+source = "field"
+
+[input.labels]
+remove = "Remove them (trim)"
+keep   = "Keep only them (inspect)"
+clip   = "Clip to the fence (winsorize)"
+flag   = "Flag them in a new column"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+csv    = "The resulting table"
+report = "Quartile / fence report"
+
+[[input]]
+name   = "header"
+label  = "First row is a header (kept, used for column names)"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[input]]
+name   = "quartile_method"
+label  = "Quartile convention"
+source = "field"
+
+[input.labels]
+linear    = "Linear interpolation (numpy / pandas / QUARTILE.INC)"
+exclusive = "Exclusive — Moore & McCabe / TI-83"
+inclusive = "Inclusive — Tukey's hinges"
+
+[[input]]
+name   = "match_mode"
+label  = "With several columns, a row is an outlier when…"
+source = "field"
+
+[input.labels]
+any = "Any column is out of fence"
+all = "All columns are out of fence"
+
+[[input]]
+name   = "non_numeric"
+label  = "Blank / non-numeric cells"
+source = "field"
+
+[input.labels]
+keep   = "Count as in-fence (keep the row)"
+remove = "Count as an outlier (drop the row)"
+
+[[example]]
+label = "Trim at k = 1.5"
+[example.params]
+data    = "name,price\na,10\nb,11\nc,12\nd,13\ne,100"
+columns = "price"
+k       = "1.5"
+action  = "remove"
+
+[[example]]
+label = "Extreme outliers only (k = 3)"
+[example.params]
+data    = "name,price\na,10\nb,11\nc,12\nd,13\ne,100"
+columns = "price"
+k       = "3"
+action  = "remove"
+
+[[example]]
+label = "Winsorize instead of dropping"
+[example.params]
+data    = "name,price\na,10\nb,11\nc,12\nd,13\ne,100"
+columns = "price"
+action  = "clip"
+
+[[example]]
+label = "Quartile / fence report"
+[example.params]
+data    = "name,price\na,10\nb,11\nc,12\nd,13\ne,100"
+columns = "price"
+output  = "report"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "postman-collection-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Flatten a Postman collection into a request list with method, URL, headers and body"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "usnjrnl-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse an NTFS $UsnJrnl:$J change journal into a file-activity timeline."

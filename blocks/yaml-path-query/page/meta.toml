@@ -1,0 +1,73 @@
+slug          = "yaml-path-query"
+title         = "YAML Path Query and Edit Online"
+description   = "Query, set or delete YAML values by dotted and bracketed paths in your browser — dot keys, list indexes, quoted keys, JSON output, and comment-preserving edits."
+tags          = ["yaml", "yaml path", "yaml query", "yaml editor", "yamlpath", "dot path"]
+h1            = "YAML Path Query"
+hero_subtitle = "Point at YAML with paths like server.host, items[0].name or ['key with spaces']; query, set or delete values locally while preserving comments when safe."
+wasm          = "gizza_ai_yaml_path_query_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "yaml"
+label       = "YAML input"
+placeholder = "server:\n  host: localhost   # bind address\n  port: 8080\nitems:\n  - name: alpha\n    qty: 1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "path"
+label       = "Path"
+placeholder = "server.host"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+[input.labels]
+query  = "Query value"
+set    = "Set value"
+delete = "Delete value"
+
+[[input]]
+name        = "value"
+label       = "Value for set mode"
+placeholder = "9090"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+yaml = "YAML / raw scalar"
+json = "JSON"
+
+[[example]]
+label = "Read a scalar"
+[example.params]
+yaml = "server:\n  host: localhost\n  port: 8080\n"
+path = "server.host"
+mode = "query"
+format = "yaml"
+
+[[example]]
+label = "Update a port"
+[example.params]
+yaml = "server:\n  host: localhost   # keep\n  port: 8080\n"
+path = "server.port"
+mode = "set"
+value = "9090"
+format = "yaml"
+
+[[example]]
+label = "Read a list item as JSON"
+[example.params]
+yaml = "items:\n  - name: alpha\n    qty: 1\n  - name: beta\n    qty: 2\n"
+path = "items[1]"
+mode = "query"
+format = "json"

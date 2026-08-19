@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "license-checker"
+version = "0.1.0"
+abi = 1
+summary = "Check the SPDX licenses in an SBOM or dependency list against allow/deny rules."

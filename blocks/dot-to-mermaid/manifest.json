@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/dot-to-mermaid",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert Graphviz DOT to Mermaid flowchart syntax",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Graphviz DOT graph into Mermaid flowchart syntax. Pass `dot` as DOT source, e.g. 'digraph { rankdir=LR; a [label=\"Start\", shape=circle]; a -> b [label=\"go\"]; }'. Nodes, chained edges, labels, shapes, edge styles, cluster subgraphs and colors are mapped to their Mermaid equivalents; `direction` picks the flowchart direction (auto follows rankdir); `shapes`, `edge_labels`, `link_styles`, `subgraphs`, `colors` and `warnings` toggle each mapping; `title` sets YAML front matter; `fence` wraps the output in a ```mermaid code fence. Returns Mermaid source as text, with `%%` notes for DOT features Mermaid cannot express. Runs locally on the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "colors": {
+          "default": true,
+          "description": "Emit Mermaid 'style <node> fill:…,stroke:…,color:…' and 'linkStyle <n> stroke:…' lines from Graphviz fillcolor/color/fontcolor/penwidth. Default true. Graphviz color lists ('red:blue') and colorscheme references ('/set19/3') are skipped.",
+          "type": "boolean"
+        },
+        "direction": {
+          "default": "auto",
+          "description": "Mermaid flowchart direction. 'auto' (default) follows the graph's own rankdir (TB->TD, LR, BT, RL) and falls back to TD when there is none; TD/LR/BT/RL force a direction.",
+          "enum": [
+            "auto",
+            "TD",
+            "LR",
+            "BT",
+            "RL"
+          ],
+          "type": "string"
+        },
+        "dot": {
+          "description": "Graphviz DOT source to translate, e.g. 'digraph { a -> b [label=\"go\"]; }'. Accepts digraph and graph, chained edges (a -> b -> c), attribute lists, node/edge/graph defaults, nested subgraphs and cluster_* clusters, ports, comments, quoted and HTML-style labels.",
+          "type": "string"
+        },
+        "edge_labels": {
+          "default": true,
+          "description": "Carry Graphviz edge label/xlabel text onto the Mermaid link (a -->|go| b). Default true; false emits unlabelled links.",
+          "type": "boolean"
+        },
+        "fence": {
+          "default": false,
+          "description": "Wrap the result in a ```mermaid code fence, ready to paste into a Markdown or README file. Default false (bare diagram source).",
+          "type": "boolean"
+        },
+        "link_styles": {
+          "default": true,
+          "description": "Map Graphviz edge style=/dir= onto Mermaid link types: dashed/dotted -> -.->, bold -> ==>, invis -> ~~~, dir=none -> ---, dir=both -> <-->, dir=back reverses the edge. Default true; false emits plain --> (or --- for undirected graphs).",
+          "type": "boolean"
+        },
+        "shapes": {
+          "default": true,
+          "description": "Map Graphviz shape= attributes onto Mermaid node shapes (box->[], ellipse->(), circle->(()), doublecircle->((())), diamond->{}, hexagon->{{}}, cylinder->[()], component/box3d->[[]], parallelogram->[//], trapezium->[/\\]). Default true; false emits every node as a plain rectangle.",
+          "type": "boolean"
+        },
+        "subgraphs": {
+          "default": true,
+          "description": "Translate 'subgraph cluster_*' blocks (including nested ones) into Mermaid subgraph/end blocks, using the cluster's label= as the block title. Default true; false flattens every cluster to top-level nodes.",
+          "type": "boolean"
+        },
+        "title": {
+          "description": "Optional diagram title, emitted as Mermaid YAML front matter (---\\ntitle: …\\n---). Leave empty to use the graph's own label= attribute, if it has one.",
+          "type": "string"
+        },
+        "warnings": {
+          "default": true,
+          "description": "Append '%%' Mermaid comment notes listing DOT features that have no Mermaid equivalent (unknown shapes, ports, color lists, flattened clusters). Default true; false returns diagram source only.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dot"
+      ],
+      "type": "object"
+    }
+  }
+}

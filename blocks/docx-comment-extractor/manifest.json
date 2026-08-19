@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/docx-comment-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract Word (DOCX) review comments to a CSV/TSV/JSON/Markdown table",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the tracked review comments from a Microsoft Word .docx file and return them as a spreadsheet-ready table. Each row carries the comment id, its thread parent, the author (and initials), the date/time, the open/resolved status, the document text the comment is anchored to, and the comment text itself. Provide url (HTTP/HTTPS) or ref from a prior tool call. Choose the output with format (csv, tsv, json, markdown) and columns; narrow the rows with authors (case-insensitive substring), status (all, open, resolved), and include_replies. Returns the table plus the total/returned/replies/resolved counts and the document's full author roster. Reads only the review layer, not the document prose (use docx-text-extract for that); .docx only, not legacy .doc.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "authors": {
+          "description": "Comma-separated author filter, matched case-insensitively as a substring of the comment author's name (e.g. `jane` matches \"Jane Doe\"). Leave empty to keep every author.",
+          "type": "string"
+        },
+        "columns": {
+          "default": "id,parent_id,author,date,time,status,anchor,comment",
+          "description": "Comma-separated columns to emit, in the order given. Available: id, parent_id, author, initials, date, time, timestamp, status, anchor, comment. Defaults to `id,parent_id,author,date,time,status,anchor,comment` (`initials` and the raw ISO `timestamp` are opt-in, being redundant with `author` and `date`+`time`).",
+          "type": "string"
+        },
+        "flatten_newlines": {
+          "default": true,
+          "description": "Collapse newlines and repeated whitespace inside each cell so one comment is one row (true, default). Set false to keep multi-paragraph comments' line breaks inside the quoted cell.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "csv",
+          "description": "Output table format: `csv` (default, RFC 4180 quoting), `tsv` (tab-separated), `json` (an array of row objects), or `markdown` (a pipe table).",
+          "enum": [
+            "csv",
+            "tsv",
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "include_replies": {
+          "default": true,
+          "description": "Include replies within a comment thread (true, default). Set false to return only top-level comments.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "status": {
+          "default": "all",
+          "description": "Which comments to keep by thread state: `all` (default), `open` (not yet marked resolved in Word), or `resolved`.",
+          "enum": [
+            "all",
+            "open",
+            "resolved"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

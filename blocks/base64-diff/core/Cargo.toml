@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-base64-diff-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# base64: decode both sides (standard + URL-safe alphabets, lenient or strict).
+base64 = "0.22"
+# sha2: per-side payload fingerprint, so "same bytes?" has a one-line answer.
+sha2 = "0.10"
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -1,0 +1,139 @@
+slug          = "sorted-order-checker"
+title         = "Sorted Order Checker — Is This List of Numbers Sorted?"
+description   = "Check whether a list of numbers is sorted ascending or descending and see exactly where the order first breaks. Free, runs in your browser."
+tags          = ["sorted order checker", "is this list sorted", "check if numbers are sorted", "ascending or descending checker", "monotonic sequence checker", "find out of order value", "verify sorted list", "number order validator"]
+h1            = "Sorted Order Checker"
+hero_subtitle = "Paste a list of numbers and find out whether it is in order — ascending, descending, or whichever direction the values themselves imply. If it is not, you get the first out-of-order element: its position, its value, the neighbour it breaks against, and why. Nothing is uploaded; the check runs in your browser."
+wasm          = "gizza_ai_sorted_order_checker_web"
+export        = "run"
+live          = false
+output_label  = "Order report"
+format        = "text"
+
+[[input]]
+name        = "numbers"
+label       = "Numbers"
+placeholder = "1, 4, 9, 2, 7"
+source      = "field"
+multiline   = true
+
+# order renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "order"
+label  = "Order to verify"
+source = "field"
+
+[input.labels]
+auto       = "Auto — detect the direction from the values"
+ascending  = "Ascending (smallest first)"
+descending = "Descending (largest first)"
+
+# strict renders as a checkbox (boolean param, default off).
+[[input]]
+name   = "strict"
+label  = "Strict — repeated values count as out of order"
+source = "field"
+
+[[input]]
+name   = "separator"
+label  = "Value separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto — comma, space, tab, newline, semicolon or pipe"
+comma     = "Comma"
+newline   = "Newline (one value per line)"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+# strip_thousands renders as a checkbox (boolean param, default off).
+[[input]]
+name   = "strip_thousands"
+label  = "Treat , and _ inside a value as thousands separators"
+source = "field"
+
+[[input]]
+name   = "non_numeric"
+label  = "Non-numeric entries"
+source = "field"
+
+[input.labels]
+error  = "Stop and name the bad entry"
+ignore = "Skip them and check the rest"
+
+[[input]]
+name        = "max_issues"
+label       = "Out-of-order elements to list (1-1000)"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON (machine-readable)"
+
+[[example]]
+label = "Find the break"
+[example.params]
+numbers = "1, 4, 9, 2, 7"
+order = "auto"
+strict = "false"
+separator = "auto"
+strip_thousands = "false"
+non_numeric = "error"
+max_issues = "20"
+format = "text"
+
+[[example]]
+label = "Ascending, ties allowed"
+[example.params]
+numbers = "1, 2, 2, 5, 8"
+order = "ascending"
+strict = "false"
+separator = "auto"
+strip_thousands = "false"
+non_numeric = "error"
+max_issues = "20"
+format = "text"
+
+[[example]]
+label = "Strictly descending"
+[example.params]
+numbers = "100 80 80 20"
+order = "descending"
+strict = "true"
+separator = "space"
+strip_thousands = "false"
+non_numeric = "error"
+max_issues = "20"
+format = "text"
+
+[[example]]
+label = "One value per line"
+[example.params]
+numbers = "1690000000\n1690000042\n1690000041\n1690000090"
+order = "ascending"
+strict = "true"
+separator = "newline"
+strip_thousands = "false"
+non_numeric = "error"
+max_issues = "20"
+format = "text"
+
+[[example]]
+label = "Thousands separators"
+[example.params]
+numbers = "1,024 2,048 4,096"
+order = "ascending"
+strict = "false"
+separator = "space"
+strip_thousands = "true"
+non_numeric = "error"
+max_issues = "20"
+format = "json"

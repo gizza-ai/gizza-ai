@@ -1,0 +1,131 @@
+{
+  "name": "gizza-ai/number-to-currency-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Format a number as a currency string without exchange rates",
+  "role": "skill",
+  "tool": {
+    "description": "Format a raw number as a currency string with a chosen currency marker, symbol/code style, placement, decimals, grouping style, separators, rounding mode, sign display, accounting parentheses, and optional trimmed zeros. This is presentation-only: it does not convert currencies or fetch exchange rates. Input can include common copied separators, currency affixes, negative parentheses, trailing minus, and scientific notation. Returns the formatted text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "accounting": {
+          "default": false,
+          "description": "Wrap negative amounts in parentheses instead of using a minus sign, e.g. ($1,234.50). Ignored when sign_style=never.",
+          "type": "boolean"
+        },
+        "currency": {
+          "default": "USD",
+          "description": "ISO code or literal currency text. Known codes such as USD, EUR, GBP, JPY and INR can render as symbols; unknown text is passed through as typed. Default USD.",
+          "type": "string"
+        },
+        "decimal_separator": {
+          "default": "period",
+          "description": "Decimal separator in the output: period (default) or comma. It must differ from the active group separator.",
+          "enum": [
+            "period",
+            "comma"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Number of fraction digits to keep, from 0 to 8. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "digit_grouping": {
+          "default": "western",
+          "description": "Digit grouping style: western (1,234,567, default) or indian lakh/crore grouping (12,34,567).",
+          "enum": [
+            "western",
+            "indian"
+          ],
+          "type": "string"
+        },
+        "group_separator": {
+          "default": "comma",
+          "description": "Separator between digit groups: comma (default), period, space, narrow_space, apostrophe, underscore, or none.",
+          "enum": [
+            "comma",
+            "period",
+            "space",
+            "narrow_space",
+            "apostrophe",
+            "underscore",
+            "none"
+          ],
+          "type": "string"
+        },
+        "grouping": {
+          "default": true,
+          "description": "Group the integer digits with thousands separators. Default true.",
+          "type": "boolean"
+        },
+        "position": {
+          "default": "before",
+          "description": "Place the currency marker before the digits (default, $1.00) or after them (1.00 USD).",
+          "enum": [
+            "before",
+            "after"
+          ],
+          "type": "string"
+        },
+        "rounding": {
+          "default": "half_up",
+          "description": "Rounding rule when extra fraction digits are dropped: half_up (default), half_down, half_even (banker's), ceil, floor, or truncate.",
+          "enum": [
+            "half_up",
+            "half_down",
+            "half_even",
+            "ceil",
+            "floor",
+            "truncate"
+          ],
+          "type": "string"
+        },
+        "sign_style": {
+          "default": "auto",
+          "description": "Sign display: auto (minus only, default), always (+/-), except_zero (+ for positives only), never (absolute value), or space (space for positives, minus for negatives).",
+          "enum": [
+            "auto",
+            "always",
+            "except_zero",
+            "never",
+            "space"
+          ],
+          "type": "string"
+        },
+        "symbol_space": {
+          "default": false,
+          "description": "Insert a space between the currency marker and the number. Useful for ISO codes and European styles, e.g. '1.234,50 EUR'.",
+          "type": "boolean"
+        },
+        "symbol_style": {
+          "default": "symbol",
+          "description": "How to render the currency marker: symbol (default, USD -> $ when known), code (USD), or none (digits only).",
+          "enum": [
+            "symbol",
+            "code",
+            "none"
+          ],
+          "type": "string"
+        },
+        "trim_zeros": {
+          "default": false,
+          "description": "Drop trailing zeros from the fraction and remove the decimal separator if the fraction becomes empty.",
+          "type": "boolean"
+        },
+        "value": {
+          "description": "Number to format as currency. Accepts plain numbers, copied separators, currency affixes, negatives, accounting parentheses, trailing minus, and scientific notation, e.g. '1234.5', '$1,234.50', '1 234,50', '(1234.5)', or '1.5e3'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "merge-conflict-resolver"
+version = "0.1.0"
+abi = 1
+summary = "Resolve Git merge conflict markers by keeping ours, theirs, both or the common ancestor"

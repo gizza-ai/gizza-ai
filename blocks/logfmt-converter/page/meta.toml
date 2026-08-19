@@ -1,0 +1,89 @@
+slug          = "logfmt-converter"
+title         = "Logfmt Converter — logfmt, JSON, NDJSON & CSV"
+description   = "Convert log data between logfmt, JSON, NDJSON and CSV in any direction — auto-detects the source, infers types, writes real logfmt. Free, in-browser."
+tags          = ["logfmt converter", "logfmt to json", "json to logfmt", "logfmt parser", "logfmt to csv", "csv to logfmt", "logfmt to ndjson", "ndjson to logfmt", "key value log converter", "structured log converter", "logfmt encoder"]
+h1            = "Logfmt Converter"
+hero_subtitle = "Convert log and event records between logfmt, JSON, NDJSON (JSON Lines), and CSV in any direction — including writing logfmt back out. Auto-detects the source format, infers numbers and booleans, and lets you pick and order the fields you keep. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_logfmt_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Log data"
+placeholder = "ts=2026-08-13T10:04:00Z level=info msg=\"user signed in\" user_id=42 ok=true"
+source      = "field"
+multiline   = true
+
+# from / to / delimiter render as <select> — the option lists come from the
+# descriptor schema (manifest.json); `labels` only enriches the visible text
+# (values stay canonical for deep-links / CLI).
+[[input]]
+name        = "from"
+label       = "From"
+source      = "field"
+labels      = { auto = "Auto-detect", logfmt = "logfmt — key=value pairs", json = "JSON — single array", ndjson = "NDJSON / JSONL — one record per line", csv = "CSV — delimited table" }
+
+[[input]]
+name        = "to"
+label       = "To"
+source      = "field"
+labels      = { logfmt = "logfmt — key=value pairs", json = "JSON — single array", ndjson = "NDJSON / JSONL — one record per line", csv = "CSV — delimited table" }
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+labels      = { comma = "Comma  ,", semicolon = "Semicolon  ;", tab = "Tab", pipe = "Pipe  |" }
+
+[[input]]
+name        = "detect_types"
+label       = "Detect numbers, booleans & null (logfmt/CSV input)"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON output"
+source      = "field"
+
+[[input]]
+name        = "flatten"
+label       = "Flatten nested records into dot-notation keys (logfmt/CSV output)"
+source      = "field"
+
+[[input]]
+name        = "keys"
+label       = "Keep only these fields, in this order (optional)"
+placeholder = "ts,level,msg"
+source      = "field"
+
+[[example]]
+label  = "logfmt → JSON"
+params = { data = "ts=2026-08-13T10:04:00Z level=info msg=\"user signed in\" user_id=42 ok=true", from = "logfmt", to = "json" }
+
+[[example]]
+label  = "JSON → logfmt"
+params = { data = "[{\"level\":\"error\",\"msg\":\"disk full\",\"retries\":2}]", from = "json", to = "logfmt" }
+
+[[example]]
+label  = "logfmt → CSV"
+params = { data = "level=info dur=12\nlevel=warn dur=91", from = "logfmt", to = "csv" }
+
+[[example]]
+label  = "NDJSON → logfmt"
+params = { data = "{\"a\":1,\"b\":\"x y\"}\n{\"a\":2,\"b\":\"z\"}", from = "ndjson", to = "logfmt" }
+
+[[example]]
+label  = "CSV → logfmt"
+params = { data = "level,msg\ninfo,hello world", from = "csv", to = "logfmt" }
+
+[[example]]
+label  = "Nested JSON → logfmt (flattened)"
+params = { data = "[{\"user\":{\"id\":7,\"name\":\"ada\"},\"tags\":[\"x\",\"y\"]}]", from = "json", to = "logfmt", flatten = "true" }
+
+[[example]]
+label  = "Pick + order fields"
+params = { data = "ts=1 level=info msg=hi extra=drop", from = "logfmt", to = "logfmt", keys = "level,msg" }

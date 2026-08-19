@@ -1,0 +1,172 @@
+slug          = "ecies-encrypt"
+title         = "ECIES Encrypt/Decrypt — elliptic-curve hybrid encryption"
+description   = "Encrypt or decrypt ECIES payloads with secp256k1, P-256, or P-384 keys, HKDF-SHA256, AES-GCM/XChaCha20, and hex/base64/PEM inputs."
+tags          = ["ecies", "elliptic curve encryption", "secp256k1 encryption", "p256 encryption", "aes gcm", "public key encryption", "hybrid encryption"]
+h1            = "ECIES encrypt/decrypt"
+hero_subtitle = "Seal data to an elliptic-curve public key or open an ECIES payload with the matching private key, using explicit curve, cipher, nonce, and encoding controls."
+wasm          = "gizza_ai_ecies_encrypt_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name   = "operation"
+label  = "Operation"
+source = "field"
+
+[input.labels]
+encrypt = "Encrypt / seal"
+decrypt = "Decrypt / open"
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "Plaintext for encrypt, or ECIES payload for decrypt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key"
+label       = "Key"
+placeholder = "For encrypt: recipient public key. For decrypt: recipient private key."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "curve"
+label  = "Curve"
+source = "field"
+
+[input.labels]
+secp256k1 = "secp256k1"
+p256      = "P-256 / prime256v1"
+p384      = "P-384"
+
+[[input]]
+name   = "cipher"
+label  = "Cipher"
+source = "field"
+
+[input.labels]
+aes-256-gcm           = "AES-256-GCM"
+xchacha20-poly1305    = "XChaCha20-Poly1305"
+
+[[input]]
+name   = "nonce_length"
+label  = "Nonce length"
+source = "field"
+
+[input.labels]
+"16" = "16 bytes (ecies.py/ecies.js)"
+"12" = "12 bytes (standard AES-GCM)"
+"24" = "24 bytes (XChaCha20)"
+
+[[input]]
+name        = "nonce"
+label       = "Nonce"
+placeholder = "000102030405060708090a0b0c0d0e0f"
+source      = "field"
+
+[[input]]
+name   = "compressed_ephemeral"
+label  = "Compressed ephemeral public key"
+source = "field"
+
+[[input]]
+name   = "kdf_input"
+label  = "KDF input"
+source = "field"
+
+[input.labels]
+ephemeral-and-point = "Ephemeral public key + shared point"
+shared-x            = "Shared X coordinate only"
+
+[[input]]
+name        = "ephemeral_key"
+label       = "Ephemeral private key"
+placeholder = "Optional deterministic private scalar for reproducible vectors"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "key_encoding"
+label  = "Key encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+hex    = "Hex"
+base64 = "Base64"
+pem    = "PEM"
+
+[[input]]
+name   = "data_encoding"
+label  = "Data encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto (text encrypt, base64 decrypt)"
+text   = "Text"
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "output_encoding"
+label  = "Output encoding"
+source = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[example]]
+label = "Encrypt secp256k1 text → base64 ECIES"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+key = "044f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa385b6b1b8ead809ca67454d9683fcf2ba03456d6fe2c4abe2b07f0fbdbb2f1c1"
+curve = "secp256k1"
+cipher = "aes-256-gcm"
+nonce_length = "16"
+nonce = "000102030405060708090a0b0c0d0e0f"
+compressed_ephemeral = "false"
+kdf_input = "ephemeral-and-point"
+ephemeral_key = "2222222222222222222222222222222222222222222222222222222222222222"
+key_encoding = "auto"
+data_encoding = "auto"
+output_encoding = "base64"
+
+[[example]]
+label = "Encrypt compressed ephemeral → hex"
+[example.params]
+operation = "encrypt"
+data = "attack at dawn"
+key = "044f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa385b6b1b8ead809ca67454d9683fcf2ba03456d6fe2c4abe2b07f0fbdbb2f1c1"
+curve = "secp256k1"
+cipher = "aes-256-gcm"
+nonce_length = "12"
+nonce = "000102030405060708090a0b"
+compressed_ephemeral = "true"
+kdf_input = "ephemeral-and-point"
+ephemeral_key = "2222222222222222222222222222222222222222222222222222222222222222"
+key_encoding = "auto"
+data_encoding = "auto"
+output_encoding = "hex"
+
+[[example]]
+label = "Decrypt base64 ECIES payload"
+[example.params]
+operation = "decrypt"
+data = "BEZtf8rlY+XLCaDRhwu1gDRIBGF4eaFJSc8iKF8brj8nZygXbDxkMfju2kU43DfIZeJ4Tzqed9BE8z5Ad5fhJ4oAAQIDBAUGBwgJCgsMDQ4PUqGv4k3+fpMAoN7zvd5YWZx8erdXUobe8c23UYo1"
+key = "1111111111111111111111111111111111111111111111111111111111111111"
+curve = "secp256k1"
+cipher = "aes-256-gcm"
+nonce_length = "16"
+nonce = ""
+compressed_ephemeral = "false"
+kdf_input = "ephemeral-and-point"
+ephemeral_key = ""
+key_encoding = "auto"
+data_encoding = "auto"
+output_encoding = "base64"

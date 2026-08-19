@@ -1,0 +1,276 @@
+slug          = "rule-based-extractor"
+title         = "Rule-Based Text Extractor — Regex Rules to JSON or CSV"
+description   = "Turn logs, invoices or scraped text into structured data with named regex rules. Grok-style %{PATTERN:field} shortcuts, JSON/CSV output, per-rule report."
+tags = [
+  "rule based extractor",
+  "regex to json",
+  "grok pattern parser",
+  "log parser online",
+  "extract fields from text",
+  "text to csv converter",
+  "named capture groups",
+  "structured data extraction",
+]
+h1            = "Rule-based text extractor"
+hero_subtitle = "Write a list of named regex rules and pull structured fields out of any text — log lines, invoices, emails, scraped pages. Grok-style %{PATTERN:field} shortcuts included, output as JSON, CSV or a readable listing. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_rule_based_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted fields"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Paste the log lines, invoice text or records to extract from…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "rules"
+label       = "Rules (one per line)"
+placeholder = "date = %{DATE_ISO}\nlevel = %{LOGLEVEL}\nclient = %{IPV4}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "split"
+label  = "Split input into records by"
+source = "field"
+
+[input.labels]
+whole      = "Whole input — one record"
+lines      = "Lines — one record per line"
+paragraphs = "Paragraphs — blank-line separated"
+pattern    = "Custom separator regex"
+
+[[input]]
+name        = "split_pattern"
+label       = "Record separator regex (for custom separator)"
+placeholder = "^-{3,}$"
+source      = "field"
+
+[[input]]
+name   = "matches"
+label  = "Matches per rule"
+source = "field"
+
+[input.labels]
+first = "First match only"
+all   = "Every match (array)"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case"
+source = "field"
+
+[[input]]
+name   = "multiline"
+label  = "Multiline (^ and $ per line)"
+source = "field"
+
+[[input]]
+name   = "dotall"
+label  = "Dot matches newline"
+source = "field"
+
+[[input]]
+name   = "trim"
+label  = "Trim captured values"
+source = "field"
+
+[[input]]
+name   = "unique"
+label  = "Drop duplicate values"
+source = "field"
+
+[[input]]
+name   = "on_missing"
+label  = "When a rule matches nothing"
+source = "field"
+
+[input.labels]
+skip  = "Skip the field"
+null  = "Keep the key, empty value"
+error = "Report an error"
+
+[[input]]
+name   = "skip_empty_records"
+label  = "Skip records with no matches"
+source = "field"
+
+[[input]]
+name        = "max_records"
+label       = "Max records"
+placeholder = "5000"
+source      = "field"
+
+[[input]]
+name        = "max_matches"
+label       = "Max matches per rule, per record"
+placeholder = "1000"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+json   = "JSON"
+csv    = "CSV"
+text   = "Readable listing"
+report = "Rule report (what matched)"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[example]]
+label = "Web access log"
+[example.params]
+text = """
+10.0.0.4 - - [15/Aug/2026:09:12:44 +0000] "GET /pricing HTTP/1.1" 200 5312
+10.0.0.9 - - [15/Aug/2026:09:12:51 +0000] "POST /api/login HTTP/1.1" 401 190"""
+rules = """
+client = %{IPV4}
+method = "(%{HTTP_METHOD})
+path = %{HTTP_METHOD} (%{PATH})
+status = " (%{HTTP_STATUS})"""
+split = "lines"
+split_pattern = ""
+matches = "first"
+ignore_case = "false"
+multiline = "false"
+dotall = "false"
+trim = "true"
+unique = "false"
+on_missing = "skip"
+skip_empty_records = "true"
+max_records = "5000"
+max_matches = "1000"
+output = "json"
+pretty = "true"
+
+[[example]]
+label = "Invoice fields"
+[example.params]
+text = "Invoice INV-2026-014 dated 2026-08-15, billed to ada@example.com, total $1,240.00 (VAT 21%)."
+rules = """
+invoice = INV-\\d{4}-\\d+
+date = %{DATE_ISO}
+email = %{EMAIL}
+total = %{MONEY}
+vat = %{PERCENT}"""
+split = "whole"
+split_pattern = ""
+matches = "first"
+ignore_case = "false"
+multiline = "false"
+dotall = "false"
+trim = "true"
+unique = "false"
+on_missing = "skip"
+skip_empty_records = "true"
+max_records = "5000"
+max_matches = "1000"
+output = "json"
+pretty = "false"
+
+[[example]]
+label = "Syslog to CSV"
+[example.params]
+text = """
+Aug 15 09:12:44 web1 sshd[2114]: Accepted publickey for ada
+Aug 15 09:13:02 web2 cron[884]: session opened for user root"""
+rules = """
+time = %{SYSLOG_TIME}
+host = %{SYSLOG_TIME} (\\S+)
+process = \\S+ (\\w+)\\[\\d+\\]:
+message = \\]: (.*)"""
+split = "lines"
+split_pattern = ""
+matches = "first"
+ignore_case = "false"
+multiline = "false"
+dotall = "false"
+trim = "true"
+unique = "false"
+on_missing = "null"
+skip_empty_records = "true"
+max_records = "5000"
+max_matches = "1000"
+output = "csv"
+pretty = "false"
+
+[[example]]
+label = "Scrape every contact"
+[example.params]
+text = "Sales: sales@example.com or +1 555 010 2030. Support: help@example.com, help@example.com, +1 555 010 9988."
+rules = """
+email = %{EMAIL}
+phone = %{PHONE}"""
+split = "whole"
+split_pattern = ""
+matches = "all"
+ignore_case = "false"
+multiline = "false"
+dotall = "false"
+trim = "true"
+unique = "true"
+on_missing = "skip"
+skip_empty_records = "true"
+max_records = "5000"
+max_matches = "1000"
+output = "json"
+pretty = "false"
+
+[[example]]
+label = "Custom pattern macro"
+[example.params]
+text = "Order SKU ABC-99 shipped on 2026-08-15 via tracking 1Z999AA10123456784."
+rules = """
+@SKU = [A-Z]{3}-\\d+
+sku = %{SKU}
+shipped = %{DATE_ISO}
+tracking = 1Z[0-9A-Z]{16}"""
+split = "whole"
+split_pattern = ""
+matches = "first"
+ignore_case = "false"
+multiline = "false"
+dotall = "false"
+trim = "true"
+unique = "false"
+on_missing = "skip"
+skip_empty_records = "true"
+max_records = "5000"
+max_matches = "1000"
+output = "text"
+pretty = "false"
+
+[[example]]
+label = "Debug: which rules matched?"
+[example.params]
+text = """
+2026-08-15 ERROR auth login failed
+2026-08-15 INFO auth login ok"""
+rules = """
+date = %{DATE_ISO}
+level = %{LOGLEVEL}
+user = user=(\\w+)"""
+split = "lines"
+split_pattern = ""
+matches = "first"
+ignore_case = "false"
+multiline = "false"
+dotall = "false"
+trim = "true"
+unique = "false"
+on_missing = "skip"
+skip_empty_records = "true"
+max_records = "5000"
+max_matches = "1000"
+output = "report"
+pretty = "false"

@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/xpub-derive",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive watch-only Bitcoin addresses from an extended public key",
+  "role": "skill",
+  "tool": {
+    "description": "Derive receive and change Bitcoin addresses from an extended PUBLIC key (xpub/ypub/zpub on mainnet, tpub/upub/vpub on testnet) for watch-only inspection. Walks the non-hardened children m/0/i (receive) and m/1/i (change), picks the address format from the key prefix unless overridden, and returns a table, CSV, or bare address list. No private key is accepted or produced; everything runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "address_type": {
+          "default": "auto",
+          "description": "Address format to render. 'auto' (default) follows the key prefix: xpub/tpub to legacy p2pkh, ypub/upub to wrapped SegWit p2sh_p2wpkh, zpub/vpub to native SegWit p2wpkh. Set it explicitly to render a different format from the same key material.",
+          "enum": [
+            "auto",
+            "p2pkh",
+            "p2sh_p2wpkh",
+            "p2wpkh"
+          ],
+          "type": "string"
+        },
+        "chain": {
+          "default": "both",
+          "description": "Which BIP44 chain to walk below the key: 'receive' = external m/0/i, 'change' = internal m/1/i, 'both' (default) lists each in turn.",
+          "enum": [
+            "receive",
+            "change",
+            "both"
+          ],
+          "type": "string"
+        },
+        "count": {
+          "default": 10,
+          "description": "How many addresses to derive per chain, 1-100. Default 10; 20 matches the usual wallet gap limit.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output shape: 'table' (default) adds a key summary plus one padded path/address row per line, 'csv' emits chain,index,path,address rows for spreadsheet import, 'list' emits bare addresses one per line.",
+          "enum": [
+            "table",
+            "csv",
+            "list"
+          ],
+          "type": "string"
+        },
+        "include_public_key": {
+          "default": false,
+          "description": "Add the 33-byte compressed public key (hex) as an extra column in table and csv output. Ignored by the list format.",
+          "type": "boolean"
+        },
+        "start": {
+          "default": 0,
+          "description": "First child index to derive, 0-2147483647. Default 0. Use it to page through a chain, e.g. start=20 count=20 for the second batch.",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "xpub": {
+          "description": "Extended PUBLIC key to derive from, usually at account level (m/44'|49'|84'/coin'/account'). Accepts xpub (legacy), ypub (wrapped SegWit), zpub (native SegWit) on mainnet and tpub/upub/vpub on testnet. Extended private keys (xprv/yprv/zprv) are rejected.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "xpub"
+      ],
+      "type": "object"
+    }
+  }
+}

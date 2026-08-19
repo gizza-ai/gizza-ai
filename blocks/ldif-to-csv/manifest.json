@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/ldif-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse an LDAP LDIF export into a CSV table",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an LDAP LDIF export (RFC 2849) into CSV: every `dn:` entry becomes one row and every attribute becomes a column. Handles folded continuation lines (a leading single space), `#` comments, a `version: 1` header, blank-line record separation, base64 `attr:: value` (decoded to text when it is valid UTF-8, kept encoded when binary), URL references `attr:< url` (the reference is kept as text — nothing is fetched), and change files, whose `changetype`/`add`/`replace`/`delete` directives are excluded from the data. Repeated attributes follow `multi_value`: join into one cell (default), spread across indexed columns (attr, attr.2, …), or keep the first/last. `columns` selects and orders attributes; `include_dn` controls the DN column; `delimiter` is a single char or comma/tab/semicolon/pipe. Attribute names are matched case-insensitively, column order is stable, missing values become empty cells, and output is RFC 4180 quoted. Fully local and deterministic — no AI model.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "description": "Comma-separated attribute names to output, in that order (e.g. 'cn,mail,telephoneNumber'). Requested attributes missing from the file still get an empty column. Leave empty for every attribute, in first-seen order.",
+          "type": "string"
+        },
+        "decode_base64": {
+          "default": true,
+          "description": "Decode 'attr:: base64' values to text when the bytes are valid UTF-8 (binary values such as jpegPhoto stay base64). Default true; false keeps every '::' value encoded.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": ",",
+          "description": "CSV field separator: a single char or 'comma'/'tab'/'semicolon'/'pipe'. Default ','.",
+          "type": "string"
+        },
+        "include_changetype": {
+          "description": "Add a 'changetype' column for LDIF change files (add/modify/delete). Default false.",
+          "type": "boolean"
+        },
+        "include_dn": {
+          "default": true,
+          "description": "Output the entry DN as a column (first, unless 'columns' places 'dn' elsewhere). Default true.",
+          "type": "boolean"
+        },
+        "ldif": {
+          "description": "The LDIF text to convert (RFC 2849): 'dn:' lines, attributes, blank lines between entries. Folded continuation lines, '#' comments and a 'version: 1' header are handled.",
+          "type": "string"
+        },
+        "max_indexed": {
+          "default": 10,
+          "description": "Maximum columns per attribute when multi_value=indexed, 1-50 (default 10). Values beyond the cap are joined into the last column so nothing is lost.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "multi_value": {
+          "default": "join",
+          "description": "How repeated attributes (objectClass, memberOf) map to cells: 'join' one cell joined by value_separator (default), 'indexed' one column each (attr, attr.2, attr.3…), 'first' or 'last' keeps a single value.",
+          "enum": [
+            "join",
+            "indexed",
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "value_separator": {
+          "default": "|",
+          "description": "Text placed between joined values when multi_value=join (also used for indexed overflow). Default '|'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ldif"
+      ],
+      "type": "object"
+    }
+  }
+}

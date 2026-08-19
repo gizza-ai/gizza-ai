@@ -1,0 +1,111 @@
+{
+  "name": "gizza-ai/data-drift-summary",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compare two tabular datasets and report per-column type, null-rate, cardinality, range and category drift",
+  "role": "skill",
+  "tool": {
+    "description": "Compare a reference (baseline) dataset against a current one, column by column, and report what changed: the inferred type on each side and whether it flipped, the null/missing rate and its delta, the distinct-value count, the numeric range and mean, the category values that are new in the current data and the ones that went missing, and a distribution drift score per column (Population Stability Index or Jensen-Shannon distance). Columns present on only one side are reported as schema drift, and a dataset-level verdict fires once a configurable share of columns has drifted. Accepts CSV/TSV text with comma, tab, semicolon or pipe delimiters, with or without a header row; outputs a readable table, a markdown report, structured JSON, or one CSV row per column.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "default": 10,
+          "description": "Number of equal-population bins used to compare numeric columns, derived from the reference values. Default 10. More bins are more sensitive to small shifts.",
+          "maximum": 50,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "columns": {
+          "default": "",
+          "description": "Comma-separated allow-list of columns to report on, e.g. amount,country. Leave empty to report on every column present in both datasets.",
+          "type": "string"
+        },
+        "current": {
+          "description": "The new dataset to check for drift, with the same columns as the reference. Example: id,amount,country\\n1,12,DE",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field delimiter used by both datasets. Default comma.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "drift_share": {
+          "default": 0.5,
+          "description": "Share of compared columns that must drift before the whole dataset is flagged. Default 0.5, i.e. half the columns.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output: table (readable report), markdown (report table you can paste into a PR), json (structured report), or csv (one row per column).",
+          "enum": [
+            "table",
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as a header and match columns by name, so reordered columns still line up. Turn off to match by position (col1, col2, …).",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Trim whitespace and fold case before comparing category values, so 'New York' and 'new york ' count as the same value instead of a new category.",
+          "type": "boolean"
+        },
+        "max_categories": {
+          "default": 20,
+          "description": "A numeric column with more than this many distinct reference values is binned as a distribution; anything at or below it is compared as categories. Default 20.",
+          "maximum": 1000,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "method": {
+          "default": "psi",
+          "description": "Drift metric: psi = Population Stability Index (unbounded, 0.1 moderate / 0.2 significant), jsd = Jensen-Shannon distance (0 to 1, 0.1 is a common cutoff). Default psi.",
+          "enum": [
+            "psi",
+            "jsd"
+          ],
+          "type": "string"
+        },
+        "reference": {
+          "description": "The baseline (older) dataset as delimited text — for example the training set or last month's export. Example: id,amount,country\\n1,10,US",
+          "type": "string"
+        },
+        "sort": {
+          "default": "drift",
+          "description": "Column order in the report: drift (highest score first, the default), name (alphabetical), or order (as they appear in the reference).",
+          "enum": [
+            "drift",
+            "name",
+            "order"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0.2,
+          "description": "A column counts as drifted when its score reaches this value. Default 0.2 (the usual PSI significant-shift line); use 0.1 for jsd or for a stricter PSI check.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "reference",
+        "current"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,146 @@
+slug          = "tempo-map-extractor"
+title         = "Tempo Map Extractor — Beat Times to a BPM-vs-Time Curve"
+description   = "Turn a list of beat times into a tempo map: BPM versus time, with smoothing, drift statistics and CSV, JSON, label-track or MIDI tempo exports."
+tags          = ["tempo map extractor", "beat times to bpm", "bpm over time", "variable tempo curve", "tempo map csv", "beat times to tempo map", "bpm vs time", "tempo drift analysis"]
+h1            = "Tempo Map Extractor"
+hero_subtitle = "Paste the beat times from a beat tracker, DAW marker export, label track or tap session and get the tempo map — the BPM at every beat, not one global number. Smooth out tapping jitter, resample onto an even time grid, read the drift statistics, and export CSV, TSV, JSON, an aligned ledger, a label track or a MIDI tempo map. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_tempo_map_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Tempo map"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "beats"
+label       = "Beat times (one per line — extra columns ignored)"
+placeholder = "0.000\n0.500\n1.000\n1.520\n2.060"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "time_unit"
+label       = "A plain number means"
+source      = "field"
+
+[input.labels]
+auto         = "Auto — seconds (default)"
+seconds      = "Seconds"
+milliseconds = "Milliseconds"
+
+[[input]]
+name        = "fps"
+label       = "Frame rate (only for hh:mm:ss:ff timecode)"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name   = "beat_unit"
+label  = "Each marked beat is a"
+source = "field"
+
+[input.labels]
+whole          = "Whole note — 4 quarters per mark"
+dotted-half    = "Dotted half — 3 quarters per mark"
+half           = "Half note — doubles the BPM"
+dotted-quarter = "Dotted quarter — compound 6/8 pulse"
+quarter        = "Quarter note — a normal beat (default)"
+dotted-eighth  = "Dotted eighth — 3/4 of a beat"
+eighth         = "Eighth note — halves the BPM"
+triplet-eighth = "Triplet eighth — 3 marks per beat"
+sixteenth      = "Sixteenth note — 4 marks per beat"
+
+[[input]]
+name        = "smoothing"
+label       = "Smoothing window (beats)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "smooth_method"
+label  = "Smooth with"
+source = "field"
+
+[input.labels]
+mean   = "Mean — average the window (default)"
+median = "Median — ignore one stray beat"
+
+[[input]]
+name        = "grid_seconds"
+label       = "Even time grid (seconds between rows)"
+placeholder = "0 = one row per beat"
+source      = "field"
+
+[[input]]
+name        = "min_interval_ms"
+label       = "Drop beats closer than (ms)"
+placeholder = "0 = keep every beat"
+source      = "field"
+
+[[input]]
+name        = "offset_seconds"
+label       = "Shift every time by (seconds)"
+placeholder = "0 — negative shifts earlier"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "BPM decimal places"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Export as"
+source = "field"
+
+[input.labels]
+csv      = "CSV — time, bpm, beat, interval (default)"
+tsv      = "TSV — tab-separated columns"
+json     = "JSON — full map plus a summary object"
+table    = "Table — aligned ledger with statistics"
+audacity = "Label track — start, end, BPM per label"
+midi     = "MIDI tempo map — tick, µs/quarter, bpm"
+summary  = "Summary — statistics only"
+
+[[input]]
+name        = "ppq"
+label       = "Ticks per quarter note (MIDI export only)"
+placeholder = "960"
+source      = "field"
+
+[[example]]
+label  = "Steady click track"
+params = { beats = "0.000\n0.500\n1.000\n1.500\n2.000\n2.500" }
+
+[[example]]
+label  = "Ritardando — read the slow-down"
+params = { beats = "0.000\n0.500\n1.020\n1.580\n2.200\n2.900\n3.700", output = "table" }
+
+[[example]]
+label  = "Tapped on half notes"
+params = { beats = "0.000\n1.000\n2.000\n3.000", beat_unit = "half" }
+
+[[example]]
+label  = "Smooth a jittery tap session"
+params = { beats = "0.000\n0.512\n0.978\n1.505\n1.988\n2.530\n2.995\n3.470", smoothing = "5", smooth_method = "median", min_interval_ms = "120" }
+
+[[example]]
+label  = "One BPM reading per second"
+params = { beats = "0.000\n0.500\n1.020\n1.580\n2.200\n2.900\n3.700", grid_seconds = "1" }
+
+[[example]]
+label  = "Timecode input (m:ss.mmm)"
+params = { beats = "0:00.000\n0:00.500\n0:01.000\n0:01.500", output = "summary" }
+
+[[example]]
+label  = "MIDI tempo map at 480 PPQ"
+params = { beats = "0.000\n0.500\n1.020\n1.580\n2.200", output = "midi", ppq = "480", decimals = "1" }
+
+[[example]]
+label  = "Label track back into an editor"
+params = { beats = "0.000\n0.500\n1.020\n1.580\n2.200", output = "audacity" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "email-spam-score"
+version = "0.1.0"
+abi = 1
+summary = "Score an email's spamminess with transparent, weighted heuristics"

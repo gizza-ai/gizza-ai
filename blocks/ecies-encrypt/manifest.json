@@ -1,0 +1,119 @@
+{
+  "name": "gizza-ai/ecies-encrypt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt ECIES messages with secp256k1, P-256, or P-384",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt ECIES hybrid payloads. Encryption accepts a recipient elliptic-curve public key, derives an ephemeral ECDH shared secret, expands it with HKDF-SHA256, and seals data with AES-256-GCM or XChaCha20-Poly1305. Decryption accepts the matching private key and verifies the AEAD tag before returning plaintext. Supports secp256k1, p256 and p384; SEC1 hex/base64 and PEM keys; ecies.py/ecies.js-compatible payload layout; and deterministic nonce/ephemeral-key fields for test vectors.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "cipher": {
+          "default": "aes-256-gcm",
+          "description": "Symmetric AEAD used after ECDH+HKDF: AES-256-GCM (default) or XChaCha20-Poly1305.",
+          "enum": [
+            "aes-256-gcm",
+            "xchacha20-poly1305"
+          ],
+          "type": "string"
+        },
+        "compressed_ephemeral": {
+          "default": false,
+          "description": "When encrypting, store the ephemeral public key compressed (33/49 bytes) instead of uncompressed SEC1. Decryption auto-detects either shape.",
+          "type": "boolean"
+        },
+        "curve": {
+          "default": "secp256k1",
+          "description": "Elliptic curve for the recipient key: secp256k1 (default), p256/prime256v1, or p384.",
+          "enum": [
+            "secp256k1",
+            "p256",
+            "p384"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "For encrypt: plaintext (auto/text default) or bytes encoded as hex/base64. For decrypt: the ECIES payload, usually base64 or hex.",
+          "type": "string"
+        },
+        "data_encoding": {
+          "default": "auto",
+          "description": "How to decode data. Auto means text while encrypting and base64 while decrypting.",
+          "enum": [
+            "auto",
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "ephemeral_key": {
+          "description": "Optional deterministic ephemeral private key for reproducible tests. Leave blank in normal use so a fresh key is generated.",
+          "type": "string"
+        },
+        "kdf_input": {
+          "default": "ephemeral-and-point",
+          "description": "HKDF input convention: ephemeral-and-point matches ecies.py/ecies.js; shared-x uses only the ECDH shared X coordinate.",
+          "enum": [
+            "ephemeral-and-point",
+            "shared-x"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "For encrypt: recipient public key. For decrypt: recipient private key. Accepts SEC1 hex/base64 or PEM when key_encoding=auto/pem.",
+          "type": "string"
+        },
+        "key_encoding": {
+          "default": "auto",
+          "description": "How to decode key and ephemeral_key: auto (detect PEM/hex/base64), hex, base64, or pem.",
+          "enum": [
+            "auto",
+            "hex",
+            "base64",
+            "pem"
+          ],
+          "type": "string"
+        },
+        "nonce": {
+          "description": "Optional nonce as hex or base64. Leave blank for a fresh random nonce during encryption. Ignored during decryption because the payload carries its nonce.",
+          "type": "string"
+        },
+        "nonce_length": {
+          "default": "16",
+          "description": "Nonce length in bytes. AES-256-GCM accepts 16 (ecies.py/ecies.js default) or 12 (NIST standard); XChaCha20-Poly1305 uses 24.",
+          "enum": [
+            "16",
+            "12",
+            "24"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "Operation to perform: encrypt plaintext to a recipient public key, or decrypt an ECIES payload with the matching private key.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        },
+        "output_encoding": {
+          "default": "base64",
+          "description": "How to encode binary encryption payloads and non-UTF-8 plaintext on decrypt: base64 (default) or hex.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "key"
+      ],
+      "type": "object"
+    }
+  }
+}

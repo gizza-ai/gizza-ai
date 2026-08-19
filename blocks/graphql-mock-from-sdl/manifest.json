@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/graphql-mock-from-sdl",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate mock JSON response data from a GraphQL SDL schema",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a GraphQL SDL schema and generate deterministic mock JSON for every type in it, for a single named type, or as a {\"data\": ...} response envelope for the Query root. Handles interfaces (resolved to a concrete implementor), unions, enums, well-known custom scalars such as DateTime and JSON, nested list and non-null wrappers, extend definitions, field arguments, and the @fake / @examples / @listLength mocking directives. Controls cover list length, nesting depth, nullable-field handling (fill/null/omit), __typename injection, field-name-aware realistic values, and a reproducible seed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "depth": {
+          "default": 3,
+          "description": "Maximum object nesting depth (1-6). Beyond it, nested objects collapse to {} so recursive schemas terminate.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "list_length": {
+          "default": 2,
+          "description": "Number of items generated for each list field (0-10).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "all-types",
+          "description": "What to mock: one object per type in the schema, a {\"data\": ...} response for the Query root, or a single named type.",
+          "enum": [
+            "all-types",
+            "query-response",
+            "single-type"
+          ],
+          "type": "string"
+        },
+        "nullable_fields": {
+          "default": "fill",
+          "description": "How nullable fields are mocked: fill them with values, force them to null, or leave them out. Non-null fields are always generated.",
+          "enum": [
+            "fill",
+            "null",
+            "omit"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print the JSON output.",
+          "type": "boolean"
+        },
+        "sdl": {
+          "description": "GraphQL SDL schema text. Supports type, interface, union, enum, input, scalar, schema, and extend definitions, descriptions, comments, field arguments, nested list/non-null wrappers, and the @fake(type: firstName), @examples(values: [...]) and @listLength(min: 1, max: 3) mocking directives.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 1,
+          "description": "Deterministic seed. The same seed and schema always produce identical output; 0 uses the core fallback seed.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "smart_values": {
+          "default": true,
+          "description": "Infer realistic values from field names (email, fullName, createdAt, price, latitude, ...) instead of generic placeholders.",
+          "type": "boolean"
+        },
+        "type_name": {
+          "description": "Type to mock in single-type mode, e.g. User. Ignored in the other modes.",
+          "type": "string"
+        },
+        "typename": {
+          "default": false,
+          "description": "Add __typename to every mocked object. Interface and union mocks always include it, because it names the concrete type chosen.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sdl"
+      ],
+      "type": "object"
+    }
+  }
+}

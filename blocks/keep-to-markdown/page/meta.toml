@@ -1,0 +1,97 @@
+slug          = "keep-to-markdown"
+title         = "Keep to Markdown — Convert a Google Takeout Keep Export to .md Notes"
+description   = "Convert a Google Keep Takeout export (JSON or HTML) into Markdown notes — labels, checkboxes, dates and pinned/archived flags preserved. Free, in your browser."
+tags          = ["google keep", "keep to markdown", "google takeout", "keep export", "json to markdown", "notes to markdown", "obsidian import", "checklist to task list", "yaml frontmatter"]
+h1            = "Keep to Markdown"
+hero_subtitle = "Paste a Google Takeout Keep export — a note's JSON, an array of notes, or the Keep HTML — and get one clean Markdown note per file, with labels, checkboxes and dates preserved. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_keep_to_markdown_web"
+export        = "run"
+live          = false
+output_label  = "Markdown bundle"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Keep Takeout export (JSON or HTML)"
+placeholder = "{ \"title\": \"Grocery List\", \"labels\": [{ \"name\": \"Shopping\" }], \"createdTimestampUsec\": 1768469400000000, \"listContent\": [{ \"text\": \"Milk\", \"isChecked\": false }] }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "metadata"
+label  = "Metadata"
+source = "field"
+
+[input.labels]
+frontmatter = "YAML frontmatter (title, dates, labels, flags)"
+inline      = "Inline #hashtags at the bottom"
+none        = "None — heading and body only"
+
+[[input]]
+name   = "filename_style"
+label  = "Filename style"
+source = "field"
+
+[input.labels]
+"date-title"  = "Date + title — 2026-01-15-grocery-list.md"
+title         = "Title only — grocery-list.md"
+"label-title" = "Label folder + title — shopping/grocery-list.md"
+
+[[input]]
+name   = "checkbox_style"
+label  = "Checklist items"
+source = "field"
+
+[input.labels]
+"task-list" = "Task list — - [ ] Milk / - [x] Eggs"
+bullet      = "Plain bullets — - Milk"
+plain       = "Bare lines — Milk"
+
+[[input]]
+name   = "include_archived"
+label  = "Include archived notes"
+source = "field"
+
+[[input]]
+name   = "include_trashed"
+label  = "Include trashed notes"
+source = "field"
+
+[[input]]
+name   = "link_attachments"
+label  = "Link attachments"
+source = "field"
+
+[[example]]
+label = "Checklist note (JSON)"
+[example.params]
+input = "{ \"title\": \"Grocery List\", \"color\": \"BLUE\", \"isPinned\": true, \"labels\": [{ \"name\": \"Shopping\" }, { \"name\": \"Home\" }], \"createdTimestampUsec\": 1768469400000000, \"userEditedTimestampUsec\": 1768557600000000, \"listContent\": [{ \"text\": \"Milk\", \"isChecked\": false }, { \"text\": \"Eggs\", \"isChecked\": true }] }"
+metadata = "frontmatter"
+filename_style = "date-title"
+checkbox_style = "task-list"
+include_archived = "true"
+include_trashed = "false"
+link_attachments = "true"
+
+[[example]]
+label = "Labels as folders"
+[example.params]
+input = "[{ \"title\": \"Grocery List\", \"labels\": [{ \"name\": \"Shopping\" }], \"createdTimestampUsec\": 1768469400000000, \"listContent\": [{ \"text\": \"Milk\", \"isChecked\": false }] }, { \"title\": \"Standup notes\", \"labels\": [{ \"name\": \"Work\" }], \"createdTimestampUsec\": 1768555000000000, \"textContent\": \"ship the export\" }]"
+metadata = "inline"
+filename_style = "label-title"
+checkbox_style = "task-list"
+include_archived = "true"
+include_trashed = "false"
+link_attachments = "true"
+
+[[example]]
+label = "HTML export"
+[example.params]
+input = "<div class=\"note\"><div class=\"heading\">Jan 15, 2026, 9:30:00 AM</div><div class=\"title\">Grocery List</div><div class=\"content\"><div class=\"listitem\"><span class=\"bullet\">&#9744;</span><span class=\"text\">Milk</span></div><div class=\"listitem checked\"><span class=\"bullet\">&#9745;</span><span class=\"text\">Eggs</span></div></div><div class=\"chips\"><span class=\"label\"><span class=\"label-name\">Shopping</span></span></div></div>"
+metadata = "frontmatter"
+filename_style = "date-title"
+checkbox_style = "task-list"
+include_archived = "true"
+include_trashed = "false"
+link_attachments = "true"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "multilingual-stemmer"
+version = "0.1.0"
+abi = 1
+summary = "Stem text in 18 languages with Snowball algorithms"

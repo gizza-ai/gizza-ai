@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/html-to-jsx",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert raw HTML into React JSX.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an HTML snippet into React JSX. Renames attributes to their React props (class to className, for to htmlFor, tabindex to tabIndex, readonly to readOnly, maxlength to maxLength, http-equiv to httpEquiv, and the SVG set such as stroke-width to strokeWidth), turns an inline style=\"...\" string into a style={{ ... }} object with camelCased properties, renders valueless boolean attributes as {true}, self-closes void tags like <br> and <img>, rewrites HTML comments as {/* ... */}, converts inline on* handlers into arrow functions, escapes braces in text, and wraps multiple roots in a fragment. Options control indentation, an optional component wrapper, comment handling, boolean-attribute style, and value/checked rewriting.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "boolean_attrs": {
+          "default": "explicit",
+          "description": "How to render valueless attributes such as disabled or required: 'explicit' (default) writes disabled={true}; 'shorthand' leaves the bare attribute.",
+          "enum": [
+            "explicit",
+            "shorthand"
+          ],
+          "type": "string"
+        },
+        "comments": {
+          "default": "jsx",
+          "description": "How to handle HTML comments: 'jsx' (default) rewrites them as {/* ... */} expression containers; 'strip' removes them.",
+          "enum": [
+            "jsx",
+            "strip"
+          ],
+          "type": "string"
+        },
+        "component": {
+          "default": "",
+          "description": "Optional React component name, e.g. 'Card'. When set, the JSX is wrapped in 'export default function Card() { return (...); }'. Leave empty (default) to get a bare JSX snippet.",
+          "type": "string"
+        },
+        "html": {
+          "description": "The HTML markup to convert to JSX. Paste a snippet such as <div class=\"card\"><img src=\"a.png\"></div>; a full page works too (the doctype is dropped).",
+          "type": "string"
+        },
+        "indent": {
+          "default": "2",
+          "description": "Indentation of the generated JSX: '2' spaces (default), '4' spaces, or 'tab'.",
+          "enum": [
+            "2",
+            "4",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "value_attrs": {
+          "default": "default",
+          "description": "How to render value/checked on input, textarea and select: 'default' (default) rewrites them to defaultValue/defaultChecked so React does not warn about an uncontrolled field; 'keep' leaves the original names.",
+          "enum": [
+            "default",
+            "keep"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}

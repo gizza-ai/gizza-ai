@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-to-animated-webp"
+version = "0.1.0"
+abi = 1
+summary = "Convert a short video clip into a looping animated WebP"

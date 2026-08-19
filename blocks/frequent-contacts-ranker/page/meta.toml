@@ -1,0 +1,144 @@
+slug          = "frequent-contacts-ranker"
+title         = "Frequent Contacts Ranker — rank your top email contacts from an mbox"
+description   = "Paste an mbox export and rank who you email most, weighted by frequency and recency. Export a paste-ready contact list, CSV or JSON — all in your browser."
+tags          = ["frequent contacts", "top email contacts", "mbox analyzer", "who do i email most", "email frequency analysis", "extract contacts from mbox", "gmail takeout contacts", "address book from email"]
+h1            = "Frequent Contacts Ranker"
+hero_subtitle = "Paste an mbox export and see who you actually correspond with — ranked by how often and how recently you exchange mail. Copy the top of the list straight into an address book, or export CSV/JSON, without uploading your mailbox anywhere."
+wasm          = "gizza_ai_frequent_contacts_ranker_web"
+export        = "run"
+live          = false
+output_label  = "Ranked contacts"
+format        = "text"
+
+[[input]]
+name        = "mbox"
+label       = "Mailbox text (mbox or raw messages)"
+placeholder = "From 1@x Mon Sep 03 10:00:00 +0000 2018\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>, Carol <carol@example.net>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nHi both.\n\nFrom 2@x Tue Sep 04 09:30:00 +0000 2018\nFrom: Bob <bob@example.org>\nTo: alice@example.com\nCc: Dave <dave@example.com>\nDate: Tue, 4 Sep 2018 09:30:00 +0000\n\nSounds good."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "count"
+label  = "Whose addresses to rank"
+source = "field"
+
+[input.labels]
+both       = "Both directions — everyone you exchange mail with"
+recipients = "People you email (To, Cc, Bcc)"
+senders    = "People who email you (From)"
+
+[[input]]
+name   = "include_cc"
+label  = "Count Cc and Bcc recipients"
+source = "field"
+
+[[input]]
+name        = "exclude"
+label       = "Exclude addresses and domains"
+placeholder = "me@example.com, @newsletter.example.net"
+source      = "field"
+
+[[input]]
+name   = "skip_automated"
+label  = "Skip noreply / mailer-daemon senders"
+source = "field"
+
+[[input]]
+name        = "half_life_days"
+label       = "Recency half-life (days, 0 = pure frequency)"
+placeholder = "180"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "730"
+step        = "10"
+
+[[input]]
+name        = "min_messages"
+label       = "Minimum messages per contact"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "How many contacts to show (0 = all)"
+placeholder = "25"
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Row order"
+source = "field"
+
+[input.labels]
+score    = "Score — frequency weighted by recency"
+messages = "Message count — highest first"
+recent   = "Most recently seen first"
+name     = "Name A→Z"
+
+[[input]]
+name   = "format"
+label  = "Output shape"
+source = "field"
+
+[input.labels]
+report = "Rank table with a summary line"
+list   = "Paste-ready Name <address> lines"
+csv    = "CSV"
+json   = "JSON"
+
+[[example]]
+label = "Rank top correspondents"
+[example.params]
+mbox = "From 1@x Mon Sep 03 10:00:00 +0000 2018\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>, Carol <carol@example.net>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nHi both.\n\nFrom 2@x Tue Sep 04 09:30:00 +0000 2018\nFrom: Bob <bob@example.org>\nTo: alice@example.com\nCc: Dave <dave@example.com>\nDate: Tue, 4 Sep 2018 09:30:00 +0000\n\nSounds good.\n\nFrom 3@x Wed Sep 05 08:00:00 +0000 2018\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nDate: Wed, 5 Sep 2018 08:00:00 +0000\n\nSlides attached."
+count = "both"
+include_cc = "true"
+exclude = "alice@example.com"
+skip_automated = "true"
+half_life_days = "180"
+min_messages = "1"
+limit = "25"
+sort = "score"
+format = "report"
+
+[[example]]
+label = "Address-book list"
+[example.params]
+mbox = "From 1@x Mon Sep 03 10:00:00 +0000 2018\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>, Carol <carol@example.net>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nHi both.\n\nFrom 2@x Tue Sep 04 09:30:00 +0000 2018\nFrom: Bob <bob@example.org>\nTo: alice@example.com\nCc: Dave <dave@example.com>\nDate: Tue, 4 Sep 2018 09:30:00 +0000\n\nSounds good.\n\nFrom 3@x Wed Sep 05 08:00:00 +0000 2018\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>\nDate: Wed, 5 Sep 2018 08:00:00 +0000\n\nSlides attached."
+count = "recipients"
+include_cc = "true"
+exclude = "alice@example.com"
+skip_automated = "true"
+half_life_days = "180"
+min_messages = "1"
+limit = "25"
+sort = "score"
+format = "list"
+
+[[example]]
+label = "Newsletter senders to unsubscribe"
+[example.params]
+mbox = "From 1@x Mon Sep 03 10:00:00 +0000 2018\nFrom: Deals <no-reply@shop.example.io>\nTo: alice@example.com\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nWeekly deals.\n\nFrom 2@x Tue Sep 04 09:30:00 +0000 2018\nFrom: Deals <no-reply@shop.example.io>\nTo: alice@example.com\nDate: Tue, 4 Sep 2018 09:30:00 +0000\n\nMore deals.\n\nFrom 3@x Wed Sep 05 08:00:00 +0000 2018\nFrom: Bob <bob@example.org>\nTo: alice@example.com\nDate: Wed, 5 Sep 2018 08:00:00 +0000\n\nLunch?"
+count = "senders"
+include_cc = "false"
+exclude = "alice@example.com"
+skip_automated = "false"
+half_life_days = "180"
+min_messages = "1"
+limit = "25"
+sort = "messages"
+format = "report"
+
+[[example]]
+label = "CSV export, no recency"
+[example.params]
+mbox = "From 1@x Mon Sep 03 10:00:00 +0000 2018\nFrom: Alice Example <alice@example.com>\nTo: Bob <bob@example.org>, Carol <carol@example.net>\nDate: Mon, 3 Sep 2018 10:00:00 +0000\n\nHi both.\n\nFrom 2@x Tue Sep 04 09:30:00 +0000 2018\nFrom: Bob <bob@example.org>\nTo: alice@example.com\nCc: Dave <dave@example.com>\nDate: Tue, 4 Sep 2018 09:30:00 +0000\n\nSounds good."
+count = "both"
+include_cc = "true"
+exclude = "alice@example.com"
+skip_automated = "true"
+half_life_days = "0"
+min_messages = "1"
+limit = "0"
+sort = "messages"
+format = "csv"

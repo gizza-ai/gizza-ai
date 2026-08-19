@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "one-time-pad"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt, decrypt and generate one-time pads (mod-26 letters, mod-10 digits or XOR)"

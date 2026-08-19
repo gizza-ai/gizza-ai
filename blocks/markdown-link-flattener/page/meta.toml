@@ -1,0 +1,99 @@
+slug          = "markdown-link-flattener"
+title         = "Markdown Link Flattener — remove link syntax, keep text"
+description   = "Paste Markdown and replace inline links with visible text, text plus URL, or URL-only output while preserving code examples."
+tags          = ["markdown link flattener", "remove markdown links", "markdown links to text", "strip markdown links", "markdown url extractor", "flatten markdown"]
+h1            = "Markdown Link Flattener"
+hero_subtitle = "Turn `[label](url)` links into plain labels, `label (url)` citations, or URL-only lists. Images, reference definitions and code blocks have explicit controls, and everything runs locally in your browser."
+wasm          = "gizza_ai_markdown_link_flattener_web"
+export        = "run"
+live          = false
+output_label  = "Flattened Markdown"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "Read [the docs](https://example.com/docs) and see ![diagram](diagram.png).\n\n[old-ref]: https://example.com/old\n\n`[example](kept)`"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "link_mode"
+label  = "Inline links become"
+source = "field"
+
+[input.labels]
+text = "Visible text only — docs"
+text_url = "Text with URL — docs (https://example.com)"
+url = "URL only — https://example.com"
+
+[[input]]
+name   = "image_mode"
+label  = "Images become"
+source = "field"
+
+[input.labels]
+alt_text = "Alt text only — diagram"
+alt_url = "Alt text with image URL — diagram (diagram.png)"
+drop = "Remove images"
+keep_markdown = "Keep image Markdown unchanged"
+
+[[input]]
+name   = "reference_definitions"
+label  = "Reference definition lines"
+source = "field"
+
+[input.labels]
+drop = "Drop definitions like [id]: https://example.com"
+keep = "Keep reference definitions unchanged"
+
+[[input]]
+name   = "preserve_code"
+label  = "Preserve code spans and fenced code blocks"
+source = "field"
+
+[[example]]
+label = "Plain text for publishing"
+[example.params]
+markdown = "Read [the docs](https://example.com/docs), then open [the changelog](https://example.com/changelog)."
+link_mode = "text"
+image_mode = "alt_text"
+reference_definitions = "drop"
+preserve_code = "true"
+
+[[example]]
+label = "Keep URLs as citations"
+[example.params]
+markdown = "Read [the docs](https://example.com/docs) and [download the guide](https://example.com/guide.pdf \"PDF\")."
+link_mode = "text_url"
+image_mode = "alt_text"
+reference_definitions = "drop"
+preserve_code = "true"
+
+[[example]]
+label = "Extract only destinations"
+[example.params]
+markdown = "Links: [docs](https://example.com/docs), [status](https://status.example.com)."
+link_mode = "url"
+image_mode = "drop"
+reference_definitions = "drop"
+preserve_code = "true"
+
+[[example]]
+label = "Keep image Markdown"
+[example.params]
+markdown = "Hero: ![launch diagram](assets/launch.png) links to [the plan](https://example.com/plan)."
+link_mode = "text"
+image_mode = "keep_markdown"
+reference_definitions = "drop"
+preserve_code = "true"
+
+[[example]]
+label = "Preserve README examples"
+[example.params]
+markdown = "Use [the API](https://example.com/api).\n\n```md\n[do not flatten](inside-code)\n```\n\n[unused]: https://example.com/unused"
+link_mode = "text_url"
+image_mode = "alt_text"
+reference_definitions = "drop"
+preserve_code = "true"

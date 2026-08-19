@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "column-aligner"
+version = "0.1.0"
+abi = 1
+summary = "Align delimited text into fixed-width columns"

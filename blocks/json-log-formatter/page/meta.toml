@@ -1,0 +1,167 @@
+slug          = "json-log-formatter"
+title         = "JSON Log Formatter — Read, Align, Filter NDJSON Logs"
+description   = "Pretty-print JSON log lines, flatten nested fields, filter by level or field, and export readable logs as text, table, JSON, or CSV."
+tags          = ["json", "logs", "ndjson", "jsonl", "formatter", "filter", "structured logs", "debugging", "csv"]
+h1            = "Format and filter structured JSON logs"
+hero_subtitle = "Paste NDJSON application logs and turn them into aligned readable lines, Markdown tables, JSON arrays, or CSV. Filter by level, search any field, flatten nested context, and keep invalid lines visible when you need them."
+wasm          = "gizza_ai_json_log_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted logs"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "JSON log lines"
+placeholder = "{\"time\":\"2026-08-08T12:00:00Z\",\"level\":\"info\",\"msg\":\"server started\",\"port\":8080}\n{\"time\":\"2026-08-08T12:00:09Z\",\"level\":\"error\",\"msg\":\"db timeout\",\"req\":{\"method\":\"GET\",\"url\":\"/api\"}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "level"
+label  = "Minimum level"
+source = "field"
+
+[input.labels]
+all   = "All levels"
+trace = "Trace and above"
+debug = "Debug and above"
+info  = "Info and above"
+warn  = "Warn and above"
+error = "Error and fatal"
+fatal = "Fatal only"
+
+[[input]]
+name        = "field"
+label       = "Field to filter (optional)"
+placeholder = "req.method"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "filter"
+label       = "Filter text"
+placeholder = "timeout"
+source      = "field"
+
+[[input]]
+name   = "match"
+label  = "Filter match"
+source = "field"
+
+[input.labels]
+contains = "Contains (case-insensitive)"
+exact    = "Exact value"
+
+[[input]]
+name        = "fields"
+label       = "Columns/fields to keep"
+placeholder = "time,level,msg,req.method,req.url"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "level_field"
+label       = "Level field override"
+placeholder = "severity"
+source      = "field"
+
+[[input]]
+name        = "time_field"
+label       = "Time field override"
+placeholder = "@timestamp"
+source      = "field"
+
+[[input]]
+name        = "message_field"
+label       = "Message field override"
+placeholder = "message"
+source      = "field"
+
+[[input]]
+name   = "flatten"
+label  = "Flatten nested objects to dotted fields"
+source = "field"
+
+[[input]]
+name   = "on_invalid"
+label  = "Invalid lines"
+source = "field"
+
+[input.labels]
+skip  = "Skip and report count"
+keep  = "Keep as raw lines"
+error = "Fail with line number"
+
+[[input]]
+name        = "limit"
+label       = "Maximum records"
+placeholder = "200"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "5000"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+pretty = "Aligned log view"
+table  = "Markdown table"
+json   = "JSON array"
+csv    = "CSV"
+
+[[example]]
+label = "Pretty errors"
+[example.params]
+input = "{\"time\":\"2026-08-08T12:00:00Z\",\"level\":\"info\",\"msg\":\"server started\",\"port\":8080}\n{\"time\":\"2026-08-08T12:00:09Z\",\"level\":\"error\",\"msg\":\"db timeout\",\"req\":{\"method\":\"GET\",\"url\":\"/api\"}}"
+level = "error"
+field = ""
+filter = ""
+match = "contains"
+fields = ""
+level_field = ""
+time_field = ""
+message_field = ""
+flatten = "true"
+on_invalid = "skip"
+limit = "200"
+output = "pretty"
+
+[[example]]
+label = "Request table"
+[example.params]
+input = "{\"ts\":\"2026-08-08T12:00:00Z\",\"severity\":30,\"message\":\"ok\",\"req\":{\"method\":\"GET\",\"url\":\"/health\"}}\n{\"ts\":\"2026-08-08T12:00:01Z\",\"severity\":50,\"message\":\"failed\",\"req\":{\"method\":\"POST\",\"url\":\"/login\"}}"
+level = "all"
+field = "req.method"
+filter = "POST"
+match = "exact"
+fields = "ts,severity,message,req.method,req.url"
+level_field = "severity"
+time_field = "ts"
+message_field = "message"
+flatten = "true"
+on_invalid = "skip"
+limit = "200"
+output = "table"
+
+[[example]]
+label = "Keep invalid lines"
+[example.params]
+input = "not json\n{\"time\":\"2026-08-08T12:00:00Z\",\"level\":\"warn\",\"msg\":\"cache miss\"}"
+level = "all"
+field = ""
+filter = ""
+match = "contains"
+fields = ""
+level_field = ""
+time_field = ""
+message_field = ""
+flatten = "true"
+on_invalid = "keep"
+limit = "200"
+output = "pretty"

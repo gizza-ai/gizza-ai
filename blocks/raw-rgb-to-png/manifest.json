@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/raw-rgb-to-png",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Assemble raw RGB/RGBA bytes plus width and height into a PNG",
+  "role": "skill",
+  "tool": {
+    "description": "Assemble raw pixel bytes into a viewable PNG image. Provide data as hex byte pairs, base64, or decimal byte values; provide width and height; choose pixel_format rgb (3 bytes per pixel) or rgba (4 bytes per pixel); optionally set row_stride when rows are padded. The tool validates dimensions, byte counts, stride, and malformed input, then returns an image/png media envelope named raw-rgb.png. It is for headerless framebuffer dumps, texture bytes, embedded raw pixel arrays, and debugging output from image pipelines; it does not decode file formats or infer dimensions.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "Raw pixel bytes as text. encoding=hex accepts hex byte pairs like ff0000 or 0xff,0x00,0x00; encoding=base64 accepts standard or URL-safe base64 and data:...;base64,... prefixes; encoding=decimal accepts 0-255 byte values separated by commas/spaces. Required.",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "hex",
+          "description": "How the data string is encoded: hex byte pairs (default), base64 bytes, or decimal byte values 0-255.",
+          "enum": [
+            "hex",
+            "base64",
+            "decimal"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "description": "Image height in pixels, 1-8192. Required. width × height must be at most 16,000,000 pixels.",
+          "maximum": 8192,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "pixel_format": {
+          "default": "rgb",
+          "description": "How to read each pixel: rgb = 3 bytes per pixel (red, green, blue); rgba = 4 bytes per pixel (red, green, blue, alpha). Default rgb.",
+          "enum": [
+            "rgb",
+            "rgba"
+          ],
+          "type": "string"
+        },
+        "row_stride": {
+          "default": 0,
+          "description": "Bytes from the start of one row to the start of the next when rows are padded. 0 means tightly packed width × bytes-per-pixel. Must be at least one row of pixels when set. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "width": {
+          "description": "Image width in pixels, 1-8192. Required.",
+          "maximum": 8192,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data",
+        "width",
+        "height"
+      ],
+      "type": "object"
+    }
+  }
+}

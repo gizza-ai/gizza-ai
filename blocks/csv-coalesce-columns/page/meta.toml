@@ -1,0 +1,106 @@
+slug          = "csv-coalesce-columns"
+title         = "CSV Coalesce Columns — Merge Columns Into One Online"
+description   = "Merge CSV columns into one by taking the first non-empty value per row, in the priority order you choose. Add a fallback, drop the sources. Free, in-browser."
+tags          = ["csv coalesce columns", "merge csv columns", "first non-empty value", "combine columns csv", "csv column fallback"]
+h1            = "CSV Coalesce Columns"
+hero_subtitle = "Build one column from the first non-empty value across several columns, read in the priority order you list. Optionally drop the sources and set a fallback. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_csv_coalesce_columns_web"
+export        = "run"
+live          = false
+output_label  = "Coalesced CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV"
+placeholder = "name,mobile,office,home\nAnn,555-1,555-2,555-3\nBob,,555-4,555-5\nCleo,,,555-6"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Source columns, highest priority first"
+placeholder = "mobile,office,home"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "New column name (blank = coalesced)"
+placeholder = "phone"
+source      = "field"
+
+[[input]]
+name        = "position"
+label       = "Put the new column"
+source      = "field"
+
+[input.labels]
+"end"          = "At the end (after the last column)"
+"start"        = "At the start (before the first column)"
+"first-source" = "Where the first source column was"
+
+[[input]]
+name        = "fallback"
+label       = "Fallback when every source is empty"
+placeholder = "N/A"
+source      = "field"
+
+[[input]]
+name        = "drop_sources"
+label       = "Drop the source columns"
+source      = "field"
+
+[[input]]
+name        = "blank_is_empty"
+label       = "Treat whitespace-only cells as empty"
+source      = "field"
+
+[[input]]
+name        = "null_tokens"
+label       = "Extra placeholders that count as empty"
+placeholder = "NULL,NA,N/A,-"
+source      = "field"
+
+[[input]]
+name        = "header"
+label       = "First row is a header"
+source      = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (, tab ; |)"
+placeholder = ","
+source      = "field"
+
+[[example]]
+label = "Best phone number"
+[example.params]
+data = "name,mobile,office,home\nAnn,555-1,555-2,555-3\nBob,,555-4,555-5\nCleo,,,555-6"
+columns = "mobile,office,home"
+output = "phone"
+
+[[example]]
+label = "Replace the sources with one column"
+[example.params]
+data = "name,mobile,office,home\nAnn,555-1,555-2,555-3\nBob,,555-4,555-5\nCleo,,,555-6"
+columns = "mobile,office,home"
+output = "phone"
+position = "first-source"
+drop_sources = "true"
+
+[[example]]
+label = "Fallback for rows with nothing"
+[example.params]
+data = "sku,web_price,list_price\nA1,9.99,12.00\nB2,,15.00\nC3,,"
+columns = "web_price,list_price"
+output = "price"
+fallback = "unpriced"
+
+[[example]]
+label = "Treat NULL / N/A as empty"
+[example.params]
+data = "id,primary_email,backup_email\n1,NULL,ann@example.com\n2,bob@example.com,NULL\n3,N/A,-"
+columns = "primary_email,backup_email"
+output = "email"
+fallback = "unknown"
+null_tokens = "NULL,N/A,-"

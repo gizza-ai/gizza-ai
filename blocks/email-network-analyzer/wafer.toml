@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "email-network-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Build a sender-to-recipient email network graph with ranked senders, recipients, and links."

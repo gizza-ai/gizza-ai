@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/audio-rms-level-report",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report per-channel RMS, peak and average audio levels in dBFS.",
+  "role": "skill",
+  "tool": {
+    "description": "Measure the level of an audio file and return a per-channel summary. Paste the file bytes as base64 or hex. The tool decodes WAV, AIFF, CAF, FLAC, MP3, OGG, MP4/M4A, MKV/WebM and AAC-ADTS via a pure-Rust decoder and reports, for every channel and for the mix overall: RMS level, sample peak and average (mean absolute) level in both dBFS and linear full-scale amplitude, the loudest and quietest short-window RMS, crest factor, headroom to full scale, DC offset, zero crossings, and clipped-sample count / percentage / longest run. Stream facts (sample rate, channel layout, duration, frame and sample counts) come with it. Output as JSON, an aligned text report, or CSV. This is a whole-file summary — for levels over time use the video-audio-rms-timeline tool.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "clip_threshold": {
+          "default": 0.99,
+          "description": "Absolute full-scale sample amplitude counted as clipped (0.5-1.0, default 0.99, i.e. about -0.09 dBFS). Samples at or above this level are counted per channel and the longest consecutive run is reported.",
+          "maximum": 1,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "input": {
+          "description": "Audio file bytes encoded as base64 or hex, e.g. 'UklGRi...' for a WAV. Decodes WAV, AIFF, CAF, FLAC, MP3, OGG/Vorbis, MP4/M4A (AAC-LC, ALAC), MKV/WebM and AAC-ADTS; the first audio track is measured. Limit 64 MiB of decoded bytes and 30,000,000 frames per channel.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding used for the pasted audio bytes: 'base64' (default) or 'hex'. Base64 may be standard or URL-safe and padding is optional; hex may include whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format. 'json' (default) is the machine-readable summary with a per_channel array and an overall object; 'report' is an aligned human-readable table; 'csv' is one row per channel plus an 'overall' row.",
+          "enum": [
+            "json",
+            "report",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "rms_window_ms": {
+          "default": 50.0,
+          "description": "Short-window length in milliseconds used for the rms_peak_dbfs and rms_trough_dbfs figures — the loudest and quietest window of the clip (1-10000, default 50, matching the usual 50 ms level-meter window). Does not affect the whole-file RMS, peak or average.",
+          "maximum": 10000,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

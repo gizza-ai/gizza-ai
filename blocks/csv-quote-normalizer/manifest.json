@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/csv-quote-normalizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Re-emit a CSV with one consistent quoting, escaping, quote-character, delimiter and line-ending dialect.",
+  "role": "skill",
+  "tool": {
+    "description": "Rewrite a CSV so every field uses ONE quoting dialect. The input is read with a deliberately tolerant parser, so the files that make a strict reader fail or silently mis-split a row are handled instead of rejected: backslash-escaped quotes (\\\" as MySQL and many exporters write them), single-quoted fields, curly “smart” quotes left by Word or Google Docs, padding before an opening quote, a stray un-escaped quote inside a quoted value, text running on after a closing quote, an unclosed quote at end of input, a BOM, and blank lines. The output is strict and consistent: quote_style picks which fields are quoted ('minimal' (default), 'always', 'non_numeric', 'never'), escape picks the escaping ('doubled' for RFC 4180 \"\", 'backslash' for \\\"), output_quote picks double or single, output_delimiter can switch the separator, and line_ending picks LF or CRLF — embedded newlines included. delimiter and input_quote default to 'auto' and sniff the input's dialect; backslash_escapes and smart_quotes (both on) control how tolerant the read is. Set output = 'report' to get an audit of the detected dialect, the row/field/quoted counts and every repair with its line number instead of the file. Only quoting, escaping, the delimiter and line endings change — no cell value is trimmed, retyped, padded or dropped, and ragged rows keep their length. Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "backslash_escapes": {
+          "default": true,
+          "description": "When true (default), \\\" in the INPUT is read as an escaped quote and \\\\ as a literal backslash — the convention MySQL, MongoDB and many hand-rolled exporters emit, and the one that makes a strict RFC 4180 reader mis-split the row. Turn it off when backslash is ordinary content (Windows paths, regexes). A trailing \\ immediately before a field-closing quote stays literal either way, so \"C:\\dir\\\" is not read as an unterminated field.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field separator of the INPUT: 'auto' (default) sniffs the most frequent candidate (comma, semicolon, tab, pipe) outside quotes on the first logical line, or give a single character or a name ('comma', 'tab', 'semicolon', 'pipe', 'space').",
+          "type": "string"
+        },
+        "escape": {
+          "default": "doubled",
+          "description": "How a quote inside a quoted OUTPUT field is escaped: 'doubled' (default) writes \"\" per RFC 4180, which Excel, Sheets, pandas and every strict reader understand; 'backslash' writes \\\" (and \\\\ for a literal backslash) for MySQL LOAD DATA, older Postgres COPY and JavaScript-flavoured readers.",
+          "enum": [
+            "doubled",
+            "backslash"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The CSV/delimited text to re-quote. The parser is deliberately tolerant, so the files a strict reader rejects are read rather than refused: backslash-escaped quotes, single-quoted or curly-quoted fields, padding before an opening quote, a stray quote inside a value, text after a closing quote, and an unclosed quote at end of input. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "input_quote": {
+          "default": "auto",
+          "description": "Quote character to read in the INPUT: 'auto' (default) picks double when any straight or curly double quote appears, and single only when a ' actually opens a field, so an apostrophe in ordinary prose is never mistaken for a quote character; 'double'; 'single'; or 'none' to treat every quote character as literal content.",
+          "enum": [
+            "auto",
+            "double",
+            "single",
+            "none"
+          ],
+          "type": "string"
+        },
+        "line_ending": {
+          "default": "lf",
+          "description": "Line ending of the OUTPUT: 'lf' (default, \\n) or 'crlf' (\\r\\n, what RFC 4180 and older Windows/Excel tooling expect). A newline embedded inside a quoted field takes the same ending, so the whole file is consistent.",
+          "enum": [
+            "lf",
+            "crlf"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "What to return: 'csv' (default) is the rewritten file; 'report' is a plain-text audit — the detected input dialect, the chosen output dialect, row/field/quoted counts, a ragged-row warning, and every repair the tolerant parser had to make with the line numbers it made them on.",
+          "enum": [
+            "csv",
+            "report"
+          ],
+          "type": "string"
+        },
+        "output_delimiter": {
+          "default": "same",
+          "description": "Field separator of the OUTPUT: 'same' (default) reuses the input's separator, or give a single character or a name ('comma', 'tab', 'semicolon', 'pipe', 'space') to switch the file to another dialect on the way out.",
+          "type": "string"
+        },
+        "output_quote": {
+          "default": "double",
+          "description": "Quote character of the OUTPUT: 'double' (default, what RFC 4180 and every spreadsheet expect) or 'single'.",
+          "enum": [
+            "double",
+            "single"
+          ],
+          "type": "string"
+        },
+        "quote_style": {
+          "default": "minimal",
+          "description": "Which OUTPUT fields get quoted: 'minimal' (default) quotes only a value that contains the delimiter, the quote character or a line break; 'always' quotes every field, which keeps a diff stable and stops a spreadsheet retyping ids; 'non_numeric' quotes everything that is not a plain decimal number (Python's csv.QUOTE_NONNUMERIC); 'never' quotes nothing and then needs escape = 'backslash' to represent a value containing a delimiter, a quote or a newline. Under the first three a value that MUST be quoted to stay readable is always quoted, whatever the policy asks for.",
+          "enum": [
+            "minimal",
+            "always",
+            "non_numeric",
+            "never"
+          ],
+          "type": "string"
+        },
+        "smart_quotes": {
+          "default": true,
+          "description": "When true (default), curly quotes (“ ” ‘ ’) are read as field quotes — what a CSV that has been through Word, Google Docs or any autocorrecting editor actually contains. Turn it off to keep curly quotes as ordinary characters inside the value.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

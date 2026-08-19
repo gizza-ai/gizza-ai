@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-password-export-convert-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# RFC-4180 CSV reader/writer — the competitors' stated failure mode is bad
+# escaping of commas/quotes inside passwords, so both directions go through a
+# real parser. Pure Rust, no_std-friendly deps, builds for wasm32.
+csv = "1"
+# Bitwarden's JSON export shape, read and written losslessly.
+serde_json = "1"

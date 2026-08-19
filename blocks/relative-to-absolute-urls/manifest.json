@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/relative-to-absolute-urls",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rewrite relative href, src and other URL attributes in HTML to absolute URLs against a base.",
+  "role": "skill",
+  "tool": {
+    "description": "Rewrite the relative URLs in a chunk of HTML to absolute ones against a base URL, changing only the URL attribute values — no whitespace collapsing, no tag or attribute reordering, no re-indentation, so the diff shows the URLs and nothing else. Resolution is the WHATWG algorithm a browser applies to a relative href, so '../x', '/x', './x', '?q=1' and dot segments behave the same way. The scanner is comment- and raw-text-aware: links inside <!-- … -->, <script>, <textarea> and <title> are text and are left alone, and a '>' inside a quoted attribute cannot end a tag early. attributes selects the net: 'href-src' (href and src only), 'common' (default — adds srcset with its descriptors, poster, action, formaction, object data, background, ping and <meta http-equiv=refresh> content) or 'all' (adds cite, longdesc, manifest, profile, itemtype, icon and the applet/object archive/code/codebase attributes). Values that are already absolute, carry another scheme (mailto:, tel:, data:, javascript:), are bare '#fragments' or are template placeholders ({{ … }}, <% … %>) are left exactly as written. use_base_tag honours a document's own <base href> the way a browser does (default on); protocol_relative decides whether '//cdn.example.com/a.png' takes the base's scheme; resolve_fragments absolutizes bare anchors for markup being lifted into an email or feed; style_urls extends the pass to url(…) and @import in style attributes and <style> blocks. output is 'html' (the rewritten markup), 'report' (a metric,value CSV of counts and the base actually used) or 'urls' (a line,tag,attribute,original,resolved,action CSV dry run). Max 5,000,000 bytes. Runs entirely in the sandbox; nothing is fetched or uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "default": "common",
+          "description": "Which attributes count as URLs. 'href-src' is the conservative pass — href and src only. 'common' (default) adds the everyday rest: srcset (each candidate, descriptors preserved), poster, form action, formaction, object data, the background attributes, ping and the URL inside <meta http-equiv=\"refresh\" content=\"5; url=…\">. 'all' adds the rarities HTML also defines as URLs: cite, longdesc, manifest, profile, itemtype, icon and the applet/object archive, code, codebase and object attributes.",
+          "enum": [
+            "href-src",
+            "common",
+            "all"
+          ],
+          "type": "string"
+        },
+        "base": {
+          "description": "The absolute URL the relative values are relative to — normally the address of the page the markup came from, e.g. 'https://example.com/blog/post.html'. Resolution follows the WHATWG rules the browser address bar uses, so '../x', '/x', './x', '?q=1' and a trailing-slash directory base ('https://example.com/blog/') all behave exactly as they would in that page. Must be an absolute hierarchical URL; a relative value or a 'mailto:'-style address is rejected.",
+          "type": "string"
+        },
+        "html": {
+          "description": "The markup to rewrite, as text. Only URL attribute VALUES change — no whitespace collapsing, no tag or attribute reordering, no re-indentation, no quote-style changes, so the diff shows the URLs and nothing else. The scanner is comment- and raw-text-aware: a link written inside <!-- … -->, <script>, <textarea> or <title> is text and is left alone, and a '>' inside a quoted attribute value does not end a tag. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "output": {
+          "default": "html",
+          "description": "What to return: 'html' (default) is the rewritten markup; 'report' is a metric,value CSV with the base actually used, whether a <base> tag was honoured, and counts of what was rewritten versus kept (absolute, other scheme, fragment, protocol-relative, template, empty, unresolvable) plus bytes before/after; 'urls' is a line,tag,attribute,original,resolved,action CSV listing every URL the scanner looked at and what it decided — the dry run for checking a base before trusting it on a whole document.",
+          "enum": [
+            "html",
+            "report",
+            "urls"
+          ],
+          "type": "string"
+        },
+        "protocol_relative": {
+          "default": "resolve",
+          "description": "What to do with protocol-relative values such as '//cdn.example.com/a.png'. 'resolve' (default) gives them the base URL's scheme, which is what you want when the markup is heading somewhere with no scheme of its own — an email, a feed, a PDF. 'keep' leaves them exactly as written, which is right when the output is still going to be served over both http and https.",
+          "enum": [
+            "resolve",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "resolve_fragments": {
+          "default": false,
+          "description": "Also make bare in-page anchors such as '#top' absolute ('https://example.com/blog/post.html#top'). Off by default, because inside the original page a bare fragment is a jump link and absolutizing it turns a scroll into a page load. Turn it on when the markup is being lifted OUT of its page — into an email, an RSS item or an embed — where a bare '#top' would resolve against the wrong document.",
+          "type": "boolean"
+        },
+        "style_urls": {
+          "default": false,
+          "description": "Also rewrite CSS URLs — 'url(…)' and '@import \"…\"' inside style attributes and <style> blocks. Off by default so a run is purely an attribute operation. The CSS pass keeps the original quoting and spacing and only touches the value inside the parentheses; external stylesheets are not fetched, so URLs in a linked .css file are out of reach.",
+          "type": "boolean"
+        },
+        "use_base_tag": {
+          "default": true,
+          "description": "Honour a <base href> in the document. On by default because that is what a browser does: when a page carries one, its relative URLs resolve against the <base>, not against the page's own address, so ignoring it produces URLs that point somewhere else. The <base href> itself is still resolved against the base you supplied. Turn it off to resolve everything against your base regardless.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "html",
+        "base"
+      ],
+      "type": "object"
+    }
+  }
+}

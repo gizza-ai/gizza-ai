@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "password-export-convert"
+version = "0.1.0"
+abi = 1
+summary = "Convert a password-manager export between Bitwarden, KeePass, LastPass, Chrome and generic CSV"

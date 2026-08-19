@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/shamir-secret-recover",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Recover a Shamir secret from threshold shares.",
+  "role": "skill",
+  "tool": {
+    "description": "Combine Shamir secret-sharing shares locally in the browser. Supports index-prefixed hex shares, leading-index sss: base64/base64url shares, trailing-index raw-byte shares, GF(256) polynomials 0x11b and 0x11d, optional threshold K, redundant-share verification, and text/hex/base64/binary output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "field_poly": {
+          "default": "auto",
+          "description": "GF(256) reduction polynomial: auto, 0x11b (AES/Vault-style), or 0x11d (secrets.js-lineage). Auto uses redundant shares to confirm when possible. Default auto.",
+          "enum": [
+            "auto",
+            "0x11b",
+            "0x11d"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "secret",
+          "description": "Output shape: secret (just the recovered value), report (secret plus parsing and verification details), or json (structured result). Default secret.",
+          "enum": [
+            "secret",
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "secret_encoding": {
+          "default": "auto",
+          "description": "Recovered secret rendering: auto (print text if safely printable UTF-8, otherwise hex), text, hex, base64, or binary bits. Default auto.",
+          "enum": [
+            "auto",
+            "text",
+            "hex",
+            "base64",
+            "binary"
+          ],
+          "type": "string"
+        },
+        "share_encoding": {
+          "default": "auto",
+          "description": "How each share payload is encoded: auto (prefer hex when ambiguous), hex, or base64/base64url with optional padding. Default auto.",
+          "enum": [
+            "auto",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "share_format": {
+          "default": "auto",
+          "description": "Share layout: auto (detect common forms), index-prefix (decimal x plus separator plus payload, e.g. 1-deadbeef), leading-index (decoded bytes start with x), or trailing-index (decoded bytes end with x). Default auto.",
+          "enum": [
+            "auto",
+            "index-prefix",
+            "leading-index",
+            "trailing-index"
+          ],
+          "type": "string"
+        },
+        "shares": {
+          "description": "Shamir shares to combine, one per line. Blank lines and # comments are ignored. Accepts index-prefixed shares such as 1-68b5..., leading-index sss: base64/base64url shares, and trailing-index hex/base64 shares. Maximum 255 shares.",
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0,
+          "description": "Threshold K. Use 0 (default) to combine every share supplied, or set 2-255 when you have extra shares and want redundancy checks.",
+          "maximum": 255,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "verify": {
+          "default": true,
+          "description": "When more shares than the threshold are supplied, cross-check alternate subsets and report or reject corrupted/foreign shares. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "shares"
+      ],
+      "type": "object"
+    }
+  }
+}

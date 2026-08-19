@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/image-region-change-grid",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report which grid cells changed between two aligned images",
+  "role": "skill",
+  "tool": {
+    "description": "Divide two aligned images into a grid and report which cells changed and by how much — a compact 'what changed where' summary. Provide `images` as exactly two sources (each a url or a `ref`; PNG/JPEG/WebP/GIF/BMP): the before image first, the after image second. The first image defines the canvas; if the second differs in size it is scaled onto that canvas (`size_mismatch=resize`, the default) or rejected (`error`). `columns` and `rows` set the grid (1-32 each, default 4x4); cells are labelled spreadsheet-style, column letter plus row number (C2). `threshold` is the per-pixel sensitivity in percent of the maximum colour difference (default 2, which ignores re-compression noise); `min_change` is the share of a cell's pixels that must change before the cell is flagged (default 1). `metric` picks how a pixel's difference is measured: rgb (default, RMS over red/green/blue/alpha), luma (perceived brightness only, so an equal-brightness recolour reads as unchanged), or max-channel (largest single-channel difference, strictest). The result gives overall changed-pixel count and percentage, mean and max delta, and for every cell its rectangle, changed-pixel count and percentage, mean/max delta and changed flag, plus a ranked shortlist of the most-changed cells, a one-line summary, and (unless `map` is false) an ASCII density map of the grid. Output is text/JSON, not a diff image.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": 4,
+          "description": "Number of grid columns, 1-32 (default 4). Columns are labelled A, B, C ... left to right, so a cell reads like `C2`. Cannot exceed the first image's width in pixels.",
+          "maximum": 32,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "images": {
+          "description": "Exactly two image sources (PNG/JPEG/WebP/GIF/BMP), the before image first and the after image second. Each item has exactly one of `url` or `ref`. The first image defines the canvas the grid is measured on.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "map": {
+          "default": true,
+          "description": "Include an ASCII density map of the grid (one line per row, one glyph per cell, plus a legend) alongside the numbers. On by default; set false for numbers only.",
+          "type": "boolean"
+        },
+        "metric": {
+          "default": "rgb",
+          "description": "How each pixel's difference is measured. rgb (default) is the root-mean-square difference across red, green, blue and alpha. luma compares perceived brightness only (Rec. 601), so a recolour at the same brightness reads as unchanged. max-channel takes the single largest channel difference and is the strictest.",
+          "enum": [
+            "rgb",
+            "luma",
+            "max-channel"
+          ],
+          "type": "string"
+        },
+        "min_change": {
+          "default": 1.0,
+          "description": "Noise filter, 0-100 percent. A cell is flagged as changed only when at least this share of its pixels changed (default 1). Every cell's numbers are still reported; this only decides the `changed` flag, the changed-cell count and the ranked shortlist.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "rows": {
+          "default": 4,
+          "description": "Number of grid rows, 1-32 (default 4). Rows are numbered 1 upward from the top. Cannot exceed the first image's height in pixels.",
+          "maximum": 32,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "size_mismatch": {
+          "default": "resize",
+          "description": "What to do when the two images are different sizes. resize (default) scales the second image onto the first image's canvas before comparing; error refuses the comparison instead.",
+          "enum": [
+            "resize",
+            "error"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 2.0,
+          "description": "Per-pixel sensitivity, 0-100 percent of the maximum possible colour difference. A pixel counts as changed when its difference is strictly greater than this. The default 2 ignores JPEG re-compression noise; use 0 to count every non-identical pixel, or raise it to 10+ to catch only obvious changes.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-add-silent-audio"
+version = "0.1.0"
+abi = 1
+summary = "Add a silent audio track to a video that has none so upload checks accept it"

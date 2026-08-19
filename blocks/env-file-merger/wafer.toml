@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "env-file-merger"
+version = "0.1.0"
+abi = 1
+summary = "Merge layered .env files and show which file set each value."

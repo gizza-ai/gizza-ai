@@ -1,0 +1,90 @@
+slug          = "email-phishing-link-scanner"
+title         = "Email Phishing Link Scanner — Check Every Link in a Message"
+description   = "Paste an email and rate every link: display text vs real target, lookalike and punycode domains, bare-IP hosts, shorteners and redirect wrappers. Runs locally."
+tags          = ["phishing link checker", "email link scanner", "suspicious link checker", "lookalike domain", "typosquatting", "punycode", "email security"]
+h1            = "Email Phishing Link Scanner"
+hero_subtitle = "Paste a suspicious email and get every link rated on its own — where it really goes versus what it claims, lookalike and punycode domains, bare-IP hosts, shorteners and redirect wrappers. Computed in your browser, never uploaded."
+wasm          = "gizza_ai_email_phishing_link_scanner_web"
+export        = "run"
+live          = false
+output_label  = "Link scan report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "email"
+label       = "Email message"
+placeholder = "From: Security <alerts@paypa1-secure.com>\nSubject: Verify your account\n\n<p><a href=\"http://192.0.2.9/login\">https://www.paypal.com/signin</a></p>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "brands"
+label       = "Your own domains to protect (optional)"
+placeholder = "acmecorp.com, acme-bank.co.uk"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "format"
+label       = "Read the input as"
+placeholder = "auto"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+raw  = "Raw email (headers + body)"
+html = "HTML body"
+text = "Plain text"
+
+[[input]]
+name        = "report"
+label       = "Report style"
+placeholder = "detailed"
+source      = "field"
+
+[input.labels]
+detailed = "Detailed — every link with its findings"
+summary  = "Summary — one line per flagged link"
+json     = "JSON — machine readable"
+
+[[input]]
+name   = "only_flagged"
+label  = "Show only links that raised a finding"
+source = "field"
+
+[[input]]
+name        = "max_links"
+label       = "Maximum links to scan"
+placeholder = "200"
+source      = "field"
+
+[[example]]
+label = "Spoofed-brand phish"
+[example.params]
+email = "From: \"PayPal Security\" <alerts@paypa1-secure.com>\nTo: victim@example.com\nSubject: Urgent: verify your account\n\n<html><body>\n<p><a href=\"http://192.0.2.9/login\">https://www.paypal.com/signin</a></p>\n<p><a href=\"https://xn--pypal-4ve.com/verify\">Confirm now</a></p>\n<p><a href=\"https://www.paypal.com/help\">Help centre</a></p>\n</body></html>"
+brands = ""
+format = "auto"
+report = "detailed"
+only_flagged = "false"
+max_links = "200"
+
+[[example]]
+label = "Shortener + redirect wrapper"
+[example.params]
+email = "Please review the invoice: https://bit.ly/3abcXYZ\nOr use the portal link https://eu.safelinks.protection.outlook.com/?url=http%3A%2F%2Faccount-verify-support.tk%2Fsignin&data=05"
+brands = ""
+format = "text"
+report = "detailed"
+only_flagged = "false"
+max_links = "200"
+
+[[example]]
+label = "Clean newsletter"
+[example.params]
+email = "From: Product News <news@example.com>\nTo: reader@example.com\nSubject: Weekly notes\n\n<p>Read the <a href=\"https://example.com/weekly\">weekly notes</a> or browse the <a href=\"https://example.com/archive\">archive</a>.</p>"
+brands = ""
+format = "auto"
+report = "detailed"
+only_flagged = "false"
+max_links = "200"

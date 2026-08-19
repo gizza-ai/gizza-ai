@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "faceted-filter"
+version = "0.1.0"
+abi = 1
+summary = "Faceted search over a JSON dataset: filtered records plus facet value counts, sorting and pagination."

@@ -1,0 +1,108 @@
+slug          = "sam-to-csv"
+title         = "SAM to CSV Converter — Parse Alignment Records"
+description   = "Convert SAM sequence-alignment records into CSV or TSV with named columns, decoded FLAG bits, optional tag columns, filters, and computed spans."
+tags          = ["sam", "csv", "tsv", "sequence alignment", "bioinformatics", "genomics", "sam flag", "cigar", "mapq", "bam", "alignment"]
+h1            = "Convert SAM Alignment Records to CSV"
+hero_subtitle = "Paste SAM text and get a spreadsheet-ready table with QNAME, FLAG, RNAME, POS, CIGAR, decoded FLAG bits, optional tags, and computed coordinate columns."
+wasm          = "gizza_ai_sam_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV table"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "SAM records"
+placeholder = "@HD\tVN:1.6\nr001\t99\tchr1\t7\t60\t8M2I4M1D3M\t=\t37\t39\tTTAGATAAAGGATACTG\t*\tNM:i:1\tAS:i:30"
+source      = "field"
+multiline   = true
+
+[[input]]
+name = "delimiter"
+label = "Delimiter"
+source = "field"
+[input.labels]
+comma = "Comma CSV"
+tab = "Tab TSV"
+semicolon = "Semicolon"
+pipe = "Pipe"
+
+[[input]]
+name = "header"
+label = "Include header row"
+source = "field"
+
+[[input]]
+name = "flags"
+label = "Decode FLAG"
+source = "field"
+[input.labels]
+none = "Raw FLAG only"
+summary = "Summary column"
+bits = "12 true/false bit columns"
+both = "Summary + bit columns"
+
+[[input]]
+name = "tags"
+label = "Optional SAM tags"
+source = "field"
+[input.labels]
+none = "Drop tags"
+joined = "Join into TAGS column"
+expand = "Expand one column per tag"
+
+[[input]]
+name = "tag_fields"
+label = "Tag whitelist/order"
+placeholder = "NM,AS,MD"
+source = "field"
+
+[[input]]
+name = "include_seq"
+label = "Include SEQ and QUAL"
+source = "field"
+
+[[input]]
+name = "computed"
+label = "Add END, REF_SPAN, READ_LEN, STRAND"
+source = "field"
+
+[[input]]
+name = "mapped_only"
+label = "Mapped reads only"
+source = "field"
+
+[[input]]
+name = "primary_only"
+label = "Primary alignments only"
+source = "field"
+
+[[input]]
+name = "min_mapq"
+label = "Minimum MAPQ"
+placeholder = "0"
+source = "field"
+kind = "slider"
+step = "1"
+
+[[input]]
+name = "missing"
+label = "Missing-value placeholder"
+placeholder = "."
+source = "field"
+
+[[example]]
+label = "Default CSV"
+params = { input = "@HD\tVN:1.6\nr001\t99\tchr1\t7\t60\t8M2I4M1D3M\t=\t37\t39\tTTAGATAAAGGATACTG\t*\tNM:i:1\tAS:i:30" }
+
+[[example]]
+label = "Compact TSV"
+params = { input = "r001\t99\tchr1\t7\t60\t8M2I4M1D3M\t=\t37\t39\tTTAGATAAAGGATACTG\t*\tNM:i:1\tAS:i:30", delimiter = "tab", flags = "none", tags = "none", include_seq = "false" }
+
+[[example]]
+label = "Computed spans"
+params = { input = "r001\t99\tchr1\t7\t60\t8M2I4M1D3M\t=\t37\t39\tTTAGATAAAGGATACTG\t*\tNM:i:1", computed = "true" }
+
+[[example]]
+label = "Filter mapped primary MAPQ 30+"
+params = { input = "r1\t0\tchr1\t10\t60\t4M\t*\t0\t0\tACGT\t*\nr2\t4\t*\t0\t0\t*\t*\t0\t0\tACGT\t*", mapped_only = "true", primary_only = "true", min_mapq = "30" }

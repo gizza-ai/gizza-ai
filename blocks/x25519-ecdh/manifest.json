@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/x25519-ecdh",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "X25519 ECDH shared secret and HKDF key derivation",
+  "role": "skill",
+  "tool": {
+    "description": "Perform an X25519 (Curve25519) Elliptic-Curve Diffie-Hellman key agreement: give a private key and the peer's public key and get the 32-byte shared secret, plus the public key derived from that private key so you can check you handed the peer the right half. Keys are accepted as hex (0x optional), standard or URL-safe base64, or RFC 8410 PKCS#8 / SubjectPublicKeyInfo PEM, and can be emitted as PEM with include_pem. Because the raw agreement output is not a uniformly random key, kdf expands it with HKDF-SHA256/HKDF-SHA512 (RFC 5869, with kdf_salt, kdf_info and kdf_length) or hashes it with SHA-256; kdf = none reports the raw RFC 7748 value and says so. Leave private_key empty to generate a fresh key pair, or peer_public_key empty to generate a demo peer and see both sides of one exchange. A low-order peer public key, which forces an all-zero predictable secret, is rejected with an explanation. To encrypt with the derived key, pass it to a symmetric cipher tool. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "encoding": {
+          "default": "hex",
+          "description": "Encoding for every key and secret in the output: hex = lowercase hex, base64 = standard padded base64, base64url = URL-safe base64 without padding. Default hex.",
+          "enum": [
+            "hex",
+            "base64",
+            "base64url"
+          ],
+          "type": "string"
+        },
+        "include_pem": {
+          "default": false,
+          "description": "Also print RFC 8410 PEM blocks: a PKCS#8 private key and SubjectPublicKeyInfo public keys, the forms OpenSSL and most libraries import. Default off.",
+          "type": "boolean"
+        },
+        "kdf": {
+          "default": "hkdf-sha256",
+          "description": "How to turn the raw 32-byte agreement output into a usable key: hkdf-sha256/hkdf-sha512 = RFC 5869 extract-and-expand with kdf_salt and kdf_info (recommended), sha256 = a single SHA-256 of the raw secret, none = report the raw RFC 7748 output unchanged. Default hkdf-sha256.",
+          "enum": [
+            "none",
+            "hkdf-sha256",
+            "hkdf-sha512",
+            "sha256"
+          ],
+          "type": "string"
+        },
+        "kdf_info": {
+          "description": "HKDF info / context label, read as UTF-8 bytes. Bind the key to its purpose (e.g. 'app v1 chat key') so the same agreement yields different keys for different uses; both sides must use the identical value. Ignored by kdf = none and kdf = sha256.",
+          "type": "string"
+        },
+        "kdf_length": {
+          "default": 32,
+          "description": "Length of the derived key in bytes, 1-8160 (the HKDF 255 x hash-length ceiling). 32 suits AES-256 or ChaCha20; 44 covers a key plus a 12-byte nonce. HKDF only. Default 32.",
+          "maximum": 8160,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "kdf_salt": {
+          "description": "HKDF salt, read as UTF-8 bytes. Optional and public — a random per-session value strengthens the extract step. Empty means the RFC 5869 all-zero salt. Ignored by kdf = none and kdf = sha256.",
+          "type": "string"
+        },
+        "peer_public_key": {
+          "default": "",
+          "description": "The other party's X25519 public key, in the same encodings as private_key (hex, base64, base64url, or an RFC 8410 SubjectPublicKeyInfo `-----BEGIN PUBLIC KEY-----` PEM block). Leave empty to generate a demo peer key pair and see both sides of one exchange.",
+          "type": "string"
+        },
+        "private_key": {
+          "default": "",
+          "description": "Your X25519 private key: 64 hex characters (with or without a 0x prefix), 32 raw bytes as standard or URL-safe base64, or an RFC 8410 PKCS#8 `-----BEGIN PRIVATE KEY-----` PEM block. Leave empty to generate a fresh key pair from the system CSPRNG.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

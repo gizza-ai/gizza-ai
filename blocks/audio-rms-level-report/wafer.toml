@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-rms-level-report"
+version = "0.1.0"
+abi = 1
+summary = "Report per-channel RMS, peak and average audio levels in dBFS."

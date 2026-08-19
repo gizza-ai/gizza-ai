@@ -1,0 +1,131 @@
+slug          = "json-array-pluck-field"
+title         = "JSON Array Pluck Field — Extract One Key from Every Object"
+description   = "Paste a JSON array, wrapper object, or NDJSON and extract one key or dotted path from every row as lines, CSV, TSV, JSON, or a custom-delimited list."
+tags          = ["json pluck", "json array extract field", "json path", "json to list", "extract json values", "ndjson", "csv from json"]
+h1            = "JSON Array Pluck Field"
+hero_subtitle = "Turn an array of objects into a single flat list: names, emails, IDs, totals, nested values, wildcard matches, or recursive JSONPath-style fields."
+wasm          = "gizza_ai_json_array_pluck_field_web"
+export        = "run"
+live          = false
+output_label  = "Plucked values"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON array, wrapper object, or NDJSON"
+placeholder = "[{\"user\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\"},{\"user\":{\"name\":\"Grace\"},\"email\":\"grace@example.test\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "field"
+label       = "Field or dotted path to pluck"
+placeholder = "user.name"
+source      = "field"
+
+[[input]]
+name        = "root"
+label       = "Root array path (optional)"
+placeholder = "data.items"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+lines  = "Lines — one value per line"
+csv    = "CSV — comma-separated"
+tsv    = "TSV — tab-separated"
+json   = "JSON — array preserving numbers and booleans"
+custom = "Custom delimiter"
+
+[[input]]
+name        = "delimiter"
+label       = "Custom delimiter"
+placeholder = " | "
+source      = "field"
+
+[[input]]
+name   = "quote"
+label  = "Quote every text value"
+source = "field"
+
+[[input]]
+name   = "missing"
+label  = "Missing or null fields"
+source = "field"
+
+[input.labels]
+skip  = "Skip missing rows"
+empty = "Emit empty values"
+null  = "Emit null"
+error = "Stop with an error"
+
+[[input]]
+name   = "complex_values"
+label  = "Object or array values"
+source = "field"
+
+[input.labels]
+json  = "Compact JSON"
+label = "Use {object} / [array] labels"
+skip  = "Skip complex values"
+
+[[input]]
+name   = "unique"
+label  = "Drop duplicate values"
+source = "field"
+
+[[example]]
+label = "Names from nested objects"
+[example.params]
+json = "[{\"user\":{\"name\":\"Ada\"},\"email\":\"ada@example.test\"},{\"user\":{\"name\":\"Grace\"},\"email\":\"grace@example.test\"}]"
+field = "user.name"
+root = ""
+format = "lines"
+delimiter = ", "
+quote = "false"
+missing = "skip"
+complex_values = "json"
+unique = "false"
+
+[[example]]
+label = "CSV email list"
+[example.params]
+json = "[{\"email\":\"ada@example.test\"},{\"email\":\"grace@example.test\"}]"
+field = "email"
+root = ""
+format = "csv"
+delimiter = ", "
+quote = "false"
+missing = "skip"
+complex_values = "json"
+unique = "false"
+
+[[example]]
+label = "Wrapped API response"
+[example.params]
+json = "{\"page\":1,\"items\":[{\"id\":101},{\"id\":102},{\"id\":101}]}"
+field = "id"
+root = "items"
+format = "json"
+delimiter = ", "
+quote = "false"
+missing = "skip"
+complex_values = "json"
+unique = "true"
+
+[[example]]
+label = "Wildcard order totals"
+[example.params]
+json = "[{\"orders\":[{\"total\":10},{\"total\":5}]},{\"orders\":[{\"total\":7}]}]"
+field = "orders.*.total"
+root = ""
+format = "custom"
+delimiter = " | "
+quote = "false"
+missing = "skip"
+complex_values = "json"
+unique = "false"

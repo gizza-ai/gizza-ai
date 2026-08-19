@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/recovery-code-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate one-time account-recovery backup codes",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a sheet of one-time account-recovery (2FA backup) codes locally with a cryptographic RNG. Each code is `blocks` groups of `chars_per_block` characters joined by `separator`, drawn uniformly (no modulo bias) from a `charset` alphabet — 'lowercase' (default), 'alphanumeric', 'uppercase', 'numeric', 'unambiguous' (look-alikes removed) or 'hex'. `count` sets how many. Render as a numbered sheet, a plain list, csv or json, with the entropy per code and for the whole set. `hash` optionally emits the SHA-256 (or salted SHA-256) digest a service should store instead of the code. Set `seed_hex` to derive the sheet deterministically from a seed instead of the RNG. For BIP39 recovery PHRASES use the bip39-mnemonic-generator tool instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blocks": {
+          "default": 2,
+          "description": "How many character groups make up each code (1-6). Default 2, e.g. \"a1b2c-3d4e5\". Use 1 for an ungrouped code with no separator.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "chars_per_block": {
+          "default": 5,
+          "description": "Characters in each group (2-16). Default 5. Code length is blocks x chars_per_block, so 2-96 characters; 10 characters over the default alphabet is about 52 bits.",
+          "maximum": 16,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "charset": {
+          "default": "lowercase",
+          "description": "Alphabet the characters are drawn from: 'lowercase' (default, a-z0-9), 'alphanumeric' (A-Za-z0-9), 'uppercase' (A-Z0-9), 'numeric' (0-9), 'unambiguous' (A-Z0-9 with the look-alikes 0/O, 1/I/L and U removed, best for printing and reading aloud), or 'hex' (0-9a-f). No punctuation in any of them — recovery codes get typed by hand.",
+          "enum": [
+            "lowercase",
+            "alphanumeric",
+            "uppercase",
+            "numeric",
+            "unambiguous",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "count": {
+          "default": 10,
+          "description": "How many recovery codes to generate (1-50). Default 10, the number most services issue per sheet.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "hash": {
+          "default": "none",
+          "description": "Digest to publish next to each code, for the SERVICE side that must store codes hashed rather than in the clear: 'none' (default), 'sha256' (hex digest of the code exactly as displayed) or 'sha256-salted' (a fresh random 16-byte salt per code, printed as salt_hex:digest_hex).",
+          "enum": [
+            "none",
+            "sha256",
+            "sha256-salted"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "numbered",
+          "description": "How the sheet is rendered: 'numbered' (default, a 1..N printable list), 'plain' (one code per line, no numbering), 'csv' (index,code[,hash] with a header row) or 'json' (codes plus code_length, alphabet_size and entropy figures). 'numbered' and 'plain' also print a one-line entropy summary.",
+          "enum": [
+            "numbered",
+            "plain",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "seed_hex": {
+          "default": "",
+          "description": "Optional 8-128 hex digits (4-64 bytes). Blank (the default) draws from the platform's cryptographic RNG, so every run differs. When set, the whole sheet is derived deterministically from the seed so the same seed always reproduces the same codes — useful for tests and shareable links, but such a sheet is only as secret as the seed.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "-",
+          "description": "Text placed between the groups, at most 3 characters, e.g. \"-\" (default), \"_\" or \".\". Pass an empty string for no separator. A separator that is also a character of the chosen alphabet is rejected (it would make a printed code ambiguous), as are whitespace, commas and quotes (they would break the printed and csv output).",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

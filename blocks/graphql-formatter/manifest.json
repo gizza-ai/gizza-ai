@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/graphql-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Format, minify, and validate GraphQL queries and schemas",
+  "role": "skill",
+  "tool": {
+    "description": "Format, minify, and validate GraphQL queries, mutations, fragments, and SDL schemas locally. Choose 2/4/8-space or tab indentation, format or minify mode, optionally sort fields for stable diffs, and optionally remove # comments. Syntax errors include line and column information.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": "2",
+          "description": "Indentation unit for formatted output: 2, 4, or 8 spaces, or tab.",
+          "enum": [
+            "2",
+            "4",
+            "8",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "GraphQL query, mutation, subscription, fragment, or SDL schema text to validate and reformat.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "format",
+          "description": "Format for readable output, or minify to remove unnecessary whitespace and comments.",
+          "enum": [
+            "format",
+            "minify"
+          ],
+          "type": "string"
+        },
+        "remove_comments": {
+          "default": false,
+          "description": "Drop GraphQL # comments when formatting. Minify mode always removes comments.",
+          "type": "boolean"
+        },
+        "sort_fields": {
+          "default": false,
+          "description": "Sort selection fields and SDL object/input fields alphabetically for stable diffs.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

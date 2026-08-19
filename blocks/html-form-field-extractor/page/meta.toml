@@ -1,0 +1,90 @@
+slug          = "html-form-field-extractor"
+title         = "HTML Form Field Extractor — List Every Input, Type & Rule"
+description   = "Paste HTML and get every form field: name, id, type, label, required flag, default value, and validation rules, as JSON, Markdown, or CSV. Runs in your browser."
+tags          = ["html form fields", "extract form inputs", "form field list", "parse html form", "form audit", "required fields", "input attributes", "form to csv"]
+h1            = "Extract Every Field From an HTML Form"
+hero_subtitle = "Paste HTML and get a complete inventory of every form control — name, id, type, label, required flag, default value, placeholder, and validation rules — as JSON, Markdown, or CSV. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_html_form_field_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Form fields"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<form action=\"/register\" method=\"post\">\n  <label for=\"email\">Email</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n</form>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json     = "JSON — forms with nested fields"
+markdown = "Markdown — one table per form"
+csv      = "CSV — one row per field"
+
+[[input]]
+name        = "form_index"
+label       = "Form index (-1 = all forms)"
+placeholder = "-1"
+source      = "field"
+
+[[input]]
+name   = "include_buttons"
+label  = "Include buttons (submit / reset / image)"
+source = "field"
+
+[[input]]
+name   = "include_hidden"
+label  = "Include hidden inputs"
+source = "field"
+
+[[input]]
+name   = "include_labels"
+label  = "Resolve label text"
+source = "field"
+
+[[example]]
+label = "Signup form → JSON"
+[example.params]
+html = "<form id=\"signup\" action=\"/register\" method=\"post\">\n  <label for=\"email\">Email address</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required placeholder=\"you@example.com\" maxlength=\"64\">\n  <label>Age <input type=\"number\" name=\"age\" min=\"18\" max=\"120\"></label>\n  <input type=\"hidden\" name=\"csrf\" value=\"tok123\">\n  <button type=\"submit\">Sign up</button>\n</form>"
+format = "json"
+form_index = "-1"
+include_buttons = "false"
+include_hidden = "true"
+include_labels = "true"
+
+[[example]]
+label = "Same form → Markdown table"
+[example.params]
+html = "<form id=\"signup\" action=\"/register\" method=\"post\">\n  <label for=\"email\">Email address</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required placeholder=\"you@example.com\" maxlength=\"64\">\n  <label>Age <input type=\"number\" name=\"age\" min=\"18\" max=\"120\"></label>\n  <input type=\"hidden\" name=\"csrf\" value=\"tok123\">\n  <button type=\"submit\">Sign up</button>\n</form>"
+format = "markdown"
+form_index = "-1"
+include_buttons = "false"
+include_hidden = "true"
+include_labels = "true"
+
+[[example]]
+label = "Dropdown options → CSV"
+[example.params]
+html = "<form action=\"/prefs\">\n  <label for=\"country\">Country</label>\n  <select id=\"country\" name=\"country\">\n    <optgroup label=\"North America\">\n      <option value=\"us\" selected>United States</option>\n      <option value=\"ca\">Canada</option>\n    </optgroup>\n  </select>\n</form>"
+format = "csv"
+form_index = "-1"
+include_buttons = "false"
+include_hidden = "true"
+include_labels = "true"
+
+[[example]]
+label = "Audit hidden + button controls"
+[example.params]
+html = "<form action=\"/checkout\" method=\"post\">\n  <input type=\"hidden\" name=\"csrf\" value=\"a1b2c3\">\n  <input type=\"hidden\" name=\"cart_id\" value=\"9981\">\n  <input type=\"text\" name=\"coupon\" placeholder=\"Coupon code\">\n  <button type=\"submit\" name=\"action\" value=\"pay\">Pay now</button>\n</form>"
+format = "markdown"
+form_index = "-1"
+include_buttons = "true"
+include_hidden = "true"
+include_labels = "true"

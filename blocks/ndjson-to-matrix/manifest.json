@@ -1,0 +1,121 @@
+{
+  "name": "gizza-ai/ndjson-to-matrix",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert NDJSON records into an aligned 2D matrix, CSV, TSV or JSON table.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert NDJSON / JSON Lines records into one aligned, rectangular table. Every non-blank line is parsed on its own and flattened into dotted column paths (user.geo.lat), the column set is the UNION of the paths seen across all records, and missing cells take a chosen fill — so heterogeneous records still produce a dense matrix. format picks csv (RFC 4180, default), tsv, matrix (whitespace-aligned grid, numeric columns right-aligned) or json (array of row arrays with real JSON numbers). arrays='index' turns [1,2] into v.0/v.1 columns so fixed-length numeric vectors align, 'json' keeps an array as one cell, 'skip' drops it. separator sets the path joiner ('.' default, '_' for SQL-friendly headers) and max_depth caps flattening depth, writing anything deeper as compact JSON. columns selects and orders an explicit subset; otherwise column_order sorts first-seen, alphabetically, or by coverage. fill='0'/'NaN' plus headers=false yields a bare numeric grid for numpy/R; numeric_only drops every column that is not all-numeric; transpose swaps records and columns; row_index adds a 1-based row label; limit previews the first N records. Unparsable lines either stop the run with their line number and column or are skipped. Pure and deterministic — text in, text out, nothing leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "arrays": {
+          "default": "index",
+          "description": "How nested arrays become columns: 'index' (default) expands [1,2] into v.0 and v.1 so fixed-length vectors line up, 'json' keeps the whole array as compact JSON in one cell, 'skip' drops array columns entirely.",
+          "enum": [
+            "index",
+            "json",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "column_order": {
+          "default": "first-seen",
+          "description": "Column ordering when 'columns' is empty: 'first-seen' (default) keeps the order the records wrote the keys, 'alpha' sorts paths alphabetically for stable diffs, 'coverage' puts the most-populated columns first.",
+          "enum": [
+            "first-seen",
+            "alpha",
+            "coverage"
+          ],
+          "type": "string"
+        },
+        "columns": {
+          "description": "Comma-separated column paths to keep, in exactly that order, e.g. 'latency_ms, user.id'. Empty (default) keeps every discovered column and uses column_order. Naming a path that does not exist fails with the available list.",
+          "type": "string"
+        },
+        "data": {
+          "description": "NDJSON / JSON Lines text: one complete JSON value per non-blank line, e.g. {\"id\":1,\"latency_ms\":12}. Objects become rows keyed by their flattened paths, a bare JSON array line becomes positional columns 0,1,2…, and a bare scalar line lands in a single 'value' column. CRLF endings and a leading byte-order mark are handled. Up to 5000000 bytes and 50000 non-blank lines per run.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator for format='csv'. 'comma' is the default; 'semicolon' suits spreadsheets in comma-decimal locales. Ignored by the tsv, matrix and json formats.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "fill": {
+          "description": "Text written into cells whose record lacks that path, and into JSON null cells. Empty (default) leaves them blank; '0' or 'NaN' make the result loadable as a dense numeric matrix.",
+          "type": "string"
+        },
+        "format": {
+          "default": "csv",
+          "description": "Output shape: 'csv' (RFC 4180, default), 'tsv' (tab-separated), 'matrix' (whitespace-aligned grid with numeric columns right-aligned) or 'json' (an array of row arrays with numeric cells as JSON numbers).",
+          "enum": [
+            "csv",
+            "tsv",
+            "matrix",
+            "json"
+          ],
+          "type": "string"
+        },
+        "headers": {
+          "default": true,
+          "description": "Emit the header row of column paths. Turn it off for a bare numeric grid that numpy.loadtxt or a matrix import can read directly.",
+          "type": "boolean"
+        },
+        "invalid": {
+          "default": "error",
+          "description": "Unparsable lines: 'error' (default) stops and reports the line number and column, 'skip' drops them and converts the rest.",
+          "enum": [
+            "error",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Keep only the first N records, which is handy for previewing a huge stream. 0 (default) converts every record.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_depth": {
+          "default": 0,
+          "description": "Flatten only this many levels of nesting; anything deeper is written as compact JSON in one cell. 0 (default) flattens all the way down. Use 1-2 to stop a deep payload from exploding into hundreds of columns.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "numeric_only": {
+          "default": false,
+          "description": "Keep only columns whose present values are all finite numbers (numeric-looking strings count), dropping ids, labels and free text — the one-click way to get a clean numeric matrix out of a mixed log stream.",
+          "type": "boolean"
+        },
+        "row_index": {
+          "default": false,
+          "description": "Prepend a 1-based 'row' column so each record has a label even when the data carries no id field.",
+          "type": "boolean"
+        },
+        "separator": {
+          "default": ".",
+          "description": "Joiner used to build nested column paths: '.' (default) gives user.geo.lat, '_' gives user_geo_lat for SQL-friendly headers, '/' also works.",
+          "type": "string"
+        },
+        "transpose": {
+          "default": false,
+          "description": "Swap axes: emit one row per column and one column per record. With headers on, the first cell of each row is the column path and the header row numbers the records.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

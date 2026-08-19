@@ -1,0 +1,149 @@
+slug          = "spectral-eq-match"
+title         = "Spectral EQ Match — Match a Reference Curve and Get the Filter Chain"
+description   = "Paste your track's band levels plus a reference or target curve to derive corrective EQ gains, a ready-to-paste ffmpeg filter chain and the loudness offset in dB."
+tags          = ["eq match", "spectral eq match", "reference eq curve", "match eq to reference track", "corrective eq calculator", "ffmpeg equalizer chain", "firequalizer", "loudness offset", "tonal balance", "rta band levels"]
+h1            = "Spectral EQ Match"
+hero_subtitle = "Paste your track's per-band levels and a reference (or pick a built-in target curve). Get the corrective per-band gains, a ready-to-paste ffmpeg equalizer/firequalizer chain, and the loudness offset in dB."
+wasm          = "gizza_ai_spectral_eq_match_web"
+export        = "run"
+live          = false
+output_label  = "Corrective EQ"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "track"
+label       = "Your track — band levels (Hz, dB)"
+placeholder = "63 -12\n250 -8\n1k -6\n4k -10\n12k -18"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "reference"
+label       = "Reference — band levels (Hz, dB)"
+placeholder = "63 -10\n250 -8\n1k -6\n4k -8\n12k -14"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "target_curve"
+label  = "Match against"
+source = "field"
+
+[input.labels]
+reference = "Pasted reference levels"
+flat      = "Flat (0 dB every band)"
+pink      = "Pink (-3 dB/octave)"
+bright    = "Bright (-2 dB/octave)"
+warm      = "Warm (-4 dB/octave)"
+speech    = "Speech (presence lift, low rolloff)"
+
+[[input]]
+name        = "amount"
+label       = "Amount (%)"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "5"
+
+[[input]]
+name        = "max_gain_db"
+label       = "Maximum boost/cut (dB)"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "24"
+step        = "0.5"
+
+[[input]]
+name        = "smoothing"
+label       = "Smoothing (neighbouring bands)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "4"
+step        = "1"
+
+[[input]]
+name        = "q"
+label       = "Band Q"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0.1"
+max         = "10"
+step        = "0.1"
+
+[[input]]
+name   = "tone_only"
+label  = "Tone only (remove the broadband level difference)"
+source = "field"
+
+[[input]]
+name        = "track_lufs"
+label       = "Your track loudness (LUFS, 0 = skip)"
+placeholder = "-9.5"
+source      = "field"
+kind        = "slider"
+min         = "-70"
+max         = "0"
+step        = "0.1"
+
+[[input]]
+name        = "target_lufs"
+label       = "Target loudness (LUFS, 0 = skip)"
+placeholder = "-14"
+source      = "field"
+kind        = "slider"
+min         = "-70"
+max         = "0"
+step        = "0.1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report       = "Report (table + command)"
+ffmpeg       = "ffmpeg equalizer command"
+firequalizer = "ffmpeg firequalizer command"
+csv          = "CSV"
+
+[[example]]
+label = "Match a reference (report)"
+[example.params]
+track = "63 -12\n250 -8\n1k -6\n4k -10\n12k -18"
+reference = "63 -10\n250 -8\n1k -6\n4k -8\n12k -14"
+target_curve = "reference"
+amount = "100"
+smoothing = "1"
+track_lufs = "-9.5"
+target_lufs = "-14"
+output = "report"
+
+[[example]]
+label = "Half-strength filter chain"
+[example.params]
+track = "63 -12\n250 -8\n1k -6\n4k -10\n12k -18"
+reference = "63 -10\n250 -8\n1k -6\n4k -8\n12k -14"
+target_curve = "reference"
+amount = "50"
+smoothing = "0"
+q = "1.4"
+output = "ffmpeg"
+
+[[example]]
+label = "Pink-noise target, no reference"
+[example.params]
+track = "63 -12\n250 -8\n1k -6\n4k -10\n12k -18"
+reference = ""
+target_curve = "pink"
+amount = "100"
+max_gain_db = "6"
+smoothing = "2"
+output = "report"

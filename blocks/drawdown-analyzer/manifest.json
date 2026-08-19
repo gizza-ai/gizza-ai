@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/drawdown-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Max drawdown, every drawdown episode, recovery time and ulcer index from an equity or returns series",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze the drawdowns of an equity curve or a periodic-returns series: maximum drawdown, the gain needed to erase it, the current drawdown, every drawdown episode ranked by depth with its peak, trough, decline length, recovery length and total underwater stretch, plus average drawdown, longest underwater stretch, share of time underwater, ulcer index, pain index and the underwater curve. Drawdown is measured against the series' own running peak; an episode ends only when the series closes back at or above that peak, and one still underwater at the last observation is reported as ongoing. Paste equity/balance levels or returns (decimals or percents), optionally as date,value rows or with a start_date plus a frequency to date the peaks and troughs. Set recovery_cagr to estimate the years needed to recover at an assumed annual growth rate. Runs locally. Educational only, not financial advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "frequency": {
+          "default": "period",
+          "description": "How far apart the observations are. Sets the duration unit in the report and, with start_date, places observations on the calendar: period (unitless, the default), daily (every calendar day), trading (weekdays only, no holiday calendar), weekly, monthly, quarterly, annual.",
+          "enum": [
+            "period",
+            "daily",
+            "trading",
+            "weekly",
+            "monthly",
+            "quarterly",
+            "annual"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": false,
+          "description": "Skip the first line before parsing when the pasted series starts with a column label such as balance or date,value. Default false.",
+          "type": "boolean"
+        },
+        "recovery_cagr": {
+          "default": 0.0,
+          "description": "Assumed annual growth rate as a percent (e.g. 8 means 8% a year) used to estimate how many years it would take to earn back the deepest drawdown. 0 turns the estimate off. Default 0.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "number"
+        },
+        "series": {
+          "description": "The series to analyze, one observation per line or separated by commas/spaces: equity/balance levels (10000, 10420, 9880) or periodic returns when series_type is returns. Returns may be decimals (0.012) or percents (1.2%). Rows may instead be date,value pairs (2020-01-31,10000) with YYYY-MM-DD dates in oldest-first order, which date the peaks, troughs and recoveries. Needs 2 to 20000 observations.",
+          "type": "string"
+        },
+        "series_type": {
+          "default": "equity",
+          "description": "How to read the values: equity for account balances or price/index levels (must be greater than 0), returns for periodic returns that are compounded into a curve first. Default equity.",
+          "enum": [
+            "equity",
+            "returns"
+          ],
+          "type": "string"
+        },
+        "start_date": {
+          "default": "",
+          "description": "Calendar date of the FIRST observation as YYYY-MM-DD (e.g. 2020-01-31), used with frequency to date every later observation. Leave empty for positions only. Ignored when the pasted rows already carry a date column, and rejected when frequency is period.",
+          "type": "string"
+        },
+        "top_n": {
+          "default": 5,
+          "description": "How many of the deepest drawdown episodes to list, deepest first, from 1 to 20. The total episode count is reported in full regardless. Default 5.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "series"
+      ],
+      "type": "object"
+    }
+  }
+}

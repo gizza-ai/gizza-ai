@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gpx-simplify"
+version = "0.1.0"
+abi = 1
+summary = "Simplify GPX track points with Douglas-Peucker while preserving route shape."

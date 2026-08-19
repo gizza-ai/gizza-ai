@@ -1,0 +1,84 @@
+{
+  "name": "gizza-ai/jsonl-stats",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize JSON Lines key coverage, types, and value distributions.",
+  "role": "skill",
+  "tool": {
+    "description": "Profile JSON Lines / NDJSON text. Counts records, reports per-key presence frequency and coverage, value-type distribution, optional distinct scalar counts, sample values, numeric min/max/mean, string length ranges, nested dotted paths, and invalid-line handling. Outputs text, JSON, Markdown, or CSV.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "depth": {
+          "default": 1,
+          "description": "Nested key depth to profile. 1 reports top-level keys; larger values add dotted object paths and [] array-element paths such as user.id or items[].sku.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "distinct": {
+          "default": true,
+          "description": "Include an approximate distinct scalar value count per key, capped and shown as N+ after the internal tracking limit.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: aligned text report, structured JSON, Markdown table, or CSV.",
+          "enum": [
+            "text",
+            "json",
+            "markdown",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "JSON Lines / NDJSON text: one complete JSON value per non-blank line. Object records are profiled by key; invalid lines can be reported, skipped, or treated as errors.",
+          "type": "string"
+        },
+        "invalid": {
+          "default": "report",
+          "description": "Invalid-line handling: report counts and examples, skip invalid lines silently except for the count, or stop at the first parse error.",
+          "enum": [
+            "report",
+            "skip",
+            "error"
+          ],
+          "type": "string"
+        },
+        "max_keys": {
+          "default": 0,
+          "description": "Maximum keys to include in the report. 0 reports every profiled key after sorting.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "samples": {
+          "default": 2,
+          "description": "Number of first distinct scalar sample values to show per key, from 0 to 5.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sort": {
+          "default": "frequency",
+          "description": "Sort reported keys by record coverage frequency, alphabetic key name, or first-seen order in the file.",
+          "enum": [
+            "frequency",
+            "name",
+            "first-seen"
+          ],
+          "type": "string"
+        },
+        "value_stats": {
+          "default": true,
+          "description": "Include numeric min/max/mean and string length min/max summaries where applicable.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-null-standardizer"
+version = "0.1.0"
+abi = 1
+summary = "Rewrite assorted CSV missing-value tokens (NA, N/A, null, -, NaN, blanks) into one chosen representation."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "persian-tokenizer"
+version = "0.1.0"
+abi = 1
+summary = "Split Persian text into sentences and words with correct ZWNJ and punctuation handling."

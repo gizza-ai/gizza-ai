@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/video-to-dnxhd",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Transcode video to Avid DNxHR MOV or MXF for editing.",
+  "role": "skill",
+  "tool": {
+    "description": "Transcode a video into an Avid DNxHR editing intermediate in MOV or MXF. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). profile is dnxhr_lb|dnxhr_sq|dnxhr_hq|dnxhr_hqx|dnxhr_444 (default dnxhr_sq); container is mov|mxf (default mov); resolution optionally downscales without upscaling; pixel_format normally stays auto because DNxHR profiles dictate their pixel formats; audio is pcm16|pcm24|copy|none (default pcm16). Output is a large NLE-friendly intermediate, not a small web-delivery encode.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio": {
+          "default": "pcm16",
+          "description": "Audio handling. pcm16 (default) writes uncompressed 16-bit PCM, pcm24 writes 24-bit PCM, copy stream-copies source audio when the wrapper accepts it, and none drops audio.",
+          "enum": [
+            "pcm16",
+            "pcm24",
+            "copy",
+            "none"
+          ],
+          "type": "string"
+        },
+        "container": {
+          "default": "mov",
+          "description": "Wrapper for the DNxHR essence. mov (default) creates a QuickTime file that opens broadly; mxf creates an OP1a MXF interchange file for broadcast/Avid-style workflows.",
+          "enum": [
+            "mov",
+            "mxf"
+          ],
+          "type": "string"
+        },
+        "pixel_format": {
+          "default": "auto",
+          "description": "Pixel format override. auto (default) chooses the only format allowed by the selected DNxHR profile; explicit values are accepted only when they match that profile.",
+          "enum": [
+            "auto",
+            "yuv422p",
+            "yuv422p10le",
+            "yuv444p10le"
+          ],
+          "type": "string"
+        },
+        "profile": {
+          "default": "dnxhr_sq",
+          "description": "DNxHR quality tier. dnxhr_lb is smallest/offline, dnxhr_sq is the default standard-quality editorial intermediate, dnxhr_hq is higher-quality 8-bit 4:2:2, dnxhr_hqx is 10-bit 4:2:2 for grading, and dnxhr_444 is 10-bit 4:4:4 for VFX/keying.",
+          "enum": [
+            "dnxhr_lb",
+            "dnxhr_sq",
+            "dnxhr_hq",
+            "dnxhr_hqx",
+            "dnxhr_444"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "resolution": {
+          "default": "source",
+          "description": "Optional downscale cap. source (default) preserves dimensions; 2160p, 1080p, and 720p cap the output height without upscaling smaller sources.",
+          "enum": [
+            "source",
+            "2160p",
+            "1080p",
+            "720p"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

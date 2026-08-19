@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cagr-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compound annual growth rate and period-over-period growth for a value series"

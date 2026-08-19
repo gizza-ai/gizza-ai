@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/cloud-share-direct-link",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rewrite a Nextcloud, Dropbox, Google Drive or OneDrive share link into its direct-download URL",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a cloud share-page URL into the direct link to the file itself. Supports Google Drive (file, open?id and Docs/Sheets/Slides editor links), Dropbox (both the /scl/ and legacy /s/ share shapes), OneDrive (1drv.ms, onedrive.live.com, SharePoint) and Nextcloud/ownCloud public shares on any host, with the provider auto-detected from the URL. mode=download (default) forces a download; mode=inline gives a hotlink/embed URL. output renders the result as a bare url, markdown, html, or a curl/wget command. onedrive_style picks between the shares-API form and a download=1 flag; docs_export picks pdf/office/txt for Google editor links; file addresses one file inside a Nextcloud folder share; per_line (default true) converts a whole batch, one link per line. Pure string rewriting — it never contacts any cloud provider, and a folder link or an unrecognised host returns an explicit error rather than a link that 404s.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "docs_export": {
+          "default": "pdf",
+          "description": "Export format for Google Docs/Sheets/Slides EDITOR links (docs.google.com/document|spreadsheets|presentation/d/ID). 'pdf' (default); 'office' = docx/xlsx/pptx to match the document kind; 'txt' = txt for Docs and Slides, csv for Sheets. Ignored for ordinary Drive files and other providers.",
+          "enum": [
+            "pdf",
+            "office",
+            "txt"
+          ],
+          "type": "string"
+        },
+        "file": {
+          "default": "",
+          "description": "Optional: the name of ONE file inside a Nextcloud/ownCloud FOLDER share, e.g. 'report.pdf' or 'reports/Q3 report.pdf'. It is split into the path= and files= query pair Nextcloud expects. Leave empty for a single-file share. Ignored for the other providers.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "download",
+          "description": "What the rewritten link should do. 'download' (default) forces the file to download; 'inline' produces a hotlink/embed URL that serves the bytes in the page (Drive uc?export=view, Dropbox raw=1, Nextcloud /preview, OneDrive's shares content endpoint).",
+          "enum": [
+            "download",
+            "inline"
+          ],
+          "type": "string"
+        },
+        "onedrive_style": {
+          "default": "api",
+          "description": "Which OneDrive rewrite to use for mode=download. 'api' (default) base64url-encodes the share URL into https://api.onedrive.com/v1.0/shares/u!ENCODED/root/content, the form that works most consistently; 'download_param' just adds download=1 to the share URL, which is simpler but often ignored. Ignored for other providers and for mode=inline.",
+          "enum": [
+            "api",
+            "download_param"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "url",
+          "description": "How to render each result. 'url' (default) = the bare link; 'markdown' = [name](link); 'html' = an <a href> anchor; 'curl' / 'wget' = a ready-to-paste command line. When the share URL contains the file name it is used for the link text and the -o/-O output file; otherwise the command falls back to the server-provided name (curl -OJ, wget --content-disposition).",
+          "enum": [
+            "url",
+            "markdown",
+            "html",
+            "curl",
+            "wget"
+          ],
+          "type": "string"
+        },
+        "per_line": {
+          "default": true,
+          "description": "When true (the default), convert each line of the input independently and rejoin with newlines, preserving blank lines — paste a whole column of share links. Set false to treat the entire input as one URL.",
+          "type": "boolean"
+        },
+        "provider": {
+          "default": "auto",
+          "description": "Which cloud the link belongs to. 'auto' (default) detects it from the URL's host and path; the explicit values force a provider and error if the URL clearly belongs to a different one. Force 'nextcloud' for a self-hosted server whose URL shape is unusual.",
+          "enum": [
+            "auto",
+            "google_drive",
+            "dropbox",
+            "onedrive",
+            "nextcloud"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "The share-page URL to rewrite. Google Drive (https://drive.google.com/file/d/FILE_ID/view, open?id=FILE_ID, or a docs.google.com editor link), Dropbox (https://www.dropbox.com/scl/fi/ID/name.ext?rlkey=... or the older /s/ID/name.ext), OneDrive (https://1drv.ms/u/s!TOKEN, onedrive.live.com, *.sharepoint.com), or a Nextcloud/ownCloud public share on any host (https://cloud.example.com/s/TOKEN or /index.php/s/TOKEN). With per_line=true (the default) pass a batch, one URL per line.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    }
+  }
+}

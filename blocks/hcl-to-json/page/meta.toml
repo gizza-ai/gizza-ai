@@ -1,0 +1,76 @@
+slug          = "hcl-to-json"
+title         = "HCL to JSON — Convert Terraform-Style Config Locally"
+description   = "Convert HashiCorp HCL2 / Terraform configuration to JSON. Handles blocks, labels, repeated blocks, expressions, sorting, compact or pretty output."
+tags          = ["hcl to json", "terraform json", "hcl2", "tfvars json", "terraform config", "packer nomad vault consul", "configuration converter"]
+h1            = "HCL to JSON"
+hero_subtitle = "Paste Terraform-style HCL and get the equivalent JSON shape: attributes become properties, block labels become nested objects, repeated blocks become arrays, and expressions JSON cannot represent are preserved as ${...} strings. Runs locally in your browser."
+wasm          = "gizza_ai_hcl_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "json"
+
+[[input]]
+name        = "hcl"
+label       = "HCL input"
+placeholder = "resource \"aws_instance\" \"web\" {\n  ami           = \"ami-0123456789\"\n  instance_type = \"t3.micro\"\n  tags = { Name = \"web\", Env = \"prod\" }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "blocks"
+label  = "Block shape"
+source = "field"
+
+[input.labels]
+nested = "Nested objects; repeated headers become arrays"
+arrays = "Always wrap block bodies in arrays"
+template = "Preserve expressions as ${...} strings"
+simplify = "Fold constant expressions first"
+"2" = "2 spaces"
+"4" = "4 spaces"
+tab = "Tab"
+
+[[input]]
+name   = "expressions"
+label  = "Expression handling"
+source = "field"
+
+[[input]]
+name   = "indent"
+label  = "Indent"
+source = "field"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty print"
+source = "field"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys"
+source = "field"
+
+[[example]]
+label = "Terraform resource"
+[example.params]
+hcl = "resource \"aws_instance\" \"web\" {\n  ami = \"ami-0123456789\"\n  instance_type = \"t3.micro\"\n  monitoring = true\n  tags = { Name = \"web\", Env = \"prod\" }\n}"
+
+[[example]]
+label = "Repeated provisioners as arrays"
+[example.params]
+hcl = "provisioner \"local-exec\" {\n  command = \"echo one\"\n}\nprovisioner \"local-exec\" {\n  command = \"echo two\"\n}"
+blocks = "arrays"
+
+[[example]]
+label = "Simplify constants"
+[example.params]
+hcl = "locals {\n  replicas = 1 + 2\n  keep = var.region\n}"
+expressions = "simplify"
+
+[[example]]
+label = "Compact sorted JSON"
+[example.params]
+hcl = "zeta = 1\nalpha = 2"
+sort_keys = "true"
+pretty = "false"

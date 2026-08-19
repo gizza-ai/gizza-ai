@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "recipe-extract"
+version = "0.1.0"
+abi = 1
+summary = "Fetch a recipe page and extract the clean recipe"

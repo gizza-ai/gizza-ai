@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/base64-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check whether a string is valid Base64 and explain what is wrong.",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a Base64 or Base64url string and explain precisely why it is invalid, instead of only returning pass/fail. Reports every character outside the alphabet with its 1-based position and line/column, padding that is misplaced, too long, or the wrong count for the length, a length that cannot be Base64, lines over a length limit, and whether the string mixes the standard ('+', '/') and URL-safe ('-', '_') alphabets. For a valid string it reports the detected alphabet, the exact decoded byte count, whether the payload is text or a sniffed binary type (PNG, PDF, ZIP, …), and warns when unused trailing bits make it non-canonical (RFC 4648 §3.5). When the problems are mechanically fixable it suggests a corrected string. An invalid string is a normal result, not an error. Use variant to require a specific alphabet, padding to require or forbid trailing '=', ignore_whitespace=false for a strict check, max_line_length=76 for MIME or 64 for PEM, and output='json' for a machine-readable report.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ignore_whitespace": {
+          "default": true,
+          "description": "Whether spaces, tabs, and line breaks inside the data are ignored (default true), as they are in MIME and PEM. When false, each whitespace character is reported as invalid with its position.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The Base64 or Base64url string to check. A wrapping pair of quotes and a leading 'data:<mime>;base64,' URI prefix are detected and skipped, so pasted JSON values and data URIs work.",
+          "type": "string"
+        },
+        "max_line_length": {
+          "default": 0,
+          "description": "Maximum characters per line, checked against the pasted text. 0 (default) skips the check; 76 is MIME, 64 is PEM.",
+          "maximum": 998,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Report format: a readable 'text' report (default) or a 'json' object with valid/alphabet/problems/warnings fields for scripting.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "padding": {
+          "default": "optional",
+          "description": "What to expect of the trailing '=' padding. 'optional' (default) accepts a padded or unpadded string but still rejects the wrong number of '='; 'required' is strict RFC 4648 (length must be a multiple of 4); 'forbidden' expects an unpadded string, as used for JWT segments.",
+          "enum": [
+            "optional",
+            "required",
+            "forbidden"
+          ],
+          "type": "string"
+        },
+        "variant": {
+          "default": "auto",
+          "description": "Which alphabet to enforce. 'auto' (default) accepts either and reports which one the string uses, flagging a string that mixes them. 'standard' requires RFC 4648 §4 ('+' and '/'); 'url-safe' requires §5 ('-' and '_').",
+          "enum": [
+            "auto",
+            "standard",
+            "url-safe"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

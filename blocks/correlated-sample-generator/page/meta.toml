@@ -1,0 +1,183 @@
+slug          = "correlated-sample-generator"
+title         = "Correlated Sample Generator — Multivariate Normal Data From a Covariance Matrix"
+description   = "Generate multivariate-normal sample data from a covariance or correlation matrix, with seeded CSV, TSV, JSON or stats output."
+tags          = ["multivariate normal", "correlated random data", "covariance matrix", "cholesky decomposition", "synthetic data", "correlated sample generator", "mvrnorm", "monte carlo", "statistics"]
+h1            = "Correlated sample generator"
+hero_subtitle = "Paste a covariance or correlation matrix, set the means, and draw multivariate-normal rows whose columns carry exactly the correlations you asked for. Seeded and reproducible, with a stats view that shows how close the sample landed."
+wasm          = "gizza_ai_correlated_sample_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated samples"
+format        = "text"
+
+[[input]]
+name        = "covariance"
+label       = "Matrix"
+placeholder = "1, 0.8; 0.8, 1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "matrix_kind"
+label  = "Read the matrix as"
+source = "field"
+[input.labels]
+covariance = "Covariance (variances on the diagonal)"
+correlation = "Correlation (1 on the diagonal)"
+
+[[input]]
+name        = "sd"
+label       = "Standard deviations (correlation mode)"
+placeholder = "2, 3"
+source      = "field"
+
+[[input]]
+name        = "mean"
+label       = "Means"
+placeholder = "10, -4"
+source      = "field"
+
+[[input]]
+name        = "samples"
+label       = "Number of draws"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name   = "method"
+label  = "Factorisation"
+source = "field"
+[input.labels]
+cholesky = "Cholesky: fast, needs positive definite"
+eigen = "Eigen: handles singular matrices"
+
+[[input]]
+name        = "seed"
+label       = "Random seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "empirical"
+label  = "Match the targets exactly (empirical)"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+[input.labels]
+csv = "CSV rows"
+tsv = "TSV rows"
+json = "JSON with achieved statistics"
+stats = "Stats only: target vs sample"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "labels"
+label       = "Column names"
+placeholder = "height, weight"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "Include a header row"
+source = "field"
+
+[[input]]
+name        = "tol"
+label       = "Numerical tolerance"
+placeholder = "0.00000001"
+source      = "field"
+
+[[example]]
+label = "Two variables, r = 0.8"
+[example.params]
+covariance = "1, 0.8; 0.8, 1"
+matrix_kind = "covariance"
+sd = ""
+mean = ""
+samples = "500"
+method = "cholesky"
+seed = "42"
+empirical = "false"
+output = "csv"
+decimals = "4"
+labels = ""
+header = "true"
+tol = "0.00000001"
+
+[[example]]
+label = "Height and weight, real units"
+[example.params]
+covariance = "1, 0.65; 0.65, 1"
+matrix_kind = "correlation"
+sd = "7, 12"
+mean = "170, 72"
+samples = "250"
+method = "cholesky"
+seed = "7"
+empirical = "false"
+output = "csv"
+decimals = "2"
+labels = "height_cm, weight_kg"
+header = "true"
+tol = "0.00000001"
+
+[[example]]
+label = "AR(1) panel: 5 waves, rho 0.7"
+[example.params]
+covariance = "ar1(5, 0.7)"
+matrix_kind = "covariance"
+sd = ""
+mean = ""
+samples = "400"
+method = "cholesky"
+seed = "3"
+empirical = "false"
+output = "stats"
+decimals = "3"
+labels = "t1, t2, t3, t4, t5"
+header = "true"
+tol = "0.00000001"
+
+[[example]]
+label = "Exact fixture data (empirical)"
+[example.params]
+covariance = "4, 2; 2, 3"
+matrix_kind = "covariance"
+sd = ""
+mean = "1, -1"
+samples = "200"
+method = "cholesky"
+seed = "9"
+empirical = "true"
+output = "json"
+decimals = "6"
+labels = "x, y"
+header = "true"
+tol = "0.00000001"
+
+[[example]]
+label = "Perfect correlation via eigen"
+[example.params]
+covariance = "1, 1; 1, 1"
+matrix_kind = "covariance"
+sd = ""
+mean = "0, 0"
+samples = "50"
+method = "eigen"
+seed = "1"
+empirical = "false"
+output = "csv"
+decimals = "4"
+labels = "a, b"
+header = "true"
+tol = "0.00000001"

@@ -1,0 +1,105 @@
+slug          = "tar-archive-lister"
+title         = "Tar Archive Lister — List .tar / .tar.gz Contents Without Extracting"
+description   = "Paste a tar or tar.gz archive as base64 or hex and list every member — path, size, permission mode, owner, group, type and mtime — without unpacking a single file."
+tags          = ["tar", "tar list", "tar tvf", "list tar contents", "tar viewer", "tar.gz", "tgz", "tarball", "archive contents", "tar table of contents", "tar members", "tar without extracting"]
+h1            = "Tar Archive Lister"
+hero_subtitle = "See everything inside a .tar or .tar.gz tarball — paths, byte sizes, permission modes, owners, groups, entry types, symlink targets and timestamps — read straight from the archive headers. Nothing is unpacked, nothing is uploaded, and it all runs in your browser."
+wasm          = "gizza_ai_tar_archive_lister_web"
+export        = "run"
+live          = false
+output_label  = "Archive members"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Archive bytes (base64 or hex)"
+placeholder = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+source      = "field"
+multiline   = true
+
+# input_format / output / sort / time_format render as <select> — the option
+# lists come from the descriptor schema (manifest.json), so they are not
+# duplicated here.
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Sort members by"
+source      = "field"
+
+[[input]]
+name        = "filter"
+label       = "Path filter (glob or substring)"
+placeholder = "*.txt"
+source      = "field"
+
+[[input]]
+name        = "include_dirs"
+label       = "Include directory members"
+source      = "field"
+
+[[input]]
+name        = "time_format"
+label       = "Timestamp format"
+source      = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max members to list"
+placeholder = "500"
+source      = "field"
+
+# Preset chips — one click prefills the fields with a runnable example.
+[[example]]
+label = "Sample .tar.gz (tar -tvf style)"
+[example.values]
+input        = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+input_format = "base64"
+output       = "table"
+
+[[example]]
+label = "Just the paths"
+[example.values]
+input        = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+input_format = "base64"
+output       = "paths"
+
+[[example]]
+label = "Files only, biggest first"
+[example.values]
+input        = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+input_format = "base64"
+output       = "table"
+sort         = "size"
+include_dirs = "false"
+
+[[example]]
+label = "Members as CSV"
+[example.values]
+input        = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+input_format = "base64"
+output       = "csv"
+
+[[example]]
+label = "Structured JSON metadata"
+[example.values]
+input        = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+input_format = "base64"
+output       = "json"
+
+[[example]]
+label = "Only *.txt members"
+[example.values]
+input        = "H4sIAAAAAAAAA+2VsQrCMBRFO/sVBfealybNLLSji39QmhaLqYG2op9vEhG1Q0Ux6ZCcJRAe5MJ994bXndxEdkEKRqk+gVH0ej6IgGRACAAm6h5ATUQxtazLcB7GsldSStFW9cycGmsaF4LcwrX/+2Kb74qk43be0AZnhMz4zyb+Y6zWJUZ25Lzjuf/rOFcbsFpaRmAhTP65rAaLn8AP/c/S0P9OePp/qIWQyXgd//7Gx/4HMvE/pQyF/neBcT2+yF7w8Al4iMm/aE9HK8m/Y/qfsS/6n2Kdf2y5lwye5z8QCPjLDVPttHEAEgAA"
+input_format = "base64"
+output       = "paths"
+filter       = "*.txt"

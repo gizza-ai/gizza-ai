@@ -1,0 +1,128 @@
+slug          = "file-list-sorter"
+title         = "File List Sorter — natural sort filenames, paths, extensions & sizes"
+description   = "Sort a pasted list of filenames or paths in natural order (img2 before img10), by extension, folder depth or size, with folders first — free and private in your browser."
+tags          = ["file list sorter", "natural sort filenames", "sort file paths", "sort by extension", "sort files by size", "folders first", "sort ls output", "alphanumeric file sort"]
+h1            = "File List Sorter"
+hero_subtitle = "Paste a list of file names or paths and put it in the order a file manager would use — natural numbering (img2 before img10), by extension, folder depth or size, with folders on top. Nothing leaves your browser."
+wasm          = "gizza_ai_file_list_sorter_web"
+export        = "run"
+live          = false
+output_label  = "Sorted list"
+format        = "text"
+
+[[input]]
+name        = "paths"
+label       = "File names or paths (one per line)"
+placeholder = "img10.png\nimg2.png\nsrc/main.rs\ndocs/report.docx\nREADME.md"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "sort_by"
+label  = "Sort by"
+source = "field"
+
+[input.labels]
+natural   = "Natural order — img2 before img10"
+alpha     = "Alphabetical — plain codepoint order"
+basename  = "File name only — ignore the folders above it"
+extension = "Extension — group by file type"
+depth     = "Folder depth — shallowest first"
+size      = "Size — reads a size column off each line"
+
+[[input]]
+name   = "order"
+label  = "Order"
+source = "field"
+
+[input.labels]
+asc  = "Ascending — A→Z, shallowest, smallest first"
+desc = "Descending — reversed"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case (file-manager style)"
+source = "field"
+
+[[input]]
+name   = "dirs_first"
+label  = "Folders first"
+source = "field"
+
+[[input]]
+name   = "group_by_dir"
+label  = "Keep each folder's contents together"
+source = "field"
+
+[[input]]
+name   = "unique"
+label  = "Remove duplicate paths"
+source = "field"
+
+[[input]]
+name   = "trim"
+label  = "Ignore surrounding whitespace"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output shape"
+source = "field"
+
+[input.labels]
+list     = "Sorted paths, one per line"
+numbered = "Numbered list"
+table    = "Table with type, extension, depth and size"
+json     = "JSON"
+
+[[example]]
+label = "Natural order, folders first"
+[example.params]
+paths = "img10.png\nimg2.png\nimg1.png\nsrc/main.rs\nsrc/lib.rs\nREADME.md"
+sort_by = "natural"
+order = "asc"
+ignore_case = "true"
+dirs_first = "true"
+group_by_dir = "false"
+unique = "false"
+trim = "true"
+format = "list"
+
+[[example]]
+label = "Group by file type"
+[example.params]
+paths = "notes.md\narchive.tar.gz\nsrc/main.rs\nsrc/lib.rs\nphoto.jpg\nREADME"
+sort_by = "extension"
+order = "asc"
+ignore_case = "true"
+dirs_first = "true"
+group_by_dir = "false"
+unique = "false"
+trim = "true"
+format = "table"
+
+[[example]]
+label = "Biggest files first (du output)"
+[example.params]
+paths = "4.0K\tsrc/app.js\n2.1M\tassets/hero.png\n512B\tREADME.md\n18M\tvideo/clip.mp4"
+sort_by = "size"
+order = "desc"
+ignore_case = "true"
+dirs_first = "false"
+group_by_dir = "false"
+unique = "false"
+trim = "true"
+format = "table"
+
+[[example]]
+label = "Shallowest paths first"
+[example.params]
+paths = "src/components/ui/button.tsx\npackage.json\nsrc/index.ts\nsrc/lib/util.ts"
+sort_by = "depth"
+order = "asc"
+ignore_case = "true"
+dirs_first = "true"
+group_by_dir = "false"
+unique = "false"
+trim = "true"
+format = "numbered"

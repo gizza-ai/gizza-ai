@@ -1,0 +1,67 @@
+slug          = "video-to-prores"
+title         = "Convert Video to ProRes 422 MOV Online"
+description   = "Transcode a video to an Apple ProRes 422 QuickTime MOV intermediate for editing. Pick Proxy, LT, 422, or HQ, downscale if needed, and keep uncompressed PCM audio."
+tags          = ["prores", "mov", "video", "transcode", "editing", "final-cut", "premiere", "resolve", "422", "quicktime", "pcm"]
+h1            = "Convert Video to ProRes 422 MOV"
+hero_subtitle = "Create edit-friendly ProRes 422 intermediates locally in your browser — named Proxy/LT/422/HQ tiers, optional downscale, and uncompressed PCM audio. Nothing is uploaded."
+wasm          = "gizza_ai_video_to_prores_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "ProRes MOV download"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "Video file"
+
+[[input]]
+name        = "profile"
+source      = "field"
+label       = "ProRes 422 tier"
+placeholder = "standard"
+
+[input.labels]
+"proxy"    = "Proxy — smallest, offline editing"
+"lt"       = "LT — lighter editorial intermediate"
+"standard" = "422 — default general editing tier"
+"hq"       = "422 HQ — largest, grading headroom"
+
+[[input]]
+name        = "resolution"
+source      = "field"
+label       = "Resolution cap"
+placeholder = "source"
+
+[input.labels]
+"source" = "Source size — no scaling (default)"
+"2160p"  = "2160p — cap to UHD height"
+"1440p"  = "1440p — cap to QHD height"
+"1080p"  = "1080p — cap to Full HD height"
+"720p"   = "720p — cap to HD height"
+"540p"   = "540p — compact review intermediate"
+"480p"   = "480p — smallest preview intermediate"
+
+[[input]]
+name        = "audio"
+source      = "field"
+label       = "Audio"
+placeholder = "pcm16"
+
+[input.labels]
+"pcm16" = "16-bit PCM — default editor-friendly audio"
+"pcm24" = "24-bit PCM — for 24-bit masters"
+"none"  = "No audio — picture-only MOV"
+
+[[example]]
+label  = "General editing (default)"
+params = { profile = "standard", resolution = "source", audio = "pcm16" }
+
+[[example]]
+label  = "Offline proxy"
+params = { profile = "proxy", resolution = "720p", audio = "pcm16" }
+
+[[example]]
+label  = "HQ grade, no audio"
+params = { profile = "hq", resolution = "source", audio = "none" }

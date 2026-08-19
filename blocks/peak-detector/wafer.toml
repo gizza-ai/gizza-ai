@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "peak-detector"
+version = "0.1.0"
+abi = 1
+summary = "Find local maxima and minima in a pasted 1-D signal, with prominence, height, distance and width filters."

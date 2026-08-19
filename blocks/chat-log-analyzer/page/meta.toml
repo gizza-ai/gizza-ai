@@ -1,0 +1,81 @@
+slug          = "chat-log-analyzer"
+title         = "Chat Log Analyzer — IRC Stats, Activity by Hour, Top Words"
+description   = "Paste an IRC or chat log and get stats in your browser: who talked most, activity by hour and weekday, top words, links shared, and joins/parts/quits."
+tags          = ["irc", "chat", "log", "analyzer", "statistics", "activity", "word frequency"]
+h1            = "Analyze a Chat or IRC Log"
+hero_subtitle = "Paste a chat or IRC log and see who talked most, the busiest hours and weekdays, the most-used words, the links shared, and channel events. Runs locally in your browser — no upload, no account."
+wasm          = "gizza_ai_chat_log_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Log report"
+format        = "text"
+
+[[input]]
+name        = "log"
+label       = "Chat or IRC log"
+placeholder = "2024-01-05 21:07:33 <alice> pizza tonight? https://example.com/menu\n2024-01-05 21:08:01 <@bob> pizza sounds great\n2024-01-05 21:09:00 -!- carol [~c@host] has joined #food\n2024-01-06 09:16:10 * alice waves"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Report format"
+source = "field"
+
+[input.labels]
+summary = "Readable report"
+json    = "JSON"
+
+[[input]]
+name        = "top"
+label       = "Entries per ranking"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name        = "min_word_length"
+label       = "Minimum word length"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name   = "ignore_stopwords"
+label  = "Ignore common filler words"
+source = "field"
+
+[[input]]
+name        = "exclude_nicks"
+label       = "Exclude these nicks (bots)"
+placeholder = "gizzabot, travis*"
+source      = "field"
+kind        = "tag-list"
+
+[[example]]
+label = "Dated IRC log (irssi style)"
+[example.params]
+log = "2024-01-05 21:07:33 <alice> pizza tonight? https://example.com/menu\n2024-01-05 21:08:01 <@bob> pizza sounds great\n2024-01-05 21:09:00 -!- carol [~c@host] has joined #food\n2024-01-06 09:15:00 <bob> morning\n2024-01-06 09:16:10 * alice waves"
+output = "summary"
+top = "10"
+min_word_length = "3"
+ignore_stopwords = "true"
+exclude_nicks = ""
+
+[[example]]
+label = "Plain transcript (nick: message)"
+[example.params]
+log = "alice: deploy is green\nbob: deploy looks good to me\nalice: shipping it now\ngizzabot: build 412 passed"
+output = "summary"
+top = "10"
+min_word_length = "3"
+ignore_stopwords = "true"
+exclude_nicks = "gizzabot"
+
+[[example]]
+label = "JSON, keep every word"
+[example.params]
+log = "[21:07] <alice> pizza tonight?\n[21:08] <bob> yes please\n[21:09] <alice> ordering now"
+output = "json"
+top = "0"
+min_word_length = "1"
+ignore_stopwords = "false"
+exclude_nicks = ""

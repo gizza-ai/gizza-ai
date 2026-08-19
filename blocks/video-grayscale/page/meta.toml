@@ -1,0 +1,93 @@
+slug          = "video-grayscale"
+title         = "Convert a Video to Black and White Online"
+description   = "Free black-and-white video converter — turn a clip grayscale, sepia or cyanotype with adjustable strength and contrast. Runs locally in your browser, nothing uploaded."
+tags          = ["video to black and white", "grayscale video", "black and white video converter", "desaturate video", "sepia video", "monochrome video", "b&w video filter", "ffmpeg", "video filter"]
+h1            = "Convert a Video to Black and White"
+hero_subtitle = "Pick a video and it comes back black-and-white — with optional sepia or blue toning, partial fades, and a contrast boost. Everything runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_video_grayscale_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Black-and-white video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "method"
+source = "field"
+label  = "Gray mix"
+
+[input.labels]
+bt709   = "Rec. 709 luma — HD standard (default)"
+bt601   = "Rec. 601 luma — older SD weighting"
+average = "Average — equal R/G/B, flat and high-key"
+red     = "Red channel — darkens blue skies"
+green   = "Green channel — lightens foliage, smooth skin"
+blue    = "Blue channel — gritty, high-grain look"
+
+[[input]]
+name        = "intensity"
+source      = "field"
+label       = "Strength (0-100%)"
+placeholder = "100"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "tint"
+source = "field"
+label  = "Tone"
+
+[input.labels]
+none      = "None — neutral black & white (default)"
+sepia     = "Sepia — warm brown"
+warm      = "Warm — soft amber"
+cool      = "Cool — blue-gray"
+cyanotype = "Cyanotype — strong blue"
+
+[[input]]
+name        = "contrast"
+source      = "field"
+label       = "Contrast (0.5-2.0)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name   = "quality"
+source = "field"
+label  = "Quality"
+
+[input.labels]
+fast     = "Fast — smallest file, quickest"
+balanced = "Balanced — default"
+best     = "Best — largest file, slowest"
+
+[[input]]
+name   = "keep_audio"
+source = "field"
+label  = "Keep the audio track"
+
+[[example]]
+label  = "Classic B&W"
+params = { method = "bt709", intensity = "100", tint = "none", contrast = "1", quality = "balanced", keep_audio = "true" }
+
+[[example]]
+label  = "High-contrast B&W"
+params = { method = "bt709", intensity = "100", tint = "none", contrast = "1.45", quality = "balanced", keep_audio = "true" }
+
+[[example]]
+label  = "Sepia"
+params = { method = "bt601", intensity = "100", tint = "sepia", contrast = "1.1", quality = "balanced", keep_audio = "true" }
+
+[[example]]
+label  = "Faded 50%"
+params = { method = "bt709", intensity = "50", tint = "none", contrast = "1", quality = "balanced", keep_audio = "true" }
+
+[[example]]
+label  = "Silent film"
+params = { method = "average", intensity = "100", tint = "warm", contrast = "1.3", quality = "balanced", keep_audio = "false" }

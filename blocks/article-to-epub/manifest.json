@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/article-to-epub",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Package article text or cleaned HTML into a valid EPUB ebook",
+  "role": "skill",
+  "tool": {
+    "description": "Package an article — plain text or cleaned HTML — into a valid EPUB 3 ebook and return it as a download. Sets the title, author, language and publisher metadata, splits chapters at headings, builds both an EPUB 3 nav document and an EPUB 2 NCX table of contents, and embeds a reading stylesheet. Messy HTML is re-emitted as well-formed XHTML with scripts, styles and forms removed; images are not packaged (their alt text is kept).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "description": "Author for dc:creator, e.g. 'Jane Doe'. Empty omits the element.",
+          "type": "string"
+        },
+        "base_font_size": {
+          "default": 0.0,
+          "description": "Base font size in points for the embedded stylesheet, e.g. 12. 0 (default) leaves the size to the reading app, which is what most e-readers expect.",
+          "maximum": 72,
+          "minimum": 0,
+          "type": "number"
+        },
+        "content": {
+          "description": "The article itself: plain text or cleaned HTML. Plain text uses blank lines for paragraphs and understands Markdown-style '# ' headings, '-' bullets and '1.' lists. HTML is re-emitted as well-formed XHTML; scripts, styles and forms are dropped.",
+          "type": "string"
+        },
+        "include_title_page": {
+          "default": true,
+          "description": "Write a title page with the title, author and publisher as the first page of the book (default true).",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read the content. 'auto' (default) detects HTML by looking for tags like <p> or <h1>; set 'html' or 'text' to force it (use 'text' to keep angle brackets in prose literal).",
+          "enum": [
+            "auto",
+            "html",
+            "text"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "default": "en",
+          "description": "Book language as a BCP-47 tag for dc:language, e.g. 'en', 'de' or 'pt-BR' (default 'en').",
+          "type": "string"
+        },
+        "publisher": {
+          "description": "Publisher or source name for dc:publisher, e.g. the site the article came from. Empty omits the element.",
+          "type": "string"
+        },
+        "split_level": {
+          "default": "h1",
+          "description": "Where a new chapter starts: 'h1' (default), 'h2', 'h1-h2' for both, or 'none' for one single chapter. Chapter titles become the table of contents.",
+          "enum": [
+            "none",
+            "h1",
+            "h2",
+            "h1-h2"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "description": "Book title (dc:title) and the download filename. Leave empty to derive it from the HTML <title>, the first heading, or the first line of text.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/markdown-runbook-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a Markdown runbook's named code blocks into one runnable script plus an ordered task list",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the named, executable code blocks of a Markdown runbook into a single runnable script plus an ordered task list. Each fenced block becomes a numbered step; its name comes from the fence info string (```bash \"Install deps\", name=/title=/id=, or a {.bash #id} attribute), else a bold label or the nearest heading above it, else step-N. language selects the family (auto/shell/python/powershell/javascript/any). output='script' (default) returns a runnable script whose header lists the tasks; 'tasks' returns a Markdown checklist; 'json' returns structured steps with source line numbers. strip_prompts turns pasted terminal sessions into commands (drops '$ ' prompts and output lines); tags filters blocks by info-string tag ('deploy,-slow'); skip_marked comments out blocks tagged skip/no-run/example; echo_steps adds progress lines; fail_fast adds 'set -euo pipefail'. Returns the chosen text. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "echo_steps": {
+          "default": true,
+          "description": "Emit a progress line before each step in script output (echo / print / Write-Host of '==> [i/n] name'), so a long run says where it is. Default true.",
+          "type": "boolean"
+        },
+        "fail_fast": {
+          "default": true,
+          "description": "Add an abort-on-error header to script output: 'set -euo pipefail' for shell, \"$ErrorActionPreference = 'Stop'\" for PowerShell. No-op for Python/JavaScript, which already abort on an unhandled error. Default true.",
+          "type": "boolean"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Which fenced blocks are steps, and which script to emit: 'auto' (default) picks the family with the most blocks; 'shell' matches bash/sh/zsh/console/shell-session; 'python' matches python/py/pycon; 'powershell' matches powershell/pwsh/ps1; 'javascript' matches js/node; 'any' takes every fence that has a language tag (untagged fences are never steps).",
+          "enum": [
+            "auto",
+            "shell",
+            "python",
+            "powershell",
+            "javascript",
+            "any"
+          ],
+          "type": "string"
+        },
+        "markdown": {
+          "description": "The Markdown runbook to extract from — paste the whole document. Steps are its fenced code blocks (```bash …```).",
+          "type": "string"
+        },
+        "output": {
+          "default": "script",
+          "description": "What to return: 'script' (default) — one runnable script whose header comment lists the ordered tasks; 'tasks' — a Markdown checklist of the steps with language, line count and source line; 'json' — {language, count, runnable, steps:[{index,name,language,line,tags,skipped,skip_reason,lines,code}]}.",
+          "enum": [
+            "script",
+            "tasks",
+            "json"
+          ],
+          "type": "string"
+        },
+        "skip_marked": {
+          "default": true,
+          "description": "Treat blocks tagged skip, no-run, norun, noexec, dont-run, ignore, example or output as documentation: they stay in the task list and appear commented out in the script instead of running. Set false to make them runnable. Default true.",
+          "type": "boolean"
+        },
+        "strip_prompts": {
+          "default": true,
+          "description": "Turn a pasted terminal session into runnable commands: strip leading prompts ('$ ', '% ', 'PS C:\\>', '>>> ') and drop the un-prompted lines, which are command output. Blocks with no prompt at all are kept verbatim. Default true.",
+          "type": "boolean"
+        },
+        "tags": {
+          "default": "",
+          "description": "Optional comma-separated tag filter over the fence info string (```bash#deploy, ```bash deploy slow, ```{.bash .deploy}). A block is kept if it carries ANY listed tag; prefix a tag with '-' to exclude it (e.g. 'deploy,-slow'). Empty (default) keeps every block.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}

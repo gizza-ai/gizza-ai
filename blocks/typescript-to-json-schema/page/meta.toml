@@ -1,0 +1,78 @@
+slug          = "typescript-to-json-schema"
+title         = "TypeScript to JSON Schema Converter"
+description   = "Paste a TypeScript interface, type alias or enum and get JSON Schema — optional props, literal unions, $refs, JSDoc. Draft 2020-12 or Draft-07, in-browser."
+tags          = ["typescript to json schema", "interface to json schema", "ts type to json schema", "json schema generator", "draft 2020-12", "draft-07"]
+h1            = "TypeScript to JSON Schema"
+hero_subtitle = "Paste a TypeScript interface, type alias or enum and get the equivalent JSON Schema — optional properties, literal unions, nested objects, $refs and JSDoc constraints included. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_typescript_to_json_schema_web"
+export        = "run"
+live          = false
+output_label  = "JSON Schema"
+format        = "text"
+
+[[input]]
+name        = "typescript"
+label       = "TypeScript source"
+placeholder = "interface User {\n  id: number;\n  name: string;\n  role: \"admin\" | \"editor\" | \"viewer\";\n  bio?: string;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "root_type"
+label       = "Root type (optional)"
+placeholder = "User"
+source      = "field"
+
+[[input]]
+name   = "draft"
+label  = "Schema draft"
+source = "field"
+
+[input.labels]
+"2020-12" = "Draft 2020-12 (latest)"
+"draft-07" = "Draft-07"
+
+[[input]]
+name   = "required"
+label  = "Mark non-optional members required"
+source = "field"
+
+[[input]]
+name   = "additional_properties"
+label  = "Allow extra properties"
+source = "field"
+
+[[input]]
+name   = "jsdoc"
+label  = "Use JSDoc comments"
+source = "field"
+
+[[example]]
+label = "Interface with a literal union"
+[example.params]
+typescript = "interface User {\n  id: number;\n  name: string;\n  role: \"admin\" | \"editor\" | \"viewer\";\n  bio?: string;\n}"
+root_type = ""
+draft = "2020-12"
+required = "true"
+additional_properties = "false"
+jsdoc = "true"
+
+[[example]]
+label = "Nested types → $defs"
+[example.params]
+typescript = "interface Order {\n  id: string;\n  customer: Customer;\n  items: LineItem[];\n}\n\ninterface Customer {\n  email: string;\n  vip?: boolean;\n}\n\ninterface LineItem {\n  sku: string;\n  qty: number;\n}"
+root_type = "Order"
+draft = "2020-12"
+required = "true"
+additional_properties = "false"
+jsdoc = "true"
+
+[[example]]
+label = "JSDoc constraints, Draft-07"
+[example.params]
+typescript = "/** A registered account. */\ninterface Account {\n  /**\n   * Age in whole years.\n   * @minimum 0\n   * @maximum 130\n   * @asType integer\n   */\n  age: number;\n  /** @format email */\n  email: string;\n}"
+root_type = ""
+draft = "draft-07"
+required = "true"
+additional_properties = "false"
+jsdoc = "true"

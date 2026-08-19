@@ -1,0 +1,100 @@
+slug          = "xpub-derive"
+title         = "xpub Derive — Watch-Only Bitcoin Addresses from xpub/ypub/zpub"
+description   = "Derive receive and change Bitcoin addresses from an xpub, ypub, zpub, tpub, upub, or vpub. Watch-only, offline, and private in your browser."
+tags          = ["xpub", "ypub", "zpub", "watch-only", "bitcoin", "bip32", "bip44", "bip84", "address derivation", "extended public key"]
+h1            = "Derive addresses from an extended public key"
+hero_subtitle = "Paste an account xpub, ypub, zpub, tpub, upub, or vpub to list its receive (m/0/i) and change (m/1/i) addresses. Public keys only — nothing leaves your browser."
+wasm          = "gizza_ai_xpub_derive_web"
+export        = "run"
+live          = false
+output_label  = "Derived addresses"
+format        = "text"
+
+[[input]]
+name        = "xpub"
+label       = "Extended public key"
+placeholder = "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs"
+source      = "field"
+
+[[input]]
+name        = "chain"
+label       = "Chain"
+source      = "field"
+
+[input.labels]
+receive = "Receive only (m/0/i)"
+change  = "Change only (m/1/i)"
+both    = "Receive and change"
+
+[[input]]
+name        = "count"
+label       = "Addresses per chain"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "start"
+label       = "Start index"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "address_type"
+label       = "Address type"
+source      = "field"
+
+[input.labels]
+auto        = "Auto (from key prefix)"
+p2pkh       = "P2PKH legacy"
+p2sh_p2wpkh = "P2SH-wrapped SegWit"
+p2wpkh      = "Native SegWit (bech32)"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+table = "Table with key summary"
+csv   = "CSV for spreadsheets"
+list  = "Addresses only"
+
+[[input]]
+name        = "include_public_key"
+label       = "Include public key column"
+source      = "field"
+
+[[example]]
+label = "BIP84 zpub, first 5"
+[example.params]
+xpub = "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs"
+chain = "both"
+count = "5"
+start = "0"
+address_type = "auto"
+format = "table"
+include_public_key = "false"
+
+[[example]]
+label = "Gap-limit CSV export"
+[example.params]
+xpub = "zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs"
+chain = "receive"
+count = "20"
+start = "0"
+address_type = "auto"
+format = "csv"
+include_public_key = "true"
+
+[[example]]
+label = "Testnet upub (BIP49)"
+[example.params]
+xpub = "upub5EFU65HtV5TeiSHmZZm7FUffBGy8UKeqp7vw43jYbvZPpoVsgU93oac7Wk3u6moKegAEWtGNF8DehrnHtv21XXEMYRUocHqguyjknFHYfgY"
+chain = "receive"
+count = "3"
+start = "0"
+address_type = "auto"
+format = "table"
+include_public_key = "false"

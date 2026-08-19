@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-email-syntax-validator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+gizza-ai-email-validator-core = { path = "../../email-validator/core" }
+gizza-ai-disposable-email-detector-core = { path = "../../disposable-email-detector/core" }

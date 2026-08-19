@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-vfr-to-cfr"
+version = "0.1.0"
+abi = 1
+summary = "Convert a variable-frame-rate video to constant frame rate"

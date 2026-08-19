@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/base64-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode two Base64 or Base64url strings and diff the underlying bytes",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two Base64 (or Base64url) strings by DECODING them first and diffing the underlying bytes, so encoding noise never masquerades as a payload change. Whitespace/line wrapping, missing padding and a leading `data:...;base64,` prefix are repaired by default (set strict=true to reject them); the alphabet is detected per side (alphabet=standard|url to force one). Returns a JSON report { equal, identical_encoding, notes, left/right: { alphabet, base64_chars, padding, bytes, sha256, detected_type, utf8, text_preview }, diff: { align, first_difference_offset, differing_bytes, size_delta, common_prefix_bytes, common_suffix_bytes, ranges:[{ offset, length, kind: changed|added|removed, left_hex, right_hex }] } }, or output=summary for a readable verdict plus one line per range, output=hexdump for a side-by-side hex+ASCII dump with differing rows marked, or output=text for a unified line diff of the decoded text. align=shift trims the common prefix/suffix so one inserted byte reads as an insertion instead of shifting everything after it. Runs locally; each side is capped at 4 MiB of Base64.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align": {
+          "default": "offset",
+          "description": "How the payloads are lined up: \"offset\" compares byte i with byte i (default, best for fixed-layout data), \"shift\" trims the common prefix and suffix first so a single insertion or deletion is reported as one range instead of cascading through the rest of the file.",
+          "enum": [
+            "offset",
+            "shift"
+          ],
+          "type": "string"
+        },
+        "alphabet": {
+          "default": "auto",
+          "description": "Which Base64 alphabet to decode with: \"auto\" detects per side from the characters used (default), \"standard\" is RFC 4648 §4 (+ and /), \"url\" is RFC 4648 §5 Base64url (- and _). Auto rejects a side that mixes both alphabets.",
+          "enum": [
+            "auto",
+            "standard",
+            "url"
+          ],
+          "type": "string"
+        },
+        "bytes_per_row": {
+          "default": 8,
+          "description": "Bytes per row in the hexdump output (4-32). Use 16 for a classic hexdump on a wide screen. Default 8.",
+          "maximum": 32,
+          "minimum": 4,
+          "type": "integer"
+        },
+        "context_rows": {
+          "default": 2,
+          "description": "How much unchanged context to keep around each change: hexdump rows for output=hexdump, lines for output=text (0-64). Everything further away is collapsed. Default 2.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "left": {
+          "description": "The first (baseline/old) Base64 or Base64url string. Line breaks, spaces and a leading data: URI prefix are ignored unless strict is on.",
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Result shape: \"report\" full JSON with per-side alphabet/padding/size/sha256/detected type plus the difference ranges (default); \"summary\" a readable verdict plus one line per differing range; \"hexdump\" side-by-side hex+ASCII with differing rows marked '*'; \"text\" a unified line diff of the decoded text (both payloads must be UTF-8).",
+          "enum": [
+            "report",
+            "summary",
+            "hexdump",
+            "text"
+          ],
+          "type": "string"
+        },
+        "right": {
+          "description": "The second (candidate/new) Base64 or Base64url string, compared against left after both are decoded.",
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "Require canonical RFC 4648 input: reject embedded whitespace/line wrapping, missing or extra '=' padding and non-zero trailing bits instead of repairing them. Default false (lenient).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "type": "object"
+    }
+  }
+}

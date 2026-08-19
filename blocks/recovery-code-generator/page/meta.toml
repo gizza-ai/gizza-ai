@@ -1,0 +1,115 @@
+slug          = "recovery-code-generator"
+title         = "Recovery Code Generator — One-Time 2FA Backup Codes"
+description   = "Generate printable one-time account recovery codes with custom length, grouping, alphabet and optional SHA-256 storage digests."
+tags          = ["recovery code generator", "backup code generator", "2fa backup codes", "one time recovery codes", "account recovery codes", "printable backup codes"]
+h1            = "Recovery Code Generator"
+hero_subtitle = "Generate a printable sheet of one-time account-recovery codes — pick how many, how long, how they are grouped and which alphabet they use. Everything is generated in your browser with a cryptographic RNG; nothing is uploaded."
+wasm          = "gizza_ai_recovery_code_generator_web"
+export        = "run"
+live          = false
+output_label  = "Recovery codes"
+format        = "text"
+
+[[input]]
+name        = "count"
+label       = "How many codes"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min          = "1"
+max          = "50"
+step         = "1"
+
+[[input]]
+name        = "blocks"
+label       = "Groups per code"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min          = "1"
+max          = "6"
+step         = "1"
+
+[[input]]
+name        = "chars_per_block"
+label       = "Characters per group"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min          = "2"
+max          = "16"
+step         = "1"
+
+# charset renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "charset"
+label  = "Alphabet"
+source = "field"
+
+[input.labels]
+lowercase    = "Lowercase + digits (a-z 0-9)"
+alphanumeric = "Mixed case + digits (A-Z a-z 0-9)"
+uppercase    = "Uppercase + digits (A-Z 0-9)"
+numeric      = "Digits only (0-9)"
+unambiguous  = "Unambiguous (no 0/O, 1/I/L, U)"
+hex          = "Hexadecimal (0-9 a-f)"
+
+[[input]]
+name        = "separator"
+label       = "Group separator (blank = none)"
+placeholder = "-"
+default     = "-"
+source      = "field"
+
+# output renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "output"
+label  = "Sheet format"
+source = "field"
+
+[input.labels]
+numbered = "Numbered list (printable sheet)"
+plain    = "Plain list, one code per line"
+csv      = "CSV (index, code, digest)"
+json     = "JSON (codes + entropy)"
+
+# hash renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "hash"
+label  = "Digest for the service to store"
+source = "field"
+
+[input.labels]
+none            = "None — codes only"
+sha256          = "SHA-256 of each code"
+"sha256-salted" = "Salted SHA-256 (salt:digest)"
+
+[[input]]
+name        = "seed_hex"
+label       = "Seed (optional — makes the sheet reproducible)"
+placeholder = "00112233445566778899aabbccddeeff"
+source      = "field"
+
+[[example]]
+label  = "10 codes, 5+5 lowercase"
+params = { count = "10", blocks = "2", chars_per_block = "5", charset = "lowercase", separator = "-", output = "numbered", hash = "none", seed_hex = "" }
+
+[[example]]
+label  = "8 digits, no separator"
+params = { count = "10", blocks = "1", chars_per_block = "8", charset = "numeric", separator = "", output = "numbered", hash = "none", seed_hex = "" }
+
+[[example]]
+label  = "4+4 numeric, dashed"
+params = { count = "10", blocks = "2", chars_per_block = "4", charset = "numeric", separator = "-", output = "numbered", hash = "none", seed_hex = "" }
+
+[[example]]
+label  = "Print-safe, no look-alikes"
+params = { count = "12", blocks = "3", chars_per_block = "4", charset = "unambiguous", separator = "-", output = "numbered", hash = "none", seed_hex = "" }
+
+[[example]]
+label  = "CSV + hashes to store server-side"
+params = { count = "10", blocks = "2", chars_per_block = "5", charset = "lowercase", separator = "-", output = "csv", hash = "sha256-salted", seed_hex = "" }
+
+[[example]]
+label  = "Reproducible sheet from a seed"
+params = { count = "10", blocks = "2", chars_per_block = "5", charset = "lowercase", separator = "-", output = "json", hash = "none", seed_hex = "00112233445566778899aabbccddeeff" }

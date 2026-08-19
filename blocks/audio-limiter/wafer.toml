@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-limiter"
+version = "0.1.0"
+abi = 1
+summary = "Apply a brick-wall peak limiter so audio never clips above a chosen ceiling"

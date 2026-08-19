@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-quote-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Re-emit a CSV with one consistent quoting, escaping, quote-character, delimiter and line-ending dialect."

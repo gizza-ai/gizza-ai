@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-timestamp-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Normalize mixed log timestamps to one format and timezone, with the elapsed time between events"

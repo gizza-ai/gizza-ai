@@ -1,0 +1,88 @@
+slug          = "video-to-dnxhd"
+title         = "Convert Video to DNxHR MOV or MXF Online"
+description   = "Transcode a video to an Avid DNxHR editing intermediate. Choose DNxHR LB/SQ/HQ/HQX/444, wrap as MOV or MXF, optionally downscale, and write PCM or copied audio."
+tags          = ["dnxhr", "dnxhd", "mxf", "mov", "video", "transcode", "editing", "avid", "resolve", "premiere", "mezzanine", "pcm"]
+h1            = "Convert Video to DNxHR MOV or MXF"
+hero_subtitle = "Create editor-friendly DNxHR intermediates locally in your browser — selectable DNxHR tiers, MOV or MXF wrapping, optional downscale, and PCM audio. Nothing is uploaded."
+wasm          = "gizza_ai_video_to_dnxhd_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "DNxHR download"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "Video file"
+
+[[input]]
+name        = "profile"
+source      = "field"
+label       = "DNxHR profile"
+placeholder = "dnxhr_sq"
+
+[input.labels]
+"dnxhr_lb"  = "LB — smallest offline/proxy tier"
+"dnxhr_sq"  = "SQ — default standard-quality edit tier"
+"dnxhr_hq"  = "HQ — higher-quality 8-bit 4:2:2"
+"dnxhr_hqx" = "HQX — 10-bit 4:2:2 grading tier"
+"dnxhr_444" = "444 — 10-bit 4:4:4 VFX/keying tier"
+
+[[input]]
+name        = "container"
+source      = "field"
+label       = "Container"
+placeholder = "mov"
+
+[input.labels]
+"mov" = "MOV — broadly compatible QuickTime wrapper"
+"mxf" = "MXF — OP1a interchange wrapper"
+
+[[input]]
+name        = "resolution"
+source      = "field"
+label       = "Resolution cap"
+placeholder = "source"
+
+[input.labels]
+"source" = "Source size — no scaling (default)"
+"2160p"  = "2160p — cap to UHD height"
+"1080p"  = "1080p — cap to Full HD height"
+"720p"   = "720p — cap to HD height"
+
+[[input]]
+name        = "pixel_format"
+source      = "field"
+label       = "Pixel format"
+placeholder = "auto"
+
+[input.labels]
+"auto"        = "Auto — profile-native pixel format"
+"yuv422p"     = "yuv422p — valid for LB/SQ/HQ"
+"yuv422p10le" = "yuv422p10le — valid for HQX"
+"yuv444p10le" = "yuv444p10le — valid for 444"
+
+[[input]]
+name        = "audio"
+source      = "field"
+label       = "Audio"
+placeholder = "pcm16"
+
+[input.labels]
+"pcm16" = "16-bit PCM — default NLE-friendly audio"
+"pcm24" = "24-bit PCM — for 24-bit masters"
+"copy"  = "Copy — keep source audio if wrapper accepts it"
+"none"  = "No audio — picture-only intermediate"
+
+[[example]]
+label  = "General editing MOV"
+params = { profile = "dnxhr_sq", container = "mov", resolution = "source", pixel_format = "auto", audio = "pcm16" }
+
+[[example]]
+label  = "Offline MXF proxy"
+params = { profile = "dnxhr_lb", container = "mxf", resolution = "720p", pixel_format = "auto", audio = "pcm16" }
+
+[[example]]
+label  = "HQX grade, picture only"
+params = { profile = "dnxhr_hqx", container = "mov", resolution = "source", pixel_format = "auto", audio = "none" }

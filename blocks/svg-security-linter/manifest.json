@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/svg-security-linter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan SVG markup for XSS-risk constructs and rank them by severity",
+  "role": "skill",
+  "tool": {
+    "description": "Lint SVG markup for the constructs that turn an uploaded or inlined SVG into an XSS vector, and rank them high/medium/low. Pass the file's markup as 'svg'. Detects <script> elements, on* event-handler attributes, javascript:/vbscript: URLs including XML character-reference obfuscation, <foreignObject>, embedded HTML/active elements (iframe/object/embed/base/link/meta/audio/video/form), SMIL <animate>/<set> that retarget href/style/on* handlers, the SVG 1.2 <handler> element and ev:* attributes, DOCTYPE/ENTITY declarations (XXE), data: URLs (high for text/html and image/svg+xml), external http(s) and protocol-relative references, CSS @import / remote url(...) / expression(...), <?xml-stylesheet?> processing instructions, unknown namespaces, and <a target=\\\"_blank\\\"> without rel=noopener. Every finding carries a line, column, rule code, element, attribute and snippet, and the report opens with a verdict of unsafe, review or clean. min_severity='all'|'medium'|'high' filters the listed rows only — the verdict always counts every finding. allow_external=true accepts remote references as policy and drops EXTERNAL-REF. ignore takes rule codes to suppress after review. format='text'|'json'|'csv'. This is a reporter, not a sanitizer: it never emits a cleaned file, because a blocklist scrub of untrusted SVG gives false assurance. Max 1,000,000 bytes. Runs locally — nothing is rendered, fetched or executed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_external": {
+          "default": false,
+          "description": "Treat http(s) and protocol-relative references to remote resources as accepted policy and drop the EXTERNAL-REF findings (default false). Unlike min_severity this changes the verdict, because the reference is no longer counted as a problem.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format. 'text' (default) is a ranked report with a verdict line, per-finding line:column, rule code, element/attribute and a source snippet. 'json' returns { verdict, summary, findings[] } for programmatic use. 'csv' returns just the findings rows with a header, for a spreadsheet or a ticket.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "ignore": {
+          "default": "",
+          "description": "Comma- or space-separated rule codes to suppress after review, e.g. \"UNKNOWN-NS, ANCHOR-TARGET\". Valid codes: SCRIPT, EVENT-HANDLER, JS-URL, FOREIGN-OBJECT, EMBEDDED-HTML, ANIMATE-HREF, HANDLER, DOCTYPE-ENTITY, DATA-URI, EXTERNAL-REF, CSS-IMPORT, XML-STYLESHEET, UNKNOWN-NS, ANCHOR-TARGET. An unknown code is an error rather than a silent no-op. Suppressed findings are dropped before the verdict is computed.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Lowest severity to list. 'all' (default) shows high, medium and low findings; 'medium' hides low; 'high' lists only the high-severity ones. This is a display filter only — the verdict is computed before it is applied, so raising it can never turn an unsafe file into a clean-looking report.",
+          "enum": [
+            "all",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "svg": {
+          "description": "The SVG markup to lint, e.g. the full contents of an .svg file including the <svg ...> root element. Max 1,000,000 bytes. It is scanned as text — never rendered, parsed by a DOM, fetched or executed.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "svg"
+      ],
+      "type": "object"
+    }
+  }
+}

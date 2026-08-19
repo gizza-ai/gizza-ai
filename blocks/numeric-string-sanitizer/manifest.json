@@ -1,0 +1,96 @@
+{
+  "name": "gizza-ai/numeric-string-sanitizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip currency, separators, units, percents, and whitespace from messy number cells",
+  "role": "skill",
+  "tool": {
+    "description": "Clean messy spreadsheet number cells into machine-readable floats. Paste one value per line; the tool strips currency symbols, thousands separators, units, stray whitespace, accounting parentheses, trailing minus signs, percent signs, and optional K/M/B/T suffixes. Options: decimal_separator auto|dot|comma, percent strip|divide, magnitude_suffixes true|false, parentheses_negative true|false, decimals auto or 0-12, on_error blank|keep|marker|fail, output values|table|json, stats true|false. Max 20,000 rows.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimal_separator": {
+          "default": "auto",
+          "description": "Decimal convention: auto (infer one convention for the whole column), dot for 1,234.56, or comma for 1.234,56.",
+          "enum": [
+            "auto",
+            "dot",
+            "comma"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": "auto",
+          "description": "Optional rounding: auto keeps full precision, or choose 0-12 decimal places.",
+          "enum": [
+            "auto",
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "8",
+            "10",
+            "12"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Messy numeric cells to sanitize, one value per line. Examples: '$1,234.50 USD', '(250,00) €', '1.2K', '45.2%', or '1 234,56'. Max 20,000 rows.",
+          "type": "string"
+        },
+        "magnitude_suffixes": {
+          "default": true,
+          "description": "Expand finance suffixes K/M/B/T and bn/tn (default true): 1.2K becomes 1200, 3M becomes 3000000.",
+          "type": "boolean"
+        },
+        "on_error": {
+          "default": "blank",
+          "description": "What to emit for rows that cannot be parsed: blank, keep the original text, #ERROR marker, or fail the whole run.",
+          "enum": [
+            "blank",
+            "keep",
+            "marker",
+            "fail"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "values",
+          "description": "Output shape: cleaned values, a TSV audit table, or structured JSON.",
+          "enum": [
+            "values",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "parentheses_negative": {
+          "default": true,
+          "description": "Treat accounting parentheses as a negative sign (default true): (250.00) becomes -250.",
+          "type": "boolean"
+        },
+        "percent": {
+          "default": "strip",
+          "description": "How to handle percent signs: strip keeps 45.2% as 45.2; divide converts it to 0.452.",
+          "enum": [
+            "strip",
+            "divide"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": false,
+          "description": "Append count/sum/min/max/average summary statistics for parsed values.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

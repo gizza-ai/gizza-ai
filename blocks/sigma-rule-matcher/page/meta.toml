@@ -1,0 +1,106 @@
+slug          = "sigma-rule-matcher"
+title         = "Sigma rule matcher for parsed Windows event JSON"
+description   = "Run Sigma detection rules against parsed Windows event JSON, filter by severity/status, and return report, table or JSON detections."
+tags          = ["sigma rules", "windows event logs", "detection engineering", "security", "evtx json", "threat hunting"]
+h1            = "Sigma rule matcher"
+hero_subtitle = "Paste Sigma YAML and parsed Windows event JSON to see which rules match — locally, with report/table/JSON output and severity filters."
+wasm          = "gizza_ai_sigma_rule_matcher_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "rules"
+label       = "Sigma rules (YAML)"
+placeholder = "title: Encoded PowerShell\nlevel: high\ndetection:\n  sel:\n    EventID: 4104\n    ScriptBlockText|contains: '-enc'\n  condition: sel"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "events"
+label       = "Parsed events (JSON array or NDJSON)"
+placeholder = "[{\"EventID\":4104,\"ScriptBlockText\":\"powershell -enc SQBFAFgA\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "min_level"
+label       = "Minimum level"
+source      = "field"
+
+[input.labels]
+any = "Any level"
+informational = "Informational and above"
+low = "Low and above"
+medium = "Medium and above"
+high = "High and critical"
+critical = "Critical only"
+
+[[input]]
+name        = "status"
+label       = "Rule status"
+source      = "field"
+
+[input.labels]
+any = "Any status"
+stable = "Stable"
+test = "Test"
+experimental = "Experimental"
+deprecated = "Deprecated"
+unsupported = "Unsupported"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+report = "Report"
+table = "Markdown table"
+json = "JSON"
+
+[[input]]
+name        = "max_matches"
+label       = "Max matches shown"
+placeholder = "500"
+source      = "field"
+
+[[input]]
+name        = "show_event"
+label       = "Include full matching event"
+source      = "field"
+
+[[example]]
+label = "Encoded PowerShell hit"
+[example.params]
+rules = "title: Encoded PowerShell\nid: demo-001\nstatus: test\nlevel: high\ndetection:\n  sel:\n    EventID: 4104\n    ScriptBlockText|contains:\n      - '-enc '\n      - '-EncodedCommand'\n  condition: sel"
+events = "[{\"EventID\":4104,\"ScriptBlockText\":\"powershell.exe -enc SQBFAFgA\"},{\"EventID\":4104,\"ScriptBlockText\":\"Get-ChildItem\"}]"
+min_level = "any"
+status = "any"
+output = "report"
+max_matches = "500"
+show_event = "false"
+
+[[example]]
+label = "Failed logon JSON output"
+[example.params]
+rules = "title: Failed admin logon\nstatus: stable\nlevel: medium\ndetection:\n  sel:\n    EventID: 4625\n    TargetUserName|contains: admin\n  condition: sel"
+events = "{\"Event\":{\"System\":{\"EventID\":4625,\"TimeCreated\":{\"SystemTime\":\"2026-08-18T12:00:00Z\"}},\"EventData\":{\"TargetUserName\":\"admin.local\"}}}"
+min_level = "low"
+status = "stable"
+output = "json"
+max_matches = "25"
+show_event = "true"
+
+[[example]]
+label = "Suspicious process table"
+[example.params]
+rules = "title: Command shell spawned\nlevel: low\ndetection:\n  sel:\n    Image|endswith: '\\cmd.exe'\n  filter:\n    ParentImage|endswith: '\\explorer.exe'\n  condition: sel and not filter"
+events = "{\"Image\":\"C:\\\\Windows\\\\System32\\\\cmd.exe\",\"ParentImage\":\"C:\\\\Temp\\\\dropper.exe\"}"
+min_level = "any"
+status = "any"
+output = "table"
+max_matches = "10"
+show_event = "false"

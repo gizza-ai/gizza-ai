@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/pdf-javascript-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract and de-obfuscate every JavaScript a PDF can run, with its trigger and location",
+  "role": "skill",
+  "tool": {
+    "description": "Locate every piece of JavaScript embedded in a PDF, recover its source, and unwind the obfuscation layers around it. Walks the document-level /Names -> /JavaScript name tree (including nested /Kids), /OpenAction, /AA additional-action dictionaries on the catalog, pages, annotations and form fields, annotation and form-field /A actions with their /Next chains, and finishes with a catch-all sweep for any other object carrying /JS. Script bodies stored as PDF strings (literal, hex, PDFDocEncoding or UTF-16BE) and as streams (inflated through the declared filters, e.g. FlateDecode) are both handled. Each script is reported with its object id, what makes it run (trigger: document-open, document-level, additional-action, annotation-action, form-field-action, object-scan), where it sits in the object graph (location), the name-tree entry name where applicable, whether it came from a string or a stream, its length, and the source. De-obfuscation unwinds String.fromCharCode, unescape/decodeURIComponent (%XX and %uXXXX), atob base64, backslash \\xNN / \\uNNNN / octal escapes, and literal string concatenation, iterating up to 4 rounds so nested layers unwrap; the passes that fired are listed per script. The report also flags suspicious Acrobat/JavaScript API names (eval, app.launchURL, app.setTimeOut, util.printf, Collab.collectEmailInfo, media.newPlayer, exportDataObject, ActiveXObject, WScript.Shell, ...) and pulls out URLs found in the decoded source. Provide pdf_base64 containing the PDF bytes (a data:application/pdf;base64,... prefix is accepted). This is static analysis: the JavaScript is never executed, emulated, or fetched, no shellcode emulation or reputation lookup is performed, encrypted PDFs are not decrypted, and the result is NOT a malware verdict.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "beautify": {
+          "default": true,
+          "description": "Re-indent the recovered source with 2-space indentation (default true). Obfuscated PDF JavaScript is usually one very long line. Whitespace-only change: no code is reordered or dropped.",
+          "type": "boolean"
+        },
+        "deobfuscate": {
+          "default": true,
+          "description": "Unwind common JavaScript obfuscation before reporting the source (default true): String.fromCharCode(decimal and 0x hex), unescape/decodeURIComponent over %XX and %uXXXX, atob base64, \\xNN / \\uNNNN / octal escapes inside string literals, and \"a\" + \"b\" literal concatenation. The passes are re-applied up to 4 times so nested layers unwrap; each script reports which passes fired (decodings) and how many rounds changed it (rounds). Set false to see exactly what the PDF stores.",
+          "type": "boolean"
+        },
+        "detail": {
+          "default": "full",
+          "description": "Report depth. 'full' (default) includes each script's source; 'summary' returns metadata only — object id, trigger, location, length, which decodings fired, indicators and URLs — which is the cheap way to answer 'does this PDF contain JavaScript, and where?'.",
+          "enum": [
+            "full",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "include_raw": {
+          "default": false,
+          "description": "Also return each script's untouched extracted source as `raw`, alongside the decoded `source`, so the two can be compared (default false). Roughly doubles the response size.",
+          "type": "boolean"
+        },
+        "max_script_chars": {
+          "default": 20000,
+          "description": "Per-script character cap on the returned source (default 20000, range 500-200000). Real-world PDF droppers are a few KB, so the default rarely bites; when it does, the script's `truncated` flag and a top-level note say so. At most 64 scripts are reported.",
+          "maximum": 200000,
+          "minimum": 500,
+          "type": "integer"
+        },
+        "pdf_base64": {
+          "description": "Base64-encoded PDF bytes. A data:application/pdf;base64,... prefix is accepted.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pdf_base64"
+      ],
+      "type": "object"
+    }
+  }
+}

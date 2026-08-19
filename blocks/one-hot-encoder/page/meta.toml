@@ -1,0 +1,211 @@
+slug          = "one-hot-encoder"
+title         = "One-Hot Encoder — Expand a CSV Column Into Dummy Variables"
+description   = "One-hot encode a CSV categorical column into binary 0/1 indicator columns. Drop a reference level, cap top categories, and keep or remove the original."
+tags          = ["one-hot encoding", "dummy variables", "categorical encoding", "get_dummies", "feature engineering", "csv encoder", "machine learning preprocessing", "indicator variables"]
+h1            = "One-hot encode a CSV categorical column"
+hero_subtitle = "Paste CSV, pick a column, and expand it into one binary indicator column per category — with a droppable reference level, top-N capping, and your own 1/0 values."
+wasm          = "gizza_ai_one_hot_encoder_web"
+export        = "run"
+live          = false
+output_label  = "Encoded CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "city,n\nParis,1\nRome,2\nParis,3"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Column to encode (name or 1-based number)"
+placeholder = "city"
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Column-name prefix (blank = the column's own name)"
+placeholder = "city"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Prefix separator"
+placeholder = "_"
+source      = "field"
+
+[[input]]
+name   = "drop"
+label  = "Reference level to drop"
+source = "field"
+
+[input.labels]
+none        = "None — keep all k columns"
+first       = "First category (k−1 dummies)"
+last        = "Last category (k−1 dummies)"
+"if-binary" = "Only if the column is binary"
+
+[[input]]
+name   = "drop_original"
+label  = "Remove the original column"
+source = "field"
+
+[[input]]
+name   = "missing"
+label  = "Blank cells"
+source = "field"
+
+[input.labels]
+zeros    = "Zero in every indicator"
+separate = "Own NaN indicator column"
+blank    = "Leave the indicators empty"
+error    = "Reject the input"
+
+[[input]]
+name        = "max_categories"
+label       = "Keep only the top N categories (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "1"
+
+[[input]]
+name        = "min_count"
+label       = "Drop categories seen fewer times than"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "1"
+
+[[input]]
+name   = "other_column"
+label  = "Add a combined 'other' column"
+source = "field"
+
+[[input]]
+name        = "positive"
+label       = "Value for a match"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "negative"
+label       = "Value for a non-match"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive values"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Column order"
+source = "field"
+
+[input.labels]
+alphabetical = "Alphabetical by value"
+frequency    = "Most frequent first"
+"first-seen" = "Order of first appearance"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "CSV delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma ( , )"
+tab       = "Tab"
+semicolon = "Semicolon ( ; )"
+pipe      = "Pipe ( | )"
+
+[[example]]
+label = "One-hot encode city"
+[example.params]
+data = "city,n\nParis,1\nRome,2\nParis,3"
+column = "city"
+prefix = ""
+separator = "_"
+drop = "none"
+drop_original = "true"
+missing = "zeros"
+max_categories = "0"
+min_count = "0"
+other_column = "false"
+positive = "1"
+negative = "0"
+case_sensitive = "true"
+sort = "alphabetical"
+has_header = "true"
+delimiter = "comma"
+
+[[example]]
+label = "Drop first level (k−1 dummies)"
+[example.params]
+data = "city,n\nParis,1\nRome,2\nOslo,3\nParis,4"
+column = "city"
+prefix = ""
+separator = "_"
+drop = "first"
+drop_original = "true"
+missing = "zeros"
+max_categories = "0"
+min_count = "0"
+other_column = "false"
+positive = "1"
+negative = "0"
+case_sensitive = "true"
+sort = "alphabetical"
+has_header = "true"
+delimiter = "comma"
+
+[[example]]
+label = "Top 2 categories + other"
+[example.params]
+data = "browser,hits\nchrome,10\nchrome,20\nchrome,30\nsafari,40\nsafari,50\nlynx,60"
+column = "browser"
+prefix = ""
+separator = "_"
+drop = "none"
+drop_original = "false"
+missing = "zeros"
+max_categories = "2"
+min_count = "0"
+other_column = "true"
+positive = "1"
+negative = "0"
+case_sensitive = "true"
+sort = "frequency"
+has_header = "true"
+delimiter = "comma"
+
+[[example]]
+label = "true/false instead of 1/0"
+[example.params]
+data = "plan,users\nfree,120\npro,45\nfree,80\nteam,12"
+column = "plan"
+prefix = "is"
+separator = "_"
+drop = "none"
+drop_original = "true"
+missing = "zeros"
+max_categories = "0"
+min_count = "0"
+other_column = "false"
+positive = "true"
+negative = "false"
+case_sensitive = "true"
+sort = "alphabetical"
+has_header = "true"
+delimiter = "comma"

@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/payment-qr",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a BIP-21 payment URI and render it as a QR code",
+  "role": "skill",
+  "tool": {
+    "description": "Build a BIP-21 payment URI (or a generic text payload) and render it as a scannable QR code SVG. Set scheme to bitcoin, litecoin or dogecoin for BIP-21 (scheme:address?amount=&label=&message=), ethereum for EIP-681 (value converted to exact wei), lightning to wrap a BOLT-11 invoice, or text to encode the address field verbatim. Addresses are checksum-verified — Base58Check for legacy/P2SH and Bech32/Bech32m for SegWit and Taproot — so a mistyped address is rejected instead of silently producing a QR that pays nowhere. label and message are percent-encoded per RFC 3986. Tune error_correction (L/M/Q/H), size, foreground/background colours, and show_uri to print the URI under the code. Returns an SVG image. Runs locally — the address never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "description": "The payment destination: a Bitcoin/Litecoin/Dogecoin address, an Ethereum 0x address, a BOLT-11 Lightning invoice, or — with scheme=text — any payload to encode verbatim. Addresses are checksum-verified (Base58Check, Bech32/Bech32m), so a typo is rejected rather than encoded. Example: bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4",
+          "type": "string"
+        },
+        "amount": {
+          "description": "Optional amount to request, in whole coin units with a period as the decimal separator (BIP-21 forbids commas and exponent notation). BTC/LTC/DOGE allow up to 8 decimal places; ETH allows 18 and is converted to exact wei for the EIP-681 value. Not accepted for lightning (the invoice carries its own amount) or text. Example: 0.025",
+          "type": "string"
+        },
+        "background": {
+          "default": "#ffffff",
+          "description": "Colour behind the QR code, as a hex value or a CSS colour name; 'transparent' is accepted for overlaying on artwork. Default #ffffff.",
+          "type": "string"
+        },
+        "error_correction": {
+          "default": "M",
+          "description": "QR error-correction level. L is densest and scans fastest on screen; M is the default; Q and H survive smudges, folds and printing but make the code denser. Use Q or H for anything printed.",
+          "enum": [
+            "L",
+            "M",
+            "Q",
+            "H"
+          ],
+          "type": "string"
+        },
+        "foreground": {
+          "default": "#000000",
+          "description": "Colour of the dark QR modules and the caption text, as a hex value (#rgb, #rrggbb, #rrggbbaa) or a CSS colour name. Keep strong contrast against the background or scanners will fail. Default #000000.",
+          "type": "string"
+        },
+        "label": {
+          "description": "Optional BIP-21 label — who is being paid, shown by the payer's wallet before they confirm. UTF-8 is percent-encoded automatically. Bitcoin, Litecoin and Dogecoin only. Example: Coffee Bar",
+          "type": "string"
+        },
+        "message": {
+          "description": "Optional BIP-21 message — a note about what the payment is for, shown alongside the label. UTF-8 is percent-encoded automatically. Bitcoin, Litecoin and Dogecoin only. Example: Invoice 2026-114",
+          "type": "string"
+        },
+        "scheme": {
+          "default": "bitcoin",
+          "description": "Which URI to build. bitcoin/litecoin/dogecoin use the BIP-21 grammar (scheme:address?amount=&label=&message=); ethereum uses EIP-681 (ethereum:0x…?value=<wei>); lightning wraps a BOLT-11 invoice as lightning:<invoice>; text encodes the address field verbatim with no scheme prefix. Default bitcoin.",
+          "enum": [
+            "bitcoin",
+            "litecoin",
+            "dogecoin",
+            "ethereum",
+            "lightning",
+            "text"
+          ],
+          "type": "string"
+        },
+        "show_uri": {
+          "default": true,
+          "description": "Print the full payment URI as wrapped monospace text under the code, so a payer can read or retype it if scanning fails. Default true. The URI is always in the SVG <title> for screen readers either way.",
+          "type": "boolean"
+        },
+        "size": {
+          "default": 512,
+          "description": "Width of the rendered SVG in pixels (128-2048, default 512). The output is vector, so this only sets the default display size — it stays sharp at any print scale.",
+          "maximum": 2048,
+          "minimum": 128,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "address"
+      ],
+      "type": "object"
+    }
+  }
+}

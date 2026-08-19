@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-whitespace-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Trim CSV cells and collapse or remove the whitespace runs inside them, including non-breaking spaces."

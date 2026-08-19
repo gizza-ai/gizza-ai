@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/code-metrics-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Measure LOC and complexity in pasted source code",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze one pasted source file or snippet locally and report physical lines, code/comment/blank split, detected functions, approximate cyclomatic complexity, cognitive complexity, Halstead volume, maintainability index, parameter counts, nesting depth, risk bands, and over-threshold functions. Supports auto-detection or an explicit language hint across c, cpp, csharp, go, java, javascript, typescript, kotlin, lua, php, python, ruby, rust, scala, shell, sql, and swift. Outputs readable summary, function table, JSON, or CSV. This is a heuristic lexer, not a full AST parser; it is meant for quick local triage rather than CI-grade repository analysis.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "complexity_threshold": {
+          "default": 10,
+          "description": "Cyclomatic complexity warning threshold. Functions with CCN above this value are counted as over-threshold and marked in function output. Default 10.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Language hint. Use auto to infer from syntax, or choose a specific language so comment syntax and function patterns match the pasted source.",
+          "enum": [
+            "auto",
+            "c",
+            "cpp",
+            "csharp",
+            "go",
+            "java",
+            "javascript",
+            "typescript",
+            "kotlin",
+            "lua",
+            "php",
+            "python",
+            "ruby",
+            "rust",
+            "scala",
+            "shell",
+            "sql",
+            "swift"
+          ],
+          "type": "string"
+        },
+        "max_functions": {
+          "default": 50,
+          "description": "Maximum number of function rows to show in summary/functions/json/csv output. Use 0 to show all detected functions. Totals always include every function.",
+          "maximum": 500,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output format: summary is a readable report, functions is a markdown-style function table, json is structured metrics, and csv lists one function per row.",
+          "enum": [
+            "summary",
+            "functions",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "line",
+          "description": "Sort order for the function list: source line, descending cyclomatic complexity, descending cognitive complexity, descending length, or name.",
+          "enum": [
+            "line",
+            "complexity",
+            "cognitive",
+            "length",
+            "name"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "description": "Source code to analyze. Paste one file or snippet; limit 200,000 characters. The analyzer counts physical lines, blank/comment/code lines, function-like declarations, and approximate complexity locally.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    }
+  }
+}

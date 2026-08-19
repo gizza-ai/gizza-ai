@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/file-list-sorter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sort a list of file names or paths by natural order, extension, depth or size",
+  "role": "skill",
+  "tool": {
+    "description": "Sort a pasted list of file names or paths the way a file manager would, instead of the way a plain text sort does. Paste one path per line — bare names, relative paths, Windows paths, or the output of ls, find, git ls-files or du. sort_by picks the key: natural (default) compares digit runs as numbers so img2.png precedes img10.png; alpha is the classic codepoint order; basename ignores the folders above the file; extension groups by file type; depth sorts shallowest first; size reads a size column off each line. A size column is recognised when it carries a unit (`4.0K  src/app.js`, `src/app.js  1.2MB`, K/M/G/T are 1024-based) or when a bare byte count is TAB-separated from the path, so a name like `2024 report.txt` keeps its year; entries with no size sort last. order flips the key direction, ignore_case (on) matches file-manager casing, dirs_first (on) keeps folders above files — an entry is a folder if it ends in a slash or another entry sits underneath it — group_by_dir keeps each folder's contents together, unique drops repeated paths and trim strips indentation from pasted listings. format=list returns the sorted paths one per line, numbered adds ranks, table adds path/type/extension/depth/size columns, json returns structured entries. Both / and \\ are treated as separators. Up to 20000 paths per run. Pure text in, sorted text out — nothing is read from disk.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dirs_first": {
+          "default": true,
+          "description": "Put folders above files. On by default. An entry counts as a folder when it ends in a slash (`src/`) or when another pasted entry lives underneath it (`src` is a folder if `src/main.rs` is also in the list). Turn it off to sort every entry purely by the chosen key.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "list",
+          "description": "Output shape. \"list\" (default) is the sorted paths, one per line, ready to paste back into a script. \"numbered\" prefixes each line with its rank. \"table\" adds a summary line plus aligned path/type/extension/depth/size columns for checking the sort. \"json\" returns {count, folders, sort_by, order, entries[]} with path, name, dir, extension, depth, is_dir, size_bytes and size_text per entry.",
+          "enum": [
+            "list",
+            "numbered",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "group_by_dir": {
+          "default": false,
+          "description": "Keep each folder's contents together: sort by parent folder first, then apply the chosen key inside each folder. Off by default. Useful when sorting a deep `find` dump by file name or size but you still want one folder's files listed side by side.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": true,
+          "description": "Compare case-insensitively, so README.md sits next to readme.txt instead of ahead of every lowercase name. On by default because that is what Explorer, Finder and most file managers do. Turn it off for the case-sensitive order of `sort`, `ls` or a Git tree, where all uppercase names come first.",
+          "type": "boolean"
+        },
+        "order": {
+          "default": "asc",
+          "description": "Direction of the sort key: \"asc\" (default) is A→Z, shallowest, smallest first; \"desc\" reverses it. The folders-first rule is not reversed — folders stay on top in both directions, the way a file manager behaves.",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "paths": {
+          "description": "The file names or paths to sort, one per line. Anything a listing produces works: bare names (`img10.png`), relative paths (`src/app.js`), Windows paths (`docs\\report.docx`), or `ls`/`find`/`git ls-files`/`du` output. Both `/` and `\\` count as folder separators, a leading `./` is ignored, and blank lines are dropped. Entries are returned in the same spelling you pasted. Up to 20000 paths per run.",
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "natural",
+          "description": "Which key to sort on. \"natural\" (default) is human order over the whole path — digit runs compare as numbers, so img2.png comes before img10.png. \"alpha\" is the classic codepoint order a machine sort gives (img10.png before img2.png). \"basename\" sorts naturally by file name only, ignoring the folders above it. \"extension\" groups by file type (extension-less entries first), then naturally by path. \"depth\" sorts shallowest first by how many folders are above the entry. \"size\" reads a size column off each line (see the `paths` note) and sorts by bytes, with entries that carry no size always last.",
+          "enum": [
+            "natural",
+            "alpha",
+            "basename",
+            "extension",
+            "depth",
+            "size"
+          ],
+          "type": "string"
+        },
+        "trim": {
+          "default": true,
+          "description": "Strip leading and trailing whitespace from every line before sorting. On by default, because indented `tree`/`ls` output otherwise sorts by its indentation. Turn it off when a file name genuinely begins or ends with a space.",
+          "type": "boolean"
+        },
+        "unique": {
+          "default": false,
+          "description": "Drop duplicate paths, keeping the first spelling of each. Off by default. Comparison follows ignore_case and the normalised path, so `./src/app.js`, `src/app.js` and `SRC/APP.JS` count as one entry when ignore_case is on.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "paths"
+      ],
+      "type": "object"
+    }
+  }
+}

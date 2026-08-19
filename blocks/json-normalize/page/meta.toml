@@ -1,0 +1,148 @@
+slug          = "json-normalize"
+title         = "JSON normalize — nested objects to entity tables"
+description   = "Normalize deeply nested JSON into id-keyed entity tables plus a result id, using a compact entity schema and deterministic local WASM."
+tags          = ["json", "normalize", "normalizr", "entity table", "nested json", "redux", "schema"]
+h1            = "JSON entity normalizer"
+hero_subtitle = "Paste nested JSON and a schema to extract authors, comments, products or any other nested records into `entities` tables keyed by id."
+wasm          = "gizza_ai_json_normalize_web"
+export        = "run"
+live          = false
+output_label  = "Normalized JSON"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = "{\"id\":\"123\",\"title\":\"My first post!\",\"author\":{\"id\":\"1\",\"name\":\"Paul\"},\"comments\":[{\"id\":\"324\",\"commenter\":{\"id\":\"2\",\"name\":\"Nicole\"}}]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "schema"
+label       = "Entity schema"
+placeholder = "articles: author -> users, comments -> [comments]\ncomments: commenter -> users\nusers:"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "root"
+label       = "Root entity"
+placeholder = "articles"
+source      = "field"
+
+[[input]]
+name        = "path"
+label       = "Payload path (optional)"
+placeholder = "data.items"
+source      = "field"
+
+[[input]]
+name        = "id_field"
+label       = "ID field(s)"
+placeholder = "id,_id,uuid"
+default     = "id"
+source      = "field"
+
+[[input]]
+name        = "on_missing_id"
+label       = "Missing ID"
+source      = "field"
+
+[input.labels]
+error = "Error"
+index = "Create index IDs"
+hash  = "Create content hashes"
+keep  = "Keep inline"
+
+[[input]]
+name        = "on_conflict"
+label       = "Duplicate IDs"
+source      = "field"
+
+[input.labels]
+merge      = "Merge, later keys win"
+replace    = "Replace with last"
+keep_first = "Keep first"
+error      = "Error"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+normalized = "entities + result"
+entities   = "entities only"
+result     = "result only"
+report     = "report"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print JSON"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[example]]
+label = "Post with author and comments"
+[example.params]
+json = "{\"id\":\"123\",\"title\":\"My first post!\",\"author\":{\"id\":\"1\",\"name\":\"Paul\"},\"comments\":[{\"id\":\"324\",\"commenter\":{\"id\":\"2\",\"name\":\"Nicole\"}},{\"id\":\"325\",\"commenter\":{\"id\":\"1\",\"name\":\"Paul\"}}]}"
+schema = "articles: author -> users, comments -> [comments]\ncomments: commenter -> users\nusers:"
+root = "articles"
+path = ""
+id_field = "id"
+on_missing_id = "error"
+on_conflict = "merge"
+output = "normalized"
+pretty = "true"
+indent = "2"
+
+[[example]]
+label = "Normalize data.items"
+[example.params]
+json = "{\"meta\":{\"page\":1},\"data\":{\"items\":[{\"id\":\"a\"},{\"id\":\"b\"}]}}"
+schema = "items:"
+root = "items"
+path = "data.items"
+id_field = "id"
+on_missing_id = "error"
+on_conflict = "merge"
+output = "entities"
+pretty = "true"
+indent = "2"
+
+[[example]]
+label = "Custom id_str fields"
+[example.params]
+json = "{\"id_str\":\"123\",\"user\":{\"id_str\":\"456\",\"name\":\"Jimmy\"}}"
+schema = "tweets: user -> users\nusers:"
+root = "tweets"
+path = ""
+id_field = "{\"*\":\"id_str\"}"
+on_missing_id = "error"
+on_conflict = "merge"
+output = "normalized"
+pretty = "false"
+indent = "2"
+
+[[example]]
+label = "Debug with a report"
+[example.params]
+json = "[{\"id\":1,\"author\":{\"name\":\"Ada\"}},{\"id\":2,\"author\":{\"name\":\"Ada\"}}]"
+schema = "posts: author -> users\nusers:"
+root = "posts"
+path = ""
+id_field = "id"
+on_missing_id = "hash"
+on_conflict = "merge"
+output = "report"
+pretty = "true"
+indent = "2"

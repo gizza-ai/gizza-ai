@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-relative-to-absolute-urls-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# url: WHATWG URL parser + resolver (wasm32-safe, already used by extract-urls
+# and link-extractor). `Url::join` is the same algorithm a browser applies to a
+# relative href, so `../`, root-relative, query-only and fragment-only values
+# all behave exactly as they do in the address bar.
+url = "2"

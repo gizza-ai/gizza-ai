@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-payment-qr-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# QR encode → SVG string, no image dep (proven wasm-safe; same as qr-paper-backup).
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+# Base58Check decode for legacy/P2SH address checksum validation (proven wasm-safe
+# in bitcoin-address). Bech32/Bech32m is hand-rolled below — no extra crate.
+bs58 = { version = "0.5", default-features = false, features = ["check", "alloc"] }

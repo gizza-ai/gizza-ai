@@ -1,0 +1,44 @@
+slug          = "job-posting-parser"
+title         = "Job posting parser"
+description   = "Extract title, company, location, salary, skills, work mode, and experience level from pasted job ads."
+tags          = ["job parser", "job posting", "salary extractor", "skills extractor", "recruiting", "hr tools"]
+h1            = "Parse a job posting into structured fields"
+hero_subtitle = "Paste a job ad and get deterministic JSON or Markdown with the role, employer, location, compensation, skills, work mode, warnings, and evidence snippets."
+wasm          = "gizza_ai_job_posting_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed job"
+format        = "text"
+
+[[input]]
+name        = "posting"
+label       = "Job posting"
+placeholder = "Senior Backend Engineer\nCompany: Acme Analytics\nLocation: Remote - US / Toronto\nCompensation: $150,000 - $185,000 USD\nFull-time\nWe need Rust, Python, PostgreSQL, Docker, Kubernetes, AWS, GraphQL and CI/CD experience."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+json     = "JSON"
+markdown = "Markdown"
+
+[[input]]
+name   = "include_evidence"
+label  = "Include evidence"
+source = "field"
+
+[[example]]
+label = "Engineering job JSON"
+posting = "Senior Backend Engineer\nCompany: Acme Analytics\nLocation: Remote - US / Toronto\nCompensation: $150,000 - $185,000 USD\nFull-time\nWe need Rust, Python, PostgreSQL, Docker, Kubernetes, AWS, GraphQL and CI/CD experience."
+output = "json"
+include_evidence = "true"
+
+[[example]]
+label = "Markdown summary"
+posting = "Product Data Analyst\nAt Northstar Retail\nHybrid - Austin, TX\nSalary range: $95k-$120k\nRequirements: SQL, Python, Tableau, Excel, statistics, stakeholder communication."
+output = "markdown"
+include_evidence = "false"

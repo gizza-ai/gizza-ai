@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-ndjson-viewer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# preserve_order keeps each record's keys in the order the line wrote them —
+# a viewer that silently alphabetised every object would be lying about the
+# input (sort_keys does that on request instead).
+serde_json = { version = "1", features = ["preserve_order"] }
+# serde's Serializer trait drives the custom-indent pretty printer.
+serde = "1"
+# regex backs match_mode = "regex" for the search and the path value test.
+regex = "1"

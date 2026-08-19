@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "spectral-eq-match"
+version = "0.1.0"
+abi = 1
+summary = "Match a track's EQ curve and loudness to a reference and get the corrective filter chain."

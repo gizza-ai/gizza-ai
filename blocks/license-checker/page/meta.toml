@@ -1,0 +1,81 @@
+slug          = "license-checker"
+title         = "License Checker — SPDX allow/deny policy report"
+description   = "Check SPDX licenses in an SBOM or dependency list against allow/deny rules. Supports CycloneDX, SPDX, npm-style JSON, CSV-ish lists, JSON/CSV output."
+tags          = ["license checker", "spdx", "sbom license", "dependency licenses", "license compliance", "allowlist"]
+h1            = "License Checker"
+hero_subtitle = "Paste an SBOM or dependency license list, set allow/deny rules with SPDX IDs or license categories, and get a PASS/FAIL compliance report. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_license_checker_web"
+export        = "run"
+live          = false
+output_label  = "Compliance report"
+format        = "text"
+
+[[input]]
+name        = "dependencies"
+label       = "SBOM or dependency list"
+placeholder = "chalk@4.1.2: MIT\ncopyleft-lib@2.0.0: GPL-3.0-only\ndual@1.0.0: MIT OR Apache-2.0\nmystery@0.1.0: NOASSERTION"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[[input]]
+name        = "allow"
+label       = "Allowed licenses/categories"
+placeholder = "MIT, Apache-2.0, category:public-domain"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "deny"
+label       = "Denied licenses/categories"
+placeholder = "category:strong-copyleft, category:network-copyleft, SSPL-1.0"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "exceptions"
+label       = "Package exceptions"
+placeholder = "legacy-widget, my-gpl-tool@2.1.0"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "unlisted"
+label       = "Unlisted license policy"
+source      = "field"
+
+[[input]]
+name        = "unknown"
+label       = "Missing license policy"
+source      = "field"
+
+[[input]]
+name        = "validate_ids"
+label       = "Validate SPDX identifiers"
+source      = "field"
+
+[[input]]
+name        = "include_allowed"
+label       = "Include allowed packages"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+
+[[example]]
+label = "Permissive-only policy"
+inputs = { dependencies = "chalk@4.1.2: MIT\ncopyleft-lib@2.0.0: GPL-3.0-only\ndual@1.0.0: MIT OR Apache-2.0\nmystery@0.1.0: NOASSERTION", input_format = "list", allow = "MIT, Apache-2.0, category:public-domain", deny = "category:network-copyleft", unlisted = "deny", unknown = "warn", validate_ids = "true", include_allowed = "false", output = "text" }
+
+[[example]]
+label = "No-copyleft gate"
+inputs = { dependencies = "ui@1.0.0: MIT\nplugin@2.0.0: LGPL-2.1-only\nserver@3.0.0: AGPL-3.0-only", input_format = "list", allow = "", deny = "category:strong-copyleft, category:network-copyleft", exceptions = "", unlisted = "allow", unknown = "warn", validate_ids = "true", include_allowed = "true", output = "markdown" }
+
+[[example]]
+label = "CSV inventory export"
+inputs = { dependencies = "alpha@1.0.0: MIT\nbeta@2.0.0: Apache-2.0 WITH LLVM-exception", input_format = "list", allow = "", deny = "", exceptions = "", unlisted = "allow", unknown = "warn", validate_ids = "true", include_allowed = "true", output = "csv" }

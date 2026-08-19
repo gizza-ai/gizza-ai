@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "blurhash"
+version = "0.1.0"
+abi = 1
+summary = "Generate a compact BlurHash or ThumbHash image placeholder string and preview"

@@ -1,0 +1,101 @@
+slug          = "markdown-table-extractor"
+title         = "Markdown Table Extractor — Every Table in a Document to CSV or JSON"
+description   = "Paste a Markdown document and pull every GitHub-flavored table out of it as CSV, JSON or JSON Lines. Pick one table or export them all. Runs in your browser."
+tags          = ["markdown table extractor", "markdown table to csv", "markdown table to json", "extract tables from markdown", "gfm table converter", "markdown to jsonl", "readme table export", "markdown table parser"]
+h1            = "Markdown Table Extractor"
+hero_subtitle = "Paste a whole README or doc — every GitHub-flavored pipe table in it is found and exported as CSV, JSON or JSON Lines. Tables inside code fences are ignored. Nothing is uploaded; it all runs in your browser."
+wasm          = "gizza_ai_markdown_table_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted tables"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown document"
+placeholder = "## Downloads\n\n| file | size |\n| --- | ---: |\n| app-linux.tar.gz | 12 MB |\n| app-macos.zip | 14 MB |"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+"csv"   = "CSV (one block per table)"
+"json"  = "JSON"
+"jsonl" = "JSON Lines (one row per line)"
+"list"  = "List the tables found"
+
+[[input]]
+name        = "table"
+label       = "Which tables"
+placeholder = "all, or 2, or 0,2-3"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+placeholder = ", or tab / semicolon / pipe / space"
+source      = "field"
+
+[[input]]
+name   = "quote"
+label  = "CSV quoting"
+source = "field"
+
+[input.labels]
+"minimal" = "Only when needed"
+"all"     = "Quote every field"
+
+[[input]]
+name   = "newline"
+label  = "Line endings"
+source = "field"
+
+[input.labels]
+"lf"   = "LF (Unix, macOS)"
+"crlf" = "CRLF (Windows, Excel)"
+
+[[input]]
+name   = "trim"
+label  = "Trim padding inside cells"
+source = "field"
+
+[[input]]
+name   = "strip_formatting"
+label  = "Render cell Markdown as plain text"
+source = "field"
+
+[[input]]
+name        = "json_indent"
+label       = "JSON indent (0 = minified)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "labels"
+label  = "Label each CSV block with its table number"
+source = "field"
+
+[[example]]
+label  = "Every table in a doc → CSV"
+params = { markdown = "# Release 2.1\n\n## Downloads\n\n| file | size |\n| --- | ---: |\n| app-linux.tar.gz | 12 MB |\n| app-macos.zip | 14 MB |\n\n## Plans\n\n| plan | seats |\n|:---|---:|\n| Free | 3 |\n| Team | 25 |", format = "csv", table = "all", header = "true", delimiter = ",", quote = "minimal", newline = "lf", trim = "true", json_indent = "2", labels = "true" }
+
+[[example]]
+label  = "Just the second table → JSON"
+params = { markdown = "# Release 2.1\n\n## Downloads\n\n| file | size |\n| --- | ---: |\n| app-linux.tar.gz | 12 MB |\n| app-macos.zip | 14 MB |\n\n## Plans\n\n| plan | seats |\n|:---|---:|\n| Free | 3 |\n| Team | 25 |", format = "json", table = "1", header = "true", delimiter = ",", quote = "minimal", newline = "lf", trim = "true", json_indent = "2", labels = "true" }
+
+[[example]]
+label  = "What tables are in here?"
+params = { markdown = "# Release 2.1\n\n## Downloads\n\n| file | size |\n| --- | ---: |\n| app-linux.tar.gz | 12 MB |\n| app-macos.zip | 14 MB |\n\n## Plans\n\n| plan | seats |\n|:---|---:|\n| Free | 3 |\n| Team | 25 |", format = "list", table = "all", header = "true", delimiter = ",", quote = "minimal", newline = "lf", trim = "true", json_indent = "2", labels = "true" }
+
+[[example]]
+label  = "Links and bold → plain text TSV"
+params = { markdown = "| package | docs |\n| --- | --- |\n| **core** | [Guide](https://example.com/guide) |\n| `cli` | [Reference](https://example.com/ref) |", format = "csv", table = "all", header = "true", delimiter = "tab", quote = "minimal", newline = "lf", trim = "true", strip_formatting = "true", json_indent = "2", labels = "true" }

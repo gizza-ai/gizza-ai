@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ini-json-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert INI/conf files to JSON and back, or get, set and delete a single key in place."

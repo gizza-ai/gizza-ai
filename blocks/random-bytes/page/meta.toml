@@ -1,0 +1,110 @@
+slug          = "random-bytes"
+title         = "Random Bytes Generator — Hex, Base64 or Byte Array"
+description   = "Generate cryptographically secure random bytes and output them as hex, Base64, Base64URL, binary, decimal, a C array or a Python bytes literal."
+tags          = ["random bytes generator", "generate random bytes", "random hex generator", "random base64 generator", "openssl rand alternative", "random byte array", "secure random key generator"]
+h1            = "Random Bytes Generator"
+hero_subtitle = "Draw cryptographically secure random bytes and see the same bytes as hex, Base64, Base64URL, binary, decimal, a C array or a Python bytes literal. Everything runs in your browser with the platform's cryptographic RNG; nothing is uploaded."
+wasm          = "gizza_ai_random_bytes_web"
+export        = "run"
+live          = false
+output_label  = "Random bytes"
+format        = "text"
+
+[[input]]
+name        = "bytes"
+label       = "Bytes per value"
+placeholder = "32"
+source      = "field"
+# Slider bounds come from the schema (1-4096); only `step` is read from here.
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "count"
+label       = "How many values"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+# encoding renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "encoding"
+label  = "Output encoding"
+source = "field"
+
+[input.labels]
+"hex"          = "Hex (openssl rand -hex)"
+"base64"       = "Base64, padded (openssl rand -base64)"
+"base64url"    = "Base64URL, no padding"
+"binary"       = "Binary (8 bits per byte)"
+"decimal"      = "Decimal (0-255 per byte)"
+"c-array"      = "C array literal { 0x1a, 0x2b }"
+"python-bytes" = "Python bytes literal b'\\x1a\\x2b'"
+
+# separator renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "separator"
+label  = "Byte separator (hex, binary, decimal only)"
+source = "field"
+
+[input.labels]
+auto   = "Auto (encoding default)"
+none   = "None — run together"
+space  = "Space"
+colon  = "Colon (aa:bb:cc)"
+dash   = "Dash (aa-bb-cc)"
+comma  = "Comma (aa, bb, cc)"
+
+[[input]]
+name   = "uppercase"
+label  = "Uppercase hex digits"
+source = "field"
+
+# output renders as a <select>; the option list derives from the descriptor enum.
+[[input]]
+name   = "output"
+label  = "Result format"
+source = "field"
+
+[input.labels]
+text = "Text (values + entropy summary)"
+json = "JSON (values + metadata)"
+
+[[input]]
+name        = "seed_hex"
+label       = "Seed (optional — makes the output reproducible)"
+placeholder = "00112233445566778899aabbccddeeff"
+source      = "field"
+
+[[example]]
+label  = "32 bytes hex (AES-256 key)"
+params = { bytes = "32", count = "1", encoding = "hex", separator = "auto", uppercase = "false", output = "text", seed_hex = "" }
+
+[[example]]
+label  = "32 bytes Base64 (JWT secret)"
+params = { bytes = "32", count = "1", encoding = "base64", separator = "auto", uppercase = "false", output = "text", seed_hex = "" }
+
+[[example]]
+label  = "24 bytes Base64URL token"
+params = { bytes = "24", count = "1", encoding = "base64url", separator = "auto", uppercase = "false", output = "text", seed_hex = "" }
+
+[[example]]
+label  = "16 bytes hex (AES-128 IV)"
+params = { bytes = "16", count = "1", encoding = "hex", separator = "auto", uppercase = "false", output = "text", seed_hex = "" }
+
+[[example]]
+label  = "6 bytes colon-separated (MAC style)"
+params = { bytes = "6", count = "1", encoding = "hex", separator = "colon", uppercase = "false", output = "text", seed_hex = "" }
+
+[[example]]
+label  = "16 bytes as a C array"
+params = { bytes = "16", count = "1", encoding = "c-array", separator = "auto", uppercase = "false", output = "text", seed_hex = "" }
+
+[[example]]
+label  = "10 x 32-byte keys as JSON"
+params = { bytes = "32", count = "10", encoding = "hex", separator = "auto", uppercase = "false", output = "json", seed_hex = "" }
+
+[[example]]
+label  = "Reproducible batch from a seed"
+params = { bytes = "8", count = "3", encoding = "hex", separator = "auto", uppercase = "false", output = "text", seed_hex = "00112233445566778899aabbccddeeff" }

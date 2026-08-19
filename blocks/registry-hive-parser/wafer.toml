@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "registry-hive-parser"
+version = "0.1.0"
+abi = 1
+summary = "Browse Windows registry hive headers, keys, values, and RunKeys."

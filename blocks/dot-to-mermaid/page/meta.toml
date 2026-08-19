@@ -1,0 +1,93 @@
+slug          = "dot-to-mermaid"
+title         = "DOT to Mermaid — convert Graphviz graphs to Mermaid flowcharts"
+description   = "Convert Graphviz DOT source into Mermaid flowchart syntax in your browser: nodes, edges, labels, shapes, clusters, colors and direction. Nothing is uploaded."
+tags          = ["dot to mermaid", "graphviz to mermaid", "dot converter", "mermaid flowchart", "convert dot file", "graphviz mermaid converter", "mermaid syntax"]
+h1            = "DOT to Mermaid"
+hero_subtitle = "Paste a Graphviz DOT graph and get Mermaid flowchart source you can drop straight into a README, a wiki page or the Mermaid Live Editor. Node shapes, edge labels, dashed and bold links, cluster subgraphs, colors and rankdir are all mapped, and anything Mermaid cannot express is listed as a comment note. Runs entirely in your browser."
+wasm          = "gizza_ai_dot_to_mermaid_web"
+export        = "run"
+live          = false
+output_label  = "Mermaid source"
+format        = "text"
+
+[[input]]
+name        = "dot"
+label       = "Graphviz DOT source"
+placeholder = "digraph {\n  rankdir=LR;\n  start [label=\"Start\", shape=circle];\n  check [label=\"Tests pass?\", shape=diamond];\n  start -> check [label=\"build\"];\n  check -> ship [label=\"yes\"];\n  check -> fix [label=\"no\", style=dashed];\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Flowchart direction"
+source = "field"
+
+[input.labels]
+auto = "Auto (follow the graph's rankdir)"
+TD   = "Top down (TD)"
+LR   = "Left to right (LR)"
+BT   = "Bottom up (BT)"
+RL   = "Right to left (RL)"
+
+[[input]]
+name   = "shapes"
+label  = "Map node shapes (box, circle, diamond, cylinder…)"
+source = "field"
+
+[[input]]
+name   = "edge_labels"
+label  = "Keep edge labels"
+source = "field"
+
+[[input]]
+name   = "link_styles"
+label  = "Map edge styles (dashed, bold, arrowless, bidirectional)"
+source = "field"
+
+[[input]]
+name   = "subgraphs"
+label  = "Convert cluster_* subgraphs"
+source = "field"
+
+[[input]]
+name   = "colors"
+label  = "Convert colors to style / linkStyle lines"
+source = "field"
+
+[[input]]
+name   = "warnings"
+label  = "Add %% notes for unsupported DOT features"
+source = "field"
+
+[[input]]
+name        = "title"
+label       = "Diagram title (optional)"
+placeholder = "Release pipeline"
+source      = "field"
+
+[[input]]
+name   = "fence"
+label  = "Wrap in a ```mermaid code fence"
+source = "field"
+
+[[example]]
+label = "Decision flow"
+[example.params]
+dot = "digraph {\n  rankdir=LR;\n  start [label=\"Start\", shape=circle];\n  check [label=\"Tests pass?\", shape=diamond];\n  start -> check [label=\"build\"];\n  check -> ship [label=\"yes\"];\n  check -> fix [label=\"no\", style=dashed];\n}"
+
+[[example]]
+label = "Clustered services"
+[example.params]
+dot = "digraph {\n  rankdir=TB;\n  subgraph cluster_edge {\n    label=\"Edge\";\n    cdn; lb;\n  }\n  subgraph cluster_core {\n    label=\"Core\";\n    api [shape=box];\n    db [shape=cylinder];\n  }\n  cdn -> lb -> api -> db;\n}"
+
+[[example]]
+label = "Undirected graph"
+[example.params]
+dot = "graph {\n  a -- b;\n  b -- c;\n  c -- a;\n}"
+
+[[example]]
+label = "Styled, fenced for a README"
+[example.params]
+dot = "digraph {\n  a [label=\"Queue\", style=filled, fillcolor=\"#ffcc00\"];\n  b [label=\"Worker\", shape=box];\n  a -> b [label=\"job\", color=red, penwidth=2];\n}"
+fence = "true"
+title = "Release pipeline"

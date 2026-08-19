@@ -1,0 +1,95 @@
+{
+  "name": "gizza-ai/gap-finder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find missing values, gap ranges, and duplicates in a sequence that should be consecutive",
+  "role": "skill",
+  "tool": {
+    "description": "Audit a pasted sequence of numbers or IDs (invoice numbers, order IDs, cheque numbers, serials) for gaps. Reports the missing values as compressed ranges, duplicates, entries that do not land on the expected step, values outside the expected range, and entries pasted out of order. Options: id_format auto|number, separator auto|newline|comma|space|semicolon|tab|pipe, step (default 1), start/end expected bounds (default: the lowest/highest value found), order sorted|input, duplicates true|false, output report|missing|table|json, limit (default 1000). Max 20,000 entries and 5,000,000 expected slots.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The sequence to audit, one entry per line (commas, semicolons, tabs, pipes, and spaces also work). Plain numbers like 1004 or IDs like INV-1004 and 2026-0007 — the last run of digits in each entry is treated as the counter. Max 20,000 entries.",
+          "type": "string"
+        },
+        "duplicates": {
+          "default": true,
+          "description": "Report values that appear more than once, with their occurrence counts (default true). Duplicates count once towards the present total either way.",
+          "type": "boolean"
+        },
+        "end": {
+          "default": "",
+          "description": "Expected last value of the sequence, e.g. 1250 or INV-1250. Leave empty (default) to stop at the highest value found. Use it to catch values missing from the end of the run.",
+          "type": "string"
+        },
+        "id_format": {
+          "default": "auto",
+          "description": "How entries are parsed: 'auto' (default) accepts plain numbers and prefixed/suffixed IDs, reproducing the prefix and zero padding in the results; 'number' accepts plain integers only and reports anything else as an error.",
+          "enum": [
+            "auto",
+            "number"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 1000,
+          "description": "Maximum number of entries listed in the output — gap ranges in report/table mode, individual values in missing/json mode (default 1000, max 20,000). Counts and totals are always complete; truncation is stated in the output.",
+          "maximum": 20000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "order": {
+          "default": "sorted",
+          "description": "How the pasted order is treated: 'sorted' (default) audits the entries as an unordered set; 'input' additionally reports entries that appear after a higher entry, which flags a ledger recorded out of sequence.",
+          "enum": [
+            "sorted",
+            "input"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output shape: 'report' (default) is a summary with compressed gap ranges; 'missing' lists every missing value one per line for pasting elsewhere; 'table' is a TSV of gap_start/gap_end/count; 'json' is a structured result with every list.",
+          "enum": [
+            "report",
+            "missing",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "How the pasted entries are separated. 'auto' (default) splits on any of newline, comma, semicolon, pipe, or whitespace; pick an explicit separator when an ID contains one of the others (e.g. a space inside 'INV 1004').",
+          "enum": [
+            "auto",
+            "newline",
+            "comma",
+            "space",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "start": {
+          "default": "",
+          "description": "Expected first value of the sequence, e.g. 1000 or INV-1000. Leave empty (default) to start at the lowest value found. Use it to catch values missing from the beginning of the run.",
+          "type": "string"
+        },
+        "step": {
+          "default": 1,
+          "description": "Expected spacing between consecutive entries — 1 (default) for 1,2,3, 2 for even-numbered cheques, 10 for 10,20,30. Entries inside the range that do not land on the step are reported as off-step.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

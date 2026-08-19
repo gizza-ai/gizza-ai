@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hcl-to-json"
+version = "0.1.0"
+abi = 1
+summary = "Convert HashiCorp HCL2 configuration (Terraform, Packer, Nomad) to JSON."

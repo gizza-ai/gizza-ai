@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/password-export-convert",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a password-manager export between Bitwarden, KeePass, LastPass, Chrome and generic CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a password-manager export from one manager's format to another so it can be imported. Paste the export into `data`; the supported formats are Bitwarden JSON, Bitwarden CSV, KeePass/KeePassXC CSV, LastPass CSV, Chrome CSV and a neutral generic CSV, and any of them converts to any other. `from` defaults to \"auto\", which sniffs the format from the leading brace or the CSV header row; set it explicitly when the header has been edited. `to` picks the target layout and defaults to \"keepass-csv\". Every entry is projected onto folder, name, username, password, URL, notes, TOTP, favourite and kind, so folder/group structure survives in both directions. `include_totp` (on by default) carries 2FA secrets across — into the TOTP column where the target has one, folded into the note for Chrome CSV which does not. `include_extra_fields` (on by default) rescues what the target has no column for — Bitwarden custom fields, card and identity details, extra URIs, unclaimed CSV columns — into the notes. `skip_empty_passwords` drops password-less rows for importers that reject them, and `default_folder` files unfiled entries under one group. Reading and writing both go through a real RFC-4180 CSV parser, so a password containing a comma, a quote or a newline round-trips intact. Output is the converted file and nothing else — no header comment or summary line — and ids are hashed from names rather than random, so the same export always converts to the same bytes. Up to 5000 entries per run. Encrypted (password-protected) Bitwarden JSON is rejected with an explanation: re-export it unencrypted.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The password-manager export to convert, pasted as text: either a Bitwarden JSON export (starts with {) or a CSV export with its header row intact. Export unencrypted — a password-protected Bitwarden JSON is rejected, because decrypting it is a separate job. Up to 5000 entries per run.",
+          "type": "string"
+        },
+        "default_folder": {
+          "description": "Folder/group name to file entries that have none under — e.g. \"Imported\". Empty by default, which leaves them at the top level. Entries that already have a folder keep it; the name maps to the folder, group or grouping column of whichever target format is written.",
+          "type": "string"
+        },
+        "from": {
+          "default": "auto",
+          "description": "The format the pasted export is already in. \"auto\" (default) sniffs it: a leading { or [ means Bitwarden JSON, otherwise the CSV header row decides (login_password → bitwarden-csv, grouping+extra → lastpass-csv, Title+Group → keepass-csv, name+url+note → chrome-csv, anything else with a password or username column → generic-csv). Name the format by hand when the header row has been edited and auto-detection guesses wrong.",
+          "enum": [
+            "auto",
+            "bitwarden-json",
+            "bitwarden-csv",
+            "keepass-csv",
+            "lastpass-csv",
+            "chrome-csv",
+            "generic-csv"
+          ],
+          "type": "string"
+        },
+        "include_extra_fields": {
+          "default": true,
+          "description": "Keep the data the target format has no column for by appending it to each entry's notes: Bitwarden custom fields, card and identity details, secondary URIs, and any CSV column the reader didn't claim. On by default. Turn it off for the smallest possible notes field, accepting that those details are dropped.",
+          "type": "boolean"
+        },
+        "include_totp": {
+          "default": true,
+          "description": "Carry two-factor (TOTP) secrets across. On by default — this is the thing most converters silently drop. Written to the TOTP column of every target that has one (KeePass, Bitwarden, LastPass, generic); Chrome CSV has no such column, so the secret is folded into that entry's note instead of being lost. Turn it off to strip 2FA secrets from the output entirely.",
+          "type": "boolean"
+        },
+        "skip_empty_passwords": {
+          "default": false,
+          "description": "Drop entries that have no password before writing. Off by default, so secure notes, cards and identities survive the conversion. Turn it on when the target importer rejects a row with an empty password column, or to export only real logins.",
+          "type": "boolean"
+        },
+        "to": {
+          "default": "keepass-csv",
+          "description": "The format to write. \"keepass-csv\" (default) is the Group,Title,Username,Password,URL,Notes,TOTP,Icon,Last Modified,Created layout KeePassXC 2.6.2+ imports; \"bitwarden-json\" and \"bitwarden-csv\" are Bitwarden's two documented import shapes; \"lastpass-csv\" is url,username,password,totp,extra,name,grouping,fav; \"chrome-csv\" is the name,url,username,password,note layout Chrome, Edge and Safari accept; \"generic-csv\" is a neutral folder,name,url,username,password,notes,totp,favorite,type sheet for spreadsheets or an unlisted manager.",
+          "enum": [
+            "bitwarden-json",
+            "bitwarden-csv",
+            "keepass-csv",
+            "lastpass-csv",
+            "chrome-csv",
+            "generic-csv"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

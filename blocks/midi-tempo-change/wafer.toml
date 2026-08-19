@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "midi-tempo-change"
+version = "0.1.0"
+abi = 1
+summary = "Change the tempo or BPM of a MIDI file while every note keeps its musical position"

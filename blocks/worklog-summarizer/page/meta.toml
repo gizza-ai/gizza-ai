@@ -1,0 +1,162 @@
+slug          = "worklog-summarizer"
+title         = "Worklog Summarizer — Time by Project, Tag, Day"
+description   = "Paste a timestamped worklog and total time by project, tag, day, or entry. Supports date ranges, CSV/JSON export, rounding, and open-entry handling."
+tags          = ["worklog", "time tracking", "timesheet", "activity log", "doing log", "project report"]
+h1            = "Summarize a Timestamped Worklog"
+hero_subtitle = "Paste a doing log or activity log and get deterministic totals by project, tag, day, or entry. Durations come from the next timestamp and everything runs locally in your browser."
+wasm          = "gizza_ai_worklog_summarizer_web"
+export        = "run"
+live          = false
+output_label  = "Worklog report"
+format        = "text"
+
+[[input]]
+name        = "log"
+label       = "Timestamped worklog"
+placeholder = "2024-01-15 09:00 @acme +dev writing the parser\n2024-01-15 10:30 @acme +review code review\n2024-01-15 12:00 lunch\n2024-01-15 13:00 @beta +dev bugfix\n2024-01-15 17:00 done"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "group_by"
+label  = "Group by"
+source = "field"
+
+[input.labels]
+all     = "All rollups"
+project = "Project"
+tag     = "Tag"
+day     = "Day"
+entry   = "Entry list"
+
+[[input]]
+name   = "output"
+label  = "Report format"
+source = "field"
+
+[input.labels]
+summary = "Readable summary"
+table   = "TSV table"
+csv     = "CSV"
+json    = "JSON"
+
+[[input]]
+name   = "units"
+label  = "Duration units"
+source = "field"
+
+[input.labels]
+hm      = "1h 30m"
+decimal = "Decimal hours"
+minutes = "Minutes"
+
+[[input]]
+name        = "round"
+label       = "Round each entry to minutes"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_entry"
+label       = "Cap a single entry at minutes"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "15"
+
+[[input]]
+name        = "end_time"
+label       = "Close final open entry at"
+placeholder = "17:30"
+source      = "field"
+kind        = "time"
+
+[[input]]
+name        = "from"
+label       = "From date"
+placeholder = "2024-01-15"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "to"
+label       = "To date"
+placeholder = "2024-01-31"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "filter"
+label       = "Only these projects/tags"
+placeholder = "@acme, +dev, beta*"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "default_project"
+label       = "Default project label"
+placeholder = "(untagged)"
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort rows by"
+source = "field"
+
+[input.labels]
+duration = "Longest first"
+name     = "Name"
+time     = "First timestamp"
+
+[[example]]
+label = "Daily project/tag report"
+
+[example.params]
+log = "2024-01-15 09:00 @acme +dev writing the parser\n2024-01-15 10:30 @acme +review code review\n2024-01-15 12:00 lunch\n2024-01-15 13:00 @beta +dev bugfix\n2024-01-15 17:00 done"
+group_by = "all"
+output = "summary"
+units = "hm"
+round = "0"
+max_entry = "0"
+end_time = ""
+from = ""
+to = ""
+filter = ""
+default_project = "(untagged)"
+sort = "duration"
+
+[[example]]
+label = "CSV for one project, rounded"
+
+[example.params]
+log = "2024-01-15 09:00 @acme draft\n2024-01-15 09:23 @acme review\n2024-01-15 10:01 @beta support\n2024-01-15 10:44 done"
+group_by = "entry"
+output = "csv"
+units = "minutes"
+round = "15"
+max_entry = "0"
+end_time = ""
+from = "2024-01-15"
+to = "2024-01-15"
+filter = "@acme"
+default_project = "personal"
+sort = "time"
+
+[[example]]
+label = "Close an open log at end of day"
+
+[example.params]
+log = "09:00 @ops standup\n09:45 @ops incident review\n13:15 +focus write notes"
+group_by = "project"
+output = "json"
+units = "decimal"
+round = "0"
+max_entry = "240"
+end_time = "17:30"
+from = ""
+to = ""
+filter = ""
+default_project = "personal"
+sort = "name"

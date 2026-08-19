@@ -1,0 +1,88 @@
+slug          = "percent-difference-calculator"
+title         = "Percent Difference Calculator — Percentage Difference & Percent Change"
+description   = "Compare two numbers: absolute difference, symmetric percentage difference, and percent change in both directions. Runs in your browser, nothing uploaded."
+tags = [
+  "percent difference calculator",
+  "percentage difference calculator",
+  "percent change calculator",
+  "difference between two numbers",
+  "percentage increase or decrease",
+  "symmetric percent difference",
+  "compare two values",
+  "percent error alternative",
+]
+h1            = "Percent difference between two numbers"
+hero_subtitle = "Enter two values to get the absolute difference, the symmetric percentage difference against their mean, and the directional percent change from one to the other."
+wasm          = "gizza_ai_percent_difference_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Comparison"
+format        = "text"
+
+[[input]]
+name        = "a"
+label       = "First value (a)"
+placeholder = "70"
+source      = "field"
+
+[[input]]
+name        = "b"
+label       = "Second value (b)"
+placeholder = "85"
+source      = "field"
+
+[[input]]
+name   = "mode"
+label  = "Measures to report"
+source = "field"
+
+[input.labels]
+all        = "All measures (difference + change)"
+difference = "Percent difference only (order-independent)"
+change     = "Percent change only (a → b, directional)"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+
+[[example]]
+label = "70 vs 85"
+[example.params]
+a = "70"
+b = "85"
+mode = "all"
+decimals = "4"
+
+[[example]]
+label = "5 vs 7 (difference only)"
+[example.params]
+a = "5"
+b = "7"
+mode = "difference"
+decimals = "2"
+
+[[example]]
+label = "120 → 100 (change only)"
+[example.params]
+a = "120"
+b = "100"
+mode = "change"
+decimals = "2"
+
+[[example]]
+label = "Negative pair: -4 vs 6"
+[example.params]
+a = "-4"
+b = "6"
+mode = "all"
+decimals = "2"
+
+[[example]]
+label = "Whole percents"
+[example.params]
+a = "10"
+b = "6"
+mode = "all"
+decimals = "0"

@@ -1,0 +1,31 @@
+[package]
+name = "gizza-ai-ecies-encrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# The three ECIES curves, all RustCrypto and already proven in wafer by
+# ecdsa-sign (p256/p384) and ecdsa-secp256k1 (k256). `arithmetic` gives the
+# scalar/point multiplication ECDH needs; `pkcs8` + `pem` parse SPKI public and
+# PKCS#8 private PEM so keys from OpenSSL paste straight in.
+k256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem", "alloc"] }
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem", "alloc"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "pkcs8", "pem", "alloc"] }
+# Symmetric halves of the hybrid scheme + the HKDF-SHA256 that turns the ECDH
+# output into the data-encryption key.
+aes-gcm = "0.10"
+chacha20poly1305 = "0.10"
+hkdf = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+# Fresh ephemeral key + nonce when the caller leaves those fields empty: WASI
+# `random_get` under wafer (wasm32-wasip1) and the native OS RNG in the CLI.
+rand = { version = "0.8", default-features = false, features = ["getrandom"] }
+
+# wasm32-unknown-unknown (the page build) has no entropy source of its own;
+# getrandom's `js` backend routes to crypto.getRandomValues. Scoped to that
+# target so the wasm32-wasip1 block build keeps the plain WASI backend.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }

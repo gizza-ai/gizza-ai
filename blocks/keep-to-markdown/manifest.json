@@ -1,0 +1,68 @@
+{
+  "name": "gizza-ai/keep-to-markdown",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Google Keep Takeout export into Markdown notes",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Google Takeout Keep export into Markdown notes with labels and checkboxes preserved. Paste one note's `.json` from `Takeout/Keep/`, a JSON array of such notes, or the Keep `.html` export — the format is auto-detected. Each note becomes one Markdown file in a single bundle, preceded by an '==== filename.md ====' header: the title becomes an `#` heading, `listContent` items become '- [ ]' / '- [x]' task list items (checkbox_style also offers bullet/plain), and labels, timestamps (createdTimestampUsec/userEditedTimestampUsec, converted to ISO-8601 UTC), pinned/archived flags and the note color go into YAML frontmatter (metadata='inline' turns labels into #hashtags instead, 'none' drops them). filename_style picks date-title (default), title, or label-title (first label as a folder). include_archived (default true), include_trashed (default false) and link_attachments (default true) control what is exported. Runs locally — nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "checkbox_style": {
+          "default": "task-list",
+          "description": "How Keep checklist items render. 'task-list' (default) writes Markdown task list items ('- [ ] Milk' / '- [x] Eggs'); 'bullet' writes plain '- Milk' bullets and drops the checked state; 'plain' writes one bare line per item.",
+          "enum": [
+            "task-list",
+            "bullet",
+            "plain"
+          ],
+          "type": "string"
+        },
+        "filename_style": {
+          "default": "date-title",
+          "description": "How each note's filename is built. 'date-title' (default) prefixes the slugged title with the creation date (2026-01-15-grocery-list.md); 'title' uses just the slugged title; 'label-title' puts the note in a folder named after its first label (shopping/grocery-list.md, or unlabeled/ when it has none). Duplicate names get a -1, -2 suffix.",
+          "enum": [
+            "date-title",
+            "title",
+            "label-title"
+          ],
+          "type": "string"
+        },
+        "include_archived": {
+          "default": true,
+          "description": "Include archived notes (Keep's isArchived / the Archived chip in the HTML export). Default true; they are tagged 'archived: true' in the frontmatter. Set false to export only unarchived notes.",
+          "type": "boolean"
+        },
+        "include_trashed": {
+          "default": false,
+          "description": "Include trashed notes (Keep's isTrashed). Default false — deleted notes are skipped.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Your Google Keep Takeout export, pasted as text: one note's `.json` file from `Takeout/Keep/`, a JSON array of several such notes, or the Keep `.html` export of a note. The format is auto-detected.",
+          "type": "string"
+        },
+        "link_attachments": {
+          "default": true,
+          "description": "Emit a Markdown link for each attachment listed in the note — '![photo.jpg](photo.jpg)' for images, '[voice.3gp](voice.3gp)' otherwise. Default true. The attachment files themselves live beside the notes in your Takeout folder; only the links are written here.",
+          "type": "boolean"
+        },
+        "metadata": {
+          "default": "frontmatter",
+          "description": "Where each note's metadata goes. 'frontmatter' (default) writes a YAML block with title, created/updated timestamps, labels, and the pinned/archived/color flags; 'inline' writes no YAML and appends the labels as #hashtags at the bottom; 'none' emits just the heading and the body.",
+          "enum": [
+            "frontmatter",
+            "inline",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

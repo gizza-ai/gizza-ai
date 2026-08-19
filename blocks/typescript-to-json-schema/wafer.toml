@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "typescript-to-json-schema"
+version = "0.1.0"
+abi = 1
+summary = "Convert a TypeScript interface or type alias to JSON Schema"

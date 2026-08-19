@@ -1,0 +1,132 @@
+slug          = "pca-visualizer"
+title         = "PCA & t-SNE Visualizer — 2D Scatter Plot from CSV"
+description   = "Paste a numeric table, reduce it to 2D with PCA or deterministic t-SNE, and get an SVG scatter plot colored by label, plus CSV/JSON coordinates."
+tags          = ["pca visualizer", "tsne visualizer", "dimensionality reduction", "scatter plot", "csv pca", "2d projection", "cluster visualization", "svg scatter plot", "principal component analysis", "data visualization"]
+h1            = "PCA and t-SNE visualizer"
+hero_subtitle = "Paste a labelled CSV or whitespace table and project high-dimensional rows into a 2D scatter plot. Use PCA for variance-explained axes or deterministic t-SNE for local clusters; points are coloured by a label column and the output stays browser-local."
+wasm          = "gizza_ai_pca_visualizer_web"
+export        = "run"
+live          = false
+output_label  = "Projection"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data table (rows = observations, columns = variables)"
+placeholder = "sepal_len,sepal_wid,petal_len,petal_wid,species\n5.1,3.5,1.4,0.2,setosa\n4.9,3.0,1.4,0.2,setosa\n6.4,3.2,4.5,1.5,versicolor\n6.9,3.1,4.9,1.5,versicolor\n6.5,3.0,5.8,2.2,virginica\n7.6,3.0,6.6,2.1,virginica"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "method"
+label  = "Projection method"
+source = "field"
+
+[input.labels]
+pca  = "PCA — linear, variance-explained axes"
+tsne = "t-SNE — non-linear local clusters"
+
+[[input]]
+name        = "label_column"
+label       = "Label column (optional name or 1-based index)"
+placeholder = "species"
+source      = "field"
+
+[[input]]
+name   = "scale"
+label  = "Standardize numeric columns before projecting"
+source = "field"
+
+[[input]]
+name        = "perplexity"
+label       = "t-SNE perplexity"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "iterations"
+label       = "t-SNE iterations"
+placeholder = "500"
+source      = "field"
+kind        = "slider"
+min         = "50"
+max         = "2000"
+step        = "50"
+
+[[input]]
+name        = "learning_rate"
+label       = "t-SNE learning rate"
+placeholder = "200"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "1000"
+step        = "1"
+
+[[input]]
+name   = "show_labels"
+label  = "Draw text labels next to points"
+source = "field"
+
+[[input]]
+name        = "point_size"
+label       = "Point radius (px)"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20"
+step        = "0.5"
+
+[[input]]
+name        = "title"
+label       = "Chart title (optional)"
+placeholder = "Iris measurements — PCA"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "SVG width (px)"
+placeholder = "720"
+source      = "field"
+kind        = "slider"
+min         = "300"
+max         = "2000"
+step        = "10"
+
+[[input]]
+name        = "height"
+label       = "SVG height (px)"
+placeholder = "520"
+source      = "field"
+kind        = "slider"
+min         = "200"
+max         = "2000"
+step        = "10"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+svg  = "SVG scatter plot"
+csv  = "CSV coordinates"
+json = "JSON projection"
+
+[[example]]
+label  = "Iris-like PCA plot"
+params = { data = "sepal_len,sepal_wid,petal_len,petal_wid,species\n5.1,3.5,1.4,0.2,setosa\n4.9,3.0,1.4,0.2,setosa\n5.8,2.7,4.1,1.0,versicolor\n6.4,3.2,4.5,1.5,versicolor\n6.5,3.0,5.8,2.2,virginica\n7.6,3.0,6.6,2.1,virginica", method = "pca", label_column = "species", scale = "true", point_size = "5", title = "Iris-like PCA", format = "svg" }
+
+[[example]]
+label  = "t-SNE clusters"
+params = { data = "x1,x2,x3,x4,class\n0,0,0,0,A\n0.2,0.1,0.2,0,A\n0.1,0.3,0,0.2,A\n8,7,8,7,B\n8.2,7.1,7.8,6.9,B\n7.8,7.3,8.1,7.2,B\n-7,5,-6,5,C\n-7.2,5.1,-6.1,5.2,C\n-6.8,4.9,-5.9,4.8,C", method = "tsne", label_column = "class", perplexity = "3", iterations = "300", show_labels = "true", title = "Deterministic t-SNE", format = "svg" }
+
+[[example]]
+label  = "Coordinates as CSV"
+params = { data = "x,y,z,group\n1,2,3,A\n2,4,5,A\n8,1,2,B\n9,2,1,B", method = "pca", label_column = "group", scale = "false", format = "csv" }

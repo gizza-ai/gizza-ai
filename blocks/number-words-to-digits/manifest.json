@@ -1,0 +1,73 @@
+{
+  "name": "gizza-ai/number-words-to-digits",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert numbers written in English words into digits",
+  "role": "skill",
+  "tool": {
+    "description": "Convert numbers spelled out in English words into digits — cardinals, hundreds and scale words up to decillion, Indian lakh/crore, decimal words ('five point forty-seven'), fraction words ('one and a half'), negatives, and ordinals. Works in place inside prose (default), line by line as strict values, or as a list of every number found. Options cover the thousands separator, the short/long reading of billion, ordinal output, fraction words, and spoken digit strings such as 'nine one one'. Exact 128-bit decimal arithmetic, no floating point, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "digit_sequences": {
+          "default": false,
+          "description": "Read runs of single-digit words as a spoken digit string: 'nine one one' -> 911, 'one two three' -> 123. Default false, because it changes the meaning of ordinary prose; grammar still wins when a scale word follows ('one hundred' stays 100).",
+          "type": "boolean"
+        },
+        "fractions": {
+          "default": true,
+          "description": "Read 'half' and 'quarter' as fraction words, so 'one and a half' -> 1.5, 'six and a quarter' -> 6.25, 'three quarters' -> 0.75, 'half a million' -> 500000. Default true; set false to leave those words untouched.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Text containing numbers written in English words, e.g. 'two hundred forty-three', 'one point five million', 'minus one and a half', or a whole paragraph. Multi-line input is supported (one phrase per line in value mode). Maximum 200000 characters.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "replace",
+          "description": "What to return: replace (default) rewrites the text in place, keeping every non-number word; value treats each non-empty line as one number phrase and errors on stray words; extract returns only the numbers found, one per line.",
+          "enum": [
+            "replace",
+            "value",
+            "extract"
+          ],
+          "type": "string"
+        },
+        "ordinals": {
+          "default": "cardinal",
+          "description": "How ordinal words such as 'twenty-first' are handled: cardinal (default, -> 21), suffix (-> 21st), or ignore (left as words, so 'twenty-first' becomes '20-first' in replace mode because only the cardinal part converts).",
+          "enum": [
+            "cardinal",
+            "suffix",
+            "ignore"
+          ],
+          "type": "string"
+        },
+        "scale": {
+          "default": "short",
+          "description": "Reading of billion/trillion: short (default, US/modern UK — billion = 10^9) or long (continental European — billion = 10^12, trillion = 10^18). 'milliard' is always 10^9 and 'lakh'/'crore' are always accepted in both.",
+          "enum": [
+            "short",
+            "long"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "none",
+          "description": "Thousands separator in the digits produced: none (default, 1250000), comma (1,250,000), space (1 250 000), or underscore (1_250_000).",
+          "enum": [
+            "none",
+            "comma",
+            "space",
+            "underscore"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

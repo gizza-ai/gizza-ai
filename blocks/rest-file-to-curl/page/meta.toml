@@ -1,0 +1,110 @@
+slug          = "rest-file-to-curl"
+title         = "REST File to cURL — convert a .http, .rest or .ain file into curl commands"
+description   = "Paste a .http, .rest or .ain request file, supply variables or an environment, and get ready-to-run curl commands for bash, cmd or PowerShell. Browser-only."
+tags          = ["rest file to curl", "http file to curl", ".http to curl", ".rest to curl", "ain file to curl", "rest client to curl", "convert http file to curl", "http request file converter"]
+h1            = "REST File to cURL"
+hero_subtitle = "Turn a REST client request file — .http, .rest or .ain, with {{variables}} and an environment — into runnable curl commands. Nothing is sent: the file is parsed in your browser and returned as command text."
+wasm          = "gizza_ai_rest_file_to_curl_web"
+export        = "run"
+live          = false
+output_label  = "curl command"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Request file (.http / .rest / .ain)"
+placeholder = "@host = https://api.example.com\n\n### create item\nPOST {{host}}/v1/items HTTP/1.1\nContent-Type: application/json\nX-Trace-Id: {{trace_id}}\n\n{\"name\":\"gizza\"}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "env"
+label       = "Variables (JSON object, named environments, or KEY=VALUE lines)"
+placeholder = "{\"host\":\"https://api.example.com\",\"trace_id\":\"abc123\"}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "environment"
+label       = "Environment name (only when variables are named environments)"
+placeholder = "prod"
+source      = "field"
+
+[[input]]
+name        = "request"
+label       = "Which request (all, an index like 2, or a name)"
+placeholder = "all"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "File format"
+source = "field"
+
+[[input]]
+name   = "shell"
+label  = "Target shell"
+source = "field"
+
+[[input]]
+name   = "flag_style"
+label  = "Flag style"
+source = "field"
+
+[[input]]
+name   = "multiline"
+label  = "Wrap command over several lines"
+source = "field"
+
+[[input]]
+name   = "unresolved"
+label  = "Missing variables"
+source = "field"
+
+[[input]]
+name   = "follow_redirects"
+label  = "Follow redirects (-L)"
+source = "field"
+
+[[input]]
+name   = "compressed"
+label  = "Request a compressed response (--compressed)"
+source = "field"
+
+[[input]]
+name   = "insecure"
+label  = "Skip TLS verification (-k)"
+source = "field"
+
+[[input]]
+name   = "include_comments"
+label  = "Label each command with its request name"
+source = "field"
+
+[[example]]
+label = "GET with a file variable"
+[example.params]
+data = "@host = https://api.example.com\n\nGET {{host}}/v1/users HTTP/1.1\nAccept: application/json"
+
+[[example]]
+label = "POST JSON with an environment"
+[example.params]
+data        = "POST {{host}}/v1/items\nContent-Type: application/json\nX-Trace-Id: {{trace_id}}\n\n{\"name\":\"gizza\"}"
+env         = "{\"dev\":{\"host\":\"http://localhost:3000\",\"trace_id\":\"dev-trace\"},\"prod\":{\"host\":\"https://api.example.com\",\"trace_id\":\"abc123\"}}"
+environment = "prod"
+
+[[example]]
+label = "Several requests in one file"
+[example.params]
+data = "### login\n# @name login\nPOST https://api.example.com/login\nContent-Type: application/json\n\n{\"user\":\"alice\"}\n\n### list items\nGET https://api.example.com/v1/items\n  ?page=2\n  &limit=50\nAccept: application/json"
+
+[[example]]
+label = "System variables"
+[example.params]
+data = "POST https://api.example.com/v1/events\nContent-Type: application/json\nX-Request-Id: {{$guid}}\n\n{\"at\":\"{{$datetime iso8601}}\",\"since\":{{$timestamp -1 d}},\"n\":{{$randomInt 1 100}}}"
+
+[[example]]
+label = ".ain template file"
+[example.params]
+data = "[Method]\nPOST\n\n[Host]\nhttps://api.example.com/v1/orders\n\n[Query]\nlimit=10\n\n[Headers]\nX-Trace-Id: $TRACE_ID\nContent-Type: application/json\n\n[Body]\n{\"ok\":true}"
+env  = "TRACE_ID=abc123"

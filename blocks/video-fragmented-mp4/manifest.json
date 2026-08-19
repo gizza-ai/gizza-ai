@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/video-fragmented-mp4",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an MP4 into a fragmented MP4 for streaming playback",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a progressive MP4 (or another video ffmpeg can read) into a single-file fragmented MP4 for Media Source Extensions, DASH-style byte-range playback, or CMAF-oriented workflows. By default the tool stream-copies every track (`mode=copy`) and applies +frag_keyframe+empty_moov+default_base_moof so keys stay as media fragments without quality loss. `profile=dash` or `profile=cmaf` add the matching muxer flags, `fragment_duration` sets a minimum keyframe-aligned fragment length in seconds, `segment_index=true` writes a global sidx, and `mode=h264` re-encodes to H.264/AAC with a configurable keyframe interval for browser-compatible, evenly spaced fragments. Output is a single .mp4 file, not an HLS/DASH manifest or multi-file segment set. Provide the video as either url (HTTP/HTTPS) or ref. Note: runs on the standalone page and CLI; chat ffmpeg is unavailable.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "fragment_duration": {
+          "default": 0.0,
+          "description": "Target minimum fragment duration in seconds, 0-30. 0 (default) cuts one fragment per existing keyframe. A positive value keeps fragments keyframe-aligned and prevents them being shorter than this target.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "keyframe_interval": {
+          "default": 2.0,
+          "description": "When mode=h264, force a keyframe every N seconds, 0-30. 2 seconds is the streaming-friendly default. Ignored in copy mode because existing encoded keyframes cannot be changed without re-encoding.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mode": {
+          "default": "copy",
+          "description": "Conversion mode. copy (default) stream-copies every track into a fragmented MP4 with no quality loss. h264 re-encodes video to H.264/yuv420p and audio to AAC for browser compatibility, and can force a regular keyframe cadence.",
+          "enum": [
+            "copy",
+            "h264"
+          ],
+          "type": "string"
+        },
+        "profile": {
+          "default": "mse",
+          "description": "Fragmented-MP4 profile. mse emits the generic Media Source Extensions flags. dash adds DASH-oriented muxer flags. cmaf adds CMAF-oriented muxer flags.",
+          "enum": [
+            "mse",
+            "dash",
+            "cmaf"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "segment_index": {
+          "default": false,
+          "description": "Write a global sidx segment index near the start of the file. Useful for byte-range single-file DASH; off by default for the smallest generic MSE output.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

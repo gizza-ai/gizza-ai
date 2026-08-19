@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-return-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Continuously-compounded log returns and volatility from a price series"

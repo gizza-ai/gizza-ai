@@ -1,0 +1,105 @@
+{
+  "name": "gizza-ai/worklog-summarizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Summarize timestamped worklogs by project, tag, day or entry",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a pasted timestamped worklog or doing log and total time by project, tag, day, or entry. Durations are inferred from consecutive timestamps; stop markers such as done/end/stop close the previous entry without adding their own time. Recognizes dated and undated lines, bracketed timestamps, ISO T timestamps, 24-hour times, and 12-hour am/pm times. Inline @project, +tag, and #tag tokens become grouping keys. Options cover output format (summary, table, csv, json), duration units (h/m, decimal hours, minutes), per-entry rounding, max-entry caps, final end_time, from/to date filtering, project/tag filtering, default project label, and row sorting. Fully local and deterministic — no AI model, no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "default_project": {
+          "default": "(untagged)",
+          "description": "Project label for entries with no @project, +tag or #tag token. Default '(untagged)'.",
+          "type": "string"
+        },
+        "end_time": {
+          "default": "",
+          "description": "Optional time used to close the final still-running entry, such as 17:30 or 5:30pm. Blank leaves the final entry marked open with zero added time.",
+          "type": "string"
+        },
+        "filter": {
+          "default": "",
+          "description": "Comma-separated project or tag filters, with optional trailing * prefix matching. Examples: '@acme', '+dev', 'ac*'. Blank includes every project and tag.",
+          "type": "string"
+        },
+        "from": {
+          "default": "",
+          "description": "Inclusive start date filter in YYYY-MM-DD form. Blank keeps the beginning of the log; undated entries are excluded when a date filter is used.",
+          "type": "string"
+        },
+        "group_by": {
+          "default": "all",
+          "description": "Which totals to show: all (projects, tags and days), project, tag, day, or entry for the original timestamped rows. Default all.",
+          "enum": [
+            "all",
+            "project",
+            "tag",
+            "day",
+            "entry"
+          ],
+          "type": "string"
+        },
+        "log": {
+          "description": "Timestamped worklog text. Each non-comment line should start with a time such as '09:00 @acme writing', '2024-01-15 09:00 @acme writing', '[2024-01-15 09:00] writing', or '9:00am writing'. Duration is inferred until the next timestamp. Maximum 5000000 bytes.",
+          "type": "string"
+        },
+        "max_entry": {
+          "default": 0,
+          "description": "Cap any single entry at this many minutes before totals are computed (0 = no cap). Useful when a forgotten stop would span a long break.",
+          "maximum": 1440,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Report format: summary (readable text with percentages and ASCII bars), table (tab-separated rows), csv, or json. Default summary.",
+          "enum": [
+            "summary",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "round": {
+          "default": 0,
+          "description": "Round each entry to this many minutes before totaling (0 = no rounding). Common billing increments are 5, 6, 10, 15, 30 or 60.",
+          "maximum": 1440,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sort": {
+          "default": "duration",
+          "description": "Sort grouped rows by duration descending, name, or first timestamp. Default duration.",
+          "enum": [
+            "duration",
+            "name",
+            "time"
+          ],
+          "type": "string"
+        },
+        "to": {
+          "default": "",
+          "description": "Inclusive end date filter in YYYY-MM-DD form. Blank keeps the end of the log; undated entries are excluded when a date filter is used.",
+          "type": "string"
+        },
+        "units": {
+          "default": "hm",
+          "description": "How to render durations: hm (for example 1h 30m), decimal hours, or raw minutes. Default hm.",
+          "enum": [
+            "hm",
+            "decimal",
+            "minutes"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "log"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-to-prores"
+version = "0.1.0"
+abi = 1
+summary = "Transcode video to Apple ProRes 422 MOV for editing."

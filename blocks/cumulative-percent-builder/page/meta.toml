@@ -1,0 +1,126 @@
+slug          = "cumulative-percent-builder"
+title         = "Cumulative Percent Builder — Pareto Running Totals"
+description   = "Sort label/value rows and add percent of total, cumulative sum, cumulative percent, running count, vital-few labels, and a text Pareto chart."
+tags          = ["pareto analysis", "cumulative percentage", "running total", "80 20 rule", "pareto table", "cumulative sum", "csv analysis"]
+h1            = "Build a Pareto cumulative percentage table"
+hero_subtitle = "Paste category/value rows and get a sorted table with percent of total, cumulative sum, cumulative percent, vital-few labels, optional Other bucketing, and report-ready CSV or Markdown."
+wasm          = "gizza_ai_cumulative_percent_builder_web"
+export        = "run"
+live          = false
+output_label  = "Cumulative percent table"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Rows (label,value)"
+placeholder = "issue,count\nScratches,400\nDents,250\nMisalignment,150\nPackaging,120\nOther,80"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma"
+tab       = "Tab"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yes  = "First row is a header"
+no   = "No header"
+
+[[input]]
+name   = "sort"
+label  = "Sort"
+source = "field"
+
+[input.labels]
+desc  = "Sort descending by value"
+input = "Keep input order"
+
+[[input]]
+name        = "threshold"
+label       = "Vital-few threshold (%)"
+placeholder = "80"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "top_n"
+label       = "Top N before Other bucket (0 = off)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "200"
+step        = "1"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "6"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+table    = "Text table + Pareto chart"
+csv      = "CSV"
+markdown = "Markdown table"
+
+[[example]]
+label = "Complaint Pareto"
+[example.params]
+data = "issue,count\nScratches,400\nDents,250\nMisalignment,150\nPackaging,120\nOther,80"
+delimiter = "comma"
+header = "yes"
+sort = "desc"
+threshold = "80"
+top_n = "0"
+decimals = "1"
+output = "table"
+
+[[example]]
+label = "Bucket the tail"
+[example.params]
+data = "Scratches,400\nDents,250\nMisalignment,150\nPackaging,120\nColor,50\nOther,30"
+delimiter = "comma"
+header = "no"
+sort = "desc"
+threshold = "80"
+top_n = "3"
+decimals = "0"
+output = "csv"
+
+[[example]]
+label = "Markdown report"
+[example.params]
+data = "A\t8\nB\t2\nC\t1"
+delimiter = "tab"
+header = "no"
+sort = "desc"
+threshold = "75"
+top_n = "0"
+decimals = "0"
+output = "markdown"

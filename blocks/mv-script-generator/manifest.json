@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/mv-script-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn an old,new filename mapping into a safe bash or PowerShell rename script plus its undo",
+  "role": "skill",
+  "tool": {
+    "description": "Turn an already-decided before→after filename mapping into a reviewable rename script — bash (mv) or PowerShell (Rename-Item/Move-Item) — plus the matching undo script. Nothing is moved here: the output is script text you review and run yourself. `mapping` takes one 'old,new' pair per line (comma, tab, pipe or ' -> ' separated; `format` forces one, `auto` detects it), and the generator applies the safety passes a hand-written script usually misses: every path is single-quoted with dialect-correct escaping and passed after '--' / via -LiteralPath so spaces, quotes, $ and leading dashes are inert; duplicate sources and duplicate destinations are hard errors naming both line numbers; chained renames (a→b, b→c) are ordered so no move clobbers a file a later move still needs; and true swaps (a→b, b→a) are staged through a temp name that the undo script unwinds the same way. Options: shell (bash|powershell), base_dir to cd into first, dry_run for a report-only script (-WhatIf on PowerShell), overwrite to allow replacing an existing destination (off by default, so the script aborts instead of destroying a file), mkdir_parents to create missing destination folders, undo_script, and comments for the summary header. Maximum 1000 pairs. To derive the new names in the first place (find/replace, regex, numbering, case), use bulk-file-renamer and feed its mapping in here.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "base_dir": {
+          "default": "",
+          "description": "Optional directory the script should run in. When set, the script starts with 'cd -- <dir>' (bash) or 'Set-Location -LiteralPath <dir>' (PowerShell) so the mapping can use plain filenames. Blank (default) means the script runs in the current directory.",
+          "type": "string"
+        },
+        "comments": {
+          "default": true,
+          "description": "When true (default), each script carries a header comment summarising the run: how many renames, how many unchanged pairs were skipped, whether moves were reordered, and how many temp names broke a cycle. Set false for a bare script.",
+          "type": "boolean"
+        },
+        "dry_run": {
+          "default": false,
+          "description": "When true, the script reports each move instead of performing it — bash prints 'would move: old -> new', PowerShell passes -WhatIf. Default false (the script really renames). Use it to preview the plan on the real directory first.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to split each mapping line. 'auto' (default) picks the one separator that works on every line. 'csv' = comma, honouring \"quoted,fields\" so a filename may contain commas; 'tsv' = tab; 'arrow' = ' -> '; 'pipe' = '|'. Set it explicitly when a filename contains the separator of another format.",
+          "enum": [
+            "auto",
+            "csv",
+            "tsv",
+            "arrow",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "mapping": {
+          "description": "The before→after filename mapping, one pair per line, e.g. 'IMG_001.JPG,photo-001.jpg'. Accepts comma, tab, pipe (' | ') or arrow (' -> ') between the old and the new name. Blank lines and lines starting with # are ignored, and a leading header row (old,new / from,to / source,destination) is skipped. Paths may be relative or absolute; quoting is handled for you. Maximum 1000 pairs.",
+          "type": "string"
+        },
+        "mkdir_parents": {
+          "default": true,
+          "description": "When true (default), the script creates missing parent directories of each destination ('mkdir -p' / New-Item -ItemType Directory). Turn it off to make a move into a non-existent folder fail loudly.",
+          "type": "boolean"
+        },
+        "overwrite": {
+          "default": false,
+          "description": "When true, an existing destination is replaced ('mv -f' / -Force). Default false, which makes the script abort before the first move if any destination already exists, so nothing is destroyed.",
+          "type": "boolean"
+        },
+        "shell": {
+          "default": "bash",
+          "description": "Script dialect to emit. 'bash' (default) writes a POSIX script with 'set -euo pipefail' and an 'mv_safe' helper. 'powershell' writes a PowerShell 5.1+ script with $ErrorActionPreference = 'Stop' and a 'Move-Safe' helper using Rename-Item -LiteralPath for same-directory renames and Move-Item otherwise.",
+          "enum": [
+            "bash",
+            "powershell"
+          ],
+          "type": "string"
+        },
+        "undo_script": {
+          "default": true,
+          "description": "When true (default), the output holds two scripts: the rename script, then an undo script that reverses every emitted move in reverse order (including the temp names used to break rename cycles). Set false to get only the rename script.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mapping"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+slug          = "json-schema-to-sample"
+title         = "JSON Schema to Sample JSON — Example Instance Generator"
+description   = "Paste a JSON Schema and get a minimal valid example JSON instance. Honors required, default, const, enum, examples, $ref, allOf and formats. Runs in your browser."
+tags          = ["json schema to json", "json schema example generator", "sample json from schema", "json schema to sample", "example json instance", "openapi example generator", "json schema sample data", "api docs example"]
+h1            = "Generate a sample JSON instance from a JSON Schema"
+hero_subtitle = "Paste a JSON Schema and get the smallest JSON document that satisfies it — required fields, defaults, enums and $refs resolved. Deterministic and fully browser-local."
+wasm          = "gizza_ai_json_schema_to_sample_web"
+export        = "run"
+live          = false
+output_label  = "Sample JSON"
+format        = "text"
+
+[[input]]
+name        = "schema"
+label       = "JSON Schema"
+placeholder = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": { \"type\": \"integer\", \"minimum\": 1 },\n    \"email\": { \"type\": \"string\", \"format\": \"email\" },\n    \"role\": { \"enum\": [\"admin\", \"user\"] }\n  },\n  \"required\": [\"id\", \"email\"]\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "include_optional"
+label  = "Include optional properties"
+source = "field"
+
+[[input]]
+name        = "array_items"
+label       = "Array items"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 50
+step        = "1"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print"
+source = "field"
+
+[[example]]
+label = "Required fields only"
+[example.params]
+schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": { \"type\": \"integer\", \"minimum\": 1 },\n    \"email\": { \"type\": \"string\", \"format\": \"email\" },\n    \"nickname\": { \"type\": \"string\" }\n  },\n  \"required\": [\"id\", \"email\"]\n}"
+include_optional = "false"
+array_items = "1"
+pretty = "true"
+
+[[example]]
+label = "$defs and arrays"
+[example.params]
+schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"order_id\": { \"type\": \"string\", \"format\": \"uuid\" },\n    \"lines\": {\n      \"type\": \"array\",\n      \"items\": { \"$ref\": \"#/$defs/Line\" },\n      \"minItems\": 1\n    }\n  },\n  \"required\": [\"order_id\", \"lines\"],\n  \"$defs\": {\n    \"Line\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"sku\": { \"type\": \"string\" },\n        \"qty\": { \"type\": \"integer\", \"minimum\": 1 },\n        \"currency\": { \"enum\": [\"EUR\", \"USD\"] }\n      },\n      \"required\": [\"sku\", \"qty\", \"currency\"]\n    }\n  }\n}"
+include_optional = "false"
+array_items = "2"
+pretty = "true"
+
+[[example]]
+label = "Every field, compact"
+[example.params]
+schema = "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"name\": { \"type\": \"string\" },\n    \"active\": { \"type\": \"boolean\", \"default\": false },\n    \"tags\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n  },\n  \"required\": [\"name\"]\n}"
+include_optional = "true"
+array_items = "1"
+pretty = "false"

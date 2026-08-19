@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "time-series-resample"
+version = "0.1.0"
+abi = 1
+summary = "Resample a timestamped CSV series to a coarser interval with per-bucket aggregation"

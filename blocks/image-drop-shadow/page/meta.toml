@@ -1,0 +1,111 @@
+slug          = "image-drop-shadow"
+title         = "Add a Drop Shadow to a Transparent PNG — Free Online Shadow Maker"
+description   = "Add a realistic soft drop shadow behind a transparent PNG cutout — set offset, blur, color and opacity. Runs in your browser, nothing is uploaded, free."
+tags          = ["image", "drop shadow", "png", "transparent png", "cutout", "product photo", "sticker", "shadow generator", "soft shadow", "box shadow", "webp", "jpg"]
+h1            = "Add a Drop Shadow to an Image"
+hero_subtitle = "Pick a transparent PNG and the shadow is cast from its own silhouette — offset, blur, color and opacity all adjustable, in your browser."
+wasm          = "gizza_ai_image_drop_shadow_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Image with a drop shadow"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image (transparent PNG works best)"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# offset_x, offset_y, blur, color, opacity, padding, background,
+# clip_to_original, format.
+[[input]]
+name        = "offset_x"
+source      = "field"
+label       = "Horizontal offset (px)"
+placeholder = "12"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "offset_y"
+source      = "field"
+label       = "Vertical offset (px)"
+placeholder = "16"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "blur"
+source      = "field"
+label       = "Blur radius (px)"
+placeholder = "24"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Shadow color"
+placeholder = "#000000, #333 or charcoal"
+kind        = "color"
+
+[[input]]
+name        = "opacity"
+source      = "field"
+label       = "Shadow opacity (%)"
+placeholder = "35"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "padding"
+source      = "field"
+label       = "Canvas margin (px, 0 = auto-fit)"
+placeholder = "0 = auto"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Canvas background"
+placeholder = "transparent, white or #F5F5F5"
+kind        = "color"
+
+[[input]]
+name   = "clip_to_original"
+source = "field"
+label  = "Keep the original size (clip the shadow)"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"png"  = "png — lossless, keeps transparency"
+"webp" = "webp — smaller, keeps transparency"
+"jpg"  = "jpg — smallest, no transparency"
+
+[[example]]
+label  = "Soft product shadow"
+params = { offset_x = "12", offset_y = "16", blur = "24", color = "#000000", opacity = "35", background = "transparent" }
+
+[[example]]
+label  = "Subtle UI card"
+params = { offset_x = "0", offset_y = "4", blur = "12", color = "#000000", opacity = "20" }
+
+[[example]]
+label  = "Long cast shadow"
+params = { offset_x = "40", offset_y = "60", blur = "60", color = "#000000", opacity = "30" }
+
+[[example]]
+label  = "Hard sticker edge"
+params = { offset_x = "6", offset_y = "6", blur = "0", color = "#000000", opacity = "100" }
+
+[[example]]
+label  = "Colored glow"
+params = { offset_x = "0", offset_y = "0", blur = "80", color = "#3366FF", opacity = "70" }
+
+[[example]]
+label  = "On a white studio canvas"
+params = { offset_x = "10", offset_y = "24", blur = "40", color = "#333333", opacity = "45", padding = "80", background = "#FFFFFF" }

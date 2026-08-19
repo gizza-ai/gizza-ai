@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pgp-decrypt"
+version = "0.1.0"
+abi = 1
+summary = "Decrypt an OpenPGP (PGP/GPG) message"

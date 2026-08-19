@@ -1,0 +1,133 @@
+slug          = "base64-diff"
+title         = "Base64 diff — decode two Base64 strings and compare the bytes"
+description   = "Paste two Base64 or Base64url strings and see whether the decoded payloads really differ: first differing offset, hex dump, byte ranges, sha256 — all in your browser."
+tags          = ["base64 diff", "compare base64", "base64 compare online", "byte diff", "hex diff", "base64url diff", "decode and compare"]
+h1            = "Base64 diff"
+hero_subtitle = "Decode two Base64 or Base64url strings and diff the bytes underneath — so padding, line wrapping and +/ vs -_ never look like a real change."
+wasm          = "gizza_ai_base64_diff_web"
+export        = "run"
+live          = false
+output_label  = "Byte diff"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "left"
+label       = "First Base64 (baseline / old)"
+placeholder = "SGVsbG8gd29ybGQh"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Second Base64 (candidate / new)"
+placeholder = "SGVsbG8gV29ybGQh"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "alphabet"
+label       = "Alphabet"
+source      = "field"
+
+[input.labels]
+auto     = "Detect automatically"
+standard = "Standard (+ and /)"
+url      = "Base64url (- and _)"
+
+[[input]]
+name        = "strict"
+label       = "Strict RFC 4648 (reject whitespace and bad padding)"
+source      = "field"
+
+[[input]]
+name        = "align"
+label       = "Alignment"
+source      = "field"
+
+[input.labels]
+offset = "By offset (byte i vs byte i)"
+shift  = "Shift-aware (trim common prefix/suffix)"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+report  = "Full JSON report"
+summary = "Readable summary"
+hexdump = "Side-by-side hex dump"
+text    = "Unified text diff (UTF-8 payloads)"
+
+[[input]]
+name        = "bytes_per_row"
+label       = "Hex dump width (bytes per row, 4-32)"
+placeholder = "8"
+source      = "field"
+
+[[input]]
+name        = "context_rows"
+label       = "Context kept around a change (rows / lines, 0-64)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "One byte changed"
+[example.params]
+left = "SGVsbG8gd29ybGQh"
+right = "SGVsbG8gV29ybGQh"
+alphabet = "auto"
+strict = "false"
+align = "offset"
+output = "summary"
+bytes_per_row = "8"
+context_rows = "2"
+
+[[example]]
+label = "Same bytes, different encoding"
+[example.params]
+left = "SGVsbG8sIHdvcmxkIQ"
+right = "SGVsbG8sIHdvcmxkIQ=="
+alphabet = "auto"
+strict = "false"
+align = "offset"
+output = "summary"
+bytes_per_row = "8"
+context_rows = "2"
+
+[[example]]
+label = "Hex dump of two PNG headers"
+[example.params]
+left = "iVBORw0KGgoAAAANSUhEUgAAABA="
+right = "iVBORw0KGgoAAAANSUhEUgAAACA="
+alphabet = "auto"
+strict = "false"
+align = "offset"
+output = "hexdump"
+bytes_per_row = "8"
+context_rows = "2"
+
+[[example]]
+label = "Decoded config, line by line"
+[example.params]
+left = "dXNlcjogYWxpY2UKcm9sZTogYWRtaW4KcmVnaW9uOiBldS13ZXN0LTEK"
+right = "dXNlcjogYWxpY2UKcm9sZTogcm9vdApyZWdpb246IGV1LXdlc3QtMQo="
+alphabet = "auto"
+strict = "false"
+align = "offset"
+output = "text"
+bytes_per_row = "8"
+context_rows = "2"
+
+[[example]]
+label = "One inserted byte (shift-aware)"
+[example.params]
+left = "SGVsbG8gd29ybGQh"
+right = "SGVsbG8sIHdvcmxkIQ=="
+alphabet = "auto"
+strict = "false"
+align = "shift"
+output = "summary"
+bytes_per_row = "8"
+context_rows = "2"

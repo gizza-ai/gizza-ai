@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mp4-to-flv"
+version = "0.1.0"
+abi = 1
+summary = "Encode a video to an FLV stream for legacy RTMP ingest."

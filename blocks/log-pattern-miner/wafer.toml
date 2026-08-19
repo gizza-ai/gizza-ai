@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "log-pattern-miner"
+version = "0.1.0"
+abi = 1
+summary = "Cluster raw log lines into ranked message templates with occurrence counts."

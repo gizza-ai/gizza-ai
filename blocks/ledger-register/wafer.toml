@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ledger-register"
+version = "0.1.0"
+abi = 1
+summary = "List every posting of a ledger-cli / hledger journal with a running total, filtered by account, payee or date range"

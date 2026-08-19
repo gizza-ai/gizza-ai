@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/video-vfr-to-cfr",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a variable-frame-rate video to constant frame rate",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a variable-frame-rate (VFR) video — phone footage, screen or game capture — to constant frame rate (CFR) so it edits and stays in sync. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus optional fps (auto|23.976|24|25|29.97|30|50|59.94|60, default auto = keep the source's nominal rate), quality (high|balanced|small, default balanced), and resync_audio (default true, re-locks the audio to the rebuilt timeline). ffmpeg regenerates the frame timestamps on an even grid (-fps_mode cfr), duplicating or dropping frames where the source's timing was irregular. The video is re-encoded to H.264 yuv420p; mp4/mov/m4v/mkv inputs keep their container, anything else (e.g. webm) becomes MP4.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "fps": {
+          "default": "auto",
+          "description": "Constant frame rate to lock the video to. Default auto = keep the source's own nominal rate and only make the timing even (safest for phone/screen recordings). Pick an explicit rate to also retime: 23.976/24 film, 25/50 PAL, 29.97/30 and 59.94/60 NTSC/web.",
+          "enum": [
+            "auto",
+            "23.976",
+            "24",
+            "25",
+            "29.97",
+            "30",
+            "50",
+            "59.94",
+            "60"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": "balanced",
+          "description": "Encode quality for the required H.264 re-encode: high (crf 18, near-transparent, largest), balanced (crf 20, default), small (crf 24, smallest file).",
+          "enum": [
+            "high",
+            "balanced",
+            "small"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "resync_audio": {
+          "default": true,
+          "description": "Re-lock the audio track to the rebuilt video timeline (aresample async, anchored at the first frame) so it stops drifting out of sync. Default on; turn off to stream-copy the original audio bit-for-bit.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

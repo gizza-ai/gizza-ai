@@ -1,0 +1,95 @@
+{
+  "name": "gizza-ai/spline-smoother",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fit cubic smoothing splines to noisy numeric series.",
+  "role": "skill",
+  "tool": {
+    "description": "Fit a cubic smoothing spline to a noisy numeric series. Paste one y value per row, x,y rows, or JSON data; choose automatic GCV/CV smoothing, a p value, a raw lambda, or a target effective degrees of freedom. Returns JSON, CSV, or an SVG chart with fitted values, residuals, optional predictions, resampled curve points, and optional piecewise cubic coefficients.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "coefficients": {
+          "default": false,
+          "description": "Include natural-cubic piece coefficients for each interval in JSON/CSV output. Default false.",
+          "type": "boolean"
+        },
+        "criterion": {
+          "default": "gcv",
+          "description": "Score used by mode=auto: generalized cross-validation (gcv) or exact leave-one-out cross-validation (cv). Default gcv.",
+          "enum": [
+            "gcv",
+            "cv"
+          ],
+          "type": "string"
+        },
+        "df": {
+          "default": 5.0,
+          "description": "Target effective degrees of freedom for mode=df. Must be between 2 and the number of distinct x values. Default 5.",
+          "maximum": 10000,
+          "minimum": 2,
+          "type": "number"
+        },
+        "input": {
+          "description": "Numeric series to smooth. Accepts one y value per row, x,y rows with an optional header, a one-line y list, a JSON array of numbers, JSON [x,y] pairs, or JSON objects with x and y.",
+          "type": "string"
+        },
+        "lambda": {
+          "default": 1.0,
+          "description": "Raw non-negative smoothing penalty λ for mode=lambda, in the input x units. Default 1.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "mode": {
+          "default": "auto",
+          "description": "How to choose the smoothing penalty: auto selects by criterion, smoothing uses p in [0,1], lambda uses a raw penalty, and df targets effective degrees of freedom.",
+          "enum": [
+            "auto",
+            "smoothing",
+            "lambda",
+            "df"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format: JSON report, CSV tables, or a self-contained SVG chart. Default json.",
+          "enum": [
+            "json",
+            "csv",
+            "svg"
+          ],
+          "type": "string"
+        },
+        "predict_at": {
+          "default": "",
+          "description": "Optional x values where the fitted spline should be evaluated, separated by commas, spaces, tabs, or semicolons.",
+          "type": "string"
+        },
+        "resample": {
+          "default": 0,
+          "description": "Number of evenly spaced fitted-curve samples to include. 0 disables the curve; values above 0 must be at least 2. Default 0.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "smoothing": {
+          "default": 0.99,
+          "description": "Scale-free smoothing p for mode=smoothing. 0 gives the weighted least-squares straight line; 1 interpolates the distinct input points. Default 0.99.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "weights": {
+          "default": "",
+          "description": "Optional positive weights, one per original input point, separated by commas, spaces, tabs, or semicolons. Leave empty for equal weights.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

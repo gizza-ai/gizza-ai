@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "autocomplete-trie"
+version = "0.1.0"
+abi = 1
+summary = "Build a prefix trie from a wordlist and return ranked autocomplete suggestions for a prefix"

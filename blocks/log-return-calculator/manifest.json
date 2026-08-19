@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/log-return-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Continuously-compounded log returns and volatility from a price series",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a series of PRICES or levels — closes, index levels, NAVs, exchange rates — into continuously-compounded log returns, ln(p_t / p_{t-1}). Paste one price per line (optionally as 'label,price' like '2024-01-02,187.15'), or a single comma-separated line; currency symbols and thousands separators are accepted and every price must be positive. Returns the per-period log return, the simple return of the same step and a running cumulative log return, plus the total log return (which equals the sum of the periods because log returns are time-additive), the equivalent simple return, the mean log return, the per-period and annualized volatility, the annualized log and simple rates, best and worst periods, and how many periods were positive. Set periods_per_year (252 trading days, 365 calendar, 52 weekly, 26 biweekly, 12 monthly, 4 quarterly, 1 annual) to annualize, unit=percent or decimal, decimals 0-10, and output=summary, table, csv or json. Runs locally. Educational only, not financial advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for every return in the output, 0 to 10. Default 4.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "has_header": {
+          "default": false,
+          "description": "Skip the first line before parsing, for when the pasted column starts with a header like 'date,close'. Default false.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output shape: summary (headline metrics plus the per-period table), table (just the table), csv (the table as CSV for a spreadsheet), or json (every computed field). Default summary.",
+          "enum": [
+            "summary",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "periods_per_year": {
+          "default": "252",
+          "description": "How many prices make up a year, used to annualize the mean return and the volatility: 252 trading days, 365 calendar days, 52 weekly, 26 biweekly, 12 monthly, 4 quarterly, 1 annual. Default 252.",
+          "enum": [
+            "252",
+            "365",
+            "52",
+            "26",
+            "12",
+            "4",
+            "1"
+          ],
+          "type": "string"
+        },
+        "prices": {
+          "description": "The price or level series (levels, not returns): one price per line, or a single line of prices separated by commas. Each line may also be 'label,price' (e.g. '2024-01-02,187.15') to name the rows. Currency symbols and thousands separators are accepted. Every price must be greater than 0 because a log return is ln(price ÷ previous price). Needs at least 2 prices, maximum 2000.",
+          "type": "string"
+        },
+        "unit": {
+          "default": "percent",
+          "description": "How each return is written: percent shows +1.1778%, decimal shows the raw natural-log value +0.011778. Default percent.",
+          "enum": [
+            "percent",
+            "decimal"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "prices"
+      ],
+      "type": "object"
+    }
+  }
+}

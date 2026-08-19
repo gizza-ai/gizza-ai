@@ -1,0 +1,138 @@
+{
+  "name": "gizza-ai/ledger-register",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List every posting of a ledger-cli / hledger journal with a running total, filtered by account, payee or date range",
+  "role": "skill",
+  "tool": {
+    "description": "Produce a register report from a ledger-cli / hledger plain-text journal: one line per matching posting — date, description, account, amount — with a running total in the last column, exactly like the `ledger register` / `hledger register` report. Pass the pasted journal as 'journal'. account_filter and payee_filter take comma-separated case-insensitive substrings with a 'not:'/'-' prefix to exclude; begin/end select a date range (end is exclusive); status keeps all/cleared/pending/unmarked transactions; depth shortens account names; running_total is period (from the report start), historical (carry in the balance before 'begin'), average (running average) or none; related prints the other side of each matching transaction; invert flips every sign; real_only drops virtual '(…)'/'[…]' postings; cost_basis lists '@'/'@@' priced postings in their cost commodity; sort orders the rows; limit + limit_from keep the first or last N rows; width sets the text report width; output_format is text, csv, json or markdown. The parser handles multi-commodity amounts, both '1,234.56' and '1.234,56' number styles, an inferred amount-less posting, balance assertions (parsed, never counted), and the account/alias/commodity/D/Y/apply account/comment directives. 'include FILE' is skipped (no filesystem) and reported in the notes. Up to 5000 transactions per run. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "account_filter": {
+          "default": "",
+          "description": "Comma-separated case-insensitive substrings an account must contain, e.g. 'checking'. Prefix a pattern with 'not:' or '-' to exclude instead, e.g. 'expenses, not:coffee'. Blank (default) lists every posting.",
+          "type": "string"
+        },
+        "begin": {
+          "default": "",
+          "description": "Only list postings dated on or after this date, as YYYY-MM-DD, e.g. '2024-01-01'. Blank (default) starts at the earliest transaction.",
+          "type": "string"
+        },
+        "cost_basis": {
+          "default": false,
+          "description": "When true, list postings that carry an '@' unit price or '@@' total price in the price's commodity instead of the original one, e.g. '10 AAPL @ $50.00' registers as $500.00. Default false keeps the original commodity.",
+          "type": "boolean"
+        },
+        "depth": {
+          "default": 0,
+          "description": "Shorten account names to this many ':'-separated levels, e.g. 2 turns 'Expenses:Food:Coffee' into 'Expenses:Food'. 0 (default) prints the full name.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end": {
+          "default": "",
+          "description": "Only list postings dated BEFORE this date (exclusive, as ledger and hledger do), as YYYY-MM-DD, e.g. '2024-04-01' for Q1. Blank (default) runs to the latest transaction.",
+          "type": "string"
+        },
+        "invert": {
+          "default": false,
+          "description": "When true, flip the sign of every amount and running total, so an income or liability account reads as positive. Default false.",
+          "type": "boolean"
+        },
+        "journal": {
+          "description": "The ledger-cli / hledger plain-text journal to register, e.g. '2024-01-05 * Groceries' followed by indented postings like '    Expenses:Food  $45.20'. Up to 5000 transactions per run.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Print at most this many rows, e.g. 20 for a quick look at a long register. 0 (default) prints every matching posting. The running total is computed over the whole register first, then the rows are sliced.",
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "limit_from": {
+          "default": "first",
+          "description": "Which end 'limit' keeps: first (default, the oldest rows) or last (the most recent rows, whose final running total is the current balance). Ignored when limit is 0.",
+          "enum": [
+            "first",
+            "last"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "text",
+          "description": "How to render the register: text (default, aligned columns like the ledger CLI), csv (date,description,account,commodity,amount,total rows), json (structured postings) or markdown (a table to paste into notes).",
+          "enum": [
+            "text",
+            "csv",
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "payee_filter": {
+          "default": "",
+          "description": "Same syntax as account_filter, but matched against the transaction description / payee, e.g. 'coffee' or 'rent, not:refund'. Blank (default) keeps every description.",
+          "type": "string"
+        },
+        "real_only": {
+          "default": false,
+          "description": "When true, ignore virtual postings written in '(…)' or '[…]' brackets (budget/envelope legs). Default false lists them.",
+          "type": "boolean"
+        },
+        "related": {
+          "default": false,
+          "description": "When true, print the OTHER side of every transaction that touches the filtered accounts — the categories a bank account's money went to — instead of the matching postings themselves. Requires account_filter. Default false.",
+          "type": "boolean"
+        },
+        "running_total": {
+          "default": "period",
+          "description": "What the last column shows: period (default) is the running total from the report start; historical carries in the balance of everything before 'begin'; average is the running average of the postings so far; none drops the column.",
+          "enum": [
+            "period",
+            "historical",
+            "average",
+            "none"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "date",
+          "description": "Row order: date (default, oldest first — the order a running total is meant to be read in), date-desc (newest first), amount (largest first), amount-asc (smallest first) or account (alphabetical). The running total always accumulates in the order shown.",
+          "enum": [
+            "date",
+            "date-desc",
+            "amount",
+            "amount-asc",
+            "account"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "default": "all",
+          "description": "Keep only transactions with this status flag: all (default), cleared ('*'), pending ('!') or unmarked (no flag).",
+          "enum": [
+            "all",
+            "cleared",
+            "pending",
+            "unmarked"
+          ],
+          "type": "string"
+        },
+        "width": {
+          "default": 80,
+          "description": "Total width of the text report in columns, 40-400 (default 80). The amount columns size to their contents; the description and account columns share what is left and are clipped with '..'. Ignored by the csv, json and markdown formats.",
+          "maximum": 400,
+          "minimum": 40,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "journal"
+      ],
+      "type": "object"
+    }
+  }
+}

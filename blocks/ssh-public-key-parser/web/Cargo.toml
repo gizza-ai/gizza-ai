@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-ssh-public-key-parser-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+# js-sys: the wasm32-unknown-unknown page target has no std clock, so certificate
+# validity is evaluated against the browser's own Date.now().
+js-sys = "0.3"
+gizza-ai-ssh-public-key-parser-core = { path = "../core" }

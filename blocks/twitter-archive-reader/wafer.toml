@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "twitter-archive-reader"
+version = "0.1.0"
+abi = 1
+summary = "Turn the tweets.js file from a Twitter/X archive into a readable transcript with posting stats and top tweets"

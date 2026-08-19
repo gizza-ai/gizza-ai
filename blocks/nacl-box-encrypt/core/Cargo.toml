@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-nacl-box-encrypt-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+crypto_box = { version = "0.9.1", default-features = false, features = ["alloc", "salsa20"] }
+hex = "0.4"

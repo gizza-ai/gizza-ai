@@ -1,0 +1,125 @@
+slug          = "env-file-merger"
+title         = "Env File Merger — Merge Layered .env Files, See Which File Wins"
+description   = "Merge up to four layered .env files in your browser and see which file set each value, with the full override chain, secret masking and ${VAR} expansion."
+tags          = ["merge env files", "dotenv cascade", "env file merger", "which env file wins", "env override chain", "dotenv-flow", "vite env files", "env precedence"]
+h1            = "Env File Merger"
+hero_subtitle = "Paste your .env cascade — .env, .env.local, .env.production, .env.production.local — lowest priority first, and get one resolved environment that says which file set every value and what it overrode. Export a merged .env, shell exports, JSON or a table. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_env_file_merger_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "layer1"
+label       = "Layer 1 — base file, lowest priority (.env)"
+placeholder = "APP_NAME=demo\nAPI_URL=https://dev.example.com\nDEBUG=true\nAPI_TOKEN=dev-token-123456"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer2"
+label       = "Layer 2 — overrides layer 1 (.env.local)"
+placeholder = "DEBUG=false"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer3"
+label       = "Layer 3 — overrides layers 1-2 (.env.production)"
+placeholder = "API_URL=https://api.example.com\nCDN_URL=https://cdn.example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer4"
+label       = "Layer 4 — highest priority (.env.production.local, or your shell vars)"
+placeholder = "API_TOKEN=prod-token-987654"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layer_names"
+label       = "Layer names (comma-separated, optional)"
+placeholder = ".env,.env.local,.env.staging,.env.staging.local"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report    = "Report — resolved values + who set each"
+env       = "Merged .env — plain KEY=value file"
+json      = "JSON — per-key source and overrides"
+shell     = "Shell — export KEY='value' lines"
+markdown  = "Markdown — Key / Value / Set by table"
+conflicts = "Conflicts only — keys set by 2+ layers"
+
+[[input]]
+name   = "mask_secrets"
+label  = "Mask sensitive values (SECRET/TOKEN/PASSWORD/KEY/…)"
+source = "field"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort keys alphabetically"
+source = "field"
+
+[[input]]
+name        = "prefix_filter"
+label       = "Only keys starting with (optional)"
+placeholder = "VITE_"
+source      = "field"
+
+[[input]]
+name   = "expand_vars"
+label  = "Expand ${VAR} references against the merged result"
+source = "field"
+
+[[example]]
+label = "Four-file cascade"
+[example.params]
+layer1       = "APP_NAME=demo\nAPI_URL=https://dev.example.com\nDEBUG=true\nAPI_TOKEN=dev-token-123456"
+layer2       = "DEBUG=false"
+layer3       = "API_URL=https://api.example.com\nCDN_URL=https://cdn.example.com"
+layer4       = "API_TOKEN=prod-token-987654"
+mask_secrets = "true"
+output       = "report"
+
+[[example]]
+label = "Merged .env to copy"
+[example.params]
+layer1       = "APP_NAME=demo\nAPI_URL=https://dev.example.com\nDEBUG=true"
+layer2       = "DEBUG=false"
+layer3       = "API_URL=https://api.example.com"
+mask_secrets = "false"
+output       = "env"
+
+[[example]]
+label = "What did prod override?"
+[example.params]
+layer1       = "API_URL=https://dev.example.com\nDEBUG=true\nAPP_NAME=demo"
+layer3       = "API_URL=https://api.example.com\nDEBUG=false"
+mask_secrets = "false"
+output       = "conflicts"
+
+[[example]]
+label = "Vite client vars only"
+[example.params]
+layer1        = "VITE_API_URL=https://dev.example.com\nDB_PASSWORD=hunter2000\nVITE_MODE=dev"
+layer2        = "VITE_MODE=local"
+layer_names   = ".env,.env.local"
+prefix_filter = "VITE_"
+mask_secrets  = "false"
+output        = "shell"
+
+[[example]]
+label = "Expand ${VAR}"
+[example.params]
+layer1       = "HOST=dev.example.com\nAPI_URL=https://${HOST}/v1\nPORT_URL=${API_URL}:${PORT:-8080}"
+layer2       = "HOST=prod.example.com"
+expand_vars  = "true"
+mask_secrets = "false"
+output       = "env"

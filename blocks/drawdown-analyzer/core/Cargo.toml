@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-drawdown-analyzer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# serde derives the Analysis/Episode output structs the chat + CLI surfaces emit.
+serde = { version = "1", features = ["derive"] }
+# chrono for calendar arithmetic on dated series; alloc-only (no clock, no std
+# time) so it instantiates on wasm32-unknown-unknown for the page too.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }

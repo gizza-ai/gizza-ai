@@ -1,0 +1,36 @@
+{
+  "name": "gizza-ai/file-metadata-inspect",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Show the hidden metadata embedded in a file",
+  "role": "skill",
+  "tool": {
+    "description": "Show every metadata block embedded in a file — the hidden data you would leak by sharing it. Reads image EXIF/TIFF (camera make/model, exposure, lens, software, timestamps) with GPS decoded to decimal latitude/longitude, XMP packets (dc:title, dc:creator, xmp:CreatorTool and the rest), PDF document information (Title, Author, Subject, Keywords, Creator, Producer, creation/modification dates) plus PDF version, page count and encryption state, and Office/OpenDocument/EPUB document properties from the container (author, last modified by, revision, application, company). The format is detected from the file's magic bytes, so a wrong or missing extension does not matter. A file in an unsupported format, or one that simply carries nothing, returns a 'no supported metadata found' summary rather than an error. Pure and deterministic; the file is inspected in place and never modified. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

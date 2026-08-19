@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "background-color-detector"
+version = "0.1.0"
+abi = 1
+summary = "Detect an image's likely background color from its border or corners."

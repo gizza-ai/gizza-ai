@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "age-encrypt"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt text to armored age ciphertext"

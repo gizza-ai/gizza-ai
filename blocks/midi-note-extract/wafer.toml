@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "midi-note-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract every note from a MIDI file as a CSV/TSV table of pitch, start, duration and velocity"

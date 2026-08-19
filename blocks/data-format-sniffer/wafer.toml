@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "data-format-sniffer"
+version = "0.1.0"
+abi = 1
+summary = "Identify a data sample's format, encoding, delimiter and columns."

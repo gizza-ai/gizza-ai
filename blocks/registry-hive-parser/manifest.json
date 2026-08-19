@@ -1,0 +1,54 @@
+{
+  "name": "gizza-ai/registry-hive-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Browse Windows registry hive headers, keys, values, and RunKeys.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an offline Windows registry hive (NTUSER.DAT, SYSTEM, SOFTWARE, SAM, SECURITY, USRCLASS.DAT, Amcache.hve, and other regf files) from hex or Base64 text. Report the base-block header, checksum and dirty/truncated flags, browse a key path relative to the hive root, or sweep common Run/RunOnce/autostart locations used during DFIR triage. Structured traversal uses a pure Rust registry parser; when a damaged hive cannot be walked, the tool still reports the header and carves key names from nk cells with honest limits. Runs locally; no upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The raw Windows registry hive bytes encoded as hex (default) or Base64. Paste NTUSER.DAT, SYSTEM, SOFTWARE, SAM, SECURITY, USRCLASS.DAT, or Amcache.hve bytes after encoding them; the tool never uploads the hive.",
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "hex",
+          "description": "How the hive bytes in data are encoded. 'hex' accepts contiguous or whitespace-separated bytes with an optional leading 0x. 'base64' accepts standard Base64 with optional whitespace.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "max_entries": {
+          "default": 50,
+          "description": "Maximum subkeys or values shown in each section. Use a small number for chat-friendly output; the tool clamps values above 1000. Default 50.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "summary",
+          "description": "What to inspect: 'summary' reports the regf header, integrity flags, root subkeys, and root values; 'path' browses one backslash-separated key path relative to the hive root; 'runkeys' probes common Run/RunOnce/autostart locations for NTUSER.DAT, SOFTWARE, and SYSTEM hives.",
+          "enum": [
+            "summary",
+            "path",
+            "runkeys"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "default": "",
+          "description": "For mode='path', a registry key path relative to the loaded hive root, such as Software\\Microsoft\\Windows\\CurrentVersion\\Run. Do not include HKCU or HKLM prefixes; leave blank for the root key.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

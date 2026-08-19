@@ -1,0 +1,100 @@
+{
+  "name": "gizza-ai/cartesian-to-polar-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a CSV of x,y points to polar r,theta coordinates",
+  "role": "skill",
+  "tool": {
+    "description": "Batch-convert a CSV of 2D points between Cartesian (x, y) and polar (r, theta) coordinates. Paste the CSV in the csv parameter; the tool finds the coordinate columns by header name or 1-based index (x_column / y_column), auto-detecting the usual spellings (x/y, easting/northing, r/rho/radius, theta/phi/angle) when they are left empty. Cartesian to polar computes r = sqrt(x^2 + y^2) and theta = atan2(y, x), so all four quadrants are correct; polar to cartesian computes x = r*cos(theta) and y = r*sin(theta). The angle can be reported in degrees, radians, gradians or turns, either signed (-180 to 180 degrees) or wrapped positive (0 to 360 degrees), rounded to 0-15 decimals. Non-coordinate columns such as id or label are carried through by default, the delimiter (comma, semicolon, tab, pipe) is sniffed automatically, and output can be CSV, TSV, JSON or an aligned text table. Bad cells report their row number. Pure local Rust/WASM; no network, no plotting, no 3D or geodetic coordinate systems.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "angle_range": {
+          "default": "signed",
+          "description": "Range for the reported angle. signed (default) is the atan2 range, -180 to 180 degrees; positive wraps negatives up into 0 to 360 degrees. Both scale with angle_unit and only affect cartesian_to_polar output.",
+          "enum": [
+            "signed",
+            "positive"
+          ],
+          "type": "string"
+        },
+        "angle_unit": {
+          "default": "degrees",
+          "description": "Unit for the angle: degrees (default, full turn 360), radians (full turn 2*pi), gradians (full turn 400) or turns (full turn 1). It applies to the theta output when converting to polar and to the theta input when converting back.",
+          "enum": [
+            "degrees",
+            "radians",
+            "gradians",
+            "turns"
+          ],
+          "type": "string"
+        },
+        "csv": {
+          "description": "The CSV text of 2D points, one point per row, for example a header line x,y followed by rows like 3,4. Extra columns such as id or label are allowed and are carried through. Input is capped at 5 MB and 200000 data rows.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 6.0,
+          "description": "Decimal places for every converted number, from 0 through 15. The default 6 keeps sub-millimetre precision on metre-scale data; 15 is the practical limit of 64-bit floating point.",
+          "maximum": 15,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field delimiter of the input. auto (default) sniffs the first non-empty line for comma, semicolon, tab or pipe. CSV output is written back with the same delimiter.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "direction": {
+          "default": "cartesian_to_polar",
+          "description": "Conversion direction. cartesian_to_polar (default) reads x and y and emits r and theta; polar_to_cartesian reads r and theta and emits x and y.",
+          "enum": [
+            "cartesian_to_polar",
+            "polar_to_cartesian"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first row as a header of column names. Turn this off for bare numeric rows like 3,4 — columns are then named column1, column2 and no header row is written.",
+          "type": "boolean"
+        },
+        "keep_columns": {
+          "default": true,
+          "description": "Carry every non-coordinate column (id, label, timestamp, ...) through to the output, in its original order, with the two converted values appended after them. Turn off to emit only the converted pair.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Output shape. csv (default) reuses the input delimiter; tsv is tab-separated; json is an array of one object per row; table is a right-aligned plain-text table for reading.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json",
+            "table"
+          ],
+          "type": "string"
+        },
+        "x_column": {
+          "description": "Column holding x, or holding r when direction is polar_to_cartesian. Give a header name such as x or easting, or a 1-based column number such as 2. Leave empty to auto-detect names like x, easting, r, rho or radius, falling back to the first column.",
+          "type": "string"
+        },
+        "y_column": {
+          "description": "Column holding y, or holding the angle when direction is polar_to_cartesian. Give a header name such as y or theta, or a 1-based column number such as 3. Leave empty to auto-detect names like y, northing, theta, phi or angle, falling back to the second column.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "csv"
+      ],
+      "type": "object"
+    }
+  }
+}

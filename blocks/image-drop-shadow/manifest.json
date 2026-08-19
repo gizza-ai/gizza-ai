@@ -1,0 +1,96 @@
+{
+  "name": "gizza-ai/image-drop-shadow",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add a soft drop shadow behind a transparent-PNG cutout, with adjustable offset, blur, color and opacity.",
+  "role": "skill",
+  "tool": {
+    "description": "Add a realistic soft drop shadow behind a transparent-PNG cutout (product shots, stickers, logos). The shadow follows the image's alpha channel, so it takes the shape of the subject, not a rectangle. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional offset_x/offset_y in px (defaults 12/16, negative shifts left/up), blur radius in px (default 24, 0 = hard edge), color (hex or name, default #000000), opacity 0-100 percent (default 35), padding px (default 0 = auto-fit so the shadow is never clipped), background (transparent by default, or a solid color), clip_to_original true to keep the input's exact dimensions, and format png|webp|jpg (default png). An image with no transparency casts a plain rectangular shadow — remove the background first for a shaped one.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "transparent",
+          "description": "Canvas fill behind the shadow: transparent (the default) keeps the PNG see-through; a hex value like #FFFFFF or a name like white/beige/slate fills it with a solid opaque color. JPEG output cannot store transparency, so it flattens onto white unless you set a color here.",
+          "type": "string"
+        },
+        "blur": {
+          "default": 24.0,
+          "description": "Shadow blur radius in pixels, the same units CSS drop-shadow uses (the Gaussian sigma is half of it). 0 gives a hard-edged sticker shadow, 24 (the default) a soft one, 60+ a wide ambient glow.",
+          "maximum": 400,
+          "minimum": 0,
+          "type": "number"
+        },
+        "clip_to_original": {
+          "default": false,
+          "description": "Keep the input's exact width and height instead of growing the canvas: the shadow is then clipped wherever it falls outside the original frame. Default false (the canvas grows to fit the shadow). Turn it on when the output must stay a fixed size, e.g. replacing an existing asset.",
+          "type": "boolean"
+        },
+        "color": {
+          "default": "#000000",
+          "description": "Shadow color: hex like #000000 (the default), #333 or 0x1A2B3C, or a name such as black, charcoal, slate, navy or red. Any alpha in the hex is ignored — use the opacity parameter for transparency.",
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format: png (the default, lossless with full transparency), webp (smaller, also keeps transparency), or jpg (smallest, NO transparency — the canvas is flattened onto the background color, white by default).",
+          "enum": [
+            "png",
+            "webp",
+            "jpg"
+          ],
+          "type": "string"
+        },
+        "offset_x": {
+          "default": 12.0,
+          "description": "How far the shadow is shifted horizontally, in pixels. Positive moves it right (12 is the default), negative moves it left. Example: -10 for light coming from the right.",
+          "maximum": 500,
+          "minimum": -500,
+          "type": "number"
+        },
+        "offset_y": {
+          "default": 16.0,
+          "description": "How far the shadow is shifted vertically, in pixels. Positive moves it down (16 is the default, like overhead light), negative moves it up. Example: 40 for an object floating high above a surface.",
+          "maximum": 500,
+          "minimum": -500,
+          "type": "number"
+        },
+        "opacity": {
+          "default": 35.0,
+          "description": "Shadow opacity in percent, 0-100. 35 (the default) reads as a realistic cast shadow; 0 makes the shadow invisible and 100 makes it fully solid. Example: 60 for a heavier, contactier shadow.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "padding": {
+          "default": 0.0,
+          "description": "Transparent margin added to every side, in pixels, so the shadow has room. 0 (the default) means AUTO: enough for the blur reach plus the offset, so the shadow is never cut off. Set a number to control the margin exactly, e.g. 80 for a roomy product-shot canvas. Ignored when clip_to_original is true.",
+          "maximum": 2000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

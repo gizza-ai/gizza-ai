@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-rule-based-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+regex = { version = "1", default-features = false, features = ["std", "perf", "unicode"] }
+# preserve_order emits the extracted fields in rule-declaration order rather
+# than alphabetically — the field order is part of this tool's contract.
+serde_json = { version = "1", features = ["preserve_order"] }

@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-markdown-table-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+serde = "1"
+# preserve_order keeps JSON object keys in the table's column order (the default
+# Map is a BTreeMap and would sort them alphabetically).
+serde_json = { version = "1", features = ["preserve_order"] }

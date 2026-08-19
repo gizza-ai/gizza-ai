@@ -1,0 +1,211 @@
+slug          = "peak-detector"
+title         = "Peak Detector — Find Local Maxima and Minima in a Signal"
+description   = "Paste a 1-D signal and find its peaks and valleys, with prominence, height, distance and width filters. Free, runs in your browser."
+tags          = ["peak detector", "find peaks online", "local maxima finder", "local minima finder", "signal peak finder", "prominence peak detection", "find peaks in data", "valley detector", "peak finding tool"]
+h1            = "Peak Detector"
+hero_subtitle = "Paste a column of numbers and get every local maximum and minimum in it — each peak's position, value, prominence and width, in a table you can export. Filter out noise by prominence, height, spacing or width, or smooth the signal first. Nothing is uploaded; detection runs in your browser."
+wasm          = "gizza_ai_peak_detector_web"
+export        = "run"
+live          = false
+output_label  = "Peak report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Signal values"
+placeholder = "0, 1, 0, 3, 0, 2, 0"
+source      = "field"
+multiline   = true
+
+# mode renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "mode"
+label  = "What to find"
+source = "field"
+
+[input.labels]
+maxima = "Maxima — peaks"
+minima = "Minima — valleys"
+both   = "Both — peaks and valleys"
+
+[[input]]
+name   = "separator"
+label  = "Value separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto — comma, space, tab, newline, semicolon or pipe"
+comma     = "Comma"
+newline   = "Newline (one value per line)"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name        = "smooth"
+label       = "Smoothing window in samples (odd, 0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "min_value"
+label       = "Lowest accepted value (blank = no floor)"
+placeholder = "e.g. 5"
+source      = "field"
+
+[[input]]
+name        = "max_value"
+label       = "Highest accepted value (blank = no ceiling)"
+placeholder = "e.g. 100"
+source      = "field"
+
+[[input]]
+name        = "threshold"
+label       = "Minimum drop to both neighbours (0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "min_distance"
+label       = "Minimum spacing between peaks in samples (0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "min_prominence"
+label       = "Minimum prominence (0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "min_width"
+label       = "Minimum width in samples (0 = off)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "rel_height"
+label       = "Width measured at this fraction of the prominence (0-1)"
+placeholder = "0.5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name        = "max_peaks"
+label       = "Maximum peaks to report (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "sort_by"
+label  = "Row order"
+source = "field"
+
+[input.labels]
+position   = "Position in the signal"
+prominence = "Prominence (most significant first)"
+value      = "Value (highest first)"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON (machine-readable)"
+csv  = "CSV (spreadsheet-ready)"
+
+[[example]]
+label = "Clean signal"
+[example.params]
+data = "0, 1, 0, 3, 0, 2, 0"
+mode = "maxima"
+separator = "auto"
+smooth = "0"
+min_value = ""
+max_value = ""
+threshold = "0"
+min_distance = "0"
+min_prominence = "0"
+min_width = "0"
+rel_height = "0.5"
+max_peaks = "0"
+sort_by = "position"
+format = "text"
+
+[[example]]
+label = "Noisy signal, smoothed"
+[example.params]
+data = "0, 1, 0, 8, 7, 9, 7, 8, 0, 1, 0"
+mode = "maxima"
+separator = "auto"
+smooth = "5"
+min_value = ""
+max_value = ""
+threshold = "0"
+min_distance = "0"
+min_prominence = "1"
+min_width = "0"
+rel_height = "0.5"
+max_peaks = "0"
+sort_by = "position"
+format = "text"
+
+[[example]]
+label = "Valleys only"
+[example.params]
+data = "5, 1, 5, 2, 5"
+mode = "minima"
+separator = "auto"
+smooth = "0"
+min_value = ""
+max_value = ""
+threshold = "0"
+min_distance = "0"
+min_prominence = "0"
+min_width = "0"
+rel_height = "0.5"
+max_peaks = "0"
+sort_by = "position"
+format = "text"
+
+[[example]]
+label = "Top 2 by prominence"
+[example.params]
+data = "0, 2, 0, 9, 0, 5, 0"
+mode = "maxima"
+separator = "auto"
+smooth = "0"
+min_value = ""
+max_value = ""
+threshold = "0"
+min_distance = "0"
+min_prominence = "0"
+min_width = "0"
+rel_height = "0.5"
+max_peaks = "2"
+sort_by = "prominence"
+format = "text"
+
+[[example]]
+label = "One value per line, CSV out"
+[example.params]
+data = "0\n1\n0\n3\n0\n2\n0"
+mode = "both"
+separator = "newline"
+smooth = "0"
+min_value = ""
+max_value = ""
+threshold = "0"
+min_distance = "0"
+min_prominence = "0"
+min_width = "0"
+rel_height = "0.5"
+max_peaks = "0"
+sort_by = "position"
+format = "csv"

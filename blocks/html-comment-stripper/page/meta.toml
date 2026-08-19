@@ -1,0 +1,104 @@
+slug          = "html-comment-stripper"
+title         = "Remove HTML Comments — Keep Conditional, SSI and Banner Comments"
+description   = "Strip HTML comments from markup and change nothing else. Keeps IE conditional, SSI and licence-banner comments by default. Free, runs in your browser."
+tags          = ["remove html comments", "html comment stripper", "strip comments from html", "delete html comments online", "remove comments keep conditional comments", "remove wordpress block comments", "clean html before deploy", "remove css comments in style block"]
+h1            = "Remove HTML Comments"
+hero_subtitle = "Delete <!-- … --> comments and leave every other byte exactly where it was — no re-indentation, no tag rewriting, nothing a minifier would do. Conditional, server-side-include and licence-banner comments are kept by default, and comment-looking text inside a script, a style block or an attribute value is never mistaken for a comment. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_html_comment_stripper_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned HTML"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<!--! (c) 2026 Example Ltd -->\n<h1>Hello</h1>\n<!-- internal note: swap the hero copy -->\n<p>Ship it.</p>"
+source      = "field"
+multiline   = true
+
+# keep_conditional / keep_ssi / keep_bang / remove_css_comments render as
+# checkboxes and pattern_mode / blank_lines / output as <select>s, derived from
+# the descriptor schema in manifest.json — so the option lists are not
+# duplicated here, only their friendly labels.
+[[input]]
+name    = "keep_conditional"
+label   = "Keep IE conditional comments (<!--[if …]>)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "keep_ssi"
+label   = "Keep server-side includes (<!--# … -->)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "keep_bang"
+label   = "Keep banner / licence comments (<!--! … -->)"
+default = "true"
+source  = "field"
+
+[[input]]
+name        = "pattern"
+label       = "Pattern (regular expression over the comment's inner text)"
+placeholder = "^\\s*/?wp:"
+source      = "field"
+
+[[input]]
+name    = "pattern_mode"
+label   = "Pattern means"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep = "Keep matching comments (default)"
+only = "Remove ONLY matching comments, keep the rest"
+
+[[input]]
+name    = "remove_css_comments"
+label   = "Also remove /* … */ comments inside <style>"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "blank_lines"
+label   = "Blank lines"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep     = "Keep the whitespace exactly as it was (default)"
+trim     = "Drop lines a removed comment left blank"
+collapse = "Drop them and fold runs of blank lines into one"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "html"
+source  = "field"
+
+[input.labels]
+html     = "Cleaned HTML (default)"
+report   = "Report — counts, kinds and bytes saved"
+comments = "Dry run — list every comment found"
+
+[[example]]
+label  = "Strip notes, keep the licence banner"
+params = { html = "<!--! (c) 2026 Example Ltd -->\n<h1>Hello</h1>\n<!-- internal note: swap the hero copy -->\n<p>Ship it.</p>", keep_conditional = "true", keep_ssi = "true", keep_bang = "true", pattern = "", pattern_mode = "keep", remove_css_comments = "false", blank_lines = "keep", output = "html" }
+
+[[example]]
+label  = "Strip CSS notes too and tidy blank lines"
+params = { html = "<style>\n/* nav spacing */\nnav{gap:8px}\n</style>\n<!-- internal note -->\n<p>Ship it.</p>", keep_conditional = "true", keep_ssi = "true", keep_bang = "true", pattern = "", pattern_mode = "keep", remove_css_comments = "true", blank_lines = "trim", output = "html" }
+
+[[example]]
+label  = "Remove WordPress block markers only"
+params = { html = "<!-- wp:paragraph -->\n<p>Hello</p>\n<!-- /wp:paragraph -->\n<!-- release notes: keep me -->", keep_conditional = "true", keep_ssi = "true", keep_bang = "true", pattern = '^\s*/?wp:', pattern_mode = "only", remove_css_comments = "false", blank_lines = "keep", output = "html" }
+
+[[example]]
+label  = "Drop legacy IE conditional comments"
+params = { html = "<!--[if lt IE 9]><script src=\"shiv.js\"></script><![endif]-->\n<!-- old note -->\n<p>Modern browsers only.</p>", keep_conditional = "false", keep_ssi = "true", keep_bang = "true", pattern = "", pattern_mode = "keep", remove_css_comments = "false", blank_lines = "trim", output = "html" }
+
+[[example]]
+label  = "Dry run — list every comment found"
+params = { html = "<!--! (c) 2026 Example Ltd -->\n<h1>Hello</h1>\n<!-- internal note: swap the hero copy -->\n<p>Ship it.</p>", keep_conditional = "true", keep_ssi = "true", keep_bang = "true", pattern = "", pattern_mode = "keep", remove_css_comments = "false", blank_lines = "keep", output = "comments" }

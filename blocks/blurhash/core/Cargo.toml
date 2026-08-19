@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-blurhash-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode of the common web formats + PNG encode for the preview.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+# blurhash: pure-Rust port of woltapp/blurhash. default-features = false turns OFF
+# `fast-linear-to-srgb` (a lookup-table approximation) so the DC/AC values match the
+# reference implementation exactly.
+blurhash = { version = "0.2", default-features = false }
+# thumbhash: pure-Rust port of evanw/thumbhash (no dependencies).
+thumbhash = "0.1"
+# base64: the ThumbHash string form + the preview data-URL. Pure-Rust, wasm32-safe.
+base64 = "0.22"

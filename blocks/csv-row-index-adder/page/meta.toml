@@ -1,0 +1,151 @@
+slug          = "csv-row-index-adder"
+title         = "Add Row Index or UUID Column to CSV"
+description   = "Add sequential row numbers, UUIDs, or composite key columns to CSV data online. Choose the delimiter, header handling, position, padding, prefix, and suffix."
+tags          = ["csv row index", "add row number", "csv uuid", "csv key column", "csv tools", "row id", "composite key"]
+h1            = "Add a Row Index, UUID, or Key Column to CSV"
+hero_subtitle = "Paste CSV, then insert a generated key column: row numbers, UUIDs, or composite values built from existing columns. Runs in your browser."
+wasm          = "gizza_ai_csv_row_index_adder_web"
+export        = "run"
+live          = false
+output_label  = "Updated CSV"
+format        = "text"
+
+# Field order MUST match web/src/lib.rs run(): data, mode, column_name, position,
+# reference_column, has_header, start, step, pad_width, prefix, suffix, columns,
+# separator, uuid_version, uuid_format, delimiter.
+[[input]]
+name        = "data"
+label       = "CSV data"
+placeholder = "name,city\nAda,London\nLin,Taipei"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Generated value"
+source = "field"
+[input.labels]
+sequential = "Sequential row numbers"
+uuid = "UUID per row"
+composite = "Composite key from columns"
+
+[[input]]
+name        = "column_name"
+label       = "New column name"
+placeholder = "index"
+source      = "field"
+
+[[input]]
+name   = "position"
+label  = "Insert position"
+source = "field"
+[input.labels]
+start = "Start (first column)"
+end = "End (last column)"
+before = "Before reference column"
+after = "After reference column"
+
+[[input]]
+name        = "reference_column"
+label       = "Reference column (for before/after)"
+placeholder = "city or 2"
+source      = "field"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name        = "start"
+label       = "Start number"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "step"
+label       = "Step"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "pad_width"
+label       = "Zero-pad width"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "prefix"
+label       = "Prefix"
+placeholder = "INV-"
+source      = "field"
+
+[[input]]
+name        = "suffix"
+label       = "Suffix"
+placeholder = "-2026"
+source      = "field"
+
+[[input]]
+name        = "columns"
+label       = "Composite source columns"
+placeholder = "region,dept or 1,2"
+source      = "field"
+
+[[input]]
+name        = "separator"
+label       = "Composite separator"
+placeholder = "-"
+source      = "field"
+
+[[input]]
+name   = "uuid_version"
+label  = "UUID version"
+source = "field"
+[input.labels]
+"4" = "v4 random"
+"7" = "v7 time-ordered"
+
+[[input]]
+name   = "uuid_format"
+label  = "UUID format"
+source = "field"
+[input.labels]
+standard = "lowercase with hyphens"
+uppercase = "uppercase with hyphens"
+compact = "compact (no hyphens)"
+braces = "{braces}"
+urn = "URN"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+[input.labels]
+auto = "Auto-detect"
+"," = "Comma"
+tab = "Tab"
+";" = "Semicolon"
+"|" = "Pipe"
+
+[[example]]
+label  = "Add row numbers"
+params = { data = "name,city\nAda,London\nLin,Taipei", mode = "sequential", column_name = "index", start = "1", step = "1", pad_width = "0" }
+
+[[example]]
+label  = "Zero-padded invoice IDs"
+params = { data = "customer,total\nAda,42\nLin,99", mode = "sequential", column_name = "invoice", start = "1", step = "1", pad_width = "4", prefix = "INV-" }
+
+[[example]]
+label  = "UUID key column"
+params = { data = "name,city\nAda,London\nLin,Taipei", mode = "uuid", column_name = "id", uuid_version = "4", uuid_format = "standard" }
+
+[[example]]
+label  = "Sortable UUID v7"
+params = { data = "name,city\nAda,London\nLin,Taipei", mode = "uuid", column_name = "id", uuid_version = "7" }
+
+[[example]]
+label  = "Composite business key"
+params = { data = "region,dept,spend\nEU,ops,10\nUS,eng,20", mode = "composite", column_name = "key", columns = "region,dept", separator = "-" }

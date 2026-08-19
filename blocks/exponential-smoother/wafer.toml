@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "exponential-smoother"
+version = "0.1.0"
+abi = 1
+summary = "Smooth a numeric series with an exponentially-weighted moving average."

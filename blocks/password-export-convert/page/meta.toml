@@ -1,0 +1,110 @@
+slug          = "password-export-convert"
+title         = "Password export converter — Bitwarden, KeePass, LastPass and Chrome CSV"
+description   = "Convert a password manager export between Bitwarden JSON/CSV, KeePass CSV, LastPass CSV and Chrome CSV. Keeps TOTP secrets and folders. Runs in your browser."
+tags          = ["password export converter", "bitwarden to keepass", "lastpass to bitwarden", "chrome passwords to keepass", "keepass csv converter", "password manager migration", "bitwarden json to csv", "vault export converter"]
+h1            = "Password export converter"
+hero_subtitle = "Paste an export from one password manager and get back the file another one will import — Bitwarden JSON or CSV, KeePass/KeePassXC CSV, LastPass CSV, Chrome CSV or a plain spreadsheet CSV, in any direction. TOTP secrets, folders and custom fields come across. The conversion happens in this tab; nothing is uploaded."
+wasm          = "gizza_ai_password_export_convert_web"
+export        = "run"
+live          = false
+output_label  = "Converted export"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Your unencrypted export (paste the file's text, header row and all)"
+placeholder = "Group,Title,Username,Password,URL,Notes,TOTP\nWork,Example Mail,demo-user@example.com,sample-passphrase-1,https://mail.example.com,recovery codes in the safe,JBSWY3DPEHPK3PXP"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "from"
+label  = "Format you are converting from"
+source = "field"
+
+[input.labels]
+auto = "Detect it for me"
+"bitwarden-json" = "Bitwarden — JSON export"
+"bitwarden-csv" = "Bitwarden — CSV export"
+"keepass-csv" = "KeePass / KeePassXC — CSV"
+"lastpass-csv" = "LastPass — CSV"
+"chrome-csv" = "Chrome / Edge / Safari — CSV"
+"generic-csv" = "Plain spreadsheet CSV"
+
+[[input]]
+name   = "to"
+label  = "Format you are converting to"
+source = "field"
+
+[input.labels]
+"bitwarden-json" = "Bitwarden — JSON export"
+"bitwarden-csv" = "Bitwarden — CSV export"
+"keepass-csv" = "KeePass / KeePassXC — CSV"
+"lastpass-csv" = "LastPass — CSV"
+"chrome-csv" = "Chrome / Edge / Safari — CSV"
+"generic-csv" = "Plain spreadsheet CSV"
+
+[[input]]
+name   = "include_totp"
+label  = "Carry two-factor (TOTP) secrets across"
+source = "field"
+
+[[input]]
+name   = "include_extra_fields"
+label  = "Keep custom fields, card and identity details in the notes"
+source = "field"
+
+[[input]]
+name   = "skip_empty_passwords"
+label  = "Drop entries that have no password"
+source = "field"
+
+[[input]]
+name        = "default_folder"
+label       = "Folder or group for entries that have none (optional)"
+placeholder = "Imported"
+source      = "field"
+
+[[example]]
+label = "Bitwarden JSON → KeePass CSV"
+[example.params]
+data = "{\"encrypted\":false,\"folders\":[{\"id\":\"f1\",\"name\":\"Work\"}],\"items\":[{\"id\":\"i1\",\"folderId\":\"f1\",\"type\":1,\"name\":\"Example Mail\",\"notes\":\"recovery codes in the safe\",\"favorite\":true,\"login\":{\"uris\":[{\"uri\":\"https://mail.example.com\"}],\"username\":\"demo-user@example.com\",\"password\":\"sample-passphrase-1\",\"totp\":\"JBSWY3DPEHPK3PXP\"}}]}"
+from = "auto"
+to = "keepass-csv"
+include_totp = "true"
+include_extra_fields = "true"
+skip_empty_passwords = "false"
+default_folder = ""
+
+[[example]]
+label = "KeePass CSV → Bitwarden JSON"
+[example.params]
+data = "Group,Title,Username,Password,URL,Notes,TOTP\nWork,Example Mail,demo-user@example.com,sample-passphrase-1,https://mail.example.com,recovery codes in the safe,JBSWY3DPEHPK3PXP"
+from = "auto"
+to = "bitwarden-json"
+include_totp = "true"
+include_extra_fields = "true"
+skip_empty_passwords = "false"
+default_folder = ""
+
+[[example]]
+label = "Chrome CSV → Bitwarden CSV"
+[example.params]
+data = "name,url,username,password,note\nExample Shop,https://shop.example.com,demo-user@example.com,sample-passphrase-2,gift card inside"
+from = "auto"
+to = "bitwarden-csv"
+include_totp = "true"
+include_extra_fields = "true"
+skip_empty_passwords = "false"
+default_folder = "Imported"
+
+[[example]]
+label = "LastPass CSV → KeePass CSV"
+[example.params]
+data = "url,username,password,totp,extra,name,grouping,fav\nhttps://mail.example.com,demo-user@example.com,sample-passphrase-1,JBSWY3DPEHPK3PXP,recovery codes in the safe,Example Mail,Work,1\nhttp://sn,,,,wifi key is on the router,Home wifi,Home,0"
+from = "lastpass-csv"
+to = "keepass-csv"
+include_totp = "true"
+include_extra_fields = "true"
+skip_empty_passwords = "false"
+default_folder = ""

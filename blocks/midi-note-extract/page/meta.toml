@@ -1,0 +1,188 @@
+slug          = "midi-note-extract"
+title         = "MIDI Note Extractor — export MIDI notes to CSV"
+description   = "Extract every note from a .mid file as a CSV or TSV table: pitch, start, duration and velocity, in seconds, ticks or beats. Free, runs in your browser."
+tags = [
+  "midi note extractor",
+  "midi to csv",
+  "extract notes from midi",
+  "midi note list",
+  "mid to csv converter",
+  "midi note table",
+  "midi pitch duration velocity",
+  "midi data analysis",
+]
+h1            = "MIDI note extractor"
+hero_subtitle = "Turn a MIDI file into one flat note table — a row per note with pitch, start, duration and velocity — ready to paste into a spreadsheet, pandas or a plotting script. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_midi_note_extract_web"
+export        = "run"
+live          = false
+output_label  = "Note table"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "MIDI file (base64 or hex)"
+placeholder = "TVRoZAAAAAYAAAABAGBNVHJr…  (or 4d546864000000…)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "encoding"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect (hex if all hex digits, else base64)"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "columns"
+label  = "Columns"
+source = "field"
+
+[input.labels]
+minimal  = "Minimal — start, duration, pitch, velocity"
+standard = "Standard — track, channel, start, duration, pitch, note name, velocity"
+full     = "Full — adds track name, end and tempo"
+
+[[input]]
+name   = "time_unit"
+label  = "Time unit"
+source = "field"
+
+[input.labels]
+seconds = "Seconds (from the tempo map)"
+ticks   = "Ticks (raw MIDI ticks)"
+beats   = "Beats (quarter notes)"
+
+[[input]]
+name   = "velocity_scale"
+label  = "Velocity"
+source = "field"
+
+[input.labels]
+raw        = "Raw MIDI 0–127"
+normalized = "Normalized 0.0–1.0"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma (CSV)"
+semicolon = "Semicolon"
+tab       = "Tab (TSV)"
+
+[[input]]
+name   = "header"
+label  = "Include header row"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Row order"
+source = "field"
+
+[input.labels]
+time  = "By start time (whole file)"
+track = "By track, then start time"
+pitch = "By pitch, then start time"
+
+[[input]]
+name        = "track"
+label       = "Tracks"
+placeholder = "all  (or 0,2)"
+source      = "field"
+
+[[input]]
+name        = "channel"
+label       = "Channels"
+placeholder = "all  (or 0,9)"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "6"
+step        = "1"
+
+[[example]]
+label = "Note table in seconds"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+columns = "standard"
+time_unit = "seconds"
+velocity_scale = "raw"
+delimiter = "comma"
+header = "true"
+sort = "time"
+track = "all"
+channel = "all"
+decimals = "3"
+
+[[example]]
+label = "Minimal, in ticks"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+columns = "minimal"
+time_unit = "ticks"
+velocity_scale = "raw"
+delimiter = "comma"
+header = "true"
+sort = "time"
+track = "all"
+channel = "all"
+decimals = "3"
+
+[[example]]
+label = "Beats + normalized velocity"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+columns = "full"
+time_unit = "beats"
+velocity_scale = "normalized"
+delimiter = "comma"
+header = "true"
+sort = "track"
+track = "all"
+channel = "all"
+decimals = "2"
+
+[[example]]
+label = "TSV, no header"
+[example.params]
+input = "4d546864000000060000000100604d54726b0000002400ff03055069616e6f00ff510307a12000ff58040402180800903c4060803c0000ff2f00"
+encoding = "hex"
+columns = "standard"
+time_unit = "seconds"
+velocity_scale = "raw"
+delimiter = "tab"
+header = "false"
+sort = "time"
+track = "all"
+channel = "all"
+decimals = "3"
+
+[[example]]
+label = "Base64 input — auto-detected"
+[example.params]
+input = "TVRoZAAAAAYAAAABAGBNVHJrAAAAJAD/AwVQaWFubwD/UQMHoSAA/1gEBAIYCACQPEBggDwAAP8vAA=="
+encoding = "auto"
+columns = "standard"
+time_unit = "seconds"
+velocity_scale = "raw"
+delimiter = "comma"
+header = "true"
+sort = "time"
+track = "all"
+channel = "all"
+decimals = "3"

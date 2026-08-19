@@ -1,0 +1,110 @@
+{
+  "name": "gizza-ai/per-capita-normalizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn counts into per-capita, per-1,000 or per-100,000 rates using a population column",
+  "role": "skill",
+  "tool": {
+    "description": "Normalize raw counts into population-adjusted rates so regions of different sizes can be compared. Paste 'label, count, population' rows and the tool divides each count by its population and scales it to a reporting base — per person, per 1,000, per 10,000, per 100,000 (default), per 1,000,000, or a custom base. It ranks rows by rate, adds an index against the overall rate (1.00 = the combined average), flags rows built on fewer than 20 events as statistically unstable, handles population columns written in thousands or millions, and emits a text table with a rate chart, CSV, Markdown, or JSON. Runs locally with no data upload.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "custom_per": {
+          "default": 0.0,
+          "description": "Custom reporting base, used only when per='custom' — for example 500 for 'per 500 residents'. Must be greater than 0 in that case. Ignored otherwise. Default 0.",
+          "maximum": 1000000000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "data": {
+          "description": "The rows to normalize: one 'label, count, population' row per line, such as 'Northbridge,120,400000'. The last two fields are read as count and population, so a label may itself contain the delimiter ('Springfield, IL,10,1000'). A two-field row is read as 'count, population' and labelled row 1, row 2, … Fields can be separated by comma, tab, semicolon, pipe or whitespace, and numbers may carry $/£/€, thousands separators or underscores. Up to 10000 rows.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for the rate and the overall rate, from 0 to 6. Default 2.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "How to split each row into fields. 'auto' (default) picks the most common separator in the row and falls back to whitespace; the others force comma, tab, semicolon or pipe.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first non-empty row is a header. 'auto' (default) skips it when its count or population field is not numeric; 'yes' always skips it; 'no' treats every row as data.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "table",
+          "description": "Output format: 'table' (default) tab-separated columns plus a text rate chart, 'csv' a spreadsheet-ready file with a metric header block, 'markdown' a report table, or 'json' structured rows.",
+          "enum": [
+            "table",
+            "csv",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "per": {
+          "default": "100000",
+          "description": "Reporting base the rate is scaled to: '1' = per person (per capita), '1000' = per 1,000, '10000' = per 10,000, '100000' = per 100,000 (default, the public-health convention), '1000000' = per 1,000,000, or 'custom' to use the custom_per value.",
+          "enum": [
+            "1",
+            "1000",
+            "10000",
+            "100000",
+            "1000000",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "population_unit": {
+          "default": "ones",
+          "description": "The unit the population column is expressed in. 'ones' (default) = actual people; 'thousands' multiplies it by 1,000 (World-Bank-style tables); 'millions' multiplies it by 1,000,000.",
+          "enum": [
+            "ones",
+            "thousands",
+            "millions"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "rate_desc",
+          "description": "Row order in the report: 'rate_desc' (default) highest rate first, 'rate_asc' lowest first, or 'input' to keep the pasted order. Ties are broken by label.",
+          "enum": [
+            "rate_desc",
+            "rate_asc",
+            "input"
+          ],
+          "type": "string"
+        },
+        "unstable_below": {
+          "default": 20,
+          "description": "Flag rows whose raw count is below this number as 'unstable', the convention that rates built on very few events are unreliable. Default 20; set 0 to flag nothing (every row then reads 'ok').",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

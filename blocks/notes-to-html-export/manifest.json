@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/notes-to-html-export",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Bundle Markdown notes into a self-contained HTML page",
+  "role": "skill",
+  "tool": {
+    "description": "Bundle a pasted set of Markdown notes into one standalone HTML document with embedded CSS, sanitized rendered Markdown, a linked table of contents, optional section numbering, note splitting by level-1 headings or thematic breaks, and light/dark/auto reading themes. The output is a complete <!doctype html> file string with no external assets or JavaScript.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "description": "Markdown notes to bundle. Paste one or more notes; split can treat level-1 headings or thematic breaks as note boundaries.",
+          "type": "string"
+        },
+        "number_sections": {
+          "default": false,
+          "description": "Prefix headings and TOC entries with section numbers such as 1, 1.1, 1.1.1. Default false.",
+          "type": "boolean"
+        },
+        "split": {
+          "default": "heading",
+          "description": "How to split the pasted body into notes: heading starts a new note at each level-1 # heading; hr splits on a thematic break line such as --- or ***. Default heading.",
+          "enum": [
+            "heading",
+            "hr"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Embedded reading theme: light, dark, or auto (follows the reader's OS color scheme). Default light.",
+          "enum": [
+            "light",
+            "dark",
+            "auto"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "Notes",
+          "description": "Document title used in the HTML <title> and visible page heading. Default Notes.",
+          "type": "string"
+        },
+        "toc": {
+          "default": "sidebar",
+          "description": "Where to place the linked table of contents: sticky sidebar, inline top block, or none. Default sidebar.",
+          "enum": [
+            "sidebar",
+            "top",
+            "none"
+          ],
+          "type": "string"
+        },
+        "toc_depth": {
+          "default": 3,
+          "description": "Deepest heading level included in the table of contents, 1-6. Default 3.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "notes"
+      ],
+      "type": "object"
+    }
+  }
+}

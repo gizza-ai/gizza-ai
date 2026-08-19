@@ -1,0 +1,117 @@
+slug          = "x25519-ecdh"
+title         = "X25519 ECDH — Curve25519 shared secret & HKDF key derivation"
+description   = "Derive an X25519 (Curve25519) ECDH shared secret from your private key and a peer public key, then expand it with HKDF-SHA256/512. Runs in your browser."
+tags          = ["x25519", "ecdh", "curve25519", "shared secret", "key exchange", "diffie-hellman", "hkdf", "key derivation", "rfc 7748", "rfc 5869"]
+h1            = "X25519 ECDH key agreement"
+hero_subtitle = "Compute the X25519 (Curve25519) Diffie-Hellman shared secret from your private key and a peer's public key, then expand it into a usable symmetric key with HKDF. Accepts hex, base64 and PEM keys. Runs entirely in your browser — no key ever leaves your device."
+wasm          = "gizza_ai_x25519_ecdh_web"
+export        = "run"
+live          = false
+output_label  = "Key agreement"
+format        = "text"
+
+[[input]]
+name        = "private_key"
+label       = "Your private key"
+placeholder = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a (leave empty to generate one)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "peer_public_key"
+label       = "Peer public key"
+placeholder = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f (leave empty for a demo peer)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "kdf"
+label  = "Key derivation"
+source = "field"
+
+[input.labels]
+none = "None — raw shared secret"
+hkdf-sha256 = "HKDF-SHA256 (recommended)"
+hkdf-sha512 = "HKDF-SHA512"
+sha256 = "SHA-256 of the secret"
+
+[[input]]
+name        = "kdf_salt"
+label       = "HKDF salt (optional)"
+placeholder = "handshake salt"
+source      = "field"
+
+[[input]]
+name        = "kdf_info"
+label       = "HKDF info / context label"
+placeholder = "app v1 chat key"
+source      = "field"
+
+[[input]]
+name        = "kdf_length"
+label       = "Derived key bytes"
+placeholder = "32"
+source      = "field"
+
+[[input]]
+name   = "encoding"
+label  = "Output encoding"
+source = "field"
+
+[input.labels]
+hex = "Hex"
+base64 = "Base64"
+base64url = "Base64url (no padding)"
+
+[[input]]
+name   = "include_pem"
+label  = "Also show PKCS#8 / SPKI PEM"
+source = "field"
+
+[[example]]
+label = "RFC 7748 test vector"
+[example.params]
+private_key     = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+peer_public_key = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f"
+kdf             = "none"
+kdf_salt        = ""
+kdf_info        = ""
+kdf_length      = "32"
+encoding        = "hex"
+include_pem     = "false"
+
+[[example]]
+label = "HKDF-SHA256 session key"
+[example.params]
+private_key     = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+peer_public_key = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f"
+kdf             = "hkdf-sha256"
+kdf_salt        = "handshake salt"
+kdf_info        = "app v1 chat key"
+kdf_length      = "32"
+encoding        = "hex"
+include_pem     = "false"
+
+[[example]]
+label = "Base64 keys with PEM export"
+[example.params]
+private_key     = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+peer_public_key = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f"
+kdf             = "sha256"
+kdf_salt        = ""
+kdf_info        = ""
+kdf_length      = "32"
+encoding        = "base64"
+include_pem     = "true"
+
+[[example]]
+label = "Generate a fresh key pair"
+[example.params]
+private_key     = ""
+peer_public_key = ""
+kdf             = "hkdf-sha256"
+kdf_salt        = ""
+kdf_info        = "app v1 chat key"
+kdf_length      = "44"
+encoding        = "base64url"
+include_pem     = "false"

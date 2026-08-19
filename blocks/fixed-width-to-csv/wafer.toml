@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fixed-width-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Split fixed-width column text into CSV, with auto-detected or explicit column positions"

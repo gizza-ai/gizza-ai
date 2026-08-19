@@ -1,0 +1,61 @@
+{
+  "name": "gizza-ai/hcl-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert HashiCorp HCL2 configuration (Terraform, Packer, Nomad) to JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert HashiCorp Configuration Language (HCL2) text — Terraform .tf/.tfvars, Packer, Nomad, Vault, Consul — into the equivalent JSON document. An attribute becomes a JSON property; a block becomes nested objects keyed by the block type and then by each label, and a repeated block header becomes an array (set blocks='arrays' to wrap every block body in an array instead, giving one stable machine-readable shape). Expressions JSON cannot represent — variable references, function calls, conditionals — are written as Terraform-style \"${…}\" interpolation strings, the same convention Terraform's own JSON syntax uses; expressions='simplify' folds the constant parts first (1 + 2 becomes 3). sort_keys sorts every level alphabetically; pretty and indent control the layout. Comments are dropped because JSON has none, and a syntax error reports the line and what was expected. Input is capped at 1,048,576 bytes.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "blocks": {
+          "default": "nested",
+          "description": "How a block body is shaped. 'nested' (default) writes a plain object for a block header that occurs once and an array when the same header repeats — the shape Terraform's own JSON configuration syntax uses. 'arrays' always wraps every block body in an array, so a script sees one stable shape no matter how many times a block occurs.",
+          "enum": [
+            "nested",
+            "arrays"
+          ],
+          "type": "string"
+        },
+        "expressions": {
+          "default": "template",
+          "description": "What to do with expressions JSON cannot hold (var.x, upper(s), a ? b : c). 'template' (default) writes them as Terraform-style \"${…}\" interpolation strings, preserving the source verbatim. 'simplify' first evaluates whatever is constant, so 1 + 2 becomes 3 and [1, 2 * 3, var.n] becomes [1, 6, \"${var.n}\"].",
+          "enum": [
+            "template",
+            "simplify"
+          ],
+          "type": "string"
+        },
+        "hcl": {
+          "description": "The HCL / HCL2 configuration text to convert — a Terraform .tf or .tfvars file, or a Packer, Nomad, Vault or Consul config. Example: resource \"aws_instance\" \"web\" { ami = \"ami-0123\" instance_type = \"t3.micro\" }. Capped at 1,048,576 bytes.",
+          "type": "string"
+        },
+        "indent": {
+          "default": "2",
+          "description": "Indent unit used when pretty printing: '2' spaces (default), '4' spaces, or 'tab' for a real tab character. Ignored when pretty is false.",
+          "enum": [
+            "2",
+            "4",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Print the JSON across multiple indented lines. Turn it off for a single-line minified document. Default true.",
+          "type": "boolean"
+        },
+        "sort_keys": {
+          "default": false,
+          "description": "Sort every object's keys alphabetically, at every level, instead of keeping the order they appear in the source. Useful when diffing two configurations. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "hcl"
+      ],
+      "type": "object"
+    }
+  }
+}

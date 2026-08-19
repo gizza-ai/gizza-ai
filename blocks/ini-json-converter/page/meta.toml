@@ -1,0 +1,96 @@
+slug          = "ini-json-converter"
+title         = "INI to JSON Converter — Convert Config Files Both Ways & Edit Keys"
+description   = "Convert INI/conf files to JSON and JSON back to INI, or get, set and delete a single key while keeping comments, blank lines and key order intact."
+tags          = ["ini to json", "json to ini", "ini converter", "conf to json", "config converter", "cfg to json", "edit ini key", "ini editor", "crudini online", "config file converter", "ini json", "properties to json"]
+h1            = "INI ⇄ JSON Converter"
+hero_subtitle = "Paste an INI, .conf or .cfg file to get structured JSON — or paste JSON to get an INI file back. The get / set / delete modes read and rewrite a single key in place, leaving every comment, blank line, key order and spacing style exactly as it was. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_ini_json_converter_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+# Field ORDER is load-bearing: the page runtime spreads these positionally into
+# the web crate's `run(...)`, so it must match that signature (and the descriptor).
+[[input]]
+name        = "input"
+label       = "INI / conf text (or JSON)"
+placeholder = "[server]\nhost = localhost\nport = 8080  ; listen port\n\n[db]\nname = main"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+labels = { auto = "Auto-detect direction", ini_to_json = "INI → JSON", json_to_ini = "JSON → INI", get = "Get one key", set = "Set one key", delete = "Delete a key or section" }
+
+[[input]]
+name        = "section"
+label       = "Section (get / set / delete)"
+placeholder = "server"
+source      = "field"
+
+[[input]]
+name        = "key"
+label       = "Key (get / set / delete)"
+placeholder = "port  — or a dotted server.port"
+source      = "field"
+
+[[input]]
+name        = "value"
+label       = "New value (set)"
+placeholder = "9090"
+source      = "field"
+
+[[input]]
+name   = "detect_types"
+label  = "Detect booleans & numbers"
+source = "field"
+
+[[input]]
+name   = "inline_comments"
+label  = "Treat ' ; note' as a trailing comment"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter for lines this tool writes"
+source = "field"
+labels = { equals_spaced = "key = value", equals = "key=value", colon = "key: value" }
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[input]]
+name   = "indent"
+label  = "JSON indent"
+source = "field"
+labels = { "2" = "2 spaces", "4" = "4 spaces", tab = "Tab" }
+
+[[example]]
+label  = "INI → JSON"
+params = { input = "app = demo\n\n[server]\nhost = localhost\nport = 8080\n\n[db]\nname = main\nuser = admin", mode = "ini_to_json" }
+
+[[example]]
+label  = "JSON → INI"
+params = { input = "{\n  \"app\": \"demo\",\n  \"server\": { \"host\": \"localhost\", \"port\": 8080 },\n  \"db\": { \"name\": \"main\" }\n}", mode = "json_to_ini" }
+
+[[example]]
+label  = "Typed values, 4-space indent"
+params = { input = "[server]\nhost = localhost\nport = 8080     ; listen port\ndebug = true\nratio = 0.75", mode = "ini_to_json", detect_types = "true", indent = "4" }
+
+[[example]]
+label  = "Get one key"
+params = { input = "# app config\napp = demo\n\n[server]\nhost = localhost\nport = 8080  ; listen port", mode = "get", key = "server.port" }
+
+[[example]]
+label  = "Set a key, keep comments"
+params = { input = "# app config\napp = demo\n\n[server]\nhost = localhost\nport = 8080  ; listen port", mode = "set", key = "server.port", value = "9090" }
+
+[[example]]
+label  = "Delete a whole section"
+params = { input = "# app config\napp = demo\n\n[server]\nhost = localhost\nport = 8080\n\n[db]\nname = main", mode = "delete", section = "server" }

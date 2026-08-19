@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "guitar-tab-to-midi"
+version = "0.1.0"
+abi = 1
+summary = "Convert ASCII guitar or bass tablature into a playable Standard MIDI File"

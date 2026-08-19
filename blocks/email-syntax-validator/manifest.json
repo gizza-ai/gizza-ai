@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/email-syntax-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate email syntax, disposable domains and role addresses",
+  "role": "skill",
+  "tool": {
+    "description": "Validate an email address with offline syntax checks, optional disposable-domain detection and optional role-based mailbox detection. Returns a human report, summary or JSON without DNS or SMTP network probes.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "check_disposable": {
+          "default": true,
+          "description": "Flag known disposable or temporary-inbox domains using the bundled offline domain list. Default true.",
+          "type": "boolean"
+        },
+        "check_role": {
+          "default": true,
+          "description": "Flag role-based local parts such as admin, info, sales, support, postmaster or abuse. Default true.",
+          "type": "boolean"
+        },
+        "email": {
+          "description": "Email address to validate. Surrounding whitespace, mailto: and Name <addr> wrappers are accepted and normalized before validation.",
+          "type": "string"
+        },
+        "format": {
+          "default": "report",
+          "description": "Output format: report for a multiline explanation, summary for one line, or json for machine-readable fields. Default report.",
+          "enum": [
+            "report",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "type": "object"
+    }
+  }
+}

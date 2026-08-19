@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mbox-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split an mbox archive into individual .eml messages"

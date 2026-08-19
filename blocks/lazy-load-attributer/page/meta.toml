@@ -1,0 +1,102 @@
+slug          = "lazy-load-attributer"
+title         = "Lazy-load Attribute Adder for HTML Images and Iframes"
+description   = "Add loading=\"lazy\" and decoding=\"async\" to HTML img and iframe tags that lack them, while preserving the rest of the markup."
+tags          = ["html", "lazy loading", "images", "iframes", "performance", "lcp", "seo", "web vitals"]
+h1            = "Lazy-load Attribute Adder"
+hero_subtitle = "Paste HTML and add safe lazy-loading attributes to images and embeds without changing the surrounding document. Keep above-the-fold images eager when Core Web Vitals matter."
+wasm          = "gizza_ai_lazy_load_attributer_web"
+export        = "run"
+live          = false
+output_label  = "Rewritten HTML"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<img src=\"hero.jpg\"><p>Intro</p><iframe src=\"https://example.com/embed\"></iframe>"
+source      = "field"
+
+[[input]]
+name        = "targets"
+label       = "Elements to rewrite"
+source      = "field"
+[input.labels]
+both = "Images and iframes"
+images = "Images only"
+iframes = "Iframes only"
+
+[[input]]
+name        = "decoding"
+label       = "Image decoding attribute"
+source      = "field"
+[input.labels]
+async = "decoding=\"async\""
+sync = "decoding=\"sync\""
+auto = "decoding=\"auto\""
+none = "Do not add decoding"
+
+[[input]]
+name        = "skip_first"
+label       = "First images to keep eager"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "eager_first"
+label       = "Write loading=\"eager\" on skipped first images"
+source      = "field"
+
+[[input]]
+name        = "fetchpriority_first"
+label       = "Add fetchpriority=\"high\" to the first image"
+source      = "field"
+
+[[input]]
+name        = "respect_skip_markers"
+label       = "Respect skip-lazy / no-lazy markers"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+[input.labels]
+html = "Rewritten HTML"
+report = "Change report"
+
+[[example]]
+label = "Lazy-load images and iframes"
+[example.params]
+html = "<img src=\"photo.jpg\"><iframe src=\"https://example.com/embed\"></iframe>"
+targets = "both"
+decoding = "async"
+skip_first = "0"
+eager_first = "false"
+fetchpriority_first = "false"
+respect_skip_markers = "true"
+output = "html"
+
+[[example]]
+label = "Protect the LCP image"
+[example.params]
+html = "<img src=\"hero.jpg\"><img src=\"gallery.jpg\">"
+targets = "images"
+decoding = "async"
+skip_first = "1"
+eager_first = "true"
+fetchpriority_first = "true"
+respect_skip_markers = "true"
+output = "html"
+
+[[example]]
+label = "Report only"
+[example.params]
+html = "<img src=\"hero.jpg\" loading=\"eager\"><img src=\"thumb.jpg\" class=\"skip-lazy\"><iframe src=\"video\"></iframe>"
+targets = "both"
+decoding = "async"
+skip_first = "0"
+eager_first = "false"
+fetchpriority_first = "false"
+respect_skip_markers = "true"
+output = "report"

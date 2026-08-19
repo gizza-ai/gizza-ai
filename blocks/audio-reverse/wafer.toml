@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-reverse"
+version = "0.1.0"
+abi = 1
+summary = "Play an audio clip backwards, optionally joined with the original"

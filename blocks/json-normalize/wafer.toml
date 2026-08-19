@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-normalize"
+version = "0.1.0"
+abi = 1
+summary = "Normalize nested JSON into id-keyed entity tables"

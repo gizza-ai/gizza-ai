@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sigma-rule-matcher"
+version = "0.1.0"
+abi = 1
+summary = "Run Sigma detection rules against parsed Windows event JSON"

@@ -1,0 +1,98 @@
+slug          = "stream-editor"
+title         = "Stream Editor — sed-style text edits in the browser"
+description   = "Apply safe sed-style scripts to pasted text: substitute, delete, print, insert, append, change, branch, and address by line or regex."
+tags          = ["stream editor", "sed online", "text substitution", "regex replace", "line delete", "sed script", "browser text editor"]
+h1            = "Stream Editor"
+hero_subtitle = "Run a safe ed/sed-style command script over pasted text locally. Substitute, delete, print, insert, append, change, branch, and address by line number or regex without shell access."
+wasm          = "gizza_ai_stream_editor_web"
+export        = "run"
+live          = false
+output_label  = "Edited text"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Input text"
+placeholder = "foo\n\nkeep this line\ndrop this line"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "script"
+label       = "Command script"
+placeholder = "s/foo/bar/g\n/drop/d"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "quiet"
+label  = "Quiet mode (sed -n)"
+source = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case in regexes"
+source = "field"
+
+[[input]]
+name   = "whole_buffer"
+label  = "Treat input as one whole buffer"
+source = "field"
+
+[[input]]
+name   = "regex_flavor"
+label  = "Regex flavor"
+source = "field"
+[input.labels]
+basic    = "Basic / sed BRE"
+extended = "Extended / sed -E"
+
+[[input]]
+name   = "line_ending"
+label  = "Output line ending"
+source = "field"
+[input.labels]
+lf   = "LF (Unix)"
+crlf = "CRLF (Windows)"
+
+[[input]]
+name        = "max_output_lines"
+label       = "Max output lines"
+placeholder = "100000"
+source      = "field"
+
+[[example]]
+label = "Replace and drop blanks"
+[example.params]
+text = "foo\n\nkeep foo\ndrop this"
+script = "s/foo/bar/g\n/drop/d\n/^[[:space:]]*$/d"
+quiet = "false"
+ignore_case = "false"
+whole_buffer = "false"
+regex_flavor = "basic"
+line_ending = "lf"
+max_output_lines = "100000"
+
+[[example]]
+label = "Print matching lines only"
+[example.params]
+text = "alpha\nbeta\ngamma"
+script = "/a$/p"
+quiet = "true"
+ignore_case = "false"
+whole_buffer = "false"
+regex_flavor = "basic"
+line_ending = "lf"
+max_output_lines = "100000"
+
+[[example]]
+label = "Extended regex"
+[example.params]
+text = "ID-123\nnope\nID-456"
+script = "s/ID-([0-9]+)/item:\\1/"
+quiet = "false"
+ignore_case = "false"
+whole_buffer = "false"
+regex_flavor = "extended"
+line_ending = "lf"
+max_output_lines = "100000"

@@ -1,0 +1,122 @@
+slug          = "youtube-takeout-stats"
+title         = "YouTube Takeout Stats — Watch History Analyzer"
+description   = "Parse Google/YouTube Takeout watch-history JSON or HTML into top channels, repeated videos, monthly trends, weekdays, hours, streaks, CSV, and JSON."
+tags          = ["youtube", "takeout", "watch history", "analytics", "stats", "csv", "json", "privacy"]
+h1            = "YouTube Takeout stats"
+hero_subtitle = "Paste a local watch-history.json or watch-history.html export and get viewing totals, top channels, repeated videos, month trends, weekdays, hours, streaks, CSV, and JSON — no login or API key."
+wasm          = "gizza_ai_youtube_takeout_stats_web"
+export        = "run"
+live          = false
+output_label  = "Watch history stats"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "YouTube Takeout watch history"
+placeholder = "[{\"header\":\"YouTube\",\"title\":\"Watched Never Gonna Give You Up\",\"titleUrl\":\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\"subtitles\":[{\"name\":\"Rick Astley\"}],\"time\":\"2024-01-01T18:10:00Z\"}]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+[input.labels]
+text = "Text dashboard"
+csv  = "CSV table"
+json = "JSON"
+
+[[input]]
+name        = "report"
+label       = "Report section"
+source      = "field"
+[input.labels]
+overview  = "Overview dashboard"
+channels  = "Top channels"
+videos    = "Top videos"
+months    = "Videos per month"
+weekdays  = "Videos per weekday"
+hours     = "Videos per hour"
+
+[[input]]
+name        = "top"
+label       = "Top rows"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "utc_offset"
+label       = "UTC offset for JSON timestamps"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-14"
+max         = "14"
+step        = "0.5"
+
+[[input]]
+name        = "include_ads"
+label       = "Include ad impressions"
+source      = "field"
+
+[[input]]
+name        = "include_music"
+label       = "Include YouTube Music rows"
+source      = "field"
+
+[[input]]
+name        = "start_date"
+label       = "Start date (optional)"
+placeholder = "2024-01-01"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "end_date"
+label       = "End date (optional)"
+placeholder = "2024-12-31"
+source      = "field"
+kind        = "date"
+
+[[example]]
+label = "Tiny JSON export → dashboard"
+[example.values]
+input = "[{\"header\":\"YouTube\",\"title\":\"Watched Never Gonna Give You Up\",\"titleUrl\":\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\"subtitles\":[{\"name\":\"Rick Astley\"}],\"time\":\"2024-01-01T18:10:00Z\"},{\"header\":\"YouTube\",\"title\":\"Watched Never Gonna Give You Up\",\"titleUrl\":\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\"subtitles\":[{\"name\":\"Rick Astley\"}],\"time\":\"2024-01-02T19:00:00Z\"},{\"header\":\"YouTube\",\"title\":\"Watched Rust in 100 Seconds\",\"titleUrl\":\"https://www.youtube.com/watch?v=5C_HPTJg5ek\",\"subtitles\":[{\"name\":\"Fireship\"}],\"time\":\"2024-01-03T09:05:00Z\"}]"
+output = "text"
+report = "overview"
+top = "10"
+utc_offset = "0"
+include_ads = "false"
+include_music = "false"
+start_date = ""
+end_date = ""
+
+[[example]]
+label = "Top channels CSV"
+[example.values]
+input = "[{\"header\":\"YouTube\",\"title\":\"Watched A\",\"titleUrl\":\"https://www.youtube.com/watch?v=a\",\"subtitles\":[{\"name\":\"Channel One\"}],\"time\":\"2024-01-01T10:00:00Z\"},{\"header\":\"YouTube\",\"title\":\"Watched B\",\"titleUrl\":\"https://www.youtube.com/watch?v=b\",\"subtitles\":[{\"name\":\"Channel Two\"}],\"time\":\"2024-01-02T10:00:00Z\"},{\"header\":\"YouTube\",\"title\":\"Watched C\",\"titleUrl\":\"https://www.youtube.com/watch?v=c\",\"subtitles\":[{\"name\":\"Channel One\"}],\"time\":\"2024-01-03T10:00:00Z\"}]"
+output = "csv"
+report = "channels"
+top = "5"
+utc_offset = "0"
+include_ads = "false"
+include_music = "false"
+start_date = ""
+end_date = ""
+
+[[example]]
+label = "Monthly trend JSON"
+[example.values]
+input = "[{\"header\":\"YouTube\",\"title\":\"Watched January\",\"titleUrl\":\"https://www.youtube.com/watch?v=jan\",\"subtitles\":[{\"name\":\"Channel\"}],\"time\":\"2024-01-15T10:00:00Z\"},{\"header\":\"YouTube\",\"title\":\"Watched March\",\"titleUrl\":\"https://www.youtube.com/watch?v=mar\",\"subtitles\":[{\"name\":\"Channel\"}],\"time\":\"2024-03-15T10:00:00Z\"}]"
+output = "json"
+report = "months"
+top = "10"
+utc_offset = "0"
+include_ads = "false"
+include_music = "false"
+start_date = ""
+end_date = ""

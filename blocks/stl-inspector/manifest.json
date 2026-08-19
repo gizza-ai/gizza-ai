@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/stl-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect an ASCII or binary STL: triangle count, bounding box, area, volume and whether it is watertight",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect a 3D triangle mesh given as an ASCII STL pasted as text, or a BINARY STL whose bytes are pasted as base64 or hex (the encoding is auto-detected; binary is identified by its 84 + 50 x triangle-count length, not by the leading 'solid' keyword many binary headers also carry). Reports, without modifying the mesh: triangle count, distinct welded vertices (weld_tolerance, default 0.000001), bounding box, min/max bounds and centre, surface area, signed volume (its sign shows whether normals face outward) and absolute volume, watertight and manifold status, open boundary edges, non-manifold edges, edges whose two faces disagree on winding, disconnected shells, degenerate and duplicate triangles, facet normals that disagree with the geometry by more than 1 degree, unset (0,0,0) normals, non-zero attribute bytes, and a print-ready verdict listing the specific problems. Set units=mm (default), cm or in to label the measurements, scale to measure a resized copy, and density (g/cm³, e.g. PLA 1.24) to add a solid-part weight estimate. output=report (default) is readable; output=json returns the same numbers as an object. This tool only reports — use the stl-repair tool to weld, re-wind, fill holes or clean a mesh. OBJ, PLY, 3MF, STEP and glTF input are not accepted. Limit 100000 triangles. Runs fully locally, no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "density": {
+          "default": 0.0,
+          "description": "Material density in g/cm³ used to estimate the solid part's mass. Default 0, which omits the weight line. Common values: PLA 1.24, PETG 1.27, ABS 1.04, nylon 1.14, standard resin 1.10. The estimate is for a 100%-solid part — infill, walls and supports are not modelled.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How the pasted value is encoded. 'auto' (default) detects ASCII STL text, hex bytes or base64 bytes; binary STL is recognised by the 84 + 50 x triangle-count byte length rather than the leading 'solid' keyword, which many exporters also write into a binary header. Set 'ascii', 'base64' or 'hex' to force one.",
+          "enum": [
+            "auto",
+            "ascii",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "What to return. 'report' (default) is a readable inspection: input encoding, geometry (triangles, distinct vertices, bounding box, bounds, centre, surface area, signed and absolute volume), mesh integrity (watertight, manifold, boundary/non-manifold/inconsistent edges, shells, degenerate and duplicate triangles, normal mismatches) and a print-ready verdict. 'json' returns the same numbers as a machine-readable object.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Multiplier applied to every coordinate before measuring (default 1, i.e. no change). Use it to see the numbers for a resized print — 2 doubles each dimension (8x the volume), and 25.4 converts a model authored in inches to millimetres.",
+          "maximum": 1000000,
+          "minimum": 1e-06,
+          "type": "number"
+        },
+        "stl": {
+          "description": "The mesh to inspect. Paste either an ASCII STL as text (solid / facet normal / vertex lines), or a BINARY STL's bytes encoded as base64 or hex (hex may include spaces, colons or dashes). The encoding is auto-detected by default. Up to 100000 triangles.",
+          "type": "string"
+        },
+        "units": {
+          "default": "mm",
+          "description": "The unit the mesh's raw coordinates are taken to be in: 'mm' (default, the 3D-printing convention), 'cm' or 'in'. STL files carry no units, so this only labels the output — lengths use this unit, areas its square, volumes its cube — and converts the volume to cm³ for the weight estimate.",
+          "enum": [
+            "mm",
+            "cm",
+            "in"
+          ],
+          "type": "string"
+        },
+        "weld_tolerance": {
+          "default": 1e-06,
+          "description": "Distance below which two corners are counted as the same vertex, in the mesh's own units (default 0.000001). STL stores each triangle's corners separately, so welding is what turns loose facets into a connected surface — it drives the vertex count, edge topology, shells and the watertight verdict. Raise it (e.g. 0.001) to see whether hairline export cracks are the only thing keeping a mesh open; set 0 to merge only bit-identical positions.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "stl"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,108 @@
+slug          = "jsonl-stats"
+title         = "JSONL Stats — NDJSON Key Coverage Profiler"
+description   = "Summarize JSON Lines records: record count, per-key coverage, value-type distribution, distinct counts, samples, and numeric/string stats."
+tags          = ["jsonl", "ndjson", "json lines", "schema", "data profiling", "key frequency", "type distribution", "csv"]
+h1            = "JSONL stats"
+hero_subtitle = "Paste newline-delimited JSON and profile record count, key coverage, value types, distinct scalar values, samples, and numeric/string ranges — as text, JSON, Markdown, or CSV."
+wasm          = "gizza_ai_jsonl_stats_web"
+export        = "run"
+live          = false
+output_label  = "JSONL profile"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "JSON Lines / NDJSON"
+placeholder = "{\"id\":1,\"status\":\"ok\",\"latency_ms\":12}\n{\"id\":2,\"status\":\"error\",\"latency_ms\":940}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "depth"
+label       = "Nested depth"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+text     = "Text report"
+json     = "JSON"
+markdown = "Markdown table"
+csv      = "CSV"
+
+[[input]]
+name        = "sort"
+label       = "Sort keys by"
+source      = "field"
+[input.labels]
+frequency  = "Coverage frequency"
+name       = "Key name"
+first-seen = "First seen"
+
+[[input]]
+name        = "max_keys"
+label       = "Maximum keys (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "samples"
+label       = "Sample values per key"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "5"
+step        = "1"
+
+[[input]]
+name        = "value_stats"
+label       = "Include numeric and string value stats"
+source      = "field"
+
+[[input]]
+name        = "distinct"
+label       = "Include distinct scalar counts"
+source      = "field"
+
+[[input]]
+name        = "invalid"
+label       = "Invalid-line handling"
+source      = "field"
+[input.labels]
+report = "Report invalid lines"
+skip   = "Skip invalid lines"
+error  = "Stop at first invalid line"
+
+[[example]]
+label = "API events → text summary"
+[example.values]
+input = "{\"id\":1,\"status\":\"ok\",\"latency_ms\":12}\n{\"id\":2,\"status\":\"error\",\"latency_ms\":940,\"err\":{\"code\":\"timeout\"}}\n{\"id\":3,\"status\":\"ok\",\"latency_ms\":31}\n{\"id\":4,\"status\":\"ok\"}"
+depth = "1"
+format = "text"
+sort = "frequency"
+max_keys = "0"
+samples = "2"
+value_stats = "true"
+distinct = "true"
+invalid = "report"
+
+[[example]]
+label = "Nested paths → CSV"
+[example.values]
+input = "{\"user\":{\"id\":7},\"items\":[{\"sku\":\"a\"},{\"sku\":\"b\"}]}\n{\"user\":{\"id\":8},\"items\":[{\"sku\":\"a\"}]}"
+depth = "3"
+format = "csv"
+sort = "name"
+max_keys = "0"
+samples = "0"
+value_stats = "false"
+distinct = "true"
+invalid = "error"
