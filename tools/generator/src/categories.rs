@@ -34,7 +34,10 @@ pub const CATEGORIES: &[Category] = &[
         blurb: "Convert, trim, normalize and edit audio right in your browser — \
                 MP3, WAV, OGG and more. Nothing is uploaded.",
         tags: &["audio"],
-        slug_words: &["audio", "waveform"],
+        slug_words: &[
+            "audio", "waveform", "midi", "fft", "clipping", "peak", "spectral", "wav", "guitar",
+            "tempo",
+        ],
     },
     Category {
         slug: "video",
@@ -42,7 +45,7 @@ pub const CATEGORIES: &[Category] = &[
         blurb: "Compress, trim, resize, convert and subtitle video locally — \
                 powered by in-browser FFmpeg, no upload required.",
         tags: &["video", "ffmpeg", "subtitle", "srt", "vtt", "webvtt", "subrip"],
-        slug_words: &["video", "gif", "srt", "subtitle"],
+        slug_words: &["video", "gif", "srt", "subtitle", "ffmpeg"],
     },
     Category {
         slug: "image",
@@ -50,7 +53,10 @@ pub const CATEGORIES: &[Category] = &[
         blurb: "Convert, resize, compress and recolor images and SVGs — plus \
                 color palettes, gradients and contrast checks.",
         tags: &["image", "photo", "svg", "png", "webp"],
-        slug_words: &["image", "photo", "svg", "color", "gradient", "mindmap", "vignette", "slider", "levels", "mesh"],
+        slug_words: &[
+            "image", "photo", "svg", "color", "gradient", "mindmap", "vignette", "slider",
+            "levels", "mesh", "grayscale", "stl",
+        ],
     },
     Category {
         slug: "data",
@@ -64,11 +70,14 @@ pub const CATEGORIES: &[Category] = &[
             "geojson", "camt053", "mt940", "qif", "ofx", "iban", "ini", "vcard", "takeout",
             "telegram", "whatsapp", "bank", "statement", "budget", "cluster", "reshape",
             "validator", "validate", "schema", "survey", "tabulator", "sampler", "imputer",
-            "missing", "value", "report", "rebalancer", "numeric", "random", "monte",
-            "regression", "currency", "spending", "categorizer", "order", "amazon", "hl7",
-            "fit", "bson", "bin", "clusterer", "format", "converter", "feature", "pruner",
-            "fastq", "fasta", "vcf", "tsv", "genomic", "geofence", "location", "portfolio",
-            "allocation", "funnel", "conversion", "beancount", "net", "worth", "subscription",
+            "missing", "value", "report", "rebalancer", "numeric", "random", "monte", "regression",
+            "currency", "spending", "categorizer", "order", "amazon", "hl7", "fit", "bson", "bin",
+            "clusterer", "format", "converter", "feature", "pruner", "fastq", "fasta", "vcf",
+            "tsv", "genomic", "geofence", "location", "portfolio", "allocation", "funnel",
+            "conversion", "beancount", "net", "worth", "subscription", "cohort", "churn",
+            "retention", "drift", "downsample", "timeseries", "drawdown", "ledger", "likert",
+            "mattermost", "ndjson", "npy", "pca", "principal", "twitter", "returns", "gap",
+            "json5", "canonicalize", "dropper", "decompose",
         ],
     },
     Category {
@@ -79,7 +88,8 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["markdown", "latex", "bibliography", "citation", "pdf", "epub"],
         slug_words: &[
             "markdown", "latex", "bibtex", "citation", "resume", "slides", "document", "toc",
-            "pdf", "epub", "mail", "merge", "file", "files", "prompt",
+            "pdf", "epub", "mail", "merge", "file", "files", "prompt", "filetype", "invoice",
+            "worklog", "job", "posting", "archive", "tar",
         ],
     },
     Category {
@@ -100,7 +110,8 @@ pub const CATEGORIES: &[Category] = &[
             "sha3", "xor", "fernet", "bip39", "ja3", "ja4", "ioc", "ssh", "pem", "asn1", "luhn",
             "token", "safelink", "aes", "des", "passphrase", "diceware", "privacy", "pii",
             "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
-            "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum",
+            "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum", "amcache",
+            "cyberchef", "pkcs12", "registry", "hive", "sbom", "shellbags", "usnjrnl", "xpub",
         ],
     },
     Category {
@@ -112,6 +123,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "base32", "base58", "base62", "base85", "base64", "bech32", "hex", "binary", "codec",
             "unicode", "charset", "morse", "encoder", "encode", "byte", "lz", "data-uri",
+            "decoder",
         ],
     },
     Category {
@@ -124,7 +136,8 @@ pub const CATEGORIES: &[Category] = &[
             "ip", "ipv4", "ipv6", "cidr", "dns", "tcp", "udp", "tls", "http", "websocket", "url",
             "urls", "uri", "mac", "ethernet", "grpc", "magnet", "email", "eml", "domains", "link",
             "header", "query", "har", "curl", "contact", "phone", "calendar", "freebusy", "nmap",
-            "address", "domain", "wireguard", "network-config",
+            "address", "domain", "wireguard", "network-config", "cookie", "cookieless", "contacts",
+            "mbox", "visitor",
         ],
     },
     Category {
@@ -150,7 +163,8 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "calculator", "stats", "average", "sum", "percentage", "geometry", "matrix", "graph",
             "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
-            "egfr", "calc", "round", "nearest",
+            "egfr", "calc", "round", "nearest", "capita", "cumulative", "gpa", "grade", "rent",
+            "salary",
         ],
     },
     Category {
@@ -165,7 +179,8 @@ pub const CATEGORIES: &[Category] = &[
             "replace", "censor", "substring", "string", "list", "todo", "task", "emoji",
             "readability", "summarize", "keywords", "chars", "tweet", "cleaner", "diff",
             "frequency", "count", "ansi", "spell", "action", "item", "extractor", "deduplicator",
-            "dedup", "fuzzy", "name", "empty",
+            "dedup", "fuzzy", "name", "empty", "tokenizer", "stemmer", "prose", "sentence", "pad",
+            "stream-editor",
         ],
     },
     Category {
@@ -182,7 +197,9 @@ pub const CATEGORIES: &[Category] = &[
             "template", "typescript", "flask", "session", "php", "seo", "sitemap", "form",
             "syntax", "autoprefixer", "playground", "tree", "gzip", "dotenv", "env", "configmap",
             "log", "postman", "code", "formatter", "tabs", "spaces", "swagger", "api", "search",
-            "index", "enum", "glob", "filter", "pairwise", "test", "syslog",
+            "index", "enum", "glob", "filter", "pairwise", "test", "syslog", "patch", "trie",
+            "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
+            "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
         ],
     },
     Category {

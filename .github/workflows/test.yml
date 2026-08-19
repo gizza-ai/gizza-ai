@@ -353,6 +353,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install generator dependencies
+        # The generator copies the @huggingface/transformers runtime out of the
+        # root node_modules for model-backed tool pages and hard-errors when it
+        # is absent. It used to ride along on the "JS tests" npm install, which
+        # now runs in the `repo` job, so this shard has to install its own.
+        run: npm install --no-audit --no-fund
+
       - name: Build changed tool pages
         # Standalone tool pages are self-contained under pkg/tools/<slug>/
         # (web wasm + generator output) — no app build needed. The generator
