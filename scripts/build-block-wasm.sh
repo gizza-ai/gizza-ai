@@ -201,7 +201,25 @@ for relative in $relatives; do
   rsync -a --delete --exclude target "$source_dir/" "$canonical_dir/"
 done
 
-canonical_target="$(mktemp -d /tmp/gizza-ai-canonical-wasm-target.XXXXXX)"
+# Fixed, not mktemp. Some blocks compile a path out of their own build
+# directory into the artifact — a build script that generates code referencing
+# env!("OUT_DIR") embeds it as a plain string literal, which --remap-path-prefix
+# cannot rewrite. With a random suffix those blocks differed on exactly the six
+# characters of the mktemp template (…-target.EiO6MW/ vs …-target.Zu5D4n/) and
+# could never byte-match. The directory is still wiped per build, so nothing is
+# reused across blocks; a fixed name only means one canonical build at a time on
+# a given machine, which is how both CI and the tool loop invoke this.
+canonical_target="/tmp/gizza-ai-canonical-wasm-target"
+if [[ -L "$canonical_target" || ( -e "$canonical_target" && ! -d "$canonical_target" ) ]]; then
+  echo "::error::$canonical_target must be a real directory, not a file or symlink." >&2
+  exit 1
+fi
+rm -rf "$canonical_target"
+mkdir -p "$canonical_target"
+[[ "$(realpath "$canonical_target")" == "$canonical_target" ]] || {
+  echo "::error::$canonical_target resolves outside the canonical build location." >&2
+  exit 1
+}
 build_json="$(mktemp)"
 trap 'rm -f "$build_json"; rm -rf "$canonical_target"' EXIT
 
