@@ -409,7 +409,11 @@ jobs:
           fi
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
-          npx playwright test "${specs[@]}"
+          for spec in "${specs[@]}"; do
+            echo "::group::playwright $spec"
+            timeout 180s npx playwright test "$spec" --workers=1 --reporter=line --max-failures=1
+            echo "::endgroup::"
+          done
 
   # ---------------------------------------------------------------------------
   # scripts/sync-tool-manifest.py --check flags a block whose manifest.json
