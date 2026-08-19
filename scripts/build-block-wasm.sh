@@ -22,6 +22,12 @@ block_dir="$root/blocks/$slug"
 canonical_root="/tmp/gizza-ai-canonical-wasm-workspace"
 canonical_block_dir="$canonical_root/blocks/$slug"
 canonical_cargo_home="/tmp/gizza-ai-canonical-cargo-home"
+# Fixed source date for the canonical build: 2000-01-01T00:00:00Z. Both forms
+# are the same instant — `touch -t` wants the digits, SOURCE_DATE_EPOCH the
+# seconds — and they exist so an embedded asset timestamp is a constant rather
+# than "whenever this machine unpacked the crate".
+canonical_source_date="200001010000"
+canonical_source_epoch="946684800"
 canonical_rust_sysroot="/tmp/gizza-ai-canonical-rust-toolchain"
 artifact="$block_dir/target/block.wasm"
 lockfile="$block_dir/Cargo.lock"
@@ -198,11 +204,28 @@ done
 canonical_target="$(mktemp -d /tmp/gizza-ai-canonical-wasm-target.XXXXXX)"
 build_json="$(mktemp)"
 trap 'rm -f "$build_json"; rm -rf "$canonical_target"' EXIT
+
+# Download every dependency BEFORE compiling, then freeze the modification time
+# of everything the compiler reads. Crates that embed their own assets compile
+# each asset's last-modified time straight into the artifact as an i64 constant
+# — `age` reaches `rust-embed` through `i18n-embed`, and blocks/age-encrypt
+# carried the second at which cargo happened to unpack the registry source.
+# That made those blocks unbuildable-to-byte-equality: three canonical builds of
+# the same commit differed only in that constant (02:15:30, 02:21:07, 21:10:14),
+# so --check could never pass no matter how often the artifact was refreshed.
+# A fixed timestamp (in UTC — `touch -t` reads local time, which is itself a
+# per-machine variable) makes the embedded value the same everywhere.
+(
+  cd "$canonical_block_dir"
+  CARGO_HOME="$canonical_cargo_home" cargo fetch --locked
+)
+TZ=UTC find "$canonical_cargo_home" "$canonical_root" -exec touch -h -t "$canonical_source_date" {} +
 (
   cd "$canonical_block_dir"
   CARGO_HOME="$canonical_cargo_home" CARGO_TARGET_DIR="$canonical_target" \
     CARGO_ENCODED_RUSTFLAGS="$canonical_encoded_rustflags" \
-    cargo build --locked --target wasm32-wasip1 --release --message-format=json > "$build_json"
+    SOURCE_DATE_EPOCH="$canonical_source_epoch" \
+    cargo build --locked --offline --target wasm32-wasip1 --release --message-format=json > "$build_json"
 )
 wasm="$(
   jq -r 'select(.reason == "compiler-artifact") | .filenames[]? | select(endswith(".wasm"))' \
