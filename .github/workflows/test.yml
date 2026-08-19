@@ -533,7 +533,14 @@ jobs:
     needs: [detect, blocks]
     if: success() && needs.detect.outputs.count != '0'
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.detect.outputs.matrix) }}
     env:
+      SHARD_INDEX: ${{ matrix.shard }}
+      SHARD_TOTAL: ${{ strategy.job-total }}
       CHANGED_BLOCKS: ${{ needs.detect.outputs.blocks }}
     steps:
       - name: Free Disk Space
@@ -560,7 +567,16 @@ jobs:
         with:
           workspaces: .
           cache-targets: false
-          key: pr-drift
+          key: pr-drift-${{ matrix.shard }}
+
+      - name: Select shard
+        id: shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t mine < <(printf '%s\n' $CHANGED_BLOCKS | awk -v s="$SHARD_INDEX" -v n="$SHARD_TOTAL" 'NR % n == s')
+          echo "drift shard $SHARD_INDEX of $SHARD_TOTAL owns ${#mine[@]} block(s): ${mine[*]:-(none)}"
+          echo "slugs=${mine[*]:-}" >> "$GITHUB_OUTPUT"
 
       - name: Tool descriptor drift check
         shell: bash
@@ -570,7 +586,11 @@ jobs:
           # the `gizza` binary on PATH; the sync script shells out to `gizza`.
           cargo build --release --manifest-path cli/Cargo.toml
           export PATH="$CARGO_TARGET_DIR/release:$PATH"
-          python3 scripts/sync-tool-manifest.py --check $CHANGED_BLOCKS
+          if [ -z "${{ steps.shard.outputs.slugs }}" ]; then
+            echo "No changed blocks in this drift shard."
+            exit 0
+          fi
+          timeout 45m python3 scripts/sync-tool-manifest.py --check ${{ steps.shard.outputs.slugs }}
 
   # ---------------------------------------------------------------------------
   # Single required status check. Branch protection requires "test"; the real
