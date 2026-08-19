@@ -39,7 +39,7 @@ test('podcast-feed-parser limit and oldest order', async ({ page }) => {
   await page.goto('/tools/podcast-feed-parser/');
   await page.fill('#in-feed', FEED);
   await page.fill('#in-limit', '1');
-  await page.fill('#in-order', 'oldest');
+  await page.selectOption('#in-order', 'oldest');
 
   const out = page.locator('#tool-output');
   await expect(out).toContainText('"episode_count": 1', { timeout: 15_000 });
