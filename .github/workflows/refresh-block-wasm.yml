@@ -1,0 +1,189 @@
+name: Refresh block WASM
+
+# Manual helper for bulk tool batches. Rebuilds blocks/<slug>/target/block.wasm
+# (and its Cargo.lock) through scripts/build-block-wasm.sh on the same Linux +
+# rustc 1.94.0 environment the "Verify changed skill WASM artifacts" gate in
+# test.yml rebuilds with, then commits every artifact that differed. Sharded
+# because a canonical build gets its own throwaway target dir and cannot reuse
+# the previous block's, so a 300-block batch is ~5h of serial compiling.
+#
+# Run it by pushing the branch to ci/refresh-wasm (a workflow_dispatch is only
+# registered from the default branch), or dispatch it once this file is on main.
+
+on:
+  workflow_dispatch:
+    inputs:
+      blocks:
+        description: 'Space-separated slugs to refresh (empty = every block changed vs main)'
+        required: false
+        default: ''
+      shards:
+        description: 'Number of parallel shards'
+        required: false
+        default: '15'
+      target_branch:
+        description: 'Branch to commit the refreshed artifacts to'
+        required: false
+        default: ''
+  push:
+    branches: [ci/refresh-wasm]
+
+permissions:
+  contents: write
+
+env:
+  REFRESH_BLOCKS: ${{ inputs.blocks || vars.REFRESH_BLOCKS }}
+  REFRESH_SHARDS: ${{ inputs.shards || '15' }}
+  REFRESH_TARGET_BRANCH: ${{ inputs.target_branch || vars.REFRESH_TARGET_BRANCH }}
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      count: ${{ steps.plan.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: plan
+        shell: bash
+        env:
+          INPUT_BLOCKS: ${{ env.REFRESH_BLOCKS }}
+        run: |
+          set -euo pipefail
+          bash .github/scripts/refresh-block-list.sh > /tmp/blocks.txt
+          count="$(grep -c . /tmp/blocks.txt || true)"
+          shards="${REFRESH_SHARDS:-15}"
+          if [ "$shards" -lt 1 ]; then shards=1; fi
+          if [ "$count" -gt 0 ] && [ "$shards" -gt "$count" ]; then shards="$count"; fi
+          echo "Refreshing $count block(s) across $shards shard(s)"
+          cat /tmp/blocks.txt
+          matrix="$(seq 0 $((shards - 1)) | python3 -c 'import sys, json; print(json.dumps([int(x) for x in sys.stdin.read().split()]))')"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: detect
+    if: needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.detect.outputs.matrix) }}
+    steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          df -h
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.94.0'
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+          components: rust-src
+
+      - name: Rebuild shard
+        shell: bash
+        env:
+          INPUT_BLOCKS: ${{ env.REFRESH_BLOCKS }}
+          SHARD: ${{ matrix.shard }}
+          SHARD_TOTAL: ${{ strategy.job-total }}
+        run: |
+          set -euo pipefail
+          out=/tmp/refreshed
+          mkdir -p "$out"
+          bash .github/scripts/refresh-block-list.sh > /tmp/blocks.txt
+          mapfile -t mine < <(awk -v s="$SHARD" -v n="$SHARD_TOTAL" 'NR % n == s' /tmp/blocks.txt)
+          echo "shard $SHARD of $SHARD_TOTAL handles ${#mine[@]} block(s): ${mine[*]:-(none)}"
+          refreshed=0
+          for slug in "${mine[@]}"; do
+            echo "::group::$slug"
+            scripts/build-block-wasm.sh "$slug"
+            if git diff --quiet -- "blocks/$slug/Cargo.lock" \
+               && cmp -s <(git show "HEAD:blocks/$slug/target/block.wasm") "blocks/$slug/target/block.wasm"; then
+              echo "$slug: already canonical"
+            else
+              echo "$slug: REFRESHED"
+              mkdir -p "$out/blocks/$slug/target"
+              cp "blocks/$slug/target/block.wasm" "$out/blocks/$slug/target/block.wasm"
+              cp "blocks/$slug/Cargo.lock" "$out/blocks/$slug/Cargo.lock"
+              refreshed=$((refreshed + 1))
+            fi
+            echo "::endgroup::"
+            df -h / | tail -1
+          done
+          echo "shard $SHARD refreshed $refreshed of ${#mine[@]} block(s)"
+          mkdir -p "$out/.markers"
+          touch "$out/.markers/shard-$SHARD-complete"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: refreshed-wasm-shard-${{ matrix.shard }}
+          path: /tmp/refreshed
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 5
+
+  commit:
+    needs: [detect, build]
+    if: always() && needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ env.REFRESH_TARGET_BRANCH || github.ref }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+          pattern: refreshed-wasm-shard-*
+          merge-multiple: true
+
+      - name: Apply and push refreshed artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d /tmp/artifacts/blocks ]; then
+            echo "No shard produced a refreshed artifact — nothing to commit."
+            exit 0
+          fi
+          markers="$(ls /tmp/artifacts/.markers 2>/dev/null | wc -l | tr -d ' ')"
+          echo "completed shards: $markers"
+          rsync -a --exclude '.markers' /tmp/artifacts/ ./
+          slugs="$(cd /tmp/artifacts/blocks && ls -1 | tr '\n' ' ')"
+          echo "refreshed blocks: $slugs"
+          for slug in $slugs; do
+            # upload/download-artifact drops the executable bit; cargo emits the
+            # wasm as 755 and build-block-wasm.sh cp's that mode through, so
+            # restore it or every refreshed block carries a spurious mode change.
+            chmod 755 "blocks/$slug/target/block.wasm"
+            git add -f "blocks/$slug/target/block.wasm" "blocks/$slug/Cargo.lock"
+          done
+          if git diff --cached --quiet; then
+            echo "Committed artifacts already match the canonical builds."
+            exit 0
+          fi
+          count="$(printf '%s\n' $slugs | grep -c . || true)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -F - <<MSG
+          build: refresh canonical block.wasm for $count block(s)
+
+          These committed CLI/MCP artifacts were not produced by
+          scripts/build-block-wasm.sh, so they carried a name section and
+          default codegen-unit output and could not byte-match the locked
+          canonical build test.yml reproduces. Rebuilt by
+          .github/workflows/refresh-block-wasm.yml.
+          MSG
+          git push origin "HEAD:${REFRESH_TARGET_BRANCH:-${GITHUB_REF_NAME}}"
