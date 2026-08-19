@@ -14,7 +14,7 @@ concurrency:
 
 env:
   CARGO_HTTP_MULTIPLEXING: false
-  # One shared target dir for every cargo invocation in the job. Each
+  # One shared target dir for every cargo invocation in a job. Each
   # blocks/<slug>/ is a standalone crate; with per-crate target/ dirs a
   # bulk PR (tool batches, cross-cutting block edits) recompiles the
   # common dependency tree once per block and needs ~250MB of disk per
@@ -24,22 +24,19 @@ env:
   CARGO_TARGET_DIR: /tmp/shared-cargo-target
 
 jobs:
-  test:
+  # ---------------------------------------------------------------------------
+  # Which blocks did this PR touch, and how many shards should validate them?
+  # Kept as its own job so the per-block work below can fan out: a generated
+  # tool batch changes 300+ blocks, and one runner cannot rebuild, test and
+  # render that many inside the 6h job limit.
+  # ---------------------------------------------------------------------------
+  detect:
     runs-on: ubuntu-latest
+    outputs:
+      blocks: ${{ steps.changed.outputs.blocks }}
+      count: ${{ steps.changed.outputs.count }}
+      matrix: ${{ steps.changed.outputs.matrix }}
     steps:
-      - name: Free Disk Space
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Disk space before cleanup:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          echo "Disk space after cleanup:"
-          df -h
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -103,12 +100,52 @@ jobs:
             blocks=()
           fi
 
-          printf 'Changed blocks: %s\n' "${blocks[*]:-(none)}"
+          count="${#blocks[@]}"
+          printf 'Changed blocks (%s): %s\n' "$count" "${blocks[*]:-(none)}"
+
+          # One shard per ~3 blocks, capped at 16 so a 300-block batch still
+          # fits the runner concurrency budget (~19 blocks/shard, ~1h).
+          if [ "$count" -eq 0 ]; then
+            shards=0
+            matrix='[]'
+          else
+            shards=$(( (count + 2) / 3 ))
+            [ "$shards" -le 16 ] || shards=16
+            matrix="$(seq 0 $((shards - 1)) | python3 -c 'import sys, json; print(json.dumps([int(x) for x in sys.stdin.read().split()]))')"
+          fi
+          echo "Shards: $shards"
+
           {
-            echo 'blocks<<EOF'
-            printf '%s\n' "${blocks[@]}"
-            echo 'EOF'
+            echo "count=$count"
+            echo "matrix=$matrix"
+            echo "blocks=${blocks[*]:-}"
           } >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # Repository-wide gates and test suites. Independent of which blocks changed,
+  # so they run once instead of once per shard.
+  # ---------------------------------------------------------------------------
+  repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          echo "Disk space after cleanup:"
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Tool hygiene gate
         shell: bash
@@ -117,10 +154,6 @@ jobs:
       - name: Artifact tooling syntax
         shell: bash
         run: bash -n scripts/build-block-wasm.sh
-
-      - name: Read wafer-run pin
-        id: waferpin
-        run: echo "wafer_sha=$(cat wafer-run-pin.txt | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
 
       - name: Verify wafer-run pin consistency
         # Guards against a half-bumped pin: wafer-run-pin.txt vs every
@@ -171,6 +204,7 @@ jobs:
           # block PR runs to tens of GB, which would thrash the 10GB repo
           # cache quota. Cache the registry/git checkouts only.
           cache-targets: false
+          key: repo
 
       - name: Audit legacy artifact coverage
         if: github.event_name != 'pull_request'
@@ -191,74 +225,6 @@ jobs:
           echo "Legacy blocks without committed target/block.wasm: $missing_wasm"
           echo "Legacy blocks without committed Cargo.lock: $missing_locks"
           echo "New or changed blocks are required to commit and verify both files."
-
-      - name: Verify changed skill WASM artifacts
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          set -euo pipefail
-          while IFS= read -r block; do
-            [ -n "$block" ] || continue
-            scripts/build-block-wasm.sh "$block" --check
-          done <<< "${{ steps.changed.outputs.blocks }}"
-
-      - name: Upload mismatched skill WASM artifacts
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: mismatched-skill-wasm-${{ github.run_id }}-${{ github.run_attempt }}
-          path: /tmp/gizza-ai-mismatched-wasm/*.wasm
-          if-no-files-found: ignore
-          retention-days: 1
-
-      - name: Changed block Cargo tests
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          set -euo pipefail
-          ran=0
-          while IFS= read -r block; do
-            [ -n "$block" ] || continue
-            ran=1
-            if [ -f "blocks/$block/core/Cargo.toml" ]; then
-              cargo test --manifest-path "blocks/$block/core/Cargo.toml"
-            fi
-            cargo test --manifest-path "blocks/$block/Cargo.toml"
-          done <<< "${{ steps.changed.outputs.blocks }}"
-          if [ "$ran" -eq 0 ]; then
-            echo "No block changes detected; skipping block-specific Cargo tests."
-          fi
-
-      - name: Tool descriptor drift check
-        # scripts/sync-tool-manifest.py --check flags a block whose manifest.json
-        # tool.description / tool.parameters / summary has drifted from the LIVE
-        # descriptor (what chat and the page form actually consume). The tool
-        # hygiene gate above does NOT cover tool.description drift, so this is the
-        # only gate for it. Scoped to the PR's changed blocks: the corpus still
-        # carries pre-existing description drift, so a repo-wide gate would be red
-        # until it is backfilled — gating the changed blocks stops NEW/regressed
-        # drift from landing. `gizza describe` reads the descriptor embedded in
-        # the CLI (build.rs statically includes blocks/*/target/block.wasm), so we
-        # run it AFTER "Verify changed skill WASM artifacts" proves that the
-        # committed artifact is exactly the locked build CI just produced.
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          set -euo pipefail
-          slugs=()
-          while IFS= read -r block; do
-            [ -n "$block" ] || continue
-            slugs+=("$block")
-          done <<< "${{ steps.changed.outputs.blocks }}"
-          if [ "${#slugs[@]}" -eq 0 ]; then
-            echo "No changed blocks; skipping descriptor drift check."
-            exit 0
-          fi
-          # Build the CLI (reusing the shared cargo target/registry cache) and put
-          # the `gizza` binary on PATH; the sync script shells out to `gizza`.
-          cargo build --release --manifest-path cli/Cargo.toml
-          export PATH="$CARGO_TARGET_DIR/release:$PATH"
-          python3 scripts/sync-tool-manifest.py --check "${slugs[@]}"
 
       - name: CLI tests
         run: cargo test --manifest-path cli/Cargo.toml
@@ -282,58 +248,6 @@ jobs:
           npm install --no-audit --no-fund
           npm test
 
-      - name: Build changed tool pages
-        # Standalone tool pages are self-contained under pkg/tools/<slug>/
-        # (web wasm + generator output) — no app build needed. The generator
-        # regenerates all pages but only warns for tools whose web/pkg is
-        # absent (it copies wasm only for the ones built here).
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          set -euo pipefail
-          built=0
-          while IFS= read -r block; do
-            [ -n "$block" ] || continue
-            if [ ! -d "blocks/$block/web" ]; then
-              echo "blocks/$block has no web/ crate — skipping"
-              continue
-            fi
-            echo "Building web wasm for $block"
-            wasm-pack build "blocks/$block/web" --target web --release --out-dir pkg
-            built=$((built + 1))
-          done <<< "${{ steps.changed.outputs.blocks }}"
-          if [ "$built" -eq 0 ]; then
-            echo "No changed tool web crates; skipping page generation."
-            exit 0
-          fi
-          cargo run --manifest-path tools/generator/Cargo.toml -- .
-
-      - name: Changed tool-page Playwright tests
-        # Playwright runs headless (the fixtures only go headed under HEADED=1
-        # for WebLLM/WebGPU specs, which are not in this set). The webServer in
-        # playwright.config.ts serves ../pkg on :8001 automatically.
-        if: github.event_name == 'pull_request'
-        working-directory: tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          specs=()
-          while IFS= read -r block; do
-            [ -n "$block" ] || continue
-            if [ -f "tool-page-$block.spec.ts" ]; then
-              specs+=("tool-page-$block.spec.ts")
-            else
-              echo "No Playwright spec for changed block '$block'"
-            fi
-          done <<< "${{ steps.changed.outputs.blocks }}"
-          if [ "${#specs[@]}" -eq 0 ]; then
-            echo "No changed tool-page specs; skipping Playwright."
-            exit 0
-          fi
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
-          npx playwright test "${specs[@]}"
-
       - name: Generate tool pages (full)
         # Renders every block's page/ into pkg/tools/<slug>/, generic (no site
         # config — this repo has none).
@@ -349,3 +263,232 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
           npx playwright test tool_pages.spec.ts
+
+  # ---------------------------------------------------------------------------
+  # Per-block validation for the blocks this PR touched, fanned out over shards.
+  # Each shard owns a deterministic slice (round-robin over the sorted list) and
+  # runs the full per-block chain for it: canonical WASM verification, cargo
+  # tests, browser wasm + tool-page Playwright.
+  # ---------------------------------------------------------------------------
+  blocks:
+    needs: detect
+    if: success() && needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJson(needs.detect.outputs.matrix) }}
+    env:
+      SHARD_INDEX: ${{ matrix.shard }}
+      SHARD_TOTAL: ${{ strategy.job-total }}
+      CHANGED_BLOCKS: ${{ needs.detect.outputs.blocks }}
+    steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.94.0'
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+          components: rust-src
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+        with:
+          version: 'v0.15.0'
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .
+          cache-targets: false
+          key: pr-blocks-${{ matrix.shard }}
+
+      - name: Select shard
+        id: shard
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t mine < <(printf '%s\n' $CHANGED_BLOCKS | awk -v s="$SHARD_INDEX" -v n="$SHARD_TOTAL" 'NR % n == s')
+          echo "shard $SHARD_INDEX of $SHARD_TOTAL owns ${#mine[@]} block(s): ${mine[*]:-(none)}"
+          echo "slugs=${mine[*]:-}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify changed skill WASM artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for block in ${{ steps.shard.outputs.slugs }}; do
+            echo "::group::verify $block"
+            scripts/build-block-wasm.sh "$block" --check
+            echo "::endgroup::"
+          done
+
+      - name: Changed block Cargo tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for block in ${{ steps.shard.outputs.slugs }}; do
+            echo "::group::test $block"
+            if [ -f "blocks/$block/core/Cargo.toml" ]; then
+              cargo test --manifest-path "blocks/$block/core/Cargo.toml"
+            fi
+            cargo test --manifest-path "blocks/$block/Cargo.toml"
+            echo "::endgroup::"
+          done
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build changed tool pages
+        # Standalone tool pages are self-contained under pkg/tools/<slug>/
+        # (web wasm + generator output) — no app build needed. The generator
+        # regenerates all pages but only warns for tools whose web/pkg is
+        # absent (it copies wasm only for the ones built here).
+        id: pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          built=0
+          for block in ${{ steps.shard.outputs.slugs }}; do
+            if [ ! -d "blocks/$block/web" ]; then
+              echo "blocks/$block has no web/ crate — skipping"
+              continue
+            fi
+            echo "Building web wasm for $block"
+            wasm-pack build "blocks/$block/web" --target web --release --out-dir pkg
+            built=$((built + 1))
+          done
+          echo "built=$built" >> "$GITHUB_OUTPUT"
+          if [ "$built" -eq 0 ]; then
+            echo "No changed tool web crates in this shard; skipping page generation."
+            exit 0
+          fi
+          cargo run --manifest-path tools/generator/Cargo.toml -- .
+
+      - name: Changed tool-page Playwright tests
+        # Playwright runs headless (the fixtures only go headed under HEADED=1
+        # for WebLLM/WebGPU specs, which are not in this set). The webServer in
+        # playwright.config.ts serves ../pkg on :8001 automatically.
+        if: steps.pages.outputs.built != '0'
+        working-directory: tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          specs=()
+          for block in ${{ steps.shard.outputs.slugs }}; do
+            if [ -f "tool-page-$block.spec.ts" ]; then
+              specs+=("tool-page-$block.spec.ts")
+            else
+              echo "No Playwright spec for changed block '$block'"
+            fi
+          done
+          if [ "${#specs[@]}" -eq 0 ]; then
+            echo "No changed tool-page specs in this shard; skipping Playwright."
+            exit 0
+          fi
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npx playwright test "${specs[@]}"
+
+  # ---------------------------------------------------------------------------
+  # scripts/sync-tool-manifest.py --check flags a block whose manifest.json
+  # tool.description / tool.parameters / summary has drifted from the LIVE
+  # descriptor (what chat and the page form actually consume). The tool hygiene
+  # gate does NOT cover tool.description drift, so this is the only gate for it.
+  # Scoped to the PR's changed blocks: the corpus still carries pre-existing
+  # description drift, so a repo-wide gate would be red until it is backfilled —
+  # gating the changed blocks stops NEW/regressed drift from landing.
+  # `gizza describe` reads the descriptor embedded in the CLI (build.rs
+  # statically includes blocks/*/target/block.wasm), so this runs only after the
+  # `blocks` shards have proven every committed artifact is exactly the locked
+  # build CI just produced.
+  # ---------------------------------------------------------------------------
+  drift:
+    needs: [detect, blocks]
+    if: success() && needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    env:
+      CHANGED_BLOCKS: ${{ needs.detect.outputs.blocks }}
+    steps:
+      - name: Free Disk Space
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          df -h
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.94.0'
+          targets: wasm32-unknown-unknown,wasm32-wasip1
+          components: rust-src
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .
+          cache-targets: false
+          key: pr-drift
+
+      - name: Tool descriptor drift check
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Build the CLI (reusing the shared cargo target/registry cache) and put
+          # the `gizza` binary on PATH; the sync script shells out to `gizza`.
+          cargo build --release --manifest-path cli/Cargo.toml
+          export PATH="$CARGO_TARGET_DIR/release:$PATH"
+          python3 scripts/sync-tool-manifest.py --check $CHANGED_BLOCKS
+
+  # ---------------------------------------------------------------------------
+  # Single required status check. Branch protection requires "test"; the real
+  # work lives in the jobs above, so this one only aggregates their results.
+  # ---------------------------------------------------------------------------
+  test:
+    if: always()
+    needs: [detect, repo, blocks, drift]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail=0
+          for entry in \
+            "detect=${{ needs.detect.result }}" \
+            "repo=${{ needs.repo.result }}" \
+            "blocks=${{ needs.blocks.result }}" \
+            "drift=${{ needs.drift.result }}"; do
+            name="${entry%%=*}"
+            result="${entry#*=}"
+            echo "$name: $result"
+            case "$result" in
+              success|skipped) ;;
+              *) fail=1 ;;
+            esac
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo "::error::One or more Test jobs failed."
+            exit 1
+          fi
+          echo "All Test jobs passed."
