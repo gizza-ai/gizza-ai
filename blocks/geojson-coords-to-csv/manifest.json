@@ -1,0 +1,103 @@
+{
+  "name": "gizza-ai/geojson-coords-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract every GeoJSON coordinate into a flat lon,lat CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Extract every coordinate pair in a GeoJSON document into a flat CSV, ONE ROW PER COORDINATE (unlike a feature-level converter, a 500-vertex polygon becomes 500 rows). Pass `geojson` as a FeatureCollection, a single Feature, a bare geometry (Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, GeometryCollection) or a top-level array of any of those. Columns are `longitude,latitude` plus `elevation` when a coordinate carries a Z value; set `order`='latlon' to swap the axis order. `columns` adds context: 'indexed' (an `index`), 'feature' (`feature_index`, `feature_id`, `geometry_type`) or 'full' (also `part`, `ring`, `position`, `ring_close`). `shapes` limits extraction to points, lines or polygons; `precision` rounds to 0-15 decimals (-1 keeps the source value); `dedupe` drops repeated positions ('ring-close', 'adjacent' or 'all'); `properties`=true appends the feature properties as columns; `delimiter` picks comma/semicolon/tab/pipe and `header`=false drops the header row. Up to 200000 coordinate rows. Runs locally on the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "coords",
+          "description": "Context columns written before the coordinates: 'coords' (default) just the coordinate columns; 'indexed' adds a 1-based `index`; 'feature' adds `index`, `feature_index`, `feature_id` (the Feature's `id`, blank when absent) and `geometry_type`; 'full' additionally adds `part` (1-based part within the feature), `ring` (1 = a polygon's outer ring, 2+ = a hole, blank for non-polygons), `position` (1-based position within its ring or part) and `ring_close` (true on the closing vertex that repeats its ring's first).",
+          "enum": [
+            "coords",
+            "indexed",
+            "feature",
+            "full"
+          ],
+          "type": "string"
+        },
+        "dedupe": {
+          "default": "none",
+          "description": "Drop repeated coordinates. The levels are cumulative: 'none' (default) emits every position as stored; 'ring-close' drops each polygon ring's closing position when it repeats the ring's first; 'adjacent' also drops a position identical to the one emitted just before it in the same ring or part; 'all' emits each distinct coordinate once across the whole document.",
+          "enum": [
+            "none",
+            "ring-close",
+            "adjacent",
+            "all"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Output field separator: 'comma' (default), 'semicolon', 'tab' or 'pipe'. Fields are RFC-4180 escaped (quoted when they contain the delimiter, a quote or a newline).",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "elevation": {
+          "default": "auto",
+          "description": "When the third `elevation` (Z) column is written: 'auto' (default) only if at least one coordinate carries a Z value; 'always' writes the column with blanks for 2-D coordinates; 'never' drops it.",
+          "enum": [
+            "auto",
+            "always",
+            "never"
+          ],
+          "type": "string"
+        },
+        "geojson": {
+          "description": "GeoJSON to explode into coordinates. Accepts a FeatureCollection, a single Feature, a bare geometry (Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, GeometryCollection) or a top-level array of any of those. Every position in the document becomes ONE CSV row, in document order — a 500-vertex polygon gives 500 rows. Positions are [longitude, latitude] or [longitude, latitude, elevation].",
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit a header row of column names. Default true.",
+          "type": "boolean"
+        },
+        "order": {
+          "default": "lonlat",
+          "description": "Axis order of the two coordinate columns: 'lonlat' (default) writes longitude,latitude — GeoJSON's own storage order; 'latlon' writes latitude,longitude, which is what most map UIs and spreadsheets expect. The header row follows the choice.",
+          "enum": [
+            "lonlat",
+            "latlon"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": -1,
+          "description": "Decimal places for the coordinate columns. -1 (default) keeps each number exactly as written in the document; 0-15 rounds and pads to that many places (6 ≈ 0.1 m, 5 ≈ 1 m). Property columns are never reformatted.",
+          "maximum": 15,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "properties": {
+          "default": false,
+          "description": "Append the features' `properties` as extra columns (the union of keys, in first-seen order), repeating each feature's values on every one of its coordinate rows. Nested objects/arrays are written as compact JSON. Default false.",
+          "type": "boolean"
+        },
+        "shapes": {
+          "default": "all",
+          "description": "Which geometries contribute coordinates: 'all' (default); 'points' only Point/MultiPoint; 'lines' only LineString/MultiLineString; 'polygons' only Polygon/MultiPolygon. GeometryCollections are always walked and their members filtered individually.",
+          "enum": [
+            "all",
+            "points",
+            "lines",
+            "polygons"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "geojson"
+      ],
+      "type": "object"
+    }
+  }
+}

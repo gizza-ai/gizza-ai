@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geojson-coords-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Extract every GeoJSON coordinate into a flat lon,lat CSV"
