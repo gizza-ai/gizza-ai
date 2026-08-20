@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-toml-to-csv-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+csv = "1"
+# preserve_order keeps TOML key order = document order, so CSV columns come out
+# in the order the user wrote them rather than alphabetically.
+toml = { version = "0.8", features = ["preserve_order"] }
+serde_json = "1"

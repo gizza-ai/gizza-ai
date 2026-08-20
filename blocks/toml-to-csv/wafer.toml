@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "toml-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Turn a TOML array-of-tables into CSV rows with a unioned header"

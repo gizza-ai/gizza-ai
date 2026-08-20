@@ -1,0 +1,149 @@
+slug          = "toml-to-csv"
+title         = "TOML to CSV Converter"
+description   = "Turn a TOML array-of-tables into spreadsheet-ready CSV: one row per entry, a unioned header, and dot-notation columns for nested tables."
+tags          = ["toml", "csv", "converter", "array-of-tables", "flatten", "spreadsheet", "config", "data-format"]
+h1            = "TOML to CSV Converter"
+hero_subtitle = "Paste a TOML document and get one CSV row per array-of-tables entry — nested tables flattened into dot-notation columns, ragged entries kept whole by a unioned header."
+wasm          = "gizza_ai_toml_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "TOML document"
+placeholder = '''[[users]]
+name = "Ada"
+role = "admin"
+tags = ["founder", "ops"]
+
+[[users]]
+name = "Linus"
+role = "dev"'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "table"
+label       = "Array-of-tables path (blank = auto-detect)"
+placeholder = "users"
+source      = "field"
+
+[[input]]
+name        = "nested"
+label       = "Nested tables"
+source      = "field"
+
+[input.labels]
+flatten = "Flatten to dot-notation columns"
+json = "Keep as JSON in one cell"
+skip = "Skip nested tables"
+
+[[input]]
+name        = "array_format"
+label       = "Array values"
+source      = "field"
+
+[input.labels]
+json = "JSON in one cell"
+join = "Joined with \"; \""
+columns = "Indexed columns (tags.1, tags.2)"
+
+[[input]]
+name        = "columns"
+label       = "Header columns"
+source      = "field"
+
+[input.labels]
+union = "Union of all keys (document order)"
+sorted = "Union of all keys (A→Z)"
+first = "First row's keys only"
+
+[[input]]
+name        = "delimiter"
+label       = "CSV delimiter"
+source      = "field"
+
+[input.labels]
+comma = "Comma"
+semicolon = "Semicolon"
+tab = "Tab"
+pipe = "Pipe"
+
+[[input]]
+name        = "include_header"
+label       = "Include header row"
+source      = "field"
+
+[[example]]
+label = "Array of tables → CSV"
+[example.params]
+input = '''[[users]]
+name = "Ada"
+role = "admin"
+
+[[users]]
+name = "Linus"
+role = "dev"'''
+table = ""
+nested = "flatten"
+array_format = "json"
+columns = "union"
+delimiter = "comma"
+include_header = "true"
+
+[[example]]
+label = "Flatten nested tables"
+[example.params]
+input = '''[[servers]]
+name = "web-1"
+addr = { city = "Berlin", zip = "10115" }
+
+[[servers]]
+name = "web-2"
+addr = { city = "Lisbon", zip = "1100-148" }'''
+table = "servers"
+nested = "flatten"
+array_format = "json"
+columns = "union"
+delimiter = "comma"
+include_header = "true"
+
+[[example]]
+label = "Tags as indexed columns"
+[example.params]
+input = '''[[packages]]
+name = "serde"
+tags = ["serialization", "rust"]
+
+[[packages]]
+name = "csv"
+tags = ["parsing"]'''
+table = ""
+nested = "flatten"
+array_format = "columns"
+columns = "union"
+delimiter = "comma"
+include_header = "true"
+
+[[example]]
+label = "Pick a nested table, TSV, no header"
+[example.params]
+input = '''[[users]]
+name = "Ada"
+
+[servers]
+[[servers.pool]]
+host = "a.example.com"
+port = 443
+
+[[servers.pool]]
+host = "b.example.com"
+port = 8443'''
+table = "servers.pool"
+nested = "flatten"
+array_format = "json"
+columns = "union"
+delimiter = "tab"
+include_header = "false"
