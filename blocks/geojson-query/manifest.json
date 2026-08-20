@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/geojson-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Filter and aggregate GeoJSON features with a SQL-like spatial query.",
+  "role": "skill",
+  "tool": {
+    "description": "Query a pasted GeoJSON FeatureCollection, Feature, bare geometry, or feature array with a deterministic SQL-like language. Supports property filters, AND/OR/NOT, IN, LIKE, bbox/intersects, within, contains(lon,lat), near(lon,lat,km), projection with SELECT, GROUP BY with count/sum/avg/min/max, ORDER BY, LIMIT/OFFSET, bbox prefiltering, and GeoJSON/JSON/CSV output. Coordinates are treated as WGS84 lon/lat and no reprojection is performed.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bbox": {
+          "default": "",
+          "description": "Optional bounding-box prefilter written as minLon,minLat,maxLon,maxLat. It is ANDed with any WHERE clause and uses intersects semantics.",
+          "type": "string"
+        },
+        "format": {
+          "default": "geojson",
+          "description": "Output format. geojson returns a FeatureCollection for non-aggregate queries; json returns property or aggregate rows; csv returns those rows as comma-separated text.",
+          "enum": [
+            "geojson",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_bbox": {
+          "default": false,
+          "description": "When true, include a computed bbox member on GeoJSON FeatureCollection output.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 0,
+          "description": "JSON indentation spaces from 0 to 8. Use 0 for compact GeoJSON/JSON.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "GeoJSON FeatureCollection, Feature, bare geometry, or array of Feature objects to query. Coordinates are interpreted as WGS84 lon/lat.",
+          "type": "string"
+        },
+        "query": {
+          "default": "SELECT *",
+          "description": "SQL-like query. Supports SELECT fields or aggregates, optional WHERE with property comparisons and bbox()/within()/contains()/near(), GROUP BY, ORDER BY, LIMIT, and OFFSET.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

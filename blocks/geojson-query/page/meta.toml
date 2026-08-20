@@ -1,0 +1,83 @@
+slug          = "geojson-query"
+title         = "GeoJSON Query — SQL-like Spatial Feature Filter"
+description   = "Filter, project, sort, page, and aggregate GeoJSON features with property predicates, bbox filters, and simple spatial functions."
+tags          = ["geojson", "spatial query", "feature filter", "bbox", "gis", "sql", "property filter", "aggregation", "csv"]
+h1            = "Query GeoJSON Features"
+hero_subtitle = "Paste a FeatureCollection and run a small SQL-like query with property filters, bbox/contains/near predicates, projections, aggregates, sorting, and GeoJSON/JSON/CSV output."
+wasm          = "gizza_ai_geojson_query_web"
+export        = "run"
+live          = false
+output_label  = "Query result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "GeoJSON"
+placeholder = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Springfield","country":"US","population":120000},"geometry":{"type":"Point","coordinates":[-89.65,39.78]}},{"type":"Feature","properties":{"name":"Shelbyville","country":"US","population":30000},"geometry":{"type":"Point","coordinates":[-88.79,39.40]}}]}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "query"
+label       = "Query"
+placeholder = "SELECT name, population WHERE country = 'US' ORDER BY population DESC LIMIT 10"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "bbox"
+label       = "Bounding box prefilter"
+placeholder = "-90,39,-88,40"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+[input.labels]
+geojson = "GeoJSON FeatureCollection"
+json    = "JSON rows"
+csv     = "CSV rows"
+
+[[input]]
+name        = "indent"
+label       = "JSON indentation"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "include_bbox"
+label  = "Include output bbox"
+source = "field"
+
+[[example]]
+label = "US cities over 100k"
+[example.params]
+input = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Springfield","country":"US","population":120000},"geometry":{"type":"Point","coordinates":[-89.65,39.78]}},{"type":"Feature","properties":{"name":"Shelbyville","country":"US","population":30000},"geometry":{"type":"Point","coordinates":[-88.79,39.40]}},{"type":"Feature","properties":{"name":"Ogdenville","country":"CA","population":250000},"geometry":{"type":"Point","coordinates":[-114.07,51.05]}}]}'
+query = "SELECT name, population WHERE country = 'US' AND population > 100000"
+bbox = ""
+format = "json"
+indent = "2"
+include_bbox = "false"
+
+[[example]]
+label = "Features in bbox"
+[example.params]
+input = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"Springfield"},"geometry":{"type":"Point","coordinates":[-89.65,39.78]}},{"type":"Feature","properties":{"name":"Ogdenville"},"geometry":{"type":"Point","coordinates":[-114.07,51.05]}}]}'
+query = "SELECT *"
+bbox = "-90,39,-88,40"
+format = "geojson"
+indent = "0"
+include_bbox = "true"
+
+[[example]]
+label = "Aggregate by property"
+[example.params]
+input = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"country":"US","population":120000},"geometry":{"type":"Point","coordinates":[-89.65,39.78]}},{"type":"Feature","properties":{"country":"US","population":30000},"geometry":{"type":"Point","coordinates":[-88.79,39.40]}},{"type":"Feature","properties":{"country":"CA","population":250000},"geometry":{"type":"Point","coordinates":[-114.07,51.05]}}]}'
+query = "SELECT country, count(*) AS features, sum(population) AS people GROUP BY country ORDER BY people DESC"
+bbox = ""
+format = "csv"
+indent = "0"
+include_bbox = "false"
