@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "convert-to-srgb"
+version = "0.1.0"
+abi = 1
+summary = "Convert an embedded-ICC image to plain sRGB PNG."

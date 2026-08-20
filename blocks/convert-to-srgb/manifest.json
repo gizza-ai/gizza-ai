@@ -1,0 +1,36 @@
+{
+  "name": "gizza-ai/convert-to-srgb",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an embedded-ICC image to plain sRGB PNG.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a JPEG, PNG, WebP, GIF, or BMP image that carries an embedded ICC colour profile (Display P3, Adobe RGB, scanner/printer profiles, etc.) into a plain sRGB PNG for consistent web display. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). The pixels are colour-managed through the embedded profile; the output is an unprofiled sRGB PNG. Images without an embedded ICC profile are rejected so a no-op is not mistaken for a conversion.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
