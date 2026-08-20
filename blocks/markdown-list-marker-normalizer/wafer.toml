@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-list-marker-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Normalize Markdown bullets to one marker character and one indentation ladder."
