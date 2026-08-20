@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "unified-diff-reverse"
+version = "0.1.0"
+abi = 1
+summary = "Invert a pasted unified diff into the reverse patch that undoes the change."
