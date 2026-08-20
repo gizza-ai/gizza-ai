@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stl-vertices-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Flatten an ASCII or binary STL mesh into a CSV of triangle vertex coordinates"
