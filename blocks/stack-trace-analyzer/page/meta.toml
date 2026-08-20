@@ -1,0 +1,110 @@
+slug          = "stack-trace-analyzer"
+title         = "Stack Trace Analyzer — Find the Root Cause in Any Trace"
+description   = "Paste a Java, Python, JavaScript, Go, Ruby, C#, Rust, or PHP stack trace to get the root cause, the first frame of your own code, and every frame parsed."
+tags          = ["stack trace analyzer", "stack trace parser", "root cause", "exception chain", "caused by", "traceback parser", "stack trace formatter", "crash log"]
+h1            = "Analyze a Stack Trace and Find the Root Cause"
+hero_subtitle = "Paste a stack trace from any of 8 languages and get the root cause, the first frame of your own code, and every frame split into function, file, line, and column."
+wasm          = "gizza_ai_stack_trace_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Analysis"
+format        = "text"
+
+[[input]]
+name        = "trace"
+label       = "Stack trace"
+placeholder = "Exception in thread \"main\" com.example.SvcException: could not start\n\tat com.example.App.start(App.java:42)\n\tat org.springframework.boot.SpringApplication.run(SpringApplication.java:301)\nCaused by: java.net.ConnectException: Connection refused\n\tat com.example.Db.connect(Db.java:17)"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto       = "Detect automatically"
+java       = "Java / Kotlin / Scala"
+python     = "Python"
+javascript = "JavaScript / TypeScript / Node"
+go         = "Go"
+ruby       = "Ruby"
+csharp     = "C# / .NET"
+rust       = "Rust"
+php        = "PHP"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report — readable analysis"
+table  = "Table — one row per frame"
+json   = "JSON — full structure"
+
+[[input]]
+name        = "user_packages"
+label       = "Your code prefixes"
+placeholder = "com.example,myapp"
+source      = "field"
+
+[[input]]
+name   = "hide_framework"
+label  = "Hide framework frames"
+source = "field"
+
+[[input]]
+name   = "reverse"
+label  = "List frames in call order"
+source = "field"
+
+[[input]]
+name        = "limit"
+label       = "Max frames per exception"
+placeholder = "100"
+source      = "field"
+
+[[example]]
+label = "Java — Caused by chain"
+[example.params]
+trace = "Exception in thread \"main\" com.example.SvcException: could not start\n\tat com.example.App.start(App.java:42)\n\tat org.springframework.boot.SpringApplication.run(SpringApplication.java:301)\n\tat java.base/java.lang.Thread.run(Thread.java:840)\nCaused by: java.net.ConnectException: Connection refused\n\tat java.base/sun.nio.ch.Net.pollConnect(Native Method)\n\tat com.example.Db.connect(Db.java:17)\n\t... 12 more"
+language = "auto"
+output = "report"
+user_packages = ""
+hide_framework = "false"
+reverse = "false"
+limit = "100"
+
+[[example]]
+label = "Python traceback"
+[example.params]
+trace = "Traceback (most recent call last):\n  File \"/app/main.py\", line 10, in <module>\n    main()\n  File \"/app/svc.py\", line 4, in divide\n    return a / b\nZeroDivisionError: division by zero"
+language = "auto"
+output = "report"
+user_packages = ""
+hide_framework = "false"
+reverse = "false"
+limit = "100"
+
+[[example]]
+label = "JavaScript — your code only"
+[example.params]
+trace = "TypeError: Cannot read properties of undefined (reading 'name')\n    at getName (/app/src/user.js:12:18)\n    at /app/src/index.js:4:3\n    at Module._compile (node:internal/modules/cjs/loader:1105:14)\n    at Array.forEach (<anonymous>)"
+language = "auto"
+output = "report"
+user_packages = ""
+hide_framework = "true"
+reverse = "false"
+limit = "100"
+
+[[example]]
+label = "Go panic → JSON"
+[example.params]
+trace = "panic: runtime error: index out of range [3] with length 3\n\ngoroutine 1 [running]:\nmain.doWork(0x0?)\n\t/home/u/app/main.go:12 +0x1d\nmain.main()\n\t/home/u/app/main.go:6 +0x18"
+language = "auto"
+output = "json"
+user_packages = ""
+hide_framework = "false"
+reverse = "false"
+limit = "100"
