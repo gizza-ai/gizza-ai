@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "flac-picture-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract embedded artwork from a native FLAC file"

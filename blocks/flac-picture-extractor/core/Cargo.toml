@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-flac-picture-extractor-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# The only dependency: pictures can also be stored base64-encoded inside a
+# VORBIS_COMMENT field (METADATA_BLOCK_PICTURE / the legacy COVERART pair), so
+# the parser needs a decoder. Everything else — the FLAC metadata-block walk and
+# the PNG/JPEG/GIF/WebP/BMP header sniff — is hand-rolled, so the core stays
+# pure, allocation-light and wasm-safe on every backend.
+base64 = "0.22"
