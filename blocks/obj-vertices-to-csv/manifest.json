@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/obj-vertices-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract Wavefront OBJ vertex coordinates into an x,y,z CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the vertex (`v`) coordinates of a Wavefront OBJ document into a flat x,y,z CSV, ONE ROW PER VERTEX, in file order. Pass the OBJ text as `obj`. Faces, texture coordinates, normals and materials are skipped and nothing is resampled — the rows are the stored positions. The extended `v x y z r g b` colour form is understood (`color` controls the red/green/blue columns) and a 4th `w` value is ignored. `columns` adds context: 'indexed' (the 1-based OBJ vertex index that `f` lines reference), 'object' (`object`, `group`) or 'full' (also `material`). `up_axis` converts between Y-up and Z-up ('y-to-z' maps (x,y,z) to (x,-z,y)); `scale` multiplies coordinates for unit changes; `precision` rounds to 0-15 decimals (-1 keeps the source text); `dedupe` drops 'adjacent' or 'all' repeated positions; `objects` keeps only named `o`/`g` sections; `delimiter` picks comma/semicolon/tab/pipe/space and `header`=false drops the header row (space + no header = a plain XYZ point-cloud file). Up to 16 MiB of OBJ and 500000 rows. Runs locally on the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "default": "auto",
+          "description": "When the per-vertex `red,green,blue` columns are written, for OBJ files using the extended `v x y z r g b` form: 'auto' (default) only if at least one vertex carries colour; 'always' writes the columns with blanks for colourless vertices; 'never' drops them. Colour values are copied verbatim and never rounded.",
+          "enum": [
+            "auto",
+            "always",
+            "never"
+          ],
+          "type": "string"
+        },
+        "columns": {
+          "default": "xyz",
+          "description": "Context columns written before the coordinates: 'xyz' (default) just the coordinate columns; 'indexed' adds `index`, the vertex's 1-based OBJ index (the number `f` lines reference, kept even when rows are filtered or deduped); 'object' adds `index`, `object` (the enclosing `o` name) and `group` (the enclosing `g` names); 'full' additionally adds `material` (the active `usemtl`).",
+          "enum": [
+            "xyz",
+            "indexed",
+            "object",
+            "full"
+          ],
+          "type": "string"
+        },
+        "dedupe": {
+          "default": "none",
+          "description": "Drop repeated positions, compared after up-axis, scale and rounding: 'none' (default) emits every `v` line; 'adjacent' drops a vertex identical to the one emitted just before it; 'all' emits each distinct position once. Welded/seam-split exports often repeat positions.",
+          "enum": [
+            "none",
+            "adjacent",
+            "all"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Output field separator: 'comma' (default), 'semicolon', 'tab', 'pipe' or 'space' (space plus header=false gives a plain XYZ/ASC point-cloud file). Fields are RFC-4180 escaped (quoted when they contain the delimiter, a quote or a newline).",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit a header row of column names. Default true.",
+          "type": "boolean"
+        },
+        "obj": {
+          "description": "Wavefront OBJ text to extract vertices from. Every `v x y z` line becomes ONE CSV row, in file order — a 5000-vertex mesh gives 5000 rows. The extended `v x y z r g b` form (per-vertex colours) is understood and an optional 4th `w` value is ignored. Faces (`f`), texture coordinates (`vt`), normals (`vn`), parameter-space vertices (`vp`) and material libraries are skipped — nothing is resampled. Up to 16 MiB.",
+          "type": "string"
+        },
+        "objects": {
+          "description": "Comma-separated `o` object or `g` group names to keep — for example 'wheels,chassis'. Names are matched exactly (a `g` line's individual names are each matched) and a vertex belongs to the section declared most recently before it, which is how exporters segment multi-part OBJ files. Empty (default) keeps every vertex.",
+          "type": "string"
+        },
+        "precision": {
+          "default": -1,
+          "description": "Decimal places for the coordinate columns. -1 (default) keeps each number exactly as written in the file (so `1.500` stays `1.500`); 0-15 rounds and pads to that many places. Coordinates are always reformatted when `up_axis` or `scale` changes them.",
+          "maximum": 15,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Multiplier applied to every coordinate after the up-axis conversion — use it for unit changes (1000 = metres to millimetres, 0.001 = millimetres to metres, 25.4 = inches to millimetres). Default 1 leaves the size unchanged.",
+          "maximum": 1000000,
+          "minimum": -1000000,
+          "type": "number"
+        },
+        "up_axis": {
+          "default": "keep",
+          "description": "Up-axis conversion, applied before scaling. 'keep' (default) leaves the coordinates as stored (OBJ is Y-up); 'y-to-z' rotates +90° about X so Y-up data lands in a Z-up convention (CAD/GIS/printing), mapping (x,y,z) to (x,-z,y); 'z-to-y' is the inverse, mapping (x,y,z) to (x,z,-y).",
+          "enum": [
+            "keep",
+            "y-to-z",
+            "z-to-y"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "obj"
+      ],
+      "type": "object"
+    }
+  }
+}
