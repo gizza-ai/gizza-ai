@@ -1,0 +1,68 @@
+{
+  "name": "gizza-ai/url-trailing-slash-normalizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add or remove trailing slashes across a batch of URLs, leaving file-like paths alone.",
+  "role": "skill",
+  "tool": {
+    "description": "Make the trailing slashes in a list of URLs consistent: add one to every directory-style URL, or strip it from all of them. Takes one URL per line (absolute, scheme-relative, bare host or path-only) and rewrites only the path — scheme, host, port, query string and fragment are copied byte-for-byte, nothing is re-encoded, and repeated trailing slashes collapse to the chosen style. File-like paths such as /sitemap.xml or /report.pdf are left alone by default, the site root always stays a single '/', and unrecognized lines are passed through. Optional dedupe, and four outputs: the normalized list, only the URLs that changed, a per-line CSV report, or a CSV summary of the totals.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": false,
+          "description": "Drop URLs that normalize to something an earlier line already produced, keeping the first occurrence and the original order. Useful when the same page appears in a list both with and without its slash. Default false.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "add",
+          "description": "Which style to enforce: 'add' (default) puts a trailing slash on every directory-style URL, 'remove' takes it off. Only the path changes — the scheme, host, port, query string and fragment are copied through byte-for-byte and nothing is re-encoded.",
+          "enum": [
+            "add",
+            "remove"
+          ],
+          "type": "string"
+        },
+        "normalize_root": {
+          "default": true,
+          "description": "Always render a site root as a single '/' — 'https://example.com' and 'https://example.com//' both become 'https://example.com/', and remove mode never strips the root slash (a bare 'https://example.com' is not a shorter URL, it is an incomplete one). Turn it off to leave root URLs exactly as written.",
+          "type": "boolean"
+        },
+        "on_invalid": {
+          "default": "keep",
+          "description": "What to do with a line that is not a URL or path — a note, a 'mailto:'/'tel:' address, a stray word. 'keep' (default) passes it through untouched so an annotated list survives a round trip, 'drop' leaves it out of the result, 'error' fails the run and names the line.",
+          "enum": [
+            "keep",
+            "drop",
+            "error"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "urls",
+          "description": "What to return: 'urls' (default) is every URL normalized, one per line; 'changed' is only the URLs whose trailing slash actually moved (the redirect list to hand to your server config); 'report' is a line,original,normalized,action CSV covering every input line, where action is added, removed, unchanged, root, skipped-file, invalid or duplicate; 'summary' is a metric,value CSV of the run totals.",
+          "enum": [
+            "urls",
+            "changed",
+            "report",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "skip_file_paths": {
+          "default": true,
+          "description": "Leave file-like URLs alone in both directions — a last path segment with a real extension such as '/sitemap.xml', '/report.pdf' or '/style.css'. On by default because '/sitemap.xml/' is a different resource on almost every server. An extension must be 1-10 alphanumeric characters containing at least one letter, so '/api/v1.2' counts as a directory. Turn it off to force every URL into the chosen style.",
+          "type": "boolean"
+        },
+        "urls": {
+          "description": "The URLs to normalize, one per line — e.g. 'https://example.com/blog'. Absolute URLs ('https://host/path', any scheme with an authority), scheme-relative URLs ('//cdn.example.com/a'), bare hosts ('example.com/blog', 'example.com:8080/blog') and path-only lines ('/blog/post') are all accepted. Blank lines are ignored. Max 20,000 URLs and 1,000,000 bytes per run.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "urls"
+      ],
+      "type": "object"
+    }
+  }
+}

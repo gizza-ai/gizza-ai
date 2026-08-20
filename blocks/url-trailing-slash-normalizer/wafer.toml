@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "url-trailing-slash-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Add or remove trailing slashes across a batch of URLs, leaving file-like paths alone."
