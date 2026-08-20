@@ -1,0 +1,148 @@
+slug          = "env-var-reference-extractor"
+title         = "Env Var Reference Extractor — Find Every $VAR, ${VAR} and %VAR% Used"
+description   = "Paste a shell script, Dockerfile or config and list every environment variable it references, with line numbers, defaults and an undefined check. Runs in your browser."
+tags          = ["environment variables", "env var extractor", "shell script", "dockerfile", "env example generator", "undefined variables"]
+h1            = "Env Var Reference Extractor"
+hero_subtitle = "Paste a shell script, Dockerfile, docker-compose or CI config and get every environment variable it uses — $VAR, ${VAR}, ${VAR:-default}, %VAR% and process.env.VAR — with line numbers, fallback defaults and a defined/undefined check. Export a list, table, JSON, CSV or a ready-to-edit .env.example. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_env_var_reference_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Referenced variables"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Script, Dockerfile or config"
+placeholder = "#!/bin/sh\nPORT=${PORT:-8080}\ncurl \"$API_URL/health\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "syntax"
+label  = "Reference syntax"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+shell = "Shell — $VAR, ${VAR}"
+dockerfile = "Dockerfile — $VAR plus ENV/ARG"
+windows = "Windows batch — %VAR%, !VAR!"
+code = "Source code — process.env.VAR, os.environ[…]"
+all = "All syntaxes at once"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+names = "Variable names"
+table = "Aligned table"
+json = "JSON records"
+markdown = "Markdown table"
+csv = "CSV"
+env-template = ".env.example template"
+stats = "Statistics summary"
+
+[[input]]
+name        = "defined"
+label       = "Variables you already provide (optional)"
+placeholder = "PORT=8080\nAPI_URL=https://api.internal"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "include_defined_in_source"
+label  = "Count assignments in the pasted text as definitions"
+source = "field"
+
+[[input]]
+name   = "skip_comments"
+label  = "Ignore references inside comments"
+source = "field"
+
+[[input]]
+name        = "ignore"
+label       = "Names to ignore"
+placeholder = "PATH, HOME, LC_*"
+source      = "field"
+
+[[input]]
+name   = "only_undefined"
+label  = "Show only undefined variables"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Sort order"
+source = "field"
+
+[input.labels]
+name = "Alphabetical"
+occurrences = "Most referenced first"
+"first-seen" = "Order of first use"
+
+[[example]]
+label = "Shell script"
+[example.params]
+text = "#!/bin/sh\nPORT=${PORT:-8080}\ncurl \"$API_URL/health\"\necho \"listening on $PORT\" # $UNUSED_IN_COMMENT"
+syntax = "shell"
+output = "table"
+defined = ""
+include_defined_in_source = "true"
+skip_comments = "true"
+ignore = ""
+only_undefined = "false"
+sort = "name"
+
+[[example]]
+label = "Dockerfile — what is still missing"
+[example.params]
+text = "FROM node:20-alpine\nARG NODE_ENV=production\nENV PORT=3000 APP_HOME=/srv/app\nWORKDIR $APP_HOME\nRUN echo \"$NODE_ENV on $PORT\"\nCMD [\"sh\", \"-c\", \"node server.js --db $DATABASE_URL --key $SESSION_SECRET\"]"
+syntax = "dockerfile"
+output = "names"
+defined = ""
+include_defined_in_source = "true"
+skip_comments = "true"
+ignore = ""
+only_undefined = "true"
+sort = "name"
+
+[[example]]
+label = "Generate a .env.example"
+[example.params]
+text = "DB_URL=${DATABASE_URL:-postgres://localhost/dev}\nSTRIPE=$STRIPE_KEY\nMAIL=${SMTP_HOST:-smtp.local}"
+syntax = "shell"
+output = "env-template"
+defined = ""
+include_defined_in_source = "false"
+skip_comments = "true"
+ignore = ""
+only_undefined = "false"
+sort = "name"
+
+[[example]]
+label = "Windows batch"
+[example.params]
+text = "@echo off\nsetlocal enabledelayedexpansion\nset OUT_DIR=%USERPROFILE%\\build\nrobocopy \"%SOURCE_DIR%\" \"!OUT_DIR!\" /E\necho done for %BUILD_ID%"
+syntax = "windows"
+output = "table"
+defined = ""
+include_defined_in_source = "true"
+skip_comments = "true"
+ignore = ""
+only_undefined = "false"
+sort = "name"
+
+[[example]]
+label = "Source code accessors"
+[example.params]
+text = "const port = process.env.PORT || 3000;\nconst key = process.env[\"STRIPE_KEY\"];\nconst url = import.meta.env.VITE_API_URL;\n// const old = process.env.LEGACY_FLAG;"
+syntax = "code"
+output = "json"
+defined = ""
+include_defined_in_source = "true"
+skip_comments = "true"
+ignore = ""
+only_undefined = "false"
+sort = "name"
