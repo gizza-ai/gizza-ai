@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/geojson-wkt",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert geometries between GeoJSON, WKT/EWKT, and WKB/EWKB.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert geometry text between GeoJSON, WKT/EWKT, and WKB/EWKB. Accepts GeoJSON Geometry, Feature, FeatureCollection, GeometryCollection or arrays; WKT and EWKT with SRID= prefixes; and WKB/EWKB as hex or base64 text. Supports all seven OGC simple-feature geometry types, 2D/Z/M/ZM coordinates, EMPTY geometries, multi-feature collection-vs-lines output, optional coordinate rounding, WKB byte order, and SRID metadata. Coordinates are never reprojected.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "default": "auto",
+          "description": "Input format. Leave as auto to detect GeoJSON from JSON syntax, WKT/EWKT from geometry keywords or SRID=, and WKB/EWKB from hex/base64 bytes.",
+          "enum": [
+            "auto",
+            "geojson",
+            "wkt",
+            "wkb"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "GeoJSON, WKT/EWKT, or WKB/EWKB text to convert. GeoJSON may be a Geometry, Feature, FeatureCollection, GeometryCollection, or an array of those; WKB may be hex or base64, one geometry per line.",
+          "type": "string"
+        },
+        "multi": {
+          "default": "collection",
+          "description": "How to emit several input geometries. collection wraps them into one GeometryCollection; lines writes one converted geometry per output line.",
+          "enum": [
+            "collection",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": -1,
+          "description": "Decimal places to round coordinates to before output. Use -1 to keep Rust's shortest round-trip float formatting.",
+          "maximum": 15,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print GeoJSON output with indentation. Disable for compact one-line JSON; WKT and WKB output are unaffected.",
+          "type": "boolean"
+        },
+        "srid": {
+          "default": 0,
+          "description": "SRID metadata to write to EWKT/EWKB output. Use 0 to omit a new SRID and preserve any SRID already present in EWKT/EWKB input. Coordinates are not reprojected.",
+          "maximum": 999999,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "to": {
+          "default": "wkt",
+          "description": "Output format. WKT emits WKT or EWKT when an SRID is present; geojson emits GeoJSON geometry JSON; wkb emits WKB/EWKB as hex or base64 text.",
+          "enum": [
+            "wkt",
+            "geojson",
+            "wkb"
+          ],
+          "type": "string"
+        },
+        "wkb_encoding": {
+          "default": "hex",
+          "description": "Text encoding for WKB/EWKB output, and the preferred interpretation for non-hex WKB input.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "wkb_endian": {
+          "default": "little",
+          "description": "Byte order for WKB/EWKB output: little is NDR/PostGIS-style, big is XDR.",
+          "enum": [
+            "little",
+            "big"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
