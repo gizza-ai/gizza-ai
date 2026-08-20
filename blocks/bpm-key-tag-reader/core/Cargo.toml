@@ -1,0 +1,26 @@
+[package]
+name = "gizza-ai-bpm-key-tag-reader-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust demuxers + the always-enabled metadata readers (ID3v2,
+# ID3v1, Vorbis comments, RIFF INFO, MP4/iTunes ilst). We only read TAGS — no
+# decoding — so enable the container/codec registration features media-info
+# already proved wasm-safe. No std clock, no I/O, no ffmpeg.
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }

@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/bpm-key-tag-reader",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Read the stored tempo and musical-key tags from a track and convert the key to Camelot or Open Key",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Read the tempo (BPM) and musical key that are already STORED in a track's tags, and convert the key into traditional, Camelot (harmonic-mixing wheel) and Open Key notation. Reads ID3v2 TBPM/TKEY and the TXXX: frames DJ software writes (INITIALKEY, EnergyLevel), Vorbis comments (BPM, INITIALKEY, KEY), the MP4/iTunes tmpo atom and com.apple.iTunes freeform atoms, plus RIFF INFO and ID3v1 — across MP3, FLAC, OGG, M4A/MP4, WAV, AIFF, CAF and MKV/WebM. Reports which literal field each value came from, and understands keys stored as names (Am, F#m, C major), Camelot codes (8A) or Open Key codes (1m). This reads existing tags only — it does NOT analyse the audio, so an untagged file reports that no tempo/key tags are stored. WMA/ASF and APEv2 tags are not supported. Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "include_all_tags": {
+          "default": false,
+          "description": "Also list every other tag stored in the file, not just the tempo, key and energy ones. Useful for finding a non-standard field a DJ app used. Default: false.",
+          "type": "boolean"
+        },
+        "key_notation": {
+          "default": "all",
+          "description": "Which notation to report the musical key in: standard (traditional names like 'A minor'), camelot (harmonic-mixing wheel codes like '8A'), open-key (codes like '1m'), or all three at once. Default: all.",
+          "enum": [
+            "standard",
+            "camelot",
+            "open-key",
+            "all"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
