@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/images-to-animated-webp",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Combine images into an animated WebP",
+  "role": "skill",
+  "tool": {
+    "description": "Combine a set of images into a single animated WebP (lossless VP8L), one frame per image in order — usually much smaller than the equivalent GIF and with 24-bit color plus real alpha instead of GIF's 256-color palette. delay_ms sets the per-frame delay (10-60000, default 200); frame_delays_ms overrides it per image. loop_count 0 loops forever. order can replay the frames reverse or boomerang. Frames are placed on a common canvas (the max width/height, optionally scaled down by max_width) using fit=contain|cover|stretch, padded with the background color ('transparent' supported). colors=2-256 palette-quantizes each frame for much smaller files. Provide images as a list, each a url or a `ref` (PNG/JPEG/WebP/GIF/BMP).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "default": "#ffffff",
+          "description": "Background color as #rgb, #rrggbb, #rrggbbaa, or 'transparent' (default #ffffff). Fills the padding when frames differ in size.",
+          "type": "string"
+        },
+        "colors": {
+          "default": 0,
+          "description": "Reduce every frame to this many colors before encoding (2-256), which shrinks the file a lot for flat-color/graphic frames. 0 = keep full color (default).",
+          "maximum": 256,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delay_ms": {
+          "default": 200,
+          "description": "Delay shown for every frame, in milliseconds (10-60000, default 200 = 5 fps). Ignored for a frame that has its own value in frame_delays_ms.",
+          "maximum": 60000,
+          "minimum": 10,
+          "type": "integer"
+        },
+        "fit": {
+          "default": "contain",
+          "description": "How images that don't match the canvas aspect ratio are placed: 'contain' (default, fit inside and pad with the background), 'cover' (fill and center-crop), or 'stretch' (distort to the exact canvas size).",
+          "enum": [
+            "contain",
+            "cover",
+            "stretch"
+          ],
+          "type": "string"
+        },
+        "frame_delays_ms": {
+          "default": "",
+          "description": "Optional per-image delays in milliseconds, comma separated, one per image in the order supplied (e.g. '100,100,800' to hold the last frame). Empty = use delay_ms for every frame.",
+          "type": "string"
+        },
+        "images": {
+          "description": "Ordered list of image sources (PNG/JPEG/WebP/GIF/BMP) to animate, one per frame. Each item has exactly one of `url` or `ref`.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "loop_count": {
+          "default": 0,
+          "description": "How many times the animation plays: 0 = loop forever (default), 1 = play once, 3 = play three times.",
+          "maximum": 65535,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_width": {
+          "default": 0,
+          "description": "Scale the canvas down to this width in pixels, keeping the aspect ratio (0 = keep the natural size). Never scales up.",
+          "maximum": 16383,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "order": {
+          "default": "forward",
+          "description": "Playback order of the images: 'forward' (default), 'reverse', or 'boomerang' (forward then back, ping-pong, without repeating the end frames).",
+          "enum": [
+            "forward",
+            "reverse",
+            "boomerang"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "images"
+      ],
+      "type": "object"
+    }
+  },
+  "requires": [
+    "wafer-run/network"
+  ]
+}
