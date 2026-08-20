@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/accent-stripper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Strip accents and transliterate text to plain ASCII.",
+  "role": "skill",
+  "tool": {
+    "description": "Remove diacritics from text and optionally transliterate non-ASCII letters/scripts to their closest plain ASCII spelling. Use the default transliterate mode for slugs, search keys, filenames and CSV cleanup — it handles café→cafe, Straße→Strasse, Ærøskøbing→AEroskobing and Москва→Moskva. Use marks-only mode for the conservative Unicode-normalization pass that drops combining accents but leaves characters like ß, ø and Ж alone. Choose what happens to anything still non-ASCII (keep, remove or replace), protect specific characters with keep, lowercase the result, collapse whitespace, and optionally return a JSON audit report. Runs locally in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_whitespace": {
+          "default": false,
+          "description": "Trim each line and collapse runs of spaces or tabs inside the line to one plain space after conversion. Line breaks are preserved. Default false keeps spacing exactly as the converter emitted it.",
+          "type": "boolean"
+        },
+        "include_report": {
+          "default": false,
+          "description": "Return a JSON report instead of only the converted text. The report includes character counts, how many non-ASCII characters were converted/kept/unmapped, whether the result is pure ASCII, and up to 20 unmapped samples.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Text to convert. Accented Latin text, already-decomposed combining marks, symbols, and many non-Latin scripts are accepted. Max 200,000 characters.",
+          "type": "string"
+        },
+        "keep": {
+          "default": "",
+          "description": "Non-ASCII characters to protect from conversion, entered literally as a short string. For example keep='ñ' keeps mañana as mañana while still converting café to cafe. ASCII characters never need listing because they are always preserved.",
+          "type": "string"
+        },
+        "lowercase": {
+          "default": false,
+          "description": "Lowercase the converted text after accent stripping/transliteration. Default false preserves the casing created by the transliteration table.",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "transliterate",
+          "description": "Conversion strategy: 'transliterate' (default) maps accented letters and many non-Latin characters to their closest ASCII spelling, so Straße becomes Strasse and Москва becomes Moskva; 'marks-only' only removes combining accents after Unicode decomposition, so café becomes cafe but ß, ø, Ж and other letters without removable marks stay non-ASCII unless the unmapped policy handles them.",
+          "enum": [
+            "transliterate",
+            "marks-only"
+          ],
+          "type": "string"
+        },
+        "replacement": {
+          "default": "?",
+          "description": "ASCII text inserted for each unmapped character when unmapped=replace. Must be plain ASCII and at most 8 characters. Ignored unless unmapped is replace.",
+          "type": "string"
+        },
+        "unmapped": {
+          "default": "keep",
+          "description": "What to do with characters still non-ASCII after the selected conversion: 'keep' leaves them in place, 'remove' deletes them, and 'replace' swaps each one for the replacement string. Use remove or replace when the output must be strict ASCII.",
+          "enum": [
+            "keep",
+            "remove",
+            "replace"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

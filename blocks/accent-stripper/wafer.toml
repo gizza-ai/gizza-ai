@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "accent-stripper"
+version = "0.1.0"
+abi = 1
+summary = "Strip accents and transliterate text to plain ASCII."
