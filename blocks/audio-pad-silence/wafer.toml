@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-pad-silence"
+version = "0.1.0"
+abi = 1
+summary = "Add silence to the start and/or end of an audio clip"
