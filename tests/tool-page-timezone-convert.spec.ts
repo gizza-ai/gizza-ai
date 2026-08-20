@@ -114,13 +114,14 @@ test('timezone-convert supports multi-target planner', async ({ page }) => {
 test('timezone-convert page has smart defaults on load', async ({ page }) => {
   await page.goto('/tools/timezone-convert/');
 
-  // Datetime input should be pre-filled and match the format YYYY-MM-DDTHH:MM
-  const dtVal = await page.inputValue('#in-datetime');
-  expect(dtVal).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  // Meta defaults are applied by tool.js only after `await import(cfg.module)`
+  // resolves the tool's wasm, so they are not present the instant goto()
+  // returns. Assert with the auto-retrying matchers rather than a one-shot
+  // inputValue() read, which races that import and reads "".
+  await expect(page.locator('#in-datetime')).toHaveValue(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
 
   // From input should default to browser timezone or fallback
-  const fromVal = await page.inputValue('#in-from');
-  expect(fromVal.length).toBeGreaterThan(0);
+  await expect(page.locator('#in-from')).not.toHaveValue('');
 
   // The tag list should display UTC initially (hidden #in-to carries the value)
   await expect(page.locator('.tool-tag-pill')).toContainText('UTC');
