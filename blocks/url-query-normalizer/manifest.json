@@ -1,0 +1,93 @@
+{
+  "name": "gizza-ai/url-query-normalizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Canonicalize URL query strings — sort, deduplicate and normalize percent-encoding, with optional tracking-parameter removal.",
+  "role": "skill",
+  "tool": {
+    "description": "Canonicalize the query string of one URL or a whole list, so two spellings of the same address become one string. Sorts parameters by name, collapses duplicates (byte-identical pairs by default, or first/last wins per name), and rewrites percent-encoding to the RFC 3986 canonical form — unreserved characters decoded, required escapes uppercased, '+' and '%20' unified on one spelling for spaces. Optionally strips tracking parameters (utm_*, fbclid, gclid, …), applies a custom drop list or an allowlist with prefix wildcards, and removes empty values. Takes one URL per line or a bare query string with no scheme; scheme, host, port, path and fragment are copied byte-for-byte and nothing outside the query is touched. Returns the normalized list, only the lines that changed, a per-line CSV report, or a CSV summary of the totals.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": "exact",
+          "description": "How to collapse repeated parameters: 'exact' (default) drops only byte-identical name=value repeats, so a genuinely multi-valued parameter like 'tag=a&tag=b' survives intact; 'first' keeps the first value seen for each name and drops the rest; 'last' keeps the last; 'none' keeps every repeat. Comparison happens after encoding normalization, so 'q=a+b' and 'q=a%20b' count as the same pair.",
+          "enum": [
+            "exact",
+            "first",
+            "last",
+            "none"
+          ],
+          "type": "string"
+        },
+        "drop_empty": {
+          "default": false,
+          "description": "Also remove parameters with no value — both 'a=' and a bare valueless 'flag'. Off by default, because an empty value is meaningful to some applications. Turn it on to clear the leftovers an unfilled form appends to a URL.",
+          "type": "boolean"
+        },
+        "drop_params": {
+          "default": "",
+          "description": "Extra parameter names to remove, comma-separated and matched case-insensitively — e.g. 'sid,ref,session_id'. A trailing '*' makes it a prefix rule, so 'x_*' drops x_foo and x_bar. Applied on top of drop_tracking.",
+          "type": "string"
+        },
+        "drop_tracking": {
+          "default": false,
+          "description": "Remove the usual analytics and click-ID parameters — the utm_*, pk_*, mtm_*, ga_*, _hs* families plus fbclid, gclid, msclkid, yclid, igshid, mkt_tok and friends. Off by default because normalizing and stripping are separate decisions; turn it on to get a shareable canonical link in one pass. If every parameter is removed the '?' goes with them.",
+          "type": "boolean"
+        },
+        "encoding": {
+          "default": "normalize",
+          "description": "Percent-encoding policy. 'normalize' (default) rewrites every name and value to one canonical spelling per RFC 3986: unreserved characters (A-Z a-z 0-9 - . _ ~) are decoded to literals, everything that must be escaped is escaped, and hex digits are uppercased, so '%2d' becomes '-' and '%c3%a9' becomes '%C3%A9'. 'preserve' leaves the text of each name and value exactly as written and only reorders, filters and deduplicates. Malformed escapes such as a trailing '%' are never an error — the '%' is escaped as '%25'.",
+          "enum": [
+            "normalize",
+            "preserve"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The URLs to normalize, one per line — e.g. 'https://example.com/p?utm_source=news&b=2&a=1'. A bare query string with no scheme or host ('b=2&a=1') is accepted too and comes back without a leading '?'. Lines with no query string are passed through untouched, blank lines are ignored, and everything outside the query — scheme, host, port, path and fragment — is copied byte-for-byte. Max 20,000 lines and 1,000,000 bytes per run.",
+          "type": "string"
+        },
+        "keep_params": {
+          "default": "",
+          "description": "An allowlist: when set, ONLY these parameter names survive and everything else is dropped — comma-separated, case-insensitive, with the same trailing-'*' prefix rule as drop_params. This is the fastest way to build a cache key from the two or three parameters that actually change the response, e.g. 'page,sort'. Empty by default, which keeps everything.",
+          "type": "string"
+        },
+        "output": {
+          "default": "urls",
+          "description": "What to return: 'urls' (default) is every line normalized, one per line; 'changed' is only the lines that actually differ from the input, which is the canonical/redirect list worth acting on; 'report' is a line,original,normalized,params_in,params_out,changed CSV covering every line; 'summary' is a metric,value CSV of the run totals.",
+          "enum": [
+            "urls",
+            "changed",
+            "report",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "key",
+          "description": "How to order the surviving parameters: 'key' (default) sorts alphabetically by parameter name and is what makes two spellings of the same URL converge; 'key-value' also orders repeats of the same name by their value; 'none' keeps the original order. Sorting is stable, so equally-ranked parameters keep the order you gave them.",
+          "enum": [
+            "key",
+            "key-value",
+            "none"
+          ],
+          "type": "string"
+        },
+        "space": {
+          "default": "percent",
+          "description": "How a space inside a name or value is spelled on the way out: 'percent' (default) writes '%20', 'plus' writes '+'. A literal '+' in the input is read as a space, per the form-urlencoded convention every browser applies to query strings; a real plus sign written as '%2B' stays '%2B'. Only consulted when encoding is 'normalize'.",
+          "enum": [
+            "percent",
+            "plus"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "url-query-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Canonicalize URL query strings — sort, deduplicate and normalize percent-encoding, with optional tracking-parameter removal."
