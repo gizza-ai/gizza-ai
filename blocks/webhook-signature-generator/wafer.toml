@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "webhook-signature-generator"
+version = "0.1.0"
+abi = 1
+summary = "Compute the signing header (HMAC + timestamp) for a webhook payload so you can replay or test it"

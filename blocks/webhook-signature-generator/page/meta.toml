@@ -1,0 +1,205 @@
+slug          = "webhook-signature-generator"
+title         = "Webhook Signature Generator — HMAC Headers for Replay Tests"
+description   = "Generate Stripe, GitHub, Slack, Shopify, Standard Webhooks, Svix, Square, Twilio, Paddle, or custom HMAC webhook headers from a raw payload and secret."
+tags          = ["webhook", "hmac", "signature", "stripe", "github", "slack", "shopify", "svix", "twilio", "api testing", "curl"]
+h1            = "Generate Webhook Signatures"
+hero_subtitle = "Paste the exact webhook body and endpoint secret, pick a provider, and produce the signed payload, HMAC, headers, or replay cURL command locally."
+wasm          = "gizza_ai_webhook_signature_generator_web"
+export        = "run"
+live          = false
+output_label  = "Signature result"
+format        = "text"
+
+[[input]]
+name        = "payload"
+label       = "Raw payload"
+placeholder = '{"id":"evt_test","type":"payment_intent.succeeded"}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "secret"
+label       = "Signing secret"
+placeholder = "whsec_test_secret"
+source      = "field"
+
+[[input]]
+name   = "provider"
+label  = "Provider"
+source = "field"
+[input.labels]
+stripe = "Stripe"
+github = "GitHub"
+slack = "Slack"
+shopify = "Shopify"
+standard-webhooks = "Standard Webhooks"
+svix = "Svix"
+square = "Square"
+twilio = "Twilio"
+paddle = "Paddle"
+custom = "Custom HMAC"
+
+[[input]]
+name        = "timestamp"
+label       = "Timestamp"
+placeholder = "1700000000"
+source      = "field"
+
+[[input]]
+name        = "message_id"
+label       = "Message id"
+placeholder = "msg_2KWPBgLlAfxdpx2AI54pPJ85f4W"
+source      = "field"
+
+[[input]]
+name        = "url"
+label       = "Endpoint URL"
+placeholder = "https://example.com/webhook"
+source      = "field"
+
+[[input]]
+name   = "algorithm"
+label  = "Custom algorithm"
+source = "field"
+[input.labels]
+md5 = "HMAC-MD5"
+sha1 = "HMAC-SHA1"
+sha256 = "HMAC-SHA256"
+sha384 = "HMAC-SHA384"
+sha512 = "HMAC-SHA512"
+
+[[input]]
+name   = "encoding"
+label  = "Custom signature encoding"
+source = "field"
+[input.labels]
+hex = "hex lowercase"
+hex-upper = "hex uppercase"
+base64 = "base64"
+base64url = "base64url"
+
+[[input]]
+name   = "secret_encoding"
+label  = "Secret encoding"
+source = "field"
+[input.labels]
+auto = "auto"
+text = "text / UTF-8"
+hex = "hex bytes"
+base64 = "base64 bytes"
+
+[[input]]
+name        = "template"
+label       = "Custom signed-string template"
+placeholder = "{timestamp}.{payload}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "header_name"
+label       = "Custom header name"
+placeholder = "X-Signature"
+source      = "field"
+
+[[input]]
+name        = "signature_prefix"
+label       = "Custom signature prefix"
+placeholder = "sha256="
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+[input.labels]
+all = "Full report"
+headers = "Header lines"
+header = "Primary header value"
+signature = "Signature only"
+signed-payload = "Signed payload"
+curl = "Replay cURL"
+
+[[example]]
+label = "Stripe replay header"
+[example.params]
+payload = '{"id":"evt_test","type":"payment_intent.succeeded"}'
+secret = "whsec_test_secret"
+provider = "stripe"
+timestamp = "1700000000"
+message_id = ""
+url = "https://example.com/webhook"
+algorithm = "sha256"
+encoding = "hex"
+secret_encoding = "auto"
+template = ""
+header_name = ""
+signature_prefix = ""
+output = "headers"
+
+[[example]]
+label = "GitHub signature"
+[example.params]
+payload = "Hello, World!"
+secret = "It's a Secret to Everybody"
+provider = "github"
+timestamp = ""
+message_id = ""
+url = ""
+algorithm = "sha256"
+encoding = "hex"
+secret_encoding = "auto"
+template = ""
+header_name = ""
+signature_prefix = ""
+output = "headers"
+
+[[example]]
+label = "Slack signed payload"
+[example.params]
+payload = "token=xyzz&team_id=T1&text=hello"
+secret = "8f742231b10e8888abcd99yyyzzz85a5"
+provider = "slack"
+timestamp = "1531420618"
+message_id = ""
+url = ""
+algorithm = "sha256"
+encoding = "hex"
+secret_encoding = "auto"
+template = ""
+header_name = ""
+signature_prefix = ""
+output = "signed-payload"
+
+[[example]]
+label = "Standard Webhooks"
+[example.params]
+payload = '{"test":2432232314}'
+secret = "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw"
+provider = "standard-webhooks"
+timestamp = "1614265330"
+message_id = "msg_p5jXN8AQM9LWM0D4loKWxJek"
+url = ""
+algorithm = "sha256"
+encoding = "base64"
+secret_encoding = "auto"
+template = ""
+header_name = ""
+signature_prefix = ""
+output = "headers"
+
+[[example]]
+label = "Custom HMAC header"
+[example.params]
+payload = "body"
+secret = "k"
+provider = "custom"
+timestamp = "1700000000"
+message_id = ""
+url = ""
+algorithm = "sha512"
+encoding = "base64url"
+secret_encoding = "text"
+template = "{timestamp}|{payload}"
+header_name = "X-My-Sig"
+signature_prefix = "v1="
+output = "headers"
