@@ -22,8 +22,8 @@ test('plist-viewer converts XML plist to JSON', async ({ page }) => {
 test('plist-viewer tree output and sorted keys', async ({ page }) => {
   await page.goto('/tools/plist-viewer/');
   await page.fill('#in-input', XML);
-  await page.fill('#in-format', 'tree');
-  await page.fill('#in-sort_keys', 'true');
+  await page.selectOption('#in-format', 'tree');
+  await page.setChecked('#in-sort_keys', true);
 
   const out = page.locator('#tool-output');
   await expect(out).toContainText('"Count" => 3', { timeout: 15_000 });

@@ -33,6 +33,21 @@ async function frameStats(page: Page, dataUrl: string, time: number) {
       });
       v.currentTime = time;
       await new Promise<void>((res) => { v.onseeked = () => res(); });
+      // onseeked can fire before the seeked frame has actually been painted, and
+      // drawImage then captures an unpainted (black) canvas. That is the flake
+      // that made video-aspect-pad report r=0 on bar pixels in one nightly and
+      // pass unchanged in the next. Wait for a presented frame, fall back to a
+      // rAF pair where requestVideoFrameCallback is unavailable, and always time
+      // out so a stalled decode fails the assertion rather than hanging.
+      await new Promise<void>((res) => {
+        const anyV = v as any;
+        if (typeof anyV.requestVideoFrameCallback === 'function') {
+          anyV.requestVideoFrameCallback(() => res());
+        } else {
+          requestAnimationFrame(() => requestAnimationFrame(() => res()));
+        }
+        setTimeout(() => res(), 2000);
+      });
       const c = document.createElement('canvas');
       c.width = v.videoWidth;
       c.height = v.videoHeight;

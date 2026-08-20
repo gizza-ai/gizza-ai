@@ -34,6 +34,7 @@ jobs:
   # ---------------------------------------------------------------------------
   block-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       matrix:
@@ -100,6 +101,7 @@ jobs:
   # ---------------------------------------------------------------------------
   tool-pages-playwright:
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
@@ -165,12 +167,40 @@ jobs:
             echo "Shard ${SHARD_INDEX} has no tool-page specs; nothing to do."
             exit 0
           fi
+          # Retry the network steps and bound anything that can hang: this job
+          # runs unattended at 03:00, so a stalled apt mirror or npm registry
+          # burns runner-hours before anyone looks (test.yml carries the same
+          # helpers for the same reason).
+          retry() {
+            local n=1
+            until "$@"; do
+              if [ "$n" -ge 3 ]; then
+                echo "::error::failed after $n attempts: $*"
+                return 1
+              fi
+              echo "attempt $n failed, retrying in 15s: $*"
+              n=$((n + 1))
+              sleep 15
+            done
+          }
+          # The generator copies the @huggingface/transformers runtime out of
+          # the ROOT node_modules for model-backed tool pages and hard-errors
+          # without it. tests/package.json is a different dependency set, and
+          # its install below is too late anyway — every shard of this job has
+          # failed here nightly since the generator gained that requirement.
+          retry npm install --no-audit --no-fund
           # Regenerate every tool page into pkg/tools/<slug>/. The generator only
           # emits interactive pages for tools whose web/pkg exists (built above);
           # this shard only runs the specs it built, so that is sufficient.
           cargo run --manifest-path tools/generator/Cargo.toml -- .
           # Playwright + its deps live in tests/package.json (see test.yml).
           cd tests
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          retry npm install --no-audit --no-fund
+          # --with-deps shells out to apt-get; fall back to the browser-only
+          # install, since the runner image already ships chromium's libraries.
+          install_chromium() {
+            timeout 300s npx playwright install --with-deps chromium \
+              || timeout 300s npx playwright install chromium
+          }
+          retry install_chromium
           npx playwright test --config=playwright.tool-pages.config.ts "${specs[@]}"
