@@ -1,0 +1,96 @@
+slug          = "html-outline-analyzer"
+title         = "HTML Outline Analyzer — Heading Hierarchy and Tag Counts"
+description   = "Paste HTML to extract the H1-H6 heading outline, flag outline issues, and count the element tags written in the source."
+tags          = ["html outline", "heading hierarchy", "h1 h2 h3", "html headings", "tag count", "seo audit", "accessibility", "html parser"]
+h1            = "Analyze an HTML Heading Outline"
+hero_subtitle = "Paste markup and get its H1-H6 outline, skipped-level and duplicate-heading warnings, plus literal element/tag counts."
+wasm          = "gizza_ai_html_outline_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Outline report"
+format        = "text"
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<!doctype html>\n<html>\n<body>\n<h1>Guide</h1>\n<h2 id=\"install\">Install</h2>\n<p>Steps...</p>\n<h3>macOS</h3>\n<h2>Configure</h2>\n</body>\n</html>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+tree     = "Tree report"
+markdown = "Markdown"
+json     = "JSON"
+csv      = "CSV headings"
+
+[[input]]
+name        = "min_level"
+label       = "Minimum heading level"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_level"
+label       = "Maximum heading level"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "include_issues"
+label  = "Include outline issues"
+source = "field"
+
+[[input]]
+name   = "include_counts"
+label  = "Include tag counts"
+source = "field"
+
+[[input]]
+name        = "top_tags"
+label       = "Tag count rows"
+placeholder = "20"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label = "Docs page outline"
+[example.params]
+html = "<!doctype html>\n<html><body>\n<h1>Getting started</h1>\n<h2 id=\"install\">Install</h2>\n<p>Text</p>\n<h3>macOS</h3>\n<h3>Windows</h3>\n<h2>Configure</h2>\n<h4>Advanced flags</h4>\n</body></html>"
+format = "tree"
+min_level = "1"
+max_level = "6"
+include_issues = "true"
+include_counts = "true"
+top_tags = "20"
+
+[[example]]
+label = "Find skipped levels"
+[example.params]
+html = "<main>\n<h1>Product</h1>\n<h3>Pricing</h3>\n<h3>FAQ</h3>\n<h2>Support</h2>\n</main>"
+format = "tree"
+min_level = "1"
+max_level = "6"
+include_issues = "true"
+include_counts = "true"
+top_tags = "10"
+
+[[example]]
+label = "JSON for automation"
+[example.params]
+html = "<article><h1>Release notes</h1><h2>Fixes</h2><h2>Known issues</h2></article>"
+format = "json"
+min_level = "1"
+max_level = "6"
+include_issues = "true"
+include_counts = "false"
+top_tags = "20"

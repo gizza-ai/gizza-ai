@@ -1,0 +1,21 @@
+[package]
+name = "gizza-ai-html-outline-analyzer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Heading text routinely carries character references (&amp;, &nbsp;, &#8217;),
+# so reuse the already-shipped, wasm-proven decoder rather than a partial
+# hand-rolled entity table (precedent: text-encrypt reusing encrypt-file/core).
+gizza-ai-html-entity-decoder-core = { path = "../../html-entity-decoder/core" }
+# preserve_order keeps JSON keys in reading order (level, text, line, …)
+# instead of alphabetical.
+serde_json = { version = "1", features = ["preserve_order"] }
+# Correct quoting/escaping for the flat CSV export — heading text routinely
+# contains commas and quotes.
+csv = "1"
+# NOTE: deliberately no HTML parser here. A DOM parser invents implied
+# <html>/<head>/<body> elements, which would corrupt the element/tag counts this
+# tool reports; the scanner below counts the literal markup instead. Same
+# forgiving quote-aware scanning approach as html-validate / html-formatter.
