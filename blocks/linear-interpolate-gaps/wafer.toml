@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "linear-interpolate-gaps"
+version = "0.1.0"
+abi = 1
+summary = "Fill the blanks in a numeric series by linear interpolation between the nearest known values."

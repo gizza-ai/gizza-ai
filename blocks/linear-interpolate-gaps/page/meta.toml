@@ -1,0 +1,145 @@
+slug          = "linear-interpolate-gaps"
+title         = "Linear Interpolate Gaps — Fill Missing Values in a Number Series"
+description   = "Paste readings with blanks or NA markers and fill gaps by linear interpolation. Cap run length, choose direction, and control edge gaps."
+tags          = ["interpolation", "missing data", "fill gaps", "time series", "linear", "data cleaning", "csv", "spreadsheet"]
+h1            = "Fill the gaps in a number series by linear interpolation"
+hero_subtitle = "Paste a column with blanks or NA markers in it and get it back with every gap filled on the straight line between its two nearest known values. Two-column data is interpolated against the real x spacing, a max-gap limit stops long holes being invented, and the values you typed come back untouched."
+wasm          = "gizza_ai_linear_interpolate_gaps_web"
+export        = "run"
+live          = false
+output_label  = "Filled series"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Series"
+placeholder = "10\n\n\n\n20"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "layout"
+label  = "How to read the data"
+source = "field"
+
+[input.labels]
+auto   = "Auto — detect x,y pairs"
+values = "Values only — one per line, equal steps"
+xy     = "x,y pairs — use the real spacing"
+
+[[input]]
+name        = "max_gap"
+label       = "Max gap to fill (0 = no limit)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "20"
+step        = "1"
+
+[[input]]
+name   = "direction"
+label  = "Fill direction"
+source = "field"
+
+[input.labels]
+both     = "Both — from the nearer side"
+forward  = "Forward only — after a known value"
+backward = "Backward only — before a known value"
+
+[[input]]
+name   = "edges"
+label  = "Gaps outside the known range"
+source = "field"
+
+[input.labels]
+leave       = "Leave blank (strict interpolation)"
+hold        = "Hold the nearest known value"
+extrapolate = "Extrapolate the end slope"
+
+[[input]]
+name        = "na_tokens"
+label       = "Extra missing markers"
+placeholder = "missing,-999"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "decimals"
+label       = "Decimals for computed values"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+values = "Filled series"
+csv    = "CSV with a status column"
+json   = "JSON with a gap report"
+
+[[example]]
+label = "Four missing months between two readings"
+[example.params]
+input = "10\n\n\n\n20"
+layout = "auto"
+max_gap = "0"
+direction = "both"
+edges = "leave"
+na_tokens = ""
+decimals = "6"
+output = "values"
+
+[[example]]
+label = "Sensor log with uneven timestamps (x,y)"
+[example.params]
+input = "minute,reading\n0,20\n5,\n10,\n20,50"
+layout = "auto"
+max_gap = "0"
+direction = "both"
+edges = "leave"
+na_tokens = ""
+decimals = "2"
+output = "values"
+
+[[example]]
+label = "Only fill short gaps, leave the long hole honest"
+[example.params]
+input = "4\nNA\n6\nNA\nNA\nNA\nNA\n14"
+layout = "values"
+max_gap = "1"
+direction = "forward"
+edges = "leave"
+na_tokens = ""
+decimals = "6"
+output = "values"
+
+[[example]]
+label = "Hold the first and last known value at the edges"
+[example.params]
+input = "NA\nNA\n2\n4\nNA\nNA"
+layout = "values"
+max_gap = "0"
+direction = "both"
+edges = "hold"
+na_tokens = ""
+decimals = "6"
+output = "values"
+
+[[example]]
+label = "Sentinel -999 as a gap, audited as JSON"
+[example.params]
+input = "1\n-999\n-999\n4\n-999"
+layout = "values"
+max_gap = "0"
+direction = "both"
+edges = "leave"
+na_tokens = "-999"
+decimals = "6"
+output = "json"
