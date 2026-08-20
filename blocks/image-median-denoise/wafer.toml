@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "image-median-denoise"
+version = "0.1.0"
+abi = 1
+summary = "Remove salt-and-pepper, dust and speckle noise from an image with an edge-preserving median filter."
