@@ -1,0 +1,85 @@
+{
+  "name": "gizza-ai/json-trim-strings",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Trim leading/trailing whitespace from every string value in a JSON document.",
+  "role": "skill",
+  "tool": {
+    "description": "Trim the whitespace off every string value in a JSON document, recursively, at any depth. This is the OPPOSITE of a minifier: a minifier removes whitespace between tokens and protects the inside of quoted strings, while this rewrites the inside of the strings and never touches the structure. Padding is what silently breaks joins, lookups, GROUP BYs and duplicate checks, because ' Berlin' and 'Berlin' are different keys, and it is what makes a downstream cast of ' 42 ' fail. Numbers, booleans and nulls are copied through untouched — nothing is retyped, reordered or invented — and key order, array length and array positions are preserved. trim picks the ends to strip ('both' (default), 'leading', 'trailing', 'none'); internal picks the interior treatment ('keep' (default, a pure trim), 'collapse' so '  Ada   Lovelace  ' becomes 'Ada Lovelace', 'remove' so ' AB 12 CD ' becomes 'AB12CD'); whitespace = 'unicode' (default) also catches non-breaking space (U+00A0), narrow NBSP (U+202F) and ideographic space (U+3000), the invisible characters a spreadsheet or web copy-paste leaves behind, while 'ascii' leaves those as content; keys = true gives object keys the same pass (failing loudly on a collision instead of dropping a field); empty decides what a whitespace-only value becomes ('keep' an empty string, 'null', or 'drop' the key); only_keys and skip_keys limit the pass to (or protect) named fields at any depth; indent sets the output formatting, with 0 minifying. Runs entirely in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "empty": {
+          "default": "keep",
+          "description": "What to do with a string the trim empties (a value that was nothing but whitespace): 'keep' (default) leaves an empty string \"\"; 'null' replaces it with null; 'drop' removes the key from its object entirely. A value that was ALREADY \"\" before the trim is never touched by this setting. Inside an array, 'drop' writes null instead of removing the element, so positions and length never shift.",
+          "enum": [
+            "keep",
+            "null",
+            "drop"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per level in the output JSON: 2 (default) pretty-prints, 0 minifies to a single line. Values outside 0-8 are clamped.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The JSON document to clean, as text. Any JSON value works — an object, an array of objects, or a bare string. Max 5,000,000 bytes.",
+          "type": "string"
+        },
+        "internal": {
+          "default": "keep",
+          "description": "What happens to whitespace BETWEEN the first and last non-whitespace character of a string: 'keep' (default) preserves it byte-for-byte, making this a pure trim; 'collapse' turns every run into one plain space, so '  Ada   Lovelace  ' becomes 'Ada Lovelace'; 'remove' deletes it, so ' AB 12 CD ' becomes 'AB12CD' (for SKUs, IBANs, part numbers).",
+          "enum": [
+            "keep",
+            "collapse",
+            "remove"
+          ],
+          "type": "string"
+        },
+        "keys": {
+          "default": false,
+          "description": "When true, object KEYS get the same whitespace pass as the values, so a key literally named ' first name ' becomes 'first name'. Default false — keys are copied verbatim. If two keys in the same object would trim to the same name the call fails with a key-collision error rather than silently dropping a field.",
+          "type": "boolean"
+        },
+        "only_keys": {
+          "default": "",
+          "description": "Restrict the pass to specific fields: a comma-separated list of key names, matched at ANY depth, e.g. 'name,city'. Default (empty) cleans every string. Strings inside an array inherit the key the array is stored under, so 'tags' reaches the items of \"tags\": [\" x \"]. With a non-empty list, a bare top-level string document is left alone (it has no key to match).",
+          "type": "string"
+        },
+        "skip_keys": {
+          "default": "",
+          "description": "Leave these fields byte-for-byte alone: a comma-separated list of key names, matched at ANY depth, e.g. 'code,password_hash,signature'. Applied AFTER only_keys, so a key in both lists is skipped. Use it to protect indented code blocks, base64 blobs and hashes where the padding is meaningful.",
+          "type": "string"
+        },
+        "trim": {
+          "default": "both",
+          "description": "Which end(s) of a string value lose their whitespace: 'both' (default), 'leading' (start only), 'trailing' (end only), or 'none' to leave both edges alone and rewrite only the interior. An edge run that survives is copied verbatim.",
+          "enum": [
+            "both",
+            "leading",
+            "trailing",
+            "none"
+          ],
+          "type": "string"
+        },
+        "whitespace": {
+          "default": "unicode",
+          "description": "Which characters count as whitespace: 'unicode' (default) is the full Unicode White_Space set, so a non-breaking space (U+00A0), narrow NBSP (U+202F) or ideographic space (U+3000) pasted out of a spreadsheet or a web page is trimmed too; 'ascii' restricts it to space, tab, newline, carriage return and form feed, leaving NBSP and friends as content. Zero-width characters (U+200B, U+FEFF) are not whitespace under either setting.",
+          "enum": [
+            "unicode",
+            "ascii"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

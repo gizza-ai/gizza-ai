@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-trim-strings"
+version = "0.1.0"
+abi = 1
+summary = "Trim leading/trailing whitespace from every string value in a JSON document."

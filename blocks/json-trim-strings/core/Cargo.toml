@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-json-trim-strings-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# preserve_order keeps object keys in document order, so the output reads like
+# the input instead of being alphabetized behind the user's back.
+serde_json = { version = "1", features = ["preserve_order"] }
