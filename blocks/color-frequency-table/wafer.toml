@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "color-frequency-table"
+version = "0.1.0"
+abi = 1
+summary = "Counts the exact pixel colors in an image and lists the top ones with counts and percentage coverage."
