@@ -1,0 +1,103 @@
+slug          = "fasta-to-csv"
+title         = "FASTA to CSV Converter"
+description   = "Convert FASTA sequences to CSV or TSV in your browser — id, description, sequence and length columns, plus optional GC content and base counts. No upload."
+tags          = ["fasta to csv", "fasta converter", "fasta to tsv", "bioinformatics", "sequence table", "gc content", "multifasta", "genomics", "spreadsheet", "csv"]
+h1            = "FASTA to CSV Converter"
+hero_subtitle = "Turn a FASTA or multi-FASTA file into a spreadsheet-ready table — one row per record with id, description, sequence and length, plus optional GC content and base counts. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_fasta_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV output"
+format        = "text"
+
+[[input]]
+name        = "fasta"
+label       = "FASTA input"
+placeholder = ">seq1 first sequence\nACGTACGTNN\n>seq2\nacgt"
+source      = "field"
+multiline   = true
+
+# delimiter / header_mode render as <select> and the six flags as checkboxes —
+# control types come from the descriptor's schema (manifest.json), so the labels
+# stay short here. Field ORDER must match the web `run` export's argument order.
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+comma     = "Comma — .csv"
+tab       = "Tab — .tsv"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+
+[[input]]
+name  = "header_mode"
+label = "Header handling"
+source = "field"
+
+[input.labels]
+split       = "Split into id + description"
+id_only     = "Id only"
+full_header = "Whole header line as id"
+
+[[input]]
+name   = "header_row"
+label  = "Write a header row"
+source = "field"
+
+[[input]]
+name   = "include_sequence"
+label  = "Sequence column"
+source = "field"
+
+[[input]]
+name   = "include_length"
+label  = "Length column"
+source = "field"
+
+[[input]]
+name   = "include_gc"
+label  = "GC content column (%)"
+source = "field"
+
+[[input]]
+name   = "include_base_counts"
+label  = "Base count columns (A/C/G/T/other)"
+source = "field"
+
+[[input]]
+name   = "uppercase"
+label  = "Uppercase sequence"
+source = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Drop duplicate sequences"
+source = "field"
+
+[[example]]
+label = "Basic CSV"
+[example.params]
+fasta = ">seq1 first sequence\nACGTACGTNN\n>seq2\nacgt"
+
+[[example]]
+label = "TSV, id only"
+[example.params]
+fasta = ">seq1 first sequence\nACGTACGTNN\n>seq2\nacgt"
+delimiter = "tab"
+header_mode = "id_only"
+
+[[example]]
+label = "With GC + base counts"
+[example.params]
+fasta = ">seq1 first sequence\nACGTACGTNN\n>seq2\nacgt"
+include_gc = "true"
+include_base_counts = "true"
+
+[[example]]
+label = "Dedupe + uppercase"
+[example.params]
+fasta = ">a\nACGT\n>b\nacgt\n>c\nTTTT"
+dedupe = "true"
+uppercase = "true"
