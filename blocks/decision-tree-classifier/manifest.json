@@ -1,0 +1,135 @@
+{
+  "name": "gizza-ai/decision-tree-classifier",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a decision tree from a pasted table and print if/then rules, importance, and predictions.",
+  "role": "skill",
+  "tool": {
+    "description": "Fit a CART, ID3, or C4.5-style decision tree classifier to a pasted table and report human-readable if/then rules, a text tree, feature importance, training accuracy with a confusion matrix, an optional hold-out check, and predictions for new rows. Runs locally in pure Rust/WASM.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "class_weight": {
+          "default": "none",
+          "description": "Weight classes equally (none) or inversely to their frequency (balanced), which helps on imbalanced data.",
+          "enum": [
+            "none",
+            "balanced"
+          ],
+          "type": "string"
+        },
+        "criterion": {
+          "default": "gini",
+          "description": "Split quality measure: gini impurity (CART), Shannon information gain (ID3), or the gain ratio that penalizes many-valued features (C4.5).",
+          "enum": [
+            "gini",
+            "entropy",
+            "gain_ratio"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV, TSV, semicolon, pipe, or whitespace-delimited training table. One row per observation; the first row may be a header. Feature columns may be numeric or categorical.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for thresholds, importance, and accuracy.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "features": {
+          "default": "",
+          "description": "Optional comma-separated feature columns by name or 1-based index. Leave empty to use every non-target column.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: readable report, JSON, flat CSV, or a Graphviz DOT digraph.",
+          "enum": [
+            "text",
+            "json",
+            "csv",
+            "dot"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row contains column names.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "max_depth": {
+          "default": 5,
+          "description": "Maximum tree depth. Lower values give shorter, more readable rules.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_gain": {
+          "default": 0.0,
+          "description": "Pre-pruning threshold: a split is only kept when its score beats this impurity decrease (or gain ratio).",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "min_samples_leaf": {
+          "default": 1,
+          "description": "Minimum rows every resulting branch must keep, so tiny unreliable leaves are not created.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_samples_split": {
+          "default": 2,
+          "description": "Minimum rows a node must hold before it may be split.",
+          "maximum": 1000,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "predict": {
+          "default": "",
+          "description": "Optional rows to classify with the fitted tree: one row per line, either the full table layout, just the feature columns, or with a header naming them.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Deterministic seed for the hold-out shuffle. Tree fitting itself is exact.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "splits": {
+          "default": "binary",
+          "description": "How categorical features are split: binary one-vs-rest tests, or one branch per distinct value. Numeric features always use a threshold test.",
+          "enum": [
+            "binary",
+            "multiway"
+          ],
+          "type": "string"
+        },
+        "target": {
+          "default": "last",
+          "description": "Class column to predict: last, first, a 1-based index, or a header name.",
+          "type": "string"
+        },
+        "test_split": {
+          "default": 0.0,
+          "description": "Fraction of rows held out for a deterministic accuracy check, from 0 to 0.5.",
+          "maximum": 0.5,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
