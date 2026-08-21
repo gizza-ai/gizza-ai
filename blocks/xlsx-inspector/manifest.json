@@ -1,0 +1,72 @@
+{
+  "name": "gizza-ai/xlsx-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report a workbook's sheets, used ranges, named ranges, and formula vs value cell counts",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect the structure of a spreadsheet workbook (.xlsx, .xlsm, .xlsb, .xls, or .ods). Provide the file via url or ref. The report lists every sheet with its type (worksheet/chart/macro/dialog), visibility (visible/hidden/very hidden), used range in A1 notation, row and column extent, cells with data, the formula vs value cell split, and a text/number/date/boolean/error type breakdown with per-error-literal counts. It also lists defined names (named ranges) with the reference each points at and flags broken #REF! names, and counts workbook objects (tables, pivot tables, charts, images, comments, drawings, external links, data connections, VBA macros) from the package parts. Values are whatever the writing application cached; nothing is recalculated. Named-range scope, name comments, merged regions, and per-sheet object attribution are not available from the stored file and are not reported.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "table",
+          "description": "Output format: readable fixed-width report (default), structured JSON with every count, or CSV with one row per sheet (named ranges and object counts appear only in table/json).",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "include_hidden": {
+          "default": true,
+          "description": "Include hidden and very-hidden worksheets in the sheet table (default true). Set false to list only the tabs a reader can see.",
+          "type": "boolean"
+        },
+        "include_named_ranges": {
+          "default": true,
+          "description": "List the workbook's defined names (named ranges) with the reference each points at and whether it is broken (default true).",
+          "type": "boolean"
+        },
+        "include_object_counts": {
+          "default": true,
+          "description": "Include the workbook object inventory — tables, pivot tables, charts, images, comments, drawings, external links, data connections, VBA macros (default true). Available for .xlsx/.xlsm/.xlsb only.",
+          "type": "boolean"
+        },
+        "max_named_ranges": {
+          "default": 200.0,
+          "description": "Maximum defined names listed before the section is clipped with a note (default 200, max 10000).",
+          "maximum": 10000,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sheet": {
+          "description": "Report on a single worksheet: a sheet name, or a 0-based index as a string (e.g. \"0\"). Blank/default reports every sheet in the workbook.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

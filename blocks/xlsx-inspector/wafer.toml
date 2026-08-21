@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xlsx-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Report a workbook's sheets, used ranges, named ranges, and formula vs value cell counts"
