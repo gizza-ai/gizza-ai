@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/weblog-attack-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag web attack attempts and noisy offenders in access logs",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze pasted Apache/Nginx or IIS access logs for common web-attack traffic. Flags SQL injection, XSS, path traversal, file inclusion, RCE payloads, scanner user agents (sqlmap, nikto, nuclei, etc.), sensitive-path probes (.env, .git, wp-login, phpMyAdmin), and high-volume / enumeration / brute-force source IPs. Percent-decodes request targets by default to catch encoded payloads. Outputs a report, table, JSON, CSV, or an IP blocklist. Runs locally on pasted log text; it is a heuristic triage aid, not a WAF or IDS replacement.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "default": "all",
+          "description": "Attack category filter: all (default), SQL injection, XSS, path traversal, remote code execution, file inclusion, scanner user agents, or sensitive-path probes.",
+          "enum": [
+            "all",
+            "sqli",
+            "xss",
+            "traversal",
+            "rce",
+            "file-include",
+            "scanner",
+            "probe"
+          ],
+          "type": "string"
+        },
+        "decode": {
+          "default": true,
+          "description": "Also scan once- and twice-percent-decoded request targets so encoded payloads are caught. Default true.",
+          "type": "boolean"
+        },
+        "error_threshold": {
+          "default": 5,
+          "description": "404s or 401/403s from one source IP needed to label enumeration or brute-force behaviour (1-100000). Default 5; pass 0 to use the default.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "limit": {
+          "default": 500,
+          "description": "Maximum flagged requests to render in report/table/json/csv outputs (1-5000). Default 500; counts always cover the whole log.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "logs": {
+          "description": "Apache/Nginx common or combined access-log lines, or IIS W3C extended logs with a #Fields header. Paste one request per line.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Minimum severity to report. all (default) includes low through critical; high hides low/medium probes; critical shows only critical SQLi/RCE-style findings.",
+          "enum": [
+            "all",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "offender_threshold": {
+          "default": 20,
+          "description": "Requests from one source IP needed to label it high-volume (1-100000). Default 20; pass 0 in CLI/chat to use the default.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: report (default Markdown-style summary), table, json, csv, or blocklist (one offending IP per line).",
+          "enum": [
+            "report",
+            "table",
+            "json",
+            "csv",
+            "blocklist"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "logs"
+      ],
+      "type": "object"
+    }
+  }
+}

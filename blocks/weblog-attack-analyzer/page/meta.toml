@@ -1,0 +1,72 @@
+slug          = "weblog-attack-analyzer"
+title         = "Weblog Attack Analyzer — Access Log SQLi, XSS & Scanner Triage"
+description   = "Paste Apache, Nginx, or IIS access logs and flag SQLi, XSS, traversal, scanner user agents, sensitive probes, and high-volume offending IPs."
+tags          = ["weblog attack analyzer", "access log security", "apache log analyzer", "nginx log analyzer", "iis log analyzer", "sqli log scan", "xss log scan", "scanner detection", "web security logs", "blocklist generator"]
+h1            = "Weblog Attack Analyzer"
+hero_subtitle = "Paste web-server access logs and triage likely attack traffic: SQL injection, XSS, path traversal, file inclusion, RCE payloads, scanner user agents, sensitive-path probes, and noisy source IPs. Runs locally in your browser."
+wasm          = "gizza_ai_weblog_attack_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Analysis"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "logs"
+label       = "Access logs"
+placeholder = "203.0.113.5 - - [11/Mar/2024:09:14:02 +0000] \"GET /products.php?id=1%27+UNION+SELECT+null,version()--+- HTTP/1.1\" 200 512 \"-\" \"sqlmap/1.7\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "category"
+label  = "Category filter"
+source = "field"
+labels = { all = "All categories", sqli = "SQL injection", xss = "XSS", traversal = "Path traversal", rce = "Remote code execution", file-include = "File inclusion", scanner = "Scanner user agents", probe = "Sensitive probes" }
+
+[[input]]
+name   = "min_severity"
+label  = "Minimum severity"
+source = "field"
+labels = { all = "All severities", low = "Low and higher", medium = "Medium and higher", high = "High and critical", critical = "Critical only" }
+
+[[input]]
+name   = "output"
+label  = "Output as"
+source = "field"
+labels = { report = "Report", table = "Markdown table", json = "JSON", csv = "CSV", blocklist = "IP blocklist" }
+
+[[input]]
+name        = "offender_threshold"
+label       = "High-volume threshold"
+placeholder = "20"
+source      = "field"
+
+[[input]]
+name        = "error_threshold"
+label       = "404 / auth-error threshold"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name   = "decode"
+label  = "Decode percent-encoded payloads"
+source = "field"
+
+[[input]]
+name        = "limit"
+label       = "Finding limit"
+placeholder = "500"
+source      = "field"
+
+[[example]]
+label  = "SQLi + traversal + XSS"
+params = { logs = "203.0.113.5 - - [11/Mar/2024:09:14:02 +0000] \"GET /products.php?id=1%27+UNION+SELECT+null,version()--+- HTTP/1.1\" 200 512 \"-\" \"sqlmap/1.7\"\n203.0.113.5 - - [11/Mar/2024:09:14:05 +0000] \"GET /admin/../../etc/passwd HTTP/1.1\" 404 153 \"-\" \"sqlmap/1.7\"\n198.51.100.22 - - [11/Mar/2024:09:14:20 +0000] \"GET /search?q=%3Cscript%3Ealert(1)%3C/script%3E HTTP/1.1\" 200 980 \"-\" \"Mozilla/5.0\"", category = "all", min_severity = "all", output = "report" }
+
+[[example]]
+label  = "Critical findings only"
+params = { logs = "203.0.113.5 - - [11/Mar/2024:09:14:02 +0000] \"GET /products.php?id=1%27+UNION+SELECT+null,version()--+- HTTP/1.1\" 200 512 \"-\" \"sqlmap/1.7\"\n192.0.2.7 - - [11/Mar/2024:09:14:30 +0000] \"GET /.env HTTP/1.1\" 404 0 \"-\" \"Mozilla/5.0\"", min_severity = "critical", output = "table" }
+
+[[example]]
+label  = "Noisy IP blocklist"
+params = { logs = "192.0.2.7 - - [11/Mar/2024:09:14:30 +0000] \"GET /.env HTTP/1.1\" 404 0 \"-\" \"Mozilla/5.0\"\n192.0.2.7 - - [11/Mar/2024:09:14:31 +0000] \"GET /.git/config HTTP/1.1\" 404 0 \"-\" \"Mozilla/5.0\"\n192.0.2.7 - - [11/Mar/2024:09:14:32 +0000] \"GET /wp-login.php HTTP/1.1\" 403 0 \"-\" \"Mozilla/5.0\"", output = "blocklist", error_threshold = "2" }
