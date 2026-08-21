@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/gantt-mermaid-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a Mermaid gantt chart from a task table with dates, durations and dependencies",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a plain task table into Mermaid `gantt` diagram source. Each line is `name | start | duration | tags | id` (pipe, tab or comma separated): the start is a date, `after <task>` to chain off another task, or blank to follow the previous line; the duration is a length such as 5d, 2w or 36h, a bare number meaning days, an end date, or `until <task>`. Task ids are derived from task names, so dependencies reference tasks by name instead of hand-made ids. `section Name` (or `## Name`) groups the tasks below it, and the done, active, crit and milestone tags map to Mermaid's task styling, with milestones defaulting to a zero-length marker. Chart-level options cover the title, dateFormat (including DD/MM/YYYY and Unix epoch), axisFormat, tickInterval, excluding weekends or specific dates, moving the weekend to Friday, turning the today marker off, compact display mode, and wrapping the result in a ```mermaid Markdown fence. Dates are validated against the chosen format, dependencies must resolve and must be defined earlier, and errors name the offending line. Caps: 500 tasks, 100 sections, 2 MB. Returns plain-text Mermaid source that renders in GitHub, GitLab, Notion or any Mermaid-compatible viewer.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "axis_format": {
+          "default": "",
+          "description": "Optional Mermaid `axisFormat`: a strftime pattern for the date labels along the axis, e.g. `%b %d` for `Mar 02`, `%Y-%m-%d`, or `%d/%m`. Leave blank to let Mermaid choose.",
+          "type": "string"
+        },
+        "compact": {
+          "default": false,
+          "description": "When true, emit `displayMode: compact` front matter so Mermaid packs non-overlapping tasks onto shared rows, making long plans much shorter. Needs Mermaid 10 or newer. Default false.",
+          "type": "boolean"
+        },
+        "date_format": {
+          "default": "YYYY-MM-DD",
+          "description": "How dates in the task table are written; emitted as Mermaid's `dateFormat` and used to validate every date you type. Default YYYY-MM-DD (2026-03-02). `X` means Unix epoch seconds, and with it every bare number is read as a timestamp, so durations then need a unit such as 5d.",
+          "enum": [
+            "YYYY-MM-DD",
+            "YYYY/MM/DD",
+            "DD-MM-YYYY",
+            "MM-DD-YYYY",
+            "DD/MM/YYYY",
+            "MM/DD/YYYY",
+            "YYYY-MM-DD HH:mm",
+            "YYYY-MM-DDTHH:mm:ss",
+            "X"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Column separator for the task table. `auto` (default) looks at the first task line and picks pipe, then tab, then comma. Choose `pipe` when task names contain commas.",
+          "enum": [
+            "auto",
+            "pipe",
+            "comma",
+            "tab"
+          ],
+          "type": "string"
+        },
+        "exclude_weekends": {
+          "default": false,
+          "description": "When true, add `weekends` to Mermaid's `excludes` line so task bars skip weekend days. Default false.",
+          "type": "boolean"
+        },
+        "excludes": {
+          "default": "",
+          "description": "Extra non-working days to skip, comma or space separated: weekday names such as `monday`, the word `weekends`, or specific dates in the chosen date_format, e.g. `2026-04-03, 2026-04-06, monday`. Leave blank to exclude nothing beyond the exclude_weekends toggle.",
+          "type": "string"
+        },
+        "fence": {
+          "default": false,
+          "description": "Wrap the output in a ```mermaid fenced code block, ready to paste into a Markdown file, a README or an issue. Default false, which returns bare Mermaid source.",
+          "type": "boolean"
+        },
+        "tasks": {
+          "description": "The task table, one task per line, with up to five columns separated by a pipe, a tab or a comma: `name | start | duration | tags | id`. `start` is a date in the chosen date_format, `after <task name or id>` (comma-separate several), or empty to start when the previous line's task ends. `duration` is a length such as `5d`, `2w`, `36h` or a bare number meaning days, an end date, or `until <task>`. `tags` are any of done, active, crit, milestone. `id` is optional — an id is otherwise derived from the task name, so dependencies can name the task directly. A line starting with `section ` or `## ` opens a section; blank lines and lines starting with #, // or %% are ignored. Example: `Design | 2026-03-02 | 5d | done` then `Build | after Design | 2w | active`. Up to 500 tasks, 100 sections and 2 MB.",
+          "type": "string"
+        },
+        "tick_interval": {
+          "default": "",
+          "description": "Optional Mermaid `tickInterval` spacing for axis ticks: a count then a unit, e.g. `1week`, `2day`, `6hour`, `1month`. Units are millisecond, second, minute, hour, day, week, month. Leave blank for automatic spacing.",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title rendered above the timeline, e.g. `Q2 launch plan`. Leave blank for no title line.",
+          "type": "string"
+        },
+        "today_marker": {
+          "default": true,
+          "description": "Keep Mermaid's vertical today line. True (default) leaves it on; false emits `todayMarker off`, which is what you want for a historical or purely illustrative chart.",
+          "type": "boolean"
+        },
+        "weekend": {
+          "default": "saturday",
+          "description": "Which day the weekend starts on when weekends are excluded: `saturday` (Sat+Sun, the default) or `friday` (Fri+Sat). Emitted as Mermaid's `weekend` directive, which needs Mermaid 11 or newer.",
+          "enum": [
+            "saturday",
+            "friday"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "tasks"
+      ],
+      "type": "object"
+    }
+  }
+}

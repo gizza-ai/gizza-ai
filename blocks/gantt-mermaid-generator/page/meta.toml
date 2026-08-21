@@ -1,0 +1,159 @@
+slug          = "gantt-mermaid-generator"
+title         = "Gantt Mermaid Generator — Task Table to Mermaid Gantt Chart Code"
+description   = "Turn a task list with start dates, durations and dependencies into Mermaid gantt chart code. Sections, milestones, weekend exclusions and Markdown fencing."
+tags          = ["mermaid", "gantt", "gantt chart", "project timeline", "project plan", "dependencies", "milestones", "markdown", "documentation", "roadmap"]
+h1            = "Gantt chart generator for Mermaid"
+hero_subtitle = "Paste a task table with start dates, durations, dependencies and milestones, and get ready-to-render Mermaid gantt source."
+wasm          = "gizza_ai_gantt_mermaid_generator_web"
+export        = "run"
+live          = false
+output_label  = "Mermaid gantt source"
+format        = "text"
+
+[[input]]
+name        = "tasks"
+label       = "Tasks (name | start | duration | tags | id)"
+placeholder = "section Design\nWireframes | 2026-03-02 | 5d | done\nVisual design | after Wireframes | 1w | active\nDesign sign-off | after Visual design | | milestone"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "title"
+label       = "Chart title"
+placeholder = "Q2 launch plan"
+source      = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Column delimiter"
+source = "field"
+[input.labels]
+auto = "Auto-detect"
+pipe = "Pipe |"
+comma = "Comma ,"
+tab = "Tab"
+
+[[input]]
+name   = "date_format"
+label  = "Date format"
+source = "field"
+[input.labels]
+"YYYY-MM-DD" = "2026-03-02 (YYYY-MM-DD)"
+"YYYY/MM/DD" = "2026/03/02 (YYYY/MM/DD)"
+"DD-MM-YYYY" = "02-03-2026 (DD-MM-YYYY)"
+"MM-DD-YYYY" = "03-02-2026 (MM-DD-YYYY)"
+"DD/MM/YYYY" = "02/03/2026 (DD/MM/YYYY)"
+"MM/DD/YYYY" = "03/02/2026 (MM/DD/YYYY)"
+"YYYY-MM-DD HH:mm" = "2026-03-02 09:30 (date + time)"
+"YYYY-MM-DDTHH:mm:ss" = "2026-03-02T09:30:00 (ISO 8601)"
+"X" = "1772409600 (Unix seconds)"
+
+[[input]]
+name        = "axis_format"
+label       = "Axis label format"
+placeholder = "%b %d"
+source      = "field"
+
+[[input]]
+name        = "tick_interval"
+label       = "Axis tick interval"
+placeholder = "1week"
+source      = "field"
+
+[[input]]
+name   = "exclude_weekends"
+label  = "Skip weekends"
+source = "field"
+
+[[input]]
+name   = "weekend"
+label  = "Weekend starts on"
+source = "field"
+[input.labels]
+saturday = "Saturday (Sat + Sun)"
+friday = "Friday (Fri + Sat)"
+
+[[input]]
+name        = "excludes"
+label       = "Other non-working days"
+placeholder = "2026-04-03, 2026-04-06"
+source      = "field"
+
+[[input]]
+name   = "today_marker"
+label  = "Show the today marker"
+source = "field"
+
+[[input]]
+name   = "compact"
+label  = "Compact display mode"
+source = "field"
+
+[[input]]
+name   = "fence"
+label  = "Wrap in a Markdown mermaid fence"
+source = "field"
+
+[[example]]
+label = "Design sprint"
+[example.params]
+tasks = "section Design\nWireframes | 2026-03-02 | 5d | done\nVisual design | after Wireframes | 1w | active\nDesign sign-off | after Visual design | | milestone\nsection Build\nAPI | after Design sign-off | 2w\nWeb client | after Design sign-off | 3w | crit\nsection Launch\nBeta | after Web client | 5d\nPublic launch | after Beta | | milestone"
+title = "Q2 launch plan"
+delimiter = "auto"
+date_format = "YYYY-MM-DD"
+axis_format = "%b %d"
+tick_interval = "1week"
+exclude_weekends = "true"
+weekend = "saturday"
+excludes = ""
+today_marker = "true"
+compact = "false"
+fence = "false"
+
+[[example]]
+label = "Two-week sprint"
+[example.params]
+tasks = "section Sprint 14\nPlanning | 2026-03-02 | 1d | done\nBuild feature flags | | 4d | active\nCode review | | 2d\nQA pass | | 3d\nRelease | | | milestone"
+title = "Sprint 14"
+delimiter = "auto"
+date_format = "YYYY-MM-DD"
+axis_format = "%d %b"
+tick_interval = "2day"
+exclude_weekends = "true"
+weekend = "saturday"
+excludes = ""
+today_marker = "true"
+compact = "false"
+fence = "true"
+
+[[example]]
+label = "CSV columns"
+[example.params]
+tasks = "Kick off,2026-03-02,1d,done\nDiscovery,after Kick off,2w\nPilot,after Discovery,3w,crit\nRollout,after Pilot,4w"
+title = "Rollout programme"
+delimiter = "comma"
+date_format = "YYYY-MM-DD"
+axis_format = "%b"
+tick_interval = "1month"
+exclude_weekends = "false"
+weekend = "saturday"
+excludes = ""
+today_marker = "false"
+compact = "true"
+fence = "false"
+
+[[example]]
+label = "Day/month dates"
+[example.params]
+tasks = "section Fit-out\nSurvey | 02/03/2026 | 3d | done\nElectrics | after Survey | 2w\nFurniture | after Electrics | 1w\nHandover | after Furniture | | milestone"
+title = "Office fit-out"
+delimiter = "pipe"
+date_format = "DD/MM/YYYY"
+axis_format = "%d/%m"
+tick_interval = "1week"
+exclude_weekends = "true"
+weekend = "friday"
+excludes = "monday"
+today_marker = "true"
+compact = "false"
+fence = "false"
