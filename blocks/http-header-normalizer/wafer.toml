@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "http-header-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Canonicalize a pasted HTTP header block — fix name casing, trim values, fold duplicates and sort."
