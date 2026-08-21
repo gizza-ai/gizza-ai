@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-text-file-inspector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# WHATWG Encoding Standard decoders — the proven charset engine already used by
+# text-encoding-converter / charset-transcode (instantiates under wasmi).
+encoding_rs = "0.8"
+# Firefox's statistical charset detector (pure Rust, table-driven, no I/O) for
+# BOM-less legacy bytes.
+chardetng = "0.1"
+# Input carried as base64 (the page uploads a file and sends its bytes this way).
+base64 = "0.22"
+# JSON report rendering.
+serde_json = "1"

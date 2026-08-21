@@ -1,0 +1,73 @@
+slug          = "text-file-inspector"
+title         = "Text file inspector"
+description   = "Check encoding hints, BOM bytes, line-ending style, line counts, longest lines, whitespace, indentation and control characters in pasted text."
+tags          = ["text", "encoding", "line endings", "lint", "developer"]
+h1            = "Inspect text file encoding and line endings"
+hero_subtitle = "Paste text to see its line-ending style, final-newline state, longest lines, whitespace issues, indentation mix and character counts before you commit or convert it."
+wasm          = "gizza_ai_text_file_inspector_web"
+export        = "run"
+live          = false
+output_label  = "Inspection report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text to inspect"
+placeholder = "Paste file contents here…\nLine two with spaces   \n\tIndented line"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+report = "Readable report"
+json = "JSON"
+
+[[input]]
+name        = "longest_lines"
+label       = "Longest lines to list"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 50
+step        = "1"
+
+[[input]]
+name        = "max_line_length"
+label       = "Flag lines over"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 200
+step        = "1"
+
+[[input]]
+name        = "preview_lines"
+label       = "Preview lines"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 20
+step        = "1"
+
+[[example]]
+label = "Mixed endings + trailing spaces"
+input = "alpha\r\nbeta beta   \ngamma\rdelta"
+output = "report"
+longest_lines = "3"
+max_line_length = "8"
+preview_lines = "4"
+
+[[example]]
+label = "JSON metrics"
+input = "name,value\nalpha,1\nbeta,2\n"
+output = "json"
+longest_lines = "2"
+max_line_length = "0"
+preview_lines = "0"

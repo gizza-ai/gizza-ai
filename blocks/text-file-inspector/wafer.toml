@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "text-file-inspector"
+version = "0.1.0"
+abi = 1
+summary = "Report a text file's encoding, BOM, line endings, line count and longest lines"
