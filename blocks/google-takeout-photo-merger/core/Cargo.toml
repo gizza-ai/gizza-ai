@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-google-takeout-photo-merger-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only — read the Takeout album ZIP and repack the merged
+# photos into one output ZIP. Proven wasm32-safe (read + write) by
+# blocks/archive-extractor and blocks/create-zip.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# Sidecar JSON parsing.
+serde_json = "1"
+# The EXIF write engine — reused, not re-implemented. Pure Rust
+# (img-parts container splice + kamadak-exif TIFF rebuild), already wasm32-safe.
+gizza-ai-exif-edit-core = { path = "../../exif-edit/core" }
+# Read side: detect which EXIF fields a photo ALREADY has, so the default
+# "fill only what is missing" mode never clobbers real camera metadata.
+kamadak-exif = "0.6"
