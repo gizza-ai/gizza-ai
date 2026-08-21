@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/aiff-to-wav",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert AIFF audio to WAV with identical PCM samples",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an AIFF/AIFC (Mac, Logic, Pro Tools) audio file to a RIFF/WAVE .wav. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). Both formats carry uncompressed linear PCM and differ only in byte order, so at a matching bit depth the samples are bit-for-bit identical. bit_depth (default 24) picks the output PCM encoding and is always sent explicitly, because ffmpeg's wav muxer would otherwise default to 16-bit and silently truncate a 24-bit master. sample_rate and channels default to \"keep\" so nothing is resampled or downmixed. keep_metadata (default true) copies textual tags into the WAV LIST/INFO chunk; cover art is always dropped. Any audio ffmpeg can decode is accepted, but AIFF → WAV is the intended use.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bit_depth": {
+          "default": "24",
+          "description": "Output PCM encoding (default 24). 16/24/32 are linear integer PCM, float32 is IEEE 32-bit float, alaw/mulaw are G.711 telephony encodings. 24 never truncates a 16- or 24-bit AIFF master; picking a depth below the source's loses bits.",
+          "enum": [
+            "16",
+            "24",
+            "32",
+            "float32",
+            "alaw",
+            "mulaw"
+          ],
+          "type": "string"
+        },
+        "channels": {
+          "default": "keep",
+          "description": "Output channel layout: \"keep\" (default) passes the source layout through, \"mono\" downmixes to 1 channel, \"stereo\" forces 2. Downmixing is not reversible.",
+          "enum": [
+            "keep",
+            "mono",
+            "stereo"
+          ],
+          "type": "string"
+        },
+        "keep_metadata": {
+          "default": true,
+          "description": "Copy the source's textual tags (title, artist, album, year, …) into the WAV's LIST/INFO chunk. Set false to strip them for a clean delivery file. Embedded cover art is always dropped — WAV has no standard picture chunk.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sample_rate": {
+          "default": "keep",
+          "description": "Output sample rate in Hz, or \"keep\" (default) to pass the source rate through untouched. Resampling is never lossless — only set this when a target system demands a specific rate.",
+          "enum": [
+            "keep",
+            "8000",
+            "16000",
+            "22050",
+            "44100",
+            "48000",
+            "88200",
+            "96000",
+            "192000"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
