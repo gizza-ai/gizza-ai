@@ -1,0 +1,116 @@
+slug          = "password-vault-audit"
+title         = "Password Vault Audit — Find Reused, Duplicate & Weak Passwords"
+description   = "Paste a password list or vault export to find reused passwords, duplicate logins, common passwords, short/weak entries, stale items and insecure HTTP URLs. Runs locally."
+tags          = ["password vault audit", "password reuse checker", "password manager export", "weak password audit", "duplicate password finder", "vault security", "bitwarden audit", "lastpass csv", "keepass csv"]
+h1            = "Password Vault Audit"
+hero_subtitle = "Paste a password-manager export or one-password-per-line list to spot reused passwords, duplicate logins, common or weak passwords, stale credentials and insecure saved URLs. Passwords are masked by default and the audit runs locally in your browser."
+wasm          = "gizza_ai_password_vault_audit_web"
+export        = "run"
+live          = false
+output_label  = "Audit report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Password list or vault export"
+placeholder = "name,username,password,url,totp\nEmail,ada@example.com,P@ssw0rd,http://mail.example.com,\nBank,ada,CorrectHorseBatteryStaple!,https://bank.example.com,otpauth://totp/Bank\nShop,ada,CorrectHorseBatteryStaple!,https://shop.example.com,"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+list = "One password per line"
+csv = "CSV export"
+"bitwarden-json" = "Bitwarden JSON"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum safe length"
+placeholder = "12"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "min_score"
+label       = "Minimum strength score"
+placeholder = "40"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "max_age_days"
+label       = "Flag passwords older than this many days"
+placeholder = "365"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name   = "check_common"
+label  = "Check bundled common-password list"
+source = "field"
+
+[[input]]
+name   = "check_reuse"
+label  = "Find reused identical passwords"
+source = "field"
+
+[[input]]
+name   = "check_similar"
+label  = "Find similar password variants"
+source = "field"
+
+[[input]]
+name   = "check_insecure_urls"
+label  = "Flag http:// saved URLs"
+source = "field"
+
+[[input]]
+name   = "check_missing_2fa"
+label  = "Flag entries with no stored TOTP secret"
+source = "field"
+
+[[input]]
+name   = "mask_passwords"
+label  = "Mask passwords in output"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+report = "Report — readable audit"
+json   = "JSON — structured findings"
+csv    = "CSV — one finding per row"
+
+[[example]]
+label = "Audit a CSV export"
+[example.params]
+data = "name,username,password,url,totp\nEmail,ada@example.com,P@ssw0rd,http://mail.example.com,\nBank,ada,CorrectHorseBatteryStaple!,https://bank.example.com,otpauth://totp/Bank\nShop,ada,CorrectHorseBatteryStaple!,https://shop.example.com,"
+format = "csv"
+output = "report"
+
+[[example]]
+label = "Plain password list"
+[example.params]
+data = "password\nSummer2024!\nSummer2025!\ncorrect horse battery staple"
+format = "list"
+check_insecure_urls = "false"
+output = "report"
+
+[[example]]
+label = "Strict JSON audit"
+[example.params]
+data = "name,username,password,url\nMail,ada,password,http://mail.example.com\nBank,ada,LongerButShared123!,https://bank.example.com\nShop,ada,LongerButShared123!,https://shop.example.com"
+format = "csv"
+min_length = "16"
+min_score = "60"
+check_missing_2fa = "true"
+output = "json"

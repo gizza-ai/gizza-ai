@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-password-vault-audit-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# RFC-4180 reader/writer: exported vaults routinely carry commas, quotes and newlines inside
+# passwords and notes, so both the CSV reader and the CSV findings writer go through a real
+# parser rather than a split(','). Pure Rust, builds for wasm32.
+csv = "1"
+# Bitwarden's JSON export shape, plus the structured `output = "json"` result.
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+# The bundled common/breached password list already shipped by the weak-password-detector tool —
+# reused rather than duplicated so both tools stay on one curated list.
+gizza-ai-weak-password-detector-core = { path = "../../weak-password-detector/core" }
