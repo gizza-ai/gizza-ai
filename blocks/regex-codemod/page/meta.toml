@@ -1,0 +1,174 @@
+slug          = "regex-codemod"
+title         = "Regex Codemod — Find and Replace Across Many Files with a Diff Preview"
+description   = "Paste several files, run one regex find-and-replace with capture groups, and preview the result as a unified diff before you apply it."
+tags          = ["regex", "codemod", "find and replace", "diff", "refactor", "capture groups", "batch", "developer"]
+h1            = "Run a regex codemod across many files and preview the diff"
+hero_subtitle = "Paste a bundle of files, write one pattern and replacement, and see exactly which lines change in every file. Capture groups, the i/m/s flags, whole-word and first-match-only are all here, and the output is a unified diff you can copy straight into git apply."
+wasm          = "gizza_ai_regex_codemod_web"
+export        = "run_codemod"
+live          = false
+output_label  = "Unified diff"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "text"
+label       = "Files"
+placeholder = "=== src/a.js ===\nconst oldName = 1;\nuse(oldName);\n=== src/b.js ===\nconst other = 2;"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "pattern"
+label       = "Find (regular expression)"
+placeholder = "\\boldName\\b"
+source      = "field"
+
+[[input]]
+name        = "replacement"
+label       = "Replace with"
+placeholder = "newName"
+source      = "field"
+
+[[input]]
+name   = "literal"
+label  = "Plain text (not a regex)"
+source = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case (i)"
+source = "field"
+
+[[input]]
+name   = "multiline"
+label  = "^ and $ match every line (m)"
+source = "field"
+
+[[input]]
+name   = "dot_matches_newline"
+label  = ". matches newlines (s)"
+source = "field"
+
+[[input]]
+name   = "whole_word"
+label  = "Whole word only"
+source = "field"
+
+[[input]]
+name   = "replace_all"
+label  = "Replace every match (g)"
+source = "field"
+
+[[input]]
+name   = "file_marker"
+label  = "File markers"
+source = "field"
+
+[input.labels]
+auto    = "Auto-detect any marker below (default)"
+equals  = "=== path ==="
+dashes  = "--- path ---"
+arrow   = "==> path <=="
+comment = "# file: path  or  // file: path"
+custom  = "Custom pattern (below)"
+none    = "No markers — treat the paste as one file"
+
+[[input]]
+name        = "marker_regex"
+label       = "Custom marker pattern"
+placeholder = "^@@@ (\\S+)$"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+diff = "Unified diff preview (default)"
+full = "Full rewritten files"
+json = "JSON report with per-file counts"
+
+[[input]]
+name        = "context"
+label       = "Diff context lines"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name   = "include_unchanged"
+label  = "List untouched files too"
+source = "field"
+
+[[example]]
+label = "Rename a symbol"
+[example.params]
+text = "=== src/a.js ===\nconst oldName = 1;\nuse(oldName);\n=== src/b.js ===\nconst other = 2;\n"
+pattern = "\\boldName\\b"
+replacement = "newName"
+literal = "false"
+ignore_case = "false"
+multiline = "false"
+dot_matches_newline = "false"
+whole_word = "false"
+replace_all = "true"
+file_marker = "auto"
+marker_regex = ""
+output = "diff"
+context = "3"
+include_unchanged = "false"
+
+[[example]]
+label = "Swap a date format"
+[example.params]
+text = "=== notes/one.md ===\nDue 12/31/2026 and 01/02/2027.\n=== notes/two.md ===\nNothing due here.\n"
+pattern = "(\\d{2})/(\\d{2})/(\\d{4})"
+replacement = "$3-$1-$2"
+literal = "false"
+ignore_case = "false"
+multiline = "false"
+dot_matches_newline = "false"
+whole_word = "false"
+replace_all = "true"
+file_marker = "auto"
+marker_regex = ""
+output = "diff"
+context = "3"
+include_unchanged = "false"
+
+[[example]]
+label = "Strip HTML tags"
+[example.params]
+text = "=== page/index.html ===\n<p>Hello <b>there</b></p>\n"
+pattern = "<[^>]+>"
+replacement = ""
+literal = "false"
+ignore_case = "false"
+multiline = "false"
+dot_matches_newline = "false"
+whole_word = "false"
+replace_all = "true"
+file_marker = "auto"
+marker_regex = ""
+output = "full"
+context = "3"
+include_unchanged = "false"
+
+[[example]]
+label = "Redact email addresses"
+[example.params]
+text = "=== logs/app.log ===\nlogin ada@example.com ok\nlogin grace@example.org ok\n"
+pattern = "[\\w.+-]+@[\\w-]+\\.[\\w.]+"
+replacement = "[redacted]"
+literal = "false"
+ignore_case = "false"
+multiline = "false"
+dot_matches_newline = "false"
+whole_word = "false"
+replace_all = "true"
+file_marker = "auto"
+marker_regex = ""
+output = "diff"
+context = "3"
+include_unchanged = "false"
