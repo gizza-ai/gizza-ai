@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "jpg-stego-embed"
+version = "0.1.0"
+abi = 1
+summary = "Hide a file or message inside a JPEG without changing the picture"

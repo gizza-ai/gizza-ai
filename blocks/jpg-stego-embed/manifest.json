@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/jpg-stego-embed",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Hide a file or message inside a JPEG without changing the picture",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Hide a secret file or text message inside a JPEG photo. The picture data is copied verbatim, so the output is the same image, still a JPEG, with the payload concealed in container space. Give the payload as exactly one of payload_text (inline text), payload_url (HTTP/HTTPS) or payload_ref (id from a prior tool call). Optionally set filename (recorded for the extractor), password (AES-256-GCM encrypts the payload), compress (deflate first, default true) and method: app = APP9 marker segments (default), comment = COM segments, append = after the EOI marker. Provide the carrier JPEG as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "payload_text": {
+          "type": "string",
+          "description": "The secret text to hide. Give exactly one of payload_text, payload_url or payload_ref."
+        },
+        "payload_url": {
+          "type": "string",
+          "description": "URL (HTTP/HTTPS) of a file to hide. Give exactly one of payload_text, payload_url or payload_ref."
+        },
+        "payload_ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call for the file to hide. Give exactly one of payload_text, payload_url or payload_ref."
+        },
+        "filename": {
+          "type": "string",
+          "description": "Filename to record alongside the hidden payload, so an extractor can restore it. Defaults to the payload's own name."
+        },
+        "password": {
+          "type": "string",
+          "description": "Optional passphrase. When set, the payload is AES-256-GCM encrypted and the same passphrase is needed to recover it."
+        },
+        "compress": {
+          "type": "boolean",
+          "default": true,
+          "description": "Deflate the payload before hiding it (default true). Kept only when it actually shrinks the payload."
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "app",
+            "comment",
+            "append"
+          ],
+          "default": "app",
+          "description": "Where to hide the payload: app = APP9 marker segments (default, stays a clean JPEG), comment = COM segments, append = a blob after the EOI marker."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}
