@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "docstring-stub-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate docstring, JSDoc and Javadoc stubs from a pasted function signature"

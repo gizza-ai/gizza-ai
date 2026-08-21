@@ -1,0 +1,190 @@
+slug          = "docstring-stub-generator"
+title         = "Docstring Stub Generator"
+description   = "Paste a function signature and get a docstring, JSDoc, PHPDoc, Javadoc, godoc, rustdoc or YARD stub with parameter, return and raises slots ready to fill in."
+tags          = ["docstring generator", "jsdoc generator", "javadoc stub", "function signature", "code documentation", "phpdoc", "rustdoc", "yard doc"]
+h1            = "Docstring Stub Generator"
+hero_subtitle = "Paste a function signature and get a documentation stub with a slot for every parameter, the return value and the errors it raises. Google, NumPy, Sphinx, Epytext and PEP 257 docstrings plus JSDoc, PHPDoc, Javadoc, XML doc, godoc, rustdoc and YARD — generated in your browser, no code uploaded."
+wasm          = "gizza_ai_docstring_stub_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated documentation stub"
+format        = "text"
+
+[[input]]
+name        = "signature"
+label       = "Function signature"
+placeholder = "def fetch(url: str, timeout: int = 30) -> dict:"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+python = "Python — docstring"
+javascript = "JavaScript — JSDoc"
+typescript = "TypeScript — JSDoc"
+php = "PHP — PHPDoc"
+java = "Java — Javadoc"
+csharp = "C# — XML doc comments"
+go = "Go — godoc"
+rust = "Rust — rustdoc"
+ruby = "Ruby — YARD"
+
+[[input]]
+name   = "style"
+label  = "Python docstring convention"
+source = "field"
+
+[input.labels]
+auto = "Auto (Google)"
+google = "Google"
+numpy = "NumPy"
+sphinx = "Sphinx / reStructuredText"
+epytext = "Epytext"
+pep257 = "PEP 257"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+annotated = "Signature with the stub inserted"
+docstring = "Stub only"
+json = "Parsed signature as JSON"
+
+[[input]]
+name   = "types"
+label  = "Types"
+source = "field"
+
+[input.labels]
+guess = "Annotations, then guess from defaults"
+annotated = "Declared annotations only"
+none = "No types"
+
+[[input]]
+name        = "placeholder"
+label       = "Description placeholder"
+placeholder = "_description_"
+source      = "field"
+
+[[input]]
+name        = "raises"
+label       = "Errors raised (comma-separated)"
+placeholder = "ValueError, KeyError"
+source      = "field"
+
+[[input]]
+name   = "quote_style"
+label  = "Python quote style"
+source = "field"
+
+[input.labels]
+double = "Double quotes \"\"\""
+single = "Single quotes '''"
+
+[[input]]
+name   = "extended_summary"
+label  = "Add an extended summary paragraph"
+source = "field"
+
+[[input]]
+name   = "examples"
+label  = "Add an examples section"
+source = "field"
+
+[[input]]
+name   = "align_tags"
+label  = "Align tag columns (JSDoc, PHPDoc, Javadoc)"
+source = "field"
+
+[[input]]
+name        = "indent_size"
+label       = "Indent size (spaces)"
+placeholder = "4"
+source      = "field"
+
+[[example]]
+label = "Python — Google"
+[example.params]
+signature = "def fetch(url: str, timeout: int = 30) -> dict:"
+language = "python"
+style = "google"
+output = "annotated"
+types = "guess"
+placeholder = "_description_"
+raises = ""
+quote_style = "double"
+extended_summary = "false"
+examples = "false"
+align_tags = "false"
+indent_size = "4"
+
+[[example]]
+label = "Python — NumPy, raises"
+[example.params]
+signature = "def load(path, encoding=\"utf-8\"):"
+language = "python"
+style = "numpy"
+output = "annotated"
+types = "guess"
+placeholder = "_description_"
+raises = "FileNotFoundError, UnicodeDecodeError"
+quote_style = "double"
+extended_summary = "false"
+examples = "false"
+align_tags = "false"
+indent_size = "4"
+
+[[example]]
+label = "TypeScript — JSDoc, aligned"
+[example.params]
+signature = "export async function load(id: string, opts?: LoadOptions): Promise<User> {"
+language = "typescript"
+style = "auto"
+output = "annotated"
+types = "guess"
+placeholder = "_description_"
+raises = ""
+quote_style = "double"
+extended_summary = "false"
+examples = "false"
+align_tags = "true"
+indent_size = "4"
+
+[[example]]
+label = "PHP — PHPDoc"
+[example.params]
+signature = "public function fetch(string $url, int $timeout = 30): bool {"
+language = "php"
+style = "auto"
+output = "annotated"
+types = "guess"
+placeholder = "_description_"
+raises = "RuntimeException"
+quote_style = "double"
+extended_summary = "false"
+examples = "false"
+align_tags = "false"
+indent_size = "4"
+
+[[example]]
+label = "Rust — rustdoc"
+[example.params]
+signature = "pub fn join(parts: &[&str], sep: &str) -> Result<String, Error> {"
+language = "rust"
+style = "auto"
+output = "annotated"
+types = "guess"
+placeholder = "_description_"
+raises = "Error"
+quote_style = "double"
+extended_summary = "false"
+examples = "true"
+align_tags = "false"
+indent_size = "4"
