@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "k8s-manifest-splitter"
+version = "0.1.0"
+abi = 1
+summary = "Split a multi-document Kubernetes YAML into individual resource files"

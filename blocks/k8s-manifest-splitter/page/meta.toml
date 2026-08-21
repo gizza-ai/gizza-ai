@@ -1,0 +1,139 @@
+slug          = "k8s-manifest-splitter"
+title         = "Kubernetes Manifest Splitter — split multi-doc YAML into one file per resource"
+description   = "Split helm template, kustomize or kubectl YAML bundles into per-resource files, an index, JSON, kustomization.yaml or a shell script."
+tags          = ["kubernetes yaml splitter", "split multi-document yaml", "helm template split", "kustomize build split", "one file per resource", "kubectl slice online", "split k8s manifest by kind", "kustomization.yaml generator"]
+h1            = "Kubernetes Manifest Splitter"
+hero_subtitle = "Paste a multi-document Kubernetes YAML bundle and get it back split per resource — each one named from a filename template, with the document bodies left byte-for-byte intact. Nothing leaves your browser."
+wasm          = "gizza_ai_k8s_manifest_splitter_web"
+export        = "run"
+live          = false
+output_label  = "Split manifest"
+format        = "text"
+
+[[input]]
+name        = "manifest"
+label       = "Your multi-document Kubernetes YAML"
+placeholder = "apiVersion: v1\nkind: Service\nmetadata:\n  name: web\nspec:\n  ports:\n    - port: 80\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 2"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "What to render"
+source = "field"
+
+[input.labels]
+files = "Files — every document under a # ===== filename ===== header"
+index = "Index — a table of kind, name, namespace and filename"
+json = "JSON — one object per resource, including its YAML"
+kustomization = "kustomization.yaml — a resources: list of the filenames"
+shell = "Shell script — a POSIX sh script that writes the files"
+
+[[input]]
+name        = "filename_template"
+label       = "Filename template"
+placeholder = "{kind}-{name}.yaml"
+source      = "field"
+
+[[input]]
+name        = "include"
+label       = "Keep only these (Kind or Kind/name, comma-separated, * wildcards)"
+placeholder = "Deployment,Service/web-*"
+source      = "field"
+
+[[input]]
+name        = "exclude"
+label       = "Drop these (same syntax, applied after the include list)"
+placeholder = "Secret,*/*-test"
+source      = "field"
+
+[[input]]
+name   = "sort"
+label  = "Output order"
+source = "field"
+
+[input.labels]
+document = "Document order — exactly as pasted"
+kind = "By kind, then name"
+name = "By name, then kind"
+apply = "Apply order — Namespace and CRDs first, Ingress last"
+
+[[input]]
+name   = "skip_non_k8s"
+label  = "Drop documents that are not Kubernetes resources"
+source = "field"
+
+[[input]]
+name   = "expand_lists"
+label  = "Expand kind: List wrappers into their items"
+source = "field"
+
+[[input]]
+name   = "include_triple_dash"
+label  = "Start each document with a --- line"
+source = "field"
+
+[[example]]
+label = "Split a helm bundle"
+[example.params]
+manifest = "---\n# Source: chart/templates/service.yaml\napiVersion: v1\nkind: Service\nmetadata:\n  name: web\n  namespace: prod\nspec:\n  ports:\n    - port: 80\n---\n# Source: chart/templates/deployment.yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\n  namespace: prod\nspec:\n  replicas: 2"
+output = "files"
+filename_template = "{kind}-{name}.yaml"
+include = ""
+exclude = ""
+sort = "document"
+skip_non_k8s = "false"
+expand_lists = "true"
+include_triple_dash = "false"
+
+[[example]]
+label = "What is in this bundle?"
+[example.params]
+manifest = "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: prod\n---\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: web-config\n  namespace: prod\ndata:\n  LOG_LEVEL: info\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\n  namespace: prod\nspec:\n  replicas: 2"
+output = "index"
+filename_template = "{kind}-{name}.yaml"
+include = ""
+exclude = ""
+sort = "document"
+skip_non_k8s = "false"
+expand_lists = "true"
+include_triple_dash = "false"
+
+[[example]]
+label = "Folders per namespace, apply order"
+[example.params]
+manifest = "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\n  namespace: prod\nspec:\n  replicas: 2\n---\napiVersion: v1\nkind: Namespace\nmetadata:\n  name: prod\n---\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: web-config\n  namespace: prod\ndata:\n  LOG_LEVEL: info"
+output = "kustomization"
+filename_template = "{namespace}/{kind}-{name}.yaml"
+include = ""
+exclude = ""
+sort = "apply"
+skip_non_k8s = "false"
+expand_lists = "true"
+include_triple_dash = "false"
+
+[[example]]
+label = "Write the files with sh"
+[example.params]
+manifest = "apiVersion: v1\nkind: Service\nmetadata:\n  name: web\nspec:\n  ports:\n    - port: 80\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 2"
+output = "shell"
+filename_template = "manifests/{kind}-{name}.yaml"
+include = ""
+exclude = ""
+sort = "document"
+skip_non_k8s = "false"
+expand_lists = "true"
+include_triple_dash = "false"
+
+[[example]]
+label = "Just the workloads"
+[example.params]
+manifest = "apiVersion: v1\nkind: Secret\nmetadata:\n  name: web-tls\ntype: Opaque\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 2\n---\napiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: nightly\nspec:\n  schedule: \"0 2 * * *\""
+output = "files"
+filename_template = "{kind}-{name}.yaml"
+include = "Deployment,CronJob"
+exclude = ""
+sort = "kind"
+skip_non_k8s = "false"
+expand_lists = "true"
+include_triple_dash = "false"
