@@ -1,0 +1,100 @@
+slug          = "openapi-to-fetch-client"
+title         = "OpenAPI to Fetch Client — TypeScript Generator"
+description   = "Generate a self-contained typed TypeScript fetch client from an OpenAPI or Swagger paths spec, with functions or a class and configurable error style."
+tags          = ["openapi client", "typescript fetch", "swagger client", "api client generator", "openapi typescript", "fetch wrapper", "typed api", "code generator", "rest client", "openapi paths"]
+h1            = "OpenAPI to Fetch Client"
+hero_subtitle = "Paste an OpenAPI 3.x or Swagger 2.0 spec and generate a dependency-free TypeScript fetch client with typed operations, path/query/body wiring, and your preferred call style."
+wasm          = "gizza_ai_openapi_to_fetch_client_web"
+export        = "run"
+live          = false
+output_label  = "Generated TypeScript client"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "spec"
+label       = "OpenAPI or Swagger spec"
+placeholder = "openapi: 3.1.0\nservers:\n  - url: https://api.example.com\npaths:\n  /pets/{petId}:\n    get:\n      operationId: getPet\n      parameters:\n        - name: petId\n          in: path\n          required: true\n          schema: { type: string }\n      responses:\n        '200':\n          description: OK"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+labels = { auto = "Auto", json = "JSON", yaml = "YAML" }
+
+[[input]]
+name   = "style"
+label  = "Output style"
+source = "field"
+labels = { functions = "Exported functions", class = "Client class" }
+
+[[input]]
+name        = "client_name"
+label       = "Class name"
+placeholder = "ApiClient"
+source      = "field"
+
+[[input]]
+name   = "naming"
+label  = "Function naming"
+source = "field"
+labels = { operation_id = "Use operationId", path = "Derive from method + path" }
+
+[[input]]
+name   = "param_style"
+label  = "Parameter style"
+source = "field"
+labels = { object = "Single request object", positional = "Positional path/body args" }
+
+[[input]]
+name   = "error_handling"
+label  = "Error handling"
+source = "field"
+labels = { throw = "Throw ApiError", result = "Return result union" }
+
+[[input]]
+name        = "base_url"
+label       = "Base URL override"
+placeholder = "https://api.example.com/v1"
+source      = "field"
+
+[[input]]
+name        = "types_module"
+label       = "Types module"
+placeholder = "./types"
+source      = "field"
+
+[[input]]
+name        = "tags"
+label       = "Tag filter"
+placeholder = "pets, admin"
+source      = "field"
+
+[[input]]
+name   = "jsdoc"
+label  = "Include JSDoc"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label  = "Pet functions"
+params = { spec = "{\"openapi\":\"3.1.0\",\"servers\":[{\"url\":\"https://api.example.com\"}],\"paths\":{\"/pets/{petId}\":{\"get\":{\"operationId\":\"getPet\",\"tags\":[\"pets\"],\"parameters\":[{\"name\":\"petId\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"name\":\"include\",\"in\":\"query\",\"schema\":{\"type\":\"string\"}}],\"responses\":{\"200\":{\"description\":\"OK\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"}}}}}}}}}" }
+
+[[example]]
+label  = "Class + result union"
+params = { spec = "{\"openapi\":\"3.1.0\",\"paths\":{\"/sessions\":{\"post\":{\"operationId\":\"createSession\",\"requestBody\":{\"required\":true,\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Login\"}}}},\"responses\":{\"201\":{\"description\":\"Created\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Session\"}}}}}}}}}", style = "class", client_name = "AuthClient", error_handling = "result" }
+
+[[example]]
+label  = "Positional parameters"
+params = { spec = "{\"openapi\":\"3.1.0\",\"paths\":{\"/users/{userId}/orders\":{\"get\":{\"parameters\":[{\"name\":\"userId\",\"in\":\"path\",\"required\":true,\"schema\":{\"type\":\"string\"}},{\"name\":\"limit\",\"in\":\"query\",\"schema\":{\"type\":\"integer\"}}],\"responses\":{\"200\":{\"description\":\"OK\"}}}}}}", param_style = "positional", naming = "path" }
+
+[[example]]
+label  = "Tag filter, no JSDoc"
+params = { spec = "{\"openapi\":\"3.1.0\",\"paths\":{\"/admin/jobs\":{\"get\":{\"operationId\":\"listJobs\",\"tags\":[\"admin\"],\"responses\":{\"200\":{\"description\":\"OK\"}}}},\"/health\":{\"get\":{\"operationId\":\"health\",\"tags\":[\"internal\"],\"responses\":{\"200\":{\"description\":\"OK\"}}}}}}}", tags = "admin", jsdoc = "false", types_module = "" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "openapi-to-fetch-client"
+version = "0.1.0"
+abi = 1
+summary = "Generate a self-contained typed TypeScript fetch client from an OpenAPI paths spec."
