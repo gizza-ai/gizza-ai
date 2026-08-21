@@ -1,0 +1,213 @@
+slug          = "csv-column-number-formatter"
+title         = "CSV Column Number Formatter — Fix Decimals, Rounding and Grouping"
+description   = "Give a CSV column one uniform number format: fixed decimals, a rounding mode, thousands grouping, sign style and units. Free, runs entirely in your browser."
+tags          = ["csv number formatter", "format csv column numbers", "round csv column decimal places", "add thousands separator to csv", "fixed decimal places csv", "csv currency formatting", "banker's rounding csv", "european number format csv"]
+h1            = "CSV Column Number Formatter"
+hero_subtitle = "Apply one uniform numeric format — fixed decimal places, a rounding mode, digit grouping, separators, a sign style and units — to the CSV columns you pick. Rounding runs on the digits you typed, not on a binary float, so 1.005 at two places really is 1.01. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_csv_column_number_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted CSV"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV (first row is the header)"
+placeholder = "sku,price,weight\nA1,1234.5,0.5\nB2,7,12.25"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns (blank = every column; names, 1-based indices, 2-4 ranges)"
+placeholder = "price,3,5-7"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places (0 = whole numbers; -2 rounds to the nearest hundred)"
+placeholder = "2"
+default     = "2"
+kind        = "slider"
+step        = "1"
+source      = "field"
+
+# rounding, notation, grouping, group_separator, decimal_separator, sign,
+# input_decimal, non_numeric, quote_style and output render as <select>s, and
+# has_header as a checkbox, derived from the descriptor schema (manifest.json) —
+# so the option lists are not duplicated here.
+[[input]]
+name    = "rounding"
+label   = "Rounding"
+default = "half_up"
+source  = "field"
+
+[input.labels]
+half_up   = "Half up — the spreadsheet ROUND (default)"
+half_down = "Half down — an exact half goes toward zero"
+half_even = "Half to even — banker's rounding"
+ceil      = "Ceiling — always toward +infinity"
+floor     = "Floor — always toward -infinity"
+truncate  = "Truncate — just drop the extra digits"
+
+[[input]]
+name    = "notation"
+label   = "Notation"
+default = "standard"
+source  = "field"
+
+[input.labels]
+standard   = "Standard digits (default)"
+compact    = "Compact — 1.23M"
+scientific = "Scientific — 1.23e+6"
+percent    = "Percent — x100 with a % sign"
+
+[[input]]
+name    = "grouping"
+label   = "Digit grouping"
+default = "none"
+source  = "field"
+
+[input.labels]
+none      = "None — stays machine-readable (default)"
+thousands = "Thousands — 1,234,567"
+indian    = "Indian — 12,34,567"
+
+[[input]]
+name    = "group_separator"
+label   = "Group separator"
+default = "comma"
+source  = "field"
+
+[input.labels]
+comma      = "Comma — 1,234,567 (default)"
+period     = "Period — 1.234.567"
+space      = "Space — 1 234 567"
+thin_space = "Thin space — 1 234 567 (U+202F)"
+apostrophe = "Apostrophe — 1'234'567"
+underscore = "Underscore — 1_234_567"
+
+[[input]]
+name    = "decimal_separator"
+label   = "Decimal separator (output)"
+default = "period"
+source  = "field"
+
+[input.labels]
+period = "Period — 1234.56 (default)"
+comma  = "Comma — 1234,56"
+
+[[input]]
+name    = "sign"
+label   = "Sign style"
+default = "auto"
+source  = "field"
+
+[input.labels]
+auto        = "Minus on negatives only (default)"
+always      = "Always show + or -"
+except_zero = "Show + on positives, nothing on zero"
+never       = "No sign — the magnitude"
+space       = "Space where the + would go, so columns line up"
+parens      = "Accounting — negatives in parentheses"
+
+[[input]]
+name        = "prefix"
+label       = "Prefix (goes inside the sign)"
+placeholder = "$"
+source      = "field"
+
+[[input]]
+name        = "suffix"
+label       = "Suffix (include your own leading space)"
+placeholder = " kg"
+source      = "field"
+
+[[input]]
+name    = "input_decimal"
+label   = "Decimal mark in the INPUT cells"
+default = "auto"
+source  = "field"
+
+[input.labels]
+auto  = "Detect per cell (default)"
+dot   = "Dot — read 1,234.56"
+comma = "Comma — read 1.234,56"
+
+[[input]]
+name    = "non_numeric"
+label   = "Cells that are not numbers"
+default = "keep"
+source  = "field"
+
+[input.labels]
+keep  = "Keep them as they are (default)"
+blank = "Replace them with an empty cell"
+error = "Stop and report the row"
+
+[[input]]
+name    = "has_header"
+label   = "First row is a header"
+default = "true"
+source  = "field"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter (auto , tab ; or |)"
+placeholder = "auto"
+default     = "auto"
+source      = "field"
+
+[[input]]
+name    = "quote_style"
+label   = "Output quoting"
+default = "minimal"
+source  = "field"
+
+[input.labels]
+minimal     = "Minimal — quote only what needs it (default)"
+always      = "Always quote every field"
+non_numeric = "Quote everything except numbers"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "csv"
+source  = "field"
+
+[input.labels]
+csv     = "Formatted CSV (default)"
+changed = "Only the rows that changed, plus the header"
+report  = "Audit report — cells formatted per column"
+
+[[example]]
+label  = "Two decimal places on a price column"
+params = { data = "sku,price,weight\nA1,1234.5,0.5\nB2,7,12.25", columns = "price", decimals = "2", rounding = "half_up", notation = "standard", grouping = "none", group_separator = "comma", decimal_separator = "period", sign = "auto", prefix = "", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "US currency with thousands separators"
+params = { data = "sku,price\nA1,1234.5\nB2,-99", columns = "price", decimals = "2", rounding = "half_up", notation = "standard", grouping = "thousands", group_separator = "comma", decimal_separator = "period", sign = "auto", prefix = "$", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Accounting — negatives in parentheses"
+params = { data = "account,balance\nrevenue,120450.5\nrefunds,-2310.75", columns = "balance", decimals = "2", rounding = "half_up", notation = "standard", grouping = "thousands", group_separator = "comma", decimal_separator = "period", sign = "parens", prefix = "$", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "European 1.234,56 in and out"
+params = { data = "artikel;preis\nA1;1.234,567\nB2;99", columns = "preis", decimals = "2", rounding = "half_up", notation = "standard", grouping = "thousands", group_separator = "period", decimal_separator = "comma", sign = "auto", prefix = "", suffix = "", input_decimal = "comma", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Compact K/M for a dashboard"
+params = { data = "page,views\nhome,1234567\nblog,9821", columns = "views", decimals = "2", rounding = "half_up", notation = "compact", grouping = "none", group_separator = "comma", decimal_separator = "period", sign = "auto", prefix = "", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Rates to percentages"
+params = { data = "campaign,ctr\nspring,0.0452\nsummer,0.128", columns = "ctr", decimals = "1", rounding = "half_up", notation = "percent", grouping = "none", group_separator = "comma", decimal_separator = "period", sign = "auto", prefix = "", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Round to the nearest hundred (decimals = -2)"
+params = { data = "region,population\nnorth,12345\nsouth,98765", columns = "population", decimals = "-2", rounding = "half_up", notation = "standard", grouping = "none", group_separator = "comma", decimal_separator = "period", sign = "auto", prefix = "", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "csv" }
+
+[[example]]
+label  = "Audit report — what would change"
+params = { data = "sku,price\nA1,1234.5\nB2,7.00\nC3,n/a", columns = "price", decimals = "2", rounding = "half_up", notation = "standard", grouping = "none", group_separator = "comma", decimal_separator = "period", sign = "auto", prefix = "", suffix = "", input_decimal = "auto", non_numeric = "keep", has_header = "true", delimiter = "auto", quote_style = "minimal", output = "report" }

@@ -1,0 +1,247 @@
+//! gizza-ai/csv-column-number-formatter — chat skill block on the shared tool abstraction.
+//! Applies ONE uniform numeric format — fixed decimals, a rounding mode, digit
+//! grouping, separators, a sign style, prefix/suffix — to the cells of the CSV
+//! columns you pick. The chat schema is single-sourced from `descriptor()`
+//! (which also drives the CLI); `handle()` delegates to `block_utils::run_skill`.
+//! Pure compute — the table is parsed and rewritten in the sandbox, nothing is
+//! uploaded.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+use gizza_ai_block_utils::{run_skill, Input, Param, SkillError, ToolDescriptor};
+use serde::Deserialize;
+use wafer_sdk::*;
+
+#[derive(Deserialize)]
+struct Args {
+    data: String,
+    #[serde(default)]
+    columns: String,
+    #[serde(default = "default_decimals")]
+    decimals: i64,
+    #[serde(default)]
+    rounding: String,
+    #[serde(default)]
+    notation: String,
+    #[serde(default)]
+    grouping: String,
+    #[serde(default)]
+    group_separator: String,
+    #[serde(default)]
+    decimal_separator: String,
+    #[serde(default)]
+    sign: String,
+    #[serde(default)]
+    prefix: String,
+    #[serde(default)]
+    suffix: String,
+    #[serde(default)]
+    input_decimal: String,
+    #[serde(default)]
+    non_numeric: String,
+    #[serde(default = "default_true")]
+    has_header: bool,
+    #[serde(default = "default_auto")]
+    delimiter: String,
+    #[serde(default)]
+    quote_style: String,
+    #[serde(default)]
+    output: String,
+}
+
+fn default_decimals() -> i64 {
+    2
+}
+fn default_true() -> bool {
+    true
+}
+fn default_auto() -> String {
+    "auto".to_string()
+}
+
+/// Single source for the chat schema (and CLI).
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::None)
+        .param(
+            Param::string("data")
+                .required()
+                .describe("The CSV/delimited table to reformat, as text. It is parsed first, so each number is read from a decoded cell value and the rewritten table keeps its row order, column count and delimiter; output quoting is re-derived, so a grouped value such as 1,234.00 is re-quoted automatically. Max 5,000,000 bytes."),
+        )
+        .param(
+            Param::string("columns")
+                .default("")
+                .describe("Which columns to reformat. Blank (the default) or '*' means every column. Otherwise a comma-separated list of header names ('price'), 1-based indices ('2'), and inclusive index ranges ('2-4') — mixed freely, e.g. 'price,3,5-7'. Names are matched exactly first, then case-insensitively. Cells in unselected columns are copied through byte-for-byte."),
+        )
+        .param(
+            Param::integer("decimals")
+                .default(2)
+                .min(-9.0)
+                .max(15.0)
+                .describe("How many digits to keep after the decimal mark; every value is padded or rounded to exactly this many, so a column lines up. 0 gives whole numbers. NEGATIVE values round to the left of the decimal point instead: -2 rounds 12,345 to 12300, -3 to the nearest thousand. Range -9 to 15, default 2."),
+        )
+        .param(
+            Param::enumv(
+                "rounding",
+                ["half_up", "half_down", "half_even", "ceil", "floor", "truncate"],
+            )
+            .default("half_up")
+            .describe("How a digit that has to be dropped is resolved. 'half_up' (default) is the spreadsheet ROUND: 2.5 becomes 3 and -2.5 becomes -3. 'half_down' sends an exact half toward zero; 'half_even' is banker's rounding (2.5 becomes 2, 1.5 becomes 2); 'ceil' always goes toward +infinity; 'floor' toward -infinity; 'truncate' just drops the extra digits. Rounding runs on the digit string that was typed, not on a binary float, so 1.005 at 2 places is 1.01."),
+        )
+        .param(
+            Param::enumv("notation", ["standard", "compact", "scientific", "percent"])
+                .default("standard")
+                .describe("The shape of the rendered number. 'standard' (default) is plain positional digits. 'compact' scales to K/M/B/T and appends the unit letter (1234567 becomes 1.23M). 'scientific' renders one digit before the decimal mark plus an exponent (1.23e+6). 'percent' multiplies by 100 and appends '%' (0.452 becomes 45.2%). decimals applies to the rendered mantissa in every case."),
+        )
+        .param(
+            Param::enumv("grouping", ["none", "thousands", "indian"])
+                .default("none")
+                .describe("Digit grouping for the integer part. 'none' (default) writes no separators, which keeps the column machine-readable in the next tool. 'thousands' groups by three from the right (1,234,567). 'indian' uses the South Asian pattern of three then twos (12,34,567). A grouped value containing the delimiter is quoted on output automatically."),
+        )
+        .param(
+            Param::enumv(
+                "group_separator",
+                ["comma", "period", "space", "thin_space", "apostrophe", "underscore"],
+            )
+            .default("comma")
+            .describe("The character placed between digit groups when grouping is on: 'comma' (default, 1,234,567), 'period' (1.234.567 — the European convention, pair it with decimal_separator=comma), 'space', 'thin_space' (U+202F, the typographic choice), 'apostrophe' (the Swiss 1'234'567), or 'underscore'. Ignored when grouping is 'none'."),
+        )
+        .param(
+            Param::enumv("decimal_separator", ["period", "comma"])
+                .default("period")
+                .describe("The character written before the fractional digits on OUTPUT: 'period' (default, 1234.56) or 'comma' (1234,56). This is independent of input_decimal, so the tool can read a European column and write a US one, or the reverse."),
+        )
+        .param(
+            Param::enumv(
+                "sign",
+                ["auto", "always", "except_zero", "never", "space", "parens"],
+            )
+            .default("auto")
+            .describe("How the sign is shown. 'auto' (default) writes '-' on negatives only. 'always' adds '+' to zero and positives; 'except_zero' adds '+' to positives but leaves zero bare; 'never' drops the sign entirely and writes the magnitude; 'space' puts a blank where the '+' would go so a column of values lines up; 'parens' is the accounting style that wraps negatives in parentheses, as in (1,234.00). A value that rounds to zero never keeps a minus sign."),
+        )
+        .param(
+            Param::string("prefix")
+                .default("")
+                .describe("Text placed immediately before each formatted number, inside the sign — '$' gives -$1,234.00 and, with sign='parens', ($1,234.00). Blank by default. It is inserted verbatim, so add your own trailing space if you want one."),
+        )
+        .param(
+            Param::string("suffix")
+                .default("")
+                .describe("Text placed immediately after each formatted number, such as ' kg', ' ms' or ' USD'. Blank by default and inserted verbatim, so include the leading space yourself if you want one. For percentages prefer notation='percent', which also multiplies by 100."),
+        )
+        .param(
+            Param::enumv("input_decimal", ["auto", "dot", "comma"])
+                .default("auto")
+                .describe("Which character the INCOMING cells use as their decimal mark. 'auto' (default) decides per cell: when both '.' and ',' appear the last one wins, a lone '.' is a decimal point, and a lone ',' followed by exactly three digits is read as grouping ('1,234' is one thousand two hundred and thirty-four). 'dot' forces 1,234.56 and 'comma' forces 1.234,56 — use one of those when a column of ambiguous values must be read consistently."),
+        )
+        .param(
+            Param::enumv("non_numeric", ["keep", "blank", "error"])
+                .default("keep")
+                .describe("What to do with a selected cell that is not a number, such as 'n/a' or 'pending'. 'keep' (default) copies it through untouched; 'blank' replaces it with an empty cell; 'error' stops and reports the row, column and value. An EMPTY cell is always left empty in every policy — a missing value is not a zero."),
+        )
+        .param(
+            Param::boolean("has_header")
+                .default(true)
+                .describe("When true (default) row 1 is a header: its names can be used in 'columns' and it is never reformatted, so a column called 2024 stays 2024. Turn it off for a headerless table — every row is then data and columns must be given as indices or ranges."),
+        )
+        .param(
+            Param::string("delimiter")
+                .default("auto")
+                .describe("Field separator: 'auto' (default) sniffs it from the first line, counting candidates outside quotes with comma winning a tie; or give a name ('comma', 'tab', 'semicolon', 'pipe') or any single character. The output is written with the same separator."),
+        )
+        .param(
+            Param::enumv("quote_style", ["minimal", "always", "non_numeric"])
+                .default("minimal")
+                .describe("How the rewritten table is quoted. 'minimal' (default) quotes only fields that need it — a grouped value whose separator is the delimiter is re-quoted automatically. 'always' quotes every field; 'non_numeric' quotes every field that is not a number."),
+        )
+        .param(
+            Param::enumv("output", ["csv", "changed", "report"])
+                .default("csv")
+                .describe("What to return: 'csv' (default) is the whole table with the format applied; 'changed' is only the rows whose selected cells actually changed, plus the header, for reviewing a format before committing to it; 'report' is a per-column audit table 'column,cells_formatted,cells_unchanged,non_numeric' with a TOTAL row and no data at all."),
+        )
+}
+fn schema_json() -> String {
+    descriptor().to_schema_json()
+}
+
+#[cfg(target_arch = "wasm32")]
+struct Tool;
+
+#[cfg(target_arch = "wasm32")]
+#[wafer_block(
+    name = "gizza-ai/csv-column-number-formatter",
+    version = "0.1.0",
+    interface = "handler@v1",
+    summary = "Apply one uniform number format — decimals, rounding, grouping, sign — to chosen CSV columns.",
+    skill(
+        description = "Apply ONE uniform numeric format to the cells of the CSV columns you pick, and get the table back. decimals fixes how many fractional digits every value carries (0 for whole numbers; NEGATIVE values round to tens, hundreds or thousands instead), and rounding picks how a dropped digit resolves: half_up (the spreadsheet ROUND, the default), half_down, half_even (banker's), ceil, floor or truncate. Rounding runs on the DIGIT STRING parsed out of the cell, never on a binary float, so 1.005 at two places is 1.01 rather than the 1.00 a naive multiply-and-round returns. notation renders the value as standard digits, compact K/M/B/T, scientific, or percent (times 100 with a % sign). grouping is none (the default, which keeps the column machine-readable), thousands (1,234,567) or indian (12,34,567), with group_separator and decimal_separator choosing the marks — so a European 1.234,56 column can be read and rewritten as 1,234.56 or vice versa. sign is auto, always, except_zero, never, space (aligns a column) or parens (accounting negatives); prefix and suffix wrap the number with a currency symbol or a unit. Input cells may be messy: currency symbols, group marks, accounting parentheses, a trailing minus, and scientific notation are all parsed, and input_decimal fixes which of '.' and ',' is the decimal mark. columns is blank for every column, or a mix of header names, 1-based indices and '2-4' ranges; the header row is never reformatted while has_header is on. non_numeric decides whether a cell like 'n/a' is kept, blanked, or an error; an empty cell is always left empty. delimiter is 'auto' or a named/single character, quote_style is minimal, always or non_numeric, and output is 'csv' (the rewritten table), 'changed' (header plus only the rows that changed) or 'report' (a per-column column,cells_formatted,cells_unchanged,non_numeric audit with a TOTAL row). Max 5,000,000 bytes. Runs entirely in the sandbox; nothing is uploaded.",
+        parameters = schema_json()
+    ),
+)]
+impl Tool {
+    fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        match run_skill(&body, "csv-column-number-formatter", |a: Args| {
+            gizza_ai_csv_column_number_formatter_core::format_columns(
+                &a.data,
+                &a.columns,
+                a.decimals.clamp(-1000, 1000) as i32,
+                &a.rounding,
+                &a.notation,
+                &a.grouping,
+                &a.group_separator,
+                &a.decimal_separator,
+                &a.sign,
+                &a.prefix,
+                &a.suffix,
+                &a.input_decimal,
+                &a.non_numeric,
+                a.has_header,
+                &a.delimiter,
+                &a.quote_style,
+                &a.output,
+            )
+            .map_err(SkillError::InvalidArgs)
+        }) {
+            Ok(v) => GuestResult::respond(v),
+            Err(e) => GuestResult::error(e.into()),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Drift guard: the descriptor-derived chat schema must match this authored
+    /// schema, so any future change to the LLM-facing API is intentional and
+    /// reviewed. Authored 2026-08-21 for the initial csv-column-number-formatter release.
+    #[test]
+    fn schema_json_matches_authored_chat_schema() {
+        let authored: serde_json::Value = serde_json::from_str(
+            r#"{
+                "type": "object",
+                "properties": {
+                    "data": { "type": "string", "description": "The CSV/delimited table to reformat, as text. It is parsed first, so each number is read from a decoded cell value and the rewritten table keeps its row order, column count and delimiter; output quoting is re-derived, so a grouped value such as 1,234.00 is re-quoted automatically. Max 5,000,000 bytes." },
+                    "columns": { "type": "string", "default": "", "description": "Which columns to reformat. Blank (the default) or '*' means every column. Otherwise a comma-separated list of header names ('price'), 1-based indices ('2'), and inclusive index ranges ('2-4') — mixed freely, e.g. 'price,3,5-7'. Names are matched exactly first, then case-insensitively. Cells in unselected columns are copied through byte-for-byte." },
+                    "decimals": { "type": "integer", "minimum": -9, "maximum": 15, "default": 2, "description": "How many digits to keep after the decimal mark; every value is padded or rounded to exactly this many, so a column lines up. 0 gives whole numbers. NEGATIVE values round to the left of the decimal point instead: -2 rounds 12,345 to 12300, -3 to the nearest thousand. Range -9 to 15, default 2." },
+                    "rounding": { "type": "string", "enum": ["half_up", "half_down", "half_even", "ceil", "floor", "truncate"], "default": "half_up", "description": "How a digit that has to be dropped is resolved. 'half_up' (default) is the spreadsheet ROUND: 2.5 becomes 3 and -2.5 becomes -3. 'half_down' sends an exact half toward zero; 'half_even' is banker's rounding (2.5 becomes 2, 1.5 becomes 2); 'ceil' always goes toward +infinity; 'floor' toward -infinity; 'truncate' just drops the extra digits. Rounding runs on the digit string that was typed, not on a binary float, so 1.005 at 2 places is 1.01." },
+                    "notation": { "type": "string", "enum": ["standard", "compact", "scientific", "percent"], "default": "standard", "description": "The shape of the rendered number. 'standard' (default) is plain positional digits. 'compact' scales to K/M/B/T and appends the unit letter (1234567 becomes 1.23M). 'scientific' renders one digit before the decimal mark plus an exponent (1.23e+6). 'percent' multiplies by 100 and appends '%' (0.452 becomes 45.2%). decimals applies to the rendered mantissa in every case." },
+                    "grouping": { "type": "string", "enum": ["none", "thousands", "indian"], "default": "none", "description": "Digit grouping for the integer part. 'none' (default) writes no separators, which keeps the column machine-readable in the next tool. 'thousands' groups by three from the right (1,234,567). 'indian' uses the South Asian pattern of three then twos (12,34,567). A grouped value containing the delimiter is quoted on output automatically." },
+                    "group_separator": { "type": "string", "enum": ["comma", "period", "space", "thin_space", "apostrophe", "underscore"], "default": "comma", "description": "The character placed between digit groups when grouping is on: 'comma' (default, 1,234,567), 'period' (1.234.567 — the European convention, pair it with decimal_separator=comma), 'space', 'thin_space' (U+202F, the typographic choice), 'apostrophe' (the Swiss 1'234'567), or 'underscore'. Ignored when grouping is 'none'." },
+                    "decimal_separator": { "type": "string", "enum": ["period", "comma"], "default": "period", "description": "The character written before the fractional digits on OUTPUT: 'period' (default, 1234.56) or 'comma' (1234,56). This is independent of input_decimal, so the tool can read a European column and write a US one, or the reverse." },
+                    "sign": { "type": "string", "enum": ["auto", "always", "except_zero", "never", "space", "parens"], "default": "auto", "description": "How the sign is shown. 'auto' (default) writes '-' on negatives only. 'always' adds '+' to zero and positives; 'except_zero' adds '+' to positives but leaves zero bare; 'never' drops the sign entirely and writes the magnitude; 'space' puts a blank where the '+' would go so a column of values lines up; 'parens' is the accounting style that wraps negatives in parentheses, as in (1,234.00). A value that rounds to zero never keeps a minus sign." },
+                    "prefix": { "type": "string", "default": "", "description": "Text placed immediately before each formatted number, inside the sign — '$' gives -$1,234.00 and, with sign='parens', ($1,234.00). Blank by default. It is inserted verbatim, so add your own trailing space if you want one." },
+                    "suffix": { "type": "string", "default": "", "description": "Text placed immediately after each formatted number, such as ' kg', ' ms' or ' USD'. Blank by default and inserted verbatim, so include the leading space yourself if you want one. For percentages prefer notation='percent', which also multiplies by 100." },
+                    "input_decimal": { "type": "string", "enum": ["auto", "dot", "comma"], "default": "auto", "description": "Which character the INCOMING cells use as their decimal mark. 'auto' (default) decides per cell: when both '.' and ',' appear the last one wins, a lone '.' is a decimal point, and a lone ',' followed by exactly three digits is read as grouping ('1,234' is one thousand two hundred and thirty-four). 'dot' forces 1,234.56 and 'comma' forces 1.234,56 — use one of those when a column of ambiguous values must be read consistently." },
+                    "non_numeric": { "type": "string", "enum": ["keep", "blank", "error"], "default": "keep", "description": "What to do with a selected cell that is not a number, such as 'n/a' or 'pending'. 'keep' (default) copies it through untouched; 'blank' replaces it with an empty cell; 'error' stops and reports the row, column and value. An EMPTY cell is always left empty in every policy — a missing value is not a zero." },
+                    "has_header": { "type": "boolean", "default": true, "description": "When true (default) row 1 is a header: its names can be used in 'columns' and it is never reformatted, so a column called 2024 stays 2024. Turn it off for a headerless table — every row is then data and columns must be given as indices or ranges." },
+                    "delimiter": { "type": "string", "default": "auto", "description": "Field separator: 'auto' (default) sniffs it from the first line, counting candidates outside quotes with comma winning a tie; or give a name ('comma', 'tab', 'semicolon', 'pipe') or any single character. The output is written with the same separator." },
+                    "quote_style": { "type": "string", "enum": ["minimal", "always", "non_numeric"], "default": "minimal", "description": "How the rewritten table is quoted. 'minimal' (default) quotes only fields that need it — a grouped value whose separator is the delimiter is re-quoted automatically. 'always' quotes every field; 'non_numeric' quotes every field that is not a number." },
+                    "output": { "type": "string", "enum": ["csv", "changed", "report"], "default": "csv", "description": "What to return: 'csv' (default) is the whole table with the format applied; 'changed' is only the rows whose selected cells actually changed, plus the header, for reviewing a format before committing to it; 'report' is a per-column audit table 'column,cells_formatted,cells_unchanged,non_numeric' with a TOTAL row and no data at all." }
+                },
+                "required": ["data"],
+                "additionalProperties": false
+            }"#,
+        )
+        .unwrap();
+        let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
+        assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
+}
