@@ -1,0 +1,25 @@
+[package]
+name = "gizza-ai-audio-feature-csv-exporter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust container demuxers + audio decoders (the same wasm-proven
+# crate + feature set blocks/mfcc-extractor and blocks/audio-rms-level-report use).
+# The FFT is hand-rolled below, so there is no other dependency.
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }
