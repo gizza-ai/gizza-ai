@@ -1,0 +1,68 @@
+slug          = "ics-timezone-shifter"
+title         = "ICS Timezone Shifter — Convert Calendar Events Between Timezones"
+description   = "Rewrite DTSTART and DTEND values in an .ics calendar from one timezone to another, preserving all-day events and emitting TZID, UTC, or floating output."
+tags          = ["ics timezone converter", "ical timezone shift", "calendar timezone", "dtstart dtend", "vtimezone", "icalendar", "timezone relabel", "calendar dst", "ics utc"]
+h1            = "ICS Timezone Shifter"
+hero_subtitle = "Paste an iCalendar file and rewrite every timed event into a new timezone. Preserve instants, repair mislabeled exports, keep all-day events fixed, and choose TZID, UTC, or floating output."
+wasm          = "gizza_ai_ics_timezone_shifter_web"
+export        = "run"
+live          = false
+output_label  = "Shifted .ics"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = ".ics calendar text"
+placeholder = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:demo@example\nDTSTART:20240310T140000Z\nDTEND:20240310T150000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "from"
+label       = "Source timezone for floating times"
+default     = ""
+placeholder = "America/New_York"
+source      = "field"
+
+[[input]]
+name        = "to"
+label       = "Target timezone"
+default     = "UTC"
+placeholder = "Europe/Berlin"
+source      = "field"
+
+[[input]]
+name    = "mode"
+label   = "Mode"
+default = "convert"
+source  = "field"
+labels  = { convert = "Convert: preserve the instant", relabel = "Relabel: keep wall-clock digits" }
+
+[[input]]
+name    = "write_as"
+label   = "Write output times as"
+default = "tzid"
+source  = "field"
+labels  = { tzid = "TZID local times + VTIMEZONE", utc = "UTC Z times", floating = "Floating local times" }
+
+[[input]]
+name   = "include_vtimezone"
+label  = "Include generated VTIMEZONE when writing TZID values"
+source = "field"
+
+[[example]]
+label  = "UTC event to Berlin TZID"
+params = { input = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:demo@example\nDTSTART:20240310T140000Z\nDTEND:20240310T150000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR", from = "UTC", to = "Europe/Berlin", mode = "convert", write_as = "tzid", include_vtimezone = "true" }
+
+[[example]]
+label  = "Floating New York times to UTC"
+params = { input = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:ny@example\nDTSTART:20240710T090000\nDTEND:20240710T100000\nSUMMARY:Call\nEND:VEVENT\nEND:VCALENDAR", from = "America/New_York", to = "UTC", mode = "convert", write_as = "utc", include_vtimezone = "false" }
+
+[[example]]
+label  = "Repair a mislabeled export"
+params = { input = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:fix@example\nDTSTART:20240710T090000Z\nDTEND:20240710T100000Z\nSUMMARY:Local appointment\nEND:VEVENT\nEND:VCALENDAR", from = "UTC", to = "America/New_York", mode = "relabel", write_as = "tzid", include_vtimezone = "true" }
+
+[[example]]
+label  = "Floating output for importers"
+params = { input = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:float@example\nDTSTART:20240310T140000Z\nDTEND:20240310T150000Z\nSUMMARY:Workshop\nEND:VEVENT\nEND:VCALENDAR", from = "UTC", to = "Europe/Berlin", mode = "convert", write_as = "floating", include_vtimezone = "false" }

@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-ics-timezone-shifter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# chrono for date arithmetic + local/UTC resolution; alloc-only, no clock needed.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }
+# chrono-tz ships the IANA tz database (DST rules baked in), pure-Rust, no I/O.
+chrono-tz = { version = "0.10", default-features = false }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ics-timezone-shifter"
+version = "0.1.0"
+abi = 1
+summary = "Shift every timed event in an .ics calendar from one timezone to another."
