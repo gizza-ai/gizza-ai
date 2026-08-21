@@ -1,0 +1,85 @@
+slug          = "wav-to-numpy-npy"
+title         = "WAV to NumPy NPY Converter — PCM Audio Array Export"
+description   = "Paste WAV bytes as base64 or hex and export decoded PCM samples as a NumPy .npy array with dtype, shape, mono, order, and frame-window controls."
+tags          = ["wav to numpy", "wav to npy", "audio array", "numpy npy", "pcm samples", "wav decoder", "scipy wavfile", "soundfile array", "audio ml preprocessing", "base64 wav"]
+h1            = "WAV to NumPy NPY Converter"
+hero_subtitle = "Convert uncompressed WAV PCM bytes into a real NumPy .npy array file. Choose dtype, layout, mono downmix, memory order, and frame windows for ML, DSP, and reproducible Python workflows."
+wasm          = "gizza_ai_wav_to_numpy_npy_web"
+export        = "run"
+live          = false
+output_label  = "NPY output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "WAV bytes"
+placeholder = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA="
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+labels = { base64 = "Base64 WAV bytes", hex = "Hex WAV bytes" }
+
+[[input]]
+name   = "dtype"
+label  = "Output dtype"
+source = "field"
+labels = { float32 = "float32 normalized", float64 = "float64 normalized", int16 = "int16 scaled", int32 = "int32 scaled", uint8 = "uint8 scaled", auto = "Auto / source dtype" }
+
+[[input]]
+name   = "shape"
+label  = "Array shape"
+source = "field"
+labels = { auto = "Auto: mono 1-D, stereo frames×channels", frames_channels = "Always frames × channels", channels_frames = "Channels × frames", flat = "Flat interleaved" }
+
+[[input]]
+name   = "mono"
+label  = "Downmix to mono"
+source = "field"
+
+[[input]]
+name   = "fortran_order"
+label  = "Fortran order"
+source = "field"
+
+[[input]]
+name        = "start_frame"
+label       = "Start frame"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_frames"
+label       = "Max frames"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output as"
+source = "field"
+labels = { base64 = "Base64 .npy", hex = "Hex .npy", info = "Info report" }
+
+[[example]]
+label  = "Base64 .npy (float32)"
+params = { input = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA=", output = "base64" }
+
+[[example]]
+label  = "SciPy-compatible dtype"
+params = { input = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA=", dtype = "auto", output = "info" }
+
+[[example]]
+label  = "Hex input to int16 NPY"
+params = { input = "524946462a00000057415645666d74201000000001000100803e0000007d0000020010006461746106000000004000e00000", input_format = "hex", dtype = "int16", output = "hex" }
+
+[[example]]
+label  = "Channels-first ML layout"
+params = { input = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA=", shape = "channels_frames", output = "info" }
+
+[[example]]
+label  = "Windowed mono info"
+params = { input = "UklGRioAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQYAAAAAQADgAAA=", mono = "true", start_frame = "1", max_frames = "2", output = "info" }
