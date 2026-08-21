@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "openapi-stub-from-json"
+version = "0.1.0"
+abi = 1
+summary = "Generate an OpenAPI 3.1 path-and-operation stub (with component schemas) from sample request and response JSON."

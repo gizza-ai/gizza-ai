@@ -1,0 +1,148 @@
+slug          = "openapi-stub-from-json"
+title         = "OpenAPI Stub from JSON — Request & Response Schema Generator"
+description   = "Generate an OpenAPI 3.1 operation stub from sample request and response JSON, with inferred schemas, parameters, examples, and YAML or JSON output."
+tags          = ["openapi stub", "json to openapi", "json schema inference", "api schema generator", "openapi 3.1", "swagger generator", "request response schema", "yaml api spec", "api documentation", "component schemas"]
+h1            = "OpenAPI Stub from JSON"
+hero_subtitle = "Paste sample request and response JSON and generate a ready-to-edit OpenAPI 3.1 path operation with inferred schemas, parameters, examples, components, and security boilerplate."
+wasm          = "gizza_ai_openapi_stub_from_json_web"
+export        = "run"
+live          = false
+output_label  = "OpenAPI document"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "request_json"
+label       = "Sample request JSON"
+placeholder = "{\n  \"name\": \"Ada Lovelace\",\n  \"email\": \"ada@example.com\",\n  \"active\": true\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "response_json"
+label       = "Sample response JSON"
+placeholder = "{\n  \"id\": 7,\n  \"name\": \"Ada Lovelace\",\n  \"email\": \"ada@example.com\",\n  \"created_at\": \"2026-08-21T07:00:00Z\"\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "method"
+label  = "HTTP method"
+source = "field"
+labels = { get = "GET", post = "POST", put = "PUT", patch = "PATCH", delete = "DELETE", head = "HEAD", options = "OPTIONS" }
+
+[[input]]
+name        = "path"
+label       = "Path"
+placeholder = "/users/{userId}"
+source      = "field"
+
+[[input]]
+name        = "query"
+label       = "Sample query string"
+placeholder = "include=profile&active=true&limit=25"
+source      = "field"
+
+[[input]]
+name        = "status"
+label       = "Response status"
+placeholder = "200"
+source      = "field"
+
+[[input]]
+name        = "content_type"
+label       = "Content type"
+placeholder = "application/json"
+source      = "field"
+
+[[input]]
+name        = "operation_id"
+label       = "Operation ID"
+placeholder = "createUser"
+source      = "field"
+
+[[input]]
+name        = "tag"
+label       = "Tag"
+placeholder = "Users"
+source      = "field"
+
+[[input]]
+name        = "title"
+label       = "API title"
+placeholder = "Sample API"
+source      = "field"
+
+[[input]]
+name        = "api_version"
+label       = "API version"
+placeholder = "1.0.0"
+source      = "field"
+
+[[input]]
+name        = "server_url"
+label       = "Server URL"
+placeholder = "https://api.example.com/v1"
+source      = "field"
+
+[[input]]
+name   = "security"
+label  = "Security"
+source = "field"
+labels = { none = "None", bearer = "Bearer token", basic = "HTTP Basic", apiKey = "X-API-Key header" }
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+labels = { yaml = "YAML", json = "JSON" }
+
+[[input]]
+name   = "components"
+label  = "Use component schemas"
+source = "field"
+
+[[input]]
+name   = "extract_nested"
+label  = "Extract nested components"
+source = "field"
+
+[[input]]
+name   = "required_props"
+label  = "Mark observed properties required"
+source = "field"
+
+[[input]]
+name   = "detect_formats"
+label  = "Detect string formats"
+source = "field"
+
+[[input]]
+name   = "include_examples"
+label  = "Include examples"
+source = "field"
+
+[[input]]
+name   = "include_error_responses"
+label  = "Add 400/500 error responses"
+source = "field"
+
+[[example]]
+label  = "Create user stub"
+params = { request_json = "{\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"active\":true}", response_json = "{\"id\":7,\"name\":\"Ada Lovelace\",\"email\":\"ada@example.com\",\"created_at\":\"2026-08-21T07:00:00Z\"}", method = "post", path = "/users", operation_id = "createUser", tag = "Users", title = "Users API" }
+
+[[example]]
+label  = "GET with path and query params"
+params = { response_json = "{\"id\":7,\"name\":\"Ada Lovelace\",\"active\":true}", method = "get", path = "/users/{userId}", query = "include=profile&active=true", operation_id = "getUser", tag = "Users" }
+
+[[example]]
+label  = "JSON output with bearer auth"
+params = { request_json = "{\"title\":\"Quarterly report\",\"owner\":{\"email\":\"ada@example.com\"}}", response_json = "{\"id\":\"550e8400-e29b-41d4-a716-446655440000\",\"status\":\"queued\"}", method = "post", path = "/reports", security = "bearer", format = "json", extract_nested = "true" }
+
+[[example]]
+label  = "Inline schema, no examples"
+params = { response_json = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Grace\",\"admin\":false}]", method = "get", path = "/users", components = "false", include_examples = "false" }
+
+[[example]]
+label  = "Error responses included"
+params = { request_json = "{\"email\":\"ada@example.com\"}", response_json = "{\"ok\":true}", path = "/sessions", security = "apiKey", include_error_responses = "true" }
