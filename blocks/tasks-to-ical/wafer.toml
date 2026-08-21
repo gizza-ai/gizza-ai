@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tasks-to-ical"
+version = "0.1.0"
+abi = 1
+summary = "Convert a todo.txt task list into an importable iCalendar (.ics) file of to-do or VEVENT entries"

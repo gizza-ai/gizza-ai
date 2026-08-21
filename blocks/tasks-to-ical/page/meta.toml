@@ -1,0 +1,124 @@
+slug          = "tasks-to-ical"
+title         = "Tasks to iCal — turn a todo.txt list into an .ics calendar file"
+description   = "Paste a todo.txt list and get an .ics file of to-do or VEVENT entries to import into Apple Reminders, Google Calendar or Outlook. Runs in your browser."
+tags          = ["todo.txt to ics", "tasks to ical", "todo to calendar", "vtodo generator", "ics task export", "todo.txt due date calendar", "import todo.txt into google calendar", "icalendar todo converter"]
+h1            = "Tasks to iCal"
+hero_subtitle = "Paste your todo.txt — due: dates, t: start dates, priorities, projects and contexts — and get back a standards-compliant .ics file of to-dos or calendar events. Nothing leaves your browser."
+wasm          = "gizza_ai_tasks_to_ical_web"
+export        = "run"
+live          = false
+output_label  = "iCalendar file"
+format        = "text"
+
+[[input]]
+name        = "tasks"
+label       = "Your todo.txt list (one task per line)"
+placeholder = "(A) Pay the hosting invoice +admin @office due:2026-08-25\nDraft the quarterly report +work t:2026-08-20 due:2026-08-28\nx 2026-08-19 2026-08-01 File the tax return +admin due:2026-08-19"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "component"
+label  = "What each task should become"
+source = "field"
+
+[input.labels]
+vtodo = "To-do (to-do) — Apple Reminders, Nextcloud Tasks, Thunderbird"
+vevent = "Event (VEVENT) — lands on the grid in every calendar app"
+
+[[input]]
+name   = "include"
+label  = "Which tasks to export"
+source = "field"
+
+[input.labels]
+dated = "Dated only — tasks with a due: or t: tag"
+all = "Everything — undated tasks come along too"
+
+[[input]]
+name   = "skip_completed"
+label  = "Leave out tasks already marked done with x"
+source = "field"
+
+[[input]]
+name        = "duration_minutes"
+label       = "Event length (minutes) for a timed deadline"
+placeholder = "60"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "1440"
+step        = "1"
+
+[[input]]
+name        = "reminder_minutes"
+label       = "Remind me this many minutes ahead (0 = no reminder)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10080"
+step        = "5"
+
+[[input]]
+name   = "timezone"
+label  = "How the times are anchored"
+source = "field"
+
+[input.labels]
+floating = "Floating — 14:30 stays 14:30 in every timezone"
+utc = "UTC — the written times are already UTC"
+
+[[input]]
+name        = "calendar_name"
+label       = "Calendar name (optional)"
+placeholder = "Work deadlines"
+source      = "field"
+
+[[example]]
+label = "Dated backlog to to-dos"
+[example.params]
+tasks = "(A) Pay the hosting invoice +admin @office due:2026-08-25\nDraft the quarterly report +work t:2026-08-20 due:2026-08-28\nBuy milk @errands"
+component = "vtodo"
+include = "dated"
+skip_completed = "false"
+duration_minutes = "60"
+reminder_minutes = "0"
+timezone = "floating"
+calendar_name = ""
+
+[[example]]
+label = "Deadlines as calendar events"
+[example.params]
+tasks = "Renew the passport +admin due:2026-09-01\nConference prep +work t:2026-08-20 due:2026-08-22"
+component = "vevent"
+include = "dated"
+skip_completed = "false"
+duration_minutes = "60"
+reminder_minutes = "0"
+timezone = "floating"
+calendar_name = "Deadlines"
+
+[[example]]
+label = "Timed deadline with a reminder"
+[example.params]
+tasks = "(A) Submit the grant application +work due:2026-08-25T14:30"
+component = "vevent"
+include = "dated"
+skip_completed = "false"
+duration_minutes = "45"
+reminder_minutes = "30"
+timezone = "floating"
+calendar_name = "Deadlines"
+
+[[example]]
+label = "Archive finished work"
+[example.params]
+tasks = "x 2026-08-19 2026-08-01 File the tax return +admin due:2026-08-19\nx 2026-08-20 2026-08-05 Ship the release +work due:2026-08-20\nStill open +work due:2026-08-30"
+component = "vtodo"
+include = "all"
+skip_completed = "false"
+duration_minutes = "60"
+reminder_minutes = "0"
+timezone = "floating"
+calendar_name = "Done in August"
