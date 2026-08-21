@@ -1,0 +1,163 @@
+{
+  "name": "gizza-ai/mel-spectrogram-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render audio as a PNG mel spectrogram for ML debugging",
+  "role": "skill",
+  "tool": {
+    "description": "Render an uploaded or pasted audio file as a mel-scaled PNG spectrogram. The tool decodes common audio containers locally, downmixes or selects a channel, optionally resamples, applies an STFT, triangular mel filterbank, dB/power scaling and a selectable colormap. It returns an image envelope plus a short report with the resolved FFT, hop, sample rate, mel bands, peak band and PNG size.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "center": {
+          "default": true,
+          "description": "Reflect-pad by n_fft/2 before framing, matching librosa center=True (default). Turn off for only complete in-file frames.",
+          "type": "boolean"
+        },
+        "channel": {
+          "default": "mix",
+          "description": "Audio channel selection before analysis: mix (default downmix to mono), left, or right. Mono sources fall back to their only channel.",
+          "enum": [
+            "mix",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "colormap": {
+          "default": "magma",
+          "description": "Color palette for the PNG: magma (default), inferno, viridis, plasma, turbo, grayscale, or grayscale_inverted.",
+          "enum": [
+            "magma",
+            "inferno",
+            "viridis",
+            "plasma",
+            "turbo",
+            "grayscale",
+            "grayscale_inverted"
+          ],
+          "type": "string"
+        },
+        "db_reference": {
+          "default": "peak",
+          "description": "dB reference for scale=db: peak maps the clip's loudest cell to the top color (default); full_scale keeps quiet clips visibly dimmer.",
+          "enum": [
+            "peak",
+            "full_scale"
+          ],
+          "type": "string"
+        },
+        "fmax": {
+          "default": 0.0,
+          "description": "Highest mel filter edge in Hz (0-24000, default 0 = Nyquist for the analysis sample rate). Values above Nyquist are clamped.",
+          "maximum": 24000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fmin": {
+          "default": 0.0,
+          "description": "Lowest mel filter edge in Hz (0-24000, default 0). Raise it to ignore rumble or telephone-band low cut.",
+          "maximum": 24000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "height": {
+          "default": 400,
+          "description": "Output height in pixels (0 = one row per mel band, otherwise 32-2048; default 400).",
+          "maximum": 2048,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hop_length": {
+          "default": 0,
+          "description": "Samples between adjacent STFT frames (0 = n_fft/4, default 512 when n_fft is 2048). Smaller hops make a wider, denser image.",
+          "maximum": 8192,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "Audio file bytes encoded as base64 or hex. Decodes WAV, AIFF, CAF, FLAC, MP3, OGG/Vorbis, MP4/M4A, MKV/WebM and AAC-ADTS; the selected channel is rendered as a PNG mel spectrogram. Limit 24 MiB input bytes and 4,000,000 decoded samples.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding used for the pasted audio bytes: base64 (default) or hex. The standalone page fills this from the uploaded file automatically.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "mel_scale": {
+          "default": "slaney",
+          "description": "Mel frequency formula: slaney (default, librosa-style area-normalized filters) or htk (classic 2595*log10 scale).",
+          "enum": [
+            "slaney",
+            "htk"
+          ],
+          "type": "string"
+        },
+        "n_fft": {
+          "default": 2048,
+          "description": "FFT and analysis-window size in samples (64-8192, default 2048). Larger windows sharpen frequency detail but blur time detail.",
+          "maximum": 8192,
+          "minimum": 64,
+          "type": "integer"
+        },
+        "n_mels": {
+          "default": 128,
+          "description": "Number of triangular mel bands before image scaling (8-512, default 128). Common ML front ends use 64, 80 or 128 bands.",
+          "maximum": 512,
+          "minimum": 8,
+          "type": "integer"
+        },
+        "resample_hz": {
+          "default": 0,
+          "description": "Resample before analysis (0 = keep the source rate, otherwise 4000-48000 Hz). Use 16000 or 22050 to match common ML pipelines.",
+          "maximum": 48000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scale": {
+          "default": "db",
+          "description": "Pixel scaling: db (default log/dB spectrogram), power (linear mel power), or magnitude (square-root power).",
+          "enum": [
+            "db",
+            "power",
+            "magnitude"
+          ],
+          "type": "string"
+        },
+        "top_db": {
+          "default": 80.0,
+          "description": "Dynamic range shown below the reference level when scale=db (10-160 dB, default 80). Lower values increase contrast.",
+          "maximum": 160,
+          "minimum": 10,
+          "type": "number"
+        },
+        "width": {
+          "default": 1000,
+          "description": "Output width in pixels (0 = one pixel per STFT frame, otherwise 32-4096; default 1000).",
+          "maximum": 4096,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "window": {
+          "default": "hann",
+          "description": "Window applied before each FFT: hann (default), hamming, blackman, or rectangular/no taper.",
+          "enum": [
+            "hann",
+            "hamming",
+            "blackman",
+            "rectangular"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

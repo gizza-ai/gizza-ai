@@ -1,0 +1,28 @@
+[package]
+name = "gizza-ai-mel-spectrogram-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust container demuxers + audio decoders (same wasm-proven
+# crate + feature set as blocks/mfcc-extractor and blocks/audio-rms-level-report).
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }
+# rustfft: the STFT engine (mixed-radix, so n_fft need not be a power of two).
+rustfft = { version = "6", default-features = false }
+# image: PNG encoding only — the spectrogram is rasterised here, never in JS.
+image = { version = "0.25", default-features = false, features = ["png"] }

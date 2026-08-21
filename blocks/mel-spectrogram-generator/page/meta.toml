@@ -1,0 +1,199 @@
+slug          = "mel-spectrogram-generator"
+title         = "Mel Spectrogram Generator"
+description   = "Render a local audio file as a PNG mel spectrogram with ML-style FFT, hop, mel-band, dB, colormap, and image-size controls."
+tags          = ["audio", "spectrogram", "mel", "machine-learning", "png", "features"]
+h1            = "Generate a Mel Spectrogram PNG"
+hero_subtitle = "Upload audio and render the mel-frequency view used by speech, music, and audio-ML pipelines. Tune FFT, hop, mel bands, scale, palette, and output size locally."
+wasm          = "gizza_ai_mel_spectrogram_generator_web"
+export        = "run"
+live          = false
+output_label  = "Mel spectrogram"
+format        = "image"
+
+[[input]]
+name   = "input"
+label  = "Audio file"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+placeholder = "base64"
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "n_fft"
+label       = "FFT / window size (samples)"
+source      = "field"
+placeholder = "2048"
+kind        = "slider"
+step        = "64"
+
+[[input]]
+name        = "hop_length"
+label       = "Hop length (samples, 0 = n_fft/4)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "64"
+
+[[input]]
+name        = "n_mels"
+label       = "Mel bands"
+source      = "field"
+placeholder = "128"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "fmin"
+label       = "Low frequency (Hz)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "fmax"
+label       = "High frequency (Hz, 0 = Nyquist)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "mel_scale"
+label       = "Mel scale"
+source      = "field"
+placeholder = "slaney"
+[input.labels]
+slaney = "Slaney / librosa-style"
+htk    = "HTK"
+
+[[input]]
+name        = "window"
+label       = "Analysis window"
+source      = "field"
+placeholder = "hann"
+[input.labels]
+hann        = "Hann"
+hamming     = "Hamming"
+blackman    = "Blackman"
+rectangular = "Rectangular"
+
+[[input]]
+name        = "scale"
+label       = "Intensity scale"
+source      = "field"
+placeholder = "db"
+[input.labels]
+db        = "dB / log"
+power     = "Linear power"
+magnitude = "Magnitude"
+
+[[input]]
+name        = "top_db"
+label       = "dB dynamic range"
+source      = "field"
+placeholder = "80"
+kind        = "slider"
+step        = "5"
+
+[[input]]
+name        = "db_reference"
+label       = "dB reference"
+source      = "field"
+placeholder = "peak"
+[input.labels]
+peak       = "Clip peak"
+full_scale = "Full scale"
+
+[[input]]
+name        = "colormap"
+label       = "Colormap"
+source      = "field"
+placeholder = "magma"
+[input.labels]
+magma              = "Magma"
+inferno            = "Inferno"
+viridis            = "Viridis"
+plasma             = "Plasma"
+turbo              = "Turbo"
+grayscale          = "Grayscale"
+grayscale_inverted = "Grayscale inverted"
+
+[[input]]
+name        = "width"
+label       = "Output width (px, 0 = natural)"
+source      = "field"
+placeholder = "1000"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "height"
+label       = "Output height (px, 0 = natural)"
+source      = "field"
+placeholder = "400"
+kind        = "slider"
+step        = "10"
+
+[[input]]
+name        = "channel"
+label       = "Channel"
+source      = "field"
+placeholder = "mix"
+[input.labels]
+mix   = "Downmix to mono"
+left  = "Left"
+right = "Right"
+
+[[input]]
+name   = "center"
+label  = "Center frames (librosa-style padding)"
+source = "field"
+
+[[input]]
+name        = "resample_hz"
+label       = "Analysis sample rate (Hz, 0 = native)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "1000"
+
+[[example]]
+label = "Librosa-style ML PNG"
+[example.params]
+n_fft = "2048"
+hop_length = "512"
+n_mels = "128"
+mel_scale = "slaney"
+scale = "db"
+colormap = "magma"
+width = "1000"
+height = "400"
+center = "true"
+
+[[example]]
+label = "Speech 16 kHz compact"
+[example.params]
+n_fft = "1024"
+hop_length = "256"
+n_mels = "80"
+fmax = "8000"
+resample_hz = "16000"
+colormap = "viridis"
+width = "800"
+height = "320"
+
+[[example]]
+label = "Natural matrix size"
+[example.params]
+width = "0"
+height = "0"
+n_mels = "64"
+colormap = "grayscale"
