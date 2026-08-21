@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/video-keyframe-timestamp-list",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "List every keyframe (I-frame) timestamp in a video as text, CSV, or JSON",
+  "role": "skill",
+  "tool": {
+    "description": "List the exact timestamps of every KEYFRAME (I-frame) in a video — the only points a player can seek to instantly and the only points a stream-copy cut can start on without re-encoding, so this is the map for lossless trimming, split planning, and checking GOP spacing. Provide the video as a url (HTTP/HTTPS) or a `ref` from a prior tool call; any container ffmpeg reads (MP4/MOV, MKV/WebM, AVI, …) with a video track, up to 32 MiB — compress or trim longer footage first. Only the first video stream is read; audio, subtitles, and cover art are ignored. `format` chooses the rendering of the `output` field: json (default, an array of {index, seconds, timecode, gap_seconds}), csv (the same columns with a header row), or text (one keyframe per line). `precision` sets the decimal places on every timestamp, 0-6 (default 3 = milliseconds). This tool MEASURES only — it never trims, re-encodes, or rewrites the video. Returns flat JSON: keyframes[] (the raw seconds), count, first, last, min_gap/max_gap/avg_gap (the spacing between consecutive keyframes), the rendered output string, and a one-line summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "How the timestamp list is rendered in `output` (default json). 'json' is an array of {index, seconds, timecode, gap_seconds} objects; 'csv' is the same columns as a header row plus one row per keyframe; 'text' is one keyframe per line (index, seconds, timecode, gap) for pasting into a seek list. All three carry the same data — the parsed numbers are always also returned in the `keyframes` array.",
+          "enum": [
+            "json",
+            "csv",
+            "text"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": 3,
+          "description": "Decimal places on every timestamp and gap, 0-6 (default 3 = milliseconds). 3 is enough to seek to the exact frame at any normal frame rate; 0 rounds to whole seconds (keyframes that land in the same second are then listed once).",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
