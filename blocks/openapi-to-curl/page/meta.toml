@@ -1,0 +1,173 @@
+slug          = "openapi-to-curl"
+title         = "OpenAPI to curl Examples"
+description   = "Generate ready-to-run curl commands from an OpenAPI or Swagger spec. Build sample path, query, header and body values locally in your browser."
+tags          = ["openapi", "swagger", "curl", "api", "http", "developer"]
+h1            = "Generate curl Commands from OpenAPI"
+hero_subtitle = "Paste an OpenAPI or Swagger document and get one runnable curl example per endpoint, with sample params, request bodies and auth placeholders."
+wasm          = "gizza_ai_openapi_to_curl_web"
+export        = "run"
+live          = false
+output_label  = "curl examples"
+format        = "text"
+
+[[input]]
+name        = "spec"
+label       = "OpenAPI / Swagger spec"
+placeholder = "Paste OpenAPI 3.x or Swagger 2.0 JSON/YAML here"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+placeholder = "auto"
+[input.labels]
+auto = "Auto-detect JSON or YAML"
+json = "JSON"
+yaml = "YAML"
+
+[[input]]
+name        = "base_url"
+label       = "Base URL override"
+placeholder = "https://api.example.com/v1"
+source      = "field"
+
+[[input]]
+name        = "auth"
+label       = "Authentication"
+source      = "field"
+placeholder = "auto"
+[input.labels]
+auto    = "Auto from security schemes"
+none    = "No credentials"
+bearer  = "Bearer token"
+basic   = "Basic auth"
+api_key = "API key"
+
+[[input]]
+name        = "auth_value"
+label       = "Credential value (optional)"
+placeholder = "leave blank for $TOKEN / $API_KEY placeholders"
+source      = "field"
+
+[[input]]
+name        = "methods"
+label       = "Method filter"
+placeholder = "get,post"
+source      = "field"
+
+[[input]]
+name        = "tags"
+label       = "Tag filter"
+placeholder = "pets,admin"
+source      = "field"
+
+[[input]]
+name        = "path_filter"
+label       = "Path contains"
+placeholder = "/pets"
+source      = "field"
+
+[[input]]
+name   = "include_optional"
+label  = "Include optional params and fields"
+source = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+placeholder = "shell"
+[input.labels]
+shell    = "Shell script with variables"
+commands = "Bare curl commands"
+markdown = "Markdown documentation"
+json     = "JSON records"
+
+[[input]]
+name   = "multiline"
+label  = "Multiline commands"
+source = "field"
+
+[[input]]
+name   = "pretty_body"
+label  = "Pretty-print JSON bodies"
+source = "field"
+
+[[input]]
+name   = "include_comments"
+label  = "Include endpoint comments"
+source = "field"
+
+[[input]]
+name        = "max_depth"
+label       = "Schema expansion depth"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 8
+step        = "1"
+
+[[example]]
+label = "Petstore shell script"
+[example.params]
+input_format      = "yaml"
+auth              = "bearer"
+output_format     = "shell"
+multiline         = "true"
+include_comments  = "true"
+max_depth         = "4"
+spec = """
+openapi: 3.0.3
+servers:
+  - url: https://petstore.example.com/v1
+paths:
+  /pets/{petId}:
+    get:
+      summary: Get a pet
+      tags: [pets]
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema: { type: integer, example: 42 }
+        - name: verbose
+          in: query
+          schema: { type: boolean, default: true }
+      responses:
+        '200': { description: OK }
+  /pets:
+    post:
+      summary: Create a pet
+      tags: [pets]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, example: Fido }
+                age: { type: integer, default: 3 }
+      responses:
+        '201': { description: Created }
+"""
+
+[[example]]
+label = "Bare GET commands only"
+[example.params]
+methods          = "get"
+output_format    = "commands"
+multiline        = "false"
+include_comments = "false"
+max_depth        = "3"
+
+[[example]]
+label = "Markdown snippets with optional fields"
+[example.params]
+include_optional = "true"
+output_format    = "markdown"
+pretty_body      = "true"
+max_depth        = "5"
