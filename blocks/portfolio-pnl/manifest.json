@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/portfolio-pnl",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Calculate profit/loss per position and overall from entry and current prices.",
+  "role": "skill",
+  "tool": {
+    "description": "Calculate profit and loss for a list of positions from the entry and current prices you provide. Accepts CSV or tab-separated rows: name, quantity, entry price, current price, optional fees, optional long/short. Returns a table with cost basis, market value, gross and net P/L, percentage return and break-even price per position, plus portfolio totals, fees, an optional capital-gains tax estimate, and the best and worst positions. Long and short both supported; no prices are fetched, every number comes from the input.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol or prefix shown before amounts, such as $, €, £, USD, or blank for no prefix.",
+          "type": "string"
+        },
+        "fee_percent": {
+          "default": 0.0,
+          "description": "Commission charged on BOTH legs of every position, as a percent of the traded amount (0.1 means 0.1% to open and 0.1% to close). Added on top of any flat fee in a row's 5th column. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "positions": {
+          "description": "Positions pasted as CSV or tab-separated rows: name, quantity, entry price, current price, optional fees, optional 'long' or 'short'. A header row is allowed. Prices may carry a currency symbol, thousands separators, or accounting parentheses. A negative quantity means a short. Example: 'AAPL, 50, 150, 187.50'.",
+          "type": "string"
+        },
+        "side": {
+          "default": "long",
+          "description": "Direction applied to every row that does not end in its own 'long'/'short' word: long (default) gains when the price rises, short gains when it falls.",
+          "enum": [
+            "long",
+            "short"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Row order: input keeps the pasted order (default), pnl ranks by net gain, pnl_percent by percentage return, value by current market value, label alphabetically.",
+          "enum": [
+            "input",
+            "pnl",
+            "pnl_percent",
+            "value",
+            "label"
+          ],
+          "type": "string"
+        },
+        "tax_rate": {
+          "default": 0.0,
+          "description": "Capital gains tax percent used for the estimated-tax line (15 means 15%). Applied to the portfolio's net gain after losses offset gains, and only when that total is positive. Default 0 (no tax lines shown).",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "positions"
+      ],
+      "type": "object"
+    }
+  }
+}

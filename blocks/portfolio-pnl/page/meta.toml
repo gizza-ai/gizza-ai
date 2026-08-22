@@ -1,0 +1,95 @@
+slug          = "portfolio-pnl"
+title         = "Portfolio P/L Calculator"
+description   = "Calculate profit and loss across long or short positions from pasted entry and current prices, with fees, tax estimates, sorting, and portfolio totals."
+tags          = ["portfolio", "pnl", "profit loss", "investing", "stocks", "crypto", "trading", "finance", "calculator"]
+h1            = "Portfolio P/L Calculator"
+hero_subtitle = "Paste positions from a spreadsheet and get per-position profit/loss, return percentage, break-even prices, fees, taxes, and portfolio totals."
+wasm          = "gizza_ai_portfolio_pnl_web"
+export        = "run"
+live          = false
+output_label  = "P/L report"
+format        = "text"
+
+[[input]]
+name        = "positions"
+label       = "Positions"
+placeholder = "Name, Quantity, Entry, Current, Fees, Dividends, Days, Side\nAAPL, 50, 150, 187.50, 9.99\nTSLA, 10, 250, 220\nGME, 100, 40, 25, 5, 0, 60, short"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "side"
+label       = "Default side"
+source      = "field"
+
+[input.labels]
+long  = "Long"
+short = "Short"
+
+[[input]]
+name        = "fee_percent"
+label       = "Percent fee"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 5
+step        = "0.01"
+
+[[input]]
+name        = "tax_rate"
+label       = "Tax rate"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 100
+step        = "0.1"
+
+[[input]]
+name        = "sort"
+label       = "Sort rows"
+source      = "field"
+
+[input.labels]
+input       = "Input order"
+pnl         = "Net P/L"
+pnl_percent = "P/L percent"
+value       = "Market value"
+label       = "Label"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+
+[[example]]
+label = "Stocks with fees and tax"
+[example.params]
+positions = "AAPL, 50, 150, 187.50, 9.99\nTSLA, 10, 250, 220"
+side = "long"
+fee_percent = "0"
+tax_rate = "15"
+sort = "input"
+currency = "$"
+
+[[example]]
+label = "Long and short book"
+[example.params]
+positions = "AAPL, 50, 150, 187.50\nGME, 100, 40, 25, 5, 0, 60, short"
+side = "long"
+fee_percent = "0.1"
+tax_rate = "0"
+sort = "pnl"
+currency = "$"
+
+[[example]]
+label = "Crypto with percent returns"
+[example.params]
+positions = "BTC, 0.25, 40000, 60000\nETH, 2, 2500, 2200"
+side = "long"
+fee_percent = "0.2"
+tax_rate = "20"
+sort = "pnl_percent"
+currency = "USD "
