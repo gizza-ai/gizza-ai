@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "kanban-board-builder"
+version = "0.1.0"
+abi = 1
+summary = "Turn a task list or freeform notes into a kanban board in Markdown or JSON"

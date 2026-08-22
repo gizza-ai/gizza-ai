@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/kanban-board-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a task list or freeform notes into a kanban board in Markdown or JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a task list or freeform notes into a structured kanban board. Pass the notes as 'tasks', one task per line (bullets and '- [ ]'/'- [x]' checkboxes optional). Each line becomes a card, routed to a column by: an explicit tag (status:doing, status=done, or a bracketed [In Progress]), a #tag naming a column, the '## Heading' or 'Heading:' section it sits under, a ticked checkbox (→ the done column), or a workflow marker in the text ('in progress', 'blocked', 'waiting on', 'needs review', and one-word markers like 'wip'/'done'/'blocked' at the start or end of a line). Anything unrouted goes to 'default_column' (or the first column). Card metadata is parsed off each line: '@name' assignee, '#tag' and '[tag]' labels, priority ('!high', 'P1', 'priority:critical'), and 'due:YYYY-MM-DD'. Set 'columns' to any comma-separated lane list (default 'To Do, In Progress, Done', max 12), 'sort_by' to order cards within a lane, 'wip_limit' to flag over-full columns, and 'format' to choose the output: markdown sections (default), a side-by-side markdown table, or a JSON board object with counts and parsed fields. Max 500 tasks.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "To Do, In Progress, Done",
+          "description": "Comma-separated column names, in board order (max 12). Example: 'Backlog, To Do, In Progress, Blocked, Done'. Names are matched loosely, so a column called 'Doing' still catches 'in progress'.",
+          "type": "string"
+        },
+        "default_column": {
+          "default": "",
+          "description": "Column that cards with no detected status land in. Empty (default) means the first column.",
+          "type": "string"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output shape. 'markdown' (default) writes one '## Column' section per lane with a checkbox list under each; 'table' writes a Markdown table with one column per lane, side by side; 'json' returns a board object with per-column counts, WIP-limit state and parsed card fields.",
+          "enum": [
+            "markdown",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "show_counts": {
+          "default": true,
+          "description": "When true (default), append the card count to each column heading, e.g. '## In Progress (2)'.",
+          "type": "boolean"
+        },
+        "sort_by": {
+          "default": "none",
+          "description": "Card order within each column. 'none' (default) keeps the order the tasks were written in; 'priority' puts critical/high first; 'due' puts the earliest due date first and undated cards last; 'text' sorts alphabetically.",
+          "enum": [
+            "none",
+            "priority",
+            "due",
+            "text"
+          ],
+          "type": "string"
+        },
+        "tasks": {
+          "description": "The task list or freeform notes, one task per line. Bullets ('-', '*', '1.') and GFM checkboxes ('- [ ]', '- [x]') are optional. Each line becomes one card; '## Heading' or 'Heading:' lines set the column for the lines beneath them.",
+          "type": "string"
+        },
+        "title": {
+          "default": "Kanban Board",
+          "description": "Board title, rendered as the '# ' heading above the columns (and as 'title' in JSON). Leave empty for no title.",
+          "type": "string"
+        },
+        "wip_limit": {
+          "default": 0,
+          "description": "Work-in-progress limit applied to every column. 0 (default) means no limit. Columns holding more cards than this are flagged '(4 / limit 3 — over WIP limit)' in Markdown and 'over_limit: true' in JSON. Advisory only — no card is ever dropped.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tasks"
+      ],
+      "type": "object"
+    }
+  }
+}
