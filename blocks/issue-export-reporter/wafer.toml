@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "issue-export-reporter"
+version = "0.1.0"
+abi = 1
+summary = "Turn a Jira or Linear CSV issue export into status, cycle-time, velocity and burndown reports."

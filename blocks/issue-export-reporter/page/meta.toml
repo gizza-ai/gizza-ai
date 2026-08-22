@@ -1,0 +1,149 @@
+slug          = "issue-export-reporter"
+title         = "Issue Export Reporter — Cycle Time, Velocity & Burndown from a CSV"
+description   = "Paste a Jira or Linear CSV issue export to get status breakdowns, lead and cycle-time percentiles, velocity per sprint, and a burndown. Runs in your browser."
+tags          = ["jira csv report", "linear export", "cycle time", "lead time", "velocity", "burndown", "flow metrics", "sprint report", "agile metrics", "percentiles"]
+h1            = "Issue Export Reporter"
+hero_subtitle = "Paste a Jira or Linear CSV issue export to see status breakdowns, lead and cycle-time percentiles, velocity per sprint, and an arrivals-vs-departures burndown. Runs locally in your browser."
+wasm          = "gizza_ai_issue_export_reporter_web"
+export        = "run"
+live          = false
+output_label  = "Report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "CSV issue export"
+placeholder = "Issue key,Status,Created,Resolved,Story Points,Sprint\nGIZ-1,Done,05/Jan/24 9:00 AM,08/Jan/24 5:00 PM,3,Sprint 1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name  = "report"
+label = "Report"
+source = "field"
+
+[input.labels]
+summary    = "Summary (overview + status + cycle time + velocity)"
+status     = "Status breakdown"
+cycle_time = "Lead & cycle time"
+velocity   = "Velocity"
+burndown   = "Burndown"
+items      = "Per-issue table"
+
+[[input]]
+name  = "format"
+label = "Output format"
+source = "field"
+
+[input.labels]
+text     = "Plain text"
+json     = "JSON"
+csv      = "CSV"
+markdown = "Markdown"
+
+[[input]]
+name  = "delimiter"
+label = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Detect automatically"
+comma     = "Comma"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name        = "columns"
+label       = "Column mapping (optional)"
+placeholder = "status=State, resolved=Done At, points=Estimate"
+source      = "field"
+
+[[input]]
+name        = "done_statuses"
+label       = "Statuses that count as done"
+placeholder = "done,closed,resolved,completed,shipped,released,merged"
+source      = "field"
+
+[[input]]
+name        = "cancelled_statuses"
+label       = "Statuses that count as cancelled"
+placeholder = "cancelled,canceled,won't do,duplicate,rejected,invalid"
+source      = "field"
+
+[[input]]
+name  = "group_by"
+label = "Group distributions by"
+source = "field"
+
+[input.labels]
+none     = "Don't group"
+assignee = "Assignee"
+type     = "Issue type"
+priority = "Priority"
+sprint   = "Sprint"
+status   = "Status"
+
+[[input]]
+name  = "period"
+label = "Bucket size"
+source = "field"
+
+[input.labels]
+auto   = "Automatic (sprints when present)"
+sprint = "Sprint"
+week   = "Week"
+month  = "Month"
+day    = "Day"
+
+[[input]]
+name  = "unit"
+label = "Time unit"
+source = "field"
+
+[input.labels]
+days  = "Days"
+hours = "Hours"
+
+[[input]]
+name  = "business_days"
+label = "Count business days only (skip weekends)"
+source = "field"
+
+[[input]]
+name        = "percentiles"
+label       = "Percentiles"
+placeholder = "50,85,95"
+source      = "field"
+
+[[example]]
+label = "Jira export"
+[example.params]
+data = "Issue key,Summary,Issue Type,Status,Priority,Assignee,Story Points,Created,Resolved,Sprint,Sprint\nGIZ-1,Login page,Story,Done,High,ana,3,05/Jan/24 9:00 AM,08/Jan/24 5:00 PM,Sprint 1,Sprint 1\nGIZ-2,Fix crash,Bug,Done,High,bo,2,05/Jan/24 9:00 AM,06/Jan/24 9:00 AM,Sprint 1,Sprint 1\nGIZ-3,Docs,Task,In Progress,Low,ana,1,06/Jan/24 9:00 AM,,Sprint 1,Sprint 2\nGIZ-4,Old idea,Task,Won't Do,Low,,5,04/Jan/24 9:00 AM,,,\nGIZ-5,Export,Story,Done,Medium,bo,8,08/Jan/24 9:00 AM,18/Jan/24 9:00 AM,Sprint 2,Sprint 2"
+report = "summary"
+format = "text"
+percentiles = "50,85,95"
+
+[[example]]
+label = "Linear export, cycle time"
+[example.params]
+data = "ID,Title,Status,Assignee,Estimate,Created,Started,Completed,Cycle Name\nENG-1,Ship it,Done,ana,3,2024-01-05T09:00:00Z,2024-01-06T09:00:00Z,2024-01-08T09:00:00Z,Cycle 4\nENG-2,Bug,Done,bo,1,2024-01-05T09:00:00Z,2024-01-05T09:00:00Z,2024-01-07T09:00:00Z,Cycle 4\nENG-3,Idea,Backlog,,2,2024-01-06T09:00:00Z,,,"
+report = "cycle_time"
+format = "text"
+percentiles = "50,85,95"
+
+[[example]]
+label = "Velocity by sprint"
+[example.params]
+data = "Issue key,Status,Story Points,Created,Resolved,Sprint\nGIZ-1,Done,3,05/Jan/24 9:00 AM,08/Jan/24 5:00 PM,Sprint 1\nGIZ-2,Done,2,05/Jan/24 9:00 AM,06/Jan/24 9:00 AM,Sprint 1\nGIZ-5,Done,8,08/Jan/24 9:00 AM,18/Jan/24 9:00 AM,Sprint 2"
+report = "velocity"
+format = "csv"
+period = "sprint"
+
+[[example]]
+label = "Weekly burndown"
+[example.params]
+data = "Issue key,Status,Created,Resolved\nGIZ-1,Done,2024-01-02,2024-01-04\nGIZ-2,Done,2024-01-03,2024-01-16\nGIZ-3,In Progress,2024-01-09,\nGIZ-4,Done,2024-01-10,2024-01-11"
+report = "burndown"
+format = "text"
+period = "week"
