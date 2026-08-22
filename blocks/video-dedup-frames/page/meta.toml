@@ -1,0 +1,73 @@
+slug          = "video-dedup-frames"
+title         = "Remove Duplicate Frames from a Video Online"
+description   = "Drop repeated frames from a screen recording or slideshow export in your browser — shrink the file, clean the timing, optionally close the pauses. Nothing uploaded."
+tags          = ["video", "duplicate frames", "remove duplicate frames", "mpdecimate", "deduplicate", "screen recording", "frame rate", "shrink video", "decimate"]
+h1            = "Remove Duplicate Frames from a Video"
+hero_subtitle = "Pick a video — repeated frames are detected and dropped in your browser, so the file shrinks and the timing stays clean. Nothing is uploaded."
+wasm          = "gizza_ai_video_dedup_frames_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "De-duplicated video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "sensitivity"
+source      = "field"
+label       = "Sensitivity (1-100)"
+placeholder = "50"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "timing"
+source = "field"
+label  = "Timing"
+
+[input.labels]
+keep     = "Keep timing — same length, variable frame rate (default)"
+constant = "Constant frame rate — even timing for editors"
+compact  = "Compact — close the gaps, shorter clip (no audio)"
+
+[[input]]
+name        = "max_fps"
+source      = "field"
+label       = "Max frame rate (optional)"
+placeholder = "30"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+auto = "Auto — keep the source container when possible"
+mp4  = "MP4 (H.264 + AAC)"
+webm = "WebM (VP9 + Opus)"
+
+[[input]]
+name        = "frac"
+source      = "field"
+label       = "Changed-area threshold (frac)"
+placeholder = "0.33"
+
+[[example]]
+label  = "Screen recording (default)"
+params = { sensitivity = "50", timing = "keep", format = "auto" }
+
+[[example]]
+label  = "60 fps capture → cap at 30"
+params = { sensitivity = "50", timing = "keep", max_fps = "30", format = "auto" }
+
+[[example]]
+label  = "Slideshow → compact"
+params = { sensitivity = "70", timing = "compact", format = "auto" }
+
+[[example]]
+label  = "Editor-friendly constant rate"
+params = { sensitivity = "50", timing = "constant", format = "mp4" }
