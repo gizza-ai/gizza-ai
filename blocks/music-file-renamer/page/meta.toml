@@ -1,0 +1,178 @@
+slug          = "music-file-renamer"
+title         = "Music File Renamer"
+description   = "Build a safe rename and folder-move plan for music files from pasted tag dumps, templates, and filesystem rules."
+tags          = ["music", "audio", "rename", "tags", "id3", "library", "files", "developer"]
+h1            = "Music File Renamer"
+hero_subtitle = "Paste exported music tags, choose a path template, then preview exactly how files would be renamed or moved without touching your filesystem."
+wasm          = "gizza_ai_music_file_renamer_web"
+export        = "run"
+live          = false
+output_label  = "Rename plan"
+format        = "text"
+
+[[input]]
+name        = "tracks"
+label       = "Music tag dump"
+placeholder = "file,artist,album,track,title\ntrack01.mp3,Tame Impala,Currents,1,Let It Happen\ntrack02.mp3,Tame Impala,Currents,2,Nangs"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+csv = "CSV"
+tsv = "TSV"
+json = "JSON"
+keyvalue = "Key=value blocks"
+
+[[input]]
+name        = "pattern"
+label       = "Target path pattern"
+placeholder = "{artist}/{album}/{track} {title}"
+source      = "field"
+
+[[input]]
+name        = "base_dir"
+label       = "Destination root"
+placeholder = "/Music/Library"
+source      = "field"
+
+[[input]]
+name        = "track_padding"
+label       = "Track number padding"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "on_missing"
+label  = "Missing tag behavior"
+source = "field"
+
+[input.labels]
+unknown = "Use placeholder"
+skip = "Skip the file"
+keep_original = "Keep original path"
+
+[[input]]
+name        = "unknown_text"
+label       = "Missing tag placeholder"
+placeholder = "Unknown"
+source      = "field"
+
+[[input]]
+name   = "charset"
+label  = "Filename safety"
+source = "field"
+
+[input.labels]
+windows = "Windows-safe"
+unix = "Unix/macOS-safe"
+ascii = "ASCII only"
+
+[[input]]
+name        = "replace_char"
+label       = "Illegal character replacement"
+placeholder = "_"
+source      = "field"
+
+[[input]]
+name   = "space_style"
+label  = "Spaces"
+source = "field"
+
+[input.labels]
+keep = "Keep spaces"
+underscore = "Use underscores"
+hyphen = "Use hyphens"
+
+[[input]]
+name   = "case_style"
+label  = "Case style"
+source = "field"
+
+[input.labels]
+keep = "Keep case"
+lower = "Lowercase"
+upper = "Uppercase"
+title = "Title Case"
+
+[[input]]
+name        = "max_component"
+label       = "Max component length"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name   = "keep_extension"
+label  = "Keep current extension"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+table = "Table"
+list = "List"
+csv = "CSV"
+json = "JSON"
+sh = "Shell script"
+
+[[example]]
+label = "Album folder plan"
+[example.params]
+tracks = "file,artist,album,track,title\ntrack01.mp3,Tame Impala,Currents,1,Let It Happen\ntrack02.mp3,Tame Impala,Currents,2,Nangs"
+input_format = "csv"
+pattern = "{artist}/{album}/{track} {title}"
+base_dir = ""
+track_padding = "2"
+on_missing = "unknown"
+unknown_text = "Unknown"
+charset = "windows"
+replace_char = "_"
+space_style = "keep"
+case_style = "keep"
+max_component = "100"
+keep_extension = "true"
+format = "table"
+
+[[example]]
+label = "ASCII slug folders"
+[example.params]
+tracks = "file\tartist\talbum\ttrack\ttitle\na.flac\tSigur Rós\tÁgætis byrjun\t3\tSvefn-g-englar"
+input_format = "tsv"
+pattern = "{artist}/{album}/{track}-{title}"
+base_dir = "Library"
+track_padding = "2"
+on_missing = "unknown"
+unknown_text = "Unknown"
+charset = "ascii"
+replace_char = "-"
+space_style = "hyphen"
+case_style = "lower"
+max_component = "80"
+keep_extension = "true"
+format = "list"
+
+[[example]]
+label = "Move script preview"
+[example.params]
+tracks = '{"tracks":[{"filename":"x.m4a","artist":"Air","album":"Moon Safari","track":"3","title":"All I Need"}]}'
+input_format = "json"
+pattern = "{albumartist|artist}/{album}/{track} {title}"
+base_dir = ""
+track_padding = "2"
+on_missing = "skip"
+unknown_text = "Unknown"
+charset = "windows"
+replace_char = "_"
+space_style = "keep"
+case_style = "keep"
+max_component = "100"
+keep_extension = "true"
+format = "sh"
