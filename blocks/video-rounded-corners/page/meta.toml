@@ -1,0 +1,121 @@
+slug          = "video-rounded-corners"
+title         = "Round Video Corners Online"
+description   = "Round the corners of a video into a card-style clip. Choose pixel or percent radius, transparent WebM/MOV corners, or a solid-color MP4 background."
+tags          = ["video", "rounded corners", "card video", "alpha", "transparent", "mp4", "webm", "ffmpeg", "social video", "mockup"]
+h1            = "Round the corners of a video"
+hero_subtitle = "Upload a clip, choose a radius, and export a card-style video with transparent corners for WebM/MOV or a solid background for MP4. The ffmpeg run happens in your browser."
+wasm          = "gizza_ai_video_rounded_corners_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Rounded video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name        = "radius"
+source      = "field"
+label       = "Corner radius"
+placeholder = "24"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "radius_unit"
+source = "field"
+label  = "Radius unit"
+
+[input.labels]
+px      = "Pixels"
+percent = "Percent of shorter side"
+
+[[input]]
+name   = "corners"
+source = "field"
+label  = "Corners to round"
+
+[input.labels]
+all    = "All four corners"
+top    = "Top corners only"
+bottom = "Bottom corners only"
+left   = "Left corners only"
+right  = "Right corners only"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Corner background"
+placeholder = "transparent or #111827"
+kind        = "color"
+default     = "transparent"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+webm = "WebM / VP9 (supports transparency)"
+mp4  = "MP4 / H.264 (needs a solid background)"
+mov  = "MOV / ProRes 4444 (supports transparency, large)"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality"
+placeholder = "75"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "keep_audio"
+source = "field"
+label  = "Keep audio"
+
+[[example]]
+label = "Transparent WebM card"
+[example.params]
+radius = "32"
+radius_unit = "px"
+corners = "all"
+background = "transparent"
+format = "webm"
+quality = "80"
+keep_audio = "true"
+
+[[example]]
+label = "Black MP4 for social"
+[example.params]
+radius = "40"
+radius_unit = "px"
+corners = "all"
+background = "#000000"
+format = "mp4"
+quality = "75"
+keep_audio = "true"
+
+[[example]]
+label = "Top corners only"
+[example.params]
+radius = "12"
+radius_unit = "percent"
+corners = "top"
+background = "#111827"
+format = "mp4"
+quality = "85"
+keep_audio = "false"
+
+[[example]]
+label = "Editor alpha MOV"
+[example.params]
+radius = "50"
+radius_unit = "percent"
+corners = "all"
+background = "transparent"
+format = "mov"
+quality = "90"
+keep_audio = "true"
