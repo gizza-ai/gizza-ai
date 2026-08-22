@@ -1,0 +1,120 @@
+{
+  "name": "gizza-ai/pdf-resize-pages",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Change a PDF's page size and scale the content to fit",
+  "role": "skill",
+  "tool": {
+    "description": "Change a PDF's page size — e.g. A4 to US Letter — and scale the existing content to fit the new page. Pick `size` from the standard presets (a4, letter, legal, a0-a6, b4, b5, tabloid, executive, statement) or 'custom' with width/height in `unit` (mm, cm, in, pt). `scale` chooses the fitting: fit (proportional, whole page visible — the default), fill (cover, edges may overflow), stretch (distort to fill exactly), or none (keep original size, centred). `zoom` adds an extra percentage on top, `margin` keeps blank space on all four sides, `orientation` forces portrait/landscape, and `pages` limits it to some pages ('all', 'odd', 'even', or '1,3-5'). Text and vector art stay vector — nothing is rasterised — and links/highlights move with the content. Provide the PDF as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "height": {
+          "default": 0.0,
+          "description": "Page height, in `unit`. Only used when size=custom.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "margin": {
+          "default": 0.0,
+          "description": "Blank margin to keep on all four sides of the new page, in `unit` (default 0). The content is fitted inside what's left.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "orientation": {
+          "default": "auto",
+          "description": "Page orientation: 'auto' (default) keeps each page's current orientation, or force 'portrait'/'landscape'.",
+          "enum": [
+            "auto",
+            "portrait",
+            "landscape"
+          ],
+          "type": "string"
+        },
+        "pages": {
+          "default": "all",
+          "description": "Which pages to resize, 1-based: 'all' (default), 'odd', 'even', or a list/range like '1,3-5'. Pages not listed keep their current size.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "scale": {
+          "default": "fit",
+          "description": "How the old content is fitted: 'fit' (default) shrinks/grows it proportionally until it all fits, 'fill' covers the page (edges may overflow), 'stretch' distorts it to fill exactly, 'none' keeps it at original size and centres it.",
+          "enum": [
+            "fit",
+            "fill",
+            "stretch",
+            "none"
+          ],
+          "type": "string"
+        },
+        "size": {
+          "default": "a4",
+          "description": "Target paper size (default a4). Use 'custom' with width/height for anything else.",
+          "enum": [
+            "a4",
+            "letter",
+            "legal",
+            "a0",
+            "a1",
+            "a2",
+            "a3",
+            "a5",
+            "a6",
+            "b4",
+            "b5",
+            "tabloid",
+            "executive",
+            "statement",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "unit": {
+          "default": "mm",
+          "description": "Unit for width/height/margin: mm (default), cm, in, or pt (1/72\").",
+          "enum": [
+            "mm",
+            "cm",
+            "in",
+            "pt"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 0.0,
+          "description": "Page width, in `unit`. Only used when size=custom (e.g. width=210 height=297 unit=mm).",
+          "minimum": 0,
+          "type": "number"
+        },
+        "zoom": {
+          "default": 100.0,
+          "description": "Extra zoom on top of `scale`, in percent (default 100 = none). Over 100 enlarges the content (it may overflow); under 100 shrinks it, leaving more whitespace.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
