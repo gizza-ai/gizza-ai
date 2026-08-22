@@ -1,0 +1,167 @@
+slug          = "line-protocol-csv-converter"
+title         = "InfluxDB Line Protocol to CSV Converter (Both Ways)"
+description   = "Convert InfluxDB line protocol to CSV and CSV back to line protocol in your browser. Annotated CSV, tag/field mapping, RFC3339 or Unix timestamps. No upload."
+tags          = ["influxdb line protocol to csv", "csv to line protocol", "line protocol converter", "influxdb csv import", "annotated csv", "influx write", "telegraf line protocol", "time series converter"]
+h1            = "InfluxDB Line Protocol ⇄ CSV Converter"
+hero_subtitle = "Turn InfluxDB line protocol into a CSV table you can open in a spreadsheet — or turn a CSV into line protocol ready for `influx write`. Handles annotated CSV, tag and field mapping, escaping, typed values and RFC3339 or Unix timestamps. Runs entirely in your browser, no upload, no sign-up."
+wasm          = "gizza_ai_line_protocol_csv_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Line protocol or CSV"
+placeholder = "cpu,host=host1,region=eu usage=64.23,busy=true 1577836800000000000"
+source      = "field"
+multiline   = true
+
+# direction / csv_layout / delimiter / timestamp_format / precision /
+# number_type / on_error render as <select>; emit_annotations and sort_keys
+# render as checkboxes — the control type is derived from the descriptor schema
+# (manifest.json), so labels here stay short.
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+"auto"      = "Auto-detect"
+"lp-to-csv" = "Line protocol → CSV"
+"csv-to-lp" = "CSV → line protocol"
+
+[[input]]
+name   = "csv_layout"
+label  = "CSV layout"
+source = "field"
+
+[input.labels]
+"wide" = "Wide (one row per point)"
+"long" = "Long (one row per field)"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+"comma"     = "Comma (,)"
+"semicolon" = "Semicolon (;)"
+"tab"       = "Tab"
+"pipe"      = "Pipe (|)"
+
+[[input]]
+name   = "timestamp_format"
+label  = "CSV time format"
+source = "field"
+
+[input.labels]
+"rfc3339" = "RFC3339 (2020-01-01T00:00:00Z)"
+"unix_ns" = "Unix nanoseconds"
+"unix_us" = "Unix microseconds"
+"unix_ms" = "Unix milliseconds"
+"unix_s"  = "Unix seconds"
+
+[[input]]
+name   = "precision"
+label  = "Line protocol precision"
+source = "field"
+
+[input.labels]
+"ns" = "Nanoseconds (ns)"
+"us" = "Microseconds (us)"
+"ms" = "Milliseconds (ms)"
+"s"  = "Seconds (s)"
+
+[[input]]
+name   = "emit_annotations"
+label  = "Add #datatype row"
+source = "field"
+
+[[input]]
+name        = "measurement"
+label       = "Measurement (CSV → LP)"
+placeholder = "cpu"
+source      = "field"
+
+[[input]]
+name        = "tag_columns"
+label       = "Tag columns (CSV → LP)"
+placeholder = "host,region"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "field_columns"
+label       = "Field columns (CSV → LP)"
+placeholder = "usage,free"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "time_column"
+label       = "Time column (CSV → LP)"
+placeholder = "time"
+source      = "field"
+
+[[input]]
+name   = "number_type"
+label  = "Whole numbers"
+source = "field"
+
+[input.labels]
+"float"   = "Float (7)"
+"integer" = "Integer (7i)"
+
+[[input]]
+name   = "sort_keys"
+label  = "Sort tag keys"
+source = "field"
+
+[[input]]
+name   = "on_error"
+label  = "On a bad row"
+source = "field"
+
+[input.labels]
+"stop" = "Stop with an error"
+"skip" = "Skip the row"
+
+[[example]]
+label = "Line protocol → CSV"
+[example.params]
+data      = "cpu,host=host1,region=eu usage=64.23,busy=true 1577836800000000000\ncpu,host=host2,region=us usage=12.5,busy=false 1577836800000000000"
+direction = "lp-to-csv"
+
+[[example]]
+label = "→ CSV with #datatype row"
+[example.params]
+data             = "mem,host=host1 used_percent=64.23 1577836800000000000"
+direction        = "lp-to-csv"
+emit_annotations = "true"
+
+[[example]]
+label = "Long layout, Unix seconds"
+[example.params]
+data             = "cpu,host=host1 usage=64.23,busy=true 1577836800000000000"
+direction        = "lp-to-csv"
+csv_layout       = "long"
+timestamp_format = "unix_s"
+
+[[example]]
+label = "CSV → line protocol"
+[example.params]
+data          = "time,host,region,usage\n2020-01-01T00:00:00Z,host1,eu,64.23\n2020-01-01T00:01:00Z,host2,us,12.5"
+direction     = "csv-to-lp"
+measurement   = "cpu"
+tag_columns   = "host,region"
+field_columns = "usage"
+time_column   = "time"
+
+[[example]]
+label = "Annotated CSV → line protocol"
+[example.params]
+data      = "#datatype measurement,tag,double,dateTime:RFC3339\nm,host,used_percent,time\nmem,host1,64.23,2020-01-01T00:00:00Z"
+direction = "csv-to-lp"

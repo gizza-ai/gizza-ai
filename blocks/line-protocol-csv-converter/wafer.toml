@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "line-protocol-csv-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert between InfluxDB line protocol and CSV in both directions."
