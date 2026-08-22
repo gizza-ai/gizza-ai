@@ -1,0 +1,78 @@
+slug          = "video-aspect-ratio-fix"
+title         = "Fix Video Aspect Ratio Online — Retag DAR Without Re-encoding"
+description   = "Repair a video that plays stretched or squashed by retagging its display aspect ratio locally with ffmpeg stream copy — no upload, no re-encode, no quality loss."
+tags          = ["fix video aspect ratio", "display aspect ratio", "DAR", "SAR", "anamorphic video", "stretched video", "squashed video", "remux", "ffmpeg"]
+h1            = "Fix Video Aspect Ratio"
+hero_subtitle = "Upload a clip that plays stretched or squashed and retag it with the right display aspect ratio. The pixels are copied bit-for-bit — only the shape the player is told to display changes."
+wasm          = "gizza_ai_video_aspect_ratio_fix_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Aspect-fixed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# aspect, custom_aspect, container, faststart.
+[[input]]
+name   = "aspect"
+source = "field"
+label  = "Display aspect ratio"
+
+[input.labels]
+"16:9"    = "16:9 — widescreen (YouTube, TV)"
+"9:16"    = "9:16 — vertical (Reels, Shorts, TikTok)"
+"4:3"     = "4:3 — classic TV / DV"
+"3:4"     = "3:4 — classic portrait"
+"1:1"     = "1:1 — square"
+"21:9"    = "21:9 — ultrawide"
+"2.39:1"  = "2.39:1 — cinemascope"
+"1.85:1"  = "1.85:1 — cinema flat"
+"5:4"     = "5:4 — early PC monitor"
+"4:5"     = "4:5 — portrait feed post"
+"3:2"     = "3:2 — classic photo"
+"2:3"     = "2:3 — portrait photo"
+"custom"  = "custom — type your own below"
+
+[[input]]
+name        = "custom_aspect"
+source      = "field"
+label       = "Custom ratio (only used when aspect = custom)"
+placeholder = "1.85"
+
+[[input]]
+name   = "container"
+source = "field"
+label  = "Output container"
+
+[input.labels]
+"keep" = "keep — same container as input (safest lossless fix)"
+"mp4"  = "mp4 — H.264/H.265/AAC compatible"
+"mkv"  = "mkv — most codec-tolerant"
+"mov"  = "mov — QuickTime / Apple"
+"webm" = "webm — VP8/VP9/Opus"
+
+[[input]]
+name   = "faststart"
+source = "field"
+label  = "Web fast-start (MP4/MOV: move index to front)"
+
+[[example]]
+label  = "Squeezed 4:3 recording → tag as 16:9"
+params = { aspect = "16:9", container = "keep", faststart = "true" }
+
+[[example]]
+label  = "Phone clip → vertical 9:16"
+params = { aspect = "9:16", container = "keep", faststart = "true" }
+
+[[example]]
+label  = "Cinemascope 2.39:1"
+params = { aspect = "2.39:1", container = "keep", faststart = "true" }
+
+[[example]]
+label  = "Custom 1.85 → streaming MP4"
+params = { aspect = "custom", custom_aspect = "1.85", container = "mp4", faststart = "true" }
