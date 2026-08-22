@@ -1,0 +1,165 @@
+slug          = "rust-module-map"
+title         = "Rust Module Map — Source to Tree, Mermaid, JSON or Paths"
+description   = "Paste Rust source and map its modules, structs, enums, traits, impl blocks, functions and visibility as a tree, Mermaid graph, JSON, or crate::path list."
+tags          = ["rust module map", "rust source tree", "rust ast viewer", "rust mermaid graph", "rust code outline", "cargo modules", "rust visibility", "rust impl methods", "rust module hierarchy"]
+h1            = "Map Rust source into a module tree"
+hero_subtitle = "Paste a lib.rs, main.rs, module file, or a multi-file Rust snippet and get the module/item hierarchy back as an indented tree, Mermaid flowchart, JSON tree, or flat crate::path list. It uses syn's Rust parser, so visibility, impl methods, traits, types, cfg(test) modules and external mod declarations are recognized without uploading code."
+wasm          = "gizza_ai_rust_module_map_web"
+export        = "run"
+live          = false
+output_label  = "Module map"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "source"
+label       = "Rust source"
+placeholder = "pub mod config {\n    pub struct Config;\n    impl Config { pub fn load() -> Self { Config } }\n}\n\nfn main() {}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+tree    = "Indented tree"
+mermaid = "Mermaid flowchart"
+json    = "JSON tree with counts"
+paths   = "Flat crate::path list"
+
+[[input]]
+name        = "max_depth"
+label       = "Maximum depth (0 = unlimited)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+default     = "0"
+
+[[input]]
+name        = "focus_on"
+label       = "Focus on module path"
+placeholder = "crate::config"
+source      = "field"
+
+[[input]]
+name        = "sort_by"
+label       = "Sort siblings by"
+source      = "field"
+
+[input.labels]
+source     = "Source order"
+name       = "Name"
+kind       = "Kind"
+visibility = "Visibility"
+
+[[input]]
+name        = "show_types"
+label       = "Show types"
+source      = "field"
+
+[[input]]
+name        = "show_traits"
+label       = "Show traits"
+source      = "field"
+
+[[input]]
+name        = "show_fns"
+label       = "Show functions and methods"
+source      = "field"
+
+[[input]]
+name        = "show_impls"
+label       = "Show impl blocks"
+source      = "field"
+
+[[input]]
+name        = "show_consts"
+label       = "Show const/static items"
+source      = "field"
+
+[[input]]
+name        = "include_tests"
+label       = "Include #[cfg(test)] and #[test] items"
+source      = "field"
+
+[[input]]
+name        = "show_visibility"
+label       = "Show visibility annotations"
+source      = "field"
+
+[[input]]
+name        = "crate_name"
+label       = "Crate root label"
+placeholder = "my_crate"
+source      = "field"
+
+[[example]]
+label = "Nested module tree"
+[example.params]
+source = "pub mod config {\n    pub struct Config;\n    impl Config { pub fn load() -> Self { Config } }\n}\n\npub trait Service { fn run(&self); }\nfn main() {}"
+format = "tree"
+max_depth = "0"
+focus_on = ""
+sort_by = "source"
+show_types = "true"
+show_traits = "true"
+show_fns = "true"
+show_impls = "true"
+show_consts = "false"
+include_tests = "false"
+show_visibility = "true"
+crate_name = ""
+
+[[example]]
+label = "Mermaid graph"
+[example.params]
+source = "pub mod api { pub struct Handler; impl Handler { pub fn route() {} } }"
+format = "mermaid"
+max_depth = "0"
+focus_on = ""
+sort_by = "source"
+show_types = "true"
+show_traits = "true"
+show_fns = "true"
+show_impls = "true"
+show_consts = "false"
+include_tests = "false"
+show_visibility = "true"
+crate_name = ""
+
+[[example]]
+label = "Include test modules"
+[example.params]
+source = "pub fn parse() {}\n\n#[cfg(test)]\nmod tests { #[test] fn parse_ok() {} }"
+format = "tree"
+max_depth = "0"
+focus_on = ""
+sort_by = "source"
+show_types = "true"
+show_traits = "true"
+show_fns = "true"
+show_impls = "true"
+show_consts = "false"
+include_tests = "true"
+show_visibility = "true"
+crate_name = ""
+
+[[example]]
+label = "Multi-file paste"
+[example.params]
+source = "=== src/lib.rs ===\npub mod util;\n\n=== src/util.rs ===\npub fn slug() {}"
+format = "paths"
+max_depth = "0"
+focus_on = ""
+sort_by = "source"
+show_types = "true"
+show_traits = "true"
+show_fns = "true"
+show_impls = "true"
+show_consts = "false"
+include_tests = "false"
+show_visibility = "true"
+crate_name = ""
