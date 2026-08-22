@@ -1,0 +1,126 @@
+slug          = "ics-agenda-view"
+title         = "ICS Agenda View — Group Calendar Events by Day and Find Free Gaps"
+description   = "Paste an iCalendar .ics file to render a day-by-day agenda, expand common recurrences, convert timezones, and list free gaps between meetings."
+tags          = ["ics agenda", "icalendar", "calendar", "free busy", "meeting gaps", "schedule", "rrule", "timezone", "calendar export", "availability"]
+h1            = "ICS Agenda View"
+hero_subtitle = "Paste an iCalendar .ics export to group events by day, expand common recurrences, convert timezones, and find free gaps between meetings."
+wasm          = "gizza_ai_ics_agenda_view_web"
+export        = "run"
+live          = false
+output_label  = "Agenda"
+format        = "text"
+
+[[input]]
+name        = "ics"
+label       = "iCalendar (.ics) text"
+placeholder = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:20260309T090000Z\nDTEND:20260309T093000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "start_date"
+label       = "Start date (optional)"
+placeholder = "2026-03-09"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "days"
+label       = "Days"
+placeholder = "7"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "timezone"
+label       = "Display timezone"
+placeholder = "UTC"
+source      = "field"
+
+[[input]]
+name        = "day_start"
+label       = "Gap window start"
+placeholder = "09:00"
+source      = "field"
+kind        = "time"
+
+[[input]]
+name        = "day_end"
+label       = "Gap window end"
+placeholder = "18:00"
+source      = "field"
+kind        = "time"
+
+[[input]]
+name        = "min_gap_minutes"
+label       = "Minimum free gap (minutes)"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name   = "show_gaps"
+label  = "Show free gaps and empty days"
+source = "field"
+
+[[input]]
+name        = "filter"
+label       = "Filter text (optional)"
+placeholder = "design"
+source      = "field"
+
+[[input]]
+name   = "expand_recurring"
+label  = "Expand recurring events"
+source = "field"
+
+[[input]]
+name   = "include_cancelled"
+label  = "Include cancelled events"
+source = "field"
+
+[[input]]
+name   = "details"
+label  = "Details"
+source = "field"
+
+[input.labels]
+compact = "Compact"
+normal  = "Normal"
+full    = "Full"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text     = "Plain text"
+markdown = "Markdown"
+json     = "JSON"
+
+[[example]]
+label = "Two meetings with free gaps"
+[example.params]
+ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:a@example\nDTSTART:20260309T090000Z\nDTEND:20260309T093000Z\nSUMMARY:Standup\nLOCATION:Room 2\nEND:VEVENT\nBEGIN:VEVENT\nUID:b@example\nDTSTART:20260309T110000Z\nDTEND:20260309T120000Z\nSUMMARY:Design review\nEND:VEVENT\nEND:VCALENDAR"
+start_date = "2026-03-09"
+days = "1"
+timezone = "UTC"
+show_gaps = "true"
+
+[[example]]
+label = "Timezone conversion"
+[example.params]
+ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:a@example\nDTSTART:20260309T090000Z\nDTEND:20260309T093000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+start_date = "2026-03-09"
+days = "1"
+timezone = "Europe/Berlin"
+show_gaps = "false"
+
+[[example]]
+label = "JSON for automation"
+[example.params]
+ics = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:a@example\nDTSTART:20260309T090000Z\nDTEND:20260309T093000Z\nSUMMARY:Standup\nEND:VEVENT\nEND:VCALENDAR"
+start_date = "2026-03-09"
+days = "1"
+output = "json"
