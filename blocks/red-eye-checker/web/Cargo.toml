@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-red-eye-checker-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+# base64: page/custom.js hands the uploaded file over as base64 (the generic
+# non-ffmpeg page driver marshals strings only).
+base64 = "0.22"
+gizza-ai-red-eye-checker-core = { path = "../core" }
