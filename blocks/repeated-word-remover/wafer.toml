@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "repeated-word-remover"
+version = "0.1.0"
+abi = 1
+summary = "Remove accidentally doubled words from text."
