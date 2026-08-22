@@ -1,0 +1,82 @@
+slug          = "audio-bit-depth-converter"
+title         = "Audio Bit Depth Converter — 24-bit to 16-bit with Dither"
+description   = "Convert audio between 8, 16, 24-bit and 32-bit float PCM with proper dithering on down-conversion. Runs in your browser, nothing is uploaded, free."
+tags          = ["audio", "bit-depth", "dither", "24-bit", "16-bit", "tpdf", "wav", "flac"]
+h1            = "Convert Audio Bit Depth"
+hero_subtitle = "Pick an audio file, a target bit depth and a dither algorithm — requantized in your browser, nothing is uploaded."
+wasm          = "gizza_ai_audio_bit_depth_converter_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Converted audio"
+format        = "audio"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*"
+label  = "Audio"
+
+[[input]]
+name        = "bit_depth"
+source      = "field"
+label       = "Target bit depth"
+placeholder = "16"
+
+[input.labels]
+"8"   = "8-bit — unsigned PCM, 48 dB range"
+"16"  = "16-bit — CD & streaming standard"
+"24"  = "24-bit — studio / mastering"
+"32f" = "32-bit float — DAW interchange"
+
+[[input]]
+name        = "dither"
+source      = "field"
+label       = "Dither (on down-conversion)"
+placeholder = "triangular"
+
+[input.labels]
+none                = "None — plain truncation"
+rectangular         = "Rectangular (RPDF) — flat"
+triangular          = "Triangular (TPDF) — standard"
+triangular_hp       = "Triangular high-pass (TPDF-HP)"
+lipshitz            = "Lipshitz — noise shaped"
+f_weighted          = "F-weighted — noise shaped"
+modified_e_weighted = "Modified E-weighted — noise shaped"
+improved_e_weighted = "Improved E-weighted — noise shaped"
+shibata             = "Shibata — noise shaped"
+low_shibata         = "Low Shibata — noise shaped"
+high_shibata        = "High Shibata — noise shaped"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+wav  = "WAV — every depth, plays everywhere"
+flac = "FLAC — compressed, 16 & 24-bit only"
+
+[[input]]
+name   = "keep_metadata"
+source = "field"
+label  = "Keep title/artist tags"
+
+[[example]]
+label  = "24 → 16-bit CD master (TPDF)"
+params = { bit_depth = "16", dither = "triangular", format = "wav" }
+
+[[example]]
+label  = "16-bit, noise-shaped (Shibata)"
+params = { bit_depth = "16", dither = "shibata", format = "wav" }
+
+[[example]]
+label  = "24-bit FLAC archive"
+params = { bit_depth = "24", dither = "triangular", format = "flac" }
+
+[[example]]
+label  = "32-bit float for a DAW"
+params = { bit_depth = "32f", dither = "none", format = "wav" }
+
+[[example]]
+label  = "8-bit lo-fi WAV"
+params = { bit_depth = "8", dither = "triangular_hp", format = "wav" }
