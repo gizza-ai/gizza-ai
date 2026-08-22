@@ -1,0 +1,38 @@
+{
+  "name": "gizza-ai/jmespath-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Evaluate a JMESPath expression against JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Filter and reshape a JSON document with a JMESPath expression, using the pure-Rust reference engine. JMESPath is the query language behind the AWS CLI --query flag: it can project fields ('people[*].name'), filter ('people[?state == `WA`]', 'people[?age > `30`]'), slice ('items[:3]'), flatten nested arrays ('people[].skills[]'), pipe ('people[*].name | [0]'), construct new shapes with multiselect hashes/lists ('people[0].{who: name, howOld: age}'), and call built-ins (length, sort_by, max_by, min_by, join, keys, values, to_string, contains, starts_with, map, reverse, sum, avg). An expression always evaluates to exactly ONE JSON value — 'null' when nothing matches, which is a result and not an error. The serialized value is returned in `result` and its JSON type in `kind`; pretty=true (the default) indents it, raw=true emits strings unquoted the way `aws --output text` does. String literals use single quotes; JSON literals use backticks.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "expression": {
+          "description": "The JMESPath expression — the same syntax as the AWS CLI --query flag. Examples: 'people[*].name', \"people[?state == 'WA'].name\", 'people[?age > `30`]', 'sort_by(people, &age)[0]', 'people[0].{who: name, howOld: age}', 'length(items)'. Quote string literals with single quotes and JSON literals with backticks.",
+          "type": "string"
+        },
+        "json": {
+          "description": "The JSON document to query.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print (indent by 2 spaces) the JSON result. Default true; set false for compact single-line JSON.",
+          "type": "boolean"
+        },
+        "raw": {
+          "default": false,
+          "description": "Emit strings unquoted, like `aws --output text` or `jq -r`: a string result loses its quotes and a top-level array prints one element per line. Non-string results are unchanged. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "expression",
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}

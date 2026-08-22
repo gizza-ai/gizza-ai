@@ -1,0 +1,58 @@
+slug          = "jmespath-query"
+title         = "JMESPath Query Tool"
+description   = "Filter and reshape JSON with a JMESPath expression locally in your browser, including AWS CLI --query style projections, filters, functions, and raw output."
+tags          = ["jmespath", "json", "query", "aws cli", "developer", "filter", "transform", "data"]
+h1            = "JMESPath Query Tool"
+hero_subtitle = "Paste JSON, enter a JMESPath expression, and evaluate projections, filters, slices, functions, and multiselect objects without uploading data."
+wasm          = "gizza_ai_jmespath_query_web"
+export        = "run"
+live          = false
+output_label  = "JMESPath result"
+format        = "text"
+
+[[input]]
+name        = "expression"
+label       = "JMESPath expression"
+placeholder = "people[?age > `30`].{name: name, state: state}"
+source      = "field"
+
+[[input]]
+name        = "json"
+label       = "JSON document"
+placeholder = "{\"people\":[{\"name\":\"Alice\",\"age\":34,\"state\":\"WA\"},{\"name\":\"Bob\",\"age\":25,\"state\":\"OR\"},{\"name\":\"Carol\",\"age\":41,\"state\":\"WA\"}]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[input]]
+name   = "raw"
+label  = "Raw strings / lines"
+source = "field"
+
+[[example]]
+label = "Project names"
+[example.params]
+expression = "people[*].name"
+json = "{\"people\":[{\"name\":\"Alice\",\"age\":34,\"state\":\"WA\"},{\"name\":\"Bob\",\"age\":25,\"state\":\"OR\"},{\"name\":\"Carol\",\"age\":41,\"state\":\"WA\"}]}"
+pretty = "true"
+raw = "false"
+
+[[example]]
+label = "Filter and reshape"
+[example.params]
+expression = "people[?age > `30`].{name: name, state: state}"
+json = "{\"people\":[{\"name\":\"Alice\",\"age\":34,\"state\":\"WA\"},{\"name\":\"Bob\",\"age\":25,\"state\":\"OR\"},{\"name\":\"Carol\",\"age\":41,\"state\":\"WA\"}]}"
+pretty = "true"
+raw = "false"
+
+[[example]]
+label = "AWS-style raw output"
+[example.params]
+expression = "people[*].name"
+json = "{\"people\":[{\"name\":\"Alice\"},{\"name\":\"Bob\"},{\"name\":\"Carol\"}]}"
+pretty = "false"
+raw = "true"
