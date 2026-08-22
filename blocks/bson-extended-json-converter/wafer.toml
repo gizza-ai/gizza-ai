@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bson-extended-json-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert MongoDB Extended JSON to and from plain JSON"
