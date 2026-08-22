@@ -1,0 +1,93 @@
+slug          = "csv-numeric-column-extractor"
+title         = "CSV Numeric Column Extractor — pull the number columns out of a CSV"
+description   = "Paste a CSV or TSV and get back only the columns that are fully numeric, as typed JSON arrays, records, CSV or a name list. Runs in your browser."
+tags          = ["csv numeric columns", "extract numeric columns csv", "csv column types", "csv to json arrays", "detect number columns", "csv numeric filter", "tsv numeric columns"]
+h1            = "CSV Numeric Column Extractor"
+hero_subtitle = "Paste a CSV or TSV and see which columns are actually numeric. Every qualifying column comes back as a typed array with its header — and every rejected column comes back with the reason. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_csv_numeric_column_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Numeric columns"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV or TSV text"
+placeholder = "id,name,score\n1,Alice,9.5\n2,Bob,7"
+source      = "field"
+multiline   = true
+
+# delimiter/header/output render as <select>s; the options come from the descriptor schema.
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma ,"
+tab       = "Tab"
+semicolon = "Semicolon ;"
+pipe      = "Pipe |"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+auto    = "Auto-detect"
+present = "First row is a header"
+absent  = "No header (generate names)"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+columns = "Typed arrays + skip reasons (JSON)"
+records = "Row objects (JSON)"
+csv     = "Numeric columns as CSV"
+names   = "Column names only"
+
+[[input]]
+name        = "null_tokens"
+label       = "Null tokens (comma-separated)"
+placeholder = "NA,N/A,NULL,null,None,nan"
+source      = "field"
+
+[[input]]
+name   = "allow_blanks"
+label  = "Allow blank cells in a numeric column"
+source = "field"
+
+[[input]]
+name        = "min_numeric_ratio"
+label       = "Minimum numeric share"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name   = "normalize"
+label  = "Accept $1,234.50 / 45% / (500) formatting"
+source = "field"
+
+[[example]]
+label  = "Typed arrays"
+params = { data = "id,name,score\n1,Alice,9.5\n2,Bob,7", output = "columns" }
+
+[[example]]
+label  = "Accounting figures"
+params = { data = "region,revenue,margin\nEMEA,\"$1,234.50\",45%\nAPAC,\"$2,000\",(500)", output = "csv" }
+
+[[example]]
+label  = "Headerless grid"
+params = { data = "10;20;30\n40;50;60", output = "names" }
+
+[[example]]
+label  = "Tolerate 75% numeric"
+params = { data = "reading\n1\n2\n3\npending", min_numeric_ratio = "0.75", output = "columns" }

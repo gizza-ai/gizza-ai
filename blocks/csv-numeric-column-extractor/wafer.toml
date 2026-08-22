@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-numeric-column-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Find a CSV's numeric columns and return them as typed arrays with headers."
