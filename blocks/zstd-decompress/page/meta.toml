@@ -1,0 +1,93 @@
+slug          = "zstd-decompress"
+title         = "Zstandard Decompress — Decode a .zst Payload from Base64 or Hex"
+description   = "Paste a Zstandard (.zst) payload as Base64 or hex and read what's inside. Output as text, hex, or Base64, with size stats and frame details."
+tags          = ["zstd", "zstandard", "zstd decompress", "zstd decoder", ".zst", "content-encoding zstd", "rfc 8878", "base64", "hex", "frame info"]
+h1            = "Zstandard Decompress"
+hero_subtitle = "Decode a Zstandard-compressed payload — an HTTP body served with content-encoding: zstd, a Kafka or ClickHouse blob, or a .zst chunk from a log — straight back to readable text. Paste it as Base64 or hex and the original bytes appear. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_zstd_decompress_web"
+export        = "run"
+live          = false
+output_label  = "Decompressed output"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Zstd payload"
+placeholder = "KLUv/SQ3nQEAcsMLEaBtDNw9rldW0gajapZ9/r8hcx9z4YXGER2Mozpry+BkUNFFuO1RbLAWPcy2vWUA22iyIw=="
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "encoding"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect (default)"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output"
+label  = "Show result as"
+source = "field"
+
+[input.labels]
+text   = "Text (UTF-8, default)"
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "stats"
+label  = "Show size and ratio stats"
+source = "field"
+
+[[input]]
+name   = "frame_info"
+label  = "Show zstd frame details"
+source = "field"
+
+[[example]]
+label = "JSON API response"
+[example.params]
+data = "KLUv/SQ3nQEAcsMLEaBtDNw9rldW0gajapZ9/r8hcx9z4YXGER2Mozpry+BkUNFFuO1RbLAWPcy2vWUA22iyIw=="
+encoding = "auto"
+output = "text"
+stats = "false"
+frame_info = "false"
+
+[[example]]
+label = "Hex-encoded text"
+[example.params]
+data = "28b52ffd240a51000068656c6c6f207a737464cfdb609c"
+encoding = "hex"
+output = "text"
+stats = "false"
+frame_info = "false"
+
+[[example]]
+label = "High-ratio blob with stats"
+[example.params]
+data = "KLUv/aTQAQEA9QAAsGdpenphIHpzdGQgZGVjb21wcmVzcyABAG4DMp9NjjSaNQ=="
+encoding = "base64"
+output = "text"
+stats = "true"
+frame_info = "false"
+
+[[example]]
+label = "Frame report"
+[example.params]
+data = "UCpNGA0AAABnaXp6YS1tZXRhOnYxKLUv/SQKUQAAaGVsbG8genN0ZM/bYJw="
+encoding = "base64"
+output = "text"
+stats = "false"
+frame_info = "true"
+
+[[example]]
+label = "Binary output as hex"
+[example.params]
+data = "KLUv/SQKUQAAaGVsbG8genN0ZM/bYJw="
+encoding = "base64"
+output = "hex"
+stats = "false"
+frame_info = "false"

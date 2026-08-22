@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/zstd-decompress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a Zstandard (.zst) payload from Base64 or hex to text, hex, or Base64.",
+  "role": "skill",
+  "tool": {
+    "description": "Decompress a Zstandard (RFC 8878, .zst) payload — the codec behind HTTP content-encoding: zstd, Kafka and ClickHouse records, and modern package and log archives — and show what is inside it. Paste the compressed blob in 'data' as Base64 or hex; encoding='auto' (default) decodes both ways and keeps whichever starts with the zstd magic number 28 b5 2f fd. Because zstd has that magic number, a wrong-codec blob is named before any decode is attempted: gzip, zlib, xz, raw LZMA, LZ4, bzip2, ZIP, 7-Zip, and tar inputs are reported along with the sibling tool that handles them. Choose output='text' (default, UTF-8), 'hex', or 'base64'; stats=true adds sizes, the compression ratio, and frame counts; frame_info=true adds a per-frame report of window size, declared content size, dictionary ID, and xxHash-32 content-checksum verification. Concatenated multi-frame streams decode in full instead of stopping after the first frame, skippable metadata frames are stepped over, and a checksum mismatch is a hard error rather than a silent pass. Dictionary-compressed frames cannot be decoded without the dictionary and error naming their Dictionary_ID. Limits: 8 MiB compressed in, 16 MiB decompressed out. For a .zst FILE by URL or ref, use file-compressor with operation=decompress format=zstd instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The Zstandard-compressed payload, encoded per 'encoding' — e.g. a Base64 copy of an HTTP body served with content-encoding: zstd, a Kafka or ClickHouse record, or a hex dump of a .zst blob. ASCII whitespace and line breaks are ignored, so a wrapped paste works. Max 8 MiB compressed.",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "How the payload in 'data' is encoded: 'auto' (default — decodes the paste as both hex and Base64 and keeps whichever yields the zstd magic number 28 b5 2f fd), 'base64' (standard or URL-safe, padding optional), or 'hex' (an optional 0x prefix is ignored).",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "frame_info": {
+          "default": false,
+          "description": "Prepend a per-frame structural report: for each data frame its compressed and decompressed size, the decoder window size, the content size the encoder declared (or that it declared none), the dictionary ID, and whether the trailing xxHash-32 content checksum was present and verified; skippable frames are listed with their magic number and payload size. Default false returns only the payload.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "text",
+          "description": "How to render the decompressed bytes: 'text' (default, UTF-8 — errors if the result is binary), 'hex' (lowercase, binary-safe), or 'base64'.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": false,
+          "description": "Prepend a size summary — compressed bytes, decompressed bytes, the decompressed/compressed ratio, the percentage of space saved, and how many data and skippable frames the stream held — before the payload. Default false returns only the payload.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
