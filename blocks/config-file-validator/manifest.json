@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/config-file-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate JSON, YAML, TOML, INI or XML config syntax",
+  "role": "skill",
+  "tool": {
+    "description": "Validate the syntax of a pasted config file and report line/column diagnostics. Pass the file text as `input` and choose `format=auto` (default) or force `json`, `yaml`, `toml`, `ini` or `xml`. The human `report` output names the detected/specified format, says whether the file is valid, and shows parser errors with source context and targeted hints; `report_format=json` returns a machine-readable diagnostic object. `strict=true` adds portability warnings after syntax passes, including duplicate JSON keys, tab indentation, BOMs and mixed line endings. Everything runs locally with pure parsers; no network or file access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "context_lines": {
+          "default": 2,
+          "description": "Number of source lines to show before and after each diagnostic in the human report, from 0 to 10. Default 2. Ignored for report_format=json.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Which parser to use. 'auto' ranks likely formats from the text and keeps the first parser that succeeds; choose a specific format to get that parser's exact line and column error.",
+          "enum": [
+            "auto",
+            "json",
+            "yaml",
+            "toml",
+            "ini",
+            "xml"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The config file contents to validate, pasted as text. Supports JSON, YAML (including multi-document streams), TOML, INI-style key/value files and XML. Up to 1 MiB.",
+          "type": "string"
+        },
+        "report_format": {
+          "default": "report",
+          "description": "Output style. 'report' is a human-readable diagnostic with line/column and source context; 'json' returns a machine-readable object with valid, format, counts and diagnostics.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "Add portability warnings after syntax passes: duplicate JSON keys, tab indentation, BOMs and mixed line endings. Warnings do not make the file invalid. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-config-file-validator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# One real parser per format, all proven wasm-safe elsewhere in this repo:
+# serde_json (json-error-locator), serde_yml (yaml-formatter/json-yaml-convert),
+# toml (json-yaml-convert/config-merge) and quick-xml (xml-formatter). INI has no
+# specification, so it is checked by the hand-rolled scanner in src/lib.rs.
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_yml = "0.0.12"
+toml = "0.8"
+quick-xml = { version = "0.40", default-features = false }
