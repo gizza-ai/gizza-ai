@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "elasticsearch-mapping-generator"
+version = "0.1.0"
+abi = 1
+summary = "Infer an Elasticsearch index mapping from a sample JSON document"

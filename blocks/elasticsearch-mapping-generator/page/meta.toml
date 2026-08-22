@@ -1,0 +1,199 @@
+slug          = "elasticsearch-mapping-generator"
+title         = "Elasticsearch mapping generator — JSON sample to index mapping"
+description   = "Paste JSON and generate an Elasticsearch mapping with text/keyword fields, date and numeric detection, nested arrays, ip, geo_point, and create-index output."
+tags          = ["elasticsearch mapping generator", "json to elasticsearch mapping", "index mapping", "create index body", "nested vs object", "text keyword multi-field"]
+h1            = "Elasticsearch mapping generator"
+hero_subtitle = "Paste one sample document — or an array of them — and get an explicit index mapping instead of letting dynamic mapping guess. Choose the string strategy, numeric widths, nested arrays, and whether to wrap it in a full create-index body."
+wasm          = "gizza_ai_elasticsearch_mapping_generator_web"
+export        = "run"
+live          = false
+output_label  = "Mapping"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "json"
+label       = "Sample JSON document (or an array of documents)"
+placeholder = "{\"id\": 1, \"title\": \"Hello\", \"published_at\": \"2026-01-02T03:04:05Z\", \"views\": 42}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output shape"
+source      = "field"
+
+[input.labels]
+"mappings"     = "Mapping body ({\"mappings\": …})"
+"create-index" = "Full create-index body (settings + mappings)"
+"properties"   = "Field properties only"
+
+[[input]]
+name        = "text_fields"
+label       = "String fields"
+source      = "field"
+
+[input.labels]
+text_keyword = "text + .keyword sub-field (Elasticsearch default)"
+keyword      = "keyword only (exact match, sort, aggregate)"
+text         = "text only (full-text search)"
+
+[[input]]
+name        = "ignore_above"
+label       = "ignore_above for keyword fields (0 = omit)"
+placeholder = "256"
+source      = "field"
+
+[[input]]
+name        = "analyzer"
+label       = "Analyzer for text fields (blank = standard)"
+placeholder = "english"
+source      = "field"
+
+[[input]]
+name        = "integer_type"
+label       = "Whole-number type"
+source      = "field"
+
+[input.labels]
+long    = "long (64-bit, Elasticsearch default)"
+integer = "integer (32-bit)"
+short   = "short (16-bit)"
+
+[[input]]
+name        = "float_type"
+label       = "Fractional-number type"
+source      = "field"
+
+[input.labels]
+float      = "float (32-bit, Elasticsearch default)"
+double     = "double (64-bit)"
+half_float = "half_float (16-bit)"
+
+[[input]]
+name   = "date_detection"
+label  = "Detect date strings"
+source = "field"
+
+[[input]]
+name   = "numeric_detection"
+label  = "Detect numbers written as strings"
+source = "field"
+
+[[input]]
+name   = "detect_ip"
+label  = "Detect IPv4/IPv6 addresses as ip fields"
+source = "field"
+
+[[input]]
+name   = "detect_geo_point"
+label  = "Detect {lat, lon} objects as geo_point"
+source = "field"
+
+[[input]]
+name        = "array_objects"
+label       = "Arrays of objects"
+source      = "field"
+
+[input.labels]
+object = "object (flattened, Elasticsearch default)"
+nested = "nested (query within one element)"
+
+[[input]]
+name        = "dynamic"
+label       = "Policy for fields not in the sample"
+source      = "field"
+
+[input.labels]
+"true"    = "true — map and index them"
+"false"   = "false — store, do not index"
+"strict"  = "strict — reject the document"
+"runtime" = "runtime — add as runtime fields"
+
+[[input]]
+name        = "shards"
+label       = "number_of_shards (create-index only)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "replicas"
+label       = "number_of_replicas (create-index only)"
+placeholder = "1"
+source      = "field"
+
+[[example]]
+label = "Typical document"
+[example.params]
+json = "{\"id\": 1, \"title\": \"Hello world\", \"body\": \"A short article about search.\", \"views\": 42, \"rating\": 4.5, \"published\": true, \"published_at\": \"2026-01-02T03:04:05Z\", \"tags\": [\"search\", \"elasticsearch\"]}"
+output = "mappings"
+text_fields = "text_keyword"
+ignore_above = "256"
+analyzer = ""
+integer_type = "long"
+float_type = "float"
+date_detection = "true"
+numeric_detection = "false"
+detect_ip = "false"
+detect_geo_point = "false"
+array_objects = "object"
+dynamic = "true"
+shards = "1"
+replicas = "1"
+
+[[example]]
+label = "Nested order lines + geo_point"
+[example.params]
+json = "{\"order_id\": \"A-1001\", \"customer\": {\"name\": \"Ada\", \"email\": \"ada@example.com\"}, \"ship_to\": {\"lat\": 48.8566, \"lon\": 2.3522}, \"lines\": [{\"sku\": \"W-1\", \"qty\": 2, \"price\": 9.99}, {\"sku\": \"G-7\", \"qty\": 1, \"price\": 14.5}]}"
+output = "mappings"
+text_fields = "text_keyword"
+ignore_above = "256"
+analyzer = ""
+integer_type = "long"
+float_type = "float"
+date_detection = "true"
+numeric_detection = "false"
+detect_ip = "false"
+detect_geo_point = "true"
+array_objects = "nested"
+dynamic = "true"
+shards = "1"
+replicas = "1"
+
+[[example]]
+label = "Log lines → strict create-index body"
+[example.params]
+json = "[{\"@timestamp\": \"2026-01-02T03:04:05Z\", \"client_ip\": \"203.0.113.7\", \"status\": \"200\", \"path\": \"/api/v1/search\", \"took_ms\": 12}, {\"@timestamp\": \"2026-01-02T03:04:09Z\", \"client_ip\": \"2001:db8::1\", \"status\": \"404\", \"path\": \"/api/v1/missing\", \"took_ms\": 3.5}]"
+output = "create-index"
+text_fields = "keyword"
+ignore_above = "256"
+analyzer = ""
+integer_type = "long"
+float_type = "float"
+date_detection = "true"
+numeric_detection = "true"
+detect_ip = "true"
+detect_geo_point = "false"
+array_objects = "object"
+dynamic = "strict"
+shards = "3"
+replicas = "1"
+
+[[example]]
+label = "English analyzer, text only"
+[example.params]
+json = "{\"headline\": \"Running shoes reviewed\", \"summary\": \"We ran 200 miles in twelve pairs of running shoes.\"}"
+output = "properties"
+text_fields = "text"
+ignore_above = "256"
+analyzer = "english"
+integer_type = "long"
+float_type = "float"
+date_detection = "true"
+numeric_detection = "false"
+detect_ip = "false"
+detect_geo_point = "false"
+array_objects = "object"
+dynamic = "true"
+shards = "1"
+replicas = "1"
