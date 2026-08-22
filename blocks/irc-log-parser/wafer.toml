@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "irc-log-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse raw IRC, WeeChat or irssi logs into a structured, readable timeline"

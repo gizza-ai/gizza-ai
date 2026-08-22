@@ -1,0 +1,187 @@
+slug          = "irc-log-parser"
+title         = "IRC Log Parser"
+description   = "Parse raw IRC logs from WeeChat, irssi, mIRC, ZNC or HexChat into a readable timeline, or export them as JSON, NDJSON, CSV or a Markdown table."
+tags          = ["irc", "irc log", "weechat", "irssi", "hexchat", "mirc", "znc", "log parser", "chat log", "timeline"]
+h1            = "IRC Log Parser"
+hero_subtitle = "Paste a raw log from WeeChat, irssi, mIRC, ZNC or HexChat and get one clean timeline — or a JSON, NDJSON, CSV or Markdown export with every join, part, quit, kick, mode and topic typed."
+wasm          = "gizza_ai_irc_log_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed log"
+format        = "text"
+
+[[input]]
+name        = "log"
+label       = "IRC log"
+placeholder = "--- Log opened Fri Jan 05 20:00:00 2024\n21:07 <alice> shipping the parser tonight\n21:07 -!- bob [~bob@example.net] has joined #gizza\n21:11 -!- alice [~a@example.net] has quit [Ping timeout: 240 seconds]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Log format"
+source = "field"
+
+[input.labels]
+auto = "Detect automatically"
+weechat = "WeeChat (date TAB nick TAB text)"
+irssi = "irssi (21:07 <nick> text)"
+bracket = "mIRC / ZNC / EnergyMech ([21:07:33])"
+hexchat = "HexChat / XChat (Jan 05 21:07:33)"
+iso = "ISO date and time (2024-01-05 21:07:33)"
+plain = "No timestamps"
+
+[[input]]
+name   = "output"
+label  = "Export as"
+source = "field"
+
+[input.labels]
+timeline = "Readable timeline"
+json = "JSON (array of records)"
+ndjson = "NDJSON (one record per line)"
+csv = "CSV (spreadsheet columns)"
+markdown = "Markdown table"
+
+[[input]]
+name        = "date"
+label       = "Base date"
+placeholder = "2024-01-05 (for logs with a time only)"
+source      = "field"
+
+[[input]]
+name   = "time_format"
+label  = "Timestamps"
+source = "field"
+
+[input.labels]
+iso = "ISO (2024-01-05T21:07:33)"
+"24h" = "24-hour (21:07:33)"
+"12h" = "12-hour (9:07:33 PM)"
+original = "Keep as written"
+none = "Drop timestamps"
+
+[[input]]
+name   = "include"
+label  = "Include"
+source = "field"
+
+[input.labels]
+all = "Everything"
+messages = "Messages only (no joins or parts)"
+events = "Events only (joins, parts, modes)"
+
+[[input]]
+name        = "nicks"
+label       = "Only these nicks"
+placeholder = "alice, bob* (leave empty for everyone)"
+source      = "field"
+
+[[input]]
+name        = "channel"
+label       = "Assume channel"
+placeholder = "#gizza (for logs that never name it)"
+source      = "field"
+
+[[input]]
+name   = "strip_formatting"
+label  = "Strip colour and formatting codes"
+source = "field"
+
+[[input]]
+name   = "include_raw"
+label  = "Keep the original line"
+source = "field"
+
+[[input]]
+name        = "limit"
+label       = "Record limit"
+placeholder = "0 for no limit"
+source      = "field"
+
+[[example]]
+label = "irssi channel log"
+[example.params]
+log = """
+--- Log opened Fri Jan 05 20:00:00 2024
+21:07 <alice> shipping the parser tonight
+21:07 -!- bob [~bob@example.net] has joined #gizza
+21:08  * alice waves
+21:09 <bob> nice, I'll review it
+21:10 -!- mode/#gizza [+o bob] by alice
+21:11 -!- alice [~a@example.net] has quit [Ping timeout: 240 seconds]
+"""
+format = "auto"
+output = "timeline"
+date = ""
+time_format = "iso"
+include = "all"
+nicks = ""
+channel = "#gizza"
+strip_formatting = "true"
+include_raw = "false"
+limit = "0"
+
+[[example]]
+label = "WeeChat log to CSV"
+[example.params]
+log = """
+2024-01-05 21:07:33\talice\tshipping the parser tonight
+2024-01-05 21:07:40\t-->\tbob (~bob@example.net) has joined #gizza
+2024-01-05 21:08:02\tbob\tnice, I'll review it
+2024-01-05 21:08:30\t *\talice waves
+2024-01-05 21:09:10\t<--\tbob (~bob@example.net) has quit (Client Quit)
+"""
+format = "weechat"
+output = "csv"
+date = ""
+time_format = "iso"
+include = "all"
+nicks = ""
+channel = "#gizza"
+strip_formatting = "true"
+include_raw = "false"
+limit = "0"
+
+[[example]]
+label = "mIRC / ZNC session to JSON"
+[example.params]
+log = """
+[21:07:33] <alice> shipping the parser tonight
+[21:07:40] *** Joins: bob (~bob@example.net)
+[21:08:02] <bob> nice, I'll review it
+[21:08:30] * carol was kicked by alice (spam)
+[21:09:00] * alice sets mode: +m
+"""
+format = "bracket"
+output = "json"
+date = "2024-01-05"
+time_format = "iso"
+include = "all"
+nicks = ""
+channel = "#gizza"
+strip_formatting = "true"
+include_raw = "false"
+limit = "0"
+
+[[example]]
+label = "Just the conversation"
+[example.params]
+log = """
+--- Log opened Fri Jan 05 20:00:00 2024
+21:07 <alice> shipping the parser tonight
+21:07 -!- bob [~bob@example.net] has joined #gizza
+21:08  * alice waves
+21:09 <bob> nice, I'll review it
+21:11 -!- alice [~a@example.net] has quit [Ping timeout: 240 seconds]
+"""
+format = "irssi"
+output = "timeline"
+date = ""
+time_format = "24h"
+include = "messages"
+nicks = ""
+channel = "#gizza"
+strip_formatting = "true"
+include_raw = "false"
+limit = "0"
