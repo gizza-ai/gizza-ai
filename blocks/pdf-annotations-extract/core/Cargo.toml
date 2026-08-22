@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-pdf-annotations-extract-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Same wasm-safe pin/features the other PDF blocks use (pdf-extract-text,
+# pdf-to-markdown, pdf-form-data-extract): pure Rust, no native libs.
+lopdf = { version = "=0.36.0", default-features = false }

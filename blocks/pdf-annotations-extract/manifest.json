@@ -1,0 +1,96 @@
+{
+  "name": "gizza-ai/pdf-annotations-extract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract PDF comments, highlights and sticky notes with pages and authors",
+  "role": "skill",
+  "tool": {
+    "description": "Collect every comment, highlight, sticky note, free-text callout, drawing, stamp and link annotation in a PDF, each with its page number, author, timestamp, colour, typed comment, and — for text markup — the page text the annotation covers. Provide the file via `url` (a public http/https link) or `ref` (an uploaded attachment id). Choose `format` (json/csv/markdown/text), narrow with `types` (all/markup/highlight/underline/strikeout/squiggly/note/freetext/drawing/stamp/link), `pages` (\"1,4-6\"), or `author` (case-insensitive substring), order with `sort` (page/author/type/date), and toggle `include_marked_text` and `include_empty`. Example: format=markdown, types=highlight returns `## Page 1` bullets like `- **highlight** — “brown fox” — check this animal _(Ada Lovelace, 2026-01-15T10:30:00+01:00)_`. Marked-up text is reconstructed from the text layer by position, so it can gain or lose a character at the edge of a highlight and returns nothing for scanned/image-only PDFs; form-field (Widget) and popup annotations are always skipped; input is capped at 16 MiB.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "author": {
+          "default": "",
+          "description": "Keep only annotations whose author contains this text, case-insensitively (e.g. \"ada\" matches \"Ada Lovelace\"). Empty (the default) keeps every author.",
+          "type": "string"
+        },
+        "format": {
+          "default": "json",
+          "description": "Output format: \"json\" (array of {page, type, subtype, author, date, color, comment, marked_text} objects), \"csv\" (one row per annotation with a header line), \"markdown\" (bullets grouped under a `## Page N` heading), or \"text\" (one flat line per annotation). Default \"json\".",
+          "enum": [
+            "json",
+            "csv",
+            "markdown",
+            "text"
+          ],
+          "type": "string"
+        },
+        "include_empty": {
+          "default": false,
+          "description": "Include annotations that carry neither a comment nor marked-up text — bare links, empty stamps, and unlabelled drawings. Text markup (highlights etc.) is always kept regardless. Default false.",
+          "type": "boolean"
+        },
+        "include_marked_text": {
+          "default": true,
+          "description": "Recover the page text that each highlight/underline/strikeout/squiggly covers, by mapping the annotation's QuadPoints onto the PDF's text layer. Set false to skip that work and return only the typed comments. Default true.",
+          "type": "boolean"
+        },
+        "pages": {
+          "default": "",
+          "description": "1-based page spec limiting which pages are scanned, e.g. \"3\" or \"1,4-6\". Leave empty (the default) for the whole document.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "page",
+          "description": "Result order: \"page\" (default, document order), \"author\", \"type\", or \"date\". Ties always fall back to page order.",
+          "enum": [
+            "page",
+            "author",
+            "type",
+            "date"
+          ],
+          "type": "string"
+        },
+        "types": {
+          "default": "all",
+          "description": "Which annotations to keep: \"all\" (default, every kind), \"markup\" (highlight + underline + strikeout + squiggly together), or a single kind — \"highlight\", \"underline\", \"strikeout\", \"squiggly\", \"note\" (sticky note), \"freetext\" (callout box), \"drawing\" (ink/square/circle/line/polygon), \"stamp\", or \"link\". Form fields and popup windows are always skipped.",
+          "enum": [
+            "all",
+            "markup",
+            "highlight",
+            "underline",
+            "strikeout",
+            "squiggly",
+            "note",
+            "freetext",
+            "drawing",
+            "stamp",
+            "link"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Document URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
