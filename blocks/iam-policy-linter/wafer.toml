@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "iam-policy-linter"
+version = "0.1.0"
+abi = 1
+summary = "Lint AWS IAM policy JSON for risky wildcards and policy syntax issues"

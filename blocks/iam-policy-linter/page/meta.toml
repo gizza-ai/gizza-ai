@@ -1,0 +1,157 @@
+slug          = "iam-policy-linter"
+title         = "IAM Policy Linter"
+description   = "Lint AWS IAM policy JSON locally for syntax errors, wildcard permissions, public principals, NotAction/NotResource risks and sensitive actions on Resource *."
+tags          = ["aws", "iam", "policy", "security", "linter", "json", "access analyzer", "cloud", "permissions"]
+h1            = "IAM Policy Linter"
+hero_subtitle = "Paste an AWS IAM policy JSON document and get a local verdict with stable rule codes, severity-ranked findings, source lines, JSON paths and text, JSON or CSV output."
+wasm          = "gizza_ai_iam_policy_linter_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "policy"
+label       = "IAM policy JSON"
+placeholder = "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [{\n    \"Effect\": \"Allow\",\n    \"Action\": \"*\",\n    \"Resource\": \"*\"\n  }]\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "policy_type"
+label  = "Policy type"
+source = "field"
+
+[input.labels]
+identity = "Identity policy (user, group or role permissions)"
+resource = "Resource policy (bucket, queue, key, repository)"
+trust = "Role trust policy (AssumeRolePolicyDocument)"
+scp = "Service control policy (AWS Organizations)"
+
+[[input]]
+name   = "format"
+label  = "Output as"
+source = "field"
+
+[input.labels]
+text = "Readable text"
+json = "JSON for CI"
+csv = "CSV for tickets"
+
+[[input]]
+name   = "min_severity"
+label  = "Show severity"
+source = "field"
+
+[input.labels]
+low = "Low and above"
+medium = "Medium and high"
+high = "High only"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule codes"
+placeholder = "MISSING-VERSION, RESOURCE-STAR"
+source      = "field"
+
+[[example]]
+label = "Admin wildcard"
+[example.params]
+policy = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "*",
+      "Resource": "*"
+    }
+  ]
+}
+"""
+policy_type = "identity"
+format = "text"
+min_severity = "low"
+ignore = ""
+
+[[example]]
+label = "Allow with NotAction"
+[example.params]
+policy = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "NotAction": "iam:*",
+      "Resource": "*"
+    }
+  ]
+}
+"""
+policy_type = "identity"
+format = "text"
+min_severity = "low"
+ignore = ""
+
+[[example]]
+label = "Public bucket policy"
+[example.params]
+policy = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::public-bucket/*"
+    }
+  ]
+}
+"""
+policy_type = "resource"
+format = "json"
+min_severity = "low"
+ignore = ""
+
+[[example]]
+label = "Trust policy check"
+[example.params]
+policy = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "Service": "ec2.amazonaws.com" },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+"""
+policy_type = "trust"
+format = "text"
+min_severity = "low"
+ignore = ""
+
+[[example]]
+label = "Least-privilege clean"
+[example.params]
+policy = """
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadAppBucket",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": ["arn:aws:s3:::app-bucket/*"]
+    }
+  ]
+}
+"""
+policy_type = "identity"
+format = "text"
+min_severity = "low"
+ignore = ""
