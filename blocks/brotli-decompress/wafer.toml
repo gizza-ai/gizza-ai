@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "brotli-decompress"
+version = "0.1.0"
+abi = 1
+summary = "Decode a Brotli (.br) payload from Base64 or hex to text, hex, or Base64."

@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-brotli-decompress-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# brotli: pure-Rust Brotli (RFC 7932) decoder (+ encoder, used by the tests to
+# build fixtures), wasm32-safe — same pin as blocks/file-compressor.
+brotli = { version = "8", default-features = false, features = ["std"] }
+base64 = "0.22"

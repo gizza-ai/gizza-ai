@@ -1,0 +1,85 @@
+slug          = "brotli-decompress"
+title         = "Brotli Decompress — Decode a .br Payload from Base64 or Hex"
+description   = "Paste a Brotli (.br) payload as Base64 or hex and read what's inside. Output as text, hex, or Base64, with size and ratio stats. Free, private, no sign-up."
+tags          = ["brotli", "brotli decompress", "brotli decoder", ".br", "content-encoding br", "rfc 7932", "unbrotli", "base64", "http response body", "asset bundle"]
+h1            = "Brotli Decompress"
+hero_subtitle = "Decode a Brotli-compressed payload — an HTTP body served with content-encoding: br, an asset-bundle chunk, a .br blob from a log — straight back to readable text. Paste it as Base64 or hex and the original bytes appear. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_brotli_decompress_web"
+export        = "run"
+live          = false
+output_label  = "Decompressed output"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Brotli payload"
+placeholder = "GzYA6IzTFfMjhHUPwW2pr1bT4W8HRZOIyaLT1YpIQtBEajXzAUMiA3t2HQ3lRtbqeY1Rlg8="
+source      = "field"
+multiline   = true
+
+# encoding/output render as <select> — the control type and option lists are
+# derived from the descriptor's schema (manifest.json), so labels stay short.
+[[input]]
+name   = "encoding"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect (default)"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name   = "output"
+label  = "Show result as"
+source = "field"
+
+[input.labels]
+text   = "Text (UTF-8, default)"
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "stats"
+label  = "Show size and ratio stats"
+source = "field"
+
+[[example]]
+label = "JSON API response"
+[example.params]
+data = "GzYA6IzTFfMjhHUPwW2pr1bT4W8HRZOIyaLT1YpIQtBEajXzAUMiA3t2HQ3lRtbqeY1Rlg8="
+encoding = "auto"
+output = "text"
+stats = "false"
+
+[[example]]
+label = "Plain text payload"
+[example.params]
+data = "GysA+I2Uq+1oIeQ2tq5jdXdSFGgj2IALmMMAaIVzkVOIetprwilOGRMU84eSAg=="
+encoding = "base64"
+output = "text"
+stats = "false"
+
+[[example]]
+label = "Hex-encoded payload"
+[example.params]
+data = "8b058068656c6c6f2062726f746c6903"
+encoding = "hex"
+output = "text"
+stats = "false"
+
+[[example]]
+label = "High-ratio blob with stats"
+[example.params]
+data = "G78D+EV3eL2736VkRKRrhVRjdUJH2rKJuP0RsoZeLAA="
+encoding = "auto"
+output = "text"
+stats = "true"
+
+[[example]]
+label = "Binary payload as hex"
+[example.params]
+data = "iwWAaGVsbG8gYnJvdGxpAw=="
+encoding = "base64"
+output = "hex"
+stats = "false"
