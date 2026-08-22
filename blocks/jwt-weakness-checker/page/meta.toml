@@ -1,0 +1,81 @@
+slug          = "jwt-weakness-checker"
+title         = "JWT Weakness Checker — Audit a JSON Web Token for Security Flaws"
+description   = "Audit a JSON Web Token offline: alg:none, weak or guessable HMAC secrets, missing or expired expiry, absent iss/aud claims — each finding scored."
+tags          = ["jwt security", "jwt weakness checker", "jwt audit", "alg none", "weak jwt secret", "jwt secret cracker", "json web token security", "jwt vulnerability scanner", "jwt expiry check"]
+h1            = "Check a JWT for security weaknesses"
+hero_subtitle = "Paste a JSON Web Token to audit it offline: the alg:none trap, weak or guessable HMAC secrets, missing/expired/over-long expiry, missing issuer and audience claims, kid-injection surface and sensitive data in the payload — each finding scored and explained. No key needed, and the token never leaves your device."
+wasm          = "gizza_ai_jwt_weakness_checker_web"
+export        = "run"
+live          = false
+output_label  = "Security audit"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "token"
+label       = "JWT (compact token)"
+placeholder = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "wordlist"
+label       = "Extra secrets to try (one per line, or comma-separated)"
+placeholder = "acme-staging-2026, acme-prod-2026"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "max_exp_days"
+label       = "Flag lifetimes longer than (days)"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "leeway"
+label       = "Clock-skew leeway (seconds)"
+placeholder = "0"
+source      = "field"
+default     = "0"
+
+[[example]]
+label = "Weak secret (cracked)"
+[example.params]
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o"
+wordlist = ""
+max_exp_days = "30"
+leeway = "0"
+
+[[example]]
+label = "Unsecured alg:none token"
+[example.params]
+token = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJzdXBlcnVzZXIifQ."
+wordlist = ""
+max_exp_days = "30"
+leeway = "0"
+
+[[example]]
+label = "Custom wordlist hit"
+[example.params]
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1MiIsImlhdCI6MTk5OTk5OTEwMCwiZXhwIjoyMDAwMDAwMDAwfQ.cRb8q7rOuVkOmj6_VKh_7ebYouXYoOSvKhqU8rwt-Cg"
+wordlist = "acme-prod-2026\nacme-staging-2026\nacme-dev-2026"
+max_exp_days = "30"
+leeway = "0"
+
+[[example]]
+label = "Hardened token (clean)"
+[example.params]
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjYtMDgifQ.eyJpc3MiOiJodHRwczovL2F1dGguZXhhbXBsZS5jb20iLCJhdWQiOiJhcGkuZXhhbXBsZS5jb20iLCJzdWIiOiJ1LTQ3MTEiLCJpYXQiOjE5OTk5OTkxMDAsImV4cCI6MjAwMDAwMDAwMH0.z8VoNOC11tqGU2-BB8Z1rasMYHacH84v5udaXbSsAXU"
+wordlist = ""
+max_exp_days = "30"
+leeway = "0"
+
+[[example]]
+label = "Year-long token with a secret in the payload"
+[example.params]
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhIiwiYXVkIjoiYiIsInN1YiI6InUxIiwiaWF0IjoxOTk5OTk5MTAwLCJleHAiOjIwMzE1MzUxMDAsInBhc3N3b3JkIjoicmVkYWN0ZWQifQ.3baRJZin15zoC7Z5TN-2aSs7SAeqiF47wNfVbY1PtQo"
+wordlist = ""
+max_exp_days = "30"
+leeway = "0"
