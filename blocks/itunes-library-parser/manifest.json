@@ -1,0 +1,90 @@
+{
+  "name": "gizza-ai/itunes-library-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Export iTunes/Music Library.xml playlists and track metadata as CSV, TSV, JSON or M3U",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an iTunes/Music Library.xml (Apple XML property list) and export playlists and track metadata. Outputs CSV or TSV with any of 39 selectable columns (name, artist, album artist, album, genre, year, duration, bit rate, play count, star rating, date added, file path, ...), JSON with native types, a paths-only M3U or an extended M3U8 with #EXTINF lines, a CSV index of every playlist (name, kind, track count, parent folder, persistent ID), or a library summary with totals and top artists/genres. Export one playlist by name or the whole library, re-root file paths onto another drive or NAS with path_prefix, switch slash direction or reduce paths to bare file names, sort by name/artist/album/year/duration/play count/date added, and cap the row count. Percent-encoded file:// locations are decoded back to real filesystem paths. Runs entirely on the pasted text: nothing is uploaded, fetched or written. Max 20 MB of library XML per run.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "default": "name,artist,album,genre,year,duration,location",
+          "description": "Comma-separated track columns for the csv, tsv and json outputs, in the order you want them; ignored by m3u, m3u8, playlists and summary. Default: name,artist,album,genre,year,duration,location. Available: track_id, name, artist, album_artist, composer, album, grouping, work, genre, kind, size, duration (m:ss), duration_seconds, disc_number, disc_count, track_number, track_count, year, bpm, date_added, date_modified, release_date, bit_rate, sample_rate, comments, play_count, play_date, skip_count, rating (0-5 stars), rating_raw (0-100), album_rating, loved, compilation, podcast, sort_name, sort_artist, sort_album, persistent_id, location.",
+          "type": "string"
+        },
+        "include_builtin": {
+          "default": false,
+          "description": "Include the playlists Music/iTunes creates itself (Library, Music, Movies, Podcasts, Downloaded, Recently Added, Genius, ...) in the output=playlists index. Off by default so you see only your own playlists. Does not affect exporting a built-in playlist by name, which always works.",
+          "type": "boolean"
+        },
+        "library": {
+          "description": "The full text of an iTunes/Music Library.xml — the Apple XML property list you get from Music via File > Library > Export Library..., or the Library.xml/iTunes Music Library.xml file in your iTunes folder. Must be the XML form (starts with <?xml and a <plist> element); binary .itl libraries are not readable. Max 20 MB per run.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of track rows to emit, applied after sorting. 0 (default) means no limit; the ceiling is 100000. Use a small value such as 20 to preview a large library before exporting all of it.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "csv",
+          "description": "What to produce. csv (default) and tsv emit one row per track with the columns named in fields; json emits an array of track objects with native numbers, booleans and nulls; m3u is a paths-only playlist file and m3u8 is the extended form with an #EXTM3U header and #EXTINF duration/artist lines; playlists emits a CSV index of every playlist (name, kind, tracks, parent, persistent_id); summary emits library totals plus top artists and genres.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json",
+            "m3u",
+            "m3u8",
+            "playlists",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "path_prefix": {
+          "default": "",
+          "description": "Re-root every file path: the library's own Music Folder prefix is replaced with this value, so a playlist exported on a Mac can point at a Windows drive or a NAS share (for example D:\\Music or /volume1/music). Tracks stored outside the library's music folder keep their original path. Empty (default) leaves paths exactly as the library records them.",
+          "type": "string"
+        },
+        "path_style": {
+          "default": "original",
+          "description": "Slash direction for file paths: original (default) keeps whatever the library recorded, unix rewrites backslashes to forward slashes, windows rewrites forward slashes to backslashes, and filename drops every folder and keeps only the file name — useful for a flat folder of copied music.",
+          "enum": [
+            "original",
+            "unix",
+            "windows",
+            "filename"
+          ],
+          "type": "string"
+        },
+        "playlist": {
+          "default": "",
+          "description": "Name of a single playlist to export, matched case-insensitively (for example \"Late Night\"). Tracks come out in the playlist's own order unless sort_by says otherwise. Leave empty (default) to export every track in the library. Run with output=playlists first if you are not sure of the exact name.",
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "original",
+          "description": "Row order. original (default) keeps the playlist's own running order, or Track ID order when exporting the whole library. The others sort ascending by that field (using Sort Name/Sort Artist/Sort Album when the library provides them); tracks missing the field sort last.",
+          "enum": [
+            "original",
+            "name",
+            "artist",
+            "album",
+            "year",
+            "duration",
+            "play_count",
+            "date_added"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "library"
+      ],
+      "type": "object"
+    }
+  }
+}

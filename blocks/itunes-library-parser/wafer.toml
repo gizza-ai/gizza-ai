@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "itunes-library-parser"
+version = "0.1.0"
+abi = 1
+summary = "Export iTunes/Music Library.xml playlists and track metadata as CSV, TSV, JSON or M3U"
