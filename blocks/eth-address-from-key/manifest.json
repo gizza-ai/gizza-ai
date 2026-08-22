@@ -1,0 +1,45 @@
+{
+  "name": "gizza-ai/eth-address-from-key",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Derive Ethereum address and EIP-55 checksum forms from secp256k1 keys.",
+  "role": "skill",
+  "tool": {
+    "description": "Derive an Ethereum address from a secp256k1 private key or public key. The tool accepts 32-byte private-key hex, compressed or uncompressed SEC1 public-key hex, or raw x||y public-key hex; computes Keccak-256 over the uncompressed public key without its 0x04 prefix; and returns the EIP-55 checksum address plus lowercase and no-prefix forms.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "A secp256k1 key as hex: a 32-byte private key (64 hex chars), a 33-byte compressed public key, a 65-byte uncompressed SEC1 public key, or a raw 64-byte x||y public key. A leading 0x plus spaces, underscores, colons and hyphens are ignored.",
+          "type": "string"
+        },
+        "key_type": {
+          "default": "auto",
+          "description": "How to interpret key. auto (default) treats 32 bytes as a private key and 33/64/65 bytes as a public key; private requires a secret scalar; public requires compressed, uncompressed, or x||y public-key bytes.",
+          "enum": [
+            "auto",
+            "private",
+            "public"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "all",
+          "description": "Which address form to return. all prints the EIP-55 checksum address, lowercase address, bare 40-hex address, and compressed/uncompressed public keys; checksum returns only the EIP-55 0x address; lowercase returns the all-lowercase 0x address; no-prefix returns the bare 40 hex characters; json returns the same fields as JSON.",
+          "enum": [
+            "all",
+            "checksum",
+            "lowercase",
+            "no-prefix",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    }
+  }
+}

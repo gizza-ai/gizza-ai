@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-eth-address-from-key-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+k256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
+sha3 = "0.10"
+hex = { version = "0.4", default-features = false, features = ["alloc"] }
