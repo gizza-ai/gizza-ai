@@ -1,0 +1,84 @@
+slug          = "json-assertion-runner"
+title         = "JSON Assertion Runner"
+description   = "Run JSONPath assertions against a JSON payload and get a pass/fail report for tests, fixtures, and API responses."
+tags          = ["json", "jsonpath", "assertions", "testing", "validation", "api", "qa", "developer"]
+h1            = "JSON Assertion Runner"
+hero_subtitle = "Paste a JSON response and a small assertion list, then check values, types, ranges, counts, and regex matches locally in your browser."
+wasm          = "gizza_ai_json_assertion_runner_web"
+export        = "run"
+live          = false
+output_label  = "Assertion report"
+format        = "text"
+
+[[input]]
+name        = "payload"
+label       = "JSON payload"
+placeholder = '{"status":"ok","items":[{"sku":"A1","price":9.5},{"sku":"B2","price":250}],"user":{"id":"u-42","roles":["admin","dev"]}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "assertions"
+label       = "Assertions"
+placeholder = "$.status equals ok\n$.items length 2\n$.items[*].price gt 0\n$.user.roles contains admin"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "rules_format"
+label  = "Rules format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+dsl = "Line DSL"
+json = "JSON rules"
+
+[[input]]
+name   = "output"
+label  = "Report format"
+source = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON report"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Case-sensitive strings"
+source = "field"
+
+[[input]]
+name   = "stop_on_first_failure"
+label  = "Stop on first failure"
+source = "field"
+
+[[example]]
+label = "API response smoke test"
+[example.params]
+payload = '{"status":"ok","user":{"id":"u-42","roles":["admin","dev"]},"items":[{"sku":"A1","price":9.5},{"sku":"B2","price":250}]}'
+assertions = "$.status equals ok\n$.user.id matches ^u-\\d+$\n$.user.roles contains admin\n$.items length 2\n$.items[*].price gt 0"
+rules_format = "dsl"
+output = "text"
+case_sensitive = "true"
+stop_on_first_failure = "false"
+
+[[example]]
+label = "Range failure"
+[example.params]
+payload = '{"items":[{"sku":"A1","price":9.5},{"sku":"B2","price":250}]}'
+assertions = "$.items[*].price lte 100"
+rules_format = "dsl"
+output = "text"
+case_sensitive = "true"
+stop_on_first_failure = "false"
+
+[[example]]
+label = "Machine-readable report"
+[example.params]
+payload = '{"status":"OK","count":3}'
+assertions = '[{"path":"$.status","op":"equals","expected":"ok"},{"path":"$.count","op":"range","expected":"1..5"}]'
+rules_format = "json"
+output = "json"
+case_sensitive = "false"
+stop_on_first_failure = "false"
