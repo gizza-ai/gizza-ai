@@ -1,0 +1,106 @@
+slug          = "yaml-query"
+title         = "YAML Query — jq-style YAML filter online"
+description   = "Query and transform YAML with jq-style filters in your browser — yq-like selection, mapping, slurp mode, YAML/JSON output, no upload."
+tags          = ["yaml query", "yq online", "jq yaml", "yaml filter", "yaml to json", "kubernetes yaml", "docker compose"]
+h1            = "Query YAML with jq-style filters"
+hero_subtitle = "Paste YAML, write a jq/yq-style filter, and get YAML or JSON back instantly. Handles multi-document streams and runs entirely in your browser."
+wasm          = "gizza_ai_yaml_query_web"
+export        = "run"
+live          = false
+output_label  = "Query output"
+format        = "text"
+
+[[input]]
+name        = "yaml"
+label       = "YAML input"
+placeholder = "services:\n  web:\n    image: nginx:1.27\n    ports:\n      - \"80:80\"\n      - \"443:443\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "query"
+label       = "jq/yq-style filter"
+placeholder = ".services.web.ports"
+source      = "field"
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yaml = "YAML"
+json = "JSON"
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+yaml = "YAML"
+json = "JSON"
+
+[[input]]
+name   = "documents"
+label  = "Documents"
+source = "field"
+
+[input.labels]
+each  = "Each document"
+slurp = "Slurp into array"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[input]]
+name   = "raw_output"
+label  = "Raw string output"
+source = "field"
+
+[[example]]
+label = "docker-compose ports"
+[example.params]
+yaml = "services:\n  web:\n    image: nginx:1.27\n    ports:\n      - \"80:80\"\n      - \"443:443\"\n  db:\n    image: postgres:16"
+query = ".services.web.ports"
+input_format = "yaml"
+output_format = "yaml"
+documents = "each"
+pretty = "true"
+raw_output = "false"
+
+[[example]]
+label = "service names as JSON"
+[example.params]
+yaml = "services:\n  web:\n    image: nginx\n  worker:\n    image: app:latest"
+query = ".services | keys"
+input_format = "yaml"
+output_format = "json"
+documents = "each"
+pretty = "false"
+raw_output = "false"
+
+[[example]]
+label = "Kubernetes images"
+[example.params]
+yaml = "apiVersion: apps/v1\nkind: Deployment\nspec:\n  template:\n    spec:\n      containers:\n        - name: app\n          image: ghcr.io/acme/app:1.2\n        - name: sidecar\n          image: nginx:1.27"
+query = "[.spec.template.spec.containers[].image]"
+input_format = "yaml"
+output_format = "json"
+documents = "each"
+pretty = "true"
+raw_output = "false"
+
+[[example]]
+label = "Slurp multi-doc names"
+[example.params]
+yaml = "kind: Service\nmetadata:\n  name: web\n---\nkind: Deployment\nmetadata:\n  name: api"
+query = "map(.metadata.name)"
+input_format = "yaml"
+output_format = "json"
+documents = "slurp"
+pretty = "false"
+raw_output = "false"

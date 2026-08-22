@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-yaml-query-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# jaq: pure-Rust jq (no_std + alloc, no host/WASI calls) — the query engine, same
+# stack blocks/jq-query uses so the language behaves identically across tools.
+jaq-interpret = "1.5"
+jaq-core = "1.5"
+jaq-std = "1.5"
+jaq-parse = "1.0"
+# serde_yml parses/emits YAML (incl. multi-document streams via Deserializer's
+# iterator) and is already proven wasm-safe by blocks/json-yaml-convert.
+serde_yml = "0.0.12"
+serde = "1"
+serde_json = "1"
