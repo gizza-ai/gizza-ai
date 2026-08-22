@@ -1,0 +1,25 @@
+[package]
+name = "gizza-ai-scryptenc-file-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+scrypt = { version = "0.11", default-features = false }
+aes = "0.8"
+ctr = "0.9"
+cipher = { version = "0.4", features = ["alloc"] }
+hmac = "0.12"
+sha2 = "0.10"
+subtle = "2"
+hex = "0.4"
+base64 = "0.22"
+# Supplies the fresh 32-byte salt when the caller leaves `salt` empty: WASI
+# `random_get` under wafer (wasm32-wasip1) and the native OS RNG in the CLI.
+getrandom = "0.2"
+
+# wasm32-unknown-unknown (the page build) has no entropy source of its own;
+# getrandom's `js` backend routes to crypto.getRandomValues. Scoped to that
+# target so the wasm32-wasip1 block build keeps the plain WASI backend.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
