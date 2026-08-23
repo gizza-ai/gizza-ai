@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "sentence-length-stats"
+version = "0.1.0"
+abi = 1
+summary = "Sentence count, average/median/max length and length distribution"
