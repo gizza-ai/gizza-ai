@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stl-format-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert an STL mesh between binary and ASCII encodings, in either direction"
