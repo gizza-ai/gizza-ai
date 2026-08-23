@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "random-projection-reducer"
+version = "0.1.0"
+abi = 1
+summary = "Reduce a wide numeric table to fewer dimensions with a Johnson–Lindenstrauss random projection"
