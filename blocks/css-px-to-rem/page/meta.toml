@@ -1,0 +1,93 @@
+slug          = "css-px-to-rem"
+title         = "CSS px to rem Converter — rewrite a whole stylesheet"
+description   = "Paste CSS and convert every px length to rem (or rem back to px) at any root font size. Filter properties, keep 1px borders, add fallbacks — all in your browser."
+tags          = ["px to rem", "css px to rem converter", "rem to px", "convert css units", "root font size", "62.5 percent trick", "rem converter online"]
+h1            = "CSS px to rem Converter"
+hero_subtitle = "Paste a whole stylesheet and get every px length rewritten as rem against the root font size you choose — or go the other way. Comments, strings and url() paths are left exactly as they were, and nothing is uploaded."
+wasm          = "gizza_ai_css_px_to_rem_web"
+export        = "run"
+live          = false
+output_label  = "Converted CSS"
+format        = "text"
+
+[[input]]
+name        = "css"
+label       = "CSS / SCSS / LESS"
+placeholder = ".btn { font-size: 24px; padding: 8px 16px; border: 1px solid #ccc; }"
+source      = "field"
+multiline   = true
+
+# direction renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[input.labels]
+"px-to-rem" = "px → rem"
+"rem-to-px" = "rem → px"
+
+[[input]]
+name        = "root_font_size"
+label       = "Root font size (px = 1rem)"
+placeholder = "16"
+source      = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "properties"
+label       = "Properties to convert"
+placeholder = "*  (or: font*, *margin*, *,!border*)"
+source      = "field"
+
+[[input]]
+name        = "min_pixel_value"
+label       = "Minimum px value to convert"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "media_queries"
+label  = "Convert inside @media conditions"
+source = "field"
+
+[[input]]
+name        = "ignore_selectors"
+label       = "Skip rules whose selector contains"
+placeholder = ".no-rem, #legacy"
+source      = "field"
+
+[[input]]
+name   = "keep_fallback"
+label  = "Keep original as a fallback declaration"
+source = "field"
+
+[[input]]
+name   = "unitless_zero"
+label  = "Write zero as 0 (not 0rem)"
+source = "field"
+
+[[example]]
+label  = "Button at the 16px default"
+params = { css = ".btn { font-size: 24px; padding: 8px 16px; border: 1px solid #ccc; }" }
+
+[[example]]
+label  = "62.5% trick (root 10px)"
+params = { css = "h1 { font-size: 32px; margin-bottom: 24px; }", root_font_size = "10" }
+
+[[example]]
+label  = "Keep 1px borders in px"
+params = { css = ".card { border: 1px solid #eee; padding: 24px; }", min_pixel_value = "2" }
+
+[[example]]
+label  = "Typography only, 3 decimals"
+params = { css = "p { font-size: 15px; line-height: 22px; margin: 10px; }", properties = "font*,line-height", precision = "3" }
+
+[[example]]
+label  = "rem back to px"
+params = { css = ".btn { font-size: 1.5rem; padding: 0.5rem 1rem; }", direction = "rem-to-px" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "css-px-to-rem"
+version = "0.1.0"
+abi = 1
+summary = "Convert px lengths in CSS to rem (or back) at any root font size"
