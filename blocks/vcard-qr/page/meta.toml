@@ -1,0 +1,227 @@
+slug          = "vcard-qr"
+title         = "vCard QR Code Generator — Contact Card QR from Name, Phone and Email"
+description   = "Turn contact details into a vCard (.vcf) and a scannable QR code. Scanning it saves the contact on iOS and Android. Static, free, and generated in your browser."
+tags          = ["vcard qr code", "contact qr code", "vcf generator", "business card qr", "qr code contact", "vcard generator", "scan to save contact", "digital business card"]
+h1            = "vCard QR Code Generator"
+hero_subtitle = "Fill in the contact details and get a vCard QR code as an SVG. Scanning it offers to save the contact — name, phone, email, company, address and all. Nothing is uploaded and the code never expires."
+wasm          = "gizza_ai_vcard_qr_web"
+export        = "run"
+live          = false
+output_label  = "Contact QR code"
+format        = "svg"
+wide          = true
+
+[[input]]
+name        = "first_name"
+label       = "First name"
+placeholder = "Ada"
+source      = "field"
+
+[[input]]
+name        = "last_name"
+label       = "Last name"
+placeholder = "Lovelace"
+source      = "field"
+
+[[input]]
+name        = "organization"
+label       = "Company"
+placeholder = "Analytical Engines"
+source      = "field"
+
+[[input]]
+name        = "job_title"
+label       = "Job title"
+placeholder = "Chief Analyst"
+source      = "field"
+
+[[input]]
+name        = "mobile"
+label       = "Mobile number"
+placeholder = "+44 7700 900123"
+source      = "field"
+
+[[input]]
+name        = "phone"
+label       = "Work phone"
+placeholder = "+44 20 7946 0000"
+source      = "field"
+
+[[input]]
+name        = "email"
+label       = "Email"
+placeholder = "ada@example.com"
+source      = "field"
+
+[[input]]
+name        = "website"
+label       = "Website"
+placeholder = "example.com/ada"
+source      = "field"
+
+[[input]]
+name        = "street"
+label       = "Street"
+placeholder = "12 Baker Street"
+source      = "field"
+
+[[input]]
+name        = "city"
+label       = "City"
+placeholder = "London"
+source      = "field"
+
+[[input]]
+name        = "region"
+label       = "State / region"
+placeholder = "Greater London"
+source      = "field"
+
+[[input]]
+name        = "postal_code"
+label       = "Postal code"
+placeholder = "NW1 6XE"
+source      = "field"
+
+[[input]]
+name        = "country"
+label       = "Country"
+placeholder = "United Kingdom"
+source      = "field"
+
+[[input]]
+name        = "note"
+label       = "Note"
+placeholder = "Met at the 2026 expo"
+source      = "field"
+
+[[input]]
+name        = "birthday"
+label       = "Birthday"
+placeholder = "1987-04-23"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "version"
+label  = "vCard version"
+source = "field"
+
+[input.labels]
+"3.0" = "3.0 — best scanner support"
+"4.0" = "4.0 — newer standard (RFC 6350)"
+
+[[input]]
+name   = "error_correction"
+label  = "Error correction"
+source = "field"
+
+[input.labels]
+L = "L — fits the most detail"
+M = "M — balanced default"
+Q = "Q — print friendly"
+H = "H — maximum recovery"
+
+[[input]]
+name        = "size"
+label       = "SVG display size (px)"
+placeholder = "512"
+source      = "field"
+kind        = "slider"
+min         = "128"
+max         = "2048"
+step        = "32"
+
+[[input]]
+name        = "foreground"
+label       = "Foreground color"
+placeholder = "#000000"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "background"
+label       = "Background color"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name   = "show_details"
+label  = "Print contact details under the code"
+source = "field"
+
+[[example]]
+label = "Sales rep card"
+[example.params]
+first_name = "Ada"
+last_name = "Lovelace"
+organization = "Analytical Engines"
+job_title = "Chief Analyst"
+mobile = "+44 7700 900123"
+phone = "+44 20 7946 0000"
+email = "ada@example.com"
+website = "example.com/ada"
+street = "12 Baker Street"
+city = "London"
+region = "Greater London"
+postal_code = "NW1 6XE"
+country = "United Kingdom"
+note = ""
+birthday = ""
+version = "3.0"
+error_correction = "M"
+size = "512"
+foreground = "#000000"
+background = "#ffffff"
+show_details = "true"
+
+[[example]]
+label = "Minimal personal card"
+[example.params]
+first_name = "Grace"
+last_name = "Hopper"
+organization = ""
+job_title = ""
+mobile = "+1 202 555 0142"
+phone = ""
+email = "grace@example.com"
+website = ""
+street = ""
+city = ""
+region = ""
+postal_code = ""
+country = ""
+note = ""
+birthday = "1906-12-09"
+version = "3.0"
+error_correction = "M"
+size = "384"
+foreground = "#111827"
+background = "#ffffff"
+show_details = "true"
+
+[[example]]
+label = "Print-ready, no caption"
+[example.params]
+first_name = "Ada"
+last_name = "Lovelace"
+organization = "Analytical Engines"
+job_title = "Chief Analyst"
+mobile = "+44 7700 900123"
+phone = ""
+email = "ada@example.com"
+website = "example.com/ada"
+street = ""
+city = ""
+region = ""
+postal_code = ""
+country = ""
+note = ""
+birthday = ""
+version = "3.0"
+error_correction = "H"
+size = "1024"
+foreground = "#000000"
+background = "#ffffff"
+show_details = "false"

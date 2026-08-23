@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-vcard-qr-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# QR encode → SVG path, no image dep (proven wasm-safe; same as payment-qr).
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }

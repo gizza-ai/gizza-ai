@@ -1,0 +1,118 @@
+{
+  "name": "gizza-ai/vcard-qr",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a vCard from contact details and render it as a scannable QR code",
+  "role": "skill",
+  "tool": {
+    "description": "Build a vCard (.vcf) contact card from individual fields and render it as a scannable QR code SVG — scanning it offers to save the contact on iOS and Android. Takes first_name, last_name, organization, job_title, mobile, phone, email, website, a postal address (street, city, region, postal_code, country), note and birthday, and emits an RFC 6350 / RFC 2426 vCard with correct escaping and 75-octet line folding. Choose vCard version 3.0 (default, best scanner compatibility) or 4.0, tune error_correction (L/M/Q/H), size, and foreground/background colours, and set show_details to print the readable contact block under the code for badges. Inputs are validated — a malformed email, an impossible birthday, a bad colour or a contact too long to encode fails with an explanation instead of producing an unscannable code. Returns an SVG image whose <desc> carries the exact vCard source. Runs locally — contact details never leave the device, and the code is static, so there is no tracking or expiry.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "default": "#ffffff",
+          "description": "Colour behind the QR code, as a hex value or a CSS colour name; 'transparent' is accepted for overlaying on artwork. Default #ffffff.",
+          "type": "string"
+        },
+        "birthday": {
+          "description": "Birthday as an ISO date, YYYY-MM-DD (YYYYMMDD is also accepted), e.g. 1987-04-23. Saved as BDAY; impossible dates like 2023-02-29 are rejected.",
+          "type": "string"
+        },
+        "city": {
+          "description": "City or locality of the postal address, e.g. London.",
+          "type": "string"
+        },
+        "country": {
+          "description": "Country of the postal address, e.g. United Kingdom. The five address fields are combined into one ADR;TYPE=WORK property; fill only the ones you have.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email address (vCard EMAIL), e.g. ada@example.com. Checked for a single @ and a dotted domain, so a typo is rejected instead of being encoded into a code nobody can fix later.",
+          "type": "string"
+        },
+        "error_correction": {
+          "default": "M",
+          "description": "QR error-correction level. L is the least dense and fits the most contact detail; M is the balanced default; Q and H survive smudges, folds and printing but make the code denser. Use Q or H for anything printed, L if a long contact will not fit.",
+          "enum": [
+            "L",
+            "M",
+            "Q",
+            "H"
+          ],
+          "type": "string"
+        },
+        "first_name": {
+          "description": "The contact's given name, e.g. Ada. Goes into the vCard N and FN properties. At least one of first_name, last_name or organization is required — a vCard with no name cannot be saved by a phone.",
+          "type": "string"
+        },
+        "foreground": {
+          "default": "#000000",
+          "description": "Colour of the dark QR modules and the caption text, as a hex value (#rgb, #rrggbb, #rrggbbaa) or a CSS colour name. Keep strong contrast against the background or scanners will fail. Default #000000.",
+          "type": "string"
+        },
+        "job_title": {
+          "description": "Job title or role (vCard TITLE), e.g. Chief Analyst.",
+          "type": "string"
+        },
+        "last_name": {
+          "description": "The contact's family name, e.g. Lovelace. Combined with first_name into the display name (FN) that phones show in the contact list.",
+          "type": "string"
+        },
+        "mobile": {
+          "description": "Mobile/cell number, saved as TEL;TYPE=CELL. Write it the way it should be dialled, ideally in international form, e.g. +44 7700 900123. Spaces and punctuation are kept verbatim.",
+          "type": "string"
+        },
+        "note": {
+          "description": "Free-text note stored with the contact (vCard NOTE), e.g. Met at the 2026 expo. Long notes make the QR denser — keep it short if the code will be printed small.",
+          "type": "string"
+        },
+        "organization": {
+          "description": "Company or organization name (vCard ORG), e.g. Analytical Engines. Used as the display name when no personal name is given, which is what you want for a company card.",
+          "type": "string"
+        },
+        "phone": {
+          "description": "Landline or office number, saved as TEL;TYPE=WORK,VOICE, e.g. +1 202 555 0142. Use mobile for the cell number so phones label the two differently.",
+          "type": "string"
+        },
+        "postal_code": {
+          "description": "Postal or ZIP code of the postal address, e.g. NW1 6XE or 94103.",
+          "type": "string"
+        },
+        "region": {
+          "description": "State, province or region of the postal address, e.g. California or Greater London.",
+          "type": "string"
+        },
+        "show_details": {
+          "default": true,
+          "description": "Print the readable contact details (name, title and company, phone numbers, email, website) as monospace text under the code — handy for badges and business cards. Default true. Set false for a bare square code.",
+          "type": "boolean"
+        },
+        "size": {
+          "default": 512,
+          "description": "Width of the rendered SVG in pixels (128-2048, default 512). The output is vector, so this only sets the default display size — it stays sharp at any print scale.",
+          "maximum": 2048,
+          "minimum": 128,
+          "type": "integer"
+        },
+        "street": {
+          "description": "Street address line of the postal address (vCard ADR street component), e.g. 12 Baker Street.",
+          "type": "string"
+        },
+        "version": {
+          "default": "3.0",
+          "description": "vCard version to emit. 3.0 (default) is what phone cameras and address books recognise most reliably. 4.0 (RFC 6350) is the newer standard and uses lower-case TYPE values; pick it when the card is consumed by modern software rather than scanned.",
+          "enum": [
+            "3.0",
+            "4.0"
+          ],
+          "type": "string"
+        },
+        "website": {
+          "description": "Website or profile URL (vCard URL), e.g. example.com/ada. A bare host gets https:// added automatically so scanners can open it.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
