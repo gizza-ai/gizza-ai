@@ -1,0 +1,84 @@
+{
+  "name": "gizza-ai/video-to-mxf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Wrap video into a broadcast MXF file (XDCAM HD422, XDCAM HD, IMX 50).",
+  "role": "skill",
+  "tool": {
+    "description": "Wrap a video into a SMPTE MXF file for broadcast delivery. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). profile is xdcam_hd422|xdcam_hd|imx50|copy (default xdcam_hd422); resolution is auto|source|1920x1080|1280x720 (default auto, which conforms to the profile raster by scaling to fit and padding with black); frame_rate is source|23.976|24|25|29.97|30|50|59.94|60 (default source); audio is pcm16|pcm24|none (default pcm16, always 48 kHz PCM because MXF cannot carry AAC). imx50 writes SMPTE D-10 and requires frame_rate=25 with resolution=auto; copy rewraps the picture untouched so it rejects rescaling and retiming. Output is a large mezzanine/delivery file, not a web-delivery encode.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio": {
+          "default": "pcm16",
+          "description": "Audio handling. MXF cannot carry AAC, so audio is always re-encoded: pcm16 (default) writes 48 kHz 16-bit PCM, pcm24 writes 48 kHz 24-bit PCM, and none drops audio for a picture-only delivery.",
+          "enum": [
+            "pcm16",
+            "pcm24",
+            "none"
+          ],
+          "type": "string"
+        },
+        "frame_rate": {
+          "default": "source",
+          "description": "Output frame rate. source (default) keeps the input rate and relaxes the MXF edit-rate check so non-broadcast rates still wrap, at the cost of conformance. Pick 25 or 50 for 625/50 territories, 29.97 or 59.94 for 525/60, 23.976 or 24 for film. imx50 accepts only 25.",
+          "enum": [
+            "source",
+            "23.976",
+            "24",
+            "25",
+            "29.97",
+            "30",
+            "50",
+            "59.94",
+            "60"
+          ],
+          "type": "string"
+        },
+        "profile": {
+          "default": "xdcam_hd422",
+          "description": "Broadcast codec written into the MXF wrapper. xdcam_hd422 (default) is MPEG-2 4:2:2 at 50 Mbps CBR, the usual HD house standard; xdcam_hd is MPEG-2 4:2:0 at 35 Mbps; imx50 is SMPTE D-10 / MPEG IMX 50 intra-only SD and requires frame_rate=25 with resolution=auto; copy rewraps the existing video stream without re-encoding it (audio still becomes PCM).",
+          "enum": [
+            "xdcam_hd422",
+            "xdcam_hd",
+            "imx50",
+            "copy"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "resolution": {
+          "default": "auto",
+          "description": "Delivery raster. auto (default) conforms to the profile raster: 1920x1080 for the XDCAM profiles, 720x576 for imx50, source size for copy. source keeps the input size and encodes average-VBR instead of CBR (not spec-conformant). 1920x1080 and 1280x720 conform explicitly. Sources are scaled to fit and padded with black, never cropped or stretched.",
+          "enum": [
+            "auto",
+            "source",
+            "1920x1080",
+            "1280x720"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
