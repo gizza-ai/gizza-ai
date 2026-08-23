@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/xml-diff",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Structural diff of two XML documents",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two XML documents structurally (not as text lines) and report what was added, removed or changed. Both documents are parsed into element trees: attributes are compared as a sorted map so attribute order never matters, insignificant whitespace and comments are ignored by default, and CDATA is folded into element text. Every difference carries an XPath-style path such as /catalog/book[2], /catalog/book[2]/@id or /catalog/book[2]/title/text(). Returns { equal, added, removed, changed, changes:[{ path, kind: added|removed|changed, old?, new? }] } as JSON, or a compact text summary with format=text. Sibling matching is configurable (lcs | index | unordered), as are namespace-insensitive and numeric value comparison. Limits: 1 MB and 500 nesting levels per document. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Report rendering: 'json' (default) returns the machine-readable report object; 'text' returns a compact one-line-per-change summary.",
+          "enum": [
+            "json",
+            "text"
+          ],
+          "type": "string"
+        },
+        "ignore_comments": {
+          "default": true,
+          "description": "Drop XML comments before comparing. Set false to report comment changes as comment() nodes. Default true.",
+          "type": "boolean"
+        },
+        "ignore_namespaces": {
+          "default": false,
+          "description": "Compare local names only: namespace prefixes and xmlns declarations are ignored, so ns:book and p:book match. Default false.",
+          "type": "boolean"
+        },
+        "ignore_whitespace": {
+          "default": true,
+          "description": "Ignore insignificant whitespace: collapse whitespace runs in text and attribute values and drop whitespace-only text nodes, so indentation and line breaks never count as differences. Default true.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "JSON output indentation in spaces (1-8). Use 0 to minify. Ignored when format=text. Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "left": {
+          "description": "The first (left/old) XML document.",
+          "type": "string"
+        },
+        "numeric_text": {
+          "default": false,
+          "description": "Compare text and attribute values numerically when both sides parse as numbers, so 1 equals 1.0 and 2.50 equals 2.5. Default false.",
+          "type": "boolean"
+        },
+        "right": {
+          "description": "The second (right/new) XML document to compare against the first.",
+          "type": "string"
+        },
+        "strategy": {
+          "default": "lcs",
+          "description": "How sibling elements are paired up. 'lcs' (default) aligns identical subtrees so a pure insertion or deletion is reported as one added/removed element; 'index' compares siblings position by position; 'unordered' treats siblings as a set, so sibling order is ignored entirely.",
+          "enum": [
+            "lcs",
+            "index",
+            "unordered"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ],
+      "type": "object"
+    }
+  }
+}
