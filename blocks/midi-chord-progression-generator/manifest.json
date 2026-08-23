@@ -1,0 +1,148 @@
+{
+  "name": "gizza-ai/midi-chord-progression-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a downloadable MIDI file from chord symbols",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a chord-symbol progression into a Standard MIDI File (.mid) with voiced chords and timing. `progression` accepts symbols such as `C G Am F`, `Cmaj7 | Dm7 G7 | Cmaj7`, slash chords like `C/E`, rests (`R`/`rest`) and per-chord duration suffixes such as `C:2`. The file includes tempo, time signature, General MIDI instrument, velocity and format-0 note events. Voicing controls include close, drop-2, drop-3, spread, root/first/second/third/smooth inversion, optional bass doubling and transposition. Patterns include block chords, up/down/up-down arpeggios and strums. Returns a base64 download envelope for a `.mid` file plus a summary for chat/CLI. Pure Rust/WASM; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "add_bass": {
+          "default": false,
+          "description": "Double the chord's bass note one octave below the voicing. Useful for piano or pad sketches that need a left-hand root.",
+          "type": "boolean"
+        },
+        "arp_note": {
+          "default": "eighth",
+          "description": "Note value for one arpeggio step. Ignored by block and strum patterns. Default eighth.",
+          "enum": [
+            "whole",
+            "half",
+            "quarter",
+            "eighth",
+            "sixteenth",
+            "thirty-second"
+          ],
+          "type": "string"
+        },
+        "beats_per_bar": {
+          "default": 4,
+          "description": "Time-signature numerator written to the MIDI file; denominator is quarter-note based. Default 4 (4/4).",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "beats_per_chord": {
+          "default": 4.0,
+          "description": "Default duration of each chord in beats unless the symbol has a `:beats` suffix. Default 4, so `C G Am F` is four bars in 4/4.",
+          "maximum": 64,
+          "minimum": 0.25,
+          "type": "number"
+        },
+        "instrument": {
+          "default": "acoustic-grand-piano",
+          "description": "General MIDI instrument program written into the file (default acoustic-grand-piano). Your DAW can replace it later.",
+          "enum": [
+            "acoustic-grand-piano",
+            "bright-acoustic-piano",
+            "electric-piano",
+            "harpsichord",
+            "vibraphone",
+            "drawbar-organ",
+            "church-organ",
+            "accordion",
+            "acoustic-guitar-nylon",
+            "acoustic-guitar-steel",
+            "electric-guitar-clean",
+            "acoustic-bass",
+            "string-ensemble",
+            "choir-aahs",
+            "synth-pad-warm",
+            "synth-lead-square"
+          ],
+          "type": "string"
+        },
+        "inversion": {
+          "default": "root",
+          "description": "Bass/inversion choice. `root` keeps the root in the chord bass, first/second/third rotate chord tones up, and `smooth` chooses the nearest inversion to the previous chord.",
+          "enum": [
+            "root",
+            "first",
+            "second",
+            "third",
+            "smooth"
+          ],
+          "type": "string"
+        },
+        "note_length": {
+          "default": 95.0,
+          "description": "Gate length as a percentage of the chord slot or arpeggio step, 5-100 (default 95). Lower values make more separation between notes.",
+          "maximum": 100,
+          "minimum": 5,
+          "type": "number"
+        },
+        "octave": {
+          "default": 4,
+          "description": "Octave for the chord root before voicing and transposition. 4 puts middle C at MIDI note 60 (default 4).",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pattern": {
+          "default": "block",
+          "description": "Playback pattern. `block` plays the whole chord at once, arpeggio modes step through notes, and `strum` staggers note starts while ending them together.",
+          "enum": [
+            "block",
+            "arpeggio-up",
+            "arpeggio-down",
+            "arpeggio-updown",
+            "strum"
+          ],
+          "type": "string"
+        },
+        "progression": {
+          "description": "Chord symbols to render, separated by spaces, bars or new lines. Examples: `C G Am F`, `Cmaj7 | Dm7 G7 | Cmaj7`, `C/E:2 G:2 Am:4`. Use `R` or `rest` for a rest. A `:beats` suffix overrides the default length for that slot. Supports roots with sharps/flats, slash bass notes and common qualities such as m, 7, maj7, m7, dim, aug, sus2, sus4, 6, 9, 11 and 13. Max 64 KiB / 512 chord slots.",
+          "type": "string"
+        },
+        "tempo": {
+          "default": 120.0,
+          "description": "Tempo in quarter-note beats per minute, written into the MIDI tempo event (default 120, range 20-400).",
+          "maximum": 400,
+          "minimum": 20,
+          "type": "number"
+        },
+        "transpose": {
+          "default": 0,
+          "description": "Transpose the generated notes after voicing, in semitones from -24 to +24 (default 0).",
+          "maximum": 24,
+          "minimum": -24,
+          "type": "integer"
+        },
+        "velocity": {
+          "default": 96,
+          "description": "MIDI note-on velocity (loudness), 1-127 (default 96).",
+          "maximum": 127,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "voicing": {
+          "default": "close",
+          "description": "How chord tones are arranged. `close` stacks them compactly, `drop-2` and `drop-3` move an upper voice down an octave, and `spread` opens the chord over a wider range.",
+          "enum": [
+            "close",
+            "drop-2",
+            "drop-3",
+            "spread"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "progression"
+      ],
+      "type": "object"
+    }
+  }
+}
