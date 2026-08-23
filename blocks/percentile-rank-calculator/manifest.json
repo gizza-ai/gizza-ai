@@ -1,0 +1,51 @@
+{
+  "name": "gizza-ai/percentile-rank-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Percentile rank of one or more values within a reference dataset.",
+  "role": "skill",
+  "tool": {
+    "description": "Find the percentile rank of one or more values inside a reference dataset — how a test score, salary, response time or measurement compares with the rest of the numbers. Give the dataset and the value(s) to locate; the tool returns each value's percentile rank plus how many dataset entries fall below, equal and above it, its quartile and its z-score, and an optional dataset summary (n, min, max, range, mean, median, sample standard deviation, Q1, Q3, IQR). Four standard tie-handling methods are available (weak, strict, mean, rank) matching SciPy percentileofscore. Runs locally; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The reference dataset: the numbers the target values are compared against, separated by commas, spaces, semicolons, or newlines (for example '6, 12, 13, 17, 17, 18'). Order does not matter — the list is sorted internally. Up to 10000 numbers per run.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places used when rounding the percentile ranks, z-scores, and summary statistics, 0 to 6. Trailing zeros are trimmed, so 64.70 prints as 64.7. Default 2.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "include_stats": {
+          "default": true,
+          "description": "Append a dataset summary line with n, min, max, range, mean, median, sample standard deviation, Q1, Q3 and IQR. Set false for just the ranked values. Default true.",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "weak",
+          "description": "How tied values are handled, matching SciPy percentileofscore: 'weak' (default) is count(<= value)/N x 100, the formula most online percentile-rank calculators use; 'strict' is count(< value)/N x 100; 'mean' is the midpoint of strict and weak, so ties split evenly; 'rank' is the average ranking of tied values. All four agree when the value is not tied with any dataset entry.",
+          "enum": [
+            "weak",
+            "strict",
+            "mean",
+            "rank"
+          ],
+          "type": "string"
+        },
+        "values": {
+          "description": "The value or values whose percentile rank you want, separated by commas, spaces, semicolons, or newlines (for example '25' or '25, 30'). A value need not appear in the dataset; anything below the minimum ranks at 0 and anything above the maximum ranks at 100. Up to 100 values per run.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "values"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "percentile-rank-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Percentile rank of one or more values within a reference dataset."
