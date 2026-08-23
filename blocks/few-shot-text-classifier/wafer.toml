@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "few-shot-text-classifier"
+version = "0.1.0"
+abi = 1
+summary = "Classify text by similarity to a handful of labeled examples, with no training or model."
