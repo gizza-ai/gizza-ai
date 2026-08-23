@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bibtex-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Convert a BibTeX bibliography to a CSV table, one row per entry."
