@@ -1,0 +1,238 @@
+slug          = "spaced-repetition-scheduler"
+title         = "Spaced Repetition Scheduler — SM-2 and FSRS Next Review Dates"
+description   = "Paste a flashcard review log and get every card's next review date, interval, ease or stability, and leech status with the SM-2 or FSRS algorithm."
+tags          = ["spaced repetition", "flashcards", "sm-2", "fsrs", "study planner", "review schedule", "leech", "memory", "anki-style", "learning"]
+h1            = "Spaced repetition scheduler"
+hero_subtitle = "Replay a card review log with SM-2 or FSRS and see when every card is due, what its interval is, and which cards have become leeches."
+wasm          = "gizza_ai_spaced_repetition_scheduler_web"
+export        = "run"
+live          = false
+output_label  = "Schedule"
+format        = "text"
+
+[[input]]
+name        = "reviews"
+label       = "Review log"
+placeholder = "capital-of-peru, 2026-08-01, good\ncapital-of-peru, 2026-08-02, good\nkanji-water, 2026-08-02, again"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "algorithm"
+label  = "Algorithm"
+source = "field"
+[input.labels]
+sm2  = "SM-2 (ease and interval)"
+fsrs = "FSRS (difficulty and stability)"
+
+[[input]]
+name   = "grade_scale"
+label  = "Grade scale"
+source = "field"
+[input.labels]
+auto = "Auto-detect"
+sm2  = "SuperMemo 0-5"
+anki = "Four buttons 1-4"
+
+[[input]]
+name        = "today"
+label       = "Reference date"
+placeholder = "2026-08-24 (blank = last review in the log)"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+[input.labels]
+table    = "Aligned table"
+csv      = "CSV"
+json     = "JSON"
+explain  = "Explain each review"
+forecast = "Forecast upcoming reviews"
+
+[[input]]
+name   = "sort"
+label  = "Sort rows by"
+source = "field"
+[input.labels]
+due      = "Due date"
+card     = "Card name"
+interval = "Interval"
+lapses   = "Lapses (most first)"
+input    = "Log order"
+
+[[input]]
+name   = "only_due"
+label  = "Only cards due now"
+source = "field"
+
+[[input]]
+name        = "desired_retention"
+label       = "Desired retention (FSRS)"
+placeholder = "0.9"
+source      = "field"
+kind        = "slider"
+min         = "0.7"
+max         = "0.99"
+step        = "0.01"
+
+[[input]]
+name        = "ease_start"
+label       = "Starting ease (SM-2)"
+placeholder = "2.5"
+source      = "field"
+
+[[input]]
+name        = "min_ease"
+label       = "Minimum ease (SM-2)"
+placeholder = "1.3"
+source      = "field"
+
+[[input]]
+name        = "first_interval"
+label       = "First interval, days (SM-2)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "second_interval"
+label       = "Second interval, days (SM-2)"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "easy_bonus"
+label       = "Easy bonus (SM-2)"
+placeholder = "1.3"
+source      = "field"
+
+[[input]]
+name        = "hard_multiplier"
+label       = "Hard multiplier (SM-2)"
+placeholder = "1.2"
+source      = "field"
+
+[[input]]
+name        = "interval_modifier"
+label       = "Interval modifier"
+placeholder = "1.0"
+source      = "field"
+
+[[input]]
+name        = "lapse_multiplier"
+label       = "Lapse multiplier (SM-2)"
+placeholder = "0 (restart at the first interval)"
+source      = "field"
+
+[[input]]
+name        = "max_interval"
+label       = "Maximum interval, days"
+placeholder = "36500"
+source      = "field"
+
+[[input]]
+name        = "leech_threshold"
+label       = "Leech threshold, lapses"
+placeholder = "8 (0 turns leech flagging off)"
+source      = "field"
+
+[[input]]
+name        = "forecast_reviews"
+label       = "Forecast reviews"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name   = "forecast_grade"
+label  = "Assumed forecast grade"
+source = "field"
+[input.labels]
+again = "Again (lapse)"
+hard  = "Hard"
+good  = "Good"
+easy  = "Easy"
+
+[[input]]
+name        = "fsrs_weights"
+label       = "Custom FSRS weights"
+placeholder = "0.2172, 1.1771, 3.2602, … (21 numbers, blank = built-in)"
+source      = "field"
+
+[[example]]
+label = "Small SM-2 deck"
+[example.params]
+reviews = """
+card, date, grade
+capital-of-peru, 2026-08-01, good
+capital-of-peru, 2026-08-02, good
+capital-of-peru, 2026-08-08, good
+kanji-water, 2026-08-01, again
+kanji-water, 2026-08-02, good
+verb-haber, 2026-08-02, easy
+"""
+algorithm = "sm2"
+grade_scale = "auto"
+today = "2026-08-24"
+output = "table"
+sort = "due"
+
+[[example]]
+label = "What is due today"
+[example.params]
+reviews = """
+capital-of-peru, 2026-08-01, good
+capital-of-peru, 2026-08-02, good
+kanji-water, 2026-08-20, again
+verb-haber, 2026-08-23, hard
+new-card-never-seen
+"""
+algorithm = "sm2"
+today = "2026-08-24"
+output = "table"
+sort = "due"
+only_due = "true"
+
+[[example]]
+label = "FSRS at 95% retention"
+[example.params]
+reviews = """
+capital-of-peru, 2026-08-01, good
+capital-of-peru, 2026-08-02, good
+capital-of-peru, 2026-08-08, easy
+kanji-water, 2026-08-01, again
+kanji-water, 2026-08-02, hard
+"""
+algorithm = "fsrs"
+grade_scale = "anki"
+today = "2026-08-24"
+output = "table"
+sort = "due"
+desired_retention = "0.95"
+
+[[example]]
+label = "Forecast the next 8 reviews"
+[example.params]
+reviews = """
+capital-of-peru, 2026-08-01, good
+capital-of-peru, 2026-08-02, good
+"""
+algorithm = "sm2"
+today = "2026-08-24"
+output = "forecast"
+forecast_reviews = "8"
+forecast_grade = "good"
+
+[[example]]
+label = "Explain trace with a leech"
+[example.params]
+reviews = """
+kanji-water, 2026-08-01, again
+kanji-water, 2026-08-02, again
+kanji-water, 2026-08-03, again
+kanji-water, 2026-08-04, good
+"""
+algorithm = "sm2"
+today = "2026-08-24"
+output = "explain"
+leech_threshold = "3"

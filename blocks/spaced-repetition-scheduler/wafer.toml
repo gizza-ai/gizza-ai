@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "spaced-repetition-scheduler"
+version = "0.1.0"
+abi = 1
+summary = "Compute next review dates from a card review log with SM-2 or FSRS"
