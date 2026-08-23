@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cmyk-jpeg-to-rgb"
+version = "0.1.0"
+abi = 1
+summary = "Convert a CMYK (often Adobe/print) JPEG into a standard RGB PNG, JPEG or WebP."
