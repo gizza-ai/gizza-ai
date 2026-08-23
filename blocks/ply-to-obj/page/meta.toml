@@ -1,0 +1,136 @@
+slug          = "ply-to-obj"
+title         = "PLY to OBJ Converter — convert PLY meshes and point clouds to Wavefront OBJ"
+description   = "Convert a Stanford PLY mesh or point cloud to Wavefront OBJ. Reads ascii and binary PLY, keeps vertex colors, normals and UVs, scales and reorients axes."
+tags          = ["ply to obj", "ply converter", "wavefront obj", "point cloud", "3d model converter", "mesh converter", "vertex colors", "binary ply"]
+h1            = "PLY to OBJ Converter"
+hero_subtitle = "Paste a Stanford PLY mesh or point cloud — ASCII as text, binary as base64 or hex — and get a Wavefront OBJ file back. Vertex colors, normals and texture coordinates come across, and you can scale, reorient axes or triangulate n-gons, all locally in your browser."
+wasm          = "gizza_ai_ply_to_obj_web"
+export        = "run"
+live          = false
+output_label  = "Wavefront OBJ"
+format        = "text"
+
+[[input]]
+name        = "ply"
+label       = "PLY file (ASCII text, or binary bytes as base64/hex)"
+placeholder = "ply\nformat ascii 1.0\nelement vertex 3\nproperty float x\nproperty float y\nproperty float z\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n0 0 0\n1 0 0\n0 1 0\n3 0 1 2"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+ascii  = "ASCII PLY text"
+base64 = "Binary PLY as base64"
+hex    = "Binary PLY as hex"
+
+[[input]]
+name   = "colors"
+label  = "Keep vertex colors (v x y z r g b)"
+source = "field"
+
+[[input]]
+name   = "normals"
+label  = "Keep vertex normals (vn)"
+source = "field"
+
+[[input]]
+name   = "uvs"
+label  = "Keep texture coordinates (vt)"
+source = "field"
+
+[[input]]
+name   = "triangulate"
+label  = "Triangulate n-gon faces"
+source = "field"
+
+[[input]]
+name        = "scale"
+label       = "Scale factor"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "axis"
+label  = "Axis conversion"
+source = "field"
+
+[input.labels]
+keep         = "Keep axes"
+y-up-to-z-up = "Y-up → Z-up"
+z-up-to-y-up = "Z-up → Y-up"
+
+[[input]]
+name        = "name"
+label       = "Object name"
+placeholder = "mesh"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+obj     = "Wavefront OBJ"
+summary = "Source-file summary"
+
+[[example]]
+label = "ASCII triangle → OBJ"
+[example.params]
+ply = "ply\nformat ascii 1.0\nelement vertex 3\nproperty float x\nproperty float y\nproperty float z\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n0 0 0\n1 0 0\n0 1 0\n3 0 1 2"
+input_format = "auto"
+colors = "true"
+normals = "true"
+uvs = "true"
+triangulate = "false"
+scale = "1"
+axis = "keep"
+name = "triangle"
+output = "obj"
+
+[[example]]
+label = "Colored point cloud"
+[example.params]
+ply = "ply\nformat ascii 1.0\nelement vertex 3\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n0 0 0 255 0 0\n1 0 0 0 255 0\n0 1 0 0 0 255"
+input_format = "auto"
+colors = "true"
+normals = "true"
+uvs = "true"
+triangulate = "false"
+scale = "1"
+axis = "keep"
+name = "cloud"
+output = "obj"
+
+[[example]]
+label = "Quad → triangles for 3D printing"
+[example.params]
+ply = "ply\nformat ascii 1.0\nelement vertex 4\nproperty float x\nproperty float y\nproperty float z\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n0 0 0\n1 0 0\n1 1 0\n0 1 0\n4 0 1 2 3"
+input_format = "auto"
+colors = "true"
+normals = "true"
+uvs = "true"
+triangulate = "true"
+scale = "25.4"
+axis = "y-up-to-z-up"
+name = "plate"
+output = "obj"
+
+[[example]]
+label = "Inspect the source file"
+[example.params]
+ply = "ply\nformat ascii 1.0\ncomment exported by a handheld scanner\nelement vertex 3\nproperty float x\nproperty float y\nproperty float z\nproperty float nx\nproperty float ny\nproperty float nz\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n0 0 0 0 0 1 255 0 0\n1 0 0 0 0 1 0 255 0\n0 1 0 0 0 1 0 0 255\n3 0 1 2"
+input_format = "auto"
+colors = "true"
+normals = "true"
+uvs = "true"
+triangulate = "false"
+scale = "1"
+axis = "keep"
+name = "scan_01"
+output = "summary"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "ply-to-obj"
+version = "0.1.0"
+abi = 1
+summary = "Convert a PLY mesh or point cloud (ascii or binary) into a Wavefront OBJ file"
