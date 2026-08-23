@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-duration-validator"
+version = "0.1.0"
+abi = 1
+summary = "Check a video's duration against a target and flag clips that are too long or too short."

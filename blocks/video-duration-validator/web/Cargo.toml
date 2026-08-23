@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-video-duration-validator-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+# base64: page/custom.js hands the chosen video over as base64 (the generic
+# non-ffmpeg page driver marshals strings only).
+base64 = "0.22"
+gizza-ai-video-duration-validator-core = { path = "../core" }

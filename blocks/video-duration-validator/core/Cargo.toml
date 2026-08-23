@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-video-duration-validator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Duration comes from the pure-Rust symphonia demuxers already wrapped by the
+# media-info block's core — no ffmpeg, no decoding, no I/O, so the same code
+# runs in the chat block, the CLI, and the browser page.
+gizza-ai-media-info-core = { path = "../../media-info/core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
