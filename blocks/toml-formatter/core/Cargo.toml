@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-toml-formatter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# toml_edit keeps the full syntax tree (including comment/whitespace decor), so
+# the formatter can re-emit a document without dropping comments or rewriting
+# scalar literals. The `toml` crate's value model would lose both.
+toml_edit = "0.22"
