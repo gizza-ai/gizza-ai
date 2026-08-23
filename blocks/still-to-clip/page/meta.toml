@@ -1,0 +1,97 @@
+slug          = "still-to-clip"
+title         = "Image to Video — Turn a Still Photo into a Clip"
+description   = "Turn a still image into a fixed-length MP4, WebM or MOV clip in your browser. Pick the duration, size, fit, frame rate and quality — nothing is uploaded."
+tags          = ["image to video", "photo to mp4", "jpg to mp4", "png to video", "still to clip", "picture to video", "ffmpeg"]
+h1            = "Turn a Still Image into a Video Clip"
+hero_subtitle = "Pick a photo and a length — it's held motionless as a real video clip, encoded in your browser with nothing uploaded."
+wasm          = "gizza_ai_still_to_clip_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Video clip"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "duration"
+source      = "field"
+label       = "Duration (seconds, 0.1-60)"
+placeholder = "5"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "width"
+source      = "field"
+label       = "Width (px)"
+placeholder = "1920"
+
+[[input]]
+name        = "height"
+source      = "field"
+label       = "Height (px)"
+placeholder = "1080"
+
+[[input]]
+name   = "fit"
+source = "field"
+label  = "Fit"
+
+[input.labels]
+contain  = "Contain — fit the whole image, pad the rest (default)"
+cover    = "Cover — fill the frame, crop the overflow"
+stretch  = "Stretch — force the exact size, distort the photo"
+original = "Original — keep the image's own size"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Padding color (contain only)"
+placeholder = "black"
+kind        = "color"
+
+[[input]]
+name        = "fps"
+source      = "field"
+label       = "Frames per second (1-60)"
+placeholder = "30"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Format"
+
+[input.labels]
+mp4  = "MP4 — H.264, plays everywhere (default)"
+webm = "WebM — VP9, smaller and web-native"
+mov  = "MOV — H.264 in a QuickTime container"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (1-100)"
+placeholder = "80"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Widescreen 1080p (5s)"
+params = { duration = "5", width = "1920", height = "1080", fit = "contain", background = "black", fps = "30", format = "mp4", quality = "80" }
+
+[[example]]
+label  = "Square social post (6s)"
+params = { duration = "6", width = "1080", height = "1080", fit = "cover", background = "black", fps = "30", format = "mp4", quality = "80" }
+
+[[example]]
+label  = "Vertical story (5s)"
+params = { duration = "5", width = "1080", height = "1920", fit = "contain", background = "white", fps = "30", format = "mp4", quality = "80" }
+
+[[example]]
+label  = "Keep original size (3s)"
+params = { duration = "3", width = "1920", height = "1080", fit = "original", background = "black", fps = "10", format = "webm", quality = "80" }

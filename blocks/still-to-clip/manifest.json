@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/still-to-clip",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a single still image into a fixed-duration static video clip at a chosen size, frame rate and format.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a single still image into a fixed-duration static video clip — the picture is held motionless for the requested time (use video-ken-burns instead if you want pan/zoom motion). Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Optional duration (seconds 0.1-60, default 5), width/height in pixels (default 1920x1080, snapped even), fit (contain [default] pads with the background color, cover center-crops, stretch distorts, original keeps the source size), background color for contain padding (default black), fps (1-60, default 30), format (mp4 [default, H.264], webm [VP9], mov), and quality (1-100, default 80).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "black",
+          "description": "Color of the padding bars when fit is contain: a name like black (the default), white or navy, or hex like #FFFFFF or 0x1A2B3C. Unused by the other fit modes.",
+          "type": "string"
+        },
+        "duration": {
+          "default": 5.0,
+          "description": "How long the still is held, in seconds, 0.1-60 (default 5).",
+          "maximum": 60,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "fit": {
+          "default": "contain",
+          "description": "How the picture is placed in the frame: contain (the default) fits it whole and pads the leftover with the background color, cover fills the frame and center-crops the overflow, stretch forces the exact size and distorts the aspect ratio, and original keeps the image's own size and ignores width/height.",
+          "enum": [
+            "contain",
+            "cover",
+            "stretch",
+            "original"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "mp4",
+          "description": "Output container: mp4 (the default, H.264 — plays everywhere), webm (VP9, smaller and web-native), or mov (H.264 in a QuickTime container for editors).",
+          "enum": [
+            "mp4",
+            "webm",
+            "mov"
+          ],
+          "type": "string"
+        },
+        "fps": {
+          "default": 30.0,
+          "description": "Frames per second, 1-60 (default 30). A still needs no motion, so a low value like 10 makes a much smaller file.",
+          "maximum": 60,
+          "minimum": 1,
+          "type": "number"
+        },
+        "height": {
+          "default": 1080,
+          "description": "Output height in pixels, 16-3840 (default 1080; snapped to an even number). Ignored when fit is original.",
+          "maximum": 3840,
+          "minimum": 16,
+          "type": "number"
+        },
+        "quality": {
+          "default": 80.0,
+          "description": "Encoding quality 1-100 (default 80), mapped onto the codec's CRF. Higher is better looking and larger; 80 is visually clean for a static hold.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 1920,
+          "description": "Output width in pixels, 16-3840 (default 1920; snapped to an even number). Ignored when fit is original.",
+          "maximum": 3840,
+          "minimum": 16,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
