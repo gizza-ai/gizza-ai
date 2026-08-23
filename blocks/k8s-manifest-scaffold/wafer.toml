@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "k8s-manifest-scaffold"
+version = "0.1.0"
+abi = 1
+summary = "Generate a Kubernetes Deployment + Service YAML manifest"

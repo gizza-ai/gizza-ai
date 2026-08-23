@@ -1,0 +1,133 @@
+slug          = "k8s-manifest-scaffold"
+title         = "Kubernetes Deployment + Service YAML Generator"
+description   = "Fill in a name, image and ports to generate a Kubernetes Deployment plus matching Service, with resources, env, labels and probes."
+tags          = ["kubernetes yaml generator", "deployment and service manifest", "k8s manifest scaffold", "kubectl apply template", "kubernetes deployment yaml", "nodeport service yaml", "liveness readiness probe yaml"]
+h1            = "Kubernetes Manifest Generator"
+hero_subtitle = "Turn an app name, image and port into a validated Deployment + Service manifest you can pipe straight into kubectl apply — resources, env vars, labels and probes included. Nothing is uploaded."
+wasm          = "gizza_ai_k8s_manifest_scaffold_web"
+export        = "run"
+live          = false
+output_label  = "manifest.yaml"
+format        = "text"
+
+[[input]]
+name        = "name"
+label       = "App name"
+placeholder = "web"
+source      = "field"
+
+[[input]]
+name        = "image"
+label       = "Container image"
+placeholder = "nginx:1.27"
+source      = "field"
+
+[[input]]
+name        = "namespace"
+label       = "Namespace (optional)"
+placeholder = "default"
+source      = "field"
+
+[[input]]
+name        = "replicas"
+label       = "Replicas"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "container_port"
+label       = "Container port"
+placeholder = "8080"
+source      = "field"
+
+[[input]]
+name        = "service_port"
+label       = "Service port"
+placeholder = "80"
+source      = "field"
+
+# service_type renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "service_type"
+label  = "Service type"
+source = "field"
+
+[input.labels]
+"ClusterIP"    = "ClusterIP (in-cluster only)"
+"NodePort"     = "NodePort (port on every node)"
+"LoadBalancer" = "LoadBalancer (cloud LB)"
+
+[[input]]
+name        = "node_port"
+label       = "nodePort (NodePort only)"
+placeholder = "30080"
+source      = "field"
+
+[[input]]
+name   = "image_pull_policy"
+label  = "Image pull policy"
+source = "field"
+
+[input.labels]
+"IfNotPresent" = "IfNotPresent"
+"Always"       = "Always"
+"Never"        = "Never"
+
+[[input]]
+name        = "cpu_request"
+label       = "CPU request"
+placeholder = "100m"
+source      = "field"
+
+[[input]]
+name        = "cpu_limit"
+label       = "CPU limit"
+placeholder = "500m"
+source      = "field"
+
+[[input]]
+name        = "memory_request"
+label       = "Memory request"
+placeholder = "128Mi"
+source      = "field"
+
+[[input]]
+name        = "memory_limit"
+label       = "Memory limit"
+placeholder = "256Mi"
+source      = "field"
+
+[[input]]
+name        = "env"
+label       = "Environment variables (KEY=value per line)"
+placeholder = "LOG_LEVEL=info\nPORT=8000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "labels"
+label       = "Extra labels (key=value)"
+placeholder = "tier=backend, team=payments"
+source      = "field"
+
+[[input]]
+name        = "probe_path"
+label       = "Health probe path"
+placeholder = "/healthz"
+source      = "field"
+
+[[example]]
+label  = "Minimal nginx Deployment"
+params = { name = "web", image = "nginx:1.27" }
+
+[[example]]
+label  = "Production API with resources and probes"
+params = { name = "api", image = "ghcr.io/acme/api:v1.2.3", namespace = "prod", replicas = "3", container_port = "8000", cpu_request = "100m", cpu_limit = "500m", memory_request = "128Mi", memory_limit = "256Mi", env = "LOG_LEVEL=info\nPORT=8000", probe_path = "/healthz" }
+
+[[example]]
+label  = "NodePort service on 30080"
+params = { name = "dashboard", image = "grafana/grafana:11.1.0", container_port = "3000", service_port = "3000", service_type = "NodePort", node_port = "30080" }
+
+[[example]]
+label  = "LoadBalancer with extra labels"
+params = { name = "checkout", image = "ghcr.io/acme/checkout:2.0.0", service_type = "LoadBalancer", replicas = "2", labels = "tier=frontend, team=payments" }
