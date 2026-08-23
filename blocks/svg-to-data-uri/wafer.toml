@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "svg-to-data-uri"
+version = "0.1.0"
+abi = 1
+summary = "Encode SVG markup into a URL-escaped or base64 data URI plus a ready-to-paste CSS, HTML or JSX snippet."

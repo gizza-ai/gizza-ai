@@ -1,0 +1,64 @@
+{
+  "name": "gizza-ai/svg-to-data-uri",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode SVG markup into a URL-escaped or base64 data URI plus a ready-to-paste CSS, HTML or JSX snippet.",
+  "role": "skill",
+  "tool": {
+    "description": "Encode SVG markup into an inline 'data:image/svg+xml' URI for CSS url(...), an <img src>, a mask-image or a JSX component — no extra HTTP request. Pass the markup as 'svg'. 'encoding' is 'url' (default: minimal percent-encoding, usually the shorter form for SVG) or 'base64' (~33% larger). 'output' picks the snippet: uri (default), css, mask, img, jsx, or compare (a size report naming the shorter encoding). 'quotes' controls the attribute double quotes in the url form: 'single' (default, rewritten to apostrophes) or 'encode' (%22). 'minify' (default true) strips the XML declaration, DOCTYPE, comments and redundant whitespace; 'add_xmlns' (default true) injects the SVG namespace when the root element lacks it, without which the URI renders blank. Returns the snippet plus the data URI, both encodings' lengths, which is smaller, and the byte counts. To decode a data URI back, use data-uri-decode; to shrink the markup itself first, use svg-optimize; for non-SVG content use data-uri-encode or file-to-data-uri.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "add_xmlns": {
+          "default": true,
+          "description": "Add xmlns=\"http://www.w3.org/2000/svg\" to the root element when it is missing (default true). Without it a data-URI SVG renders as nothing in CSS url(), which is the most common cause of a blank result.",
+          "type": "boolean"
+        },
+        "encoding": {
+          "default": "url",
+          "description": "Payload encoding. 'url' (default) applies the minimal percent-encoding that is safe inside a quoted CSS url(\"...\") or HTML attribute and is usually 20-30% shorter for SVG; 'base64' emits 'data:image/svg+xml;base64,...', about 33% larger but opaque to tooling that rewrites markup.",
+          "enum": [
+            "url",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "minify": {
+          "default": true,
+          "description": "Strip the XML declaration, DOCTYPE and comments and collapse redundant whitespace before encoding (default true). Turn it off to keep the markup byte-for-byte, e.g. when <text> content relies on runs of spaces.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "uri",
+          "description": "Which snippet to return. 'uri' (default) the bare data: URI; 'css' a background-image declaration; 'mask' mask-image plus the -webkit- prefixed twin; 'img' an HTML <img> tag; 'jsx' a small React component; 'compare' a size report of both encodings naming the shorter one.",
+          "enum": [
+            "uri",
+            "css",
+            "mask",
+            "img",
+            "jsx",
+            "compare"
+          ],
+          "type": "string"
+        },
+        "quotes": {
+          "default": "single",
+          "description": "How the double quotes around SVG attribute values are handled in the 'url' encoding, since the URI has to sit inside url(\"...\"). 'single' (default) rewrites them to apostrophes — one byte each and still valid XML; 'encode' percent-encodes them as %22, leaving the markup byte-identical. Ignored when encoding is 'base64'.",
+          "enum": [
+            "single",
+            "encode"
+          ],
+          "type": "string"
+        },
+        "svg": {
+          "description": "The SVG markup to encode, e.g. '<svg viewBox=\"0 0 16 16\"><circle cx=\"8\" cy=\"8\" r=\"7\" fill=\"#0af\"/></svg>'. Must contain a root <svg> element. Limit 1000000 bytes.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "svg"
+      ],
+      "type": "object"
+    }
+  }
+}
