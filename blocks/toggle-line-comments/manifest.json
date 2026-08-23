@@ -1,0 +1,98 @@
+{
+  "name": "gizza-ai/toggle-line-comments",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Comment or uncomment a block of code in the right syntax for its language",
+  "role": "skill",
+  "tool": {
+    "description": "Comment or uncomment a block of code using the correct line-comment syntax for its language — the job an editor's Ctrl+/ does, for pasted code. Covers 33 languages plus 'auto' detection: // (javascript, typescript, java, csharp, c, cpp, go, rust, swift, kotlin, scala, php), # (python, ruby, perl, shell, powershell, yaml, toml, r, dockerfile, makefile), -- (sql, lua, haskell), ; (ini), ;; (clojure), % (latex), ' (vb), REM (batch), plus /* */ for css and <!-- --> for html/xml, which have no line comment. mode='toggle' (default) uncomments when every considered line already carries the marker and otherwise comments the whole block, so the operation is reversible; 'comment' and 'uncomment' force a direction. align='indent' (default) inserts the marker at the block's shallowest indentation to keep relative indentation intact, 'column0' puts it flush left. space_after_marker (default true) writes '// code'; comment_blank_lines (default false) also marks blank lines. marker overrides the language's syntax for anything exotic. Returns the transformed code plus the action taken, the resolved language, the marker used, and total/changed line counts. This is a lexical transform, not a parser: a marker inside a string literal is not recognized, and input is capped at 2,000,000 characters. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align": {
+          "default": "indent",
+          "description": "Where the marker goes when commenting. 'indent' (default) puts it at the block's SHALLOWEST indentation so the code keeps its relative shape. 'column0' puts every marker flush against the left margin. Ignored when uncommenting, which always keeps the original indentation.",
+          "enum": [
+            "indent",
+            "column0"
+          ],
+          "type": "string"
+        },
+        "code": {
+          "description": "The block of code to comment or uncomment, pasted as text. Lines are split on newlines and indentation is preserved. Example: 'const a = 1;\\nconst b = 2;'.",
+          "type": "string"
+        },
+        "comment_blank_lines": {
+          "default": false,
+          "description": "Also mark blank and whitespace-only lines, which are otherwise passed through untouched. Default false (editor behavior). When true a blank line becomes the bare marker with no trailing space, so no trailing whitespace is introduced.",
+          "type": "boolean"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Which language's line-comment syntax to use. 'auto' (default) guesses from a shebang, an existing comment marker, or distinctive keywords. Markers by family: // (javascript, typescript, java, csharp, c, cpp, go, rust, swift, kotlin, scala, php), # (python, ruby, perl, shell, powershell, yaml, toml, r, dockerfile, makefile), -- (sql, lua, haskell), ; (ini), ;; (clojure), % (latex), ' (vb), REM (batch). css wraps each line in /* */ and html/xml in <!-- --> because they have no line comment. Name the language when auto guesses wrong.",
+          "enum": [
+            "auto",
+            "javascript",
+            "typescript",
+            "java",
+            "csharp",
+            "c",
+            "cpp",
+            "go",
+            "rust",
+            "swift",
+            "kotlin",
+            "scala",
+            "php",
+            "python",
+            "ruby",
+            "perl",
+            "shell",
+            "powershell",
+            "yaml",
+            "toml",
+            "r",
+            "dockerfile",
+            "makefile",
+            "sql",
+            "lua",
+            "haskell",
+            "ini",
+            "clojure",
+            "latex",
+            "vb",
+            "batch",
+            "css",
+            "html",
+            "xml"
+          ],
+          "type": "string"
+        },
+        "marker": {
+          "default": "",
+          "description": "An explicit comment marker that overrides the language's own, for a syntax the language list does not cover — e.g. '//' , '#', '--' or '@'. Must contain no whitespace. Default empty (use the language's marker). A custom marker is always treated as a line comment, never a pair.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "toggle",
+          "description": "What to do. 'toggle' (default) uncomments when EVERY considered line is already commented and otherwise comments the whole block — the same rule an editor's Ctrl+/ uses. 'comment' always adds markers; 'uncomment' always removes them and leaves lines that have none untouched.",
+          "enum": [
+            "toggle",
+            "comment",
+            "uncomment"
+          ],
+          "type": "string"
+        },
+        "space_after_marker": {
+          "default": true,
+          "description": "Write '// code' rather than '//code'. Default true, which is what most linters and formatters expect. Uncommenting removes at most one such space, so deliberate indentation inside a comment survives a round trip.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}
