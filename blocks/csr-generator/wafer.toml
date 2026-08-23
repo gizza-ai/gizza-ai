@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csr-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate an ECDSA private key and PKCS#10 CSR"
