@@ -1,0 +1,143 @@
+slug          = "url-normalizer"
+title         = "URL Normalizer — Canonicalize Hosts, Paths and Query Strings"
+description   = "Normalize URLs in bulk: lowercase hosts, remove default ports, resolve dot-segments, canonicalize percent-encoding, sort query params, and optionally strip tracking."
+tags          = ["url normalizer", "url canonicalizer", "canonical url", "normalize urls", "sort query parameters", "remove default port", "resolve dot segments", "strip utm", "seo canonical url"]
+h1            = "URL Normalizer"
+hero_subtitle = "Turn many spellings of the same address into one canonical URL: host lowercased, default ports removed, dot-segments resolved, query keys sorted, and optional SEO cleanup applied."
+wasm          = "gizza_ai_url_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized URLs"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "urls"
+label       = "URLs (one per line)"
+placeholder = "HTTP://Example.COM:80/a/b/../c?b=2&a=1\nhttps://www.example.com/blog/index.html?utm_source=news&id=42#intro\n../images/logo.png"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "base"
+label       = "Base URL for relative references"
+placeholder = "https://example.com/docs/guide/index.html"
+default     = ""
+source      = "field"
+
+[[input]]
+name    = "scheme"
+label   = "Scheme policy"
+default = "preserve"
+source  = "field"
+labels  = { preserve = "Preserve (default)", https = "Force https for web URLs", http = "Force http for web URLs" }
+
+[[input]]
+name    = "www"
+label   = "www policy"
+default = "preserve"
+source  = "field"
+labels  = { preserve = "Preserve (default)", strip = "Strip leading www.", add = "Add www. to apex hosts" }
+
+[[input]]
+name    = "strip_default_port"
+label   = "Remove default ports (:80, :443, etc.)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "dot_segments"
+label   = "Resolve . and .. path segments"
+default = "true"
+source  = "field"
+
+[[input]]
+name   = "collapse_slashes"
+label  = "Collapse repeated slashes in the path"
+source = "field"
+
+[[input]]
+name   = "lowercase_path"
+label  = "Lowercase the path (case-sensitive on many servers)"
+source = "field"
+
+[[input]]
+name    = "encoding"
+label   = "Percent-encoding"
+default = "normalize"
+source  = "field"
+labels  = { normalize = "Normalize RFC 3986 escapes (default)", decode = "Decode legal literals", preserve = "Preserve escapes as written" }
+
+[[input]]
+name   = "drop_index"
+label  = "Remove directory index files (index.html, default.aspx…)"
+source = "field"
+
+[[input]]
+name    = "trailing_slash"
+label   = "Trailing slash policy"
+default = "preserve"
+source  = "field"
+labels  = { preserve = "Preserve (default)", add = "Add for directory-style paths", remove = "Remove except site root" }
+
+[[input]]
+name    = "sort_query"
+label   = "Query order"
+default = "key"
+source  = "field"
+labels  = { key = "Sort by key (default)", key-value = "Sort by key, then value", none = "Keep original order" }
+
+[[input]]
+name   = "dedupe_query"
+label  = "Drop identical repeated query parameters"
+source = "field"
+
+[[input]]
+name   = "drop_empty_params"
+label  = "Drop empty query parameters (a=, bare flags)"
+source = "field"
+
+[[input]]
+name   = "drop_tracking"
+label  = "Strip tracking parameters (utm_*, fbclid, gclid…)"
+source = "field"
+
+[[input]]
+name   = "drop_fragment"
+label  = "Remove fragments (#section)"
+source = "field"
+
+[[input]]
+name   = "dedupe_urls"
+label  = "Drop duplicate normalized URLs"
+source = "field"
+
+[[input]]
+name    = "on_invalid"
+label   = "Invalid lines"
+default = "keep"
+source  = "field"
+labels  = { keep = "Keep original line (default)", drop = "Drop invalid lines", error = "Stop with an error" }
+
+[[input]]
+name    = "output"
+label   = "Result"
+default = "urls"
+source  = "field"
+labels  = { urls = "All normalized URLs (default)", changed = "Only changed URLs", report = "Per-line CSV report", summary = "CSV summary" }
+
+[[example]]
+label  = "RFC-style canonical form"
+params = { urls = "HTTP://Example.COM:80/a/b/../c?b=2&a=1", base = "", scheme = "preserve", www = "preserve", strip_default_port = "true", dot_segments = "true", collapse_slashes = "false", lowercase_path = "false", encoding = "normalize", drop_index = "false", trailing_slash = "preserve", sort_query = "key", dedupe_query = "false", drop_empty_params = "false", drop_tracking = "false", drop_fragment = "false", dedupe_urls = "false", on_invalid = "keep", output = "urls" }
+
+[[example]]
+label  = "SEO cleanup"
+params = { urls = "http://www.example.com:80/blog/index.html?utm_source=news&id=42#intro", base = "", scheme = "https", www = "strip", strip_default_port = "true", dot_segments = "true", collapse_slashes = "false", lowercase_path = "false", encoding = "normalize", drop_index = "true", trailing_slash = "remove", sort_query = "key", dedupe_query = "false", drop_empty_params = "false", drop_tracking = "true", drop_fragment = "true", dedupe_urls = "false", on_invalid = "keep", output = "urls" }
+
+[[example]]
+label  = "Resolve relative URLs"
+params = { urls = "../images/logo.png\n?print=1&b=2&a=1", base = "https://example.com/docs/guide/index.html", scheme = "preserve", www = "preserve", strip_default_port = "true", dot_segments = "true", collapse_slashes = "false", lowercase_path = "false", encoding = "normalize", drop_index = "false", trailing_slash = "preserve", sort_query = "key", dedupe_query = "false", drop_empty_params = "false", drop_tracking = "false", drop_fragment = "false", dedupe_urls = "false", on_invalid = "keep", output = "urls" }
+
+[[example]]
+label  = "Changed URLs report"
+params = { urls = "https://example.com/a?b=2&a=1\nhttps://example.com/a?a=1&b=2", base = "", scheme = "preserve", www = "preserve", strip_default_port = "true", dot_segments = "true", collapse_slashes = "false", lowercase_path = "false", encoding = "normalize", drop_index = "false", trailing_slash = "preserve", sort_query = "key", dedupe_query = "false", drop_empty_params = "false", drop_tracking = "false", drop_fragment = "false", dedupe_urls = "true", on_invalid = "keep", output = "report" }
