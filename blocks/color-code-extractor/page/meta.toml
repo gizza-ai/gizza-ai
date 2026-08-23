@@ -1,0 +1,155 @@
+slug          = "color-code-extractor"
+title         = "Color Code Extractor — build a palette from CSS or text"
+description   = "Extract hex, rgb(a), hsl(a), hwb and named CSS color values from pasted CSS or text, deduplicate them, and export the palette in useful formats."
+tags          = ["color extractor", "css colors", "palette extractor", "hex extractor", "rgb hsl", "design tokens"]
+h1            = "Color Code Extractor"
+hero_subtitle = "Paste CSS, HTML, theme files or text and get one deduplicated color palette. Normalize to hex, RGB, HSL or export as CSV, JSON, CSS variables, Sass, Less, Tailwind or SVG swatches."
+wasm          = "gizza_ai_color_code_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted palette"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "CSS or text to scan"
+placeholder = ".btn { color: #f00; background: rgb(255, 0, 0); border-color: hsl(210 50% 40%); }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+list     = "Plain list"
+csv      = "CSV table"
+json     = "JSON report"
+css_vars = "CSS custom properties"
+scss     = "SCSS variables"
+less     = "Less variables"
+tailwind = "Tailwind colors map"
+svg      = "SVG swatch sheet"
+
+[[input]]
+name   = "color_format"
+label  = "Color notation"
+source = "field"
+
+[input.labels]
+hex      = "Hex"
+original = "First original spelling"
+rgb      = "RGB/RGBA"
+hsl      = "HSL/HSLA"
+hwb      = "HWB"
+name     = "CSS keyword if exact"
+
+[[input]]
+name   = "sort"
+label  = "Sort palette"
+source = "field"
+
+[input.labels]
+first_seen   = "First seen"
+frequency    = "Most frequent first"
+hue          = "Hue"
+lightness    = "Lightness"
+alphabetical = "Alphabetical"
+
+[[input]]
+name   = "include_counts"
+label  = "Include usage counts"
+source = "field"
+
+[[input]]
+name   = "include_named"
+label  = "Include named CSS colors"
+source = "field"
+
+[[input]]
+name   = "exclude_grey"
+label  = "Exclude greys but keep black and white"
+source = "field"
+
+[[input]]
+name   = "exclude_monochrome"
+label  = "Exclude all monochrome colors"
+source = "field"
+
+[[input]]
+name   = "uppercase"
+label  = "Uppercase hex digits"
+source = "field"
+
+[[input]]
+name        = "limit"
+label       = "Limit after sorting (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "var_prefix"
+label       = "Variable prefix"
+placeholder = "color"
+source      = "field"
+
+[[example]]
+label = "Deduplicate a CSS snippet"
+[example.params]
+text = ".a{color:#f00}.b{color:#FF0000}.c{color:red}.d{color:rgb(255,0,0)}.e{background:hsl(210 50% 40%)}"
+output_format = "list"
+color_format = "hex"
+sort = "first_seen"
+include_counts = "true"
+include_named = "true"
+exclude_grey = "false"
+exclude_monochrome = "false"
+uppercase = "false"
+limit = "0"
+var_prefix = "color"
+
+[[example]]
+label = "Most used brand colors"
+[example.params]
+text = ".a{color:#f00}.b{background:#f00}.c{border:#00f}.d{color:#0f0}"
+output_format = "list"
+color_format = "hex"
+sort = "frequency"
+include_counts = "true"
+include_named = "true"
+exclude_grey = "false"
+exclude_monochrome = "false"
+uppercase = "false"
+limit = "2"
+var_prefix = "brand"
+
+[[example]]
+label = "CSS variables"
+[example.params]
+text = ".brand{color:#336699;background:rgba(255,0,0,.5)}"
+output_format = "css_vars"
+color_format = "hex"
+sort = "first_seen"
+include_counts = "false"
+include_named = "true"
+exclude_grey = "false"
+exclude_monochrome = "false"
+uppercase = "false"
+limit = "0"
+var_prefix = "brand"
+
+[[example]]
+label = "Ignore prose color words"
+[example.params]
+text = "The orange card uses #ff8800; the plum copy is not a CSS value here."
+output_format = "list"
+color_format = "hex"
+sort = "first_seen"
+include_counts = "true"
+include_named = "false"
+exclude_grey = "false"
+exclude_monochrome = "false"
+uppercase = "true"
+limit = "0"
+var_prefix = "color"

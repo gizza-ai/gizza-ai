@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "color-code-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract every hex, rgb(a), hsl(a) and named colour from CSS or text as one deduplicated palette."
