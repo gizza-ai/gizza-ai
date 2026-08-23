@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-xliff-to-json-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# quick-xml: pure-Rust, wasm-safe streaming XML reader (proven in xml-to-json,
+#   gpx-to-geojson and the OOXML/EPUB blocks) — parses both XLIFF dialects.
+quick-xml = "0.36"
+# preserve_order keeps emitted keys in document order, which is what makes the
+# JSON diffable against the source file.
+serde_json = { version = "1", features = ["preserve_order"] }

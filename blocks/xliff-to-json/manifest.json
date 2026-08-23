@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/xliff-to-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract XLIFF translation units into JSON",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an XLIFF localization file into JSON. Handles XLIFF 1.2 (<trans-unit id resname> with <source>/<target>) and XLIFF 2.x (<unit id name> › <segment> › <source>/<target>) in one pass, so the version never has to be declared; <group> nesting is walked rather than rejected, and a 2.x unit's multiple <segment> children are concatenated in document order. XML entities and CDATA are decoded, xml:space=\"preserve\" is honoured, and <alt-trans>/<seg-source>/translation-memory copies are ignored. Inline markup (<x/>, <ph>, <bpt>/<ept>, <sc>/<ec>, <pc>) is rendered per inline_tags: by default each code element becomes its equiv-text, else {id}, so interpolation placeholders survive instead of silently vanishing. Choose the output shape (source/target pairs by id, a flat target-only or source-only bundle, or an array of records that keeps duplicates and order), the key (id, resname/name, or source text), flat or nested keys, whether untranslated units are included or filled from the source, and whether per-unit metadata (note, state, approved, file, group) is attached. Output is deterministic pretty-printed JSON in document order. Fully local and deterministic — it extracts what the file already contains and does not translate anything.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "fallback_to_source": {
+          "default": false,
+          "description": "When a unit has no translation, use its source text as the target instead of an empty string. Default false, so untranslated strings stay visibly empty rather than silently shipping the source language.",
+          "type": "boolean"
+        },
+        "include_empty_targets": {
+          "default": true,
+          "description": "Include units whose <target> is missing or empty. Set false to emit only translated strings. Default true.",
+          "type": "boolean"
+        },
+        "include_metadata": {
+          "default": false,
+          "description": "Add each unit's resname, note, translation state, approved flag, originating file and enclosing group path to its record. Only applies to the 'pairs' and 'array' shapes. Default false.",
+          "type": "boolean"
+        },
+        "inline_tags": {
+          "default": "placeholder",
+          "description": "How inline markup inside <source>/<target> is rendered: 'placeholder' (default) replaces each code element with its equiv-text, else {id}, so interpolations like {{name}} survive; 'strip' drops the markup and keeps only translatable text; 'keep' preserves the element's inner XML verbatim.",
+          "enum": [
+            "placeholder",
+            "strip",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "default": "id",
+          "description": "Which value becomes the object key: the unit's 'id' (default), its 'resname' (1.2) / 'name' (2.x) attribute, or its 'source' text. resname and source fall back to the id when the unit has none. Ignored when output=array.",
+          "enum": [
+            "id",
+            "resname",
+            "source"
+          ],
+          "type": "string"
+        },
+        "nested": {
+          "default": false,
+          "description": "Split each key on the separator and emit a nested object tree (i18next style), so 'home.title' becomes { \"home\": { \"title\": … } }. Default false (flat keys).",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "pairs",
+          "description": "Shape of the emitted JSON: 'pairs' = { id: { source, target } } (lossless, default), 'target' = { id: target } for a drop-in translation bundle, 'source' = { id: source }, 'array' = [ { id, source, target } ] which keeps document order and duplicate ids.",
+          "enum": [
+            "pairs",
+            "target",
+            "source",
+            "array"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": ".",
+          "description": "Separator used to split keys when nested=true. Default '.'.",
+          "type": "string"
+        },
+        "xliff": {
+          "description": "The XLIFF document to convert. Both XLIFF 1.2 (<trans-unit>) and XLIFF 2.x (<unit>/<segment>) are accepted; the version is detected from the document.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "xliff"
+      ],
+      "type": "object"
+    }
+  }
+}
