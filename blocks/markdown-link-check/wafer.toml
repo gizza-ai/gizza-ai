@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "markdown-link-check"
+version = "0.1.0"
+abi = 1
+summary = "Check Markdown links offline for bad syntax, broken anchors and reference problems"

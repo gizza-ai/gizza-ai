@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/markdown-link-check",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check Markdown links offline for bad syntax, broken anchors and reference problems",
+  "role": "skill",
+  "tool": {
+    "description": "Check a Markdown document's links and images without touching the network. Reports: empty link target (ML001), empty link text (ML002), image with no alt text (ML003), undefined reference [text][label] (ML004), duplicate reference definition (ML005), unused reference definition (ML006), broken in-document anchor (ML007), reversed link syntax (text)[url] (ML008), unencoded space in a URL (ML009), malformed mailto address (ML010), insecure http:// link (ML011, opt-in), unclosed link syntax (ML012), and a space between the link text and the URL (ML013). Anchors are matched against GitHub-style heading slugs, including duplicate-heading -1/-2 numbering, {#custom-id} attributes and HTML id=\"…\" anchors. Fenced code blocks and inline code spans are skipped. Filter with link_kind, choose text/markdown/json output with report_format, list passing links with show_ok. It does NOT fetch external URLs or check that relative paths exist on disk — every check is local and deterministic. Max 1 MB of Markdown.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "check_anchors": {
+          "default": true,
+          "description": "Verify that each #anchor target matches a heading id this document actually produces (GitHub-style slugs, duplicate headings numbered -1/-2, plus {#custom-id} and HTML id=\"…\" anchors). Default true; set false to ignore in-document anchors.",
+          "type": "boolean"
+        },
+        "flag_insecure": {
+          "default": false,
+          "description": "Also warn about http:// links that could be https:// (rule ML011). Default false, since docs often cite http:// URLs deliberately.",
+          "type": "boolean"
+        },
+        "link_kind": {
+          "default": "all",
+          "description": "Only report links of this kind. all (default) = every link; anchor = #in-document targets; external = http/https and other schemes; relative = paths like ./docs/a.md; mailto = mail addresses; image = ![alt](src); empty = links with no target; reference = [text][label] links whose definition is missing.",
+          "enum": [
+            "all",
+            "anchor",
+            "external",
+            "relative",
+            "mailto",
+            "image",
+            "empty",
+            "reference"
+          ],
+          "type": "string"
+        },
+        "markdown": {
+          "description": "The Markdown document to check, e.g. the contents of README.md. Max 1 MB.",
+          "type": "string"
+        },
+        "report_format": {
+          "default": "text",
+          "description": "How to render the report. text (default) = one 'line:col severity rule message' per finding; markdown = a table you can paste into an issue or PR; json = a machine-readable object with checked/errors/warnings/issues/links for CI.",
+          "enum": [
+            "text",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "show_ok": {
+          "default": false,
+          "description": "Also list every link that passed, with its kind and target, not just the problems. Default false (problems only).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}
